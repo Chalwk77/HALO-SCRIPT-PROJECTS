@@ -143,6 +143,7 @@ local zone_transition = { }
 
 local gamestart_countdown, init_countdown
 local init_victory_timer, victory_timer = false, 0
+local current_players = 0
 
 local globals = nil
 local red_flag, blue_flag
@@ -355,8 +356,12 @@ local SayAll = function(Message)
 end
 
 -- This function returns the total number of players currently online.
-local player_count = function()
-    return tonumber(get_var(0, "$pn"))
+local player_count = function(alternative)
+    if (alternative) then
+        return tonumber(current_players)
+    else
+        return tonumber(get_var(0, "$pn"))
+    end
 end
 
 local players_needed = function()
@@ -369,8 +374,9 @@ end
 
 function OnPlayerConnect(PlayerIndex)
     local p = tonumber(PlayerIndex)
+    current_players = current_players + 1
 
-    local enough_players = (player_count() >= players_needed())
+    local enough_players = (player_count(false) >= players_needed())
 
     local function player_setup(player, in_progress)
         console_paused[player] = false
@@ -416,6 +422,17 @@ function OnPlayerConnect(PlayerIndex)
 end
 
 function OnPlayerDisconnect(PlayerIndex)
+    current_players = current_players - 1
+        
+    local enough_players = (player_count(true) >= players_needed())
+    if (init_countdown) and not (enough_players) then
+        stopTimer()
+        game_timer, boundary_timer, monitor_coords = nil, nil, nil
+        start_trigger, game_in_progress, game_time = true, false, 0
+        init_params(true)
+        cls(0, 25, true, "rcon")
+    end
+    
     local p = tonumber(PlayerIndex)
     
     if (spectator[p] ~= nil and not spectator[p].enabled) then
@@ -445,8 +462,8 @@ local function getRandomCoord()
             if (t[i] ~= nil) then
                 local rn = rand(1, #t)
                 if (t[rn] ~= "in_use") then
-                    t[rn] = "in_use"
                     local x, y, z, h, time = t[rn][1], t[rn][2], t[rn][3], t[rn][4], t[rn][5] 
+                    t[rn] = "in_use"
                     return x, y, z, h, time
                 end    
             end
@@ -632,7 +649,7 @@ function OnTick()
         GameStartCountdown()
     elseif not (init_countdown) and not (init_victory_timer) then
     
-        -- endGameCheck()
+        endGameCheck()
 
         local time_stamp, until_next_shrink
         local time_remaining
@@ -1381,14 +1398,14 @@ function setupSpawns()
             [16] = {0.603, -154.172, 15.971, 35, 10},
         },
         ["hangemhigh"] = {
-            [1] = {15.919, -7.201, -3.468, 5, 10},
-            [2] = {15.428, -18.394, -5.582, 5, 10},
-            [3] = {23.353, 14.958, -5.129, 5, 10},
-            [4] = {33.673, 7.359, -7.949, 5, 10},
-            [5] = {28.017, -2.481, -7.949, 5, 10},
-            [6] = {10.314, -4.983, -6.435, 5, 10},
-            [7] = {28.017, -2.481, -7.949, 5, 10},
-            [8] = {34.286, -7.358, -3.909, 5, 10},
+            [1] = {15.919, -7.201, -3.468, 5, 2},
+            [2] = {15.428, -18.394, -5.582, 5, 2},
+            [3] = {23.353, 14.958, -5.129, 5, 2},
+            [4] = {33.673, 7.359, -7.949, 5, 2},
+            [5] = {28.017, -2.481, -7.949, 5, 2},
+            [6] = {10.314, -4.983, -6.435, 5, 2},
+            [7] = {28.017, -2.481, -7.949, 5, 2},
+            [8] = {34.286, -7.358, -3.909, 5, 2},
             [9] = {32.089, -1.843, -5.582, 0.1, 1.5},
             [10] = {34.506, -8.883, -5.582, 0.1, 1.5},
             [11] = {10.689, -5.989, -7.949, 0.1, 1.5},
