@@ -1165,24 +1165,6 @@ function setupSpawns()
     -- x,y,z, height, invincibility time
     
     spawn_coordinates = { 
-        ["bloodgulch"] = {
-            [1] = {68.911, -173.686, 1.755, 35, 10},
-            [2] = {92.484, -169.559, 0.128, 35, 10},
-            [3] = {110.137, -173.322, 0.616, 35, 10},
-            [4] = {105.493, -157.454, 0.203, 35, 10},
-            [5] = {91.894, -157.781, 1.704, 35, 10},
-            [6] = {85.243, -157.767, -0.019, 35, 10},
-            [7] = {100.961, -146.249, 0.292, 35, 10},
-            [8] = {105.493, -157.454, 0.203, 35, 10},
-            [9] = {52.061, -82.221, 0.118, 35, 10},
-            [10] = {41.102, -90.282, 0.175, 35, 10},
-            [11] = {30.554, -89.436, 0.128, 35, 10},
-            [12] = {23.010, -65.879, 1.693, 35, 10},
-            [13] = {32.593, -65.859, 0.367, 35, 10},
-            [14] = {42.910, -67.763, 0.516, 35, 10},
-            [15] = {61.292, -65.713, 1.693, 35, 10},
-            [16] = {41.878, -81.025, 1.705, 35, 10},
-        },
         ["timberland"] = {
             [1] = {23.853, -3.156, -19.601, 35, 10},
             [2] = {-14.193, -29.984, -16.286, 35, 10},
@@ -1201,7 +1183,7 @@ function setupSpawns()
             [15] = {-17.401, -23.458, -16.643, 35, 10},
             [16] = {-30.540, -39.588, -20.926, 35, 10},
         },
-        ["mapname"] = {
+        ["carousel"] = {
             [1] = {coordinates_input, 35, 10},
             [2] = {coordinates_input, 35, 10},
             [3] = {coordinates_input, 35, 10},
@@ -1219,7 +1201,7 @@ function setupSpawns()
             [15] = {coordinates_input, 35, 10},
             [16] = {coordinates_input, 35, 10},
         },
-        ["mapname"] = {
+        ["ratrace"] = {
             [1] = {coordinates_input, 35, 10},
             [2] = {coordinates_input, 35, 10},
             [3] = {coordinates_input, 35, 10},
@@ -1237,7 +1219,7 @@ function setupSpawns()
             [15] = {coordinates_input, 35, 10},
             [16] = {coordinates_input, 35, 10},
         },
-        ["mapname"] = {
+        ["sidewinder"] = {
             [1] = {coordinates_input, 35, 10},
             [2] = {coordinates_input, 35, 10},
             [3] = {coordinates_input, 35, 10},
@@ -1255,7 +1237,7 @@ function setupSpawns()
             [15] = {coordinates_input, 35, 10},
             [16] = {coordinates_input, 35, 10},
         },
-        ["mapname"] = {
+        ["beavercreek"] = {
             [1] = {coordinates_input, 35, 10},
             [2] = {coordinates_input, 35, 10},
             [3] = {coordinates_input, 35, 10},
@@ -1273,7 +1255,7 @@ function setupSpawns()
             [15] = {coordinates_input, 35, 10},
             [16] = {coordinates_input, 35, 10},
         },
-        ["mapname"] = {
+        ["dangercanyon"] = {
             [1] = {coordinates_input, 35, 10},
             [2] = {coordinates_input, 35, 10},
             [3] = {coordinates_input, 35, 10},
@@ -1291,7 +1273,7 @@ function setupSpawns()
             [15] = {coordinates_input, 35, 10},
             [16] = {coordinates_input, 35, 10},
         },
-        ["mapname"] = {
+        ["bloodgulch"] = {
             [1] = {coordinates_input, 35, 10},
             [2] = {coordinates_input, 35, 10},
             [3] = {coordinates_input, 35, 10},
@@ -1309,7 +1291,25 @@ function setupSpawns()
             [15] = {coordinates_input, 35, 10},
             [16] = {coordinates_input, 35, 10},
         },
-        ["mapname"] = {
+        ["boardingaction"] = {
+            [1] = {68.911, -173.686, 1.755, 35, 10},
+            [2] = {92.484, -169.559, 0.128, 35, 10},
+            [3] = {110.137, -173.322, 0.616, 35, 10},
+            [4] = {105.493, -157.454, 0.203, 35, 10},
+            [5] = {91.894, -157.781, 1.704, 35, 10},
+            [6] = {85.243, -157.767, -0.019, 35, 10},
+            [7] = {100.961, -146.249, 0.292, 35, 10},
+            [8] = {105.493, -157.454, 0.203, 35, 10},
+            [9] = {52.061, -82.221, 0.118, 35, 10},
+            [10] = {41.102, -90.282, 0.175, 35, 10},
+            [11] = {30.554, -89.436, 0.128, 35, 10},
+            [12] = {23.010, -65.879, 1.693, 35, 10},
+            [13] = {32.593, -65.859, 0.367, 35, 10},
+            [14] = {42.910, -67.763, 0.516, 35, 10},
+            [15] = {61.292, -65.713, 1.693, 35, 10},
+            [16] = {41.878, -81.025, 1.705, 35, 10},
+        },
+        ["gephyrophobia"] = {
             [1] = {coordinates_input, 35, 10},
             [2] = {coordinates_input, 35, 10},
             [3] = {coordinates_input, 35, 10},
@@ -1327,7 +1327,7 @@ function setupSpawns()
             [15] = {coordinates_input, 35, 10},
             [16] = {coordinates_input, 35, 10},
         },
-        ["mapname"] = {
+        ["deathisland"] = {
             [1] = {coordinates_input, 35, 10},
             [2] = {coordinates_input, 35, 10},
             [3] = {coordinates_input, 35, 10},
@@ -1345,7 +1345,7 @@ function setupSpawns()
             [15] = {coordinates_input, 35, 10},
             [16] = {coordinates_input, 35, 10},
         },
-        ["mapname"] = {
+        ["icefields"] = {
             [1] = {coordinates_input, 35, 10},
             [2] = {coordinates_input, 35, 10},
             [3] = {coordinates_input, 35, 10},
@@ -1363,7 +1363,7 @@ function setupSpawns()
             [15] = {coordinates_input, 35, 10},
             [16] = {coordinates_input, 35, 10},
         },
-        ["mapname"] = {
+        ["infinity"] = {
             [1] = {coordinates_input, 35, 10},
             [2] = {coordinates_input, 35, 10},
             [3] = {coordinates_input, 35, 10},
@@ -1381,7 +1381,7 @@ function setupSpawns()
             [15] = {coordinates_input, 35, 10},
             [16] = {coordinates_input, 35, 10},
         },
-        ["mapname"] = {
+        ["hangemhigh"] = {
             [1] = {coordinates_input, 35, 10},
             [2] = {coordinates_input, 35, 10},
             [3] = {coordinates_input, 35, 10},
@@ -1399,7 +1399,7 @@ function setupSpawns()
             [15] = {coordinates_input, 35, 10},
             [16] = {coordinates_input, 35, 10},
         },
-        ["mapname"] = {
+        ["damnation"] = {
             [1] = {coordinates_input, 35, 10},
             [2] = {coordinates_input, 35, 10},
             [3] = {coordinates_input, 35, 10},
@@ -1417,7 +1417,7 @@ function setupSpawns()
             [15] = {coordinates_input, 35, 10},
             [16] = {coordinates_input, 35, 10},
         },
-        ["mapname"] = {
+        ["putput"] = {
             [1] = {coordinates_input, 35, 10},
             [2] = {coordinates_input, 35, 10},
             [3] = {coordinates_input, 35, 10},
@@ -1435,7 +1435,7 @@ function setupSpawns()
             [15] = {coordinates_input, 35, 10},
             [16] = {coordinates_input, 35, 10},
         },
-        ["mapname"] = {
+        ["prisoner"] = {
             [1] = {coordinates_input, 35, 10},
             [2] = {coordinates_input, 35, 10},
             [3] = {coordinates_input, 35, 10},
@@ -1453,7 +1453,7 @@ function setupSpawns()
             [15] = {coordinates_input, 35, 10},
             [16] = {coordinates_input, 35, 10},
         },
-        ["mapname"] = {
+        ["wizard"] = {
             [1] = {coordinates_input, 35, 10},
             [2] = {coordinates_input, 35, 10},
             [3] = {coordinates_input, 35, 10},
@@ -1471,7 +1471,7 @@ function setupSpawns()
             [15] = {coordinates_input, 35, 10},
             [16] = {coordinates_input, 35, 10},
         },
-        ["mapname"] = {
+        ["longest"] = {
             [1] = {coordinates_input, 35, 10},
             [2] = {coordinates_input, 35, 10},
             [3] = {coordinates_input, 35, 10},
