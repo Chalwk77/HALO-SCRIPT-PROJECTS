@@ -470,7 +470,6 @@ end
 function OnPlayerPrespawn(PlayerIndex)
     local t = godmode_countdown[PlayerIndex]
     if (t ~= nil and t ~= "null") then
-        print('teleporting')
         Teleport(PlayerIndex)
         return false
     end
@@ -1184,22 +1183,22 @@ function setupSpawns()
             [16] = {-30.540, -39.588, -20.926, 35, 10},
         },
         ["carousel"] = {
-            [1] = {coordinates_input, 35, 10},
-            [2] = {coordinates_input, 35, 10},
-            [3] = {coordinates_input, 35, 10},
-            [4] = {coordinates_input, 35, 10},
-            [5] = {coordinates_input, 35, 10},
-            [6] = {coordinates_input, 35, 10},
-            [7] = {coordinates_input, 35, 10},
-            [8] = {coordinates_input, 35, 10},
-            [9] = {coordinates_input, 35, 10},
-            [10] = {coordinates_input, 35, 10},
-            [11] = {coordinates_input, 35, 10},
-            [12] = {coordinates_input, 35, 10},
-            [13] = {coordinates_input, 35, 10},
-            [14] = {coordinates_input, 35, 10},
-            [15] = {coordinates_input, 35, 10},
-            [16] = {coordinates_input, 35, 10},
+            [1] = {-5.744, -3.427, -2.683, 5, 3},
+            [2] = {-3.665, -5.637, -2.709, 5, 3},
+            [3] = {3.404, -5.899, -2.709, 5, 3},
+            [4] = {5.613, -3.612, -2.694, 5, 3},
+            [5] = {5.809, 3.603, -2.729, 5, 3},
+            [6] = {3.616, 5.839, -2.738, 5, 3},
+            [7] = {-3.570, 5.878, -2.736, 5, 3},
+            [8] = {-5.711, 3.648, -2.719, 5, 3},
+            [9] = {-9.828, -9.998, -0.855, 3, 1.5},
+            [10] = {-14.048, 0.008, -0.855, 3, 1.5},
+            [11] = {9.717, 9.762, -0.855, 3, 1.5},
+            [12] = {13.811, -0.175, -0.855, 3, 1.5},
+            [13] = {7.495, -7.560, -0.855, 3, 1.5},
+            [14] = {-7.419, 7.481, -0.855, 3, 1.5},
+            [15] = {-0.016, 10.579, -0.855, 3, 1.5},
+            [16] = {0.013, -10.802, -0.855, 3, 1.5},
         },
         ["ratrace"] = {
             [1] = {coordinates_input, 35, 10},
