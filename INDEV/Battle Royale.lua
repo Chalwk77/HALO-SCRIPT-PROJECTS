@@ -145,7 +145,7 @@ last_man_standing.player = nil
 local spectator, health_trigger, health, health_bool = { }, { }, { }, { }
 local spectator_running_speed
 local zone_transition = { }
--- local flag_table = { }
+local flag_table = { }
 
 local gamestart_countdown, init_countdown
 local init_victory_timer, victory_timer = false, 0
@@ -248,6 +248,8 @@ local function init_params(reset)
                 radius = (radius - reduction_amount)
                 if (radius < min_size) then
 
+                    -- If 'radius' is negative:
+                    -- Calculate the difference between the current radius and 'min_size'.
                     local offset = math.abs(radius)
                     local calculated_max = (max_size + offset)
 
@@ -376,7 +378,7 @@ function OnPlayerConnect(PlayerIndex)
             spectator[player].enabled = true
         end
     end
-
+    
     if (start_trigger) and (enough_players) then
         last_man_standing.count = last_man_standing.count + 1
         start_trigger = false
