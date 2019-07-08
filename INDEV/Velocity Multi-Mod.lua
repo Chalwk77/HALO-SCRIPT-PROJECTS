@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.65), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.66), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines a multitude of my scripts.
              ALL combined scripts have been heavily refactored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
@@ -167,6 +167,7 @@ local function GameSettings()
                     [18] = { "bitch", "bitches", "b[%p]tch", "b[%p]tches" },
                     [19] = { "wank", "wanker" },
                     [20] = { "whore", "wh0re", "wh0reface" },
+                    [21] = { ":v", ">:v", ":'v", ">:'v", ": v", ":  v", ":    v" },
                 }
             },
             ["Chat IDs"] = {
@@ -243,7 +244,7 @@ local function GameSettings()
             },
             -- Admins get notified when a player executes a command
             ["Command Spy"] = {
-                enabled = true,
+                enabled = false,
                 permission_level = 1,
                 prefix = "[SPY]",
                 hide_commands = true,
@@ -327,6 +328,8 @@ local function GameSettings()
                     ["lolcano"] = { rocket_launcher, nil, nil, nil, 00, 00, true },
                     ["camden_place"] = { pistol, nil, nil, nil, 00, 00, true },
                     ["alice_gulch"] = { pistol, nil, nil, nil, 00, 00, true },
+                    ["church"] = { pistol, assault_rifle, nil, nil, 00, 00, true },
+                    ["dummy"] = { rocket, nil, nil, nil, 00, 00, true },
                     ["snowdrop"] = { battle_rifle, pistol, nil, nil, 00, 00, true },
                 },
             },
@@ -382,7 +385,7 @@ local function GameSettings()
                 enabled = true,
                 server_override = false, -- If this is enabled, all players will have Infinity (perma-ammo) by default (the /infammo command cannot be used)
                 base_command = "infammo",
-                announcer = true, -- If this is enabled then all players will be alerted when someone goes into Infinity Ammo mode.
+                announcer = false, -- If this is enabled then all players will be alerted when someone goes into Infinity Ammo mode.
                 permission_level = 1,
                 multiplier_min = 0.001, -- minimum damage multiplier
                 multiplier_max = 10, -- maximum damage multiplier
@@ -480,14 +483,14 @@ local function GameSettings()
                 -- If this is true, the player will have invincibility (god mode):
                 invincibility = true,
                 -- If this is true, you will be hidden from all players.
-                hide = true,
+                hide = false,
                 -- If this is true, you will be camouflaged:
                 camouflage = true,
                 -- If this is true, Lurker will be auto-disabled (for all players) when the game ends, thus, players will not be in Lurker when the next game begins.
                 -- They will have to turn it back on:
-                auto_off = false,
+                auto_off = true,
                 -- If this is enabled then Lurker will tell you if someone is in Lurker mode if you aim at them.
-                screen_notifications = true,
+                screen_notifications = false,
                 -- If this is true, your vehicle will disappear too!
                 hide_vehicles = true,
                 -- If this is true, you will be hidden from radar.
@@ -505,7 +508,7 @@ local function GameSettings()
                 -- Speed the player returns to when they exit out of Lurker Mode:
                 default_running_speed = 1,
                 -- Time (in seconds) until the player is killed after picking up the objective (flag or oddball)
-                time_until_death = 5,
+                time_until_death = 9,
 
                 -- You lose one warning point every time you pick up the objective (flag or oddball).
                 -- If you have no warnings left, your Lurker privileges will be revoked (until the server is restarted)
@@ -513,7 +516,7 @@ local function GameSettings()
 
                 -- =============== ENABLE | DISABLE Messages =============== --
                 -- Let players know when someone goes into (or out of) Lurker mode:
-                announce = true,
+                announce = false,
                 -- (optional) -> Use "%name%" variable to output the joining players name.
                 onEnableMsg = "%name% is now in Lurker Mode (Spectator) | STATE: [%mode%]",
                 onDisabeMsg = "%name% is no longer in Lurker Mode (Spectator)",
@@ -521,7 +524,7 @@ local function GameSettings()
 
                 -- =============== JOIN/QUIT SETTINGS =============== --
                 -- Keep Lurker on quit? (When the player returns, they will still be in Lurker).
-                keep = true,
+                keep = false,
 
                 -- Remind the newly joined player that they are in Lurker? (requires 'keep' to be enabled) 
                 join_tell = true,
@@ -533,7 +536,7 @@ local function GameSettings()
                 join_warnings_left_msg = "Lurker Warnings left: %warnings%",
 
                 -- Tell other players that PlayerX joined in Lurker? (requires 'keep' to be enabled) 
-                join_tell_others = true,
+                join_tell_others = false,
                 join_others_msg = "%name% joined in Lurker Mode (Spectator) | STATE: [%mode%]",
 
             },
@@ -573,7 +576,7 @@ local function GameSettings()
             ["Portal Gun"] = {
                 enabled = true,
                 base_command = "portalgun", -- /base_command [me | id | */all] [on|off|0|1|true|false)
-                announcer = true, -- If this is enabled then all players will be alerted when someone goes into Portal Gun mode.
+                announcer = false, -- If this is enabled then all players will be alerted when someone goes into Portal Gun mode.
                 permission_level = 1,
                 execute_on_others = 4,
             },
@@ -697,7 +700,8 @@ local function GameSettings()
                     ["ministunt"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
                     ["no_remorse"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
                     ["sledding02"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
-                    ["train.station"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 }
+                    ["train.station"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 },
+                    ["destiny"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 }
                 }
             },
             ["Suggestions Box"] = {
@@ -732,7 +736,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.65, -- << --- do not touch
+            script_version = 1.66, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -1927,7 +1931,8 @@ function OnTick()
                 if (mute_table[ip] ~= nil) and (mute_table[ip].muted) then
                     mute_table[ip].timer = mute_table[ip].timer + 0.030
                     local days, hours, minutes, seconds = secondsToTime(mute_table[ip].timer, 4)
-                    mute_table[ip].remaining = (mute_table[ip].duration) - floor(minutes)
+                    local duration = tonumber(mute_table[ip].duration)
+                    mute_table[ip].remaining = (duration) - floor(minutes)
                     if (mute_table[ip].remaining <= 0) then
                         local p = { }
                         p.tip, p.tn, p.tid = ip, name, tonumber(i)
@@ -7594,6 +7599,12 @@ function RecordChanges()
     cl[#cl + 1] = "[6/10/19]"
     cl[#cl + 1] = "1). Updated the 'Known Pirated Hashes' list."
     cl[#cl + 1] = "Script Updated to v1.65"
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[7/8/19]"
+    cl[#cl + 1] = "1). Bug fix for mute system."
+    cl[#cl + 1] = "Script Updated to v1.66"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
