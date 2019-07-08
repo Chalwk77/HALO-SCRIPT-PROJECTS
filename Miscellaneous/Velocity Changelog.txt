@@ -405,3 +405,9 @@ Script Updated to v1.64
 [6/10/19]
 1). Updated the 'Known Pirated Hashes' list.
 Script Updated to v1.65
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[7/8/19]
+1). Bug fix for mute system.
+Script Updated to v1.66
