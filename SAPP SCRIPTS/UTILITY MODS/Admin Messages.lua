@@ -3,7 +3,7 @@
 Script Name: Admin Join Messages, for SAPP (PC & CE)
 Description: Customize admin join messages on a per-admin-level basis.
 
--- Change Log: 16/067/2019
+-- Change Log: 16/07/2019
    1). Added new option 'alignment' - specify where messages are displayed on screen.
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
