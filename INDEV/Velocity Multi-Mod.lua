@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.66), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.67), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines a multitude of my scripts.
              ALL combined scripts have been heavily refactored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
@@ -331,6 +331,8 @@ local function GameSettings()
                     ["church"] = { pistol, assault_rifle, nil, nil, 00, 00, true },
                     ["dummy"] = { rocket, nil, nil, nil, 00, 00, true },
                     ["snowdrop"] = { battle_rifle, pistol, nil, nil, 00, 00, true },
+                    ["dangerouscanyon"] = { rocket_launcher, sniper, nil, nil, 00, 00, true },
+                    ["shotguncreek"] = { shotgun, nil, nil, nil, 00, 00, true },
                 },
             },
             ["Cute"] = {
@@ -736,7 +738,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.66, -- << --- do not touch
+            script_version = 1.67, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -2795,6 +2797,8 @@ function OnPlayerChat(PlayerIndex, Message, type)
             chat_type = "[TEAM]    "
         elseif type == 2 then
             chat_type = "[VEHICLE] "
+        else
+            chat_type = "[UNKNOWN CHAT TYPE]"
         end
         
         if modEnabled("Admin Chat") then
@@ -7605,6 +7609,12 @@ function RecordChanges()
     cl[#cl + 1] = "[7/8/19]"
     cl[#cl + 1] = "1). Bug fix for mute system."
     cl[#cl + 1] = "Script Updated to v1.66"
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[7/29/19]"
+    cl[#cl + 1] = "1). Bug fix in function OnServerChat()."
+    cl[#cl + 1] = "Script Updated to v1.67"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
