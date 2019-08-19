@@ -59,7 +59,7 @@ end
 
 function OnObjectSpawn(PlayerIndex, MapID, ParentID, ObjectID)
     if (PlayerIndex) then
-        for i = 1,#p do
+        for i = 1,#projectiles do
 
             local original = projectiles[i][1]
             local replacement = projectiles[i][2]
