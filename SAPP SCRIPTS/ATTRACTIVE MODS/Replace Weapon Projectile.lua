@@ -42,7 +42,7 @@ projectiles = {
     -- See example below to lean how to swap the "sniper bullet" for "tank shell":
 
     ------- Change the following -------
-    -- from:    [17] = { "weapons\\sniper rifle\\sniper bullet",        "weapons\\sniper rifle\\sniper bullet"},
+    -- from:  [17] = { "weapons\\sniper rifle\\sniper bullet",        "weapons\\sniper rifle\\sniper bullet"},
     -- to:    [17] = { "weapons\\sniper rifle\\sniper bullet",        "vehicles\\scorpion\\tank shell"},
 
 
