@@ -3,7 +3,7 @@
 Script Name: Replace Weapon Projectile (v1.0), for SAPP (PC & CE)
 Description: This script will allow you to swap weapon projectiles for substitute projectiles
 
-NOTE: The replacement projectile will still appear as the original projectile (but function properly).  
+NOTE: The replacement projectile will still appear as the original projectile (but function properly).
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -43,7 +43,7 @@ projectiles = {
 
     ------- Change the following -------
     -- from:    [17] = { "weapons\\sniper rifle\\sniper bullet",        "weapons\\sniper rifle\\sniper bullet"},
-    -- to:    [17] = { "weapons\\sniper rifle\\sniper bullet",        "weapons\\rocket launcher\\rocket"},
+    -- to:    [17] = { "weapons\\sniper rifle\\sniper bullet",        "vehicles\\scorpion\\tank shell"},
 
 
 }
