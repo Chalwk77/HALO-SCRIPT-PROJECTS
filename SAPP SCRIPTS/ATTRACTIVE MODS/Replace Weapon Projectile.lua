@@ -36,7 +36,7 @@ projectiles = {
     [14] = { "weapons\\plasma rifle\\charged bolt",         "weapons\\plasma rifle\\charged bolt" },
     [15] = { "weapons\\rocket launcher\\rocket",            "weapons\\rocket launcher\\rocket" },
     [16] = { "weapons\\shotgun\\pellet",                    "weapons\\shotgun\\pellet" },
-    [17] = { "weapons\\sniper rifle\\sniper bullet",        "weapons\\rocket launcher\\rocket"},
+    [17] = { "weapons\\sniper rifle\\sniper bullet",        "weapons\\sniper rifle\\sniper bullet"},
     [18] = { "weapons\\plasma_cannon\\plasma_cannon",       "weapons\\plasma_cannon\\plasma_cannon"},
 
     -- See example below to lean how to swap the "sniper bullet" for "tank shell":
