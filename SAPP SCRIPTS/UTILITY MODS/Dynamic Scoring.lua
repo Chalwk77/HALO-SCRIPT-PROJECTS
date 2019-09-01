@@ -36,7 +36,7 @@ function OnScriptLoad()
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
     Reset()
-    for i = 1,16 do
+    for i = 1, 16 do
         if player_present(i) then
             current_players = current_players + 1
         end
@@ -45,7 +45,7 @@ function OnScriptLoad()
 end
 
 function OnGameStart()
-	setScore(scorelimit[1])
+    setScore(scorelimit[1])
 end
 
 function OnGameEnd()
@@ -57,35 +57,35 @@ function OnScriptUnload()
 end
 
 function OnPlayerConnect(PlayerIndex)
-	current_players = current_players + 1
-	modifyScore()
+    current_players = current_players + 1
+    modifyScore()
 end
 
 function OnPlayerDisconnect(PlayerIndex)
-	current_players = current_players - 1
-	modifyScore()
-end	
+    current_players = current_players - 1
+    modifyScore()
+end
 
 function modifyScore()
-	if (current_players <= 4 and current_scorelimit ~= scorelimit[1]) then
-		setScore(scorelimit[1])
+    if (current_players <= 4 and current_scorelimit ~= scorelimit[1]) then
+        setScore(scorelimit[1])
         say_all(string.gsub(scorelimit.txt, "%%scorelimit%%", scorelimit[1]))
-        
-	elseif (current_players > 4 and current_players <= 8 and current_scorelimit ~= scorelimit[2]) then
-		setScore(scorelimit[2])
+
+    elseif (current_players > 4 and current_players <= 8 and current_scorelimit ~= scorelimit[2]) then
+        setScore(scorelimit[2])
         say_all(string.gsub(scorelimit.txt, "%%scorelimit%%", scorelimit[2]))
-        
-	elseif (current_players > 9 and current_players <= 12 and current_scorelimit ~= scorelimit[3]) then
-		setScore(scorelimit[3])
+
+    elseif (current_players > 9 and current_players <= 12 and current_scorelimit ~= scorelimit[3]) then
+        setScore(scorelimit[3])
         say_all(string.gsub(scorelimit.txt, "%%scorelimit%%", scorelimit[3]))
-        
-	elseif (current_players > 12 and current_scorelimit ~= scorelimit[4]) then
-		setScore(scorelimit[4])
+
+    elseif (current_players > 12 and current_scorelimit ~= scorelimit[4]) then
+        setScore(scorelimit[4])
         say_all(string.gsub(scorelimit.txt, "%%scorelimit%%", scorelimit[4]))
-	end
+    end
 end
 
 function setScore(score)
-	current_scorelimit = score
+    current_scorelimit = score
     execute_command("scorelimit " .. score)
 end
