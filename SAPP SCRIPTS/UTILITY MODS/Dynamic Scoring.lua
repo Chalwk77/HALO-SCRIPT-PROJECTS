@@ -187,6 +187,7 @@ end
 function OnPlayerConnect(PlayerIndex)
     -- Increment player count by 1
     current_players = current_players + 1
+    scorelimit.Modify()
 end
 
 function OnPlayerDisconnect(PlayerIndex)
