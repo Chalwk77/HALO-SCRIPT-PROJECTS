@@ -75,7 +75,7 @@ vanish.hide_vehicles = true
 -- If this is true, you will be hidden from radar.
 vanish.hide_from_radar = true
 
--- If this is true, the player wlll have a speed boost:
+-- If this is true, the player will have a speed boost:
 vanish.speed_boost = true
 -- Speed boost applied (default running speed is 1):
 vanish.running_speed = 2
