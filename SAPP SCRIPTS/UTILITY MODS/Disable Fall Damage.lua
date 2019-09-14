@@ -1,7 +1,7 @@
 --[[
 --=====================================================================================================--
 Script Name: Disable Fall Damage, for SAPP (PC & CE)
-Description: This mod will allow you to disable fall damage.
+Description: This mod will allow you to disable fall damage on a per-map basis.
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -42,38 +42,38 @@ function falldamage.Init()
         ["boardingaction"] = false,
     }
     -- Configuration [ends] -----------------------------------------------------
-        
+
     -- Do not Touch:
     gamestarted = true
-	mapname = get_var(1,"$map")
-    
+    mapname = get_var(1, "$map")
+
     falldamage.falling = GetTag("jpt!", "globals\\falling")
     falldamage.distalce = GetTag("jpt!", "globals\\distance")
 end
 
 
-function OnScriptLoad()	
-    
+function OnScriptLoad()
+
     -- Register needed Event Callbacks:
-	register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
-	register_callback(cb['EVENT_GAME_START'], "OnGameStart")
-    
-	register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
-    
-	if (get_var(0, "$gt") ~= "n/a") then	
+    register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
+    register_callback(cb['EVENT_GAME_START'], "OnGameStart")
+
+    register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
+
+    if (get_var(0, "$gt") ~= "n/a") then
         gamestarted = true
-		mapname = get_var(1,"$map")
-	end
+        mapname = get_var(1, "$map")
+    end
 end
 
 function OnGameStart()
-	if (get_var(0, "$gt") ~= "n/a") then
-		falldamage.Init()	
-	end
+    if (get_var(0, "$gt") ~= "n/a") then
+        falldamage.Init()
+    end
 end
 
 function OnGameEnd()
-	gamestarted = false
+    gamestarted = false
 end
 
 function OnScriptUnload()
@@ -81,21 +81,21 @@ function OnScriptUnload()
 end
 
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
-	if (gamestarted) then        
-		if (MetaID == falldamage.falling or MetaID == falldamage.distance) then            
-			if not falldamage.maps[mapname] then
-				return true, 0
-			end	
-		end	
-	end	
+    if (gamestarted) then
+        if (MetaID == falldamage.falling or MetaID == falldamage.distance) then
+            if not falldamage.maps[mapname] then
+                return true, 0
+            end
+        end
+    end
 end
 
 -- Credits to Kavawuvi for this function:
-function GetTag(tagclass,tagname)
+function GetTag(tagclass, tagname)
     local tagarray = read_dword(0x40440000)
-    for i=0,read_word(0x4044000C)-1 do
+    for i = 0, read_word(0x4044000C) - 1 do
         local tag = tagarray + i * 0x20
-        local class = string.reverse(string.sub(read_string(tag),1,4))
+        local class = string.reverse(string.sub(read_string(tag), 1, 4))
         if (class == tagclass) then
             if (read_string(read_dword(tag + 0x10)) == tagname) then
                 return read_dword(tag + 0xC)
