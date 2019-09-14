@@ -6,6 +6,9 @@ Description: Scorelimit changes automatically, depending on number of players cu
 * Updated 6/09/19
 - Scoring is now set on a per-gametype/per-gamemode basis.
 
+* Updated 14/09/19
+- The logic that sets the scorelimit will no longer be called during the Post Game Carnage Report.
+
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -20,6 +23,7 @@ Inspiration taken from a mod made by {OZ}Shadow.
 -- Configuration [starts] ----------------------------------------
 api_version = "1.12.0.0"
 local scorelimit, scoreTable = { }
+local gamestarted = nil
 
 -- CAPTURE THE FLAG ----------------------------------------------------
 scorelimit.ctf = {
@@ -121,6 +125,8 @@ function OnScriptLoad()
     scorelimit.Reset()
     
     if (get_var(0, "$gt") ~= "n/a") then
+        gamestarted = true
+    
         for i = 1, 16 do
             if player_present(i) then
                 current_players = current_players + 1
@@ -132,6 +138,8 @@ function OnScriptLoad()
 end
 
 function OnGameStart()
+
+    gamestarted = true
 
     -- Returns the current game type:
     local gametype = get_var(0, "$gt")
@@ -177,6 +185,7 @@ function OnGameStart()
 end
 
 function OnGameEnd()
+    gamestarted = false
     scorelimit.Reset()
 end
 
@@ -185,15 +194,19 @@ function OnScriptUnload()
 end
 
 function OnPlayerConnect(PlayerIndex)
-    -- Increment player count by 1
-    current_players = current_players + 1
-    scorelimit.Modify()
+    if (gamestarted) then
+        -- Increment player count by 1
+        current_players = current_players + 1
+        scorelimit.Modify()
+    end
 end
 
 function OnPlayerDisconnect(PlayerIndex)
-    -- Decrement player count by 1
-    current_players = current_players - 1
-    scorelimit.Modify()
+    if (gamestarted) then
+        -- Decrement player count by 1
+        current_players = current_players - 1
+        scorelimit.Modify()
+    end
 end
 
 -- Determine whether to pluralize 'lap' or 'minute' input (text) from scoreTable.txt:
