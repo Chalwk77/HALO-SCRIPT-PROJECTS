@@ -213,14 +213,14 @@ local function GameSettings()
                 enabled = true,
                 dir = "sapp\\Server Chat.txt"
             },
-            ["Color Changer"] = { -- # Change any player's armor color on demand.
+            ["Color Changer"] = { -- # Change any player's armour color on demand.
                 enabled = true,
                 permission_level = 1,
                 execute_on_others = 4,
                 base_command = "setcolor",
             },
             ["Color Reservation"] = {
-                enabled = true, -- Enabled = true, Disabled = false
+                enabled = false, -- Enabled = true, Disabled = false
                 color_table = {
                     [1] = { "6c8f0bc306e0108b4904812110185edd" }, -- white (Chalwk)
                     [2] = { "available" }, -- black
@@ -279,8 +279,8 @@ local function GameSettings()
                 }
             },
             ["Custom Weapons"] = {
-                enabled = true, -- Enabled = true, Disabled = false
-                assign_weapons = true,
+                enabled = false, -- Enabled = true, Disabled = false
+                assign_weapons = false,
                 assign_custom_frags = false,
                 assign_custom_plasmas = false,
                 weapons = {
@@ -612,7 +612,7 @@ local function GameSettings()
                 base_command = "respawn",
             },
             ["Respawn Time"] = {
-                enabled = true,
+                enabled = false,
                 permission_level = 1,
                 execute_on_others = 4,
                 base_command = "setrespawn",
@@ -708,7 +708,7 @@ local function GameSettings()
             },
             ["Suggestions Box"] = {
                 -- Players can suggest features or maps using /suggest {message}. Suggestions are saved to suggestions.txt
-                enabled = true,
+                enabled = false,
                 base_command = "suggestion", -- /base_command {message}
                 permission_level = -1, -- Minimum privilege level required to execute /suggestion (-1 for all players, 1-4 for admins)
                 dir = "sapp\\suggestions.txt", -- file directory
