@@ -74,28 +74,28 @@ function taunt.Init()
         -- The script will select and send one random message from this array,
         -- in respect to how many kills the player has.
         
-        ["0"] = { -- No Kills | You can have multiple message entries per kill threshold. (Only one will be selected at random per player).
+        ["0"] = { -- No Kills
             "%name%, You have no kills. Noob alert!",
-            "You prefer to spectate huh, %name%?",
+            
+            -- You can have multiple entries per kill-threshold.
+            -- Only one of these messages will be selected at random (per player)
+            "You're not here to spectate, %name%! What were you doing?",
         },
-        
-        ["1"] = { -- 1 Kill etc...
+        ["4"] = { -- 4 kills
             "%kills% kill? You must be new at this!!",
         },
-        
-        ["5"] = {
+        ["6"] = { -- 6 kills
             "You have sustained lethal injuries, but you do have %kills% kills!",
         },
-        
-        ["7"] = {
+        ["8"] = { -- 8 kills
             "Game Over - Why don't you try harder next time. %kills% Kills, really?",
         },
-        
-        ["9"] = {
+        ["10"] = { -- 10 kills
             "Pathetic, you're pathetic! %kills% Kills doesn't win you a gold medal, sir.",
         },
         -- Repeat the structure to add more entries.
     }
+    
     -- Configuration [ends] -----------------------------------------------------
 end
 
