@@ -4,6 +4,8 @@ Script Name: The Punisher (v1.0), for SAPP (PC & CE)
 
 Description: This script will punish players for certain actions (i.e, betrayals, teamshooting)
 
+* Slightly Over-Engineered mod but meh!
+
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -20,10 +22,11 @@ local betray_warnings, teamshoot_warnings = { }, { }
 local gsub = string.gsub
 
 local globals = nil
+local messages = { }
 
 function punish.Init()
     -- Configuration [starts] -----------------------------------------------------
-    
+    punish.message_alignment = "|l"
     punish.betrayals = {
         
         -- If enabled, the script will punish players for Betraying:
@@ -52,8 +55,6 @@ function punish.Init()
                 -- message2 = Action Message:
                 message2 = '%offender_name%, you were killed for betraying!',
             },
-            
-
             ["KICK"] = { -- Player will be warned before being kicked automatically.
                 use = false,
                 warnings = 5,
@@ -64,8 +65,6 @@ function punish.Init()
                 message1 = "%offender_name%, do not betray your team mates or you will be punished! Warnings Left: (%warnings_left%/%total_warnings%)",
                 message2 = '%offender_name% was kicked for betraying!',
             },
-            
-            
             ["CRASH"] = { -- Player will be warned before being crashed automatically.
                 use = false,
                 warnings = 5,
@@ -77,13 +76,10 @@ function punish.Init()
     }
     
     punish.teamshooting = {
-        -- If enabled, the script will punish players for Team Shooting:
         enabled = true,
-        
-        -- Actions taken on players who Team Shoot:
-        actions = {
+        actions = { -- WARNING: ONLY ONE ACTION CAN BE ENABLED AT A TIME!
             ["KILL"] = {
-                use = false,
+                use = true,
                 warnings = 5,
                 edit_respawn_time = true,
                 respawn_time = 10,
@@ -92,8 +88,6 @@ function punish.Init()
                 message1 = "%offender_name%, do not Team-Shoot or you will be punished! Warnings Left: (%warnings_left%/%total_warnings%)",
                 message2 = '%offender_name%, you were killed for Team Shooting!',
             },
-            
-
             ["KICK"] = {
                 use = false,
                 warnings = 5,
@@ -104,10 +98,8 @@ function punish.Init()
                 message1 = "%offender_name%, do not Team-Shoot or you will be punished! Warnings Left: (%warnings_left%/%total_warnings%)",
                 message2 = '%offender_name% was kicked for Team Shooting!',
             },
-            
-
             ["CRASH"] = {
-                use = true,
+                use = false,
                 warnings = 5,
                 notify_console = true,
                 message1 = "%offender_name%, do not Team-Shoot or you will be punished! Warnings Left: (%warnings_left%/%total_warnings%)",
@@ -125,6 +117,7 @@ function OnScriptLoad()
     -- Register needed Event Callbacks: 
     
     register_callback(cb['EVENT_GAME_START'], "OnGameStart")
+    register_callback(cb['EVENT_TICK'], "OnTick")
     
     if (punish.teamshooting.enabled) then
         register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
@@ -132,7 +125,6 @@ function OnScriptLoad()
     
     if (punish.betrayals.enabled) or (punish.teamshooting.enabled) then
         register_callback(cb['EVENT_BETRAY'], "OnPlayerBetray")
-        
         register_callback(cb['EVENT_JOIN'], "OnPlayerConnect")
         register_callback(cb['EVENT_LEAVE'], "OnPlayerDisconnect")
     end
@@ -157,30 +149,36 @@ function OnGameStart()
 end
 
 function OnPlayerConnect(PlayerIndex)
-    -- Set the initial warning count for this player:
-    local betray = punish.betrayals.actions
-    for k,_ in pairs(betray) do
-        if (betray[k].use) then
-            betray_warnings[PlayerIndex] = betray[k].warnings
+
+    messages[PlayerIndex] = {
+        delta_time = 0,
+        msg = {},
+    }
+    
+    if (punish.betrayals.enabled) then
+        local betray = punish.betrayals.actions
+        for k,_ in pairs(betray) do
+            if (betray[k].use) then
+                betray_warnings[PlayerIndex] = betray[k].warnings
+            end
         end
     end
-    
-    local teamshooting = punish.teamshooting.actions
-    for k,_ in pairs(teamshooting) do
-        if (teamshooting[k].use) then
-            teamshoot_warnings[PlayerIndex] = teamshooting[k].warnings
+
+    if (punish.teamshooting.enabled) then
+        local teamshooting = punish.teamshooting.actions
+        for k,_ in pairs(teamshooting) do
+            if (teamshooting[k].use) then
+                teamshoot_warnings[PlayerIndex] = teamshooting[k].warnings
+            end
         end
-    end
-    
-    betray_warnings[PlayerIndex] = ""
-    
+    end    
 end
 
 function OnPlayerDisconnect(PlayerIndex)
-
     -- Clear the array index for this player:
     betray_warnings[PlayerIndex] = nil
     teamshoot_warnings[PlayerIndex] = nil
+    messages[PlayerIndex] = nil
 end
 
 function punish.warningsReached(params)
@@ -196,6 +194,31 @@ function punish.warningsReached(params)
     return false
 end
 
+local function SendMessage(player, tab)
+    if (tab ~= nil) then
+        tab.delta_time = tab.delta_time + 0.03333333333333333
+        cls(player)
+        
+        for i = 1,#tab.msg do        
+            rprint(player, punish.message_alignment .. " " .. tab.msg[i])
+        end
+        
+        if (tab.delta_time >= 5) then
+            tab.msg, tab.delta_time = {}, 0
+        end
+    end
+end
+
+function OnTick()
+    for i = 1,16 do
+        if player_present(i) then
+            if messages[i] ~= nil then
+                SendMessage(i, messages[i])
+            end
+        end
+    end
+end
+
 function OnPlayerBetray(PlayerIndex, VictimIndex)
     
     local victim = tonumber(VictimIndex)
@@ -204,6 +227,7 @@ function OnPlayerBetray(PlayerIndex, VictimIndex)
     local vTeam, kTeam = get_var(victim, "$team"), get_var(killer, "$team")
     
     if (killer > 0) and (killer ~= victim) and (kTeam == vTeam) then
+    
         local betray = punish.betrayals.actions
         local p = { }
         p.player = killer
@@ -214,6 +238,7 @@ function OnPlayerBetray(PlayerIndex, VictimIndex)
         for k,_ in pairs(betray) do
             if (betray[k].use) then
                 p.type = k
+                p.msg_type = "betrayals"
                 punish.Execute(p)
             end
         end
@@ -239,6 +264,7 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
         for k,_ in pairs(teamshooting) do
             if (teamshooting[k].use) then
                 p.type = k
+                p.msg_type = "teamshooting"
                 punish.Execute(p)
             end
         end
@@ -254,12 +280,11 @@ function punish.Execute(params)
         local player = params.player
         local warning_table = params.warning_table
         local name = get_var(player, "$name")
+        local msg_type = params.msg_type
     
         warning_table[player] = warning_table[player] - 1
 
         if not punish.warningsReached(params) then
-        
-        
             local warnings_left = warning_table[player]
             local total_warnings = table[type].warnings
             
@@ -267,16 +292,16 @@ function punish.Execute(params)
             "%%offender_name%%", name), 
             "%%warnings_left%%", warnings_left), 
             "%%total_warnings%%", total_warnings)
-            say(player, msg)
+            
+            local tab = messages[player]
+            tab.msg[#tab.msg + 1] = msg
+            tab.delta_time = 0
             
         else
-        
-            local msg = gsub(table[type].message2, "%%offender_name%%", name)
-            say(player, msg)
+            local tab = messages[player]
+            tab.msg[#tab.msg + 1] = msg
+            tab.delta_time = 0
             
-            params.respawn_time = table[type].respawn_time or nil
-            params.deduct_death = table[type].deduct_death or nil
-            params.edit_respawn_time = table[type].edit_respawn_time or nil
             params.notify_console = table[type].notify_console or nil
             params.name = name
             
@@ -284,6 +309,9 @@ function punish.Execute(params)
             
             -- Execute the punishment:
             if (params.type == "KILL") then
+                params.respawn_time = table[type].respawn_time or nil
+                params.deduct_death = table[type].deduct_death or nil
+                params.edit_respawn_time = table[type].edit_respawn_time or nil
                 punish.KillSilently(params)
             elseif (params.type == "KICK") then
                 punish.Kick(params)
@@ -433,5 +461,13 @@ function GetRandomVehicleTag()
         math.randomseed(os.time())
         math.random(); math.random(); math.random()
         return temp[math.random(#temp)]
+    end
+end
+
+function cls(player)
+    if (player) then
+        for _ = 1, 25 do
+            rprint(player, " ")
+        end
     end
 end
