@@ -83,14 +83,35 @@ function punish.Init()
         -- Actions taken on players who Team Shoot:
         actions = {
             ["KILL"] = {
-                use = true,
+                use = false,
                 warnings = 5,
                 edit_respawn_time = true,
                 respawn_time = 10,
                 deduct_death = true,
                 notify_console = true,
-                message1 = "%offender_name%, please don't team-shoot or you will be punished! Warnings Left: (%warnings_left%/%total_warnings%)",
-                message2 = '%offender_name%, you were killed for team shooting!',
+                message1 = "%offender_name%, do not Team-Shoot or you will be punished! Warnings Left: (%warnings_left%/%total_warnings%)",
+                message2 = '%offender_name%, you were killed for Team Shooting!',
+            },
+            
+
+            ["KICK"] = {
+                use = false,
+                warnings = 5,
+                edit_respawn_time = true,
+                respawn_time = 10,
+                deduct_death = true,
+                notify_console = true,
+                message1 = "%offender_name%, do not Team-Shoot or you will be punished! Warnings Left: (%warnings_left%/%total_warnings%)",
+                message2 = '%offender_name% was kicked for Team Shooting!',
+            },
+            
+
+            ["CRASH"] = {
+                use = true,
+                warnings = 5,
+                notify_console = true,
+                message1 = "%offender_name%, do not Team-Shoot or you will be punished! Warnings Left: (%warnings_left%/%total_warnings%)",
+                message2 = "%offender_name%'s game client was crashed (by server) for Team Shooting!",
             },
         }
     }
@@ -138,18 +159,21 @@ end
 function OnPlayerConnect(PlayerIndex)
     -- Set the initial warning count for this player:
     local betray = punish.betrayals.actions
-    for k,v in pairs(betray) do
+    for k,_ in pairs(betray) do
         if (betray[k].use) then
             betray_warnings[PlayerIndex] = betray[k].warnings
         end
     end
     
     local teamshooting = punish.teamshooting.actions
-    for k,v in pairs(teamshooting) do
+    for k,_ in pairs(teamshooting) do
         if (teamshooting[k].use) then
             teamshoot_warnings[PlayerIndex] = teamshooting[k].warnings
         end
     end
+    
+    betray_warnings[PlayerIndex] = ""
+    
 end
 
 function OnPlayerDisconnect(PlayerIndex)
@@ -187,7 +211,7 @@ function OnPlayerBetray(PlayerIndex, VictimIndex)
         p.warning_table = betray_warnings
         p.reason = "Betraying"
     
-        for k,v in pairs(betray) do
+        for k,_ in pairs(betray) do
             if (betray[k].use) then
                 p.type = k
                 punish.Execute(p)
@@ -203,7 +227,8 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
     
     local vTeam, kTeam = get_var(victim, "$team"), get_var(causer, "$team")
     
-    if (causer > 0) and (causer ~= victim) and (kTeam == vTeam) then     
+    if (causer > 0) and (causer ~= victim) and (kTeam == vTeam) then
+        
         local teamshooting = punish.teamshooting.actions
         local p = { }
         p.player = causer
@@ -211,7 +236,7 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
         p.warning_table = teamshoot_warnings
         p.reason = "Team Shooting"
     
-        for k,v in pairs(teamshooting) do
+        for k,_ in pairs(teamshooting) do
             if (teamshooting[k].use) then
                 p.type = k
                 punish.Execute(p)
@@ -253,6 +278,7 @@ function punish.Execute(params)
             params.deduct_death = table[type].deduct_death or nil
             params.edit_respawn_time = table[type].edit_respawn_time or nil
             params.notify_console = table[type].notify_console or nil
+            params.name = name
             
             warning_table[player] = table[type].warnings
             
@@ -269,17 +295,15 @@ function punish.Execute(params)
 end
 
 function punish.Reset()
-    if (punish.betrayals.enabled) then
     
-        -- Clear the array:
-        betray_warnings = { }
-        teamshoot_warnings = { }
-        
-        for i = 1,16 do
-            if player_present(i) then
-                betray_warnings[i] = punish.betrayals.warnings
-                teamshoot_warnings[i] = punish.teamshooting.warnings
-            end
+    -- Clear the array:
+    betray_warnings = { }
+    teamshoot_warnings = { }
+    
+    for i = 1,16 do
+        if player_present(i) then
+            betray_warnings[i] = punish.betrayals.warnings
+            teamshoot_warnings[i] = punish.teamshooting.warnings
         end
     end
 end
@@ -329,14 +353,12 @@ function punish.KillSilently(params)
                 else
                     execute_command_sequence("w8 " .. params.respawn_time .. "; deaths " .. tonumber(params.player) .. " " .. deaths - 1)
                 end
-            end            
-        end
-    end
-end
+            end
 
-local function DestroyObject(object)
-    if (object) then
-        destroy_object(object)
+            if (params.notify_console) then
+                cprint(params.name .. " was killed for " .. params.reason)
+            end
+        end
     end
 end
 
@@ -347,7 +369,7 @@ function punish.Crash(params)
         local player_object = get_dynamic_player(params.player)
         if (player_object ~= 0) then
             local x, y, z = read_vector3d(player_object + 0x5C)
-            local tag_name = GetRandomVehicleTag()
+            local tag_name = GetRandomVehicleTag()            
             if (tag_name) then
                 local vehicleID = spawn_object("vehi", tag_name, x, y, z)
                 local vehicleObject = get_object_memory(vehicleID)
@@ -356,7 +378,10 @@ function punish.Crash(params)
                         enter_vehicle(vehicleID, params.player, j)
                         exit_vehicle(params.player)
                     end
-                    DestroyObject(vehicleID)
+                    destroy_object(vehicleID)
+                end
+                if (params.notify_console) then
+                    cprint(params.name .. " was crashed for " .. params.reason)
                 end
             end
         end
@@ -380,7 +405,7 @@ function ClearInventory(params)
                 for j = 0, 3 do
                     local weapon = read_dword(player_object + 0x2F8 + 4 * j)
                     if (weapon ~= red_flag) and (weapon ~= blue_flag) then
-                        DestroyObject(weapon)
+                        destroy_object(weapon)
                     end
                 end
                 return true
@@ -404,7 +429,9 @@ function GetRandomVehicleTag()
         end
     end
     
-    if (#temp > 0) then    
+    if (#temp > 0) then
+        math.randomseed(os.time())
+        math.random(); math.random(); math.random()
         return temp[math.random(#temp)]
     end
 end
