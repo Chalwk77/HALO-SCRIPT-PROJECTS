@@ -434,6 +434,12 @@ function ClearInventory(params)
 end
 
 function GetRandomVehicleTag()
+
+    -- This code loops through all valid vehicle tag address and 
+    -- inserts them into an array; from which one random vehicle tag address is selected and used
+    -- as the basis for which the player is inserted, exited and destroyed, 20 times in a row (in under 100ms) 
+    -- causing the game client to crash.
+    
     local temp = { }
     local tag_address = read_dword(0x40440000)
     local tag_count = read_dword(0x4044000C)
