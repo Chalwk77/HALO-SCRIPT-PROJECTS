@@ -41,7 +41,7 @@ function punish.Init()
                 message = '%offender_name% was kicked for betraying %betrayals% times!',
             },
             ["crash"] = { -- Works on custom maps!
-                use = false,
+                use = true,
                 warnings = 5,
                 message = "%offender_name%'s game client was crashed (by server) for betraying!",
             },
@@ -53,16 +53,12 @@ function punish.Init()
         
         -- Valid actions:
         actions = {
-            ["warn"] = {
-                use = false,
-                warnings = 1,
-                message = "%offender_name%, please don't team-shoot! (%warnings_left%/%total_warnings%)",
-            },
-            ["warn and kill"] = {
-                use = false,
+            ["warn and kill"] = { -- Player will be warned "warnings" times before being killed automatically.
+                use = true,
                 warnings = 5,
                 respawn_time = 10,
-                message = "%offender_name%, please don't team-shoot or you will be punished!",
+                message1 = "%offender_name%, please don't team-shoot or you will be punished! Warnings Left: (%warnings_left%/%total_warnings%)",
+                message2 = '%offender_name%, you were killed for team shooting!',
             },
         }
     }
@@ -107,10 +103,19 @@ function OnGameStart()
 end
 
 function OnPlayerConnect(PlayerIndex)
-
     -- Set the initial warning count for this player:
-    betray_warnings[PlayerIndex] = punish.betrayals.warnings
-    teamshoot_warnings[PlayerIndex] = punish.teamshooting.warnings
+    local betray = punish.betrayals.actions
+    for k,v in pairs(betray) do
+        if (betray[k].use) then
+            betray_warnings[PlayerIndex] = betray[k].warnings
+        end
+    end
+    local teamshooting = punish.teamshooting.actions
+    for k,v in pairs(teamshooting) do
+        if (teamshooting[k].use) then
+            teamshoot_warnings[PlayerIndex] = teamshooting[k].warnings
+        end
+    end
 end
 
 function OnPlayerDisconnect(PlayerIndex)
@@ -193,42 +198,37 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
     
     local causer = tonumber(CauserIndex)
     local victim = tonumber(PlayerIndex)
+    local name = get_var(causer, "$name")
 
     if (causer > 0) and (causer ~= victim) then
         
         local vTeam, kTeam = get_var(victim, "$team"), get_var(causer, "$team")
-        
         if (kTeam == vTeam) then
             
             teamshoot_warnings[causer] = teamshoot_warnings[causer] - 1
             
-            local teamshoot = punish.teamshooting
+            local teamshoot = punish.teamshooting.actions
             local p = { }
             p.player = causer
+            p.current_warnings = teamshoot_warnings[causer]
             
             for k,v in pairs(teamshoot) do
-                
-                p.current_warnings = teamshoot_warnings[causer]
-                
-                if not (punish.warningsReached(p) and k == "warn") then
-                    local warnings_left, total_warnings = teamshoot_warnings[causer], teamshoot[k].warnings
-                    local msg = gsub(gsub(gsub(teamshoot[k].message, 
-                    "%%offender_name%%", name), 
-                    "%%warnings_left%%", warnings_left), 
-                    "%%total_warnings%%", total_warnings)
-                    say(causer, msg)
+                if (k == "warn and kill" and teamshoot[k].use) then
+                    if not punish.warningsReached(p) then
+                        local warnings_left, total_warnings = teamshoot_warnings[causer], teamshoot[k].warnings
+                        local msg = gsub(gsub(gsub(teamshoot[k].message1, 
+                        "%%offender_name%%", name), 
+                        "%%warnings_left%%", warnings_left), 
+                        "%%total_warnings%%", total_warnings)
+                        say(causer, msg)
+                    else
                     
-                elseif not (punish.warningsReached(p) and k == "warn and kill") then
-                    local warnings_left, total_warnings = teamshoot_warnings[causer], teamshoot[k].warnings
-                    local msg = gsub(gsub(gsub(teamshoot[k].message, 
-                    "%%offender_name%%", name), 
-                    "%%warnings_left%%", warnings_left), 
-                    "%%total_warnings%%", total_warnings)
-                    say(causer, msg)
-                    
-                elseif (punish.warningsReached(p) and k == "warn and kill") then
-                    p.respawn_time = teamshoot[k].respawn_time
-                    punish.KillSilently(p)
+                        local msg = gsub(teamshoot[k].message2, "%%offender_name%%", name)
+                        say(causer, msg)
+                        
+                        p.respawn_time = teamshoot[k].respawn_time
+                        punish.KillSilently(p)
+                    end
                 end
             end
         end
