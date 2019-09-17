@@ -69,7 +69,7 @@ function punish.Init()
     punish.teamshooting = {
         actions = {
             ["KILL"] = {
-                use = true,
+                use = false,
                 warnings = 5,
                 edit_respawn_time = true, respawn_time = 10, deduct_death = true,
                 notify_console = true,
@@ -84,7 +84,7 @@ function punish.Init()
                 message2 = '%offender_name% was kicked for Team Shooting!',
             },
             ["CRASH"] = {
-                use = false,
+                use = true,
                 warnings = 5,
                 notify_console = true,
                 message1 = "%offender_name%, do not Team-Shoot or you will be punished! Warning: (%warnings_left%/%total_warnings%)",
@@ -320,7 +320,13 @@ function punish.Execute(params)
             elseif (params.type == "KICK") then
                 punish.Kick(params)
             elseif (params.type == "CRASH") then
-                punish.Crash(params)
+                if punish.Crash(params) then
+                    if (params.notify_console) then
+                        cprint("The Punisher: " .. name .. " was crashed for " .. params.reason, 2+8)
+                    end
+                else
+                    cprint("The Punished: Unable to Crash player. Something went wrong!", 4+8)
+                end
             end
         end
     end
@@ -405,13 +411,12 @@ function punish.Crash(params)
                         exit_vehicle(params.player)
                     end
                     destroy_object(vehicleID)
-                end
-                if (params.notify_console) then
-                    cprint("The Punisher: " .. params.name .. " was crashed for " .. params.reason, 2+8)
+                    return true
                 end
             end
         end
     end
+    return false
 end
 
 function ClearInventory(params)
@@ -442,12 +447,6 @@ function ClearInventory(params)
 end
 
 function GetRandomVehicleTag()
-
-    -- This code loops through all valid vehicle tag address and 
-    -- inserts them into an array; from which one random vehicle tag address is selected and used
-    -- as the basis for which the player is inserted, exited and destroyed, 20 times in a row (in under 100ms) 
-    -- causing the game client to crash.
-    
     local temp = { }
     local tag_address = read_dword(0x40440000)
     local tag_count = read_dword(0x4044000C)
