@@ -33,12 +33,11 @@ manager.settings = {
     },
     -- If the current gamemode in play is not specified in the list of available gamemodes for that map as seen above,
     -- the script will not be loaded.
-
-
-
-
-    --=================================--
+    
+    --
+    --==================================================================--
     -- Stock maps and stock gametypes:
+    --==================================================================--
     ["sidewinder"] = {
         {
             "SCRIPT_1_NAME",
@@ -237,12 +236,12 @@ manager.settings = {
         "Race",
         "KOTH",
     },
+    -- Repeat the structure to add custom maps.
 }
 -- ======================= CONFIGURATION ENDS ======================= --
 
 function OnScriptLoad()
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
-
     if (get_var(0, "$gt") ~= "n/a") then
         manager:Handle("load")
     end
@@ -299,4 +298,5 @@ function manager:UnloadScript(script)
     execute_command('lua_unload ' .. ' "'.. script ..'"')
 end
 
+-- For a future update:
 return manager
