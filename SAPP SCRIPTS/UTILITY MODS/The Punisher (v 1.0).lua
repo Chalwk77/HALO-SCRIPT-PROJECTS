@@ -21,7 +21,7 @@ local globals = nil
 local messages = { }
 local gsub = string.gsub
 
-function punish.Init()
+function punish:Init()
     -- Configuration [starts] -----------------------------------------------------
     
     --===========================================================================--
@@ -97,7 +97,7 @@ end
 
 function OnScriptLoad()
     
-    punish.Init()
+    punish:Init()
     
     -- Register needed Event Callbacks: 
     
@@ -112,7 +112,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_LEAVE'], "OnPlayerDisconnect")
     
     if (get_var(0, "$gt") ~= "n/a") then
-        punish.Reset()
+        punish:Reset()
     end
     
     local gp = sig_scan("8B3C85????????3BF9741FE8????????8B8E2C0200008B4610") + 3
@@ -130,7 +130,7 @@ function OnGameStart()
     red_flag, blue_flag = read_dword(globals + 0x8), read_dword(globals + 0xC)
 end
 
-local function InitMsgTable(player)
+function punish:InitMsgTable(player)
     messages[player] = {
         ["betrayals"] = {
             msg = "",
@@ -143,7 +143,7 @@ local function InitMsgTable(player)
     }
 end
 
-local function InitWarningTables(player)
+function punish:InitWarningTables(player)
     for k,v in pairs(punish) do
         if type(v) == "table" then
             for _,value in pairs(v.actions) do
@@ -158,8 +158,8 @@ local function InitWarningTables(player)
 end
 
 function OnPlayerConnect(PlayerIndex)
-    InitMsgTable(PlayerIndex)
-    InitWarningTables(PlayerIndex)
+    punish:InitMsgTable(PlayerIndex)
+    punish:InitWarningTables(PlayerIndex)
     clear_console[PlayerIndex] = false
 end
 
@@ -175,7 +175,7 @@ function OnPlayerDeath(PlayerIndex)
     clear_console[PlayerIndex] = false
 end
 
-function punish.warningsReached(params)
+function punish:warningsReached(params)
     local params = params or nil
     local player = params.player
     
@@ -228,7 +228,7 @@ function OnPlayerBetray(PlayerIndex, VictimIndex)
             if (betray[k].use) then
                 p.type = k
                 p.msg_type = "betrayals"
-                punish.Execute(p)
+                punish:Execute(p)
             end
         end
     end
@@ -254,13 +254,13 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
             if (teamshooting[k].use) then
                 p.type = k
                 p.msg_type = "teamshooting"
-                punish.Execute(p)
+                punish:Execute(p)
             end
         end
     end
 end
 
-function punish.Execute(params)
+function punish:Execute(params)
     local params = params or nil
     if (params ~= nil) then    
     
@@ -275,7 +275,7 @@ function punish.Execute(params)
     
         warning_table[player] = warning_table[player] - 1
 
-        if not punish.warningsReached(params) then
+        if not punish:warningsReached(params) then
             
             local msg = gsub(gsub(gsub(table[type].message1, 
             "%%offender_name%%", name), 
@@ -316,11 +316,11 @@ function punish.Execute(params)
                 params.respawn_time = table[type].respawn_time or nil
                 params.deduct_death = table[type].deduct_death or nil
                 params.edit_respawn_time = table[type].edit_respawn_time or nil
-                punish.KillSilently(params)
+                punish:KillSilently(params)
             elseif (params.type == "KICK") then
-                punish.Kick(params)
+                punish:Kick(params)
             elseif (params.type == "CRASH") then
-                if punish.Crash(params) then
+                if punish:Crash(params) then
                     if (params.notify_console) then
                         cprint("The Punisher: " .. name .. " was crashed for " .. params.reason, 2+8)
                     end
@@ -332,7 +332,7 @@ function punish.Execute(params)
     end
 end
 
-function punish.Reset()
+function punish:Reset()
     
     -- Clear the array:
     betray_warnings = { }
@@ -340,13 +340,13 @@ function punish.Reset()
     
     for i = 1,16 do
         if player_present(i) then
-            InitWarningTables(i)
-            InitMsgTable(i)
+            punish:InitWarningTables(i)
+            punish:InitMsgTable(i)
         end
     end
 end
 
-function punish.Kick(params)
+function punish:Kick(params)
     local params = params or nil
     if (params ~= nil) then
         execute_command("k" .. " " .. params.player .. " " .. params.reason)
@@ -356,7 +356,7 @@ function punish.Kick(params)
     end
 end
 
-function punish.KillSilently(params)
+function punish:KillSilently(params)
     local params = params or nil
     
     if (params ~= nil) then
@@ -394,7 +394,7 @@ function punish.KillSilently(params)
     end
 end
 
-function punish.Crash(params)
+function punish:Crash(params)
     local params = params or nil
     
     if (params ~= nil) then
