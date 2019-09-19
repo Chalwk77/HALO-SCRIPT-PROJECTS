@@ -19,7 +19,7 @@ local manager = { }
 manager.settings = {
     -- In the below example, two scripts (called "LNZ_AA" & "LNZ_AB") are loaded when the gamemode is
     -- any of the following gametypes: "lnz-Tslayer", "lnz-CTF", "lnz-FFA", "lnz-Classic"
-    ["CustomMapName"] = {
+    ["MapName"] = {
         use = true, -- set to false to prevent scripts from loading on this map
         {
             -- Script Names (not case sensitive):
@@ -34,7 +34,7 @@ manager.settings = {
     },
     -- If the current gamemode in play is not specified in the list of available gamemodes for that map as seen above,
     -- the script will not be loaded.
-   
+    
     --
     --==================================================================--
     -- Stock maps and stock gametypes:
