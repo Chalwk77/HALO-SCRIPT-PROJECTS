@@ -21,19 +21,19 @@ manager.settings = {
     -- any of the following gametypes: "lnz-Tslayer", "lnz-CTF", "lnz-FFA", "lnz-Classic"
     ["CustomMapName"] = {
         {
-        -- Script Names (not case sensitive):
-        "LNZ_AA", 
-        "LNZ_AB"
-        }, 
+            -- Script Names (not case sensitive):
+            "LNZ_AA",
+            "LNZ_AB"
+        },
         -- Game Modes (case sensitive):
-        "lnz-Tslayer", 
-        "lnz-CTF", 
-        "lnz-FFA", 
+        "lnz-Tslayer",
+        "lnz-CTF",
+        "lnz-FFA",
         "lnz-Classic"
     },
     -- If the current gamemode in play is not specified in the list of available gamemodes for that map as seen above,
     -- the script will not be loaded.
-    
+
     --
     --==================================================================--
     -- Stock maps and stock gametypes:
@@ -42,9 +42,9 @@ manager.settings = {
         {
             "SCRIPT_1_NAME",
             "SCRIPT_2_NAME",
-        }, 
-        "CTF", 
-        "Slayer", 
+        },
+        "CTF",
+        "Slayer",
         "Oddball",
         "Race",
         "KOTH",
@@ -53,9 +53,9 @@ manager.settings = {
         {
             "SCRIPT_1_NAME",
             "SCRIPT_2_NAME",
-        }, 
-        "CTF", 
-        "Slayer", 
+        },
+        "CTF",
+        "Slayer",
         "Oddball",
         "Race",
         "KOTH",
@@ -64,9 +64,9 @@ manager.settings = {
         {
             "SCRIPT_1_NAME",
             "SCRIPT_2_NAME",
-        }, 
-        "CTF", 
-        "Slayer", 
+        },
+        "CTF",
+        "Slayer",
         "Oddball",
         "Race",
         "KOTH",
@@ -75,9 +75,9 @@ manager.settings = {
         {
             "SCRIPT_1_NAME",
             "SCRIPT_2_NAME",
-        }, 
-        "CTF", 
-        "Slayer", 
+        },
+        "CTF",
+        "Slayer",
         "Oddball",
         "Race",
         "KOTH",
@@ -86,9 +86,9 @@ manager.settings = {
         {
             "SCRIPT_1_NAME",
             "SCRIPT_2_NAME",
-        }, 
-        "CTF", 
-        "Slayer", 
+        },
+        "CTF",
+        "Slayer",
         "Oddball",
         "Race",
         "KOTH",
@@ -97,9 +97,9 @@ manager.settings = {
         {
             "SCRIPT_1_NAME",
             "SCRIPT_2_NAME",
-        }, 
-        "CTF", 
-        "Slayer", 
+        },
+        "CTF",
+        "Slayer",
         "Oddball",
         "Race",
         "KOTH",
@@ -108,9 +108,9 @@ manager.settings = {
         {
             "SCRIPT_1_NAME",
             "SCRIPT_2_NAME",
-        }, 
-        "CTF", 
-        "Slayer", 
+        },
+        "CTF",
+        "Slayer",
         "Oddball",
         "Race",
         "KOTH",
@@ -119,9 +119,9 @@ manager.settings = {
         {
             "SCRIPT_1_NAME",
             "SCRIPT_2_NAME",
-        }, 
-        "CTF", 
-        "Slayer", 
+        },
+        "CTF",
+        "Slayer",
         "Oddball",
         "Race",
         "KOTH",
@@ -130,9 +130,9 @@ manager.settings = {
         {
             "SCRIPT_1_NAME",
             "SCRIPT_2_NAME",
-        }, 
-        "CTF", 
-        "Slayer", 
+        },
+        "CTF",
+        "Slayer",
         "Oddball",
         "Race",
         "KOTH",
@@ -141,9 +141,9 @@ manager.settings = {
         {
             "SCRIPT_1_NAME",
             "SCRIPT_2_NAME",
-        }, 
-        "CTF", 
-        "Slayer", 
+        },
+        "CTF",
+        "Slayer",
         "Oddball",
         "Race",
         "KOTH",
@@ -152,9 +152,9 @@ manager.settings = {
         {
             "SCRIPT_1_NAME",
             "SCRIPT_2_NAME",
-        }, 
-        "CTF", 
-        "Slayer", 
+        },
+        "CTF",
+        "Slayer",
         "Oddball",
         "Race",
         "KOTH",
@@ -163,9 +163,9 @@ manager.settings = {
         {
             "SCRIPT_1_NAME",
             "SCRIPT_2_NAME",
-        }, 
-        "CTF", 
-        "Slayer", 
+        },
+        "CTF",
+        "Slayer",
         "Oddball",
         "Race",
         "KOTH",
@@ -174,9 +174,9 @@ manager.settings = {
         {
             "SCRIPT_1_NAME",
             "SCRIPT_2_NAME",
-        }, 
-        "CTF", 
-        "Slayer", 
+        },
+        "CTF",
+        "Slayer",
         "Oddball",
         "Race",
         "KOTH",
@@ -185,9 +185,9 @@ manager.settings = {
         {
             "SCRIPT_1_NAME",
             "SCRIPT_2_NAME",
-        }, 
-        "CTF", 
-        "Slayer", 
+        },
+        "CTF",
+        "Slayer",
         "Oddball",
         "Race",
         "KOTH",
@@ -196,9 +196,9 @@ manager.settings = {
         {
             "SCRIPT_1_NAME",
             "SCRIPT_2_NAME",
-        }, 
-        "CTF", 
-        "Slayer", 
+        },
+        "CTF",
+        "Slayer",
         "Oddball",
         "Race",
         "KOTH",
@@ -207,9 +207,9 @@ manager.settings = {
         {
             "SCRIPT_1_NAME",
             "SCRIPT_2_NAME",
-        }, 
-        "CTF", 
-        "Slayer", 
+        },
+        "CTF",
+        "Slayer",
         "Oddball",
         "Race",
         "KOTH",
@@ -218,9 +218,9 @@ manager.settings = {
         {
             "SCRIPT_1_NAME",
             "SCRIPT_2_NAME",
-        }, 
-        "CTF", 
-        "Slayer", 
+        },
+        "CTF",
+        "Slayer",
         "Oddball",
         "Race",
         "KOTH",
@@ -229,9 +229,9 @@ manager.settings = {
         {
             "SCRIPT_1_NAME",
             "SCRIPT_2_NAME",
-        }, 
-        "CTF", 
-        "Slayer", 
+        },
+        "CTF",
+        "Slayer",
         "Oddball",
         "Race",
         "KOTH",
@@ -259,22 +259,22 @@ end
 
 function manager:Handle(state)
     local current_map, mode = get_var(0, "$map"), get_var(0, "$mode")
-    
+
     local scripts, modes = {}
-    
-    for map,_ in pairs(manager.settings) do
-        if (map == current_map) then        
-            for _,data in pairs(manager.settings[map]) do
+
+    for map, _ in pairs(manager.settings) do
+        if (map == current_map) then
+            for _, data in pairs(manager.settings[map]) do
                 if (type(data) == 'table') then
-                    for i = 1,#data do                    
+                    for i = 1, #data do
                         scripts[#scripts + 1] = data[i]
                     end
                 end
             end
             if (#scripts > 0) then
-                for _,gamemode in pairs(manager.settings[map]) do
+                for _, gamemode in pairs(manager.settings[map]) do
                     if (type(gamemode) == 'string' and gamemode == mode) then
-                        for i = 1,#scripts do
+                        for i = 1, #scripts do
                             if (state == "load") then
                                 manager:LoadScript(scripts[i])
                             else
@@ -289,12 +289,12 @@ function manager:Handle(state)
 end
 
 function manager:LoadScript(script)
-    cprint("[Script Manager] Loading Script: " .. script, 2+8)
+    cprint("[Script Manager] Loading Script: " .. script, 2 + 8)
     execute_command('lua_load ' .. ' "'.. script ..'"')
 end
 
 function manager:UnloadScript(script)
-    cprint("[Script Manager] Unloading Script: " .. script, 2+8)
+    cprint("[Script Manager] Unloading Script: " .. script, 2 + 8)
     execute_command('lua_unload ' .. ' "'.. script ..'"')
 end
 
