@@ -20,221 +20,150 @@ manager.settings = {
     -- In the below example, two scripts (called "LNZ_AA" & "LNZ_AB") are loaded when the gamemode is
     -- any of the following gametypes: "lnz-Tslayer", "lnz-CTF", "lnz-FFA", "lnz-Classic"
     ["CustomMapName"] = {
+        use = true, -- set to false to prevent scripts from loading on this map
         {
             -- Script Names (not case sensitive):
             "LNZ_AA",
-            "LNZ_AB"
+            "LNZ_AB",
         },
         -- Game Modes (case sensitive):
         "lnz-Tslayer",
         "lnz-CTF",
         "lnz-FFA",
-        "lnz-Classic-KOTH"
+        "lnz-Classic-KOTH",
     },
     -- If the current gamemode in play is not specified in the list of available gamemodes for that map as seen above,
     -- the script will not be loaded.
-
+   
     --
     --==================================================================--
     -- Stock maps and stock gametypes:
     --==================================================================--
     ["sidewinder"] = {
-        {
-            "SCRIPT_1_NAME",
-            "SCRIPT_2_NAME",
-        },
-        "CTF",
-        "Slayer",
-        "Oddball",
-        "Race",
-        "KOTH",
+        use = true,
+        { -- Scripts:
+        "",
+        }, -- Game Modes:
+        "",
     },
     ["ratrace"] = {
-        {
-            "SCRIPT_1_NAME",
-            "SCRIPT_2_NAME",
-        },
-        "CTF",
-        "Slayer",
-        "Oddball",
-        "Race",
-        "KOTH",
+        use = true,
+        { -- Scripts:
+        "",
+        }, -- Game Modes:
+        "",
     },
     ["bloodgulch"] = {
-        {
-            "SCRIPT_1_NAME",
-            "SCRIPT_2_NAME",
-        },
-        "CTF",
-        "Slayer",
-        "Oddball",
-        "Race",
-        "KOTH",
+        use = true,
+        { -- Scripts:
+        "",
+        }, -- Game Modes:
+        "",
     },
     ["beavercreek"] = {
-        {
-            "SCRIPT_1_NAME",
-            "SCRIPT_2_NAME",
-        },
-        "CTF",
-        "Slayer",
-        "Oddball",
-        "Race",
-        "KOTH",
+        use = true,
+        { -- Scripts:
+        "",
+        }, -- Game Modes:
+        "",
     },
     ["boardingaction"] = {
-        {
-            "SCRIPT_1_NAME",
-            "SCRIPT_2_NAME",
-        },
-        "CTF",
-        "Slayer",
-        "Oddball",
-        "Race",
-        "KOTH",
+        use = true,
+        { -- Scripts:
+        "",
+        }, -- Game Modes:
+        "",
     },
     ["carousel"] = {
-        {
-            "SCRIPT_1_NAME",
-            "SCRIPT_2_NAME",
-        },
-        "CTF",
-        "Slayer",
-        "Oddball",
-        "Race",
-        "KOTH",
+        use = true,
+        { -- Scripts:
+        "",
+        }, -- Game Modes:
+        "",
     },
     ["dangercanyon"] = {
-        {
-            "SCRIPT_1_NAME",
-            "SCRIPT_2_NAME",
-        },
-        "CTF",
-        "Slayer",
-        "Oddball",
-        "Race",
-        "KOTH",
+        use = true,
+        { -- Scripts:
+        "",
+        }, -- Game Modes:
+        "",
     },
     ["deathisland"] = {
-        {
-            "SCRIPT_1_NAME",
-            "SCRIPT_2_NAME",
-        },
-        "CTF",
-        "Slayer",
-        "Oddball",
-        "Race",
-        "KOTH",
+        use = true,
+        { -- Scripts:
+        "",
+        }, -- Game Modes:
+        "",
     },
     ["gephyrophobia"] = {
-        {
-            "SCRIPT_1_NAME",
-            "SCRIPT_2_NAME",
-        },
-        "CTF",
-        "Slayer",
-        "Oddball",
-        "Race",
-        "KOTH",
+        use = true,
+        { -- Scripts:
+        "",
+        }, -- Game Modes:
+        "",
     },
     ["icefields"] = {
-        {
-            "SCRIPT_1_NAME",
-            "SCRIPT_2_NAME",
-        },
-        "CTF",
-        "Slayer",
-        "Oddball",
-        "Race",
-        "KOTH",
+        use = true,
+        { -- Scripts:
+        "",
+        }, -- Game Modes:
+        "",
     },
     ["infinity"] = {
-        {
-            "SCRIPT_1_NAME",
-            "SCRIPT_2_NAME",
-        },
-        "CTF",
-        "Slayer",
-        "Oddball",
-        "Race",
-        "KOTH",
+        use = true,
+        { -- Scripts:
+        "",
+        }, -- Game Modes:
+        "",
     },
     ["timberland"] = {
-        {
-            "SCRIPT_1_NAME",
-            "SCRIPT_2_NAME",
-        },
-        "CTF",
-        "Slayer",
-        "Oddball",
-        "Race",
-        "KOTH",
+        use = true,
+        { -- Scripts:
+        "",
+        }, -- Game Modes:
+        "",
     },
     ["hangemhigh"] = {
-        {
-            "SCRIPT_1_NAME",
-            "SCRIPT_2_NAME",
-        },
-        "CTF",
-        "Slayer",
-        "Oddball",
-        "Race",
-        "KOTH",
+        use = true,
+        { -- Scripts:
+        "",
+        }, -- Game Modes:
+        "",
     },
     ["damnation"] = {
-        {
-            "SCRIPT_1_NAME",
-            "SCRIPT_2_NAME",
-        },
-        "CTF",
-        "Slayer",
-        "Oddball",
-        "Race",
-        "KOTH",
+        use = true,
+        { -- Scripts:
+        "",
+        }, -- Game Modes:
+        "",
     },
     ["putput"] = {
-        {
-            "SCRIPT_1_NAME",
-            "SCRIPT_2_NAME",
-        },
-        "CTF",
-        "Slayer",
-        "Oddball",
-        "Race",
-        "KOTH",
+        use = true,
+        { -- Scripts:
+        "",
+        }, -- Game Modes:
+        "",
     },
     ["prisoner"] = {
-        {
-            "SCRIPT_1_NAME",
-            "SCRIPT_2_NAME",
-        },
-        "CTF",
-        "Slayer",
-        "Oddball",
-        "Race",
-        "KOTH",
+        use = true,
+        { -- Scripts:
+        "",
+        }, -- Game Modes:
+        "",
     },
     ["wizard"] = {
-        {
-            "SCRIPT_1_NAME",
-            "SCRIPT_2_NAME",
-        },
-        "CTF",
-        "Slayer",
-        "Oddball",
-        "Race",
-        "KOTH",
+        use = true,
+        { -- Scripts:
+        "",
+        }, -- Game Modes:
+        "",
     },
     ["longest"] = {
-        {
-            "SCRIPT_1_NAME",
-            "SCRIPT_2_NAME",
-        },
-        "CTF",
-        "Slayer",
-        "Oddball",
-        "Race",
-        "KOTH",
+        use = true,
+        { -- Scripts:
+        "",
+        }, -- Game Modes:
+        "",
     },
     -- Repeat the structure to add custom maps.
 }
@@ -265,20 +194,26 @@ function manager:Handle(state)
     for map, _ in pairs(manager.settings) do
         if (map == current_map) then
             for _, data in pairs(manager.settings[map]) do
-                if (type(data) == 'table') then
-                    for i = 1, #data do
-                        scripts[#scripts + 1] = data[i]
+                if (manager.settings[map].use) then
+                    if (type(data) == 'table') then
+                        for i = 1, #data do
+                            if (data[i] ~= "" or data[i] ~= nil) then
+                                scripts[#scripts + 1] = data[i]
+                            end
+                        end
                     end
                 end
-            end
-            if (#scripts > 0) then
-                for _, gamemode in pairs(manager.settings[map]) do
-                    if (type(gamemode) == 'string' and gamemode == mode) then
-                        for i = 1, #scripts do
-                            if (state == "load") then
-                                manager:LoadScript(scripts[i])
-                            else
-                                manager:UnloadScript(scripts[i])
+                if (#scripts > 0) then
+                    for _, gamemode in pairs(manager.settings[map]) do
+                        if (gamemode ~= "" and gamemode ~= nil) then
+                            if (type(gamemode) == 'string' and gamemode == mode) then
+                                for i = 1, #scripts do
+                                    if (state == "load") then
+                                        manager:LoadScript(scripts[i])
+                                    else
+                                        manager:UnloadScript(scripts[i])
+                                    end
+                                end
                             end
                         end
                     end
