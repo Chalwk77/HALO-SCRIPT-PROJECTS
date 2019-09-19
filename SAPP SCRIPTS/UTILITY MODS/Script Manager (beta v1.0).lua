@@ -29,7 +29,7 @@ manager.settings = {
         "lnz-Tslayer",
         "lnz-CTF",
         "lnz-FFA",
-        "lnz-Classic"
+        "lnz-Classic-KOTH"
     },
     -- If the current gamemode in play is not specified in the list of available gamemodes for that map as seen above,
     -- the script will not be loaded.
