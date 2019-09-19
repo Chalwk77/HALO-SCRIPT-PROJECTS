@@ -192,9 +192,9 @@ function manager:Handle(state)
     local scripts, modes = {}
 
     for map, _ in pairs(manager.settings) do
-        if (map == current_map) then
+        if (map == current_map and manager.settings[map].use) then
             for _, data in pairs(manager.settings[map]) do
-                if (manager.settings[map].use) then
+                if (data ~= "" and data ~= nil) then
                     if (type(data) == 'table') then
                         for i = 1, #data do
                             if (data[i] ~= "" or data[i] ~= nil) then
@@ -202,17 +202,13 @@ function manager:Handle(state)
                             end
                         end
                     end
-                end
-                if (#scripts > 0) then
-                    for _, gamemode in pairs(manager.settings[map]) do
-                        if (gamemode ~= "" and gamemode ~= nil) then
-                            if (type(gamemode) == 'string' and gamemode == mode) then
-                                for i = 1, #scripts do
-                                    if (state == "load") then
-                                        manager:LoadScript(scripts[i])
-                                    else
-                                        manager:UnloadScript(scripts[i])
-                                    end
+                    if (#scripts > 0) then
+                        if (type(data) == 'string' and data == mode) then
+                            for i = 1, #scripts do
+                                if (state == "load") then
+                                    manager:LoadScript(scripts[i])
+                                else
+                                    manager:UnloadScript(scripts[i])
                                 end
                             end
                         end
