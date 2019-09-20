@@ -1,7 +1,7 @@
 --[[
 --=====================================================================================================--
 Script Name: Script Manager (beta v1.0), for SAPP (PC & CE)
-Description: This script will handle map loading and unloading.
+Description: This mod will handle script loading and unloading.
              You can specify on a per-map/per-gamemode basis what scripts are loaded.
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
