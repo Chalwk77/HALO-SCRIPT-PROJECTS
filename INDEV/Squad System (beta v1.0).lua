@@ -40,6 +40,7 @@ function OnGameStart()
     end
 end
 
+-- This function calculates the nearest spawn to the Squad Leader:
 function squad:GetNearestSpawn(PlayerIndex)
     
     local function distanceFromPlayer(pX,pY,pZ,sX,sY,sZ) 
@@ -69,11 +70,11 @@ function squad:GetNearestSpawn(PlayerIndex)
         if #t == 0 then return nil, nil end
         local x,y,z = 0,0,0
         
-        local value = 1, t[1].dist
+        local distance = 1
         
         for i = 2, #t do
-            if fn(value, t[i].dist) then
-                value = t[i].dist
+            if fn(distance, t[i].dist) then
+                distance = t[i].dist
                 x,y,z = t[i].x,t[i].y,t[i].z
             end
         end
