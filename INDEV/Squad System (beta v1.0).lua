@@ -5,6 +5,8 @@ Description: N/A
 
 IN DEVELOPMENT
 
+Idea taken from: https://opencarnage.net/index.php?/topic/7779-squad-system/
+
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
