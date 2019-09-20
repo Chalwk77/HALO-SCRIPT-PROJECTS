@@ -119,9 +119,14 @@ function squad:GetNearestSpawn(params)
     end
 end
 
--- Credits to Devieth (it300) for the below function.
--- Devith GitHub: https://github.com/it300/Halo-Lua
--- Code obtained from <https://opencarnage.net/index.php?/topic/7732-self-solved-always-random-spawns/>
+
+--[[=====================================================================================================
+    Huge credits to Devieth (it300) for the below function. 
+    It's crucial to making this mod work.
+    Devith GitHub: https://github.com/it300/Halo-Lua
+    Code obtained from <https://opencarnage.net/index.php?/topic/7732-self-solved-always-random-spawns/>
+]]--=====================================================================================================
+
 function get_spawns()
     local spawns = { }
     local tag_array = read_dword( 0x40440000 )
