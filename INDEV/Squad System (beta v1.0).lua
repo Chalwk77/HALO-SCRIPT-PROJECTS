@@ -52,16 +52,16 @@ function squad:GetNearestSpawn(PlayerIndex)
     
     local temp = {}
     
-    local function SaveCoordinates(CoordX,CoordY,CoordZ)
+    local function Save(sX,sY,sZ)
         local distance = distanceFromPlayer(pX,pY,pZ,sX,sY,sZ)
         temp[#temp + 1] = {dist = distance, x = sX, y = sY, z = sZ}
     end
     
     for i = 1,#coordinates do        
         if (coordinates[i][5] == 0) then 
-            SaveCoordinates(coordinates[i][1],coordinates[i][2],coordinates[i][3])
+            Save(coordinates[i][1],coordinates[i][2],coordinates[i][3])
         elseif (coordinates[i][5] == 1) then 
-            SaveCoordinates(coordinates[i][1],coordinates[i][2],coordinates[i][3])
+            Save(coordinates[i][1],coordinates[i][2],coordinates[i][3])
         end
     end
     
