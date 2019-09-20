@@ -125,6 +125,8 @@ end
     It's crucial to making this mod work.
     Devith GitHub: https://github.com/it300/Halo-Lua
     Code obtained from <https://opencarnage.net/index.php?/topic/7732-self-solved-always-random-spawns/>
+    
+    This function will save a lot of time having to hard code spawn coordinats for each individual map!
 ]]--=====================================================================================================
 
 function get_spawns()
