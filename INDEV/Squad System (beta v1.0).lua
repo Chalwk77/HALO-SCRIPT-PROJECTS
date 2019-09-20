@@ -18,18 +18,24 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.12.0.0"
 
 local squad = { }
-squad.blueleader = nil
-squad.redleader = nil
+squad.blueleader, squad.redleader = nil, nil
+
+local votes = { }
+votes.duration = 30 -- in seconds
+votes.inprogress = nil
+votes.msg = "[#%id%] %name% (Total Votes: %votes%)"
+votes.time_remaining_msg = "Vote Time Remaining: [%time%]"
+votes.hasVoted, votes.total = { }, { }
+
+votes.pause_duration = 5
+votes.pause_console = { }
 
 local coordinates = nil
-local votes = { }
-votes.inprogress = nil
-votes.msg = "[#%id%]   %name%   %votes%"
-votes.hasVoted = { }
-votes.total = { }
-
+local time_scale = 0.03333333333333333
 local format = string.format
 local gsub, gmatch = string.gsub, string.gmatch
+local floor = math.floor
+
 -- ======================= CONFIGURATION STARTS ======================= --
 -- No settings implemented at this time.
 -- Check back later!
@@ -55,6 +61,10 @@ function OnGameStart()
 
         -- Set Squad Leader voting progres to true:
         votes.inprogress = true
+        votes.timer = 0
+        votes.time_remaining = votes.duration
+
+        votes.pause_timer = {}
 
         -- Store all map spawn coodrinates to this array:
         coordinates = get_spawns()
@@ -64,29 +74,51 @@ end
 function OnPlayerConnect(PlayerIndex)
     votes.total[PlayerIndex] = 0
     votes.hasVoted[PlayerIndex] = false
+
+    votes.pause_timer[PlayerIndex] = 0
+    votes.pause_console[PlayerIndex] = false
 end
 
 function OnPlayerDisconnect(PlayerIndex)
     votes.total[PlayerIndex] = 0
     votes.hasVoted[PlayerIndex] = false
+
+    votes.pause_timer[PlayerIndex] = 0
+    votes.pause_console[PlayerIndex] = false
 end
 
 function OnTick()
-    for i = 1,16 do
+
+    if (votes.inprogress) and (squad:GetPlayerCount() > 0) then
+
+        votes.timer = votes.timer + time_scale
+        local time_factor = ((votes.duration) - (votes.timer))
+
+        local minutes, seconds = select(1, secondsToTime(time_factor)), select(2, secondsToTime(time_factor))
+        votes.time_remaining = seconds
+        if (tonumber(seconds) <= 0) then
+            votes.time_remaining = 0
+            votes.timer, votes.inprogress = 0, false
+        end
+    end
+
+    for i = 1, 16 do
         if player_present(i) and player_alive(i) then
 
+            if (votes.inprogress) then
+                if (votes.pause_console[i]) then
+                    votes.pause_timer[i] = votes.pause_timer[i] + time_scale
+                    local time_factor = ((votes.pause_duration) - (votes.pause_timer[i]))
+                    local minutes, seconds = select(1, secondsToTime(time_factor)), select(2, secondsToTime(time_factor))
+                    if (tonumber(seconds) <= 0) then
+                        squad:UnpauseConsole(i)
+                    end
+                end
+                squad:showHUD(i)
+            end
 
-            -- To DO:
-            -- When votes are updated, append player name with number of votes
-            -- i.e, [#1] Chalwk <# votes>
-            -- i.e, [#1] Chalwk <0>, [#1] Chalwk <1>, [#1] Chalwk <2>
-            -------------------------------------------------------------------
-            squad:showHUD(i)
-
-            -- Testing:
             local PlayerObject = get_dynamic_player(i)
             if (PlayerObject ~= 0) then
-
 
                 local params = { }
 
@@ -105,41 +137,39 @@ function OnTick()
 end
 
 function OnPlayerChat(PlayerIndex, Message, Type)
-    --
 
     if (votes.inprogress) then
+
         local player = tonumber(PlayerIndex)
         local msg = stringSplit(Message)
 
-        -- Psuedo:
-        -- msg -> string/number?
-        -- type: num -> add vote
-            -- else -> Send error
-
-        -- Prevents empty messages (messages containing only spaces)
-        -- from spamming the console with an errors:
         if (#msg == 0) then return nil end
 
         local function Error(p)
+            squad:PauseConsole(player)
             rprint(p, "Please enter a valid Player ID")
         end
 
+        -- TO DO:
+        -- Write pause function that pauses the output of other messages while certain messages are being relayed.
+
         if (#msg == 1 and string.match(msg[1], "[0-9]")) then
 
-            -- Prevent vote numbers higher than 16!
             if (msg[1] ~= player) then
                 if (tonumber(msg[1]) < 17) then
                     if not (votes.hasVoted[player]) then
-                        votes.hasVoted[player] = true
                         votes[#votes + 1] = msg[1]
-                        votes.total[player] = votes.total[player] + 1
+                        votes.hasVoted[player] = true
+                        votes.total[tonumber(msg[1])] = votes.total[tonumber(msg[1])] + 1
                     else
+                        squad:PauseConsole(player)
                         rprint(player, "You have already voted!")
                     end
                 else
                     Error(player)
                 end
             else
+                squad:PauseConsole(player)
                 rprint(player, "You cannot vote for yourself!")
             end
         else
@@ -152,6 +182,21 @@ function squad:getVotes()
 
 end
 
+function squad:PauseConsole(player)
+    votes.pause_timer[player] = 0
+    votes.pause_console[player] = true
+    cls(player, 25)
+end
+
+function squad:UnpauseConsole(player)
+    votes.pause_timer[player] = 0
+    votes.pause_console[player] = false
+end
+
+function squad:GetPlayerCount()
+    return tonumber(get_var(0, "$pn"))
+end
+
 -- This function calculates the nearest spawn to the Squad Leader:
 function squad:GetNearestSpawn(params)
     local params = params or nil
@@ -159,7 +204,7 @@ function squad:GetNearestSpawn(params)
     if (params ~= nil) then
 
         local player = params.player
-        local pX, pY, pZ = params.x,params.y,params.z
+        local pX, pY, pZ = params.x, params.y, params.z
         local team = get_var(player, "$team")
         local spawn_coordinates = {}
 
@@ -205,43 +250,39 @@ function squad:GetNearestSpawn(params)
 end
 
 function squad:GetVotes(player)
-
-    if #votes <= 0 then
-        return 0
-    end
-
-    for i = 1,#votes do
-        if (votes[i] ~= nil) then
-            if (votes[i] == player) then
-                return votes.total[player]
-            end
-        else
-            return 0
-        end
-    end
+    return votes.total[player] or 0
 end
 
 function squad:showHUD(i)
     local P1Team = get_var(i, '$team')
-    for j = 1,16 do
+
+    local function showTimeRemaining(player)
+        local time_remaining = gsub(votes.time_remaining_msg, "%%time%%", votes.time_remaining)
+        rprint(i, time_remaining)
+    end
+
+    for j = 1, 16 do
         if player_present(j) then
             local P2Team = get_var(j, '$team')
             if (i ~= j and P1Team == P2Team) then
 
                 local total_votes = squad:GetVotes(j)
-                print(total_votes)
                 if (total_votes ~= nil) then
                     local msg = gsub(gsub(gsub(votes.msg, "%%name%%", get_var(j, '$name')), "%%id%%", j), "%%votes%%", total_votes)
                     cls(i, 25)
-                    if not votes.hasVoted[i] then
-                        rprint(i, "========= [ VOTE FOR YOUR LEADER ] =========")
-                    else
-                        rprint(i, "========= [ YOU HAVE VOTED ] =========")
-                    end
-                    rprint(i, msg)
-                    rprint(i, " ")
-                    if not votes.hasVoted[i] then
-                        rprint(i, "Type the Player ID you wish to vote for!")
+                    if not votes.pause_console[i] then
+                        if not votes.hasVoted[i] then
+                            rprint(i, "========= [ VOTE FOR YOUR LEADER ] =========")
+                        else
+                            rprint(i, "========= [ YOU HAVE VOTED ] =========")
+                        end
+                        rprint(i, msg)
+                        rprint(i, " ")
+                        if not votes.hasVoted[i] then
+                            rprint(i, "Type the Player ID you wish to vote for!")
+                            rprint(i, "")
+                        end
+                        showTimeRemaining(i)
                     end
                 end
             end
@@ -253,7 +294,7 @@ end
 function cls(player, count)
     local count = count or 0
     if (count ~= 0) then
-        for i = 1,count do
+        for i = 1, count do
             rprint(player, " ")
         end
     end
@@ -269,6 +310,18 @@ function stringSplit(inp, sep)
         i = i + 1
     end
     return t
+end
+
+function secondsToTime(seconds)
+    local seconds = tonumber(seconds)
+    if (seconds <= 0) then
+        return "00", "00";
+    else
+        local hours, mins, secs = format("%02.f", floor(seconds / 3600));
+        mins = format("%02.f", floor(seconds / 60 - (hours * 60)));
+        secs = format("%02.f", floor(seconds - hours * 3600 - mins * 60));
+        return mins, secs
+    end
 end
 
 --[[=====================================================================================================
