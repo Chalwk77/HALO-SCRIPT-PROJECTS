@@ -56,7 +56,7 @@ function OnTick()
                 params.x, params.y, params.z = read_vector3d(PlayerObject + 0x5C)
                 
                 local coords = squad:GetNearestSpawn(params)
-                print(coords[1],coords[2],coords[3])
+                print(coords[1],coords[2],coords[3],coords[4])
             end
         end
     end
@@ -97,19 +97,19 @@ function squad:GetNearestSpawn(params)
             if #t == 0 then return nil, nil end
             local x, y, z = 0, 0, 0
 
-            local value = t[1][1]
+            local distance = t[1][1]
 
             for i = 2, #t do
-                if fn(value, t[i][1]) then
-                    value = t[i][1]
+                if fn(distance, t[i][1]) then
+                    distance = t[i][1]
                     x, y, z = t[i][2], t[i][3], t[i][4]
                 end
             end
-            return value, x, y, z
+            return x, y, z, distance
         end
 
-        local x, y, z = min(temp, function(a, b) return a > b end)
-        return {x, y, z}
+        local x, y, z, distance = min(temp, function(a, b) return a > b end)
+        return {x, y, z, distance}
     end
 end
 
