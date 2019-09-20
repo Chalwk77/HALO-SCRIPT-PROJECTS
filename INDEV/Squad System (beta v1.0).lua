@@ -20,7 +20,8 @@ api_version = "1.12.0.0"
 
 -- ======================= CONFIGURATION STARTS ======================= --
 local squad = {
-    players_required = 4
+    players_required = 2,
+    new_leader_msg = "|c%name% is your new squad leader!",
 }
 
 local votes = {
@@ -46,7 +47,7 @@ function squad:Load()
     end
 
     if isTeamPlay() then
-        squad.blueleader, squad.redleader = nil, nil
+        squad.blueLeader, squad.redLeader = nil, nil
     else
         -- to do:
         -- Create 4 teams of 4 (1 leader per team)
@@ -101,7 +102,7 @@ end
 
 function OnTick()
 
-    if (votes.inProgress) and (squad:GetPlayerCount() >= squad.players_required) then
+    if (votes.inProgress) and squad:GetPlayerCount() then
 
         votes.timer = votes.timer + time_scale
         local time_factor = ((votes.duration) - (votes.timer))
@@ -113,15 +114,12 @@ function OnTick()
             votes.timer, votes.inProgress = 0, false
 
             local Leader = squad:CalculateVotes()
-            if (leader ~= nil) then
-                local red, blue = Leader['red'], Leader['blue']
-                squad.redleader, squad.blueleader = red[1], blue[1]
-
-                local RedVotes, BlueVotes = red[2], blue[2]
-                local red_name, blue_name = get_var(red[1], "$name"), get_var(blue[1], "$name")
-
-                say_all(red_name .. " is the new Red Team Leader!")
-                say_all(blue_name .. " is the new Blue Team Leader!")
+            if (Leader ~= nil) then
+                
+                local params = { }
+                local R, B = Leader['red'], Leader['blue']
+                params.R, params.B = R, B
+                squad:announceNewLeader(params)
             end
         end
     end
@@ -129,7 +127,7 @@ function OnTick()
     for i = 1, 16 do
         if player_present(i) and player_alive(i) then
 
-            if (votes.inProgress) then
+            if (votes.inProgress) and squad:GetPlayerCount() then
                 if (votes.pauseConsole[i]) then
                     votes.pauseTimer[i] = votes.pauseTimer[i] + time_scale
                     local time_factor = ((votes.pauseDuration) - (votes.pauseTimer[i]))
@@ -159,6 +157,30 @@ function OnTick()
                 -- cprint("X: " .. x .. ", Y: " .. y .. ", Z: " .. z .. ", D: " .. d, 7+8)
             end
         end
+    end
+end
+
+function squad:announceNewLeader(params)
+    local params = params or nil
+    if (params ~= nil) then
+    
+        local red_leader, blue_leader = params.R[1], params.B[1]
+        local red_votes, blue_votes = params.R[2], params.B[2]
+        local red_name, blue_name = get_var(red_leader, "$name"), get_var(blue_leader, "$name")
+        
+        squad.redLeader, squad.blueLeader = red_leader, blue_leader
+
+        for i = 1,16 do
+            if player_present(i) then
+                local team = get_var(i, "$team")
+                if (team == "red") then
+                    rprint(i, gsub(gsub(squad.new_leader_msg, "%%name%%", red_name), "%%votes%%", red_votes))
+                else
+                    rprint(i, gsub(gsub(squad.new_leader_msg, "%%name%%", blue_name), "%%votes%%", blue_votes))
+                end
+            end
+        end
+    
     end
 end
 
@@ -231,7 +253,11 @@ function squad:UnpauseConsole(player)
 end
 
 function squad:GetPlayerCount()
-    return tonumber(get_var(0, "$pn"))
+    local Check = function(a, b) return tonumber(a) >= tonumber(b) end
+    local R, B = get_var(0, "$reds"), get_var(0, "$blues")    
+    if Check(R, squad.players_required) and Check(B, squad.players_required) then
+        return true
+    end
 end
 
 local function MinMax(t, fn, type)
@@ -303,7 +329,7 @@ local function GetNewLeader(t, fn)
         end
     end
 
-    return {new_leader = new_leader, total_votes = highest_votes}
+    return {newLeader = new_leader, totalVotes = highest_votes}
 end
 
 function squad:CalculateVotes()
@@ -332,12 +358,12 @@ function squad:CalculateVotes()
     if (red) and (blue) then
         return {
             ['red'] = {
-                red.new_leader,
-                red.total_votes,
+                red.newLeader,
+                red.totalVotes,
             },
             ['blue'] = {
-                blue.new_leader,
-                blue.total_votes,
+                blue.newLeader,
+                blue.totalVotes,
             }
         }
     else
@@ -370,7 +396,8 @@ function squad:showHUD(i)
 
                     if not votes.pauseConsole[i] then
                         cls(i, 25)
-
+                        
+                        -- Print Header:
                         if not votes.hasVoted[i] then
                             rprint(i, "========= [ VOTE FOR YOUR LEADER ] =========")
                         else
@@ -380,10 +407,12 @@ function squad:showHUD(i)
                         rprint(i, msg)
                         rprint(i, " ")
 
+                        -- Print Footer:
                         if not votes.hasVoted[i] then
                             rprint(i, "Type the Player ID you wish to vote for!")
                             rprint(i, "")
                         end
+                        
                         showTimeRemaining(i)
                     end
                 end
