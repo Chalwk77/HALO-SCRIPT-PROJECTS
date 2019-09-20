@@ -94,18 +94,18 @@ function squad:GetNearestSpawn(params)
             if #t == 0 then return nil, nil end
             local x, y, z = 0, 0, 0
 
-            local distance = 1
+            local value = t[1][1]
 
             for i = 2, #t do
-                if fn(distance, t[i][1]) then
-                    distance = t[i][1]
+                if fn(value, t[i][1]) then
+                    value = t[i][1]
                     x, y, z = t[i][2], t[i][3], t[i][4]
                 end
             end
-            return x, y, z
+            return value, x, y, z
         end
 
-        local x, y, z = min(temp, function(a, b) return a < b end)
+        local x, y, z = min(temp, function(a, b) return a > b end)
         return {x, y, z}
     end
 end
