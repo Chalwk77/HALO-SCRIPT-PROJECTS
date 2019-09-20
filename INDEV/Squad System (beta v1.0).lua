@@ -15,18 +15,16 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.12.0.0"
 
+-- ======================= CONFIGURATION STARTS ======================= --
 local squad, votes = { }, {
-    -- ======================= CONFIGURATION STARTS ======================= --
     msg = "[#%id%] %name% (Total Votes: %votes%)",
     timeRemaining_msg = "Vote Time Remaining: [%time%]",
     duration = 30,
-    -- ======================= CONFIGURATION ENDS ======================= --
 }
+-- ======================= CONFIGURATION ENDS ======================= --
 
-local coordinates = nil
-local time_scale = 0.03333333333333333
-local format = string.format
-local gsub, gmatch = string.gsub, string.gmatch
+local coordinates, time_scale = nil, 0.03333333333333333
+local gsub, gmatch, format = string.gsub, string.gmatch, string.format
 local floor = math.floor
 
 function squad:Load()
