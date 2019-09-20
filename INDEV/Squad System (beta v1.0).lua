@@ -28,7 +28,7 @@ function OnScriptLoad()
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     register_callback(cb["EVENT_TICK"], "OnTick")
     if (get_var(0, "$gt") ~= "n/a") then
-        --
+        coordinates = get_spawns()
     end
 end
 
