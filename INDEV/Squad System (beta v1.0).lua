@@ -42,47 +42,47 @@ end
 
 -- This function calculates the nearest spawn to the Squad Leader:
 function squad:GetNearestSpawn(PlayerIndex)
-    
-    local function distanceFromPlayer(pX,pY,pZ,sX,sY,sZ) 
-        return math.sqrt((pX - sX) ^ 2 + (pY - sY) ^ 2 + (pZ - sZ) ^ 2) 
+
+    local function distanceFromPlayer(pX, pY, pZ, sX, sY, sZ)
+        return math.sqrt((pX - sX) ^ 2 + (pY - sY) ^ 2 + (pZ - sZ) ^ 2)
     end
-    
+
     local PlayerObject = get_dynamic_player(PlayerIndex)
     local team = get_var(PlayerIndex, "$team")
-    local pX,pY,pZ = read_vector3d(PlayerObject)
-    
+    local pX, pY, pZ = read_vector3d(PlayerObject)
+
     local temp = {}
-    
-    local function Save(sX,sY,sZ)
-        local distance = distanceFromPlayer(pX,pY,pZ,sX,sY,sZ)
+
+    local function Save(sX, sY, sZ)
+        local distance = distanceFromPlayer(pX, pY, pZ, sX, sY, sZ)
         temp[#temp + 1] = {dist = distance, x = sX, y = sY, z = sZ}
     end
-    
-    for i = 1,#coordinates do        
-        if (coordinates[i][5] == 0) then 
-            Save(coordinates[i][1],coordinates[i][2],coordinates[i][3])
-        elseif (coordinates[i][5] == 1) then 
-            Save(coordinates[i][1],coordinates[i][2],coordinates[i][3])
+
+    for i = 1, #coordinates do
+        if (coordinates[i][5] == 0) then
+            Save(coordinates[i][1], coordinates[i][2], coordinates[i][3])
+        elseif (coordinates[i][5] == 1) then
+            Save(coordinates[i][1], coordinates[i][2], coordinates[i][3])
         end
     end
-    
+
     function min(t, fn)
         if #t == 0 then return nil, nil end
-        local x,y,z = 0,0,0
-        
+        local x, y, z = 0, 0, 0
+
         local distance = 1
-        
+
         for i = 2, #t do
             if fn(distance, t[i].dist) then
                 distance = t[i].dist
-                x,y,z = t[i].x,t[i].y,t[i].z
+                x, y, z = t[i].x, t[i].y, t[i].z
             end
         end
         return x, y, z
     end
 
-    local x,y,z = min(temp, function(a,b) return a < b end)
-    return {x,y,z}
+    local x, y, z = min(temp, function(a, b) return a < b end)
+    return {x, y, z}
 end
 
 -- Credits to Devieth (it300) for the below function.
@@ -99,12 +99,12 @@ function get_spawns()
     local starting_location_count = read_dword(starting_location_reflexive)
     local starting_location_address = read_dword(starting_location_reflexive + 0x4)
 
-    for i=0,starting_location_count do
+    for i = 0, starting_location_count do
         local starting_location = starting_location_address + 52 * i
-		local x,y,z = read_vector3d(starting_location)
-		local r = read_float(starting_location + 0xC)
-		local team = read_word(starting_location + 0x10)
-        spawns[#spawns + 1] = {x,y,z,r,team}
+        local x, y, z = read_vector3d(starting_location)
+        local r = read_float(starting_location + 0xC)
+        local team = read_word(starting_location + 0x10)
+        spawns[#spawns + 1] = {x, y, z, r, team}
     end
     return spawns
 end
