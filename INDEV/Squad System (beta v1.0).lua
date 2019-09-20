@@ -72,10 +72,11 @@ function squad:GetNearestSpawn(params)
     local params = params or nil
     
     if (params ~= nil) then
+    
         local player = params.player
         local pX, pY, pZ = params.x,params.y,params.z
         local team = get_var(player, "$team")
-        local temp = {}
+        local spawn_coordinates = {}
     
         local function distanceFromPlayer(pX, pY, pZ, sX, sY, sZ)
             return math.sqrt((pX - sX) ^ 2 + (pY - sY) ^ 2 + (pZ - sZ) ^ 2)
@@ -83,7 +84,7 @@ function squad:GetNearestSpawn(params)
 
         local function Save(sX, sY, sZ)
             local distance = distanceFromPlayer(pX, pY, pZ, sX, sY, sZ)
-            temp[#temp + 1] = {distance, sX, sY, sZ}
+            spawn_coordinates[#spawn_coordinates + 1] = {distance, sX, sY, sZ}
         end
 
         for i = 1, #coordinates do
@@ -113,7 +114,7 @@ function squad:GetNearestSpawn(params)
             return x, y, z, distance
         end
 
-        local x, y, z, distance = min(temp, function(a, b) return a > b end)
+        local x, y, z, distance = min(spawn_coordinates, function(a, b) return a > b end)
         return {x, y, z, distance}
     end
 end
