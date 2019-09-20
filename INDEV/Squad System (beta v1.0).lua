@@ -23,12 +23,15 @@ local squad, votes = { }, {
 }
 -- ======================= CONFIGURATION ENDS ======================= --
 
-local coordinates, time_scale = nil, 0.03333333333333333
-local gsub, gmatch, format = string.gsub, string.gmatch, string.format
+local coordinates, spawn_coordinates, time_scale = nil, nil, 0.03333333333333333
+local sub, gsub, gmatch, format, match = string.sub, string.gsub, string.gmatch, string.format, string.match
 local floor = math.floor
+local sqrt = math.sqrt
 
 function squad:Load()
     coordinates = get_spawns()
+    spawn_coordinates = { }
+
     squad.blueleader, squad.redleader = nil, nil
 
     votes.hasVoted, votes.total = { }, { }
@@ -36,6 +39,7 @@ function squad:Load()
 
     votes.pauseDuration = 5
     votes.pauseConsole, votes.pauseTimer = { }, { }
+    votes.results = { }
 
     votes.inProgress, votes.timer = true, 0
 end
@@ -89,6 +93,7 @@ function OnTick()
         if (tonumber(seconds) <= 0) then
             votes.timeRemaining = 0
             votes.timer, votes.inProgress = 0, false
+            squad:CalculateVotes()
         end
     end
 
@@ -99,6 +104,7 @@ function OnTick()
                 if (votes.pauseConsole[i]) then
                     votes.pauseTimer[i] = votes.pauseTimer[i] + time_scale
                     local time_factor = ((votes.pauseDuration) - (votes.pauseTimer[i]))
+
                     local minutes, seconds = select(1, secondsToTime(time_factor)), select(2, secondsToTime(time_factor))
                     if (tonumber(seconds) <= 0) then
                         squad:UnpauseConsole(i)
@@ -126,53 +132,61 @@ function OnTick()
     end
 end
 
-function OnPlayerChat(PlayerIndex, Message, Type)
+local function SendError(p, msg)
+    squad:PauseConsole(p)
+    rprint(p, msg)
+    return false
+end
 
-    if (votes.inProgress) then
-
-        local player = tonumber(PlayerIndex)
-        local msg = stringSplit(Message)
-        if (#msg == 0) then
-            return false
-        end
-
-        local function Error(p)
+local function isCommand(p, msg)
+    if ( sub(msg[1], 1, 1) == "/" or sub(msg[1], 1, 1) == "\\" ) then
+        if not votes.hasVoted[player] then
             squad:PauseConsole(p)
-            rprint(p, "Please enter a valid Player ID")
         end
-
-        local function isCommand(p)
-            if sub(msg[1], 1, 1) == "/" or sub(msg[1], 1, 1) == "\\" then
-                return true
-            end
-        end
-
-        if (#msg == 1 and string.match(msg[1], "[0-9]")) and not isCommand(player) then
-            if (msg[1] ~= player) then
-                if (tonumber(msg[1]) < 17) then
-                    if not (votes.hasVoted[player]) then
-                        votes[#votes + 1] = msg[1]
-                        votes.hasVoted[player] = true
-                        votes.total[tonumber(msg[1])] = votes.total[tonumber(msg[1])] + 1
-                    else
-                        squad:PauseConsole(player)
-                        rprint(player, "You have already voted!")
-                    end
-                else
-                    Error(player)
-                end
-            else
-                squad:PauseConsole(player)
-                rprint(player, "You cannot vote for yourself!")
-            end
-        else
-            Error(player)
-        end
+        return true
     end
 end
 
-function squad:getVotes()
+function OnPlayerChat(PlayerIndex, Message, Type)
+    local response = nil
 
+    if (votes.inProgress) then
+
+        local voter = tonumber(PlayerIndex)
+        local msg = stringSplit(Message)
+
+        if (#msg == 0) then
+            response = false
+        end
+
+        if not isCommand(voter, msg) then
+            if (#msg == 1 and match(msg[1], "[0-9]")) then
+
+                local nominee = tonumber(msg[1])
+
+                if (nominee ~= voter) then
+                    if (nominee < 17) then
+                        squad:UnpauseConsole(voter)
+
+                        local team = get_var(voter, "$team")
+                        votes.total[nominee] = votes.total[nominee] + 1
+
+                        votes.results[#votes.results + 1] = {nominee, team}
+
+                        votes.hasVoted[voter] = true
+                        response = false
+                    else
+                        response = SendError(voter, "Please enter a valid Player ID")
+                    end
+                else
+                    response = SendError(voter, "You cannot vote for yourself!")
+                end
+            else
+                response = SendError(voter, "Please enter a valid Player ID")
+            end
+        end
+    end
+    return response
 end
 
 function squad:PauseConsole(player)
@@ -190,69 +204,100 @@ function squad:GetPlayerCount()
     return tonumber(get_var(0, "$pn"))
 end
 
--- This function calculates the nearest spawn to the Squad Leader:
+local function MinMax(t, fn, type)
+    if #t == 0 then return nil, nil end
+    local x, y, z = 0, 0, 0
+
+    local distance = 0
+    if (type == "min") then
+        distance = t[1][1]
+    elseif (type == "max") then
+        distance = t[#t][1]
+    end
+
+    for i = 2, #t do
+        if fn(distance, t[i][1]) then
+            distance = t[i][1]
+            x, y, z = t[i][2], t[i][3], t[i][4]
+        end
+    end
+    return x, y, z, distance
+end
+
+local function distanceFromPlayer(pX, pY, pZ, sX, sY, sZ)
+    return sqrt((pX - sX) ^ 2 + (pY - sY) ^ 2 + (pZ - sZ) ^ 2)
+end
+
+local function Save(pX, pY, pZ, sX, sY, sZ)
+    local distance = distanceFromPlayer(pX, pY, pZ, sX, sY, sZ)
+    spawn_coordinates[#spawn_coordinates + 1] = {distance, sX, sY, sZ}
+end
+
 function squad:GetNearestSpawn(params)
     local params = params or nil
 
     if (params ~= nil) then
+        local c = coordinates
 
         local player = params.player
         local pX, pY, pZ = params.x, params.y, params.z
         local team = get_var(player, "$team")
-        local spawn_coordinates = {}
+        spawn_coordinates = { }
 
-        local function distanceFromPlayer(pX, pY, pZ, sX, sY, sZ)
-            return math.sqrt((pX - sX) ^ 2 + (pY - sY) ^ 2 + (pZ - sZ) ^ 2)
-        end
-
-        local function Save(sX, sY, sZ)
-            local distance = distanceFromPlayer(pX, pY, pZ, sX, sY, sZ)
-            spawn_coordinates[#spawn_coordinates + 1] = {distance, sX, sY, sZ}
-        end
-
-        for i = 1, #coordinates do
-            if (coordinates[i][5] == 0) then
+        for i = 1, #c do
+            if (c[i][5] == 0) then
                 if (team == "red") then
-                    Save(coordinates[i][1], coordinates[i][2], coordinates[i][3])
+                    Save(pX, pY, pZ, c[i][1], c[i][2], c[i][3])
                 end
-            elseif (coordinates[i][5] == 1) then
+            elseif (c[i][5] == 1) then
                 if (team == "blue") then
-                    Save(coordinates[i][1], coordinates[i][2], coordinates[i][3])
+                    Save(pX, pY, pZ, c[i][1], c[i][2], c[i][3])
                 end
             end
         end
 
-        function min(t, fn)
-            if #t == 0 then return nil, nil end
-            local x, y, z = 0, 0, 0
-
-            local distance = t[1][1]
-
-            for i = 2, #t do
-                if fn(distance, t[i][1]) then
-                    distance = t[i][1]
-                    x, y, z = t[i][2], t[i][3], t[i][4]
-                end
-            end
-            return x, y, z, distance
-        end
-
-        local x, y, z, distance = min(spawn_coordinates, function(a, b) return a > b end)
+        local x, y, z, distance = MinMax(spawn_coordinates, function(a, b) return a > b end, "min")
         return {x, y, z, distance}
     end
+end
+
+function squad:CalculateVotes()
+    local tab = votes.results
+
+    local temp = { }
+    temp.red, temp.blue = { }, { }
+
+    for k,v in pairs(tab) do
+        if (k) then
+
+            local nominee, nominee_team = v[1], v[2]
+            local total = squad:GetVotes(nominee)
+
+            if (nominee_team == "red") then
+                temp.red[#temp.red + 1] = {nominee, total}
+            elseif (nominee_team == "blue") then
+                temp.blue[#temp.blue + 1] = {nominee, total}
+            end
+        end
+    end
+
+    local red = MinMax(temp.red, function(a, b) return a < b end, "min")
+    local blue = MinMax(temp.blue, function(a, b) return a < b end, "min")
+    return {red = red}
+    return {blue = blue}
 end
 
 function squad:GetVotes(player)
     return votes.total[player] or 0
 end
 
+local function showTimeRemaining(player)
+    local timeRemaining = gsub(votes.timeRemaining_msg, "%%time%%", votes.timeRemaining)
+    rprint(player, timeRemaining)
+end
+
 function squad:showHUD(i)
     local P1Team = get_var(i, '$team')
-
-    local function showTimeRemaining(player)
-        local timeRemaining = gsub(votes.timeRemaining_msg, "%%time%%", votes.timeRemaining)
-        rprint(i, timeRemaining)
-    end
 
     for j = 1, 16 do
         if player_present(j) then
@@ -261,16 +306,22 @@ function squad:showHUD(i)
 
                 local total_votes = squad:GetVotes(j)
                 if (total_votes ~= nil) then
-                    local msg = gsub(gsub(gsub(votes.msg, "%%name%%", get_var(j, '$name')), "%%id%%", j), "%%votes%%", total_votes)
+
+                    local msg = gsub(gsub(gsub(votes.msg, "%%name%%", get_var(j, '$name')),
+                    "%%id%%", j), "%%votes%%", total_votes)
+
                     if not votes.pauseConsole[i] then
                         cls(i, 25)
+
                         if not votes.hasVoted[i] then
                             rprint(i, "========= [ VOTE FOR YOUR LEADER ] =========")
                         else
                             rprint(i, "========= [ YOU HAVE VOTED ] =========")
                         end
+
                         rprint(i, msg)
                         rprint(i, " ")
+
                         if not votes.hasVoted[i] then
                             rprint(i, "Type the Player ID you wish to vote for!")
                             rprint(i, "")
@@ -285,11 +336,9 @@ end
 
 -- Clears the player console:
 function cls(player, count)
-    local count = count or 0
-    if (count ~= 0) then
-        for i = 1, count do
-            rprint(player, " ")
-        end
+    local count = count or 25
+    for i = 1, count do
+        rprint(player, " ")
     end
 end
 
