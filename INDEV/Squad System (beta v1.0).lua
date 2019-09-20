@@ -25,6 +25,7 @@ local coordinates = nil
 
 function OnScriptLoad()
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
+    register_callback(cb["EVENT_TICK"], "OnTick")
     if (get_var(0, "$gt") ~= "n/a") then
         --
     end
@@ -40,49 +41,73 @@ function OnGameStart()
     end
 end
 
--- This function calculates the nearest spawn to the Squad Leader:
-function squad:GetNearestSpawn(PlayerIndex)
-
-    local function distanceFromPlayer(pX, pY, pZ, sX, sY, sZ)
-        return math.sqrt((pX - sX) ^ 2 + (pY - sY) ^ 2 + (pZ - sZ) ^ 2)
-    end
-
-    local PlayerObject = get_dynamic_player(PlayerIndex)
-    local team = get_var(PlayerIndex, "$team")
-    local pX, pY, pZ = read_vector3d(PlayerObject)
-
-    local temp = {}
-
-    local function Save(sX, sY, sZ)
-        local distance = distanceFromPlayer(pX, pY, pZ, sX, sY, sZ)
-        temp[#temp + 1] = {dist = distance, x = sX, y = sY, z = sZ}
-    end
-
-    for i = 1, #coordinates do
-        if (coordinates[i][5] == 0) then
-            Save(coordinates[i][1], coordinates[i][2], coordinates[i][3])
-        elseif (coordinates[i][5] == 1) then
-            Save(coordinates[i][1], coordinates[i][2], coordinates[i][3])
-        end
-    end
-
-    function min(t, fn)
-        if #t == 0 then return nil, nil end
-        local x, y, z = 0, 0, 0
-
-        local distance = 1
-
-        for i = 2, #t do
-            if fn(distance, t[i].dist) then
-                distance = t[i].dist
-                x, y, z = t[i].x, t[i].y, t[i].z
+function OnTick()
+    for i = 1,16 do
+        if player_present(i) and player_alive(i) then
+            
+            -- Testing:
+            local PlayerObject = get_dynamic_player(i)
+            if (PlayerObject ~= 0) then
+            
+                local params = { }
+                params.player = i
+                params.x, params.y, params.z = read_vector3d(PlayerObject + 0x5C)
+                local coords = squad:GetNearestSpawn(params)
+                print(coords[1],coords[2],coords[3])
             end
         end
-        return x, y, z
     end
+end
 
-    local x, y, z = min(temp, function(a, b) return a < b end)
-    return {x, y, z}
+-- This function calculates the nearest spawn to the Squad Leader:
+function squad:GetNearestSpawn(params)
+    local params = params or nil
+    
+    if (params ~= nil) then
+        local player = params.player
+        local pX, pY, pZ = params.x,params.y,params.z
+        local team = get_var(player, "$team")
+        local temp = {}
+    
+        local function distanceFromPlayer(pX, pY, pZ, sX, sY, sZ)
+            return math.sqrt((pX - sX) ^ 2 + (pY - sY) ^ 2 + (pZ - sZ) ^ 2)
+        end
+
+        local function Save(sX, sY, sZ)
+            local distance = distanceFromPlayer(pX, pY, pZ, sX, sY, sZ)
+            temp[#temp + 1] = {distance, sX, sY, sZ}
+        end
+
+        for i = 1, #coordinates do
+            if (coordinates[i][5] == 0) then
+                if (team == "red") then
+                    Save(coordinates[i][1], coordinates[i][2], coordinates[i][3])
+                end
+            elseif (coordinates[i][5] == 1) then
+                if (team == "blue") then
+                    Save(coordinates[i][1], coordinates[i][2], coordinates[i][3])
+                end
+            end
+        end
+
+        function min(t, fn)
+            if #t == 0 then return nil, nil end
+            local x, y, z = 0, 0, 0
+
+            local distance = 1
+
+            for i = 2, #t do
+                if fn(distance, t[i][1]) then
+                    distance = t[i][1]
+                    x, y, z = t[i][2], t[i][3], t[i][4]
+                end
+            end
+            return x, y, z
+        end
+
+        local x, y, z = min(temp, function(a, b) return a < b end)
+        return {x, y, z}
+    end
 end
 
 -- Credits to Devieth (it300) for the below function.
