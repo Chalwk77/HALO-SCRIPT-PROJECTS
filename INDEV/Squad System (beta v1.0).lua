@@ -1,7 +1,10 @@
 --[[
 --=====================================================================================================--
 Script Name: Squad System (beta v1.0), for SAPP (PC & CE)
-Description: N/A
+Description:
+
+CTF Based Games: 2 Teams
+                 Two Leaders (Red Leader, Blue Leader)
 
 Idea taken from: https://opencarnage.net/index.php?/topic/7779-squad-system/
 
@@ -16,7 +19,11 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.12.0.0"
 
 -- ======================= CONFIGURATION STARTS ======================= --
-local squad, votes = { }, {
+local squad = {
+    players_required = 4
+}
+
+local votes = {
     msg = "[#%id%] %name% (Total Votes: %votes%)",
     timeRemaining_msg = "Vote Time Remaining: [%time%]",
     duration = 30,
@@ -32,7 +39,18 @@ function squad:Load()
     coordinates = get_spawns()
     spawn_coordinates = { }
 
-    squad.blueleader, squad.redleader = nil, nil
+    local function isTeamPlay()
+        if (get_var(0, "$ffa") == "0") then
+            return true
+        end
+    end
+
+    if isTeamPlay() then
+        squad.blueleader, squad.redleader = nil, nil
+    else
+        -- to do:
+        -- Create 4 teams of 4 (1 leader per team)
+    end
 
     votes.hasVoted, votes.total = { }, { }
     votes.timeRemaining = votes.duration
@@ -83,7 +101,7 @@ end
 
 function OnTick()
 
-    if (votes.inProgress) and (squad:GetPlayerCount() > 0) then
+    if (votes.inProgress) and (squad:GetPlayerCount() >= squad.players_required) then
 
         votes.timer = votes.timer + time_scale
         local time_factor = ((votes.duration) - (votes.timer))
@@ -93,7 +111,18 @@ function OnTick()
         if (tonumber(seconds) <= 0) then
             votes.timeRemaining = 0
             votes.timer, votes.inProgress = 0, false
-            squad:CalculateVotes()
+
+            local Leader = squad:CalculateVotes()
+            if (leader ~= nil) then
+                local red, blue = Leader['red'], Leader['blue']
+                squad.redleader, squad.blueleader = red[1], blue[1]
+
+                local RedVotes, BlueVotes = red[2], blue[2]
+                local red_name, blue_name = get_var(red[1], "$name"), get_var(blue[1], "$name")
+
+                say_all(red_name .. " is the new Red Team Leader!")
+                say_all(blue_name .. " is the new Blue Team Leader!")
+            end
         end
     end
 
@@ -109,8 +138,9 @@ function OnTick()
                     if (tonumber(seconds) <= 0) then
                         squad:UnpauseConsole(i)
                     end
+                else
+                    squad:showHUD(i)
                 end
-                squad:showHUD(i)
             end
 
             local PlayerObject = get_dynamic_player(i)
@@ -261,30 +291,58 @@ function squad:GetNearestSpawn(params)
     end
 end
 
+local function GetNewLeader(t, fn)
+    if #t == 0 then return nil, nil end
+
+    local highest_votes, new_leader = 0, 0
+
+    for i = 1, #t do
+        if fn(highest_votes, t[i][2]) then
+            highest_votes = t[i][2]
+            new_leader = t[i][1]
+        end
+    end
+
+    return {new_leader = new_leader, total_votes = highest_votes}
+end
+
 function squad:CalculateVotes()
-    local tab = votes.results
+    local results = votes.results
 
     local temp = { }
     temp.red, temp.blue = { }, { }
 
-    for k,v in pairs(tab) do
+    for k, v in pairs(results) do
         if (k) then
 
             local nominee, nominee_team = v[1], v[2]
-            local total = squad:GetVotes(nominee)
+            local total_votes = squad:GetVotes(nominee)
 
             if (nominee_team == "red") then
-                temp.red[#temp.red + 1] = {nominee, total}
+                temp.red[#temp.red + 1] = {nominee, total_votes}
             elseif (nominee_team == "blue") then
-                temp.blue[#temp.blue + 1] = {nominee, total}
+                temp.blue[#temp.blue + 1] = {nominee, total_votes}
             end
         end
     end
 
-    local red = MinMax(temp.red, function(a, b) return a < b end, "min")
-    local blue = MinMax(temp.blue, function(a, b) return a < b end, "min")
-    return {red = red}
-    return {blue = blue}
+    local red = GetNewLeader(temp.red, function(a, b) return a < b end)
+    local blue = GetNewLeader(temp.blue, function(a, b) return a < b end)
+
+    if (red) and (blue) then
+        return {
+            ['red'] = {
+                red.new_leader,
+                red.total_votes,
+            },
+            ['blue'] = {
+                blue.new_leader,
+                blue.total_votes,
+            }
+        }
+    else
+        return error('something went wrong')
+    end
 end
 
 function squad:GetVotes(player)
