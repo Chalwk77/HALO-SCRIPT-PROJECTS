@@ -451,10 +451,11 @@ function secondsToTime(seconds)
 end
 
 --[[=====================================================================================================
-    Huge credits to Devieth (it300) for the below function.
+    Huge credits to Kavawuvi (002) for the below function.
     It's crucial to making this mod work.
-    Devith GitHub: https://github.com/it300/Halo-Lua
-    Code obtained from <https://opencarnage.net/index.php?/topic/7732-self-solved-always-random-spawns/>
+    
+    Kavawuvi GitHub: https://github.com/Kavawuvi/
+    Code obtained from <https://opencarnage.net/index.php?/topic/4195-rallied-teams/>
 
     This function will save a lot of time having to hard code spawn coordinates for each individual map!
 ]]--=====================================================================================================
@@ -477,5 +478,6 @@ function get_spawns()
         local team = read_word(starting_location + 0x10)
         spawns[#spawns + 1] = {x, y, z, r, team}
     end
+    
     return spawns
 end
