@@ -19,6 +19,7 @@ api_version = "1.12.0.0"
 
 local squad = { }
 local coordinates = nil
+local format = string.format
 -- ======================= CONFIGURATION STARTS ======================= --
 -- No settings implemented at this time.
 -- Check back later!
@@ -56,7 +57,11 @@ function OnTick()
                 params.x, params.y, params.z = read_vector3d(PlayerObject + 0x5C)
                 
                 local coords = squad:GetNearestSpawn(params)
-                print(coords[1],coords[2],coords[3],coords[4])
+                local x = format("%0.3f", coords[1])
+                local y = format("%0.3f", coords[2])
+                local z = format("%0.3f", coords[3])
+                local d = format("%0.3f", coords[4])
+                cprint("X: " .. x .. ", Y: " .. y .. ", Z: " .. z .. ", D: " .. d, 7+8)
             end
         end
     end
