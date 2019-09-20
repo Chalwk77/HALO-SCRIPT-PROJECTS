@@ -1,10 +1,7 @@
 --[[
 --=====================================================================================================--
 Script Name: Squad System (beta v1.0), for SAPP (PC & CE)
-Description:
-
-CTF Based Games: 2 Teams
-                 Two Leaders (Red Leader, Blue Leader)
+Description: N/A
 
 Idea taken from: https://opencarnage.net/index.php?/topic/7779-squad-system/
 
