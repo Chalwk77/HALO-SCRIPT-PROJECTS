@@ -20,7 +20,8 @@ api_version = "1.12.0.0"
 local squad = { }
 local coordinates = nil
 -- ======================= CONFIGURATION STARTS ======================= --
--- No setting implemented at this time.
+-- No settings implemented at this time.
+-- Check back later!
 -- ======================= CONFIGURATION ENDS ======================= --
 
 function OnScriptLoad()
@@ -48,10 +49,12 @@ function OnTick()
             -- Testing:
             local PlayerObject = get_dynamic_player(i)
             if (PlayerObject ~= 0) then
-            
+
                 local params = { }
+                
                 params.player = i
                 params.x, params.y, params.z = read_vector3d(PlayerObject + 0x5C)
+                
                 local coords = squad:GetNearestSpawn(params)
                 print(coords[1],coords[2],coords[3])
             end
