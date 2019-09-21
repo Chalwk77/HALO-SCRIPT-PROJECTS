@@ -17,13 +17,18 @@
 ###### V2 API weblink no longer available.
 > * Phasor Forums: [weblink](http://phasor.proboards.com/)
 
+#### Recommended Communities:
+> Open Carnage: [weblink](https://opencarnage.net/)
+> * Discord: https://discord.gg/zXuTAC
+
+
 #### Contributors: [weblink](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/CONTRIBUTING.md)
-> Contributors are those whom have contributed code to my projects in some way. 
-> Sometimes I will use functions written by other people. 
-> In which case, their names will be credited in the relevant scripts (at the top) and their names will be listed in the CONTRIBUTING.md
+> Contributors are those whom have directly contributed code or allowed me to use portions of their code from existing projects. 
+> In which case, their names will be credited in the relevant scripts (at the top) and their names will be listed in the CONTRIBUTING.md file.
 
 #### Code of Conduct: [weblink](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/CODE_OF_CONDUCT.md)
-> Pledge, standards and responsibilities, ect.
+> Pledge, standards and responsibilities, etc.
 
 Contact Me:
-<jericho.crosby227@gmail.com>
+Email: <jericho.crosby227@gmail.com>
+Discord: <Chalwk#9284>
