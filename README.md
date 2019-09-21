@@ -28,6 +28,8 @@
 ##### Code of Conduct: [weblink](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/CODE_OF_CONDUCT.md)
 > Pledge, standards and responsibilities, etc.
 
+
 Contact Me:
 Email: <jericho.crosby227@gmail.com>
+
 Discord: <Chalwk#9284>
