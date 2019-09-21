@@ -29,7 +29,6 @@
 > Pledge, standards and responsibilities, etc.
 
 
-Contact Me:
-Email: <jericho.crosby227@gmail.com>
-
-Discord: <Chalwk#9284>
+##### Contact Me:
+> Email: jericho.crosby227@gmail.com
+> Discord: Chalwk#9284
