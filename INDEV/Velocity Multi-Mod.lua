@@ -40,7 +40,7 @@ Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 * Written by Jericho Crosby (Chalwk)
---=====================================================================================================--
+--======================================================================================================--
 ]]--
 
 api_version = "1.12.0.0"
