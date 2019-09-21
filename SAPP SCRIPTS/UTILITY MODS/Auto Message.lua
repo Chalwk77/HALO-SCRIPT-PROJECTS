@@ -19,27 +19,25 @@ Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 * Written by Jericho Crosby (Chalwk)
+
+- This script is included in the Velocity Multi-Mod with many improvements.
 --=====================================================================================================--
 ]]--
 
 api_version = "1.12.0.0"
 
 -- Configuration [starts]
-prefix = "[Broadcast]"
-server_prefix = "**SERVER**"
+local prefix = "[Broadcast]"
+local server_prefix = "**SERVER**"
 
 -- Custom broadcast command:
-base_command = "broadcast"
+local base_command = "broadcast"
 
 -- Minimum admin level required to use /base_command
-min_privilege_level = 1
-
--- #Errors
-insufficient_permission = "Insufficient Permission!"
-environment_error = "This command can only be executed by a player"
+local privilege_level = 1
 
 -- #Messages
-announcements = {
+local announcements = {
     "Like us on Facebook | facebook.com/page_id",
     
     "Follow us on Twitter | twitter.com/twitter_id",
@@ -50,18 +48,17 @@ announcements = {
     
     "announcement 5",
     
-    "other information here"
-    -- Make sure the last entry in the table doesn't have a comma.
+    "other information here",
     -- Repeat the structure to add more entries.
 }
 
 -- How often should messages be displayed? (in seconds)
-time_between_messages = 300 -- 300 = 5 minutes
+local time_between_messages = 300 -- 300 = 5 minutes
 
 -- Configuration [ends] -------------------------
 
-init_timer = nil
-countdown = 0
+local init_timer
+local countdown = 0
 
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
@@ -139,18 +136,18 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     rprint(PlayerIndex, "Invalid Syntax. Usage: /" .. base_command .. " list|id")
                 end
             else
-                rprint(PlayerIndex, insufficient_permission)
+                rprint(PlayerIndex, "Insufficient Permission!")
             end
             return false
         else
-            cprint(environment_error, 2+8)
+            cprint("This command can only be executed by a player", 2+8)
             return false
         end
     end
 end
 
 function hasPermission(PlayerIndex)
-    if (tonumber(get_var(PlayerIndex, "$lvl"))) >= min_privilege_level then
+    if (tonumber(get_var(PlayerIndex, "$lvl"))) >= privilege_level then
         return true
     else
         return false

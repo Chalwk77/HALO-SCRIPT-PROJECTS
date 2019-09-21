@@ -1,0 +1,419 @@
+[2/22/19]
+1). Began Development of BGS (now known as Velocity).
+Velocity is an all-in-one package that combines a multitude of my scripts.
+ALL combined scripts have been heavily refactored, refined and improved for Velocity,
+with the addition of many new features not found in the standalone versions,
+as well as a ton of 'special' features unique to Velocity that do not come in standalone scripts.
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[2/23/19]
+1). Core functionality complete
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[2/24/19]
+1). First semi-stable Release (github: master -> INDEV)
+Script Released: v1.0
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[2/25/19]
+1). I have made some heavy tweaks to the /clean command (which was previously exclusive to the 'Enter Vehicle' mod)
+in order to accommodate a new system that tracks objects spawned with both Enter vehicle and Item Spawner.
+
+The base command is the same. However, the command arguments have changed:
+
+Valid [id] inputs: [number range 1-16, me or *]
+/clean [id] 1 (cleans up 'Enter Vehicle' objects)
+/clean [id] 2 (cleans up 'Item Spawner' objects)
+/clean [id] * (cleans up 'everything')
+
+Also, to clear up any confusion should there be any, /clean * * is valid - This will clean everything for everybody.
+Additionally, you can toggle on|off garbage collection (on death, on disconnect) in the config sections of the respective mods.
+Script Updated to v1.1
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[2/26/19]
+1). A few tweaks to Alias System.
+Script Updated to v1.2
+2). You can now use Lurker mode while Infinity Ammo is enabled, but you cannot manipulate damage multipliers.
+Script Updated to v1.3
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[2/27/19]
+1). Fixed a map check error relating to Respawn Time.
+Script Updated to v1.4
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[2/28/19]
+1). Fixed a bug relating to Anti Impersonator.
+The user table in the Anti Impersonator configuration table now supports multiple hashes per user.
+Script Updated to v1.5
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[4/1/19]
+1). Refactored Color Reservation
+2). OnServerCommand() | Infinity Ammo (2[t]) was not targeting the correct player. This has been fixed.
+3). Bug fix for Alias System and other minor bug fixes.
+Script Updated to v1.6
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[4/2/19]
+1). Completely Rewrote BGS and released under a new name: (Velocity - Multi Mod).
+Script Updated to v1.7
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[4/22/19]
+1). Updated Anti-Impersonator with optional IP Address scans
+If someone joins with a name found in the users table and their ip address (or hash)
+does not match any of the ip address (or hashes) for that name entry, action will be taken.
+Script Updated to v1.8
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[4/25/19]
+1). Fixed a bug relating to Alias System and a couple of documentation edits
+Script Updated to v1.9
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[4/27/19]
+1). Bug Fix relating to function 'OnPlayerDisconnect()'
+2). Bug Fix relating to function 'velocity:loadMute()'
+3). Bug Fix for Suggestion Box
+4). Other Minor Bug Fixes
+5). Began writing Private Messaging System.
+Script Updated to v1.10
+6). Continued development on Private Messaging System
+Script Updated to v1.11
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[4/28/19]
+1). Added page browser to Private Messaging System (read command /readmail [page num])'.
+2). [Private Messaging System] Continued Developed.
+Script Updated to v1.12
+3). Bug Fix relating to function 'velocity:setLurker()'.
+Script Updated to v1.13
+4). [Private Messaging System] Continued Developed.
+5). [new] Added a new feature (Respawn On Demand).
+Respawn yourself or others on demand with /respawn [id] (no death penalty incurred).
+6). Bug Fix for Portalgun Gun.
+Script Updated to v1.14
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[4/29/19]
+1). Bug Fix for Alias System
+Script Updated to v1.15
+2). [new] Added GIVE feature. Command Syntax: /give <item> [me | id | */all]
+3). More Bug Fixes
+Script Updated to v1.16
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[4/30/19]
+1). Updated Documentation and Bug Fixes.
+Script Updated to v1.17
+2). [new] Added Chat Censor feature.
+3). Small tweak to Mute System in function: OnPlayerChat().
+4). Bug Fix for Alias System.
+Script Updated to v1.18
+5). Small tweak to Player List.
+Script Updated to v1.19
+6). [new] Added Block-Object-Pickup feature. Command Syntax: /block [me | id | */all], /unblock [me | id | */all]
+Script Updated to v1.20
+7). Tweaked Plugin List feature
+You can now view plugins by page: /plugins [page id] (max 10 results per page)
+You can change the max results in 'settings -> global -> max_results_per_page'
+Script Updated to v1.21
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/1/19]
+1). Added 'bomb' from camden_place to Item Spawner objects table.
+Item Keyword is 'bomb1'. (/spawn bomb1 me)
+2). New item spawner command parameter: [amount].
+You can now specify the amount of the <item> to spawn.
+For example, '/spawn hog me 5' will spawn 5 chain gun hogs.
+Script Updated to v1.22
+3). Small tweak to function 'OnPlayerChat().
+Chat Command 'SKIP' typed in capitals will now trigger Map Skipping properly.
+Previously only 'skip' in lowercase would trigger this.
+4). Small tweak to 'Give' feature command output
+Script Updated to v1.23
+5). Small tweak to /block, /unblock feature
+6). Added missing /itemlist command logic for Item Spawner.
+This command shows you a list of all available objects that you can /spawn, /enter or /give for the current map.
+Script Updated to v1.24
+7). Tweaked Chat Censor feature + 1 documentation edit.
+Script Updated to v1.25
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/2/19]
+1). [new] Command: /lore [page id].
+This command displays a custom list of information (by page).
+You can change the messages in 'settings -> global -> information'
+Script Updated to v1.26
+2). Small tweak to Chat Censor.
+Script Updated to v1.27
+3). Another tweak to Chat Censor.
+Script Updated to v1.28
+4). More tweaks to Chat Censor and a couple of documentation edits.
+Script Updated to v1.29
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/3/19]
+1). Bug fix for List Players feature.
+2). Other minor tweaks and a few documentation edits.
+3). Tiny tweak in function 'velocity:setLurker()'
+Script Updated to v1.30
+4). Bug fix in function 'OnPlayerChat()' - Empty messages will now return false.
+5). Bug fix for command: /plugins [page id]
+The command feedback now correctly displays the status of each individual plugin.
+6). Bug fix for Admin Chat feature - script will no longer throw an error if arg[2] (command parameter) is nil.
+7). Bug fix for Item Spawner, Enter Vehicle and Give.
+Script Updated to v1.31
+8). For performance reasons, I had to refactor a large amount of the Alias System.
+The command syntax has changed from '/alias [id]' to '/alias [id] [page id]'.
+
+There were two reasons for this change.
+
+Reason #1:
+Most people have pirated copies of Halo nowadays.
+Eventually, the number of aliases registered to a pirated key will result in the names being cut off the screen as you view them.
+Halo's rcon environment can only display so many lines before they disappear beyond the viewable buffer.
+A way around this was to split the names into pages - wherein by, a certain number of lines (rows & columns) will be shown per page.
+This consequently, albeit positive, means the Alias System is not as taxing on server performance as you view the aliases.
+
+Reason #2:
+With so many names registered to a pirated key, it is difficult (without comparing IP address to names) to determine
+what names the target player has actually used. For this reason, I plan on implementing an '/ipalias [ip]' command feature at a later date.
+In the meantime, the system is perfect for viewing names used with (legit) copies of Halo.
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/4/19]
+1). Couple of minor tweaks.
+Script Updated to v1.32
+2). Tweaked Console Logo.
+Script Updated to v1.33
+3). Bug fix for Alias System - checks against pirated copies of Halo.
+4). Bug fix for Admin Chat - Fixed a problem with permission check.
+Script Updated to v1.34
+5). Small tweak to Admin Chat (again)
+Script Updated to v1.35
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/5/19]
+1). Small tweak to Chat Censor.
+Script Updated to v1.36
+2). Bug fix for Alias System - page browser.
+3). Bug fix for Lurker - Command: '/lurker on me' no longer throws an error if executed from console.
+Script Updated to v1.37
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/6/19]
+1). Removed duplicated perm-check in function 'velocity:portalgun()'.
+Script Updated to v1.38
+2). Fixed a small problem with command per-check errors spamming the executor.
+Script Updated to v1.39
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/7/19]
+1). Lurker will now tell you if someone is in Lurker Mode by aiming at them.
+2). Small tweak to Portalun Mode.
+3). All Velocity Commands are now case-insensitive.
+4). A few more minor tweaks here and there.
+Script Updated to v1.40
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/8/19]
+1). Fixed a major problem with Alias System.
+2). [new] Added new 'Get Coords' feature. Command syntax: /gc [me | id | */all].
+Use this command to retrieve the current x,y,z coordinates of the target player.
+3). Tidied up some code.
+4). Bug fix for command /velocity:
+Output will now correctly display the version string with two decimal places.
+Script Updated to v1.41
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/12/19]
+1). Fixed a bug with Alias System (requires regenerating alias.txt).
+2). A few tweaks to Private Messaging System + New Command: /delpm [message id | */all]
+With this command, you can delete emails individually or all at once.
+Script Updated to v1.42
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/13/19]
+1). [new] Added 'Auto Message' feature:
+This mod will automatically broadcast messages every x seconds.
+You can manually broadcast a message on demand with /broadcast [id].
+To get the broadcast Message ID, type /broadcast list.
+Script Updated to v1.43
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/14/19]
+1). Various minor bug fixes.
+2). There has been a small but significant change to the (now optional) 'Target ID' command parameter for:
+portalgun, admin chat, lurker, give, item spawner, enter vehicle and other similar features.
+This change means that if the Target ID parameter is not specified, the executor will become the default target.
+For instance, '/lurker on' will trigger Lurker for the executor.
+Script Updated to v1.44
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/15/19]
+1). Bug fix for nil-check error in function 'OnServerCommand()'.
+Script Updated to v1.45
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/16/19]
+1). Fixed a couple of potential crashes.
+Script Updated to v1.46
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/18/19]
+1). [new] Color Changer feature: (Change any player's armor color on demand).
+Command Syntax: /setcolor [color id] [me | id | */all]
+2). Bug fix for Private Messaging System (pm spy was visible to the recipient).
+3). Other minor bug fixes, tweaks and code clean ups.
+4). Bug fix for Infinity Ammo.
+Script Updated to v1.47
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/19/19]
+1). Bug fix in function 'OnServerCommand()'.
+Script Updated to v1.48
+2). Small fix for command /plugins. If the page ID is not specified, it will now default to page 1.
+3). Tweaked Lurker a little bit: When disabling Lurker, you will now teleport to your previous location.
+Script Updated to v1.49
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/20/19]
+1). Another tweak for Lurker:
+If you were in a vehicle when disabling Lurker, you will now be automatically re-entered into that exact same vehicle (in the same seat).
+Script Updated to v1.50
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/22/19]
+1). Tweak to Lurker: You will now freeze on the spot if you pick up the flag/oddball while in Lurker Mode and unfreeze when you drop it.
+The reason for this change is because people were exploiting the speed-boost that Lurker gives you.
+On Small maps, you could pickup the opposing teams flag and score with it before the drop-flag-warning timer runs out.
+Script Updated to v1.51
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/23/19]
+1). Minor bug fixes.
+Script Updated to v1.52
+2). Major bug fix for Lurker:
+The flag will no longer be permanently deleted when disabling Lurker (or from auto-kill).
+Script Updated to v1.53
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/24/19]
+1). Bug fix (and one tweak) for Color Changer:
+A: Made a correction to gametype-check-logic.
+B: If you were in a vehicle when you set your color, you will now re enter into that exact same vehicle (in the same seat), just like Lurker.
+2). The Objective-Check routines for Lurker will now work on protected maps.
+This means, for example, if you pickup the flag or oddball on a protected map,
+lurker will recognize that you have picked up the objective, even if the tag id for that object is obfuscated and/or protected internally.
+Script Updated to v1.54
+3). New setting ('hide') for LURKER:
+Toggle 'hide' on or off to completely hide the player from others.
+Script Updated to v1.55
+4). A couple of minor tweaks.
+Script Updated to v1.56
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/26/19]
+1). Small tweak to Lurker.
+If 'hide' is enabled, players in Lurker Mode will now be hidden from the radar.
+Script Updated to v1.57
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/28/19]
+1). New option added to lurker: 'hide_from_radar'.
+Previously, if 'hide' was enabled, you would be hidden from radar regardless.
+You can now toggle this on or off with the new setting.
+Script Updated to v1.58
+2). Bug fix for Color Changer. 
+3). Removed mod: 'Spawn From Sky'.
+Script Updated to v1.59
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/29/19]
+1). Completely rewrote Lurker. (See Lurker's config section for details)
+2). Bug fix for Chat Censor.
+3). Other minor bug fixes.
+Script Updated to v1.60
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/30/19]
+1). Bug Fixes from the aftermath of rewriting Lurker.
+Script Updated to v1.61
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[5/31/19]
+1). Bug fixes for Chat Censor and Color Changer.
+Script Updated to v1.62
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[6/1/19]
+1). Bug fix for Lurker - Players were joining in Lurker Mode when they shouldn't have been.
+Script Updated to v1.63
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[6/5/19]
+1). Minor tweak for Admin Chat:
+Admin Chat now has a chat-type prefix.
+Script Updated to v1.64
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[6/10/19]
+1). Updated the 'Known Pirated Hashes' list.
+Script Updated to v1.65
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[7/8/19]
+1). Bug fix for mute system.
+Script Updated to v1.66
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[7/29/19]
+1). Bug fix in function OnServerChat().
+Script Updated to v1.67

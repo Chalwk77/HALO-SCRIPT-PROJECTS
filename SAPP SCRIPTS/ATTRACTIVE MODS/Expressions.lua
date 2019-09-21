@@ -1,11 +1,13 @@
 --[[
 --=====================================================================================================--
-Script Name: Expressions, for SAPP (PC & CE)
+Script Name: Expressions (v2.0), for SAPP (PC & CE)
 Description: Want to express your rage, taunt your opponents or cuss in a family-friendly-ish way? Look no further!
 
 Type "!cuss" to cuss
 Type "!anger" to express anger
 Type "!taunt" to taunt the enemy!
+
+* Updated 17/09/19
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -18,12 +20,19 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.11.0.0"
 
 -- Configuration [starts]
-cuss_expression = "!cuss"
-anger_expression = "!anger"
-taunt_expression = "!taunt"
-server_prefix = "**SERVER** "
 
-expressions = {
+-- Type any of the following "expressions" into chat:
+
+local cuss_expression = "!cuss"
+local anger_expression = "!anger"
+local taunt_expression = "!taunt"
+
+-- A function in this script temporarily removes the server prefix while it announces a message.
+-- The prefix is restored to "server_prefix" when the relay has finished. 
+-- Type your server's default prefix here:
+local server_prefix = "** SERVER ** " -- Ensure this is suffixed with a space 
+
+local expressions = {
     anger = {
         "FOR GOODNESS SAKES",
         "OUH C'MON!",
@@ -33,8 +42,7 @@ expressions = {
         "GRRRRRRR!!",
         "*FLARES NOSTRILS*",
         "*SCREAMS AT TOP OF LUNGS*",
-        "BOLLOCKS"
-        -- Make sure the last entry in the table doesn't have a comma.
+        "BOLLOCKS",
         -- Repeat the structure to add more entries.
     },
     cuss = {
@@ -61,8 +69,7 @@ expressions = {
         "Dagnabbit!",
         "Dang rabbit!",
         "Dadgummit!",
-        "Jumpin' Jiminy!"
-        -- Make sure the last entry in the table doesn't have a comma.
+        "Jumpin' Jiminy!",
         -- Repeat the structure to add more entries.
     },
     taunt = {
@@ -81,8 +88,7 @@ expressions = {
         "Sell your PC. Just do it.",
         "Don't be shy! You can shoot at me next time, I don't mind!",
         "You must be new at this!",
-        "Is that really a gun in your hand or is it just wishful thinkin'!"
-        -- Make sure the last entry in the table doesn't have a comma.
+        "Is that really a gun in your hand or is it just wishful thinkin'!",
         -- Repeat the structure to add more entries.
     }
 }
@@ -93,36 +99,33 @@ function OnScriptLoad()
 end
 
 function OnScriptUnload()
+    -- Not Used
+end
 
+function Broadcast(p, m)
+    local name = get_var(p, "$name")
+    execute_command("msg_prefix \"\"")
+    say_all(name, m)
+    execute_command("msg_prefix \"" .. server_prefix .. "\"")
 end
 
 function OnPlayerChat(PlayerIndex, Message, Type)
     local msg = string.lower(Message)
     if (msg == anger_expression) then
-        execute_command("msg_prefix \"\"")
-        say_all(get_var(PlayerIndex, "$name") .. ": " .. expressions.anger[randomize(expressions.anger)])
-        execute_command("msg_prefix \"" .. server_prefix .. "\"")
+                
+        local msg = expressions.anger[math.random(#expressions.anger)]
+        broadcast(PlayerIndex, msg)
         return false
 
     elseif (msg == cuss_expression) then
-        execute_command("msg_prefix \"\"")
-        say_all(get_var(PlayerIndex, "$name") .. ": " .. expressions.cuss[randomize(expressions.cuss)])
-        execute_command("msg_prefix \"" .. server_prefix .. "\"")
+        local msg = expressions.cuss[math.random(#expressions.cuss)]
+        broadcast(PlayerIndex, msg)
         return false
 
     elseif (msg == taunt_expression) then
-        execute_command("msg_prefix \"\"")
-        say_all(get_var(PlayerIndex, "$name") .. ": " .. expressions.taunt[randomize(expressions.taunt)])
-        execute_command("msg_prefix \"" .. server_prefix .. "\"")
+    
+        local msg = expressions.taunt[math.random(#expressions.taunt)]
+        broadcast(PlayerIndex, msg)
         return false
     end
-end
-
-function randomize(array)
-    math.randomseed(os.time())
-    math.random();
-    math.random();
-    math.random()
-    local index = math.random(1, #array)
-    return index
 end

@@ -36,6 +36,7 @@ Contributors to projects and code
         - https://github.com/Halogen002/SAPP-HTTP-Client
   * GetTagInfo
         - get_tag_info (function)
+  * My Spawn-Protect-DoNoDamage script utilizes modified parts of 002's equipment loading/saving script.
         
 * **[H® Shaft](http://pastebin.com/u/HR_Shaft)**
 

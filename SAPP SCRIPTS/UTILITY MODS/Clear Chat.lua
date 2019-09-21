@@ -10,6 +10,8 @@ Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 ~ Written by Jericho Crosby (Chalwk)
+
+- This script is included in the Velocity Multi-Mod with many improvements.
 --=====================================================================================================--
 ]]
 

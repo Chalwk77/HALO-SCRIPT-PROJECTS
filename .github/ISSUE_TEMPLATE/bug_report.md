@@ -1,6 +1,9 @@
 ---
 name: Bug report
-about: Create a report to help us improve
+about: Click to create a bug report.
+title: ''
+labels: ''
+assignees: ''
 
 ---
 
