@@ -30,6 +30,6 @@
 
 
 ##### Contact Me:
-> Email: jericho.crosby227@gmail.com
-> * Discord: Chalwk#9284
+Email: jericho.crosby227@gmail.com
+Discord: Chalwk#9284
 
