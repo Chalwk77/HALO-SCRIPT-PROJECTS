@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Chalwk - Script Template, for SAPP (PC & CE)
+Script Name: Chalwk - Script Template (v2), for SAPP (PC & CE)
 				
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -24,6 +24,16 @@ local mod = {
     -- Minimum permission needed to execute the custom command on others players:
     permission_extra = 4,
     
+    -- Messages printed when you enable/disable:
+    messages = {
+        [1] = "%state%!",
+        [2] = "%state% for %target_name%",
+        [3] = "%state% by %executor_name%",
+        [4] = "already %state%!",
+        [5] = "%target_name%% already %state%!",
+        [6] = "Invalid Syntax: Usage: /%command% on|off [me | id | */all]"
+    },
+
     -- ============= Configuration Ends ============= --
 }
 
@@ -78,12 +88,12 @@ end
 function OnPlayerConnect(p)
     ip_table[p] = get_var(p, '$ip')
     
-    local ip = mod:GetIP(p)
+    -- local ip = mod:GetIP(p)
     --
 end
 
 function OnPlayerDisconnect(p)
-    local ip = mod:GetIP(p)
+    -- local ip = mod:GetIP(p)
     
     ip_table[p] = nil
     --
@@ -112,7 +122,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         end
                     end
                 else
-                    mod:Respond(executor, "Invalid Syntax: Usage: /" .. mod.command .. " on|off [me | id | */all]", 4 + 8)
+                    local feedback = gsub(mod.messages[6], "%%command%%", mod.command)
+                    mod:Respond(executor, feedback, 4 + 8)
                 end
             end
         end
@@ -140,9 +151,66 @@ function mod:ExecuteCore(params)
         local admin_level = tonumber(get_var(eid, '$lvl'))
                 
         local proceed = mod:executeOnOthers(eid, is_self, is_console, admin_level)
+        local valid_state
         
         if (proceed) then
-            -- execute main logic:
+        
+            local state = params.state
+            local state = mod:ActivationState(eid, state)
+            
+            if (state) then
+                mod[tip] = mod[tip] or nil
+                            
+                local already_activated = (mod[tip] == true)            
+                local already_set
+                
+                if (state == 1) then
+                    state, valid_state = "enabled", true
+                    if (mod[tip] == nil) then
+                        mod[tip] = true
+                    else
+                        already_set = true
+                    end
+                elseif (state == 0) then
+                    state, valid_state = "disabled", true
+                    if (mod[tip] == already_activated) then
+                        mod[tip] = nil
+                    else
+                        already_set = true
+                    end
+                end
+                
+                if (valid_state) then               
+                    local messages = mod.messages
+                    local Feedback = function(Message)
+                        local words = {
+                            ["%%state%%"] = state,
+                            ["%%executor_name%%"] = en,
+                            ["%%target_name%%"]  = tn,
+                        }
+                        
+                        for k,v in pairs(words) do
+                            Message = gsub(Message, k, v)
+                        end
+                        return Message
+                    end          
+                    
+                    if (not already_set) then 
+                        if (is_self) then
+                            mod:Respond(eid, Feedback(messages[1]), 2 + 8)
+                        else
+                            mod:Respond(eid, Feedback(messages[2]), 2 + 8)
+                            mod:Respond(tid, Feedback(messages[3]), 2 + 8)
+                        end
+                    else
+                        if (is_self) then
+                            mod:Respond(eid, Feedback(messages[4]), 4 + 8)
+                        else
+                            mod:Respond(eid, Feedback(messages[5]), 4 + 8)
+                        end
+                    end
+                end
+            end
         end
     end
 end
@@ -252,6 +320,18 @@ function mod:executeOnOthers(e, self, is_console, level)
     end
 end
 
+function mod:ActivationState(e, s)
+    if (s == "on") or (s == "1") or (s == "true") then
+        return 1
+    elseif (s == "off") or (s == "0") or (s == "false") then
+        return 0
+    else
+        local feedback = gsub(mod.messages[6], "%%command%%", mod.command)
+        mod:Respond(e, feedback, 4 + 8)
+        return false
+    end
+end
+
 function mod:isConsole(e)
     if (e) then
         if (e ~= -1 and e >= 1 and e < 16) then
@@ -264,24 +344,23 @@ end
 
 function mod:isGameOver(p)
     if (game_over) then
-        mod:Respond(p, "Command Failed -> Game has Ended.", 4+8)
         mod:Respond(p, "Please wait until the next game has started.", 4+8)
         return true
     end
 end
 
 function mod:GetIP(p)
-    local ip_address
     
-    if (p) then        
-        if (halo_type == 'PC') then
-            ip_address = ip_table[p]
-        else
-            ip_address = get_var(p, '$ip')
-        end
+    if (halo_type == 'PC') then
+        ip_address = ip_table[p]
+    else
+        ip_address = get_var(p, '$ip')
     end
-    
-    return ip_address:match('(%d+.%d+.%d+.%d+)')
+    if ip_address ~= nil then
+        return ip_address:match('(%d+.%d+.%d+.%d+)')
+    else
+        error(debug.traceback())
+    end
 end
 
 function mod:Respond(p, msg, color)
@@ -293,7 +372,7 @@ function mod:Respond(p, msg, color)
     end
 end
 
-function mod:StringSplit(str)
+function mod:StringSplit(str, bool)
     local subs = {}
     local sub = ""
     local ignore_quote, inquote, endquote
