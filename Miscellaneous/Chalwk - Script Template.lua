@@ -159,6 +159,14 @@ function mod:ValidateCommand(executor, args)
                     table.insert(players, i)
                 end
             end
+        elseif (arg == "rand" or arg == "random") then
+            local temp = { }
+            for i = 1,16 do
+                if player_present(i) then
+                    temp[#temp + 1] = i
+                end
+            end
+            table.insert(players, temp[math.random(#temp)])
         else
             mod:Respond(executor, "Invalid player id. Usage: [number: 1-16] | */all | me", 4 + 8)
             params.is_error = true
