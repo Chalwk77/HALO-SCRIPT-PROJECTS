@@ -1,7 +1,7 @@
 --[[
 --=====================================================================================================--
-Script Name: Chalwk - Script Template (v2), for SAPP (PC & CE)
-				
+Script Name: Chalwk - Script Template, for SAPP (PC & CE)
+
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -24,15 +24,36 @@ local mod = {
     -- Minimum permission needed to execute the custom command on others players:
     permission_extra = 4,
     
-    -- Messages printed when you enable/disable:
     messages = {
-        [1] = "%state%!",
-        [2] = "%state% for %target_name%",
-        [3] = "%state% by %executor_name%",
-        [4] = "already %state%!",
-        [5] = "%target_name%% already %state%!",
-        [6] = "Invalid Syntax: Usage: /%command% on|off [me | id | */all]"
+    
+        -- EDIT_ME_FEATURE output format:
+        [1] = "%name% [%id%]: %message%",
+    
+        -- This message is sent to (you) when you enable/disable for yourself.
+        [2] = "EDIT_ME_FEATURE %state%!",
+        
+        -- This message is sent to (you) when you enable/disable for others.
+        [3] = "EDIT_ME_FEATURE %state% for %target_name%",
+        
+        -- This message is sent to (target player) when you enable/disable for them.
+        [4] = "Your EDIT_ME_FEATURE was %state% by %executor_name%",
+        
+        -- This message is sent to (you) when your EDIT_ME_FEATURE is already enabled/disabled.
+        [5] = "Your EDIT_ME_FEATURE is already %state%!",
+        
+        -- This message is sent to (target player) when their EDIT_ME_FEATURE is already enabled/disabled.
+        [6] = "%target_name%%'s EDIT_ME_FEATURE is already %state%!",
+                
+        -- This message is sent when a player connects to the server (if previously activated).
+        -- This requires the 'restore' setting to be TRUE.
+        [7] = "Your EDIT_ME_FEATURE is Enabled! (auto-restore)",
+        
+        -- This message is sent to (you) when there is a command syntax error.
+        [8] = "Invalid Syntax: Usage: /%command% on|off [me | id | */all]",
     },
+    
+    -- Should EDIT_ME_FEATURE be restored for returning players? (if previously activated)
+    restore = true,
 
     -- ============= Configuration Ends ============= --
 }
@@ -67,7 +88,12 @@ function OnScriptLoad()
         game_over = false
         for i = 1,16 do
             if player_present(i) then
-                -- ...
+                if mod:isAdmin(i) then
+                    ip_table[i] = get_var(i, '$ip')
+                    
+                    local ip = mod:GetIP(i)
+                    mod[ip] = nil
+                end
             end
         end
     end
@@ -86,17 +112,29 @@ function OnGameEnd()
 end
 
 function OnPlayerConnect(p)
-    ip_table[p] = get_var(p, '$ip')
-    
-    -- local ip = mod:GetIP(p)
-    --
+    if mod:isAdmin(p) then
+        ip_table[p] = get_var(p, '$ip')
+        
+        local ip = mod:GetIP(p)
+        mod[ip] = mod[ip] or nil
+        
+        local already_activated = (mod[ip] == true)
+        if (mod.restore) and (already_activated) then
+            mod:Respond(p, mod.messages[7])
+        end
+    end
 end
 
-function OnPlayerDisconnect(p)
-    -- local ip = mod:GetIP(p)
-    
-    ip_table[p] = nil
-    --
+function OnPlayerDisconnect(p)  
+    if mod:isAdmin(p) then
+        local ip = mod:GetIP(p)
+        
+        -- Disable Mod for this player:
+        local already_activated = (mod[ip] == true)
+        if (not mod.restore) or (not already_activated) then
+            ip_table[p] = nil
+        end
+    end
 end
 
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
@@ -122,7 +160,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         end
                     end
                 else
-                    local feedback = gsub(mod.messages[6], "%%command%%", mod.command)
+                    local feedback = gsub(mod.messages[8], "%%command%%", mod.command)
                     mod:Respond(executor, feedback, 4 + 8)
                 end
             end
@@ -183,6 +221,7 @@ function mod:ExecuteCore(params)
                 if (valid_state) then               
                     local messages = mod.messages
                     local Feedback = function(Message)
+                    
                         local words = {
                             ["%%state%%"] = state,
                             ["%%executor_name%%"] = en,
@@ -197,16 +236,16 @@ function mod:ExecuteCore(params)
                     
                     if (not already_set) then 
                         if (is_self) then
-                            mod:Respond(eid, Feedback(messages[1]), 2 + 8)
-                        else
                             mod:Respond(eid, Feedback(messages[2]), 2 + 8)
-                            mod:Respond(tid, Feedback(messages[3]), 2 + 8)
+                        else
+                            mod:Respond(eid, Feedback(messages[3]), 2 + 8)
+                            mod:Respond(tid, Feedback(messages[4]), 2 + 8)
                         end
                     else
                         if (is_self) then
-                            mod:Respond(eid, Feedback(messages[4]), 4 + 8)
-                        else
                             mod:Respond(eid, Feedback(messages[5]), 4 + 8)
+                        else
+                            mod:Respond(eid, Feedback(messages[6]), 4 + 8)
                         end
                     end
                 end
@@ -294,7 +333,7 @@ end
 function mod:checkAccess(p)
     local access
     if not mod:isConsole(p) then
-        if (tonumber(get_var(p, '$lvl')) >= mod.permission) then
+        if mod:isAdmin(p) then
             access = true
         else
             mod:Respond(p, "Command Failed. Insufficient permission!", 4 + 8)
@@ -326,7 +365,7 @@ function mod:ActivationState(e, s)
     elseif (s == "off") or (s == "0") or (s == "false") then
         return 0
     else
-        local feedback = gsub(mod.messages[6], "%%command%%", mod.command)
+        local feedback = gsub(mod.messages[8], "%%command%%", mod.command)
         mod:Respond(e, feedback, 4 + 8)
         return false
     end
@@ -360,6 +399,12 @@ function mod:GetIP(p)
         return ip_address:match('(%d+.%d+.%d+.%d+)')
     else
         error(debug.traceback())
+    end
+end
+
+function mod:isAdmin(p)
+    if (tonumber(get_var(p, "$lvl"))) >= mod.permission then
+        return true
     end
 end
 
