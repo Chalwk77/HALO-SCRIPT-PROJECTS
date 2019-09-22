@@ -1,6 +1,11 @@
 --[[
 --=====================================================================================================--
 Script Name: Admin Chat (v2), for SAPP (PC & CE)
+Description: This is a utility omd that allows you to chat privately with other admins.
+             Command Syntax: /achat on|off [me | id | */all]
+             
+             When Admin Chat is enabled your chat messages will appear in the Rcon Console environment.
+             Only admins will see these messages.
 				
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -44,13 +49,9 @@ local adminchat = {
 }
 
 -- Variables for String Library:
-local format = string.format
 local sub, gsub = string.sub, string.gsub
 local lower, upper = string.lower, string.upper
 local match, gmatch = string.match, string.gmatch
-
--- Variables for Math Library:
-local floor, sqrt = math.floor, math.sqrt
 
 -- Game Variables:
 local game_over
