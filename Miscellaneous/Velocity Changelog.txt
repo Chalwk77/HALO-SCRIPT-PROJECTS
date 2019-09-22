@@ -417,3 +417,9 @@ Script Updated to v1.66
 [7/29/19]
 1). Bug fix in function OnServerChat().
 Script Updated to v1.67
+-------------------------------------------------------------------------------------------------------------------------------
+
+
+[9/22/19]
+1). Bug fixes. Nothing major
+Script Updated to v1.68
