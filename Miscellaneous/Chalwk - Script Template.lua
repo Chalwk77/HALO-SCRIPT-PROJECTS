@@ -44,6 +44,9 @@ local floor, sqrt = math.floor, math.sqrt
 -- Game Variables:
 local game_over
 
+-- Game Tables: 
+-- ...
+
 function OnScriptLoad()
 
     -- Register needed event callbacks:
@@ -55,6 +58,11 @@ function OnScriptLoad()
     
     if (get_var(0, "$gt") ~= "n/a") then
         game_over = false
+        for i = 1,16 do
+            if player_present(i) then
+                -- ...
+            end
+        end
     end
 end
 
