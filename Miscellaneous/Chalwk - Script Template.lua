@@ -30,8 +30,8 @@ local mod = {
 -- Variables for String Library:
 local format = string.format
 local sub, gsub = string.sub, string.gsub
-local match, gmatch = string.match, string.gmatch
 local lower, upper = string.lower, string.upper
+local match, gmatch = string.match, string.gmatch
 
 -- Variables for Math Library:
 local floor, sqrt = math.floor, math.sqrt
@@ -40,8 +40,8 @@ local floor, sqrt = math.floor, math.sqrt
 local game_over
 
 -- Game Tables: 
-local others_cmd_error = { }
 local ip_table = { }
+local others_cmd_error = { }
 -- ...
 
 function OnScriptLoad()
