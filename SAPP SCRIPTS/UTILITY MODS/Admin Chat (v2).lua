@@ -29,20 +29,32 @@ local adminchat = {
     -- Minimum permission needed to execute the custom command on others players:
     permission_extra = 4,
     
-    -- Messages printed when you enable/disable Admin Chat:
     messages = {
+    
+        -- This message is sent to (you) when you enable/disable for yourself.
         [1] = "Admin Chat %state%!",
+        
+        -- This message is sent to (you) when you enable/disable for others.
         [2] = "Admin Chat %state% for %target_name%",
+        
+        -- This message is sent to the target player when you enable/disable for others.
         [3] = "Your Admin Chat was %state% by %executor_name%",
+        
+        -- This message is sent to (you) when your Admin Chat is already enabled/disabled.
         [4] = "Your Admin Chat is already %state%!",
+        
+        -- This message is sent to the target player when their Admin Chat is already enabled/disabled.
         [5] = "%target_name%%'s Admin Chat is already %state%!",
+        
+        -- This message is sent to (you) when there is a command syntax error.
         [6] = "Invalid Syntax: Usage: /%command% on|off [me | id | */all]",
         
-        -- Message sent when 'restore' setting is true.
+        -- This message is sent when a player connects to the server (if previously activated).
+        -- This requires the 'restore' setting to be TRUE.
         [7] = "Your Admin Chat is Enabled! (auto-restore)",
     },
     
-    -- Should A-Chat be restored when a player rejoins? (if previously activated)
+    -- Should A-Chat be restored for returning players? (if previously activated)
     restore = true,
 
     -- ============= Configuration Ends ============= --
