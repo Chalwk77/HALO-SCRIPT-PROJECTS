@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.67), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.68), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines a multitude of my scripts.
              ALL combined scripts have been heavily refactored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
@@ -738,7 +738,7 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.67, -- << --- do not touch
+            script_version = 1.68, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
@@ -7617,6 +7617,12 @@ function RecordChanges()
     cl[#cl + 1] = "[7/29/19]"
     cl[#cl + 1] = "1). Bug fix in function OnServerChat()."
     cl[#cl + 1] = "Script Updated to v1.67"
+    cl[#cl + 1] = "-------------------------------------------------------------------------------------------------------------------------------"
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = ""
+    cl[#cl + 1] = "[9/22/19]"
+    cl[#cl + 1] = "1). Bug fixes. Nothing major"
+    cl[#cl + 1] = "Script Updated to v1.68"
     file:write(concat(cl, "\n"))
     file:close()
     cprint("[VELOCITY] Writing Change Log...", 2 + 8)
