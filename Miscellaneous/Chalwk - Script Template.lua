@@ -90,13 +90,7 @@ end
 
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local command, args = mod:StringSplit(Command)
-    
-    local cmd = { }
-    
-    -- Executor ID, Executor Name, Executor IP, Command Args
-    cmd.eid, cmd.en = tonumber(PlayerIndex), get_var(PlayerIndex, "$name")
-    cmd.eip = mod:GetIP(PlayerIndex)
-    cmd.args = args
+    local executor = tonumber(PlayerIndex)
     
     if (command == nil) then
         return
@@ -104,21 +98,21 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     command = lower(command) or upper(command)
 
     if (command == mod.command) then
-        if not mod:isGameOver(cmd.eid) then
-            if mod:checkAccess(cmd.eid) then
+        if not mod:isGameOver(executor) then
+            if mod:checkAccess(executor) then
                 if (args[1] ~= nil) then
                 
-                    local params = mod:ValidateCommand(cmd)
+                    local params = mod:ValidateCommand(executor, args)
                     
                     if (params ~= nil) and (not params.target_all) and (not params.is_error) then
-                        local Target = tonumber(args[2]) or tonumber(cmd.eid)
+                        local Target = tonumber(args[2]) or tonumber(executor)
                         
-                        if mod:isOnline(Target, cmd.eid) then
+                        if mod:isOnline(Target, executor) then
                             mod:ExecuteCore(params)
                         end
                     end
                 else
-                    mod:Respond(cmd.eid, "Invalid Syntax: Usage: /" .. mod.command .. " on|off [me | id | */all]", 4 + 8)
+                    mod:Respond(executor, "Invalid Syntax: Usage: /" .. mod.command .. " on|off [me | id | */all]", 4 + 8)
                 end
             end
         end
@@ -129,7 +123,7 @@ end
 function mod:ExecuteCore(params)
     local params = params or nil
     if (params ~= nil) then
-        
+                
         -- Target Parameters:
         local tid, tip, tn  = params.tid, params.tip, params.tn
         
@@ -151,71 +145,64 @@ function mod:ExecuteCore(params)
         local proceed = mod:executeOnOthers(eid, is_self, is_console, admin_level)
         
         if (proceed) then
-            
             -- execute main logic:
         end
     end
 end
 
-function mod:ValidateCommand(cmd)
-    local cmd = cmd or nil
-    
-    if (cmd ~= nil) then
-        local params = { }
-        local args = cmd.args
-                    
-        local function getplayers(arg)
-            local players = { }
-            
-            if (arg == nil) or (arg == "me") then
-                table.insert(players, cmd.eid)
-            elseif (arg:match("%d+")) then
-                table.insert(players, tonumber(cmd.eid))
-            elseif (arg == "*" or arg == "all") then
-                params.target_all = true
-                for i = 1, 16 do
-                    if player_present(i) then
-                        table.insert(players, i)
-                    end
-                end
-            else
-                mod:Respond(cmd.eid, "Invalid player id. Usage: [number: 1-16] | */all | me", 4 + 8)
-                params.is_error = true
-                return false
-            end
-
-            for i = 1, #players do
-                if (cmd.eid ~= tonumber(players[i])) then
-                    mod.others_cmd_error[cmd.eid] = { }
-                    mod.others_cmd_error[cmd.eid] = true
+function mod:ValidateCommand(executor, args)
+    local params = { }
+                
+    local function getplayers(arg)
+        local players = { }
+        
+        if (arg == nil) or (arg == "me") then
+            table.insert(players, executor)
+        elseif (arg:match("%d+")) then
+            table.insert(players, tonumber(executor))
+        elseif (arg == "*" or arg == "all") then
+            params.target_all = true
+            for i = 1, 16 do
+                if player_present(i) then
+                    table.insert(players, i)
                 end
             end
-            
-            if players[1] then return players end
+        else
+            mod:Respond(executor, "Invalid player id. Usage: [number: 1-16] | */all | me", 4 + 8)
+            params.is_error = true
             return false
         end
-        
-        
-        local pl = getplayers(args[2])
-        if (pl) then
-            for i = 1, #pl do
-            
-                if (pl[i] == nil) then
-                    break
-                end
 
-                params.state = args[1]
-                params.eid, params.en, params.eip = cmd.eid, cmd.en, cmd.eip
-                params.tid, params.tn, params.tip  = tonumber(pl[i]), get_var(pl[i], "$name"), mod:GetIP(pl[i])
-
-                if (params.target_all) then
-                    mod:ExecuteCore(params)
-                end
+        for i = 1, #players do
+            if (executor ~= tonumber(players[i])) then
+                mod.others_cmd_error[executor] = { }
+                mod.others_cmd_error[executor] = true
             end
         end
-        return params
+        
+        if players[1] then return players end
+        return false
     end
-    return nil
+    
+    
+    local pl = getplayers(args[2])
+    if (pl) then
+        for i = 1, #pl do
+        
+            if (pl[i] == nil) then
+                break
+            end
+
+            params.state = args[1]
+            params.eid, params.en, params.eip = executor, get_var(executor, "$name"), mod:GetIP(executor)
+            params.tid, params.tn, params.tip  = tonumber(pl[i]), get_var(pl[i], "$name"), mod:GetIP(pl[i])
+
+            if (params.target_all) then
+                mod:ExecuteCore(params)
+            end
+        end
+    end
+    return params
 end
 
 function mod:isOnline(target, executor)
