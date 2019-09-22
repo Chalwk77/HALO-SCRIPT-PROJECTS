@@ -41,6 +41,7 @@ local game_over
 
 -- Game Tables: 
 local others_cmd_error = { }
+local ip_table = { }
 -- ...
 
 function OnScriptLoad()
@@ -75,12 +76,16 @@ function OnGameEnd()
 end
 
 function OnPlayerConnect(p)
+    ip_table[p] = get_var(p, '$ip')
+    
     local ip = mod:GetIP(p)
     --
 end
 
 function OnPlayerDisconnect(p)
     local ip = mod:GetIP(p)
+    
+    ip_table[p] = nil
     --
 end
 
@@ -132,7 +137,7 @@ function mod:ExecuteCore(params)
         end
 
         local is_self = (eid == tid)
-        local admin_level = tonumber(get_var(eid, "$lvl"))
+        local admin_level = tonumber(get_var(eid, '$lvl'))
                 
         local proceed = mod:executeOnOthers(eid, is_self, is_console, admin_level)
         
@@ -148,18 +153,18 @@ function mod:ValidateCommand(executor, args)
     local function getplayers(arg)
         local players = { }
         
-        if (arg == nil) or (arg == "me") then
+        if (arg == nil) or (arg == 'me') then
             table.insert(players, executor)
-        elseif (arg:match("%d+")) then
+        elseif (arg:match('%d+')) then
             table.insert(players, tonumber(arg))
-        elseif (arg == "*" or arg == "all") then
+        elseif (arg == '*' or arg == 'all') then
             params.target_all = true
             for i = 1, 16 do
                 if player_present(i) then
                     table.insert(players, i)
                 end
             end
-        elseif (arg == "rand" or arg == "random") then
+        elseif (arg == 'rand' or arg == 'random') then
             local temp = { }
             for i = 1,16 do
                 if player_present(i) then
@@ -194,8 +199,8 @@ function mod:ValidateCommand(executor, args)
             end
 
             params.state = args[1]
-            params.eid, params.en, params.eip = executor, get_var(executor, "$name"), mod:GetIP(executor)
-            params.tid, params.tn, params.tip  = tonumber(pl[i]), get_var(pl[i], "$name"), mod:GetIP(pl[i])
+            params.eid, params.en, params.eip = executor, get_var(executor, '$name'), mod:GetIP(executor)
+            params.tid, params.tn, params.tip  = tonumber(pl[i]), get_var(pl[i], '$name'), mod:GetIP(pl[i])
 
             if (params.target_all) then
                 mod:ExecuteCore(params)
@@ -221,7 +226,7 @@ end
 function mod:checkAccess(p)
     local access
     if not mod:isConsole(p) then
-        if (tonumber(get_var(p, "$lvl")) >= mod.permission) then
+        if (tonumber(get_var(p, '$lvl')) >= mod.permission) then
             access = true
         else
             mod:Respond(p, "Command Failed. Insufficient permission!", 4 + 8)
@@ -269,14 +274,14 @@ function mod:GetIP(p)
     local ip_address
     
     if (p) then        
-        if (halo_type == "PC") then
+        if (halo_type == 'PC') then
             ip_address = ip_table[p]
         else
-            ip_address = get_var(p, "$ip")
+            ip_address = get_var(p, '$ip')
         end
     end
     
-    return ip_address:match("(%d+.%d+.%d+.%d+)")
+    return ip_address:match('(%d+.%d+.%d+.%d+)')
 end
 
 function mod:Respond(p, msg, color)
