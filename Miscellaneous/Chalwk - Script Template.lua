@@ -25,11 +25,6 @@ local mod = {
     permission_extra = 4,
     
     -- ============= Configuration Ends ============= --
-    --
-    --
-    --
-    -- Do not touch:
-    others_cmd_error = { }
 }
 
 -- Variables for String Library:
@@ -45,6 +40,7 @@ local floor, sqrt = math.floor, math.sqrt
 local game_over
 
 -- Game Tables: 
+local others_cmd_error = { }
 -- ...
 
 function OnScriptLoad()
@@ -105,8 +101,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     local params = mod:ValidateCommand(executor, args)
                     
                     if (params ~= nil) and (not params.target_all) and (not params.is_error) then
-                        local Target = tonumber(args[2]) or tonumber(executor)
-                        
+                        local Target = tonumber(args[2]) or tonumber(executor)                        
                         if mod:isOnline(Target, executor) then
                             mod:ExecuteCore(params)
                         end
@@ -137,11 +132,8 @@ function mod:ExecuteCore(params)
         end
 
         local is_self = (eid == tid)
-        if (is_self) then
-            is_self = true
-        end
-                
         local admin_level = tonumber(get_var(eid, "$lvl"))
+                
         local proceed = mod:executeOnOthers(eid, is_self, is_console, admin_level)
         
         if (proceed) then
@@ -159,7 +151,7 @@ function mod:ValidateCommand(executor, args)
         if (arg == nil) or (arg == "me") then
             table.insert(players, executor)
         elseif (arg:match("%d+")) then
-            table.insert(players, tonumber(executor))
+            table.insert(players, tonumber(arg))
         elseif (arg == "*" or arg == "all") then
             params.target_all = true
             for i = 1, 16 do
@@ -175,8 +167,8 @@ function mod:ValidateCommand(executor, args)
 
         for i = 1, #players do
             if (executor ~= tonumber(players[i])) then
-                mod.others_cmd_error[executor] = { }
-                mod.others_cmd_error[executor] = true
+                others_cmd_error[executor] = { }
+                others_cmd_error[executor] = true
             end
         end
         
@@ -237,8 +229,8 @@ function mod:executeOnOthers(e, self, is_console, level)
     if (not self) and (not is_console) then
         if tonumber(level) >= mod.permission_extra then
             return true
-        elseif (mod.others_cmd_error[e]) then
-            mod.others_cmd_error[e] = nil
+        elseif (others_cmd_error[e]) then
+            others_cmd_error[e] = nil
             mod:Respond(e, "You are not allowed to execute this command on other players.", 4 + 8)
             return false
         end
