@@ -37,21 +37,21 @@ local adminchat = {
         -- This message is sent to (you) when you enable/disable for others.
         [2] = "Admin Chat %state% for %target_name%",
         
-        -- This message is sent to the target player when you enable/disable for others.
+        -- This message is sent to (target player) when you enable/disable for them.
         [3] = "Your Admin Chat was %state% by %executor_name%",
         
         -- This message is sent to (you) when your Admin Chat is already enabled/disabled.
         [4] = "Your Admin Chat is already %state%!",
         
-        -- This message is sent to the target player when their Admin Chat is already enabled/disabled.
+        -- This message is sent to (target player) when their Admin Chat is already enabled/disabled.
         [5] = "%target_name%%'s Admin Chat is already %state%!",
-        
-        -- This message is sent to (you) when there is a command syntax error.
-        [6] = "Invalid Syntax: Usage: /%command% on|off [me | id | */all]",
-        
+                
         -- This message is sent when a player connects to the server (if previously activated).
         -- This requires the 'restore' setting to be TRUE.
-        [7] = "Your Admin Chat is Enabled! (auto-restore)",
+        [6] = "Your Admin Chat is Enabled! (auto-restore)",
+        
+        -- This message is sent to (you) when there is a command syntax error.
+        [7] = "Invalid Syntax: Usage: /%command% on|off [me | id | */all]",
     },
     
     -- Should A-Chat be restored for returning players? (if previously activated)
@@ -120,7 +120,7 @@ function OnPlayerConnect(p)
         -- Restore this players Admin Chat:
         local already_activated = (adminchat[ip] == true)
         if (adminchat.restore) and (already_activated) then
-            adminchat:Respond(p, adminchat.messages[7])
+            adminchat:Respond(p, adminchat.messages[6])
         end
     end
 end
@@ -160,7 +160,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         end
                     end
                 else
-                    local feedback = gsub(adminchat.messages[6], "%%command%%", adminchat.command)
+                    local feedback = gsub(adminchat.messages[7], "%%command%%", adminchat.command)
                     adminchat:Respond(executor, feedback, 4 + 8)
                 end
             end
@@ -401,7 +401,7 @@ function adminchat:ActivationState(e, s)
     elseif (s == "off") or (s == "0") or (s == "false") then
         return 0
     else
-        local feedback = gsub(adminchat.messages[6], "%%command%%", adminchat.command)
+        local feedback = gsub(adminchat.messages[7], "%%command%%", adminchat.command)
         adminchat:Respond(e, feedback, 4 + 8)
         return false
     end
