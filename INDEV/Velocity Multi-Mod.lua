@@ -124,10 +124,10 @@ local function GameSettings()
                     },
                     { -- Message #2:
                         "Follow us on Twitter | twitter.com/twitter_id",
-                        "Share your favourite game screenshots with us!",
+                        "Share your favourite game screen shots with us!",
                     },
                     { -- Message #3:
-                        "Interested in becomming an official member of our community?",
+                        "Interested in becoming an official member of our community?",
                         "We are recruiting! Sign up on our website | website url",
                     },
                     -- Repeat the structure to add more entries.
@@ -244,7 +244,7 @@ local function GameSettings()
             },
             -- Admins get notified when a player executes a command
             ["Command Spy"] = {
-                enabled = false,
+                enabled = true,
                 permission_level = 1,
                 prefix = "[SPY]",
                 hide_commands = true,
@@ -485,14 +485,14 @@ local function GameSettings()
                 -- If this is true, the player will have invincibility (god mode):
                 invincibility = true,
                 -- If this is true, you will be hidden from all players.
-                hide = false,
+                hide = true,
                 -- If this is true, you will be camouflaged:
                 camouflage = true,
                 -- If this is true, Lurker will be auto-disabled (for all players) when the game ends, thus, players will not be in Lurker when the next game begins.
                 -- They will have to turn it back on:
-                auto_off = true,
+                auto_off = false,
                 -- If this is enabled then Lurker will tell you if someone is in Lurker mode if you aim at them.
-                screen_notifications = false,
+                screen_notifications = true,
                 -- If this is true, your vehicle will disappear too!
                 hide_vehicles = true,
                 -- If this is true, you will be hidden from radar.
@@ -502,7 +502,7 @@ local function GameSettings()
                 -- If this is true, the player wlll have a speed boost:
                 speed_boost = true,
                 -- If this is true, you will have permanent shield:
-                apply_shield = false,
+                apply_shield = true,
                 -- Shield amount applied:
                 shield_amount = 100,
                 -- Speed boost applied (default running speed is 1):
@@ -518,7 +518,7 @@ local function GameSettings()
 
                 -- =============== ENABLE | DISABLE Messages =============== --
                 -- Let players know when someone goes into (or out of) Lurker mode:
-                announce = false,
+                announce = true,
                 -- (optional) -> Use "%name%" variable to output the joining players name.
                 onEnableMsg = "%name% is now in Lurker Mode (Spectator) | STATE: [%mode%]",
                 onDisabeMsg = "%name% is no longer in Lurker Mode (Spectator)",
@@ -526,7 +526,7 @@ local function GameSettings()
 
                 -- =============== JOIN/QUIT SETTINGS =============== --
                 -- Keep Lurker on quit? (When the player returns, they will still be in Lurker).
-                keep = false,
+                keep = true,
 
                 -- Remind the newly joined player that they are in Lurker? (requires 'keep' to be enabled) 
                 join_tell = true,
@@ -538,7 +538,7 @@ local function GameSettings()
                 join_warnings_left_msg = "Lurker Warnings left: %warnings%",
 
                 -- Tell other players that PlayerX joined in Lurker? (requires 'keep' to be enabled) 
-                join_tell_others = false,
+                join_tell_others = true,
                 join_others_msg = "%name% joined in Lurker Mode (Spectator) | STATE: [%mode%]",
 
             },
@@ -554,7 +554,7 @@ local function GameSettings()
                 }
             },
             ["Mute System"] = {
-                enabled = true,
+                enabled = false,
                 dir = "sapp\\mutes.txt",
                 permission_level = 1,
                 can_mute_admins = true,
@@ -578,7 +578,7 @@ local function GameSettings()
             ["Portal Gun"] = {
                 enabled = true,
                 base_command = "portalgun", -- /base_command [me | id | */all] [on|off|0|1|true|false)
-                announcer = false, -- If this is enabled then all players will be alerted when someone goes into Portal Gun mode.
+                announcer = true, -- If this is enabled then all players will be alerted when someone goes into Portal Gun mode.
                 permission_level = 1,
                 execute_on_others = 4,
             },
@@ -619,7 +619,7 @@ local function GameSettings()
                 -- [ This enables you to set the default re-spawn time for all maps and game types. 
                 -- When enabled, the custom respawn settings in the 'maps' table have no effect.
                 global_respawn_time = {
-                    enabled = false,
+                    enabled = true,
                     time = 3
                 },
                 -- ]
@@ -1224,12 +1224,13 @@ function getLurkerWarnings(ip)
     local mod = settings.mod["Lurker"]
     return ((Lurker[ip].warnings) or mod.warnings)
 end
+
 function reset()
     for i = 1, 16 do
         if player_present(i) then
             local ip = getip(i, true)
             local is_in_lurker = isInLurker(ip)
-            local mod = settings.mod["Lurker"]
+            local mod = settings.mod["Lurker"]            
             if ((Lurker[ip] ~= nil) or is_in_lurker) then
                 Lurker[ip] = nil
                 if (mod.speed_boost) then
@@ -1237,11 +1238,9 @@ function reset()
                 end
                 if not (game_over) then
                     rprint(i, "SAPP Reloaded.")
-                else
-                    rprint(i, "GAME OVER.")
+                    rprint(i, "Your Lurker Mode has been deactivated.")
                 end
                 remove_data_log(i)
-                rprint(i, "Your Lurker Mode has been deactivated.")
             end
         end
     end
@@ -2785,7 +2784,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
             if (hide_commands and hidden) then
                 response = false
             elseif (hide_commands and not hidden) or (hide_commands == false) then
-                velocity:commandspy(cSpy.prefix .. " " .. name .. ":    \"" .. Message .. "\"")
+                velocity:CommandSpy(cSpy.prefix .. " " .. name .. ":    \"" .. Message .. "\"")
                 response = true
             end
         end
@@ -3098,6 +3097,7 @@ end
 
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local command, args = cmdsplit(Command)
+    
     if (command == nil) then
         return
     end
@@ -3105,10 +3105,12 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
 
     local executor = tonumber(PlayerIndex)
     local level = tonumber(get_var(executor, "$lvl"))
+    
     local ip = getip(PlayerIndex, true)
     if (ip == nil) then
         ip = server_ip
     end
+    
     local TargetID, target_all_players, is_error
     local name, hash = get_var(executor, "$name"), get_var(executor, "$hash")
 
@@ -3130,7 +3132,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     if modEnabled("Command Spy") then
         if (Environment == 1 and level == -1) then
             local cSpy = settings.mod["Command Spy"]
-            velocity:commandspy("[RCON] " .. cSpy.prefix .. " " .. name .. ":    \"" .. Command .. "\"")
+            velocity:CommandSpy("[RCON] " .. cSpy.prefix .. " " .. name .. ":    \"" .. Command .. "\"")
         end
     end
 
@@ -6364,7 +6366,7 @@ function alias:add(name, hash)
     end
 end
 
-function velocity:commandspy(Message)
+function velocity:CommandSpy(Message)
     for i = 1, 16 do
         local level = get_var(i, "$lvl")
         if tonumber(level) >= getPermLevel("Command Spy", false) then
