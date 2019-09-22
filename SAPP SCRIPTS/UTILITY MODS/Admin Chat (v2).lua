@@ -1,7 +1,7 @@
 --[[
 --=====================================================================================================--
 Script Name: Admin Chat (v2), for SAPP (PC & CE)
-Description: This is a utility omd that allows you to chat privately with other admins.
+Description: This is a utility mod that allows you to chat privately with other admins.
              Command Syntax: /achat on|off [me | id | */all]
              
              When Admin Chat is enabled your chat messages will appear in the Rcon Console environment.
