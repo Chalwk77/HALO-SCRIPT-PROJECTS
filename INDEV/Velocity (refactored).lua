@@ -62,11 +62,13 @@ function OnScriptLoad()
         game_over = false
         for i = 1,16 do
             if player_present(i) then
-                if velocity:hasPermission(i, "Admin Chat") then
-                    ip_table[i] = get_var(i, '$ip')
-                    
+                ip_table[i] = get_var(i, '$ip')
+
+                local mod,params = velocity:GetModTable()
+
+                if velocity:hasPermission(i, mod) then
                     local ip = velocity:GetIP(i)
-                    velocity[ip] = nil
+                    params.activated[ip] = nil
                 end
             end
         end
@@ -86,33 +88,32 @@ function OnGameEnd()
 end
 
 function OnPlayerConnect(p)
-    for k,v in pairs(velocity.mods) do
-        if velocity:hasPermission(p, k) then
-            
-            ip_table[p] = get_var(p, '$ip')
-            
-            local ip = velocity:GetIP(p)
-            v.activated[ip] = v.activated[ip] or nil
-            
-            local already_activated = (v.activated[ip] == true)
-            if (v.restore) and (already_activated) then
-                local feedback = velocity:GetMessageTable("Admin Chat")
-                velocity:Respond(p, feedback[7])
-            end
+    local mod,params = velocity:GetModTable()
+    
+    if velocity:hasPermission(p, mod) then
+        
+        ip_table[p] = get_var(p, '$ip')
+        
+        local ip = velocity:GetIP(p)
+        params.activated[ip] = params.activated[ip] or nil
+        
+        local already_activated = (params.activated[ip] == true)
+        if (params.restore) and (already_activated) then
+            local feedback = velocity:GetMessageTable("Admin Chat")
+            velocity:Respond(p, feedback[7])
         end
     end
 end
 
 function OnPlayerDisconnect(p)  
-    for k,v in pairs(velocity.mods) do
-        
-        if velocity:hasPermission(p, k) then
-            local ip = velocity:GetIP(p)
-                    
-            local already_activated = (v.activated[ip] == true)
-            if (not v.restore) or (not already_activated) then
-                ip_table[p] = nil
-            end
+    local mod,params = velocity:GetModTable()
+    
+    if velocity:hasPermission(p, mod) then
+        local ip = velocity:GetIP(p)
+                
+        local already_activated = (params.activated[ip] == true)
+        if (not params.restore) or (not already_activated) then
+            ip_table[p] = nil
         end
     end
 end
@@ -551,6 +552,12 @@ function velocity:StringSplit(str, bool)
     table.remove(args, 1)
 
     return cmd, args
+end
+
+function velocity:GetModTable()
+    for k,v in pairs(velocity.mods) do
+        return k,v
+    end
 end
 
 -- For a future update:
