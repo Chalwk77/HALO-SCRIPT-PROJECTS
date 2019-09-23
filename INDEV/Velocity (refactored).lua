@@ -134,13 +134,15 @@ function OnPlayerConnect(p)
                 if (mod == "Admin Join Messages") then
                     local level = tonumber(get_var(p, "$lvl"))
                     
-                    if (level >= 1) then
-                        local tab = velocity.features[mod].messages
-                        local join_message = tab[level][1] .. name .. tab[level][2]
-                        for i = 1, 16 do
-                            if player_present(i) then
-                                if (i ~= p) then
-                                    rprint(i, join_message)
+                    local tab = velocity.features[mod].messages
+                    for i = 1,#tab do 
+                        if (level == i) then                            
+                            local join_message = tab[i][1] .. name .. tab[i][2]
+                            for player = 1, 16 do
+                                if player_present(player) then
+                                    if (player ~= p) then
+                                        rprint(player, join_message)
+                                    end
                                 end
                             end
                         end
