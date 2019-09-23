@@ -36,9 +36,13 @@ local velocity = {
 }
 
 -- Variables for String Library:
+local format = string.format
 local sub, gsub = string.sub, string.gsub
 local lower, upper = string.lower, string.upper
 local match, gmatch = string.match, string.gmatch
+
+-- Variables for Math Library:
+local floor, sqrt = math.floor, math.sqrt
 
 -- Game Variables:
 local game_over
