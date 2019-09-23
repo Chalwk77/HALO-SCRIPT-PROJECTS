@@ -11,7 +11,7 @@ Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 
 api_version = "1.12.0.0"
 local velocity = {
-
+    
     features = {
         ["Admin Chat"] = {
             activated = {},
@@ -32,17 +32,18 @@ local velocity = {
                 ['invalid_syntax'] = "Invalid Syntax: Usage: /%command% on|off [me | id | */all]",
             },
         },
-        ["Portal Gun"] = {
-            activated = {},
-            --
+        ["Admin Join Messages"] = {
             enabled = true,
-            command = "portalgun",
-            permission = 1,
-            permission_extra = 4,
-            restore = true,
-            --
+            messages = {
+                [1] = { "[TRIAL-MOD] ", " joined the server. Everybody hide!" },
+                [2] = { "[MODERATOR] ", " just showed up. Hold my beer!" },
+                [3] = { "[ADMIN] ", " just joined. Hide your bananas!" },
+                [4] = { "[SENIOR-ADMIN] ", " joined the server." },
+            }
         },
-    }
+    },
+    
+    script_version = 1.0,
 }
 
 -- Variables for String Library:
@@ -98,9 +99,10 @@ function OnGameStart()
     game_over = false
     
     ---------------------------------------------
-    local done, total = 1, 31
+    local done, total = 2, 31
     local progress = (done/total) * 100
     cprint("Progress: " .. format("%0.1f", progress) .. "%", 2+8)
+    cprint("Script Version: " .. format("%0.1f", velocity.script_version), 2+8)
     ---------------------------------------------
 end
 
@@ -109,8 +111,13 @@ function OnGameEnd()
 end
 
 function OnPlayerConnect(p)
+
+    local name = get_var(p, "$name")
+    
+
     for mod,params in pairs(velocity.features) do
-        if (params.enabled) then
+        if (params.enabled) then 
+        
             if velocity:hasPermission(p, mod) then
                 
                 ip_table[p] = get_var(p, '$ip')
@@ -122,6 +129,22 @@ function OnPlayerConnect(p)
                 if (params.restore) and (already_activated) then
                     local feedback = velocity:GetMessageTable("Admin Chat")
                     velocity:Respond(p, feedback[7])
+                end
+            else
+                if (mod == "Admin Join Messages") then
+                    local level = tonumber(get_var(p, "$lvl"))
+                    
+                    if (level >= 1) then
+                        local tab = velocity.features[mod].messages
+                        local join_message = tab[level][1] .. name .. tab[level][2]
+                        for i = 1, 16 do
+                            if player_present(i) then
+                                if (i ~= p) then
+                                    rprint(i, join_message)
+                                end
+                            end
+                        end
+                    end
                 end
             end
         end
@@ -488,8 +511,6 @@ function velocity:hasPermission(p, mod)
         if (k == mod) then
             if (v.permission) then
                 return tonumber(get_var(p, "$lvl")) >= v.permission
-            else
-                return error(k .. " doesn't have a permission node!")
             end
         end
     end
