@@ -1,17 +1,11 @@
 --[[
 --=====================================================================================================--
-Script Name: Admin Chat (v2), for SAPP (PC & CE)
-Description: This is a utility mod that allows you to chat privately with other admins.
-             Command Syntax: /achat on|off [me | id | */all]
-             
-             When Admin Chat is enabled your chat messages will appear in the Rcon Console environment.
-             Only admins will see these messages.
-				
+Script Name: Velocity Multi-Mod, for SAPP (PC & CE)
+	
+    IN DEVELOPMENT
+    --------------
+    
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
-* Notice: You can use this document subject to the following conditions:
-https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
-
-* Written by Jericho Crosby (Chalwk)
 --=====================================================================================================--
 ]]--
 
