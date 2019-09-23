@@ -96,6 +96,12 @@ end
 
 function OnGameStart()
     game_over = false
+    
+    ---------------------------------------------
+    local done, total = 1, 31
+    local progress = (done/total) * 100
+    cprint("Progress: " .. format("%0.1f", progress) .. "%", 2+8)
+    ---------------------------------------------
 end
 
 function OnGameEnd()
