@@ -19,7 +19,7 @@ local manager = { }
 manager.settings = {
 
     -- EXAMPLE:
-    ["mapname"] = {use = true, { "script1", "script2", "script2", "script2" }, "HLN1", "HLN2", "HLN3" },
+    ["mapname"] = {use = true, { "script1", "script2", "script3", "script4" }, "HLN1", "HLN2", "HLN3" },
 
 
     ["bc_raceway_mp"] = {use = true, { "" }, "HLN5" },
