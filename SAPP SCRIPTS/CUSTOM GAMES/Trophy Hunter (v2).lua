@@ -4,6 +4,9 @@ Script Name: Trophy Hunter (v2), for SAPP (PC & CE)
 Description: This is an adaptation of Kill-Confirmed from Call of Duty.
              When you kill someone, a trophy will fall at your victim's death location.
              In order to actually score you have to collect the trophy.
+             
+             This mod is designed for stock maps only!
+             Message me on github if you want this mod to be designed for a specific map(s).
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -18,10 +21,7 @@ local mod = { }
 
 function mod:init()
     mod.settings = { 
-
-        -- Trophy object tag name:
-        trophy = "weapons\\ball\\ball",
-        
+    
         -- Scoring -
         claim = 1,               -- Collect your trophy
         claim_other = 1,         -- Collect somebody else's trophy
@@ -121,11 +121,11 @@ function OnScriptLoad()
     register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
     
     if (get_var(0, '$gt') ~= 'n/a') then
-        if mod:checkGameType() then
-            game_over = false
+        if mod:getGametype() then
             
             trophies, console_messages = { }, { }
             mod:init()
+            game_over = false
             
             for i = 1,16 do
                 if player_present(i) then
@@ -145,7 +145,7 @@ function OnScriptUnload()
 end
 
 function OnNewGame()
-    if mod:checkGameType() then
+    if mod:getGametype() then
         mod:init()
         game_over = false
         execute_command("scorelimit " .. mod.settings.scorelimit)
@@ -414,21 +414,36 @@ function mod:UpdateScore(params)
     end
 end
 
-function mod:checkGameType()
-    local gt = {"ctf","koth","oddbal","race"}
-    for i = 1,#gt do
-        if get_var(1, "$gt") == gt[i] then
-            unregister_callback(cb['EVENT_DIE'])
-            unregister_callback(cb['EVENT_TICK'])
-            unregister_callback(cb['EVENT_JOIN'])
-            unregister_callback(cb['EVENT_CHAT'])
-            unregister_callback(cb['EVENT_LEAVE'])
-            unregister_callback(cb['EVENT_GAME_END'])
-            unregister_callback(cb['EVENT_WEAPON_PICKUP'])
-            cprint("Trophy Hunter GAME TYPE ERROR!", 4 + 8)
-            cprint("This script doesn't support " .. gt[i], 4 + 8)
-            return false
+function mod:getGametype()
+    local gametype = get_var(1, "$gt")        
+        
+    local function set(bool)
+        if (bool) then
+            if (get_var(0, "$ffa") == "0") then
+                set.trophy = {"weap", "weapons\\ball\\ball"}
+            else
+                set.trophy = {"eqip", "powerups\\full-spectrum vision"}
+            end
+        else
+            set.trophy = {"eqip", "powerups\\full-spectrum vision"}
         end
+    end
+        
+    if (gametype == "oddball" or gametype == "race") then
+        unregister_callback(cb['EVENT_DIE'])
+        unregister_callback(cb['EVENT_TICK'])
+        unregister_callback(cb['EVENT_JOIN'])
+        unregister_callback(cb['EVENT_CHAT'])
+        unregister_callback(cb['EVENT_LEAVE'])
+        unregister_callback(cb['EVENT_GAME_END'])
+        unregister_callback(cb['EVENT_WEAPON_PICKUP'])
+        cprint("Trophy Hunter GAME TYPE ERROR!", 4 + 8)
+        cprint("This script doesn't support " .. gt[i], 4 + 8)
+        return false
+    elseif (gametype == "slayer" or gametype == "koth") then
+        set(true)
+    elseif (gametype == "ctf") then
+        set(false)
     end
     return true
 end
