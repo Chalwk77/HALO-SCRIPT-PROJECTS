@@ -24,6 +24,7 @@ local mod = {
     death_penalty = 1,       -- Death Penalty   [number of points deducted]
     suicide_penalty = 2,     -- Suicide Penalty [number of points deducted]
     
+    scorelimit = 15,
     server_prefix = "** SERVER **",
     
     messages = {
@@ -96,6 +97,7 @@ end
 
 function OnGameEnd()
     game_over = true
+    trophies = { }
 end
 
 function OnPlayerConnect(PlayerIndex)
@@ -217,6 +219,12 @@ function mod:UpdateScore(params)
             execute_command("score " .. params.killer .. " +" .. mod.claim_other)
         elseif (params.type == 3) then
             execute_command("score " .. params.killer .. " +" .. mod.claim_self)
+        end
+        
+        if get_var(params.killer, "$score") >= scorelimit then
+            game_over = true
+            execute_command("sv_map_next")
+            -- end the game:
         end
         
         -- Prevent Victim's score from going into negatives:
