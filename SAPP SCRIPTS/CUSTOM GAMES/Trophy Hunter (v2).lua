@@ -20,8 +20,7 @@ api_version = "1.12.0.0"
 local mod = { }
 
 function mod:init()
-    mod.settings = { 
-    
+    mod.settings = {
         -- Scoring -
         claim = 1,               -- Collect your trophy
         claim_other = 1,         -- Collect somebody else's trophy
@@ -121,10 +120,11 @@ function OnScriptLoad()
     register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
     
     if (get_var(0, '$gt') ~= 'n/a') then
-        if mod:getGametype() then
-            
+        local trophy = mod:getGametype()
+        if (trophy) then
             trophies, console_messages = { }, { }
             mod:init()
+            mod.settings.trophy = trophy
             game_over = false
             
             for i = 1,16 do
@@ -145,8 +145,10 @@ function OnScriptUnload()
 end
 
 function OnNewGame()
-    if mod:getGametype() then
+    local trophy = mod:getGametype()
+    if (trophy) then
         mod:init()
+        mod.settings.trophy = trophy
         game_over = false
         execute_command("scorelimit " .. mod.settings.scorelimit)
     end
@@ -211,6 +213,10 @@ function OnPlayerDisconnect(PlayerIndex)
             end
         end
     end
+end
+
+local function distanceFromPlayer(pX, pY, pZ, tX, tY, tZ)
+    return sqrt((pX - tX) ^ 2 + (pY - tY) ^ 2 + (pZ - tZ) ^ 2)
 end
 
 function OnTick()
@@ -332,7 +338,7 @@ function mod:OnTrophyPickup(PlayerIndex, WeaponIndex)
         local weapon = read_dword(player_object + 0x2F8 + (tonumber(WeaponIndex) - 1) * 4)
     
         local WeaponObject = get_object_memory(weapon)
-        if (mod:ObjectTagID(WeaponObject) == set.trophy) then
+        if (mod:ObjectTagID(WeaponObject) == set.trophy[2]) then
                 
             for k,v in pairs(trophies) do
                 if (k == weapon) then
@@ -414,9 +420,33 @@ function mod:UpdateScore(params)
     end
 end
 
+-- function mod:getGametype()
+    -- local gametype = get_var(1, "$gt")
+    -- if (gametype == "oddball" or gametype == "race") then
+        -- unregister_callback(cb['EVENT_DIE'])
+        -- unregister_callback(cb['EVENT_TICK'])
+        -- unregister_callback(cb['EVENT_JOIN'])
+        -- unregister_callback(cb['EVENT_CHAT'])
+        -- unregister_callback(cb['EVENT_LEAVE'])
+        -- unregister_callback(cb['EVENT_GAME_END'])
+        -- unregister_callback(cb['EVENT_WEAPON_PICKUP'])
+        -- cprint("Trophy Hunter GAME TYPE ERROR!", 4 + 8)
+        -- cprint("This script doesn't support " .. gametype, 4 + 8)
+        -- return false
+    -- elseif (gametype == "slayer" or gametype == "koth") then
+        -- if (get_var(0, "$ffa") == "0") then
+            -- return {"weap", "weapons\\ball\\ball"}
+        -- else
+            -- return {"eqip", "powerups\\full-spectrum vision"}
+        -- end
+    -- elseif (gametype == "ctf") then
+        -- return {"eqip", "powerups\\flamethrower ammo\\flamethrower ammo"}
+    -- end
+-- end
+
 function mod:getGametype()
     local gametype = get_var(1, "$gt")
-    if (gametype == "oddball" or gametype == "race") then
+    local unload = function()
         unregister_callback(cb['EVENT_DIE'])
         unregister_callback(cb['EVENT_TICK'])
         unregister_callback(cb['EVENT_JOIN'])
@@ -425,18 +455,20 @@ function mod:getGametype()
         unregister_callback(cb['EVENT_GAME_END'])
         unregister_callback(cb['EVENT_WEAPON_PICKUP'])
         cprint("Trophy Hunter GAME TYPE ERROR!", 4 + 8)
-        cprint("This script doesn't support " .. gt[i], 4 + 8)
+        cprint("This script doesn't support " .. gametype, 4 + 8)
+    end
+    
+    if (gametype == "oddball" or gametype == "race" or gametype == "ctf") then
+        unload()
         return false
     elseif (gametype == "slayer" or gametype == "koth") then
-        if (get_var(0, "$ffa") == "0") then
-            set.trophy = {"weap", "weapons\\ball\\ball"}
+        if (get_var(0, "$ffa") == "0") then -- Team
+            unload()
+            return false
         else
-            set.trophy = {"eqip", "powerups\\full-spectrum vision"}
+            return {"weap", "weapons\\ball\\ball"}
         end
-    elseif (gametype == "ctf") then
-        set.trophy = {"eqip", "powerups\\full-spectrum vision"}
     end
-    return true
 end
 
 function mod:spawnTrophy(params)
@@ -447,7 +479,7 @@ function mod:spawnTrophy(params)
     
         local coords = mod:getXYZ(params)
         local x,y,z,offset = coords.x,coords.y,coords.z,coords.offset
-        local object = spawn_object("weap", set.trophy, x, y, z + offset)
+        local object = spawn_object(set.trophy[1], set.trophy[2], x, y, z + offset)
         
         local trophy = get_object_memory(object)
         trophies[object] = {
@@ -460,6 +492,7 @@ function mod:spawnTrophy(params)
             kip = params.kip,
             
             trophy = object,
+            object = trophy,
             time = 0,
             duration = set.time_until_despawn,
             despawn_trigger = false,
