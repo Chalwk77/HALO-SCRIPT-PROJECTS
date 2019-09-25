@@ -12,44 +12,53 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]]--
 
 api_version = "1.12.0.0"
+local mod = { }
 
-local mod = { 
+function mod:init()
+    mod.settings = { 
 
-    trophy = "weapons\\ball\\ball",
-    
-    -- Scoring -
-    claim = 1,               -- Collect your trophy
-    claim_other = 1,         -- Collect somebody else's trophy
-    steal_self = 2,          -- Collect your killer's trophy
-    death_penalty = 1,       -- Death Penalty   [number of points deducted]
-    suicide_penalty = 2,     -- Suicide Penalty [number of points deducted]
-    
-    scorelimit = 15,
-    server_prefix = "** SERVER **",
-    
-    messages = {
-    
-        -- Collection Messages --
-        "%killer% collected %victim%'s trophy!",
-        "%victim% stole %killer%'s trophy!",
-        "%player% stole %killer% trophy!",
+        trophy = "weapons\\ball\\ball",
+        
+        -- Scoring -
+        claim = 1,               -- Collect your trophy
+        claim_other = 1,         -- Collect somebody else's trophy
+        steal_self = 2,          -- Collect your killer's trophy
+        death_penalty = 1,       -- Death Penalty   [number of points deducted]
+        suicide_penalty = 2,     -- Suicide Penalty [number of points deducted]
+        
+        scorelimit = 1,
+        server_prefix = "** SERVER **",
+        
+        on_claim = {
+            "%killer% collected %victim%'s trophy!",
+            "%victim% stole %killer%'s trophy!",
+            "%player% stole %killer% trophy!",
+        },
 
-        -- Welcome Messages --
-        "Welcome to Trophy Hunter",
-        "Your victim will drop a trophy when they die!",
-        "Collect this trophy to get points!",
-        "Type /info or @info for more information.",
+        welcome = {
+            "Welcome to Trophy Hunter",
+            "Your victim will drop a trophy when they die!",
+            "Collect this trophy to get points!",
+            "Type /info or @info for more information.",
+        },
 
-        -- Information Board --
-        "|l-- POINTS --",
-        "|lCollect your victims trophy:           |r+%claim% points",
-        "|lCollect somebody else's trophy:        |r+%claim_other% points",
-        "|lCollect your killer's trophy:          |r+%steal_self% points",
-        "|lDeath Penalty:                         |r-%death_penalty% points",
-        "|lSuicide Penalty:                       |r-%suicide_penalty% points",
-        "|lCollecting trophies is the only way to score!",
-    },
-}
+        info = {
+            "|l-- POINTS --",
+            "|lCollect your victims trophy:           |r+%claim% points",
+            "|lCollect somebody else's trophy:        |r+%claim_other% points",
+            "|lCollect your killer's trophy:          |r+%steal_self% points",
+            "|lDeath Penalty:                         |r-%death_penalty% points",
+            "|lSuicide Penalty:                       |r-%suicide_penalty% points",
+            "|lCollecting trophies is the only way to score!",
+        },
+        
+        win = {
+            "|c--<->--<->--<->--<->--<->--<->--<->--",
+            "|c%name% WON THE GAME!",
+            "|c--<->--<->--<->--<->--<->--<->--<->--",
+        }
+    }
+end
 
 -- Variables for String Library:
 local format = string.format
@@ -64,7 +73,7 @@ local floor, sqrt = math.floor, math.sqrt
 local game_over
 
 -- Game Tables: 
-local trophies = { }
+local trophies, console_messages = { }, { }
 -- ...
 
 function OnScriptLoad()
@@ -80,6 +89,8 @@ function OnScriptLoad()
     
     if (get_var(0, '$gt') ~= 'n/a') then
         if mod:checkGameType() then
+            mod:init()
+            
             for i = 1, 16 do
                 if player_present(i) then
 
@@ -91,13 +102,13 @@ end
 
 function OnNewGame()
     if mod:checkGameType() then
+        mod:init()
         game_over = false
     end
 end
 
 function OnGameEnd()
     game_over = true
-    trophies = { }
 end
 
 function OnPlayerConnect(PlayerIndex)
@@ -109,7 +120,27 @@ function OnPlayerDisconnect(PlayerIndex)
 end
 
 function OnTick()
-
+    if (#console_messages > 0) then
+        for k,v in pairs(console_messages) do
+            if v.player and player_present(v.player) then
+                v.time = v.time + 0.03333333333333333
+                
+                mod:cls(v.player)                    
+                if type(v.message) == "table" then
+                    for i = 1,#v.message do                    
+                        rprint(v.player, v.message[i])
+                    end
+                else                    
+                    rprint(v.player, v.message)
+                end
+                
+                if (v.time >= v.duration) then
+                    trophies = { }
+                    console_messages[k] = nil
+                end
+            end
+        end
+    end
 end
 
 function OnPlayerChat(PlayerIndex, Message)
@@ -137,27 +168,15 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     params.kname, params.vname = get_var(killer, "$name"), get_var(victim, "$name")
     params.victim, params.killer = victim, killer
     
-    -- Check if the player committed suicide:
-    if (victim == killer) then
-        return false
-        
-    -- Check if the player was killed by a vehicle (squashed & unoccupied):
-    elseif (killer == 0) then
-        return false
-    
-    -- Check if the player was killed by the server:
-    elseif (killer == -1) then
-        return false
-        
-    -- Check if the killer was Guardians or Unknown:
-    elseif (killer == nil) then
-        return false
-
-    -- Check if the killer is a valid player.
-    elseif (killer > 0) then
-        -- Prevent killer from getting a point (until they collect their trophy)
+    -- Check if pVp
+    if (killer > 0) then
         execute_command("score " .. killer .. " -1")
         mod:spawnTrophy(params)
+    -- Check if Suicide:
+    elseif (victim == killer) then
+        params.type = 1
+        mod:UpdateScore(params)
+        return false
     end
 end
 
@@ -170,8 +189,8 @@ function mod:OnTrophyPickup(PlayerIndex, WeaponIndex)
     
         local weapon = read_dword(player_object + 0x2F8 + (tonumber(WeaponIndex) - 1) * 4)
     
-        local WeaponObject = get_object_memory(weapon)    
-        if (mod:ObjectTagID(WeaponObject) == mod.trophy) then
+        local WeaponObject = get_object_memory(weapon)
+        if (mod:ObjectTagID(WeaponObject) == mod.settings.trophy) then
         
             for k,v in pairs(trophies) do
                 if (k == weapon) then
@@ -188,16 +207,16 @@ function mod:OnTrophyPickup(PlayerIndex, WeaponIndex)
                     
                     execute_command("msg_prefix \"\"")
                     if (PlayerIndex == params.killer) then
-                        params.type = 1
-                        say_all(msg(mod.messages, 1))
-                    elseif (PlayerIndex ~= params.killer and PlayerIndex ~= params.victim) then
                         params.type = 2
-                        say_all(msg(mod.messages, 2))
-                    elseif (PlayerIndex == params.victim) then
+                        say_all(msg(mod.settings.on_claim, 1))
+                    elseif (PlayerIndex ~= params.killer and PlayerIndex ~= params.victim) then
                         params.type = 3
-                        say_all(msg(mod.messages, 3))
+                        say_all(msg(mod.settings.on_claim, 2))
+                    elseif (PlayerIndex == params.victim) then
+                        params.type = 4
+                        say_all(msg(mod.settings.on_claim, 3))
                     end
-                    execute_command("msg_prefix \"" .. mod.server_prefix .. "\" ")
+                    execute_command("msg_prefix \"" .. mod.settings.server_prefix .. "\" ")
 
                     destroy_object(weapon)
                     trophies[k] = nil
@@ -212,24 +231,40 @@ end
 function mod:UpdateScore(params)
     local params = params or nil
     if (params ~= nil) then
+    
+        local killer = params.killer
+        local victim = params.victim
+        local kname = params.kname
        
+        -- Deduct point(s) for committing suicide:
         if (params.type == 1) then
-            execute_command("score " .. params.killer .. " +" .. mod.claim)
+            execute_command("score " .. killer .. " +" .. mod.settings.suicide_penalty)
         elseif (params.type == 2) then
-            execute_command("score " .. params.killer .. " +" .. mod.claim_other)
+            execute_command("score " .. killer .. " +" .. mod.settings.claim)
         elseif (params.type == 3) then
-            execute_command("score " .. params.killer .. " +" .. mod.claim_self)
+            execute_command("score " .. killer .. " +" .. mod.settings.claim_other)
+        elseif (params.type == 4) then
+            execute_command("score " .. killer .. " +" .. mod.settings.claim_self)
         end
         
-        if get_var(params.killer, "$score") >= scorelimit then
+        if tonumber(get_var(killer, "$score")) >= mod.settings.scorelimit then
             game_over = true
             execute_command("sv_map_next")
-            -- end the game:
+
+            for k,v in pairs(mod.settings.win) do
+                mod.settings.win[k] = gsub(mod.settings.win[k], "%%name%%", kname)
+            end
+            
+            for i = 1,16 do
+                if player_present(i) then
+                    mod:NewConsoleMessage(mod.settings.win, 5, i)
+                end
+            end
         end
         
-        -- Prevent Victim's score from going into negatives:
-        if tonumber(get_var(params.victim, "$score")) <= -1 then
-            execute_command("score " .. params.victim .. " 0")
+        -- Prevent victim's score from going into negatives:
+        if tonumber(get_var(victim, "$score")) <= -1 then
+            execute_command("score " .. victim .. " 0")
         end
     end
 end
@@ -250,6 +285,7 @@ function mod:checkGameType()
             return false
         end
     end
+    return true
 end
 
 function mod:spawnTrophy(params)
@@ -258,7 +294,7 @@ function mod:spawnTrophy(params)
     
         local coords = mod:getXYZ(params)
         local x,y,z,offset = coords.x,coords.y,coords.z,coords.offset
-        local object = spawn_object("weap", mod.trophy, x, y, z + offset)
+        local object = spawn_object("weap", mod.settings.trophy, x, y, z + offset)
         
         local trophy = get_object_memory(object)
         trophies[object] = {params.killer, params.victim, params.kname, params.vname}
@@ -289,6 +325,20 @@ function mod:getXYZ(params)
     end
 end
 
+function mod:NewConsoleMessage(Message, Duration, Player)
+
+    local function Add(a, b, c)
+        return {
+            message = a,
+            duration = b,
+            player = c,
+            time = 0,
+        }
+    end
+
+    table.insert(console_messages, Add(Message, Duration, Player))
+end
+
 function mod:isInVehicle(PlayerIndex)
     if (get_dynamic_player(PlayerIndex) ~= 0) then
         local VehicleID = read_dword(get_dynamic_player(PlayerIndex) + 0x11C)
@@ -299,6 +349,14 @@ function mod:isInVehicle(PlayerIndex)
         end
     else
         return false
+    end
+end
+
+function mod:cls(player)
+    if (player) then
+        for _ = 1, 25 do
+            rprint(player, " ")
+        end
     end
 end
 
