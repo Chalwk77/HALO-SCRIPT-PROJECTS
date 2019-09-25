@@ -19,6 +19,7 @@ local mod = { }
 function mod:init()
     mod.settings = { 
 
+        -- Trophy object tag name:
         trophy = "weapons\\ball\\ball",
         
         -- Scoring -
@@ -27,19 +28,29 @@ function mod:init()
         claim_self = 2,          -- Collect your killer's trophy
         death_penalty = 1,       -- Death Penalty   [number of points deducted]
         suicide_penalty = 2,     -- Suicide Penalty [number of points deducted]
+        scorelimit = 15,         -- The game will end when this scorelimit is reached
         
-        scorelimit = 15,
+        -- Some functions temporarily remove the server prefix while broadcasting a message.
+        -- This prefix will be restored to 'server_prefix' when the message relay is done.
+        -- Enter your servers default prefix here:
         server_prefix = "** SERVER **",
+        
+        -- If true, trophies belonging to players players who just quit will despawned after 'time_until_despawn' seconds.
         despawn = true,
+        -- Amount of time (in seconds) until trophies are despawned:
         time_until_despawn = 15,
+        
+        -- Type this command to lean how to play:
         info_command = "info",
         
+        -- These messages are relayed in chat when you pickup/deny someone's trophy.
         on_claim = {
             "%killer% collected %victim%'s trophy!",
             "%victim% deined %killer%'s trophy!",
             "%player% stole %killer% trophy!",
         },
 
+        -- If enabled, a welcome message will be displayed (see below)
         show_welcome_message = true,
         welcome = {
             "Welcome to Trophy Hunter",
@@ -48,6 +59,7 @@ function mod:init()
             "Type %info_command% for more information.",
         },
         
+        -- If enabled, the 'info_command' will display the following information:
         enable_info_command = true,
         info = {
             "|l-- POINTS --",
@@ -59,15 +71,22 @@ function mod:init()
             "|lCollecting trophies is the only way to score!",
         },
         
+        -- Global Message sent when the game ends:
         win = {
             "|c--<->--<->--<->--<->--<->--<->--<->--",
             "|c%name% WON THE GAME!",
             "|c--<->--<->--<->--<->--<->--<->--<->--",
         },
-        
+
         on_despawn = {
+        
+            -- Message sent when a player quits (if has trophies on the playing field)
             "%victim%'s trophies will despawn in %seconds% seconds",
+        
+            -- Message sent if player doesn't return before 'time_until_despawn' seconds elapsed.
             "%victim%'s trophies have despawned!",
+            
+            -- Message sent if player returns before 'time_until_despawn' seconds has elapsed.
             "%victim%' has returned! Their trophies will no longer despawn!",
         },
     }
