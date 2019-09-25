@@ -7,6 +7,8 @@ Description: This is an adaptation of Kill-Confirmed from Call of Duty.
              
              This mod is designed for stock maps only!
              Message me on github if you want this mod to be designed for a specific map(s).
+             
+             This mod is also currently only available for Slayer (FFA) gametypes.
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -55,7 +57,7 @@ function mod:init()
             "Welcome to Trophy Hunter",
             "Your victim will drop a trophy when they die!",
             "Collect this trophy to get points!",
-            "Type %info_command% for more information.",
+            "Type /%info_command% for more information.",
         },
         
         -- If enabled, the 'info_command' will display the following information:
@@ -420,6 +422,9 @@ function mod:UpdateScore(params)
     end
 end
 
+
+----- FOR A FUTURE UPDATE -----
+--===============================================================================
 -- function mod:getGametype()
     -- local gametype = get_var(1, "$gt")
     -- if (gametype == "oddball" or gametype == "race") then
@@ -443,9 +448,11 @@ end
         -- return {"eqip", "powerups\\flamethrower ammo\\flamethrower ammo"}
     -- end
 -- end
+--===============================================================================
 
 function mod:getGametype()
     local gametype = get_var(1, "$gt")
+    
     local unload = function()
         unregister_callback(cb['EVENT_DIE'])
         unregister_callback(cb['EVENT_TICK'])
