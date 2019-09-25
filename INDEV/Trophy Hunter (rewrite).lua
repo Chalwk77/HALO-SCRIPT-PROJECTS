@@ -22,7 +22,7 @@ function mod:init()
         -- Scoring -
         claim = 1,               -- Collect your trophy
         claim_other = 1,         -- Collect somebody else's trophy
-        steal_self = 2,          -- Collect your killer's trophy
+        claim_self = 2,          -- Collect your killer's trophy
         death_penalty = 1,       -- Death Penalty   [number of points deducted]
         suicide_penalty = 2,     -- Suicide Penalty [number of points deducted]
         
@@ -51,7 +51,7 @@ function mod:init()
             "|l-- POINTS --",
             "|lCollect your victims trophy:           |r+%claim% points",
             "|lCollect somebody else's trophy:        |r+%claim_other% points",
-            "|lCollect your killer's trophy:          |r+%steal_self% points",
+            "|lCollect your killer's trophy:          |r+%claim_self% points",
             "|lDeath Penalty:                         |r-%death_penalty% points",
             "|lSuicide Penalty:                       |r-%suicide_penalty% points",
             "|lCollecting trophies is the only way to score!",
@@ -66,6 +66,7 @@ function mod:init()
         on_despawn = {
             "%victim%'s trophies will despawn in %seconds% seconds",
             "%victim%'s trophies have despawned!",
+            "%victim%' has returned! Their trophies will no longer despawn!",
         },
     }
 end
@@ -230,7 +231,7 @@ function OnPlayerChat(PlayerIndex, Message)
         local words = {
             ["%%claim%%"] = set.claim,
             ["%%claim_other%%"] = set.claim_other,
-            ["%%steal_self%%"] = set.steal_self,
+            ["%%claim_self%%"] = set.claim_self,
             ["%%death_penalty%%"] = set.death_penalty,
             ["%%suicide_penalty%%"] = set.suicide_penalty
         }
@@ -328,7 +329,6 @@ function mod:UpdateScore(params)
         local victim = params.victim
         local kname = params.kname
        
-        -- Deduct point(s) for committing suicide:
         if (params.type == 1) then
             execute_command("score " .. killer .. " +" .. set.suicide_penalty)
         elseif (params.type == 2) then
