@@ -99,11 +99,11 @@ function OnGameEnd()
 end
 
 function OnPlayerConnect(PlayerIndex)
-
+    --
 end
 
 function OnPlayerDisconnect(PlayerIndex)
-
+    -- Init despawning logic:
 end
 
 function OnTick()
@@ -123,27 +123,6 @@ end
 function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
     if (tonumber(Type) == 1) then
         mod:OnTrophyPickup(PlayerIndex, WeaponIndex)            
-    end
-end
-
-function PlayerInVehicle(PlayerIndex)
-    if (get_dynamic_player(PlayerIndex) ~= 0) then
-        local VehicleID = read_dword(get_dynamic_player(PlayerIndex) + 0x11C)
-        if VehicleID == 0xFFFFFFFF then
-            return false
-        else
-            return true
-        end
-    else
-        return false
-    end
-end
-
-function ObjectTagID(object)
-    if (object ~= nil and object ~= 0) then
-        return read_string(read_dword(read_word(object) * 32 + 0x40440038))
-    else
-        return ""
     end
 end
 
@@ -190,7 +169,7 @@ function mod:OnTrophyPickup(PlayerIndex, WeaponIndex)
         local weapon = read_dword(player_object + 0x2F8 + (tonumber(WeaponIndex) - 1) * 4)
     
         local WeaponObject = get_object_memory(weapon)    
-        if (ObjectTagID(WeaponObject) == mod.trophy) then
+        if (mod:ObjectTagID(WeaponObject) == mod.trophy) then
         
             for k,v in pairs(trophies) do
                 if (k == weapon) then
@@ -287,7 +266,7 @@ function mod:getXYZ(params)
             local coords = { }
             local x,y,z = 0,0,0
             
-            if PlayerInVehicle(params.victim) then
+            if mod:isInVehicle(params.victim) then
                 local VehicleID = read_dword(player_object + 0x11C)
                 local vehicle = get_object_memory(VehicleID)
                 coords.invehicle, coords.offset = true, 0.5
@@ -299,5 +278,26 @@ function mod:getXYZ(params)
             coords.x, coords.y, coords.z = format("%0.3f", x), format("%0.3f", y), format("%0.3f", z)
             return coords
         end
+    end
+end
+
+function mod:isInVehicle(PlayerIndex)
+    if (get_dynamic_player(PlayerIndex) ~= 0) then
+        local VehicleID = read_dword(get_dynamic_player(PlayerIndex) + 0x11C)
+        if VehicleID == 0xFFFFFFFF then
+            return false
+        else
+            return true
+        end
+    else
+        return false
+    end
+end
+
+function mod:ObjectTagID(object)
+    if (object ~= nil and object ~= 0) then
+        return read_string(read_dword(read_word(object) * 32 + 0x40440038))
+    else
+        return ""
     end
 end
