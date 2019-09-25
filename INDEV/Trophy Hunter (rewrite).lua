@@ -24,16 +24,22 @@ local mod = {
     death_penalty = 1,       -- Death Penalty   [number of points deducted]
     suicide_penalty = 2,     -- Suicide Penalty [number of points deducted]
     
-    -- Messages sent to the player when they join:
-    welcome_messages = {
+    server_prefix = "** SERVER **",
+    
+    messages = {
+    
+        -- Collection Messages --
+        "%killer% collected %victim%'s trophy!",
+        "%victim% stole %killer%'s trophy!",
+        "%player% stole %killer% trophy!",
+
+        -- Welcome Messages --
         "Welcome to Trophy Hunter",
         "Your victim will drop a trophy when they die!",
         "Collect this trophy to get points!",
         "Type /info or @info for more information.",
-    },
-    
-    -- Messages sent to the player when they type @info:
-    info_board = {
+
+        -- Information Board --
         "|l-- POINTS --",
         "|lCollect your victims trophy:           |r+%claim% points",
         "|lCollect somebody else's trophy:        |r+%claim_other% points",
@@ -44,16 +50,29 @@ local mod = {
     },
 }
 
-local trophies = { }
+-- Variables for String Library:
 local format = string.format
+local sub, gsub = string.sub, string.gsub
+local lower, upper = string.lower, string.upper
+local match, gmatch = string.match, string.gmatch
+
+-- Variables for Math Library:
+local floor, sqrt = math.floor, math.sqrt
+
+-- Game Variables:
+local game_over
+
+-- Game Tables: 
+local trophies = { }
+-- ...
 
 function OnScriptLoad()
 
     register_callback(cb['EVENT_TICK'], "OnTick")
-    register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
+    register_callback(cb['EVENT_JOIN'], "OnPlayerConnect")
     register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
-    register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
+    register_callback(cb['EVENT_LEAVE'], "OnPlayerDisconnect")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
     register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
@@ -94,7 +113,7 @@ end
 function OnPlayerChat(PlayerIndex, Message)
     local message = Message
     
-    message = string.lower(message) or string.upper(message)
+    message = lower(message) or upper(message)
     
     if (message == "@info") then
         return false
@@ -102,8 +121,8 @@ function OnPlayerChat(PlayerIndex, Message)
 end
 
 function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
-    if tonumber(Type) == 1 then
-
+    if (tonumber(Type) == 1) then
+        mod:OnTrophyPickup(PlayerIndex, WeaponIndex)            
     end
 end
 
@@ -117,6 +136,14 @@ function PlayerInVehicle(PlayerIndex)
         end
     else
         return false
+    end
+end
+
+function ObjectTagID(object)
+    if (object ~= nil and object ~= 0) then
+        return read_string(read_dword(read_word(object) * 32 + 0x40440038))
+    else
+        return ""
     end
 end
 
@@ -145,14 +172,52 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
 
     -- Check if the killer is a valid player.
     elseif (killer > 0) then
+        params.kname, params.vname = get_var(killer, "$name"), get_var(victim, "$name")
         params.victim, params.killer = victim, killer
         mod:spawnTrophy(params)
     end
     
 end
 
-function mod:onTrophyInteract()
+function mod:OnTrophyPickup(PlayerIndex, WeaponIndex)
 
+    local player_object = get_dynamic_player(PlayerIndex)
+    local WeaponID = read_dword(player_object + 0x118)
+    
+    if (WeaponID ~= 0) then
+    
+        local weapon = read_dword(player_object + 0x2F8 + (tonumber(WeaponIndex) - 1) * 4)
+    
+        local WeaponObject = get_object_memory(weapon)    
+        if (ObjectTagID(WeaponObject) == mod.trophy) then
+        
+            for k,v in pairs(trophies) do
+                if (k == weapon) then
+                                    
+                    local killer, victim = v[1], v[2]
+                    local kname, vname = v[3], v[4]
+                    
+                    local msg = function(table, index)
+                        local name = get_var(PlayerIndex, "$name")
+                        return gsub(gsub(gsub(table[index], "%%killer%%", kname), "%%victim%%", vname), "%%player%%", name)
+                    end
+                    
+                    execute_command("msg_prefix \"\"")
+                    if (PlayerIndex == killer) then
+                        say_all(msg(mod.messages, 1))
+                    elseif (PlayerIndex ~= killer and PlayerIndex ~= victim) then
+                        say_all(msg(mod.messages, 2))
+                    elseif (PlayerIndex == victim) then
+                        say_all(msg(mod.messages, 3))
+                    end
+                    execute_command("msg_prefix \"" .. mod.server_prefix .. "\" ")
+
+                    destroy_object(weapon)
+                    trophies[k] = nil
+                end
+            end
+        end
+    end
 end
 
 function mod:UpdateScore(PlayerIndex, number, bool)
@@ -180,9 +245,13 @@ end
 function mod:spawnTrophy(params)
     local params = params or nil
     if (params ~= nil) then
+    
         local coords = mod:getXYZ(params)
         local x,y,z,offset = coords.x,coords.y,coords.z,coords.offset
         local object = spawn_object("weap", mod.trophy, x, y, z + offset)
+        
+        local trophy = get_object_memory(object)
+        trophies[object] = {params.killer, params.victim, params.kname, params.vname}
     end
 end
 
