@@ -415,20 +415,7 @@ function mod:UpdateScore(params)
 end
 
 function mod:getGametype()
-    local gametype = get_var(1, "$gt")        
-        
-    local function set(bool)
-        if (bool) then
-            if (get_var(0, "$ffa") == "0") then
-                set.trophy = {"weap", "weapons\\ball\\ball"}
-            else
-                set.trophy = {"eqip", "powerups\\full-spectrum vision"}
-            end
-        else
-            set.trophy = {"eqip", "powerups\\full-spectrum vision"}
-        end
-    end
-        
+    local gametype = get_var(1, "$gt")
     if (gametype == "oddball" or gametype == "race") then
         unregister_callback(cb['EVENT_DIE'])
         unregister_callback(cb['EVENT_TICK'])
@@ -441,9 +428,13 @@ function mod:getGametype()
         cprint("This script doesn't support " .. gt[i], 4 + 8)
         return false
     elseif (gametype == "slayer" or gametype == "koth") then
-        set(true)
+        if (get_var(0, "$ffa") == "0") then
+            set.trophy = {"weap", "weapons\\ball\\ball"}
+        else
+            set.trophy = {"eqip", "powerups\\full-spectrum vision"}
+        end
     elseif (gametype == "ctf") then
-        set(false)
+        set.trophy = {"eqip", "powerups\\full-spectrum vision"}
     end
     return true
 end
