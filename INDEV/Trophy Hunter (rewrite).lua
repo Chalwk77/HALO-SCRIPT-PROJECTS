@@ -153,6 +153,8 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     local killer = tonumber(KillerIndex)
     
     local params = { }
+    params.kname, params.vname = get_var(killer, "$name"), get_var(victim, "$name")
+    params.victim, params.killer = victim, killer
     
     -- Check if the player committed suicide:
     if (victim == killer) then
@@ -172,11 +174,10 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
 
     -- Check if the killer is a valid player.
     elseif (killer > 0) then
-        params.kname, params.vname = get_var(killer, "$name"), get_var(victim, "$name")
-        params.victim, params.killer = victim, killer
+        -- Prevent killer from getting a point (until they collect their trophy)
+        execute_command("score " .. killer .. " -1")
         mod:spawnTrophy(params)
     end
-    
 end
 
 function mod:OnTrophyPickup(PlayerIndex, WeaponIndex)
@@ -193,35 +194,57 @@ function mod:OnTrophyPickup(PlayerIndex, WeaponIndex)
         
             for k,v in pairs(trophies) do
                 if (k == weapon) then
+                
+                    local params = { }
                                     
-                    local killer, victim = v[1], v[2]
-                    local kname, vname = v[3], v[4]
+                    params.killer, params.victim = v[1], v[2]
+                    params.kname, params.vname = v[3], v[4]
+                    params.name = get_var(PlayerIndex, "$name")
                     
                     local msg = function(table, index)
-                        local name = get_var(PlayerIndex, "$name")
-                        return gsub(gsub(gsub(table[index], "%%killer%%", kname), "%%victim%%", vname), "%%player%%", name)
+                        return gsub(gsub(gsub(table[index], "%%killer%%", params.kname), "%%victim%%", params.vname), "%%player%%", params.name)
                     end
                     
                     execute_command("msg_prefix \"\"")
-                    if (PlayerIndex == killer) then
+                    if (PlayerIndex == params.killer) then
+                        params.type = 1
                         say_all(msg(mod.messages, 1))
-                    elseif (PlayerIndex ~= killer and PlayerIndex ~= victim) then
+                    elseif (PlayerIndex ~= params.killer and PlayerIndex ~= params.victim) then
+                        params.type = 2
                         say_all(msg(mod.messages, 2))
-                    elseif (PlayerIndex == victim) then
+                    elseif (PlayerIndex == params.victim) then
+                        params.type = 3
                         say_all(msg(mod.messages, 3))
                     end
                     execute_command("msg_prefix \"" .. mod.server_prefix .. "\" ")
 
                     destroy_object(weapon)
                     trophies[k] = nil
+                    
+                    mod:UpdateScore(params)
                 end
             end
         end
     end
 end
 
-function mod:UpdateScore(PlayerIndex, number, bool)
-
+function mod:UpdateScore(params)
+    local params = params or nil
+    if (params ~= nil) then
+       
+        if (params.type == 1) then
+            execute_command("score " .. params.killer .. " +" .. mod.claim)
+        elseif (params.type == 2) then
+            execute_command("score " .. params.killer .. " +" .. mod.claim_other)
+        elseif (params.type == 3) then
+            execute_command("score " .. params.killer .. " +" .. mod.claim_self)
+        end
+        
+        -- Prevent Victim's score from going into negatives:
+        if tonumber(get_var(params.victim, "$score")) <= -1 then
+            execute_command("score " .. params.victim .. " 0")
+        end
+    end
 end
 
 function mod:checkGameType()
