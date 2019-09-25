@@ -32,11 +32,11 @@ function mod:init()
         server_prefix = "** SERVER **",
         despawn = true,
         time_until_despawn = 15,
-        info_command = "@info",
+        info_command = "info",
         
         on_claim = {
             "%killer% collected %victim%'s trophy!",
-            "%victim% stole %killer%'s trophy!",
+            "%victim% deined %killer%'s trophy!",
             "%player% stole %killer% trophy!",
         },
 
@@ -87,6 +87,7 @@ local game_over
 
 -- Game Tables: 
 local trophies, console_messages = { }, { }
+local ip_table = { }
 -- ...
 
 function OnScriptLoad()
@@ -106,6 +107,12 @@ function OnScriptLoad()
             
             trophies, console_messages = { }, { }
             mod:init()
+            
+            for i = 1,16 do
+                if player_present(i) then
+                    ip_table[i] = get_var(i, '$ip')
+                end
+            end
         end
     end
 end
@@ -131,16 +138,21 @@ function OnGameEnd()
 end
 
 function OnPlayerConnect(PlayerIndex)
+    ip_table[PlayerIndex] = get_var(PlayerIndex, '$ip')
+    
     local set = mod.settings
+    local ip = mod:GetIP(PlayerIndex)
+    
     if (set.despawn) then
         local name = get_var(PlayerIndex, "$name")
         for k,v in pairs(trophies) do
             if (k) then
-                if (v.vn == name and v.despawn_trigger == true) then
+                if (v.vip == ip and v.despawn_trigger == true) then
                     v.despawn_trigger, v.time = false, 0
                     
                     execute_command("msg_prefix \"\"")
                     for k,message in pairs(set.on_despawn) do
+                        print(message)
                         if (k == 3) then
                             say_all(gsub(message, "%%victim%%", name))
                         end
@@ -161,11 +173,13 @@ end
 
 function OnPlayerDisconnect(PlayerIndex)
     local set = mod.settings
+    local ip = mod:GetIP(PlayerIndex)
+    
     if (set.despawn) then
         local name = get_var(PlayerIndex, "$name")
         for k,v in pairs(trophies) do
             if (k) then
-                if (v.vn == name) then
+                if (v.vip == ip) then
                     v.despawn_trigger = true
                     execute_command("msg_prefix \"\"")
                     for k,message in pairs(set.on_despawn) do
@@ -228,27 +242,37 @@ function OnTick()
     end
 end
 
-function OnPlayerChat(PlayerIndex, Message)
-    local message = Message
-    local set = mod.settings
+function OnPlayerChat(PlayerIndex, Message, type)
+    if (type ~= 6) then
     
-    message = lower(message) or upper(message)
-    
-    if (set.enable_info_command) and (message == set.info_command) then
-        local words = {
-            ["%%claim%%"] = set.claim,
-            ["%%claim_other%%"] = set.claim_other,
-            ["%%claim_self%%"] = set.claim_self,
-            ["%%death_penalty%%"] = set.death_penalty,
-            ["%%suicide_penalty%%"] = set.suicide_penalty
-        }
-        for i,message in pairs(set.info) do
-            for k,v in pairs(words) do
-                set.info[i] = gsub(set.info[i], k, v)
+        local msg = mod:stringSplit(Message)
+        if (#msg == 0) then
+            return nil
+        end
+        
+        local set = mod.settings
+        local is_command = (sub(msg[1], 1, 1) == "/") or (sub(msg[1], 1, 1) == "\\")
+        
+        if (is_command) then
+            
+            msg = gsub(gsub(msg[1], "/",""), "\\", "")
+            if (set.enable_info_command and msg == set.info_command) then
+                local words = {
+                    ["%%claim%%"] = set.claim,
+                    ["%%claim_other%%"] = set.claim_other,
+                    ["%%claim_self%%"] = set.claim_self,
+                    ["%%death_penalty%%"] = set.death_penalty,
+                    ["%%suicide_penalty%%"] = set.suicide_penalty
+                }
+                for i,_ in pairs(set.info) do
+                    for k,v in pairs(words) do
+                        set.info[i] = gsub(set.info[i], k, v)
+                    end
+                end
+                mod:NewConsoleMessage(set.info, 5, PlayerIndex, "info")
+                return false
             end
         end
-        mod:NewConsoleMessage(set.info, 5, PlayerIndex, "info")
-        return false
     end
 end
 
@@ -266,6 +290,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     local params = { }
     params.kname, params.vname = get_var(killer, "$name"), get_var(victim, "$name")
     params.victim, params.killer = victim, killer
+    params.vip, params.kip = mod:GetIP(victim), mod:GetIP(killer)
     
     if (killer > 0) then
         execute_command("score " .. killer .. " -1")
@@ -289,7 +314,7 @@ function mod:OnTrophyPickup(PlayerIndex, WeaponIndex)
     
         local WeaponObject = get_object_memory(weapon)
         if (mod:ObjectTagID(WeaponObject) == set.trophy) then
-        
+                
             for k,v in pairs(trophies) do
                 if (k == weapon) then
                 
@@ -297,6 +322,7 @@ function mod:OnTrophyPickup(PlayerIndex, WeaponIndex)
                                     
                     params.killer, params.victim = v.kid, v.vid
                     params.kname, params.vname = v.kn, v.vn
+                    params.vip, params.kip = v.vip, v.kip
                     params.name = get_var(PlayerIndex, "$name")
                     
                     local msg = function(table, index)
@@ -304,14 +330,16 @@ function mod:OnTrophyPickup(PlayerIndex, WeaponIndex)
                     end
                     
                     execute_command("msg_prefix \"\"")
+                    
+                    
                     if (PlayerIndex == params.killer) then
                         params.type = 2
                         say_all(msg(set.on_claim, 1))
-                    elseif (PlayerIndex ~= params.killer and PlayerIndex ~= params.victim) then
-                        params.type = 3
-                        say_all(msg(set.on_claim, 2))
                     elseif (PlayerIndex == params.victim) then
                         params.type = 4
+                        say_all(msg(set.on_claim, 2))
+                    elseif (PlayerIndex ~= params.killer and PlayerIndex ~= params.victim) then
+                        params.type = 3
                         say_all(msg(set.on_claim, 3))
                     end
                     execute_command("msg_prefix \"" .. set.server_prefix .. "\" ")
@@ -403,6 +431,8 @@ function mod:spawnTrophy(params)
             vid = params.victim,
             kn = params.kname, 
             vn = params.vname,
+            vip = params.vip,
+            kip = params.kip,
             
             trophy = object,
             time = 0,
@@ -451,6 +481,20 @@ function mod:NewConsoleMessage(Message, Duration, Player, Type)
     table.insert(console_messages, Add(Message, Duration, Player, Type))
 end
 
+function mod:GetIP(p)
+    
+    if (halo_type == 'PC') then
+        ip_address = ip_table[p]
+    else
+        ip_address = get_var(p, '$ip')
+    end
+    if ip_address ~= nil then
+        return ip_address:match('(%d+.%d+.%d+.%d+:%d+)')
+    else
+        error(debug.traceback())
+    end
+end
+
 function mod:isInVehicle(PlayerIndex)
     if (get_dynamic_player(PlayerIndex) ~= 0) then
         local VehicleID = read_dword(get_dynamic_player(PlayerIndex) + 0x11C)
@@ -478,4 +522,16 @@ function mod:ObjectTagID(object)
     else
         return ""
     end
+end
+
+function mod:stringSplit(inp, sep)
+    if (sep == nil) then
+        sep = "%s"
+    end
+    local t, i = {}, 1
+    for str in gmatch(inp, "([^" .. sep .. "]+)") do
+        t[i] = str
+        i = i + 1
+    end
+    return t
 end
