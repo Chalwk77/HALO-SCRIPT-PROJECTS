@@ -26,7 +26,7 @@ function mod:init()
         death_penalty = 1,       -- Death Penalty   [number of points deducted]
         suicide_penalty = 2,     -- Suicide Penalty [number of points deducted]
         
-        scorelimit = 1,
+        scorelimit = 15,
         server_prefix = "** SERVER **",
         despawn = true,
         time_until_despawn = 15,
@@ -114,6 +114,7 @@ function OnNewGame()
     if mod:checkGameType() then
         mod:init()
         game_over = false
+        execute_command("scorelimit " .. mod.settings.scorelimit)
     end
 end
 
@@ -221,23 +222,24 @@ end
 
 function OnPlayerChat(PlayerIndex, Message)
     local message = Message
+    local set = mod.settings
     
     message = lower(message) or upper(message)
     
-    if (mod.settings.enable_info_command) and (message == mod.settings.info_command) then
+    if (set.enable_info_command) and (message == set.info_command) then
         local words = {
-            ["%%claim%%"] = mod.settings.claim,
-            ["%%claim_other%%"] = mod.settings.claim_other,
-            ["%%steal_self%%"] = mod.settings.steal_self,
-            ["%%death_penalty%%"] = mod.settings.death_penalty,
-            ["%%suicide_penalty%%"] = mod.settings.suicide_penalty
+            ["%%claim%%"] = set.claim,
+            ["%%claim_other%%"] = set.claim_other,
+            ["%%steal_self%%"] = set.steal_self,
+            ["%%death_penalty%%"] = set.death_penalty,
+            ["%%suicide_penalty%%"] = set.suicide_penalty
         }
-        for i,message in pairs(mod.settings.info) do
+        for i,message in pairs(set.info) do
             for k,v in pairs(words) do
-                mod.settings.info[i] = gsub(mod.settings.info[i], k, v)
+                set.info[i] = gsub(set.info[i], k, v)
             end
         end
-        mod:NewConsoleMessage(mod.settings.info, 5, PlayerIndex, "info")
+        mod:NewConsoleMessage(set.info, 5, PlayerIndex, "info")
         return false
     end
 end
@@ -257,11 +259,9 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     params.kname, params.vname = get_var(killer, "$name"), get_var(victim, "$name")
     params.victim, params.killer = victim, killer
     
-    -- Check if pVp
     if (killer > 0) then
         execute_command("score " .. killer .. " -1")
         mod:spawnTrophy(params)
-    -- Check if Suicide:
     elseif (victim == killer) then
         params.type = 1
         mod:UpdateScore(params)
@@ -273,13 +273,14 @@ function mod:OnTrophyPickup(PlayerIndex, WeaponIndex)
 
     local player_object = get_dynamic_player(PlayerIndex)
     local WeaponID = read_dword(player_object + 0x118)
+    local set = mod.settings
     
     if (WeaponID ~= 0) then
     
         local weapon = read_dword(player_object + 0x2F8 + (tonumber(WeaponIndex) - 1) * 4)
     
         local WeaponObject = get_object_memory(weapon)
-        if (mod:ObjectTagID(WeaponObject) == mod.settings.trophy) then
+        if (mod:ObjectTagID(WeaponObject) == set.trophy) then
         
             for k,v in pairs(trophies) do
                 if (k == weapon) then
@@ -297,15 +298,15 @@ function mod:OnTrophyPickup(PlayerIndex, WeaponIndex)
                     execute_command("msg_prefix \"\"")
                     if (PlayerIndex == params.killer) then
                         params.type = 2
-                        say_all(msg(mod.settings.on_claim, 1))
+                        say_all(msg(set.on_claim, 1))
                     elseif (PlayerIndex ~= params.killer and PlayerIndex ~= params.victim) then
                         params.type = 3
-                        say_all(msg(mod.settings.on_claim, 2))
+                        say_all(msg(set.on_claim, 2))
                     elseif (PlayerIndex == params.victim) then
                         params.type = 4
-                        say_all(msg(mod.settings.on_claim, 3))
+                        say_all(msg(set.on_claim, 3))
                     end
-                    execute_command("msg_prefix \"" .. mod.settings.server_prefix .. "\" ")
+                    execute_command("msg_prefix \"" .. set.server_prefix .. "\" ")
 
                     destroy_object(weapon)
                     trophies[k] = nil
@@ -321,32 +322,33 @@ function mod:UpdateScore(params)
     local params = params or nil
     if (params ~= nil) then
     
+        local set = mod.settings
+    
         local killer = params.killer
         local victim = params.victim
         local kname = params.kname
        
         -- Deduct point(s) for committing suicide:
         if (params.type == 1) then
-            execute_command("score " .. killer .. " +" .. mod.settings.suicide_penalty)
+            execute_command("score " .. killer .. " +" .. set.suicide_penalty)
         elseif (params.type == 2) then
-            execute_command("score " .. killer .. " +" .. mod.settings.claim)
+            execute_command("score " .. killer .. " +" .. set.claim)
         elseif (params.type == 3) then
-            execute_command("score " .. killer .. " +" .. mod.settings.claim_other)
+            execute_command("score " .. killer .. " +" .. set.claim_other)
         elseif (params.type == 4) then
-            execute_command("score " .. killer .. " +" .. mod.settings.claim_self)
+            execute_command("score " .. killer .. " +" .. set.claim_self)
         end
         
-        if tonumber(get_var(killer, "$score")) >= mod.settings.scorelimit then
+        if tonumber(get_var(killer, "$score")) >= set.scorelimit then
             game_over = true
-            execute_command("sv_map_next")
 
-            for k,v in pairs(mod.settings.win) do
-                mod.settings.win[k] = gsub(mod.settings.win[k], "%%name%%", kname)
+            for k,v in pairs(set.win) do
+                set.win[k] = gsub(set.win[k], "%%name%%", kname)
             end
             
             for i = 1,16 do
                 if player_present(i) then
-                    mod:NewConsoleMessage(mod.settings.win, 5, i, "endgame")
+                    mod:NewConsoleMessage(set.win, 5, i, "endgame")
                 end
             end
         end
@@ -381,9 +383,11 @@ function mod:spawnTrophy(params)
     local params = params or nil
     if (params ~= nil) then
     
+        local set = mod.settings
+    
         local coords = mod:getXYZ(params)
         local x,y,z,offset = coords.x,coords.y,coords.z,coords.offset
-        local object = spawn_object("weap", mod.settings.trophy, x, y, z + offset)
+        local object = spawn_object("weap", set.trophy, x, y, z + offset)
         
         local trophy = get_object_memory(object)
         trophies[object] = {
@@ -395,7 +399,7 @@ function mod:spawnTrophy(params)
             
             trophy = object,
             time = 0,
-            duration = mod.settings.time_until_despawn,
+            duration = set.time_until_despawn,
             despawn_trigger = false,
         }
     end
