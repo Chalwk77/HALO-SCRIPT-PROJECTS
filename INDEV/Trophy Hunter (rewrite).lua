@@ -28,6 +28,9 @@ function mod:init()
         
         scorelimit = 1,
         server_prefix = "** SERVER **",
+        despawn = true,
+        time_until_despawn = 15,
+        info_command = "@info",
         
         on_claim = {
             "%killer% collected %victim%'s trophy!",
@@ -35,13 +38,15 @@ function mod:init()
             "%player% stole %killer% trophy!",
         },
 
+        show_welcome_message = true,
         welcome = {
             "Welcome to Trophy Hunter",
             "Your victim will drop a trophy when they die!",
             "Collect this trophy to get points!",
-            "Type /info or @info for more information.",
+            "Type %info_command% for more information.",
         },
-
+        
+        enable_info_command = true,
         info = {
             "|l-- POINTS --",
             "|lCollect your victims trophy:           |r+%claim% points",
@@ -56,7 +61,12 @@ function mod:init()
             "|c--<->--<->--<->--<->--<->--<->--<->--",
             "|c%name% WON THE GAME!",
             "|c--<->--<->--<->--<->--<->--<->--<->--",
-        }
+        },
+        
+        on_despawn = {
+            "%victim%'s trophies will despawn in %seconds% seconds",
+            "%victim%'s trophies have despawned!",
+        },
     }
 end
 
@@ -112,11 +122,53 @@ function OnGameEnd()
 end
 
 function OnPlayerConnect(PlayerIndex)
-    --
+    local set = mod.settings
+    if (set.despawn) then
+        local name = get_var(PlayerIndex, "$name")
+        for k,v in pairs(trophies) do
+            if (k) then
+                if (v.vn == name and v.despawn_trigger == true) then
+                    v.despawn_trigger, v.time = false, 0
+                    
+                    execute_command("msg_prefix \"\"")
+                    for k,message in pairs(set.on_despawn) do
+                        if (k == 3) then
+                            say_all(gsub(message, "%%victim%%", name))
+                        end
+                    end
+                    execute_command("msg_prefix \"" .. set.server_prefix .. "\" ")
+                end
+            end
+        end
+    end
+    if (set.show_welcome_message) then
+        for i,message in pairs(set.welcome) do
+            set.welcome[i] = gsub(message, "%%info_command%%", set.info_command)
+        end
+        mod:NewConsoleMessage(set.welcome, 10, PlayerIndex, "welcome")
+        return false
+    end
 end
 
 function OnPlayerDisconnect(PlayerIndex)
-    -- Init despawning logic:
+    local set = mod.settings
+    if (set.despawn) then
+        local name = get_var(PlayerIndex, "$name")
+        for k,v in pairs(trophies) do
+            if (k) then
+                if (v.vn == name) then
+                    v.despawn_trigger = true
+                    execute_command("msg_prefix \"\"")
+                    for k,message in pairs(set.on_despawn) do
+                        if (k == 1) then
+                            say_all(gsub(gsub(message, "%%victim%%", name), "%%seconds%%", v.duration))
+                        end
+                    end
+                    execute_command("msg_prefix \"" .. set.server_prefix .. "\" ")
+                end
+            end
+        end
+    end
 end
 
 function OnTick()
@@ -135,8 +187,32 @@ function OnTick()
                 end
                 
                 if (v.time >= v.duration) then
-                    trophies = { }
+                    if (v.type == "endgame") then trophies = { } end
                     console_messages[k] = nil
+                end
+            end
+        end
+    end
+    
+    if (mod.settings.despawn) then
+        for k,v in pairs(trophies) do
+            if (k) then
+                if (v.despawn_trigger) then
+                    v.time = v.time + 0.03333333333333333
+                    
+                    if (v.time >= v.duration) then
+                        destroy_object(v.trophy)
+                            
+                        execute_command("msg_prefix \"\"")
+                        for k,message in pairs(mod.settings.on_despawn) do
+                            if (k == 2) then
+                                say_all(gsub(message, "%%victim%%", v.vn))
+                            end
+                        end
+                        execute_command("msg_prefix \"" .. mod.settings.server_prefix .. "\" ")
+                        
+                        trophies[k] = nil
+                    end
                 end
             end
         end
@@ -148,7 +224,20 @@ function OnPlayerChat(PlayerIndex, Message)
     
     message = lower(message) or upper(message)
     
-    if (message == "@info") then
+    if (mod.settings.enable_info_command) and (message == mod.settings.info_command) then
+        local words = {
+            ["%%claim%%"] = mod.settings.claim,
+            ["%%claim_other%%"] = mod.settings.claim_other,
+            ["%%steal_self%%"] = mod.settings.steal_self,
+            ["%%death_penalty%%"] = mod.settings.death_penalty,
+            ["%%suicide_penalty%%"] = mod.settings.suicide_penalty
+        }
+        for i,message in pairs(mod.settings.info) do
+            for k,v in pairs(words) do
+                mod.settings.info[i] = gsub(mod.settings.info[i], k, v)
+            end
+        end
+        mod:NewConsoleMessage(mod.settings.info, 5, PlayerIndex, "info")
         return false
     end
 end
@@ -197,8 +286,8 @@ function mod:OnTrophyPickup(PlayerIndex, WeaponIndex)
                 
                     local params = { }
                                     
-                    params.killer, params.victim = v[1], v[2]
-                    params.kname, params.vname = v[3], v[4]
+                    params.killer, params.victim = v.kid, v.vid
+                    params.kname, params.vname = v.kn, v.vn
                     params.name = get_var(PlayerIndex, "$name")
                     
                     local msg = function(table, index)
@@ -257,7 +346,7 @@ function mod:UpdateScore(params)
             
             for i = 1,16 do
                 if player_present(i) then
-                    mod:NewConsoleMessage(mod.settings.win, 5, i)
+                    mod:NewConsoleMessage(mod.settings.win, 5, i, "endgame")
                 end
             end
         end
@@ -297,7 +386,18 @@ function mod:spawnTrophy(params)
         local object = spawn_object("weap", mod.settings.trophy, x, y, z + offset)
         
         local trophy = get_object_memory(object)
-        trophies[object] = {params.killer, params.victim, params.kname, params.vname}
+        trophies[object] = {
+        
+            kid = params.killer,
+            vid = params.victim,
+            kn = params.kname, 
+            vn = params.vname,
+            
+            trophy = object,
+            time = 0,
+            duration = mod.settings.time_until_despawn,
+            despawn_trigger = false,
+        }
     end
 end
 
@@ -325,18 +425,19 @@ function mod:getXYZ(params)
     end
 end
 
-function mod:NewConsoleMessage(Message, Duration, Player)
+function mod:NewConsoleMessage(Message, Duration, Player, Type)
 
-    local function Add(a, b, c)
+    local function Add(a, b, c, d)
         return {
             message = a,
             duration = b,
             player = c,
+            type = d,
             time = 0,
         }
     end
 
-    table.insert(console_messages, Add(Message, Duration, Player))
+    table.insert(console_messages, Add(Message, Duration, Player, Type))
 end
 
 function mod:isInVehicle(PlayerIndex)
