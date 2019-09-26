@@ -6,7 +6,7 @@ Description: This is an adaptation of Kill-Confirmed from Call of Duty.
              In order to actually score you have to collect the trophy.
              
              This mod is designed for stock maps only!
-             Message me on github if you want this mod to be designed for a specific map(s).
+             Message me on GitHub (see below) if you want this mod to be designed for a specific map(s).
              
              This mod is also currently only available for Slayer (FFA) gametypes.
 
@@ -42,12 +42,18 @@ function mod:init()
             ['death_penalty'] = {-1},
             
             -- Index 1: (Victim) Points deducted because you committed suicide
-            ['suicide_penalty'] = {1},
+            ['suicide_penalty'] = {-1},
             
             
-            -- GAME SCORE LIMIT --
+            -- DYNAMIC SCORING SYSTEM --
             -- The game will end when this scorelimit is reached.
-            ['scorelimit'] = {15},
+            ['scorelimit'] = {
+                [1] = 15, -- 4 players or less
+                [2] = 25, -- 4-8 players
+                [3] = 45, -- 8-12 players
+                [4] = 50, -- 12-16 players
+                txt = "Score limit changed to: %scorelimit%"
+            },
         },
     
         -- Some functions temporarily remove the server prefix while broadcasting a message.
@@ -123,6 +129,7 @@ local floor, sqrt = math.floor, math.sqrt
 
 -- Game Variables:
 local game_over
+local current_scorelimit
 
 -- Game Tables: 
 local trophies, console_messages = { }, { }
@@ -153,6 +160,9 @@ function OnScriptLoad()
                     ip_table[i] = get_var(i, '$ip')
                 end
             end
+            
+            current_scorelimit = 0
+            mod:modifyScorelimit()
         end
     end
 end
@@ -171,8 +181,10 @@ function OnNewGame()
         mod:init()
         mod.settings.trophy = trophy
         game_over = false
-        local scorelimit = mod:GetScoreLimit()
-        execute_command("scorelimit " .. scorelimit)
+        
+        current_scorelimit = 0
+        local scoreTable = mod:GetScoreLimit()
+        mod:SetScorelimit(scoreTable[1])
     end
 end
 
@@ -185,6 +197,8 @@ function OnPlayerConnect(PlayerIndex)
     
     local set = mod.settings
     local ip = mod:GetIP(PlayerIndex)
+    
+    mod:modifyScorelimit()
     
     if (set.despawn) then
         local name = get_var(PlayerIndex, "$name")
@@ -217,6 +231,8 @@ end
 function OnPlayerDisconnect(PlayerIndex)
     local set = mod.settings
     local ip = mod:GetIP(PlayerIndex)
+    
+    mod:modifyScorelimit()
     
     if (set.despawn) then
         local name = get_var(PlayerIndex, "$name")
@@ -437,10 +453,8 @@ function mod:UpdateScore(params)
         elseif (params.type == "death_penalty") then
             execute_command("score " .. victim .. " " .. vs + score[1])
         end
-        
-        local scorelimit = mod:GetScoreLimit()
-        
-        if tonumber(get_var(killer, "$score")) >= scorelimit then
+                
+        if tonumber(get_var(killer, "$score")) >= current_scorelimit then
             game_over = true
 
             for k,v in pairs(set.win) do
@@ -569,12 +583,7 @@ function mod:ScoreType(params)
 end
 
 function mod:GetScoreLimit()
-    local T = mod.settings.scoring
-    for k,_ in pairs(T) do
-        if (k == "scorelimit") then
-            return tonumber(T[k][1])
-        end
-    end
+    return(mod.settings.scoring["scorelimit"])
 end
 
 function mod:getXYZ(params)
@@ -630,6 +639,43 @@ function mod:GetIP(p)
     end
 end
 
+function mod:GetPlayerCount()
+    return tonumber(get_var(0, "$pn"))
+end
+
+function mod:modifyScorelimit()
+    local player_count = mod:GetPlayerCount()
+    local scoreTable = mod:GetScoreLimit()
+    
+    local msg = nil
+    
+    if (player_count <= 4 and current_scorelimit ~= scoreTable[1]) then
+        mod:SetScorelimit(scoreTable[1])
+        msg = gsub(gsub(scoreTable.txt, "%%scorelimit%%", scoreTable[1]), "%%s%%", mod:getChar(scoreTable[1]))
+
+    elseif (player_count > 4 and player_count <= 8 and current_scorelimit ~= scoreTable[2]) then
+        mod:SetScorelimit(scoreTable[2])
+        msg = gsub(gsub(scoreTable.txt, "%%scorelimit%%", scoreTable[2]), "%%s%%", mod:getChar(scoreTable[2]))
+
+    elseif (player_count > 9 and player_count <= 12 and current_scorelimit ~= scoreTable[3]) then
+        mod:SetScorelimit(scoreTable[3])
+        msg = gsub(gsub(scoreTable.txt, "%%scorelimit%%", scoreTable[3]), "%%s%%", mod:getChar(scoreTable[3]))
+
+    elseif (player_count > 12 and current_scorelimit ~= scoreTable[4]) then
+        mod:SetScorelimit(scoreTable[4])
+        msg = gsub(gsub(scoreTable.txt, "%%scorelimit%%", scoreTable[4]), "%%s%%", mod:getChar(scoreTable[4]))
+    end
+    
+    if (msg ~= nil) then
+        say_all(msg)
+    end
+end
+
+function mod:SetScorelimit(score)
+    current_scorelimit = score
+    execute_command("scorelimit " .. score)
+end
+
 function mod:isInVehicle(PlayerIndex)
     if (get_dynamic_player(PlayerIndex) ~= 0) then
         local VehicleID = read_dword(get_dynamic_player(PlayerIndex) + 0x11C)
@@ -669,4 +715,14 @@ function mod:stringSplit(inp, sep)
         i = i + 1
     end
     return t
+end
+
+function mod:getChar(input)
+    local char = ""
+    if (tonumber(input) > 1) then
+        char = "s"
+    elseif (tonumber(input) <= 1) then
+        char = ""
+    end
+    return char
 end
