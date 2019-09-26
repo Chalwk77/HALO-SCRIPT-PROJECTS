@@ -60,10 +60,7 @@ local floor, sqrt = math.floor, math.sqrt
 -- Game Variables:
 local gamestarted
 local countdown, init_countdown, print_nep
-
--- Game Tables:
-local messages = { }
--- ...
+local slayer_globals = nil
 
 function OnScriptLoad()
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
@@ -78,6 +75,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
     if (get_var(0, '$gt') ~= "n/a") then
         mod:init()
+        slayer_globals = read_dword(sig_scan("5733C0B910000000BFE8E05B00F3ABB910000000") + 19)
     end
 end
 
@@ -262,16 +260,18 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
 
         local kteam = get_var(killer, "$team")
         local vteam = get_var(victim, "$team")
+        local set = mod.settings
 
         if (killer > 0 and killer ~= victim) then
-
-            local set = mod.settings
             
-            if kteam == "red" then
-                SwitchTeam(victim, "red")
+            local bluescore,redscore = get_var(0, "$bluescore"), get_var(0, "$redscore")
 
+            if kteam == "red" then
+                execute_command("slayer_score_team blue " .. bluescore - 1)
+                SwitchTeam(victim, "red")
             elseif kteam == "blue" then
                 SwitchTeam(victim, "blue")
+                execute_command("slayer_score_team red " .. redscore - 1)
             end
             
             local team_count = mod:getTeamCount() -- blues[1], reds[2]
@@ -412,11 +412,7 @@ function setTeam(PlayerIndex, team)
     
     mod:killPlayer(PlayerIndex)
     SwitchTeam(tonumber(PlayerIndex), team)
-    
-    execute_command("score " .. PlayerIndex .. " 0")
-    execute_command("kills " .. PlayerIndex .. " 0")
-    execute_command("deaths " .. PlayerIndex .. " 0")
-    execute_command("assists " .. PlayerIndex .. " 0")
+    mod:ResetScore(PlayerIndex)
 end
 
 function mod:deleteWeapons(PlayerIndex)
@@ -469,4 +465,12 @@ function mod:PickRandomTeam()
     local team, num = 0, math.random(1, 2)
     if (num == 1) then team = "red" else team = "blue" end
     return team
+end
+
+function mod:ResetScore(PlayerIndex)
+    execute_command("score " .. PlayerIndex .. " 0")
+    execute_command("kills " .. PlayerIndex .. " 0")
+    execute_command("deaths " .. PlayerIndex .. " 0")
+    execute_command("assists " .. PlayerIndex .. " 0")
+    execute_command_sequence("team_score 0 0")
 end
