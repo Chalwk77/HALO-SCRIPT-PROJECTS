@@ -23,14 +23,33 @@ local mod = { }
 
 function mod:init()
     mod.settings = {
-        -- Scoring -
-        claim = 1,               -- Collect your trophy
-        claim_other = 1,         -- Collect somebody else's trophy
-        claim_self = 2,          -- Collect your killer's trophy
-        death_penalty = 1,       -- Death Penalty   [number of points deducted]
-        suicide_penalty = 2,     -- Suicide Penalty [number of points deducted]
-        scorelimit = 15,         -- The game will end when this scorelimit is reached
-        
+    
+        scoring = {
+            
+            -- Index 1: (Killer) Points added for claiming your victim's trophy
+            -- Index 2: (Victim) Points deducted because your killer claimed their trophy
+            ['claim'] = {1, -1},
+            
+            -- Index 1: (Player) Points added for claiming someone else's trophy
+            -- Index 2: (Victim) Points deducted because a player claimed your killers trophy
+            ['claim_other'] = {1, -1},
+            
+            -- Index 1: (Killer) Points deducted because your victim claimed your trophy
+            -- Index 2: (Victim) Points added for claiming your killers trophy
+            ['claim_self'] = {-1, 2},
+            
+            -- Index 1: (Victim) Points deducted because you were killed (pVP)
+            ['death_penalty'] = {-1},
+            
+            -- Index 1: (Victim) Points deducted because you committed suicide
+            ['suicide_penalty'] = {1},
+            
+            
+            -- GAME SCORE LIMIT --
+            -- The game will end when this scorelimit is reached.
+            ['scorelimit'] = {15},
+        },
+    
         -- Some functions temporarily remove the server prefix while broadcasting a message.
         -- This prefix will be restored to 'server_prefix' when the message relay is done.
         -- Enter your servers default prefix here:
@@ -152,7 +171,8 @@ function OnNewGame()
         mod:init()
         mod.settings.trophy = trophy
         game_over = false
-        execute_command("scorelimit " .. mod.settings.scorelimit)
+        local scorelimit = mod:GetScoreLimit()
+        execute_command("scorelimit " .. scorelimit)
     end
 end
 
@@ -320,10 +340,17 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     params.vip, params.kip = mod:GetIP(victim), mod:GetIP(killer)
     
     if (killer > 0) then
+        -- Prevent killer from getting a point.
+        -- They have to "claim" their trophy to be rewarded a point.
         execute_command("score " .. killer .. " -1")
+        
+        -- Victim loses a point for dying:
+        params.type = "death_penalty"
+        mod:UpdateScore(params)
         mod:spawnTrophy(params)
+        
     elseif (victim == killer) then
-        params.type = 1
+        params.type = "suicide_penalty"
         mod:UpdateScore(params)
         return false
     end
@@ -358,15 +385,14 @@ function mod:OnTrophyPickup(PlayerIndex, WeaponIndex)
                     
                     execute_command("msg_prefix \"\"")
                     
-                    
                     if (PlayerIndex == params.killer) then
-                        params.type = 2
+                        params.type = "claim"
                         say_all(msg(set.on_claim, 1))
                     elseif (PlayerIndex == params.victim) then
-                        params.type = 4
+                        params.type = "claim_self"
                         say_all(msg(set.on_claim, 2))
                     elseif (PlayerIndex ~= params.killer and PlayerIndex ~= params.victim) then
-                        params.type = 3
+                        params.type = "claim_other"
                         say_all(msg(set.on_claim, 3))
                     end
                     execute_command("msg_prefix \"" .. set.server_prefix .. "\" ")
@@ -390,18 +416,31 @@ function mod:UpdateScore(params)
         local killer = params.killer
         local victim = params.victim
         local kname = params.kname
+        
+        local score, ks, vs = select(1, mod:ScoreType(params))
        
-        if (params.type == 1) then
-            execute_command("score " .. killer .. " +" .. set.suicide_penalty)
-        elseif (params.type == 2) then
-            execute_command("score " .. killer .. " +" .. set.claim)
-        elseif (params.type == 3) then
-            execute_command("score " .. killer .. " +" .. set.claim_other)
-        elseif (params.type == 4) then
-            execute_command("score " .. killer .. " +" .. set.claim_self)
+        if (params.type == "claim") then
+            execute_command("score " .. killer .. " " .. ks + score[1])
+            execute_command("score " .. victim .. " " .. vs + score[2])
+            
+        elseif (params.type == "claim_self") then
+            execute_command("score " .. killer .. " " .. ks + score[1])
+            execute_command("score " .. victim .. " " .. vs + score[2])
+            
+        elseif (params.type == "claim_other") then
+            execute_command("score " .. killer .. " " .. ks + score[1])
+            execute_command("score " .. victim .. " " .. vs + score[2])
+            
+        elseif (params.type == "suicide_penalty") then
+            execute_command("score " .. victim .. " " .. vs + score[1])
+            
+        elseif (params.type == "death_penalty") then
+            execute_command("score " .. victim .. " " .. vs + score[1])
         end
         
-        if tonumber(get_var(killer, "$score")) >= set.scorelimit then
+        local scorelimit = mod:GetScoreLimit()
+        
+        if tonumber(get_var(killer, "$score")) >= scorelimit then
             game_over = true
 
             for k,v in pairs(set.win) do
@@ -415,8 +454,14 @@ function mod:UpdateScore(params)
             end
         end
         
-        -- Prevent victim's score from going into negatives:
-        if tonumber(get_var(victim, "$score")) <= -1 then
+        
+        -- Prevent player scores from going into negatives:
+        local _, ks, vs = select(1, mod:ScoreType(params))
+        
+        if (ks <= -1) then
+            execute_command("score " .. killer .. " 0")
+        end
+        if (vs <= -1) then
             execute_command("score " .. victim .. " 0")
         end
     end
@@ -504,6 +549,31 @@ function mod:spawnTrophy(params)
             duration = set.time_until_despawn,
             despawn_trigger = false,
         }
+    end
+end
+
+function mod:ScoreType(params)
+    local params = params or nil
+    if (params ~= nil) then
+        
+        local ks = tonumber(get_var(params.killer, "$score"))
+        local vs = tonumber(get_var(params.victim, "$score"))
+    
+        local table = mod.settings.scoring
+        for k,v in pairs(table) do
+            if (params.type == k) then
+                return table[k], ks, vs
+            end
+        end
+    end
+end
+
+function mod:GetScoreLimit()
+    local T = mod.settings.scoring
+    for k,_ in pairs(T) do
+        if (k == "scorelimit") then
+            return tonumber(T[k][1])
+        end
     end
 end
 
