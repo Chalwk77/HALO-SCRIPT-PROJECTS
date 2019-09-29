@@ -39,7 +39,7 @@ end
 function OnPreJoin(p)
     local player = vpn_blocker:GetCredentials(p)
     
-    cprint("Retrieving vpn-ipv4 addresses. Please wait...", 2+8)   
+    cprint("Retrieving vpn-ipv4 addresses. Please wait...", 2+8)
     
     local url = string.gsub(vpn_blocker.url, "api_key", vpn_blocker.api_key)
     local data = vpn_blocker:GetPage(tostring(url .. player.ip))
@@ -66,7 +66,7 @@ end
 
 function vpn_blocker:GetCredentials(p)
     return {
-        ip = ip:match('(%d+.%d+.%d+.%d+)'), 
+        ip = get_var(p, "$ip"):match('(%d+.%d+.%d+.%d+)'), 
         name = get_var(p, "$name")
     }
 end
