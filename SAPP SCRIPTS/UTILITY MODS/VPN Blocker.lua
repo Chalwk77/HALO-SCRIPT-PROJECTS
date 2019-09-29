@@ -64,7 +64,7 @@ end
 
 function vpn_blocker:GetCredentials(p)
     local ip = get_var(p, "$ip")
-    local name = get_var(p, "$name") -- for a future update
+    local name = get_var(p, "$name")
     local hash = get_var(p, "$hash") -- for a future update
     return {ip = ip:match('(%d+.%d+.%d+.%d+)'), name = name, hash = hash}
 end
@@ -91,7 +91,7 @@ ffi.cdef [[
     const char *http_read_response(const http_response *);
     uint32_t http_response_length(const http_response *);
 ]]
-http_client = ffi.load("lua_http_client")
+local http_client = ffi.load("lua_http_client")
 
 function vpn_blocker:GetPage(URL)
     local response = http_client.http_get(URL, false)
