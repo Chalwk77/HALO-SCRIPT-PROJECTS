@@ -17,9 +17,9 @@ api_version = "1.12.0.0"
 
 local vpn_blocker = { 
     url = 'https://github.com/Chalwk77/VPNs/blob/master/vpn-ipv4.txt',
-    ips = {},
-    action = "kick",
-    feedback = "We\'ve detected that you\'re using a VPN or Proxy - we do not allow these!'"
+    action = "kick", -- Valid Actions: kick,ban
+    feedback1 = "We\'ve detected that you\'re using a VPN or Proxy - we do not allow these!'",
+    feedback2 = "%name% was %action% for using a VPN or Proxy (IP: %ip%)",
 }
 
 function OnScriptLoad()
@@ -36,16 +36,19 @@ function OnPreJoin(p)
     local player = vpn_blocker:GetCredentials(p)
     for _,v in pairs(vpn_blocker.ips) do
         if (player.ip == v) then
-            say(p, vpn_blocker.feedback)
-            if (vpn_blocker.action == "kick") then
-                execute_command("k " .. p)
-                cprint(player.name .. " was kicked for using a VPN or Proxy", 4+8)
-                log_note(player.name .. " was kicked for using a VPN or Proxy (IP: " .. player.ip .. " )")
-            elseif (vpn_blocker.action == "ban") then
-                execute_command("ipban " .. p)
-                cprint(player.name .. " was banned for using a VPN or Proxy", 4+8)
-                log_note(player.name .. " was banned for using a VPN or Proxy (IP: " .. player.ip .. " )")
+            
+            say(p, vpn_blocker.feedback1)
+            
+            if (vpn_blocker.action == "k") then
+                action = "kicked"
+            elseif (vpn_blocker.action == "b") then
+                action = "banned"
             end
+            
+            local msg = gsub(gsub(gsub(vpn_blocker.feedback2, "%%name%%", player.name),"%%action%%", action), "%%ip%%", player.ip)
+            cprint(msg, 4+8)
+            log_note(msg)
+            execute_command(vpn_blocker.action .. " " .. p)
         end
     end
 end
@@ -53,12 +56,17 @@ end
 function vpn_blocker:GetData()
     cprint("Retrieving vpn-ipv4 addresses. Please wait...", 2+8)
     local data = vpn_blocker:GetPage(tostring(vpn_blocker.url))
+    
+    vpn_blocker.ips = vpn_blocker.ips or { }
+    vpn_blocker.ips = { }
+    
     if (data) then
         local line = vpn_blocker:stringSplit(data, "\n")
         for i = 1, #line do
             local ip = line[i]:match('(%d+.%d+.%d+.%d+)')
             vpn_blocker.ips[#vpn_blocker.ips + 1] = ip
         end
+        cprint("VPN Blocker -> Successfully stored (" .. #vpn_blocker.ips .. ") vpn-ipv4 IPs.", 2+8)
         return true
     else
         error('VPN Blocker was unable to retrieve the IP Data.')
