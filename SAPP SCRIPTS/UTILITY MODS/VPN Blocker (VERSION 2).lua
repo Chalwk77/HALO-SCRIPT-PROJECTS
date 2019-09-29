@@ -41,7 +41,7 @@ end
 function OnPreJoin(p)
     local player = vpn_blocker:GetCredentials(p)
     
-    cprint("VPN Lookup | Please wait...", 2+8)
+    cprint("VPN Blocker -> Running Ip Lookup ^ Please wait...", 2+8)
     
     local url = gsub(vpn_blocker.url, "api_key", vpn_blocker.api_key)
     local data = vpn_blocker:GetPage(tostring(url .. player.ip))
@@ -51,6 +51,7 @@ function OnPreJoin(p)
         
         if (ip_lookup.vpn) or (ip_lookup.tor) then
             say(p, vpn_blocker.feedback1)
+            execute_command(vpn_blocker.action .. " " .. p)
             
             if (vpn_blocker.action == "k") then
                 action = "kicked"
@@ -60,8 +61,7 @@ function OnPreJoin(p)
             
             local msg = gsub(gsub(gsub(vpn_blocker.feedback2, "%%name%%", player.name),"%%action%%", action), "%%ip%%", player.ip)
             cprint(msg, 4+8)
-            log_note(msg)
-            execute_command(vpn_blocker.action .. " " .. p)
+            execute_command("log_note" .. msg)
         end
     else
         error('VPN Blocker was unable to retrieve the IP Data.')
