@@ -41,6 +41,8 @@ local vpn_blocker = {
     -- Configuration [ends]
 }
 
+local gsub = string.gsub
+
 function OnScriptLoad()
     vpn_blocker:GetData()
     register_callback(cb["EVENT_PREJOIN"], "OnPreJoin")
