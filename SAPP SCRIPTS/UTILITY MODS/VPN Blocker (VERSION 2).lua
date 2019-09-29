@@ -31,6 +31,7 @@ local vpn_blocker = {
     -- Configuration [ends]
 }
 
+local gsub = string.gsub
 local json = (loadfile "json.lua")()
 
 function OnScriptLoad()
@@ -42,7 +43,7 @@ function OnPreJoin(p)
     
     cprint("VPN Lookup | Please wait...", 2+8)
     
-    local url = string.gsub(vpn_blocker.url, "api_key", vpn_blocker.api_key)
+    local url = gsub(vpn_blocker.url, "api_key", vpn_blocker.api_key)
     local data = vpn_blocker:GetPage(tostring(url .. player.ip))
         
     if (data) then
@@ -73,6 +74,7 @@ function vpn_blocker:GetCredentials(p)
     return {ip = ip:match('(%d+.%d+.%d+.%d+)'), name = name}
 end
 
+-- Credits to Kavawuvi (002) for HTTP client functionality:
 local ffi = require("ffi")
 ffi.cdef [[
     typedef void http_response;
