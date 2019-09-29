@@ -39,7 +39,7 @@ end
 function OnPreJoin(p)
     local player = vpn_blocker:GetCredentials(p)
     
-    cprint("Retrieving vpn-ipv4 addresses. Please wait...", 2+8)
+    cprint("VPN Lookup | Please wait...", 2+8)
     
     local url = string.gsub(vpn_blocker.url, "api_key", vpn_blocker.api_key)
     local data = vpn_blocker:GetPage(tostring(url .. player.ip))
@@ -53,10 +53,11 @@ function OnPreJoin(p)
             if (vpn_blocker.action == "kick") then
                 execute_command("k " .. p)
                 cprint(player.name .. " was kicked for using a VPN or Proxy", 4+8)
-                
+                log_note(player.name .. " was kicked for using a VPN or Proxy (IP: " .. player.ip .. " )")
             elseif (vpn_blocker.action == "ban") then
                 execute_command("ipban " .. p)
                 cprint(player.name .. " was banned for using a VPN or Proxy", 4+8)
+                log_note(player.name .. " was banned for using a VPN or Proxy (IP: " .. player.ip .. " )")
             end
         end
     else
