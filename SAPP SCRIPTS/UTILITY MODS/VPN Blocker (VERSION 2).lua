@@ -23,7 +23,7 @@ api_version = "1.12.0.0"
 
 local vpn_blocker = { 
     -- Configuration [starts]
-    api_key = "API_KEY",
+    api_key = "API_KEY", -- paste your api key here (from www.ipqualityscore.com)
     url = "https://www.ipqualityscore.com/api/json/ip/api_key/",
     action = "kick",
     feedback = "We\'ve detected that you\'re using a VPN or Proxy - we do not allow these!'"
