@@ -25,8 +25,9 @@ local vpn_blocker = {
     -- Configuration [starts]
     api_key = "API_KEY", -- paste your api key here (from www.ipqualityscore.com)
     url = "https://www.ipqualityscore.com/api/json/ip/api_key/",
-    action = "kick",
-    feedback = "We\'ve detected that you\'re using a VPN or Proxy - we do not allow these!'"
+    action = "k", -- k = kick, b = ban
+    feedback1 = "We\'ve detected that you\'re using a VPN or Proxy - we do not allow these!'",
+    feedback2 = "%name% was %action% for using a VPN or Proxy (IP: %ip%)",
     -- Configuration [ends]
 }
 
@@ -48,17 +49,18 @@ function OnPreJoin(p)
         local ip_lookup = json:decode(data)
         
         if (ip_lookup.vpn) or (ip_lookup.tor) then
-            say(p, vpn_blocker.feedback)
+            say(p, vpn_blocker.feedback1)
             
-            if (vpn_blocker.action == "kick") then
-                execute_command("k " .. p)
-                cprint(player.name .. " was kicked for using a VPN or Proxy", 4+8)
-                log_note(player.name .. " was kicked for using a VPN or Proxy (IP: " .. player.ip .. " )")
-            elseif (vpn_blocker.action == "ban") then
-                execute_command("ipban " .. p)
-                cprint(player.name .. " was banned for using a VPN or Proxy", 4+8)
-                log_note(player.name .. " was banned for using a VPN or Proxy (IP: " .. player.ip .. " )")
+            if (vpn_blocker.action == "k") then
+                action = "kicked"
+            elseif (vpn_blocker.action == "b") then
+                action = "banned"
             end
+            
+            local msg = gsub(gsub(gsub(vpn_blocker.feedback2, "%%name%%", player.name),"%%action%%", action), "%%ip%%", player.ip)
+            cprint(msg, 4+8)
+            log_note(msg)
+            execute_command(vpn_blocker.action .. " " .. p)
         end
     else
         error('VPN Blocker was unable to retrieve the IP Data.')
@@ -66,10 +68,9 @@ function OnPreJoin(p)
 end
 
 function vpn_blocker:GetCredentials(p)
-    return {
-        ip = get_var(p, "$ip"):match('(%d+.%d+.%d+.%d+)'), 
-        name = get_var(p, "$name")
-    }
+    local ip = get_var(p, "$ip")
+    local name = get_var(p, "$name")
+    return {ip = ip:match('(%d+.%d+.%d+.%d+)'), name = name}
 end
 
 local ffi = require("ffi")
