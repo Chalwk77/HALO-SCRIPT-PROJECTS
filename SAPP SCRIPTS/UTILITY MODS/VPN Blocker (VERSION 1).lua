@@ -22,6 +22,8 @@ local vpn_blocker = {
     feedback2 = "%name% was %action% for using a VPN or Proxy (IP: %ip%)",
 }
 
+local gsub, match, gmatch = string.gsub, string.match, string.gmatch
+
 function OnScriptLoad()
     if vpn_blocker:GetData() then
         register_callback(cb["EVENT_PREJOIN"], "OnPreJoin")
@@ -79,15 +81,15 @@ function vpn_blocker:GetCredentials(p)
     return {ip = ip:match('(%d+.%d+.%d+.%d+)'), name = name}
 end
 
-function vpn_blocker:stringSplit(inputstr, sep)
-    if sep == nil then sep = "%s" end
-    local t = {}
+function vpn_blocker:stringSplit(InputString, Seperator)
+    if Seperator == nil then Seperator = "%s" end
+    local tab = {}
     i = 1
-    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
-        t[i] = str
+    for String in gmatch(InputString, "([^" .. Seperator .. "]+)") do
+        tab[i] = String
         i = i + 1
     end
-    return t
+    return tab
 end
 
 
