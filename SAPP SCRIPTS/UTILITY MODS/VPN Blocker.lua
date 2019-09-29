@@ -37,8 +37,10 @@ function OnPreJoin(p)
             say(p, vpn_blocker.feedback)
             if (vpn_blocker.action == "kick") then
                 execute_command("k " .. p)
+                cprint(player.name .. " was kicked for using a VPN or Proxy", 4+8)
             elseif (vpn_blocker.action == "ban") then
                 execute_command("ipban " .. p)
+                cprint(player.name .. " was banned for using a VPN or Proxy", 4+8)
             end
         end
     end
