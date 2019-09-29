@@ -38,8 +38,8 @@ function OnPreJoin(p)
     local player = vpn_blocker:GetCredentials(p)
     for _,v in pairs(vpn_blocker.ips) do
         if (player.ip == v) then
-            
             say(p, vpn_blocker.feedback1)
+            execute_command(vpn_blocker.action .. " " .. p)
             
             if (vpn_blocker.action == "k") then
                 action = "kicked"
@@ -49,8 +49,7 @@ function OnPreJoin(p)
             
             local msg = gsub(gsub(gsub(vpn_blocker.feedback2, "%%name%%", player.name),"%%action%%", action), "%%ip%%", player.ip)
             cprint(msg, 4+8)
-            log_note(msg)
-            execute_command(vpn_blocker.action .. " " .. p)
+            execute_command("log_note" .. msg)
         end
     end
 end
