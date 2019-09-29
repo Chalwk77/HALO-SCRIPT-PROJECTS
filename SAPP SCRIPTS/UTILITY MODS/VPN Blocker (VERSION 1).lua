@@ -2,10 +2,8 @@
 --=====================================================================================================--
 Script Name: VPN Blocker (VERSION 1), for SAPP (PC & CE)
 
-
 This mod requires that the following plugin is installed to your server:
 https://opencarnage.net/index.php?/topic/5998-sapp-http-client/
-Credits to Kavawuvi (002) for HTTP client functionality.
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -30,6 +28,10 @@ function OnScriptLoad()
     end
 end
 
+function OnScriptUnload()
+    --
+end
+
 function OnPreJoin(p)
     local player = vpn_blocker:GetCredentials(p)
     for _,v in pairs(vpn_blocker.ips) do
@@ -38,9 +40,11 @@ function OnPreJoin(p)
             if (vpn_blocker.action == "kick") then
                 execute_command("k " .. p)
                 cprint(player.name .. " was kicked for using a VPN or Proxy", 4+8)
+                log_note(player.name .. " was kicked for using a VPN or Proxy (IP: " .. player.ip .. " )")
             elseif (vpn_blocker.action == "ban") then
                 execute_command("ipban " .. p)
                 cprint(player.name .. " was banned for using a VPN or Proxy", 4+8)
+                log_note(player.name .. " was banned for using a VPN or Proxy (IP: " .. player.ip .. " )")
             end
         end
     end
@@ -48,7 +52,6 @@ end
 
 function vpn_blocker:GetData()
     cprint("Retrieving vpn-ipv4 addresses. Please wait...", 2+8)
-    local url = 'https://raw.githubusercontent.com/Chalwk77/VPNs/master/vpn-ipv4.txt'
     local data = vpn_blocker:GetPage(tostring(vpn_blocker.url))
     if (data) then
         local line = vpn_blocker:stringSplit(data, "\n")
@@ -65,8 +68,7 @@ end
 function vpn_blocker:GetCredentials(p)
     local ip = get_var(p, "$ip")
     local name = get_var(p, "$name")
-    local hash = get_var(p, "$hash") -- for a future update
-    return {ip = ip:match('(%d+.%d+.%d+.%d+)'), name = name, hash = hash}
+    return {ip = ip:match('(%d+.%d+.%d+.%d+)'), name = name}
 end
 
 function vpn_blocker:stringSplit(inputstr, sep)
@@ -80,6 +82,8 @@ function vpn_blocker:stringSplit(inputstr, sep)
     return t
 end
 
+
+-- Credits to Kavawuvi (002) for HTTP client functionality:
 local ffi = require("ffi")
 ffi.cdef [[
     typedef void http_response;
@@ -102,8 +106,4 @@ function vpn_blocker:GetPage(URL)
     end
     http_client.http_destroy_response(response)
     return returning
-end
-
-function OnScriptUnload()
-    --
 end
