@@ -16,6 +16,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.12.0.0"
 
 local vpn_blocker = { 
+    -- Configuration [starts]
     database = {
         
         'firehol_proxies.netset',
@@ -34,9 +35,10 @@ local vpn_blocker = {
         'bm_tor.netset',
         'vpn_ipv4.netset',
     },
-    ips = {},
-    action = "kick",
-    feedback = "We\'ve detected that you\'re using a VPN or Proxy - we do not allow these!'"
+    action = "k", -- k = kick, b = ban
+    feedback1 = "We\'ve detected that you\'re using a VPN or Proxy - we do not allow these!'",
+    feedback2 = "%name% was %action% for using a VPN or Proxy (IP: %ip%)",
+    -- Configuration [ends]
 }
 
 function OnScriptLoad()
@@ -48,16 +50,18 @@ function OnPreJoin(p)
     local player = vpn_blocker:GetCredentials(p)
     for _,v in pairs(vpn_blocker.ips) do
         if (player.ip == v) then
-            say(p, vpn_blocker.feedback)
-            if (vpn_blocker.action == "kick") then
-                execute_command("k " .. p)
-                cprint(player.name .. " was kicked for using a VPN or Proxy", 4+8)
-                log_note(player.name .. " was kicked for using a VPN or Proxy (IP: " .. player.ip .. " )")
-            elseif (vpn_blocker.action == "ban") then
-                execute_command("ipban " .. p)
-                cprint(player.name .. " was banned for using a VPN or Proxy", 4+8)
-                log_note(player.name .. " was banned for using a VPN or Proxy (IP: " .. player.ip .. " )")
+            say(p, vpn_blocker.feedback1)
+            
+            if (vpn_blocker.action == "k") then
+                action = "kicked"
+            elseif (vpn_blocker.action == "b") then
+                action = "banned"
             end
+            
+            local msg = gsub(gsub(gsub(vpn_blocker.feedback2, "%%name%%", player.name),"%%action%%", action), "%%ip%%", player.ip)
+            cprint(msg, 4+8)
+            log_note(msg)
+            execute_command(vpn_blocker.action .. " " .. p)
         end
     end
 end
@@ -66,6 +70,8 @@ function vpn_blocker:GetData()
     cprint("VPN Blocker -> Retrieving vpn-ipv4 addresses. Please wait...", 2+8)
     
     local files = vpn_blocker.database
+    vpn_blocker.ips = vpn_blocker.ips or { }
+    vpn_blocker.ips = { }
     
     for i = 1,#files do
         for line in io.lines(files[i]) do
