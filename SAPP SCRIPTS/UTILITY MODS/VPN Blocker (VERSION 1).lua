@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: VPN Blocker (beta v1.0), for SAPP (PC & CE)
+Script Name: VPN Blocker (VERSION 1), for SAPP (PC & CE)
 
 
 This mod requires that the following plugin is installed to your server:
