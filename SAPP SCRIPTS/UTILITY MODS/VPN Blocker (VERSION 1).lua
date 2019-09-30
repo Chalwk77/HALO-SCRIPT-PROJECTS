@@ -2,8 +2,11 @@
 --=====================================================================================================--
 Script Name: VPN Blocker (VERSION 1), for SAPP (PC & CE)
 
-This mod requires that the following plugin is installed to your server:
+1). This mod requires that the following plugin is installed to your server:
 https://opencarnage.net/index.php?/topic/5998-sapp-http-client/
+
+2). This mod requires that you install the following database file to your servers root directory: 
+https://github.com/Chalwk77/VPNs/blob/master/vpn_ipv4.netset
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -16,10 +19,29 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.12.0.0"
 
 local vpn_blocker = { 
-    url = 'https://github.com/Chalwk77/VPNs/blob/master/vpn-ipv4.txt',
-    action = "kick", -- Valid Actions: kick,ban
+    -- Configuration [starts]
+    database = {
+        
+        'firehol_proxies.netset',
+        'firehol_level1.netset',
+        'firehol_level2.netset',
+        'firehol_level3.netset',
+        
+        'firehol_level4.netset',
+        'firehol_abusers_1d.netset',
+        
+        'proxylists.netset',
+        'proxylists_1d.netset',
+        'proxylists_7d.netset',
+        'proxylists_30d.netset',
+        
+        'bm_tor.netset',
+        'vpn_ipv4.netset',
+    },
+    action = "k", -- k = kick, b = ban
     feedback1 = "We\'ve detected that you\'re using a VPN or Proxy - we do not allow these!'",
     feedback2 = "%name% was %action% for using a VPN or Proxy (IP: %ip%)",
+    -- Configuration [ends]
 }
 
 local gsub, match, gmatch = string.gsub, string.match, string.gmatch
@@ -56,22 +78,39 @@ end
 
 function vpn_blocker:GetData()
     cprint("Retrieving vpn-ipv4 addresses. Please wait...", 2+8)
-    local data = vpn_blocker:GetPage(tostring(vpn_blocker.url))
+    
+    local url = "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/Miscellaneous/VPN%20Blocker%20Database/"
     
     vpn_blocker.ips = vpn_blocker.ips or { }
     vpn_blocker.ips = { }
     
-    if (data) then
-        local line = vpn_blocker:stringSplit(data, "\n")
-        for i = 1, #line do
-            local ip = line[i]:match('(%d+.%d+.%d+.%d+)')
-            vpn_blocker.ips[#vpn_blocker.ips + 1] = ip
+    local database_files = vpn_blocker.database
+    local count = 0
+    
+    for i = 1,#database_files do
+        
+        local url = url..database_files[i]
+        local data = vpn_blocker:GetPage(tostring(url))
+        
+        if (data) then
+            count = count + 1
+            
+            local line = vpn_blocker:stringSplit(data, "\n")
+            for j = 1, #line do
+                local ip = line[j]:match('(%d+.%d+.%d+.%d+)')
+                vpn_blocker.ips[#vpn_blocker.ips + 1] = ip
+            end
+            
+            cprint("VPN Blocker -> Successfully saved (" .. #vpn_blocker.ips .. ") VPN/Proxy Addresses ("..database_files[i]..")", 2+8)
+            --cprint("Collected from: " .. url..")", 2+8)
+        else
+            error('VPN Blocker was unable to retrieve the IP Data.')
         end
-        cprint("VPN Blocker -> Successfully stored (" .. #vpn_blocker.ips .. ") vpn-ipv4 IPs.", 2+8)
-        return true
-    else
-        error('VPN Blocker was unable to retrieve the IP Data.')
+        if (count == #database_files) then
+            return true
+        end
     end
+    
 end
 
 function vpn_blocker:GetCredentials(p)
