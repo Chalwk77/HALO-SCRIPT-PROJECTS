@@ -40,7 +40,6 @@ end
 
 function OnPreJoin(p)
     local player = vpn_blocker:GetCredentials(p)
-    
     cprint("VPN Blocker -> Running Ip Lookup ^ Please wait...", 2+8)
     
     local url = gsub(vpn_blocker.url, "api_key", vpn_blocker.api_key)
@@ -49,7 +48,8 @@ function OnPreJoin(p)
     if (data) then
         local ip_lookup = json:decode(data)
         
-        if (ip_lookup.vpn) or (ip_lookup.tor) then
+        
+        if (ip_lookup.host ~= "localhost") and (ip_lookup.vpn) or (ip_lookup.tor) then
             say(p, vpn_blocker.feedback1)
             execute_command(vpn_blocker.action .. " " .. p)
             
@@ -57,6 +57,10 @@ function OnPreJoin(p)
                 action = "kicked"
             elseif (vpn_blocker.action == "b") then
                 action = "banned"
+            end
+            
+            for k,v in pairs(ip_lookup) do
+                print(k,v)
             end
             
             local msg = gsub(gsub(gsub(vpn_blocker.feedback2, "%%name%%", player.name),"%%action%%", action), "%%ip%%", player.ip)
