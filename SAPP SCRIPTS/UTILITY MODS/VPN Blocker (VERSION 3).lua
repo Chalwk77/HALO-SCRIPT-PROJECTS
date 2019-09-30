@@ -64,6 +64,7 @@ function OnPreJoin(p)
             local msg = gsub(gsub(gsub(vpn_blocker.feedback2, "%%name%%", player.name),"%%action%%", action), "%%ip%%", player.ip)
             cprint(msg, 4+8)
             execute_command("log_note" .. msg)
+            vpn_blocker:WriteLog(msg)
         end
     end
 end
@@ -83,6 +84,17 @@ function vpn_blocker:GetData()
     end
     cprint("VPN Blocker -> Successfully stored (" .. #vpn_blocker.ips .. ") vpn-ipv4 IPs.", 2+8)
 end
+
+function vpn_blocker:WriteLog(msg)
+    local file = io.open("VPN Blocker.log", "a+")
+    if file then
+        local timestamp = os.date("[%H:%M:%S - %d/%m/%Y]: ")
+        local line = string.format("%s\t%s\n", timestamp, tostring(msg))
+        file:write(line)
+        file:close()
+    end
+end
+
 
 function vpn_blocker:GetCredentials(p)
     local ip = get_var(p, "$ip")
