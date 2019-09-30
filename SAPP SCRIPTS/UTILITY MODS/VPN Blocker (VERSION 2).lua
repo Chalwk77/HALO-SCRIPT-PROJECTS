@@ -2,14 +2,17 @@
 --=====================================================================================================--
 Script Name: VPN Blocker (VERSION 2), for SAPP (PC & CE)
 
-This mod requires that the following plugins are installed to your server:
-1). https://opencarnage.net/index.php?/topic/5998-sapp-http-client/
-2). http://regex.info/blog/lua/json
+#1: This mod requires that the following plugins are installed to your server:
+- https://opencarnage.net/index.php?/topic/5998-sapp-http-client/
+- http://regex.info/blog/lua/json
 
-Place "json.lua" and the contents of "sapp-http-client" in your servers root directory.
+#2: Place "json.lua" and the contents of "sapp-http-client" in your servers root directory.
 
-Sign up for an account at www.ipqualityscore.com and paste 
-your "Proxy & VPN Detection API" key into the API_KEY field (see config below).
+#3: Sign up for an account at www.ipqualityscore.com.
+- Navigate to Proxy Detection Overview page: https://www.ipqualityscore.com/documentation/proxy-detection/overview
+- Copy your unique "Private Key" from that page and paste 
+it into the API_KEY field (line 29) in this script (see config below).
+
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
