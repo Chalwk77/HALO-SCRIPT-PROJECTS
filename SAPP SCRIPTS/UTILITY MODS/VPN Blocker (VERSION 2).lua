@@ -42,14 +42,15 @@ function OnScriptLoad()
 end
 
 function OnPreJoin(p)
+
     local player = vpn_blocker:GetCredentials(p)
-    cprint("VPN Blocker -> Running Ip Lookup ^ Please wait...", 2+8)
     local url = gsub(vpn_blocker.url, "api_key", vpn_blocker.api_key)
-    local data = vpn_blocker:GetPage(tostring(url .. player.ip))
+    local data = vpn_blocker:Query(tostring(url .. player.ip))
         
     if (data) then
-        local ip_lookup = json:decode(data)
+        cprint("VPN Blocker -> Running Ip Lookup ^ Please wait...", 2+8)
         
+        local ip_lookup = json:decode(data)
         
         if (ip_lookup.host ~= "localhost") and (ip_lookup.vpn) or (ip_lookup.tor) then
             say(p, vpn_blocker.feedback1)
@@ -70,8 +71,6 @@ function OnPreJoin(p)
             execute_command("log_note" .. msg)
             vpn_blocker:WriteLog(msg)
         end
-    else
-        error('VPN Blocker was unable to retrieve the IP Data.')
     end
 end
 
@@ -105,7 +104,7 @@ ffi.cdef [[
 ]]
 local http_client = ffi.load("lua_http_client")
 
-function vpn_blocker:GetPage(URL)
+function vpn_blocker:Query(URL)
     local response = http_client.http_get(URL, false)
     local returning = nil
     if http_client.http_response_is_null(response) ~= true then
