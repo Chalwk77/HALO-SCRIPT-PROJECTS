@@ -41,7 +41,6 @@ end
 function OnPreJoin(p)
     local player = vpn_blocker:GetCredentials(p)
     cprint("VPN Blocker -> Running Ip Lookup ^ Please wait...", 2+8)
-    
     local url = gsub(vpn_blocker.url, "api_key", vpn_blocker.api_key)
     local data = vpn_blocker:GetPage(tostring(url .. player.ip))
         
@@ -66,9 +65,20 @@ function OnPreJoin(p)
             local msg = gsub(gsub(gsub(vpn_blocker.feedback2, "%%name%%", player.name),"%%action%%", action), "%%ip%%", player.ip)
             cprint(msg, 4+8)
             execute_command("log_note" .. msg)
+            vpn_blocker:WriteLog(msg)
         end
     else
         error('VPN Blocker was unable to retrieve the IP Data.')
+    end
+end
+
+function vpn_blocker:WriteLog(msg)
+    local file = io.open("VPN Blocker.log", "a+")
+    if file then
+        local timestamp = os.date("[%H:%M:%S - %d/%m/%Y]: ")
+        local line = string.format("%s\t%s\n", timestamp, tostring(msg))
+        file:write(line)
+        file:close()
     end
 end
 
