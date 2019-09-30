@@ -5,8 +5,8 @@ Script Name: VPN Blocker (VERSION 1), for SAPP (PC & CE)
 1). This mod requires that the following plugin is installed to your server:
 https://opencarnage.net/index.php?/topic/5998-sapp-http-client/
 
-2). This mod requires that you install the following database file to your servers root directory: 
-https://github.com/Chalwk77/VPNs/blob/master/vpn_ipv4.netset
+2). This mod requires that you install the following database files to your servers root directory: 
+https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/Miscellaneous/VPN%20Blocker%20Database
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
