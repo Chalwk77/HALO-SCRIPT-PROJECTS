@@ -61,15 +61,12 @@ function mod:init()
         -- Enter your servers default prefix here:
         server_prefix = "** SERVER **",
         
-        -- If true, trophies belonging to players players who just quit will despawned after 'time_until_despawn' seconds.
+        -- If true, trophies belonging to players players who just quit will despawn after 'time_until_despawn' seconds.
         despawn = true,
         -- Amount of time (in seconds) until trophies are despawned:
         time_until_despawn = 15,
         
-        -- Type this command to lean how to play:
-        info_command = "info",
-        
-        -- These messages are relayed in chat when you pickup/deny someone's trophy.
+        -- These messages are relayed in chat when you pick up/deny someone's trophy.
         on_claim = {
             "%killer% collected %victim%'s trophy!",
             "%victim% denied %killer%'s trophy!",
@@ -84,6 +81,9 @@ function mod:init()
             "Collect this trophy to get points!",
             "Type /%info_command% for more information.",
         },
+        
+        -- Type this command to learn how to play:
+        info_command = "info",
         
         -- If enabled, the 'info_command' will display the following information:
         enable_info_command = true,
