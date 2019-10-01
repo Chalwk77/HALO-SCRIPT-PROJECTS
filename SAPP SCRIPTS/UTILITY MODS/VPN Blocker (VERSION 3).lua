@@ -63,7 +63,6 @@ function OnPreJoin(p)
             
             local msg = gsub(gsub(gsub(vpn_blocker.feedback2, "%%name%%", player.name),"%%action%%", action), "%%ip%%", player.ip)
             cprint(msg, 4+8)
-            execute_command("log_note" .. msg)
             vpn_blocker:WriteLog(msg)
         end
     end
