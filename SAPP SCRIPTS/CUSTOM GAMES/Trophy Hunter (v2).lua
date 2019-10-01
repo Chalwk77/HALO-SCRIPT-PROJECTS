@@ -48,10 +48,10 @@ function mod:init()
             -- DYNAMIC SCORING SYSTEM --
             -- The game will end when this scorelimit is reached.
             ['scorelimit'] = {
-                [1] = 15, -- 4 players or less
-                [2] = 25, -- 4-8 players
-                [3] = 45, -- 8-12 players
-                [4] = 50, -- 12-16 players
+                [1] = 10, -- 4 players or less
+                [2] = 15, -- 4-8 players
+                [3] = 20, -- 8-12 players
+                [4] = 25, -- 12-16 players
                 txt = "Score limit changed to: %scorelimit%"
             },
         },
@@ -234,21 +234,25 @@ function OnPlayerDisconnect(PlayerIndex)
     
     mod:modifyScorelimit()
     
+    local despawn = nil
     if (set.despawn) then
         local name = get_var(PlayerIndex, "$name")
         for k,v in pairs(trophies) do
             if (k) then
                 if (v.vip == ip) then
                     v.despawn_trigger = true
-                    execute_command("msg_prefix \"\"")
-                    for k,message in pairs(set.on_despawn) do
-                        if (k == 1) then
-                            say_all(gsub(gsub(message, "%%victim%%", name), "%%seconds%%", v.duration))
-                        end
-                    end
-                    execute_command("msg_prefix \"" .. set.server_prefix .. "\" ")
+                    despawn = v.despawn_trigger
                 end
             end
+        end
+        if (despawn) then
+            execute_command("msg_prefix \"\"")
+            for k,message in pairs(set.on_despawn) do
+                if (k == 1) then
+                    say_all(gsub(gsub(message, "%%victim%%", name), "%%seconds%%", v.duration))
+                end
+            end
+            execute_command("msg_prefix \"" .. set.server_prefix .. "\" ")
         end
     end
 end
