@@ -13,6 +13,9 @@ Script Name: VPN Blocker (VERSION 2), for SAPP (PC & CE)
 - Copy your unique "Private Key" from that page and paste 
 it into the API_KEY field (line 29) in this script (see config below).
 
+If VPN Blocker kicks or bans someone it will log the details of that action 
+to a file called "VPN Blocker.log" in the servers root directory.
+
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
