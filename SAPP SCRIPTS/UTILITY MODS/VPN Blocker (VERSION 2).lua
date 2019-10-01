@@ -50,8 +50,6 @@ function OnPreJoin(p)
     if (data) then
         cprint("VPN Blocker -> Running Ip Lookup ^ Please wait...", 2+8)
         
-        local ip_lookup = json:decode(data)
-        
         if (ip_lookup.host ~= "localhost") and (ip_lookup.vpn) or (ip_lookup.tor) then
             say(p, vpn_blocker.feedback1)
             execute_command(vpn_blocker.action .. " " .. p)
@@ -62,27 +60,34 @@ function OnPreJoin(p)
                 action = "banned"
             end
             
+            local logtime = true
+            local ip_lookup = json:decode(data)
             for k,v in pairs(ip_lookup) do
-                print(k,v)
+                vpn_blocker:WriteLog(k,v, logtime)
+                if logtime then logtime = false end
             end
             
             local msg = gsub(gsub(gsub(vpn_blocker.feedback2, "%%name%%", player.name),"%%action%%", action), "%%ip%%", player.ip)
             cprint(msg, 4+8)
-            execute_command("log_note" .. msg)
             vpn_blocker:WriteLog(msg)
         end
     end
 end
 
-function vpn_blocker:WriteLog(msg)
+function vpn_blocker:WriteLog(k,v, logtime)
     local file = io.open("VPN Blocker.log", "a+")
     if file then
-        local timestamp = os.date("[%H:%M:%S - %d/%m/%Y]: ")
-        local line = string.format("%s\t%s\n", timestamp, tostring(msg))
+    
+        if (logtime) then
+            file:write(os.date("[%H:%M:%S - %d/%m/%Y]: ").."\n")
+        end
+    
+        local line = string.format("%s\t%s\n", tostring(k), tostring(v))
         file:write(line)
         file:close()
     end
 end
+
 
 function vpn_blocker:GetCredentials(p)
     local ip = get_var(p, "$ip")
