@@ -72,8 +72,8 @@ function mod:init()
         -- These messages are relayed in chat when you pickup/deny someone's trophy.
         on_claim = {
             "%killer% collected %victim%'s trophy!",
-            "%victim% deined %killer%'s trophy!",
-            "%player% stole %killer% trophy!",
+            "%victim% denied %killer%'s trophy!",
+            "%player% stole %killer%'s trophy!",
         },
 
         -- If enabled, a welcome message will be displayed (see below)
@@ -89,12 +89,21 @@ function mod:init()
         enable_info_command = true,
         info = {
             "|l-- POINTS --",
-            "|lCollect your victims trophy:           |r+%claim% points",
-            "|lCollect somebody else's trophy:        |r+%claim_other% points",
-            "|lCollect your killer's trophy:          |r+%claim_self% points",
-            "|lDeath Penalty:                         |r-%death_penalty% points",
-            "|lSuicide Penalty:                       |r-%suicide_penalty% points",
+            "|lCollect your victims trophy:           |rYou: (+%claim1% pt), Victim: (%claim2% pt)",
+            "|lCollect somebody else's trophy:        |rYou: (+%claim_other1% pt), Victim: (%claim_other2% pt)",
+            "|lCollect your killer's trophy:          |rKiller: (%claim_self1% pt), You: (+%claim_self2% pts)",
+            "|lDeath Penalty:                         |r(%death_penalty% pt)",
+            "|lSuicide Penalty:                       |r(%suicide_penalty% pt)",
             "|lCollecting trophies is the only way to score!",
+            "|l ",
+            "|l ",
+            "-- DYNAMIC SCORING --",
+            "|lScorelimit is dynamically set based on current player count:",
+            "|l10 pts) -> 4 players or less",
+            "|l15 pts) -> 4-8 players",
+            "|l20 pts) -> 8-12 players",
+            "|l25 pts) -> 12-16 players",
+            "|lCurrent Scorelimit: %scorelimit%",
         },
         
         -- Global Message sent when the game ends:
@@ -234,22 +243,23 @@ function OnPlayerDisconnect(PlayerIndex)
     
     mod:modifyScorelimit()
     
-    local despawn = nil
+    local despawn, duration = nil, nil
     if (set.despawn) then
-        local name = get_var(PlayerIndex, "$name")
         for k,v in pairs(trophies) do
             if (k) then
                 if (v.vip == ip) then
                     v.despawn_trigger = true
                     despawn = v.despawn_trigger
+                    duration = v.duration
                 end
             end
         end
         if (despawn) then
             execute_command("msg_prefix \"\"")
+            local name = get_var(PlayerIndex, "$name")
             for k,message in pairs(set.on_despawn) do
                 if (k == 1) then
-                    say_all(gsub(gsub(message, "%%victim%%", name), "%%seconds%%", v.duration))
+                    say_all(gsub(gsub(message, "%%victim%%", name), "%%seconds%%", duration))
                 end
             end
             execute_command("msg_prefix \"" .. set.server_prefix .. "\" ")
@@ -324,19 +334,29 @@ function OnPlayerChat(PlayerIndex, Message, type)
             
             msg = gsub(gsub(msg[1], "/",""), "\\", "")
             if (set.enable_info_command and msg == set.info_command) then
+
                 local words = {
-                    ["%%claim%%"] = set.claim,
-                    ["%%claim_other%%"] = set.claim_other,
-                    ["%%claim_self%%"] = set.claim_self,
-                    ["%%death_penalty%%"] = set.death_penalty,
-                    ["%%suicide_penalty%%"] = set.suicide_penalty
+                    ["%%claim1%%"] = set.scoring["claim"][1],
+                    ["%%claim2%%"] = set.scoring["claim"][2],
+                    
+                    ["%%claim_other1%%"] = set.scoring["claim_other"][1],
+                    ["%%claim_other2%%"] = set.scoring["claim_other"][2],
+                    
+                    ["%%claim_self1%%"] = set.scoring["claim_self"][1],
+                    ["%%claim_self2%%"] = set.scoring["claim_self"][2],
+                    
+                    ["%%death_penalty%%"] = set.scoring["death_penalty"][1],
+                    ["%%suicide_penalty%%"] = set.scoring["suicide_penalty"][1],
+                    ["%%scorelimit%%"] = current_scorelimit,
                 }
+            
                 for i,_ in pairs(set.info) do
                     for k,v in pairs(words) do
                         set.info[i] = gsub(set.info[i], k, v)
                     end
                 end
-                mod:NewConsoleMessage(set.info, 5, PlayerIndex, "info")
+                
+                mod:NewConsoleMessage(set.info, 10, PlayerIndex, "info")
                 return false
             end
         end
