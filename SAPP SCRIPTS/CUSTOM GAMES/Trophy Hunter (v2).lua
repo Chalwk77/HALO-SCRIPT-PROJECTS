@@ -89,20 +89,20 @@ function mod:init()
         enable_info_command = true,
         info = {
             "|l-- POINTS --",
-            "|lCollect your victims trophy:           |rYou: (+%claim1% pt), Victim: (%claim2% pt)",
-            "|lCollect somebody else's trophy:        |rYou: (+%claim_other1% pt), Victim: (%claim_other2% pt)",
-            "|lCollect your killer's trophy:          |rKiller: (%claim_self1% pt), You: (+%claim_self2% pts)",
-            "|lDeath Penalty:                         |r(%death_penalty% pt)",
-            "|lSuicide Penalty:                       |r(%suicide_penalty% pt)",
+            "|lCollect your victims trophy:           |rYou: (+%claim1% pt%c1%), Victim: (%claim2% pt%c2%)",
+            "|lCollect somebody else's trophy:        |rYou: (+%claim_other1% pt%c3%), Victim: (%claim_other2% pt%c4%)",
+            "|lCollect your killer's trophy:          |rKiller: (%claim_self1% pt%c5%), You: (+%claim_self2% pt%c6%)",
+            "|lDeath Penalty:                         |r(%death_penalty% pt%c7%)",
+            "|lSuicide Penalty:                       |r(%suicide_penalty% pt%c8%)",
             "|lCollecting trophies is the only way to score!",
             "|l ",
             "|l ",
             "-- DYNAMIC SCORING --",
             "|lScorelimit is dynamically set based on current player count:",
-            "|l10 pts) -> 4 players or less",
-            "|l15 pts) -> 4-8 players",
-            "|l20 pts) -> 8-12 players",
-            "|l25 pts) -> 12-16 players",
+            "|l%score1% pt%c9%) -> 4 players or less",
+            "|l%score2% pt%c10%) -> 4-8 players",
+            "|l%score3% pt%c11%) -> 8-12 players",
+            "|l%score4% pt%c12%) -> 12-16 players",
             "|lCurrent Scorelimit: %scorelimit%",
         },
         
@@ -210,24 +210,29 @@ function OnPlayerConnect(PlayerIndex)
     mod:modifyScorelimit()
     
     if (set.despawn) then
-        local name = get_var(PlayerIndex, "$name")
+        
+        local trigger
         for k,v in pairs(trophies) do
             if (k) then
                 if (v.vip == ip and v.despawn_trigger == true) then
+                    trigger = v.despawn_trigger
                     v.despawn_trigger, v.time = false, 0
-                    
-                    execute_command("msg_prefix \"\"")
-                    for k,message in pairs(set.on_despawn) do
-                        print(message)
-                        if (k == 3) then
-                            say_all(gsub(message, "%%victim%%", name))
-                        end
-                    end
-                    execute_command("msg_prefix \"" .. set.server_prefix .. "\" ")
                 end
             end
         end
+        if (trigger) then
+            execute_command("msg_prefix \"\"")
+            for k,message in pairs(set.on_despawn) do
+                if (k == 3) then
+                    local name = get_var(PlayerIndex, "$name")
+                    say_all(gsub(message, "%%victim%%", name))
+                end
+            end
+            execute_command("msg_prefix \"" .. set.server_prefix .. "\" ")
+        end
     end
+    
+    
     if (set.show_welcome_message) then
         for i,message in pairs(set.welcome) do
             set.welcome[i] = gsub(message, "%%info_command%%", set.info_command)
@@ -243,22 +248,21 @@ function OnPlayerDisconnect(PlayerIndex)
     
     mod:modifyScorelimit()
     
-    local despawn, duration = nil, nil
     if (set.despawn) then
+        local duration = nil
         for k,v in pairs(trophies) do
             if (k) then
                 if (v.vip == ip) then
                     v.despawn_trigger = true
-                    despawn = v.despawn_trigger
                     duration = v.duration
                 end
             end
         end
-        if (despawn) then
+        if (duration) then
             execute_command("msg_prefix \"\"")
-            local name = get_var(PlayerIndex, "$name")
             for k,message in pairs(set.on_despawn) do
                 if (k == 1) then
+                    local name = get_var(PlayerIndex, "$name")
                     say_all(gsub(gsub(message, "%%victim%%", name), "%%seconds%%", duration))
                 end
             end
@@ -295,25 +299,29 @@ function OnTick()
     end
     
     if (mod.settings.despawn) then
+        local names = {}
         for k,v in pairs(trophies) do
             if (k) then
                 if (v.despawn_trigger) then
                     v.time = v.time + 0.03333333333333333
-                    
                     if (v.time >= v.duration) then
-                        destroy_object(v.trophy)
-                            
-                        execute_command("msg_prefix \"\"")
-                        for k,message in pairs(mod.settings.on_despawn) do
-                            if (k == 2) then
-                                say_all(gsub(message, "%%victim%%", v.vn))
-                            end
-                        end
-                        execute_command("msg_prefix \"" .. mod.settings.server_prefix .. "\" ")
-                        
+                        names[#names + 1] = v.vn
                         trophies[k] = nil
                     end
                 end
+            end
+        end
+        local M = {}
+        for _,V in pairs(names) do
+            if (not M[V]) then
+                execute_command("msg_prefix \"\"")
+                for k,message in pairs(mod.settings.on_despawn) do
+                    if (k == 2) then
+                        say_all(gsub(message, "%%victim%%", V))
+                    end
+                end
+                execute_command("msg_prefix \"" .. mod.settings.server_prefix .. "\" ")
+                M[V] = true
             end
         end
     end
@@ -348,6 +356,28 @@ function OnPlayerChat(PlayerIndex, Message, type)
                     ["%%death_penalty%%"] = set.scoring["death_penalty"][1],
                     ["%%suicide_penalty%%"] = set.scoring["suicide_penalty"][1],
                     ["%%scorelimit%%"] = current_scorelimit,
+                    
+                    ["%%score1%%"] = set.scoring["scorelimit"][1],
+                    ["%%score2%%"] = set.scoring["scorelimit"][2],
+                    ["%%score3%%"] = set.scoring["scorelimit"][3],
+                    ["%%score4%%"] = set.scoring["scorelimit"][4],
+                    
+                    ["%%c1%%"] = mod:getChar(set.scoring["claim"][1]),
+                    ["%%c2%%"] = mod:getChar(set.scoring["claim"][2]),
+                    
+                    ["%%%c3%%"] = mod:getChar(set.scoring["claim_other"][1]),
+                    ["%%c4%%"] = mod:getChar(set.scoring["claim_other"][2]),
+                    
+                    ["%%c5%%"] = mod:getChar(set.scoring["claim_self"][1]),
+                    ["%%c6%%"] = mod:getChar(set.scoring["claim_self"][2]),
+                    
+                    ["%%c7%%"] = mod:getChar(set.scoring["death_penalty"][1]),
+                    ["%%c8%%"] = mod:getChar(set.scoring["suicide_penalty"][1]),
+                    
+                    ["%%c9%%"] = mod:getChar(set.scoring["scorelimit"][1]),
+                    ["%%c10%%"] = mod:getChar(set.scoring["scorelimit"][2]),
+                    ["%%c11%%"] = mod:getChar(set.scoring["scorelimit"][3]),
+                    ["%%c12%%"] = mod:getChar(set.scoring["scorelimit"][4]),
                 }
             
                 for i,_ in pairs(set.info) do
@@ -491,7 +521,6 @@ function mod:UpdateScore(params)
                 end
             end
         end
-        
         
         -- Prevent player scores from going into negatives:
         local _, ks, vs = select(1, mod:ScoreType(params))
