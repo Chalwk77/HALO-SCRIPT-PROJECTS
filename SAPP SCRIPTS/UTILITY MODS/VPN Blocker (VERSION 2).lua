@@ -50,6 +50,7 @@ function OnPreJoin(p)
     if (data) then
         cprint("VPN Blocker -> Running Ip Lookup ^ Please wait...", 2+8)
         
+        local ip_lookup = json:decode(data)
         if (ip_lookup.host ~= "localhost") and (ip_lookup.vpn) or (ip_lookup.tor) then
             say(p, vpn_blocker.feedback1)
             execute_command(vpn_blocker.action .. " " .. p)
@@ -61,15 +62,15 @@ function OnPreJoin(p)
             end
             
             local logtime = true
-            local ip_lookup = json:decode(data)
             for k,v in pairs(ip_lookup) do
                 vpn_blocker:WriteLog(k,v, logtime)
                 if logtime then logtime = false end
             end
             
-            local msg = gsub(gsub(gsub(vpn_blocker.feedback2, "%%name%%", player.name),"%%action%%", action), "%%ip%%", player.ip)
+            local msg = gsub(gsub(gsub(vpn_blocker.feedback2, "%%name%%", player.name),
+            "%%action%%", action), 
+            "%%ip%%", player.ip)
             cprint(msg, 4+8)
-            vpn_blocker:WriteLog(msg)
         end
     end
 end
