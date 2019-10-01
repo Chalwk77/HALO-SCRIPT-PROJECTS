@@ -365,7 +365,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                     ["%%c1%%"] = mod:getChar(set.scoring["claim"][1]),
                     ["%%c2%%"] = mod:getChar(set.scoring["claim"][2]),
                     
-                    ["%%%c3%%"] = mod:getChar(set.scoring["claim_other"][1]),
+                    ["%%c3%%"] = mod:getChar(set.scoring["claim_other"][1]),
                     ["%%c4%%"] = mod:getChar(set.scoring["claim_other"][2]),
                     
                     ["%%c5%%"] = mod:getChar(set.scoring["claim_self"][1]),
