@@ -342,8 +342,9 @@ function OnPlayerDisconnect(PlayerIndex)
     end
 
     if (gamestarted) then
-        -- Ensures all parameters are set to their default values.
         if (player_count <= 0) then
+            
+            -- Ensure all timer parameters are set to their default values.
             zombies:StopTimer()
 
             -- One player remains | ends the game.
@@ -367,7 +368,7 @@ function OnPlayerDisconnect(PlayerIndex)
         end
 
         -- Pre-Game countdown was initiated but someone left before the game began.
-        -- Stop the timer, reset the count and display the continuous
+        -- Stop the timer, reset the countdown and display the continuous
         -- message emitted when there aren't enough players to start the game.
     elseif (not gamestarted) and (init_countdown and player_count < set.required_players) then
         print_nep = true
@@ -377,7 +378,6 @@ end
 
 function OnPlayerSpawn(PlayerIndex)
 
-    -- Set grenades to 0 for zombies:
     local PlayerObject = get_dynamic_player(PlayerIndex)
     if (PlayerObject ~= 0 and gamestarted) then
 
@@ -385,10 +385,14 @@ function OnPlayerSpawn(PlayerIndex)
         local team = get_var(PlayerIndex, "$team")
 
         if (team == "blue") then
+            -- Set grenades to 0 for zombies:
             write_word(PlayerObject + 0x31E, 0)
             write_word(PlayerObject + 0x31F, 0)
 
+            -- Set weapon assignment flag to true:
             zombies.settings.assign[PlayerIndex] = true
+            
+            -- Set zombie kill count to zero:
             set.zkills[PlayerIndex] = 0
         end
     end
@@ -425,7 +429,8 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                 zombies:announceZombify(message)
                 zombies:endGameCheck()
             end
-
+            
+            -- PvP:
             if (killer ~= victim) then
 
                 local bluescore, redscore = get_var(0, "$bluescore"), get_var(0, "$redscore")
@@ -606,6 +611,7 @@ function zombies:endGameCheck()
     end
 end
 
+-- This function deletes stray oddballs:
 function zombies:CleanUpDrones(PlayerIndex)
     local tab = zombies.settings.drones
     for k, v in pairs(tab) do
