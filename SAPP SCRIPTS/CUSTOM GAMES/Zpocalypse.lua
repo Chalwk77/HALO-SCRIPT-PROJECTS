@@ -25,7 +25,7 @@ function zombies:init()
         
         -- #Countdown delay (in seconds)
         -- This is a pre-game-start countdown initiated at the beginning of each game.
-        delay = 10,
+        delay = 5,
         
         -- #Pre Game message (%timeRemaining% will be replaced with the time remaining)
         pre_game_message = "Zpocalypse will begin in %time_remaining% second%s%",
@@ -54,18 +54,24 @@ function zombies:init()
             ["Humans"] = {
                 -- Set to 0 to disable (normal speed is 1)
                 running_speed = 1,
+                -- Zombie Health: (0 to 99999) (Normal = 1)
+                health = 1,
+                damage_multiplier = 1, -- (0 to 10) (Normal = 1)
             },
             ["Zombies"] = {
                 -- Set to 0 to disable (normal speed is 1)
                 running_speed = 1.2,
-                health = 100,
-                damage_multiplier = 2,
+                -- Zombie Health: (0 to 99999) (Normal = 1)
+                health = 1.3,
+                damage_multiplier = 10, -- (0 to 10) (Normal = 1)
                 -- Set to 'false' to disable:
                 invisibility_on_crouch = true,
             },
             ["Last Man Standing"] = {
                 -- Set to 0 to disable (normal speed is 1)
                 running_speed = 1.2,
+                -- Zombie Health: (0 to 99999) (Normal = 1)
+                health = 1.5,
                 -- Set to 'false' to disable temporary overshield:
                 overshield = true,
                 -- Set to 'false' to disable temporary camouflage:
@@ -74,6 +80,7 @@ function zombies:init()
                 regenerating_health = true,
                 -- Health will regenerate in chunks of this percent every 30 ticks until they gain maximum health.
                 increment = 0.0005,
+                damage_multiplier = 2, -- (0 to 10) (Normal = 1)
             },
         },
         
@@ -127,6 +134,7 @@ function OnScriptLoad()
     
     if (get_var(0, '$gt') ~= "n/a") then
         zombies:init()
+        zombies:gameStartCheck()
     end
 end
 
@@ -174,13 +182,19 @@ function OnTick()
                 local attributes = zombies.settings.attributes
                 local team = get_var(i, "$team")
                 for k,v in pairs(attributes) do
-                    if (k == "Humans") and (team == "red") then                    
-                        execute_command("s " .. i .. " " .. tonumber(v.running_speed))
+                    if (k == "Humans") and (team == "red") then       
+                        if (v.running_speed > 0) then
+                            execute_command("s " .. i .. " " .. tonumber(v.running_speed))
+                        end
                     elseif (k == "Zombies") and (team == "blue") then
-                        execute_command("s " .. i .. " " .. tonumber(v.running_speed))
+                        if (v.running_speed > 0) then
+                            execute_command("s " .. i .. " " .. tonumber(v.running_speed))
+                        end
                     elseif (k == "Last Man Standing") and (team == "red") then
                         if (set.last_man ~= nil) and (set.last_man == i) then                    
-                            execute_command("s " .. i .. " " .. tonumber(v.running_speed))
+                            if (v.running_speed > 0) then
+                                execute_command("s " .. i .. " " .. tonumber(v.running_speed))
+                            end
                             if (v.regenerating_health) then
                                 if (player_object ~= 0) then
                                     if read_float(player_object + 0xE0) < 1 then
@@ -208,18 +222,16 @@ function OnTick()
         if (timeRemaining <= 0) then
             gamestarted = true
             zombies:StopTimer()
-            local done = nil
             for i = 1, 16 do
                 if player_present(i) then
-                    done = zombies:sortPlayers(i)
+                    zombies:sortPlayers(i)
                     local team = zombies:GetTeamType(i)
                     local msg = gsub(set.on_game_begin, "%%team%%", team)
                     rprint(i, msg)
                 end
             end
-            if (done) then 
-                zombies:SetLastMan()
-            end
+            zombies:SetLastMan()
+            execute_command("sv_map_reset")
         end
     end
 end
@@ -258,10 +270,10 @@ end
 
 function OnGameEnd()
     zombies:StopTimer()
+    gamestarted = false
 end
 
-function OnPlayerConnect(p)
-    
+function zombies:gameStartCheck()
     local set = zombies.settings
     local player_count = zombies:GetPlayerCount()
     local required = set.required_players
@@ -280,6 +292,10 @@ function OnPlayerConnect(p)
     if (gamestarted) and (get_var(p, "$team") == "red") then
         zombies:SwitchTeam(p, "blue", true)
     end
+end
+
+function OnPlayerConnect(p)
+    zombies:gameStartCheck()
 end
 
 function OnPlayerDisconnect(PlayerIndex)
@@ -425,6 +441,19 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
 
         if (cTeam == vTeam) then
             return false
+        else
+            local attributes = zombies.settings.attributes
+            for k,v in pairs(attributes) do
+                if (k == "Humans") and (cTeam == "red") then   
+                    return true, Damage * v.damage_multiplier
+                elseif (k == "Zombies") and (cTeam == "blue") then
+                    return true, Damage * v.damage_multiplier
+                elseif (k == "Last Man Standing") and (cTeam == "red") then
+                    if (set.last_man ~= nil) and (set.last_man == PlayerIndex) then                    
+                        return true, Damage * v.damage_multiplier
+                    end
+                end
+            end
         end
     end
 end
@@ -459,8 +488,13 @@ function zombies:SwitchTeam(PlayerIndex, team, bool)
         if (set.respawn_override == true) then
             write_dword(get_player(PlayerIndex) + 0x2C, set.respawn_time * 33)
         end
+        
+        local health = zombies:setHealth(PlayerIndex, team)
+        execute_command_sequence("w8 " .. (set.respawn_time + 1) .. ";hp " .. PlayerIndex .. " " .. health)
     else
         execute_command("st " .. tonumber(PlayerIndex) .. " " .. tostring(team))
+        local health = zombies:setHealth(PlayerIndex, team)
+        execute_command_sequence("w8 2;hp " .. PlayerIndex .. " " .. health)
     end
 end
 
@@ -589,7 +623,21 @@ function zombies:sortPlayers(PlayerIndex)
                 zombies:setTeam(PlayerIndex, "blue")
             end
         end
-        return true
+    end
+end
+
+function zombies:setHealth(PlayerIndex, Team)
+    local set = zombies.settings
+    for k,v in pairs(set.attributes) do
+        if (k == "Humans") and (Team == "red") then   
+            return tonumber(v.health)
+        elseif (k == "Zombies") and (Team == "blue") then
+            return tonumber(v.health)
+        elseif (k == "Last Man Standing") and (Team == "red") then
+            if (set.last_man ~= nil) and (set.last_man == PlayerIndex) then                    
+                return tonumber(v.health)
+            end
+        end
     end
 end
 
@@ -639,26 +687,33 @@ function zombies:SetLastMan()
     
     if (Humans == 1 and Zombies >= 1) then
         for i = 1,16 do
-        
+            
             local team = get_var(i, "$team")
             if (team == "red") then
-                set.last_man = i
-                
-                for k,v in pairs(set.attributes) do
-                    if (k == "Last Man Standing") then
-                        if (v.overshield) then
-                            zombies:ApplyOvershield(i)
-                        end
-                        if (v.camouflage) then
-                            zombies:ApplyCamo(i)
+            
+                if (set.last_man ~= i) then
+                    set.last_man = i
+                    for k,v in pairs(set.attributes) do
+                        if (k == "Last Man Standing") then
+                            if (v.overshield) then
+                                zombies:ApplyOvershield(i)
+                            end
+                            if (v.camouflage) then
+                                zombies:ApplyCamo(i)
+                            end
+                            
+                            local player_object = get_dynamic_player(i)
+                            if (player_object ~= 0) then
+                                write_float(player_object + 0xE0, math.floor(tonumber(v.health)))
+                            end
                         end
                     end
+                    
+                    local name = get_var(i, "$name")
+                    local msg = gsub(set.on_last_man, "%%name%%", name)
+                    zombies:announceLastMan(msg)
+                    break
                 end
-                
-                local name = get_var(i, "$name")
-                local msg = gsub(set.on_last_man, "%%name%%", name)
-                zombies:announceLastMan(msg)
-                break
             end
         end
     end
