@@ -585,10 +585,10 @@ function zombies:SetLastMan()
                 for k,v in pairs(set.attributes) do
                     if (k == "Last Man Standing") then
                         if (v.overshield) then
-                            mod:ApplyOvershield(i)
+                            zombies:ApplyOvershield(i)
                         end
                         if (v.camouflage) then
-                            mod:ApplyCamo(i)
+                            zombies:ApplyCamo(i)
                         end
                     end
                 end
@@ -602,7 +602,7 @@ function zombies:SetLastMan()
     end
 end
 
-function mod:ApplyOvershield(PlayerIndex)
+function zombies:ApplyOvershield(PlayerIndex)
     if (player_present(PlayerIndex) and player_alive(PlayerIndex)) then
         local ObjectID = spawn_object("eqip", "powerups\\over shield")
         powerup_interact(ObjectID, PlayerIndex)
@@ -611,7 +611,7 @@ function mod:ApplyOvershield(PlayerIndex)
     end
 end
 
-function mod:ApplyCamo(PlayerIndex)
+function zombies:ApplyCamo(PlayerIndex)
     if (player_present(PlayerIndex) and player_alive(PlayerIndex)) then
         local ObjectID = spawn_object("eqip", "powerups\\active camouflage")
         powerup_interact(ObjectID, PlayerIndex)
