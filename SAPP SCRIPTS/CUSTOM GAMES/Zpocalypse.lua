@@ -196,10 +196,13 @@ function OnTick()
                             execute_command("s " .. i .. " " .. tonumber(v.running_speed))
                         end
                     elseif (k == "Last Man Standing") and (team == "red") then
-                        if (set.last_man ~= nil) and (set.last_man == i) then                    
+                        if (set.last_man ~= nil) and (set.last_man == i) then   
+                            zombies:SetNav(i)    
+                            
                             if (v.running_speed > 0) then
                                 execute_command("s " .. i .. " " .. tonumber(v.running_speed))
                             end
+                            
                             if (v.regenerating_health) then
                                 if (player_object ~= 0) then
                                     if read_float(player_object + 0xE0) < 1 then
@@ -711,12 +714,12 @@ function zombies:SetLastMan()
             
                 if (set.last_man ~= i) then
                     set.last_man = i
+                    
                     for k,v in pairs(set.attributes) do
                         if (k == "Last Man Standing") then
                             if (v.overshield) then
                                 zombies:ApplyOvershield(i)
                             end
-                            
                             local player_object = get_dynamic_player(i)
                             if (player_object ~= 0) then
                                 write_float(player_object + 0xE0, math.floor(tonumber(v.health)))
@@ -780,6 +783,22 @@ function zombies:getTeamCount()
     local blues = get_var(0, "$blues")
     local reds = get_var(0, "$reds")
     return {tonumber(blues), tonumber(reds)}
+end
+
+function zombies:SetNav(LastMan)
+    for i = 1, 16 do
+        if player_present(i) then
+            local PlayerSM = get_player(i)
+            local PTableIndex = to_real_index(i)
+            if (PlayerSM ~= 0) then
+                if (LastMan ~= nil) then
+                    write_word(PlayerSM + 0x88, to_real_index(LastMan))
+                else
+                    write_word(PlayerSM + 0x88, PTableIndex)
+                end
+            end
+        end
+    end
 end
 
 function zombies:getChar(input)
