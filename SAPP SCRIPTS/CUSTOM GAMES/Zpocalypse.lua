@@ -18,7 +18,7 @@ function zombies:init()
     zombies.settings = {
         
         -- #Numbers of players required to set the game in motion (cannot be less than 2)
-        required_players = 3,
+        required_players = 2,
                 
         -- Continuous message emitted when there aren't enough players.
         not_enough_players = "%current%/%required% players needed to start the game.",
@@ -66,6 +66,10 @@ function zombies:init()
                 overshield = true,
                 -- Set to 'false' to disable temporary camouflage:
                 camouflage = true,
+                -- If true, the last man standing will have regenerating health:
+                regenerating_health = true,
+                -- Health will regenerate in chunks of this percent every 30 ticks until they gain maximum health.
+                increment = 0.0005,
             },
         },
         
@@ -147,10 +151,10 @@ function OnTick()
             end
 
             -- Assign "skull" to zombies:
+            local player_object = get_dynamic_player(i)
             if player_alive(i) and set.assign[i] then
                 execute_command("wdel " .. i)
-                local player = get_dynamic_player(i)
-                local x, y, z = read_vector3d(player + 0x5C)
+                local x, y, z = read_vector3d(player_object + 0x5C)
                 
                 local oddball = spawn_object("weap", "weapons\\ball\\ball", x, y, z)
                 local object_spawned = assign_weapon(oddball, i)
@@ -161,16 +165,25 @@ function OnTick()
                 set.assign[i] = false
             end
             
-            local attributes = zombies.settings.attributes
-            local team = get_var(i, "$team")
-            for k,v in pairs(attributes) do
-                if (k == "Humans") and (team == "red") then                    
-                    execute_command(i, "s " .. v.running_speed)
-                elseif (k == "Zombies") and (team == "blue") then
-                    execute_command(i, "s " .. v.running_speed)
-                elseif (k == "Last Man Standing") and (team == "red") then
-                    if (set.last_man ~= nil) and (set.last_man == i) then                    
-                        execute_command(i, "s " .. v.running_speed)
+            if (gamestarted) and player_alive(i) then
+                local attributes = zombies.settings.attributes
+                local team = get_var(i, "$team")
+                for k,v in pairs(attributes) do
+                    if (k == "Humans") and (team == "red") then                    
+                        execute_command("s " .. i .. " " .. tonumber(v.running_speed))
+                    elseif (k == "Zombies") and (team == "blue") then
+                        execute_command("s " .. i .. " " .. tonumber(v.running_speed))
+                    elseif (k == "Last Man Standing") and (team == "red") then
+                        if (set.last_man ~= nil) and (set.last_man == i) then                    
+                            execute_command("s " .. i .. " " .. tonumber(v.running_speed))
+                            if (v.regenerating_health) then
+                                if (player_object ~= 0) then
+                                    if read_float(player_object + 0xE0) < 1 then
+                                        write_float(player_object + 0xE0, read_float(player_object + 0xE0) + v.increment)
+                                    end
+                                end
+                            end
+                        end
                     end
                 end
             end
@@ -190,16 +203,17 @@ function OnTick()
         if (timeRemaining <= 0) then
             gamestarted = true
             zombies:StopTimer()
+            local done = nil
             for i = 1, 16 do
                 if player_present(i) then
-                    
-                    zombies:sortPlayers(i)
+                    done = zombies:sortPlayers(i)
                     local team = zombies:GetTeamType(i)
                     local msg = gsub(set.on_game_begin, "%%team%%", team)
                     rprint(i, msg)
-                    
-                    zombies:SetLastMan()
                 end
+            end
+            if (done) then 
+                zombies:SetLastMan()
             end
         end
     end
@@ -270,15 +284,15 @@ function OnPlayerDisconnect(PlayerIndex)
     player_count = player_count - 1
     
     local team_count = zombies:getTeamCount() -- blues[1], reds[2]
-    local zombies,humans = team_count[1], team_count[2]
+    local Zombies,Humans = team_count[1], team_count[2]
     
     local team = get_var(PlayerIndex, "$team")
     
     if (team == "blue") then
         zombies:CleanUpDrones(PlayerIndex)
-        zombies = zombies - 1
+        Zombies = Zombies - 1
     else
-        humans = humans - 1
+        Humans = Humans - 1
     end
 
     if (gamestarted) then
@@ -300,9 +314,9 @@ function OnPlayerDisconnect(PlayerIndex)
             end
             
         -- Checks if the remaining players are on the same team | ends the game.
-        elseif (zombies <= 0 and humans >= 1) then
+        elseif (Zombies <= 0 and Humans >= 1) then
             zombies:gameOver(gsub(set.end_of_game, "%%team%%", "human"))
-        elseif (humans <= 0 and zombies >= 1) then
+        elseif (Humans <= 0 and Zombies >= 1) then
             zombies:gameOver(gsub(set.end_of_game, "%%team%%", "zombie"))
         end
         
@@ -351,26 +365,38 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         
         local set = zombies.settings
 
-        if (killer > 0 and killer ~= victim) then
-            
-            local bluescore,redscore = get_var(0, "$bluescore"), get_var(0, "$redscore")
-
-            if (kteam == "blue") and (vteam == "red") then
+        if (killer > 0) then
+        
+            -- Check for suicide:
+            if (killer == victim) then
                 SwitchTeam(victim, "blue")
                 local message = gsub(set.on_zombify, "%%name%%", get_var(victim, "$name"))
                 zombies:announceZombify(message)
             end
-            
-            local team_count = zombies:getTeamCount() -- blues[1], reds[2]
-            local zombies,humans = team_count[1], team_count[2]
 
-            -- No humans left -> zombies win
-            if (humans == 0 and zombies >= 1) then
-                zombies:gameOver(gsub(set.end_of_game, "%%team%%", "Zombies"))
+            if (killer ~= victim) then
+                
+                local bluescore,redscore = get_var(0, "$bluescore"), get_var(0, "$redscore")
+
+                if (kteam == "blue") and (vteam == "red") then
+                    SwitchTeam(victim, "blue")
+                    local message = gsub(set.on_zombify, "%%name%%", get_var(victim, "$name"))
+                    zombies:announceZombify(message)
+                elseif (kteam == "red") and (vteam == "blue") then
+                    zombies:CleanUpDrones(victim)
+                end
+                
+                local team_count = zombies:getTeamCount() -- blues[1], reds[2]
+                local Zombies,Humans = team_count[1], team_count[2]
+
+                -- No humans left -> zombies win
+                if (Humans == 0 and Zombies >= 1) then
+                    zombies:gameOver(gsub(set.end_of_game, "%%team%%", "Zombies"))
+                end
+                
+                -- Check for last man:
+                zombies:SetLastMan()
             end
-            
-            -- Check for last man:
-            zombies:SetLastMan()
         end
     end
 end
@@ -529,6 +555,7 @@ function zombies:sortPlayers(PlayerIndex)
                 zombies:setTeam(PlayerIndex, "blue")
             end
         end
+        return true
     end
 end
 
@@ -574,10 +601,11 @@ function zombies:SetLastMan()
     local set = zombies.settings
     
     local team_count = zombies:getTeamCount() -- blues[1], reds[2]
-    local zombies,humans = team_count[1], team_count[2]
+    local Zombies,Humans = team_count[1], team_count[2]
     
-    if (humans == 1 and zombies >= 1) then
+    if (Humans == 1 and Zombies >= 1) then
         for i = 1,16 do
+        
             local team = get_var(i, "$team")
             if (team == "red") then
                 set.last_man = i
