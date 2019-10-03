@@ -778,8 +778,5 @@ end
 
 function zombies:ResetScore(PlayerIndex)
     execute_command("score " .. PlayerIndex .. " 0")
-    execute_command("kills " .. PlayerIndex .. " 0")
-    execute_command("deaths " .. PlayerIndex .. " 0")
-    execute_command("assists " .. PlayerIndex .. " 0")
     execute_command_sequence("team_score 0 0")
 end
