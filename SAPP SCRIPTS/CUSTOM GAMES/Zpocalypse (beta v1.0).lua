@@ -135,11 +135,7 @@ function OnScriptLoad()
 
     if (get_var(0, '$gt') ~= "n/a") then
         zombies:init()
-        for i = 1, 16 do
-            if player_present(i) then
-                zombies:gameStartCheck()
-            end
-        end
+        zombies:gameStartCheck()
     end
 end
 
@@ -298,7 +294,7 @@ function OnGameEnd()
     gamestarted = false
 end
 
-function zombies:gameStartCheck(p)
+function zombies:gameStartCheck(p)    
     local set = zombies.settings
     local player_count = zombies:GetPlayerCount()
     local required = set.required_players
@@ -325,6 +321,8 @@ end
 
 function OnPlayerDisconnect(PlayerIndex)
 
+    local p = tonumber(PlayerIndex)
+
     local set = zombies.settings
     local player_count = zombies:GetPlayerCount()
     player_count = player_count - 1
@@ -332,10 +330,11 @@ function OnPlayerDisconnect(PlayerIndex)
     local team_count = zombies:getTeamCount() -- blues[1], reds[2]
     local Zombies, Humans = team_count[1], team_count[2]
 
-    local team = get_var(PlayerIndex, "$team")
+    local team = get_var(p, "$team")
 
     if (team == "blue") then
-        zombies:CleanUpDrones(PlayerIndex)
+        zombies:CleanUpDrones(p)
+        set.assign[p] = false
         Zombies = Zombies - 1
     else
         Humans = Humans - 1
@@ -350,7 +349,7 @@ function OnPlayerDisconnect(PlayerIndex)
             -- One player remains | ends the game.
         elseif (player_count == 1) then
             for i = 1, 16 do
-                if (tonumber(i) ~= tonumber(PlayerIndex)) then
+                if (tonumber(i) ~= tonumber(p)) then
                     if player_present(i) then
                         -- Send game over message to the last remaining player:
                         local team = zombies:GetTeamType(i)
@@ -377,7 +376,6 @@ function OnPlayerDisconnect(PlayerIndex)
 end
 
 function OnPlayerSpawn(PlayerIndex)
-
     local PlayerObject = get_dynamic_player(PlayerIndex)
     if (PlayerObject ~= 0 and gamestarted) then
 
@@ -390,7 +388,7 @@ function OnPlayerSpawn(PlayerIndex)
             write_word(PlayerObject + 0x31F, 0)
 
             -- Set weapon assignment flag to true:
-            zombies.settings.assign[PlayerIndex] = true
+            set.assign[PlayerIndex] = true
             
             -- Set zombie kill count to zero:
             set.zkills[PlayerIndex] = 0
@@ -450,7 +448,6 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                         zombies:announceCured(message)
                     end
 
-
                 elseif (kteam == "red") and (vteam == "blue") then
                     zombies:CleanUpDrones(victim)
                 end
@@ -473,6 +470,7 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
             return false
         else
             local attributes = zombies.settings.attributes
+            local set = zombies.settings
             for k, v in pairs(attributes) do
                 if (k == "Humans") and (cTeam == "red") then
                     return true, Damage * v.damage_multiplier
@@ -490,7 +488,7 @@ end
 
 function zombies:killPlayer(PlayerIndex)
     local PlayerObject = read_dword(get_player(PlayerIndex) + 0x34)
-    if PlayerObject ~= nil then
+    if (PlayerObject ~= nil) then
         destroy_object(PlayerObject)
     end
 end
@@ -528,6 +526,20 @@ function zombies:SwitchTeam(PlayerIndex, team, bool)
     end
 end
 
+function zombies:SendToAll(msg, type)
+    if (type == "rcon") then
+        for i = 1,16 do
+            if player_present(i) then
+                rprint(i, msg)
+            end
+        end
+    elseif (type == "chat") then
+        execute_command("msg_prefix \"\"")
+        say_all(msg)
+        execute_command("msg_prefix \" " .. zombies.settings.server_prefix .. "\"")
+    end
+end
+
 function zombies:gameOver(message)
     execute_command("msg_prefix \"\"")
     say_all(message)
@@ -539,6 +551,11 @@ function zombies:announceZombify(message)
     execute_command("msg_prefix \"\"")
     say_all(message)
     execute_command("msg_prefix \" " .. zombies.settings.server_prefix .. "\"")
+    for i = 1,16 do
+        if player_present(i) then
+            rprint(i, msg)
+        end
+    end
 end
 
 function zombies:announceLastMan(message)
@@ -565,6 +582,7 @@ end
 function zombies:StopTimer()
     countdown, init_countdown = 0, false
     print_nep = false
+    
     for i = 1, 16 do
         if player_present(i) then
             zombies:cls(i, 25)
