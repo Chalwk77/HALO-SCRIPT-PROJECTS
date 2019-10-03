@@ -235,6 +235,8 @@ function OnTick()
                 end
             end
             zombies:SetLastMan()
+            
+            -- Remove default death messages (temporarily)
             local kma = sig_scan("8B42348A8C28D500000084C9") + 3
             original = read_dword(kma)
             safe_write(true)
@@ -260,7 +262,7 @@ function OnGameStart()
     local set = zombies.settings
 
     if not zombies:isTeamPlay() then
-        zombies:unregisterSAPPEvents(' Only supports team play!')
+        zombies:unregisterSAPPEvents('Only supports team play!')
     elseif (set.required_players < 2) then
         zombies:unregisterSAPPEvents('Setting "required_players" cannot be less than 2!')
     else
