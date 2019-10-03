@@ -235,7 +235,18 @@ function OnTick()
                 end
             end
             zombies:SetLastMan()
+            local kma = sig_scan("8B42348A8C28D500000084C9") + 3
+            original = read_dword(kma)
+            safe_write(true)
+            write_dword(kma, 0x03EB01B1)
+            safe_write(false)
+
             execute_command("sv_map_reset")
+
+            -- Re enables default death messages
+            safe_write(true)
+            write_dword(kma, original)
+            safe_write(false)
         end
     end
 end
