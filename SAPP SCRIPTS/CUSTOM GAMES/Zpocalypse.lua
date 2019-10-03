@@ -25,7 +25,7 @@ function zombies:init()
         
         -- #Countdown delay (in seconds)
         -- This is a pre-game-start countdown initiated at the beginning of each game.
-        delay = 5,
+        delay = 10,
         
         -- #Pre Game message (%timeRemaining% will be replaced with the time remaining)
         pre_game_message = "Zpocalypse will begin in %time_remaining% second%s%",
@@ -46,6 +46,7 @@ function zombies:init()
         respawn_override = true,
         respawn_time = 0, -- In seconds (0 = immediate)
         
+        -- Message emitted when someone becomes a human again:
         on_cure = "%name% has been cured!",
         -- Get this many consecutive kills per life and become human again!
         cure_threshold = 5,
