@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Zpocalypse, for SAPP (PC & CE)
+Script Name: Zpocalypse (beta v1.0), for SAPP (PC & CE)
 Description: Custom Zombie Game.
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
