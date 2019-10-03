@@ -35,8 +35,10 @@ function zombies:init()
         
         on_game_begin = "The game has begun: You are on the %team% team",
         
-        -- Message emitted when a red team member is killed by a zombie:
+        -- Message emitted when a human is killed by a zombie:
         on_zombify = "%name% has been zombified!",
+        
+        on_last_man = "%name% is the last human standing!",
         
         -- #Respawn time (override)
         -- When enabled, players who are killed by the opposing team will respawn immediately. 
@@ -44,15 +46,40 @@ function zombies:init()
         respawn_override = true,
         respawn_time = 0, -- In seconds (0 = immediate)
         
+        attributes = {
+            ["Humans"] = {
+                -- Set to 0 to disable (normal speed is 1)
+                running_speed = 1,
+            },
+            ["Zombies"] = {
+                -- Set to 0 to disable (normal speed is 1)
+                running_speed = 1.2,
+                health = 100,
+                damage_multiplier = 2,
+                -- Set to 'false' to disable:
+                invisibility_on_crouch = true,
+            },
+            ["Last Man Standing"] = {
+                -- Set to 0 to disable (normal speed is 1)
+                running_speed = 1.2,
+                -- Set to 'false' to disable temporary overshield:
+                overshield = true,
+                -- Set to 'false' to disable temporary camouflage:
+                camouflage = true,
+            },
+        },
+        
         -- Some functions temporarily remove the server prefix while broadcasting a message.
         -- This prefix will be restored to 'server_prefix' when the message relay is done.
         -- Enter your servers default prefix here:
         server_prefix = "** SERVER **",
         
         
-        
+        --# Do Not Touch #--
         drones = { },
         assign = { },
+        last_man = nil,
+        --
     }
     
 end
@@ -133,6 +160,20 @@ function OnTick()
                 
                 set.assign[i] = false
             end
+            
+            local attributes = zombies.settings.attributes
+            local team = get_var(i, "$team")
+            for k,v in pairs(attributes) do
+                if (k == "Humans") and (team == "red") then                    
+                    execute_command(i, "s " .. v.running_speed)
+                elseif (k == "Zombies") and (team == "blue") then
+                    execute_command(i, "s " .. v.running_speed)
+                elseif (k == "Last Man Standing") and (team == "red") then
+                    if (set.last_man ~= nil) and (set.last_man == i) then                    
+                        execute_command(i, "s " .. v.running_speed)
+                    end
+                end
+            end
         end
     end
     
@@ -155,6 +196,8 @@ function OnTick()
                     local team = zombies:GetTeamType(i)
                     local msg = gsub(set.on_game_begin, "%%team%%", team)
                     rprint(i, msg)
+                    
+                    zombies:SetLastMan()
                 end
             end
         end
@@ -172,7 +215,7 @@ function OnGameStart()
     if not zombies:isTeamPlay() then
         zombies:unregisterSAPPEvents(' Only supports team play!')
     elseif (set.required_players < 2) then
-        zombies:unregisterSAPPEvents('Setting "required_players" cannot be less than 3!')
+        zombies:unregisterSAPPEvents('Setting "required_players" cannot be less than 2!')
     else
         zombies:StopTimer()
         local function oddOrEven(Min, Max)
@@ -318,10 +361,13 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             end
             
             local team_count = zombies:getTeamCount() -- blues[1], reds[2]
+            local zombies,humans = team_count[1], team_count[2]
 
             -- No humans left -> zombies win
-            if (team_count[2] == 0 and team_count[1] >= 1) then
+            if (humans == 0 and zombies >= 1) then
                 zombies:gameOver(gsub(set.end_of_game, "%%team%%", "Zombies"))
+            elseif (humans == 1 and zombies >= 1) then
+                zombies:SetLastMan()
             end
         end
     end
@@ -382,6 +428,12 @@ function zombies:gameOver(message)
 end
 
 function zombies:announceZombify(message)
+    execute_command("msg_prefix \"\"")
+    say_all(message)
+    execute_command("msg_prefix \" " .. zombies.settings.server_prefix .. "\"")
+end
+
+function zombies:announceLastMan(message)
     execute_command("msg_prefix \"\"")
     say_all(message)
     execute_command("msg_prefix \" " .. zombies.settings.server_prefix .. "\"")
@@ -512,6 +564,57 @@ function zombies:deleteWeapons(PlayerIndex)
                 destroy_object(ObjectID)
             end
         end
+    end
+end
+
+function zombies:SetLastMan()
+
+    local set = zombies.settings
+    
+    local team_count = zombies:getTeamCount() -- blues[1], reds[2]
+    local zombies,humans = team_count[1], team_count[2]
+    
+    if (humans == 1 and zombies >= 1) then
+        for i = 1,16 do
+            local team = get_var(i, "$team")
+            if (team == "red") then
+                set.last_man = i
+                
+                for k,v in pairs(set.attributes) do
+                    if (k == "Last Man Standing") then
+                        if (v.overshield) then
+                            mod:ApplyOvershield(i)
+                        end
+                        if (v.camouflage) then
+                            mod:ApplyCamo(i)
+                        end
+                    end
+                end
+                
+                local name = get_var(i, "$name")
+                local msg = gsub(set.on_last_man, "%%name%%", name)
+                zombies:announceLastMan(msg)
+                break
+            end
+        end
+    end
+end
+
+function mod:ApplyOvershield(PlayerIndex)
+    if (player_present(PlayerIndex) and player_alive(PlayerIndex)) then
+        local ObjectID = spawn_object("eqip", "powerups\\over shield")
+        powerup_interact(ObjectID, PlayerIndex)
+    else
+        return false
+    end
+end
+
+function mod:ApplyCamo(PlayerIndex)
+    if (player_present(PlayerIndex) and player_alive(PlayerIndex)) then
+        local ObjectID = spawn_object("eqip", "powerups\\active camouflage")
+        powerup_interact(ObjectID, PlayerIndex)
+    else
+        return false
     end
 end
 
