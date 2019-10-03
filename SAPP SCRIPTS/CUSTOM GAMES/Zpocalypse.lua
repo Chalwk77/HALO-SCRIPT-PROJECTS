@@ -74,8 +74,8 @@ function zombies:init()
                 health = 1.5,
                 -- Set to 'false' to disable temporary overshield:
                 overshield = true,
-                -- Set to 'false' to disable temporary camouflage:
-                camouflage = true,
+                -- Set to 'false' to disable this feature:
+                invisibility_on_crouch = true,
                 -- If true, the last man standing will have regenerating health:
                 regenerating_health = true,
                 -- Health will regenerate in chunks of this percent every 30 ticks until they gain maximum health.
@@ -179,6 +179,10 @@ function OnTick()
             end
             
             if (gamestarted) and player_alive(i) then
+                
+                -- Apply camouflage when the player crouches (last man & zombies)
+                zombies:CamoOnCrouch(i)
+            
                 local attributes = zombies.settings.attributes
                 local team = get_var(i, "$team")
                 for k,v in pairs(attributes) do
@@ -698,9 +702,6 @@ function zombies:SetLastMan()
                             if (v.overshield) then
                                 zombies:ApplyOvershield(i)
                             end
-                            if (v.camouflage) then
-                                zombies:ApplyCamo(i)
-                            end
                             
                             local player_object = get_dynamic_player(i)
                             if (player_object ~= 0) then
@@ -728,12 +729,21 @@ function zombies:ApplyOvershield(PlayerIndex)
     end
 end
 
-function zombies:ApplyCamo(PlayerIndex)
-    if (player_present(PlayerIndex) and player_alive(PlayerIndex)) then
-        local ObjectID = spawn_object("eqip", "powerups\\active camouflage")
-        powerup_interact(ObjectID, PlayerIndex)
-    else
-        return false
+function zombies:CamoOnCrouch(PlayerIndex)
+    local attributes = zombies.settings.attributes
+    local team = get_var(PlayerIndex, "$team")
+    for k,v in pairs(attributes) do
+        if (k == "Zombies" and team == "blue") or (k == "Last Man Standing" and team == "red") then
+            if (v.invisibility_on_crouch) then
+                local player_object = get_dynamic_player(PlayerIndex)
+                if (player_object ~= 0) then
+                    local couching = read_float(player_object + 0x50C)
+                    if (couching == 1) then
+                        execute_command("camo " .. PlayerIndex .. " 2")
+                    end
+                end               
+            end
+        end
     end
 end
 
