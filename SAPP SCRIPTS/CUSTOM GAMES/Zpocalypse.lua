@@ -192,6 +192,7 @@ function OnTick()
             zombies:StopTimer()
             for i = 1, 16 do
                 if player_present(i) then
+                    
                     zombies:sortPlayers(i)
                     local team = zombies:GetTeamType(i)
                     local msg = gsub(set.on_game_begin, "%%team%%", team)
@@ -366,9 +367,10 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             -- No humans left -> zombies win
             if (humans == 0 and zombies >= 1) then
                 zombies:gameOver(gsub(set.end_of_game, "%%team%%", "Zombies"))
-            elseif (humans == 1 and zombies >= 1) then
-                zombies:SetLastMan()
             end
+            
+            -- Check for last man:
+            zombies:SetLastMan()
         end
     end
 end
