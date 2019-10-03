@@ -46,6 +46,10 @@ function zombies:init()
         respawn_override = true,
         respawn_time = 0, -- In seconds (0 = immediate)
         
+        on_cure = "%name% has been cured!",
+        -- Get this many consecutive kills per life and become human again!
+        cure_threshold = 5,
+        
         attributes = {
             ["Humans"] = {
                 -- Set to 0 to disable (normal speed is 1)
@@ -80,6 +84,7 @@ function zombies:init()
         
         
         --# Do Not Touch #--
+        zkills = { },
         drones = { },
         assign = { },
         last_man = nil,
@@ -273,7 +278,7 @@ function OnPlayerConnect(p)
     
     -- Game has already begun. Set player to zombie team:
     if (gamestarted) and (get_var(p, "$team") == "red") then
-        SwitchTeam(p, "blue", true)
+        zombies:SwitchTeam(p, "blue", true)
     end
 end
 
@@ -333,12 +338,16 @@ function OnPlayerSpawn(PlayerIndex)
     -- Set grenades to 0 for zombies:
     local PlayerObject = get_dynamic_player(PlayerIndex)
     if (PlayerObject ~= 0 and gamestarted) then
+    
+        local set = zombies.settings
         local team = get_var(PlayerIndex, "$team")
+        
         if (team == "blue") then
             write_word(PlayerObject + 0x31E, 0)
             write_word(PlayerObject + 0x31F, 0)
             
             zombies.settings.assign[PlayerIndex] = true
+             set.zkills[PlayerIndex] = 0
         end
     end
 end
@@ -369,9 +378,10 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         
             -- Check for suicide:
             if (killer == victim) then
-                SwitchTeam(victim, "blue")
+                zombies:SwitchTeam(victim, "blue")
                 local message = gsub(set.on_zombify, "%%name%%", get_var(victim, "$name"))
                 zombies:announceZombify(message)
+                zombies:endGameCheck()
             end
 
             if (killer ~= victim) then
@@ -379,20 +389,26 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                 local bluescore,redscore = get_var(0, "$bluescore"), get_var(0, "$redscore")
 
                 if (kteam == "blue") and (vteam == "red") then
-                    SwitchTeam(victim, "blue")
+                
+                    -- Switch victim to Zombie team:
+                    zombies:SwitchTeam(victim, "blue")
                     local message = gsub(set.on_zombify, "%%name%%", get_var(victim, "$name"))
                     zombies:announceZombify(message)
+                    
+                    -- If zombie has "cure_threshold" kills, set them to human team:
+                    set.zkills[killer] = set.zkills[killer] + 1
+                    if (set.zkills[killer] == set.cure_threshold) then
+                        zombies:SwitchTeam(killer, "red")
+                        local message = gsub(set.on_cure, "%%name%%", get_var(killer, "$name"))
+                        zombies:announceCured(message)
+                    end
+                    
+                    
                 elseif (kteam == "red") and (vteam == "blue") then
                     zombies:CleanUpDrones(victim)
                 end
                 
-                local team_count = zombies:getTeamCount() -- blues[1], reds[2]
-                local Zombies,Humans = team_count[1], team_count[2]
-
-                -- No humans left -> zombies win
-                if (Humans == 0 and Zombies >= 1) then
-                    zombies:gameOver(gsub(set.end_of_game, "%%team%%", "Zombies"))
-                end
+                zombies:endGameCheck()
                 
                 -- Check for last man:
                 zombies:SetLastMan()
@@ -420,7 +436,7 @@ function zombies:killPlayer(PlayerIndex)
     end
 end
 
-function SwitchTeam(PlayerIndex, team, bool)
+function zombies:SwitchTeam(PlayerIndex, team, bool)
     if not (bool) then
     
         local set = zombies.settings
@@ -462,6 +478,12 @@ function zombies:announceZombify(message)
 end
 
 function zombies:announceLastMan(message)
+    execute_command("msg_prefix \"\"")
+    say_all(message)
+    execute_command("msg_prefix \" " .. zombies.settings.server_prefix .. "\"")
+end
+
+function zombies:announceCured(message)
     execute_command("msg_prefix \"\"")
     say_all(message)
     execute_command("msg_prefix \" " .. zombies.settings.server_prefix .. "\"")
@@ -510,6 +532,18 @@ function zombies:StopTimer()
         -- Disable Grenades for Zombies:
         execute_command("disable_object 'weapons\\frag grenade\\frag grenade' 2")
         execute_command("disable_object 'weapons\\plasma grenade\\plasma grenade' 2")
+    end
+end
+
+function zombies:endGameCheck()
+    local team_count = zombies:getTeamCount() -- blues[1], reds[2]
+    local Zombies,Humans = team_count[1], team_count[2]
+
+    local set = zombies.settings
+
+    -- No humans left -> zombies win
+    if (Humans == 0 and Zombies >= 1) then
+        zombies:gameOver(gsub(set.end_of_game, "%%team%%", "Zombies"))
     end
 end
 
@@ -579,7 +613,7 @@ function zombies:setTeam(PlayerIndex, team)
     end
     
     zombies:killPlayer(PlayerIndex)
-    SwitchTeam(tonumber(PlayerIndex), team)
+    zombies:SwitchTeam(tonumber(PlayerIndex), team)
     zombies:ResetScore(PlayerIndex)
 end
 
