@@ -20,7 +20,7 @@ function maniac:init()
     maniac.settings = {
 
         -- #Numbers of players required to set the game in motion (cannot be less than 2)
-        required_players = 2,
+        required_players = 3,
 
         -- Continuous message emitted when there aren't enough players.
         not_enough_players = "%current%/%required% players needed to start the game.",
@@ -29,10 +29,13 @@ function maniac:init()
         -- This is a pre-game-start countdown initiated at the beginning of each game.
         delay = 5,
         
-        turn_timer = 60, -- (in seconds)
+        turn_timer = 5, -- (in seconds)
+        
+        -- kills required to end the game:
+        kill_threshold = 5, -- (in seconds)
 
         -- # This message is the pre-game broadcast:
-        pre_game_message = "Maniac (beta) will begin in %time_remaining% second%s%",
+        pre_game_message = "Maniac (beta v1.0) will begin in %time_remaining% second%s%",
         
         -- # This message is broadcast when the game begins:
         on_game_begin = "The game has begun",
@@ -98,15 +101,15 @@ local countdown, init_countdown, print_nep
 function OnScriptLoad()
 
     -- Register needed event callbacks:
-    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     register_callback(cb['EVENT_TICK'], "OnTick")
 
     register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
+    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
 
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
 
-    register_callback(cb['EVENT_DIE'], 'OnPlayerDeath')
+    register_callback(cb['EVENT_DIE'], 'OnManiacKill')
     register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
 
     if (get_var(0, '$gt') ~= "n/a") then
@@ -229,6 +232,7 @@ function OnTick()
                         timer = 0, 
                         duration = set.turn_timer,
                         active = false, turn_over = false,
+                        kills = 0,
                     }
                 end
             end
@@ -284,6 +288,7 @@ function maniac:gameStartCheck(p)
             timer = 0, 
             duration = set.turn_timer,
             active = false, turn_over = false, 
+            kills = 0
         }
     end
 end
@@ -322,7 +327,8 @@ function OnPlayerDisconnect(PlayerIndex)
                 if (tonumber(i) ~= tonumber(p)) then
                     if player_present(i) then
                         -- Send game over message to the last remaining player:
-                        maniac:broadcast(set.end_of_game, true)
+                        local msg = gsub(set.end_of_game, "%%name%%", get_var(i, "$name"))
+                        maniac:broadcast(msg, true)
                         break
                     end
                 end
@@ -340,31 +346,34 @@ function OnPlayerDisconnect(PlayerIndex)
     end
 end
 
-function OnPlayerDeath(PlayerIndex, KillerIndex)
+function OnManiacKill(PlayerIndex, KillerIndex)
 
     if (gamestarted) then
 
         local killer = tonumber(KillerIndex)
-        local victim = tonumber(PlayerIndex)
-        local set = maniac.settings
-
         if (killer > 0) then            
+        
+            local set = maniac.settings
+            local active_shooter = set.active_shooter
+            local isManiac = maniac:isManiac(killer)
             
-            -- PvP:
-            if (killer ~= victim) then
-                -- logic:
-            else
-                -- SUICIDE (select new maniac)
-                -- logic:
+            if (isManiac) then
+                if (killer ~= victim) then
+                    isManiac.kills = isManiac.kills + 1
+                else
+                    -- Just in case:
+                    isManiac.active = false
+                    maniac:SelectManiac()
+                end
+                maniac:endGameCheck(killer, isManiac.kills)
             end
-
-            maniac:endGameCheck()
         end
     end
 end
 
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
     if (tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex and gamestarted) then
+        
         local isManiac = maniac:isManiac(CauserIndex)
         if (isManiac) then
             local attributes = maniac.settings.attributes
@@ -385,13 +394,15 @@ function maniac:killPlayer(PlayerIndex)
 end
 
 function maniac:isManiac(PlayerIndex)
-    for _, shooter in pairs(maniac.settings.active_shooter) do
+    local active_shooter = maniac.settings.active_shooter
+    for _, shooter in pairs(active_shooter) do
         if (shooter) then
             if (shooter.id == PlayerIndex and shooter.active) and (not shooter.expired) then
-                return true
+                return shooter
             end
         end
     end
+    return false
 end
 
 function maniac:broadcast(message, gameover)
@@ -423,8 +434,13 @@ function maniac:StopTimer()
     end
 end
 
-function maniac:endGameCheck()
-    -- logic:
+function maniac:endGameCheck(PlayerIndex, Kills)
+    local set = maniac.settings.kill_threshold
+    if (Kills >= set) then        
+        local name = get_var(PlayerIndex, "$name")
+        local msg = gsub(set.end_of_game, "%%name%%", name)
+        maniac:broadcast(msg, true)
+    end
 end
 
 function maniac:cls(PlayerIndex, count)
@@ -439,6 +455,7 @@ function maniac:SelectManiac()
     local active_shooter = set.active_shooter
 
     local players = { }
+    
     for i = 1,16 do
         if player_present(i) then
             for k,v in pairs(active_shooter) do
@@ -457,7 +474,7 @@ function maniac:SelectManiac()
         math.random();math.random();math.random();
         local random_player = players[math.random(#players)]
         
-        for k,v in pairs(active_shooter) do        
+        for k,v in pairs(active_shooter) do
             if (v.id == random_player) then
                 v.active, set.assign[v.id] = true, true
                 maniac:broadcast(gsub(set.new_maniac, "%%name%%", get_var(v.id, "$name")), false)
@@ -465,17 +482,23 @@ function maniac:SelectManiac()
         end
         
     else
-        local tally = {}
-        for i = 1,16 do
-            if player_present(i) then
-                local kills = get_var(i, "$kills")
-                tally[i] = kills
+        
+        local function HighestKills()
+            local kills, name = 0, nil
+            for _,player in pairs(active_shooter) do
+                if (player.kills > kills) then
+                    kills = player.kills
+                    name = get_var(player.id, "$name")
+                end
             end
+            if (kills == 0) then return nil,nil end
+            return kills, name
         end
         
-        if (#tally > 0) then
-        
-            maniac:broadcast(set.end_of_game, true)
+        local kills, name = HighestKills()
+        if (kills ~= nil and name ~= nil) then
+            local msg = gsub(set.end_of_game, "%%name%%", name)
+            maniac:broadcast(msg, true)
         end
     end
 end
