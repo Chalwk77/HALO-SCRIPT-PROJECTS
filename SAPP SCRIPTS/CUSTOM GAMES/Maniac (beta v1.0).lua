@@ -3,11 +3,15 @@
 Script Name: Maniac (beta v1.0), for SAPP (PC & CE)
 Description: This game is a variation of Juggernaut and Hide and Seek.
 
-Game Mechanics:
----------------
+-- GAME MECHANICS --
+
 Players will take turns being the "Maniac".
-Maniacs are invincible to everything and extremely powerful for a limited time. You'll want to avoid the maniac at all costs.
-Maniacs wield 4 weapons, have the ability to go invisible when they crouch and will run at lightning speeds!
+Maniacs are invincible to everything and extremely powerful for a limited time. 
+You'll want to avoid the maniac at all costs.
+
+1). Maniacs wield 4 weapons with infinite ammo and infinite grenades
+2). Ability to go invisible when they crouch 
+3). Run at lightning speeds
 
 The game will end when the first Maniac reaches the specified kill threshold.
 If all players have had their turn and no one has reached the kill threshold, the player with the most kills (as Maniac) wins.
