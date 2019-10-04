@@ -135,7 +135,11 @@ function OnScriptLoad()
 
     if (get_var(0, '$gt') ~= "n/a") then
         zombies:init()
-        zombies:gameStartCheck()
+        for i = 1,16 do
+            if player_present(i) then            
+                zombies:gameStartCheck(i)
+            end
+        end
     end
 end
 
@@ -310,8 +314,10 @@ function zombies:gameStartCheck(p)
     end
 
     -- Game has already begun. Set player to zombie team:
-    if (gamestarted) and (get_var(p, "$team") == "red") then
-        zombies:SwitchTeam(p, "blue", true)
+    if (gamestarted) and (p) then
+        if (get_var(p, "$team") == "red") then
+            zombies:SwitchTeam(p, "blue", true)
+        end
     end
 end
 
@@ -551,11 +557,6 @@ function zombies:announceZombify(message)
     execute_command("msg_prefix \"\"")
     say_all(message)
     execute_command("msg_prefix \" " .. zombies.settings.server_prefix .. "\"")
-    for i = 1,16 do
-        if player_present(i) then
-            rprint(i, msg)
-        end
-    end
 end
 
 function zombies:announceLastMan(message)
