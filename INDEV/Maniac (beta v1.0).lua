@@ -26,20 +26,21 @@ local maniac = {}
 function maniac:init()
     maniac.settings = {
 
-        -- #Numbers of players required to set the game in motion (cannot be less than 2)
-        required_players = 3,
+        -- # Numbers of players required to set the game in motion (cannot be less than 2)
+        required_players = 2,
 
-        -- Continuous message emitted when there aren't enough players.
+        -- # Continuous message emitted when there aren't enough players.
         not_enough_players = "%current%/%required% players needed to start the game.",
 
-        -- #Countdown delay (in seconds)
+        -- # Countdown delay (in seconds)
         -- This is a pre-game-start countdown initiated at the beginning of each game.
-        delay = 5,
+        delay = 10,
         
-        turn_timer = 5, -- (in seconds)
+        -- # Duration (in seconds) that players will be the Maniac:
+        turn_timer = 60,
         
-        -- kills required to end the game:
-        kill_threshold = 5, -- (in seconds)
+        -- Kills required to end the game:
+        kill_threshold = 25,
 
         -- # This message is the pre-game broadcast:
         pre_game_message = "Maniac (beta v1.0) will begin in %time_remaining% second%s%",
@@ -50,14 +51,8 @@ function maniac:init()
         -- # This message is broadcast when the game is over:
         end_of_game = "%name% won the game!",
 
-        -- #This message is broadcast when someone becomes the maniac:
+        -- # This message is broadcast when someone becomes the maniac:
         new_maniac = "%name% is now the maniac!",
-
-        -- #Respawn time (override)
-        -- When enabled, players who are killed by the opposing team will respawn immediately.
-        -- Does not affect suicides or other deaths (PvP only by design).
-        respawn_override = true,
-        respawn_time = 0, -- In seconds (0 = immediate)
 
         attributes = {
             -- Tag Type | Tag Name | Primary Ammo | Secondary Ammo
