@@ -686,5 +686,4 @@ end
 
 function maniac:SetScorelimit(score)
     current_scorelimit = score
-    print("SCORELIMIT: " .. current_scorelimit)
 end
