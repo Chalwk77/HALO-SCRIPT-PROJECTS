@@ -404,9 +404,12 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
 end
 
 function maniac:killPlayer(PlayerIndex)
-    local PlayerObject = read_dword(get_player(PlayerIndex) + 0x34)
-    if (PlayerObject ~= nil) then
-        destroy_object(PlayerObject)
+    local player = get_player(PlayerIndex)
+    if (player ~= 0) then
+        local PlayerObject = read_dword(player + 0x34)
+        if (PlayerObject ~= nil) then
+            destroy_object(PlayerObject)
+        end
     end
 end
 
@@ -548,7 +551,7 @@ function maniac:deleteWeapons(PlayerIndex)
     local PlayerObject = get_dynamic_player(PlayerIndex)
     if (PlayerObject ~= 0) then
         local WeaponID = read_dword(PlayerObject + 0x118)
-        if WeaponID ~= 0 then
+        if (WeaponID ~= 0) then
             for j = 0, 3 do
                 local ObjectID = read_dword(PlayerObject + 0x2F8 + j * 4)
                 destroy_object(ObjectID)
