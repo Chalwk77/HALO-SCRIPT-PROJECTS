@@ -46,6 +46,11 @@ function maniac:init()
         -- DYNAMIC SCORING SYSTEM --
         -- The game will end when a Maniac reaches this scorelimit:
         ['dynamic_scoring'] = {
+            
+            enabled = true,
+            -- If disabled, the default kill-threshold for Maniacs will be "default_scorelimit":
+            default_scorelimit = 15,
+            
             [1] = 10, -- 4 players or less
             [2] = 15, -- 4-8 players
             [3] = 20, -- 8-12 players
@@ -293,7 +298,11 @@ function OnGameStart()
         maniac:init()
         current_scorelimit = 0
         local scoreTable = maniac:GetScoreLimit()
-        maniac:SetScorelimit(scoreTable[1])
+        if (scoreTable.enabled) then
+            maniac:SetScorelimit(scoreTable[1])
+        else        
+            maniac:SetScorelimit(scoreTable.default_scorelimit)
+        end
     end
 end
 
@@ -308,7 +317,7 @@ function maniac:gameStartCheck(p)
     local player_count = maniac:GetPlayerCount()
     local required = set.required_players
     
-   maniac:modifyScorelimit()
+    maniac:modifyScorelimit()
 
     if (player_count >= required) and (not init_countdown) and (not gamestarted) then
         maniac:StartTimer()
@@ -638,27 +647,31 @@ function maniac:modifyScorelimit()
     local player_count = maniac:GetPlayerCount()
     local scoreTable = maniac:GetScoreLimit()
     
-    local msg = nil
-    
-    if (player_count <= 4 and current_scorelimit ~= scoreTable[1]) then
-        maniac:SetScorelimit(scoreTable[1])
-        msg = gsub(gsub(scoreTable.txt, "%%scorelimit%%", scoreTable[1]), "%%s%%", maniac:getChar(scoreTable[1]))
+    if (scoreTable.enabled) then
+        local msg = nil
+        
+        if (player_count <= 4 and current_scorelimit ~= scoreTable[1]) then
+            maniac:SetScorelimit(scoreTable[1])
+            msg = gsub(gsub(scoreTable.txt, "%%scorelimit%%", scoreTable[1]), "%%s%%", maniac:getChar(scoreTable[1]))
 
-    elseif (player_count > 4 and player_count <= 8 and current_scorelimit ~= scoreTable[2]) then
-        maniac:SetScorelimit(scoreTable[2])
-        msg = gsub(gsub(scoreTable.txt, "%%scorelimit%%", scoreTable[2]), "%%s%%", maniac:getChar(scoreTable[2]))
+        elseif (player_count > 4 and player_count <= 8 and current_scorelimit ~= scoreTable[2]) then
+            maniac:SetScorelimit(scoreTable[2])
+            msg = gsub(gsub(scoreTable.txt, "%%scorelimit%%", scoreTable[2]), "%%s%%", maniac:getChar(scoreTable[2]))
 
-    elseif (player_count > 9 and player_count <= 12 and current_scorelimit ~= scoreTable[3]) then
-        maniac:SetScorelimit(scoreTable[3])
-        msg = gsub(gsub(scoreTable.txt, "%%scorelimit%%", scoreTable[3]), "%%s%%", maniac:getChar(scoreTable[3]))
+        elseif (player_count > 9 and player_count <= 12 and current_scorelimit ~= scoreTable[3]) then
+            maniac:SetScorelimit(scoreTable[3])
+            msg = gsub(gsub(scoreTable.txt, "%%scorelimit%%", scoreTable[3]), "%%s%%", maniac:getChar(scoreTable[3]))
 
-    elseif (player_count > 12 and current_scorelimit ~= scoreTable[4]) then
-        maniac:SetScorelimit(scoreTable[4])
-        msg = gsub(gsub(scoreTable.txt, "%%scorelimit%%", scoreTable[4]), "%%s%%", maniac:getChar(scoreTable[4]))
-    end
-    
-    if (msg ~= nil) then
-        say_all(msg)
+        elseif (player_count > 12 and current_scorelimit ~= scoreTable[4]) then
+            maniac:SetScorelimit(scoreTable[4])
+            msg = gsub(gsub(scoreTable.txt, "%%scorelimit%%", scoreTable[4]), "%%s%%", maniac:getChar(scoreTable[4]))
+        end
+        
+        if (msg ~= nil) then
+            say_all(msg)
+        end
+    else
+        maniac:SetScorelimit(scoreTable.default_scorelimit)
     end
 end
 
@@ -669,4 +682,5 @@ end
 
 function maniac:SetScorelimit(score)
     current_scorelimit = score
+    print("SCORELIMIT: " .. current_scorelimit)
 end
