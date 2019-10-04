@@ -221,8 +221,6 @@ function OnTick()
 
     if (countdown_begun) then
         countdown = countdown + 0.03333333333333333
-        local delta_time = ((set.delay) - (countdown))
-        
         
         local delta_time = ((set.delay) - (countdown))
         local minutes, seconds = select(1, secondsToTime(delta_time)), select(2, secondsToTime(delta_time))
