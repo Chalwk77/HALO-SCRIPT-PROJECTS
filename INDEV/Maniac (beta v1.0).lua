@@ -182,17 +182,12 @@ function OnTick()
                                         execute_command("god " .. i)
                                         execute_command("wdel " .. i)
                                         
-                                        function DelayAssign(tag_type, tag_name)
-                                            local weapon = spawn_object(tag_type, tag_name, x, y, z)
-                                            assign_weapon(weapon, i)
-                                        end
-                                        
                                         for K,V in pairs(attribute) do
                                             if (K == 1 or K == 2) then
                                                 local weapon = spawn_object(V[1], V[2], x, y, z)
                                                 assign_weapon(weapon, i)
                                             elseif (K == 3 or K == 4) then
-                                                timer(100, "DelayAssign", V[1], V[2])
+                                                timer(100, "DelayAssign", i, V[1], V[2], x,y,z)
                                             end
                                         end
                                     end
@@ -543,4 +538,9 @@ end
 
 function maniac:GetPlayerCount()
     return tonumber(get_var(0, "$pn"))
+end
+
+function DelayAssign(PlayerIndex, tag_type, tag_name, x,y,z)
+    local weapon = spawn_object(tag_type, tag_name, x, y, z)
+    assign_weapon(weapon, PlayerIndex)
 end
