@@ -184,11 +184,18 @@ function OnTick()
                                     maniac:SelectManiac()
                                     -- restore this maniac to normal player status:
                                     -- logic:
-                                end
-                                for type, attribute in pairs(attributes) do
-                                    if (type == "maniac") then
-                                        if (attribute.running_speed > 0) then
-                                            execute_command("s " .. i .. " " .. tonumber(attribute.running_speed))
+                                elseif (player_object ~= 0) then
+                                    for j = 0, 3 do
+                                        local weapon = get_object_memory(read_dword(player_object + 0x2F8 + j * 4))
+                                        if (weapon ~= 0) then
+                                            write_word(weapon + 0x2B6, 9999)
+                                        end
+                                    end
+                                    for type, attribute in pairs(attributes) do
+                                        if (type == "maniac") then
+                                            if (attribute.running_speed > 0) then
+                                                execute_command("s " .. i .. " " .. tonumber(attribute.running_speed))
+                                            end
                                         end
                                     end
                                 end
@@ -224,12 +231,6 @@ function OnTick()
                             execute_command("god " .. PlayerIndex)
                             local player_object = get_dynamic_player(PlayerIndex)
                             write_word(player_object + 0x31E, 0x7F7F)
-                            for j = 0, 3 do
-                                local weapon = get_object_memory(read_dword(player_object + 0x2F8 + j * 4))
-                                if (weapon ~= 0) then
-                                    write_word(weapon + 0x2B6, 9999)
-                                end
-                            end
                         end
                     }
                 end
@@ -290,13 +291,6 @@ function maniac:gameStartCheck(p)
                 execute_command("god " .. PlayerIndex)
                 local player_object = get_dynamic_player(PlayerIndex)
                 write_word(player_object + 0x31E, 0x7F7F)
-                
-                for j = 0, 3 do
-                    local weapon = get_object_memory(read_dword(player_object + 0x2F8 + j * 4))
-                    if (weapon ~= 0) then
-                        write_word(weapon + 0x2B6, 9999)
-                    end
-                end
             end
         }
     end
