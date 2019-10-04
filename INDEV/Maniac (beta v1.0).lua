@@ -178,6 +178,8 @@ function OnTick()
                                             local weapon = spawn_object(tag_type, tag_name, x, y, z)
                                             assign_weapon(weapon, i)
                                         end
+                                        execute_command("god " .. i)
+                                        write_word(player_object + 0x31E, 0x7F7F)
                                         set.assign[i] = false
                                     end
                                 end
@@ -214,12 +216,7 @@ function OnTick()
                         id = i, 
                         timer = 0, 
                         duration = set.turn_timer,
-                        active = false, turn_over = false, 
-                        func = function(PlayerIndex)
-                            execute_command("god " .. PlayerIndex)
-                            local player_object = get_dynamic_player(PlayerIndex)
-                            write_word(player_object + 0x31E, 0x7F7F)
-                        end
+                        active = false, turn_over = false,
                     }
                 end
             end
@@ -275,11 +272,6 @@ function maniac:gameStartCheck(p)
             timer = 0, 
             duration = set.turn_timer,
             active = false, turn_over = false, 
-            func = function(PlayerIndex)
-                execute_command("god " .. PlayerIndex)
-                local player_object = get_dynamic_player(PlayerIndex)
-                write_word(player_object + 0x31E, 0x7F7F)
-            end
         }
     end
 end
@@ -452,13 +444,9 @@ function maniac:SelectManiac()
         for k,v in pairs(active_shooter) do        
             if (v.id == random_player) then
                 v.active, set.assign[v.id] = true, true
-                SetGodMode = function()
-                    v.func(random_player)
-                end
                 maniac:broadcast(gsub(set.new_maniac, "%%name%%", get_var(v.id, "$name")), false)
             end
         end
-        timer(2000, "SetGodMode") 
         
     else
         local tally = {}
