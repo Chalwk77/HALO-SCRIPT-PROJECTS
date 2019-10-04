@@ -26,7 +26,7 @@ local maniac = {}
 function maniac:init()
     maniac.settings = {
 
-        -- # Numbers of players required to set the game in motion (cannot be less than 2)
+        -- # Number of players required to set the game in motion (cannot be less than 2)
         required_players = 2,
 
         -- # Continuous message emitted when there aren't enough players.
@@ -37,10 +37,13 @@ function maniac:init()
         delay = 10,
         
         -- # Duration (in seconds) that players will be the Maniac:
-        turn_timer = 10,
+        turn_timer = 60,
         
         -- Kills required to end the game:
         kill_threshold = 25,
+
+        -- KILL THRESHOLD WILL BE UPDATED WITH
+        -- DYNAMIC SCORING IN A FUTURE UPDATE.
 
         -- # This message is the pre-game broadcast:
         pre_game_message = "Maniac (beta v1.0) will begin in %minutes%:%seconds%",
