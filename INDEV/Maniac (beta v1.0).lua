@@ -52,10 +52,10 @@ function maniac:init()
         attributes = {
             -- Tag Type | Tag Name | Primary Ammo | Secondary Ammo
             ["weapons"] = {
-                [1] = { "weap", "weapons\\sniper rifle\\sniper rifle", 100,100},
-                [2] = { "weap", "weapons\\pistol\\pistol", 100,100},
-                [3] = { "weap", "weapons\\rocket launcher\\rocket launcher", 100,100},
-                [4] = { "weap", "weapons\\shotgun\\shotgun", 100,100},
+                [1] = { "weap", "weapons\\sniper rifle\\sniper rifle"},
+                [2] = { "weap", "weapons\\pistol\\pistol"},
+                [3] = { "weap", "weapons\\rocket launcher\\rocket launcher"},
+                [4] = { "weap", "weapons\\shotgun\\shotgun"},
             },
             ["maniac"] = {
                 -- Maniac Health: 0 to 99999 (Normal = 1)
@@ -157,32 +157,49 @@ function OnTick()
                             local seconds = maniac:secondsToTime(shooter.timer)
                             local timeRemaining = shooter.duration - math.floor(seconds)
                             local char = maniac:getChar(timeRemaining)
+                            
+                            -- if (timeRemaining == shooter.duration/2) then
+                                -- maniac:broadcast("A new Maniac will be selected in " .. shooter.duration/2 .. " seconds")
+                            -- end
+                            
                             if (timeRemaining <= 0) then
                                 shooter.active, shooter.expired = false, true
                                 execute_command("ungod " .. i)
                                 maniac:SelectManiac()
-                                -- restore this maniac to normal player status:
-                                -- logic:
+                                
                             elseif (player_object ~= 0) then
                                 for type, attribute in pairs(attributes) do
+                                
                                     if (type == "maniac") then
                                         if (attribute.running_speed > 0) then
                                             execute_command("s " .. i .. " " .. tonumber(attribute.running_speed))
                                         end
+                                        
                                     elseif (type == "weapons") and (set.assign[i]) then
+                                        set.assign[i] = false
+                                        
                                         local x, y, z = read_vector3d(player_object + 0x5C)
+                                        execute_command("god " .. i)
                                         execute_command("wdel " .. i)
-                                        for K,V in pairs(attribute) do
-                                            local tag_type, tag_name = V[1], V[2]
-                                            local primary_ammo,secondary_ammo = V[3],V[4]
+                                        
+                                        function DelayAssign(tag_type, tag_name)
                                             local weapon = spawn_object(tag_type, tag_name, x, y, z)
                                             assign_weapon(weapon, i)
                                         end
-                                        execute_command("god " .. i)
-                                        write_word(player_object + 0x31E, 0x7F7F)
-                                        set.assign[i] = false
+                                        
+                                        for K,V in pairs(attribute) do
+                                            if (K == 1 or K == 2) then
+                                                local weapon = spawn_object(V[1], V[2], x, y, z)
+                                                assign_weapon(weapon, i)
+                                            elseif (K == 3 or K == 4) then
+                                                timer(100, "DelayAssign", V[1], V[2])
+                                            end
+                                        end
                                     end
                                 end
+                                
+                                write_word(player_object + 0x31F, 7)
+                                write_word(player_object + 0x31E, 0x7F7F)
                                 for j = 0, 3 do
                                     local weapon = get_object_memory(read_dword(player_object + 0x2F8 + j * 4))
                                     if (weapon ~= 0) then
@@ -290,7 +307,9 @@ function OnPlayerDisconnect(PlayerIndex)
 
     if (gamestarted) then
     
-        local active_shooter = maniac.active_shooter
+        local active_shooter = maniac.settings.active_shooter
+        local wasManiac = maniac:isManiac(PlayerIndex)
+        
         for k,v in pairs(active_shooter) do
             if (v.id == p) then
                 active_shooter[k] = nil
@@ -308,11 +327,13 @@ function OnPlayerDisconnect(PlayerIndex)
                 if (tonumber(i) ~= tonumber(p)) then
                     if player_present(i) then
                         -- Send game over message to the last remaining player:
-                        maniac:broadcast(gsub(set.end_of_game, "%%team%%", team), true)
+                        maniac:broadcast(set.end_of_game, true)
                         break
                     end
                 end
             end
+        elseif (wasManiac) then
+            maniac:SelectManiac()
         end
 
         -- Pre-Game countdown was initiated but someone left before the game began.
