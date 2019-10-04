@@ -26,7 +26,7 @@ local maniac = {}
 function maniac:init()
     maniac.settings = {
 
-        -- # Numbers of players required to set the game in motion (cannot be less than 2)
+        -- # Number of players required to set the game in motion (cannot be less than 2)
         required_players = 5,
 
         -- # Continuous message emitted when there aren't enough players.
@@ -37,7 +37,7 @@ function maniac:init()
         delay = 10,
         
         -- # Duration (in seconds) that players will be the Maniac:
-        turn_timer = 10,
+        turn_timer = 60,
         
         -- Kills required to end the game:
         kill_threshold = 25,
@@ -55,7 +55,7 @@ function maniac:init()
         new_maniac = "%name% is now the maniac!",
         
         -- # This message is broadcast to the whole server:
-        on_timer = "|lManiac:|c%name%|rTime until Switch: %minutes%:%seconds% Kills to win: %kills%/%maniac_kills%",
+        on_timer = "|lManiac:|c%name%|rTime until Switch: %minutes%:%seconds%",
         -- If true, the above message will be broadcast server-wide.
         use_timer = true,
 
@@ -165,12 +165,7 @@ function OnTick()
                         local minutes, seconds = select(1, secondsToTime(delta_time)), select(2, secondsToTime(delta_time))
             
                         if (set.use_timer) then
-                            local msg = gsub(gsub(gsub(gsub(gsub(
-                            set.on_timer, "%%minutes%%", minutes), 
-                            "%%seconds%%", seconds), 
-                            "%%name%%", shooter.name),
-                            "%%kills%%", shooter.kills)
-                            "%%required_kills%%", set.kill_threshold)
+                            local msg = gsub(gsub(gsub(set.on_timer, "%%minutes%%", minutes), "%%seconds%%", seconds), "%%name%%", shooter.name)
                             maniac:rprintAll(msg)
                         end
                             
