@@ -31,7 +31,7 @@ function maniac:init()
     maniac.settings = {
 
         -- # Number of players required to set the game in motion (cannot be less than 2)
-        required_players = 5,
+        required_players = 3,
 
         -- # Continuous message emitted when there aren't enough players.
         not_enough_players = "%current%/%required% players needed to start the game.",
@@ -43,8 +43,15 @@ function maniac:init()
         -- # Duration (in seconds) that players will be the Maniac:
         turn_timer = 60,
         
-        -- Kills required to end the game:
-        kill_threshold = 25,
+        -- DYNAMIC SCORING SYSTEM --
+        -- The game will end when a Maniac reaches this scorelimit:
+        ['dynamic_scoring'] = {
+            [1] = 10, -- 4 players or less
+            [2] = 15, -- 4-8 players
+            [3] = 20, -- 8-12 players
+            [4] = 25, -- 12-16 players
+            txt = "Maniac Kill-Threshold (scorelimit) changed to: %scorelimit%"
+        },
 
         -- # This message is the pre-game broadcast:
         pre_game_message = "Maniac (beta v1.0) will begin in %minutes%:%seconds%",
@@ -93,7 +100,6 @@ function maniac:init()
         active_shooter = { },
         --
     }
-
 end
 
 -- Variables for String Library:
@@ -107,6 +113,7 @@ local floor, sqrt = math.floor, math.sqrt
 
 -- Game Variables:
 local gamestarted
+local current_scorelimit
 local countdown, init_countdown, print_nep
 
 function OnScriptLoad()
@@ -127,6 +134,7 @@ function OnScriptLoad()
         maniac:init()
         for i = 1,16 do
             if player_present(i) then
+                current_scorelimit = 0
                 maniac:gameStartCheck(i)
             end
         end
@@ -174,6 +182,8 @@ function OnTick()
                         end
                             
                         if (tonumber(seconds) <= 0) then
+                        
+                            -- Disable Maniac status for this player and select a new Maniac:
                             shooter.active, shooter.expired = false, true
                             execute_command("ungod " .. shooter.id)
                             execute_command("s " .. shooter.id .. " 1")
@@ -184,11 +194,15 @@ function OnTick()
                             for type, attribute in pairs(attributes) do
                             
                                 if (type == "maniac") then
+                                    
+                                    -- Set Maniac running speed:
                                     if (attribute.running_speed > 0) then
                                         execute_command("s " .. shooter.id .. " " .. tonumber(attribute.running_speed))
                                     end
                                     
                                 elseif (type == "weapons") and (set.assign[shooter.id]) then
+                                
+                                    -- Weapon assignment for Maniac:
                                     set.assign[shooter.id] = false
                                     
                                     local x, y, z = read_vector3d(player_object + 0x5C)
@@ -206,6 +220,7 @@ function OnTick()
                                 end
                             end
                             
+                            -- Set infinite ammo and grenades:
                             write_word(player_object + 0x31F, 7)
                             write_word(player_object + 0x31E, 0x7F7F)
                             for j = 0, 3 do
@@ -216,6 +231,7 @@ function OnTick()
                             end
                         end
                     else 
+                        -- The maniac that was just selected is still spawning:
                         maniac:rprintAll("Maniac: " .. shooter.name .. " (AWAITING RESPAWN)")
                     end
                 end
@@ -275,6 +291,9 @@ end
 function OnGameStart()
     if (get_var(0, '$gt') ~= "n/a") then
         maniac:init()
+        current_scorelimit = 0
+        local scoreTable = maniac:GetScoreLimit()
+        maniac:SetScorelimit(scoreTable[1])
     end
 end
 
@@ -288,6 +307,8 @@ function maniac:gameStartCheck(p)
     local set = maniac.settings
     local player_count = maniac:GetPlayerCount()
     local required = set.required_players
+    
+   maniac:modifyScorelimit()
 
     if (player_count >= required) and (not init_countdown) and (not gamestarted) then
         maniac:StartTimer()
@@ -318,6 +339,8 @@ function OnPlayerDisconnect(PlayerIndex)
     local set = maniac.settings
     local player_count = maniac:GetPlayerCount()
     player_count = player_count - 1
+    
+    maniac:modifyScorelimit()
 
     if (gamestarted) then
     
@@ -462,8 +485,7 @@ function maniac:StopTimer()
 end
 
 function maniac:endGameCheck(PlayerIndex, Kills)
-    local set = maniac.settings.kill_threshold
-    if (Kills >= set) then        
+    if (Kills >= current_scorelimit) then        
         local name = get_var(PlayerIndex, "$name")
         local msg = gsub(set.end_of_game, "%%name%%", name)
         maniac:broadcast(msg, true)
@@ -610,4 +632,41 @@ end
 function DelayAssign(PlayerIndex, tag_type, tag_name, x,y,z)
     local weapon = spawn_object(tag_type, tag_name, x, y, z)
     assign_weapon(weapon, PlayerIndex)
+end
+
+function maniac:modifyScorelimit()
+    local player_count = maniac:GetPlayerCount()
+    local scoreTable = maniac:GetScoreLimit()
+    
+    local msg = nil
+    
+    if (player_count <= 4 and current_scorelimit ~= scoreTable[1]) then
+        maniac:SetScorelimit(scoreTable[1])
+        msg = gsub(gsub(scoreTable.txt, "%%scorelimit%%", scoreTable[1]), "%%s%%", maniac:getChar(scoreTable[1]))
+
+    elseif (player_count > 4 and player_count <= 8 and current_scorelimit ~= scoreTable[2]) then
+        maniac:SetScorelimit(scoreTable[2])
+        msg = gsub(gsub(scoreTable.txt, "%%scorelimit%%", scoreTable[2]), "%%s%%", maniac:getChar(scoreTable[2]))
+
+    elseif (player_count > 9 and player_count <= 12 and current_scorelimit ~= scoreTable[3]) then
+        maniac:SetScorelimit(scoreTable[3])
+        msg = gsub(gsub(scoreTable.txt, "%%scorelimit%%", scoreTable[3]), "%%s%%", maniac:getChar(scoreTable[3]))
+
+    elseif (player_count > 12 and current_scorelimit ~= scoreTable[4]) then
+        maniac:SetScorelimit(scoreTable[4])
+        msg = gsub(gsub(scoreTable.txt, "%%scorelimit%%", scoreTable[4]), "%%s%%", maniac:getChar(scoreTable[4]))
+    end
+    
+    if (msg ~= nil) then
+        say_all(msg)
+    end
+end
+
+function maniac:GetScoreLimit()
+    local scorelimit = maniac.settings
+    return(scorelimit["dynamic_scoring"])
+end
+
+function maniac:SetScorelimit(score)
+    current_scorelimit = score
 end
