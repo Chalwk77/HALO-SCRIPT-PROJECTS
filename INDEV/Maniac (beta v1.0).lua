@@ -148,55 +148,43 @@ function OnTick()
 
             if (gamestarted and player_alive(i)) then 
                 local player_object = get_dynamic_player(i)
-                
-                -- Weapon Assignments:
-                if (set.assign[i]) then
-
-                    local x, y, z = read_vector3d(player_object + 0x5C)
-                    execute_command("wdel " .. i)
-
-                    for type, v in pairs(attributes) do
-                        if (type == "weapons") then
-                            for K,V in pairs(v) do
-                                local tag_type, tag_name = V[1], V[2]
-                                local primary_ammo,secondary_ammo = V[3],V[4]
-                                local weapon = spawn_object(tag_type, tag_name, x, y, z)
-                                assign_weapon(weapon, i)
-                            end
-                            set.assign[i] = false
-                        end
-                    end
-                    
-                else
-                    
-                    for _, shooter in pairs(active_shooter) do
-                        if (shooter) then
-                            if (shooter.id == i and shooter.active) and (not shooter.expired) then
-                                maniac:CamoOnCrouch(i)
-                                shooter.timer = shooter.timer + 0.03333333333333333
-                                
-                                local seconds = maniac:secondsToTime(shooter.timer)
-                                local timeRemaining = shooter.duration - math.floor(seconds)
-                                local char = maniac:getChar(timeRemaining)
-                                if (timeRemaining <= 0) then
-                                    shooter.active, shooter.expired = false, true
-                                    execute_command("ungod " .. i)
-                                    maniac:SelectManiac()
-                                    -- restore this maniac to normal player status:
-                                    -- logic:
-                                elseif (player_object ~= 0) then
-                                    for j = 0, 3 do
-                                        local weapon = get_object_memory(read_dword(player_object + 0x2F8 + j * 4))
-                                        if (weapon ~= 0) then
-                                            write_word(weapon + 0x2B6, 9999)
+                for _, shooter in pairs(active_shooter) do
+                    if (shooter) then
+                        if (shooter.id == i and shooter.active) and (not shooter.expired) then
+                            maniac:CamoOnCrouch(i)
+                            shooter.timer = shooter.timer + 0.03333333333333333
+                            
+                            local seconds = maniac:secondsToTime(shooter.timer)
+                            local timeRemaining = shooter.duration - math.floor(seconds)
+                            local char = maniac:getChar(timeRemaining)
+                            if (timeRemaining <= 0) then
+                                shooter.active, shooter.expired = false, true
+                                execute_command("ungod " .. i)
+                                maniac:SelectManiac()
+                                -- restore this maniac to normal player status:
+                                -- logic:
+                            elseif (player_object ~= 0) then
+                                for type, attribute in pairs(attributes) do
+                                    if (type == "maniac") then
+                                        if (attribute.running_speed > 0) then
+                                            execute_command("s " .. i .. " " .. tonumber(attribute.running_speed))
                                         end
+                                    elseif (type == "weapons") and (set.assign[i]) then
+                                        local x, y, z = read_vector3d(player_object + 0x5C)
+                                        execute_command("wdel " .. i)
+                                        for K,V in pairs(attribute) do
+                                            local tag_type, tag_name = V[1], V[2]
+                                            local primary_ammo,secondary_ammo = V[3],V[4]
+                                            local weapon = spawn_object(tag_type, tag_name, x, y, z)
+                                            assign_weapon(weapon, i)
+                                        end
+                                        set.assign[i] = false
                                     end
-                                    for type, attribute in pairs(attributes) do
-                                        if (type == "maniac") then
-                                            if (attribute.running_speed > 0) then
-                                                execute_command("s " .. i .. " " .. tonumber(attribute.running_speed))
-                                            end
-                                        end
+                                end
+                                for j = 0, 3 do
+                                    local weapon = get_object_memory(read_dword(player_object + 0x2F8 + j * 4))
+                                    if (weapon ~= 0) then
+                                        write_word(weapon + 0x2B6, 9999)
                                     end
                                 end
                             end
