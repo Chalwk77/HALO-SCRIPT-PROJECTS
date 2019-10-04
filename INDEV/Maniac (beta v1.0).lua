@@ -218,9 +218,9 @@ function OnTick()
                             end
                         end
                     end
-                else 
+                elseif (set.use_timer) then
                     local player = maniac:isManiac(i)
-                    if (player and set.use_timer) then
+                    if (player) then
                         maniac:rprintAll("Maniac: " .. player.name .. " (AWAITING RESPAWN)")
                     end
                 end
