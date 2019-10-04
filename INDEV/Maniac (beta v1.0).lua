@@ -34,16 +34,16 @@ function maniac:init()
 
         -- # Countdown delay (in seconds)
         -- This is a pre-game-start countdown initiated at the beginning of each game.
-        delay = 3,
+        delay = 10,
         
         -- # Duration (in seconds) that players will be the Maniac:
-        turn_timer = 15,
+        turn_timer = 60,
         
         -- Kills required to end the game:
         kill_threshold = 25,
 
         -- # This message is the pre-game broadcast:
-        pre_game_message = "Maniac (beta v1.0) will begin in %time_remaining% second%s%",
+        pre_game_message = "Maniac (beta v1.0) will begin in %minutes%:%seconds%",
         
         -- # This message is broadcast when the game begins:
         on_game_begin = "The game has begun",
@@ -53,6 +53,9 @@ function maniac:init()
 
         -- # This message is broadcast when someone becomes the maniac:
         new_maniac = "%name% is now the maniac!",
+        
+        -- # This message is broadcast to the whole server:
+        on_timer = "Maniac: %name% (Time until Switch: %minutes%:%seconds%)",
 
         attributes = {
             -- Tag Type | Tag Name | Primary Ammo | Secondary Ammo
@@ -160,10 +163,10 @@ function OnTick()
                             shooter.timer = shooter.timer + 0.03333333333333333
                             
                             local delta_time = ((shooter.duration) - (shooter.timer))
-                            local seconds = select(2, secondsToTime(delta_time))
+                            local minutes, seconds = select(1, secondsToTime(delta_time)), select(2, secondsToTime(delta_time))
                             
-                            -- Debugging:
-                            -- print(shooter.name .. " is the Maniac for another " .. seconds .. " seconds")
+                            local msg = gsub(gsub(gsub(set.on_timer, "%%minutes%%", minutes), "%%seconds%%", seconds), "%%name%%", shooter.name)
+                            maniac:rprintAll(msg)
                             
                             if (tonumber(seconds) <= 0) then
                                 shooter.active, shooter.expired = false, true
@@ -217,13 +220,16 @@ function OnTick()
     if (countdown_begun) then
         countdown = countdown + 0.03333333333333333
         local delta_time = ((set.delay) - (countdown))
-        local seconds = select(2, secondsToTime(delta_time))
-        local char = maniac:getChar(seconds)
+        
+        
+        local delta_time = ((set.delay) - (countdown))
+        local minutes, seconds = select(1, secondsToTime(delta_time)), select(2, secondsToTime(delta_time))
 
         set.pregame = set.pregame or ""
-        set.pregame = gsub(gsub(set.pre_game_message, "%%time_remaining%%", seconds), "%%s%%", char)
+        set.pregame = gsub(gsub(set.pre_game_message, "%%minutes%%", minutes), "%%seconds%%", seconds)
 
-        if (tonumber(seconds) <= 0) then
+        if (tonumber(minutes) <= 0) and (tonumber(seconds) <= 0) then
+        
             gamestarted = true
             maniac:StopTimer()
             
@@ -457,6 +463,15 @@ function maniac:endGameCheck(PlayerIndex, Kills)
     end
 end
 
+function maniac:rprintAll(msg)
+    for i = 1,16 do
+        if player_present(i) then
+            maniac:cls(i, 25)
+            rprint(i, msg)
+        end
+    end
+end
+
 function maniac:cls(PlayerIndex, count)
     local count = count or 25
     for _ = 1, count do
@@ -497,50 +512,18 @@ function maniac:SelectManiac()
         
     else
         -- Determine who won the game:
+        
         local function HighestKills()
             local kills, name = 0, nil
-            
             for _,player in pairs(active_shooter) do
                 if (player.kills > kills) then
                     kills = player.kills
                     name = player.name
                 end
             end
-             
-            local tie = { }
-            
-            for i = 1,16 do
-                if player_present(i) then
-                    for _,P1 in pairs(active_shooter) do
-                        if i == P1.id then
-                            
-                            local player_one_kills, player_one_id = P1.kills, i
-                            
-                            for _,P2 in pairs(active_shooter) do
-                                if (i ~= P2.id) then
-                                    
-                                    local player_two_kills, player_one_id = P2.kills, P2.id
-                                    
-                                    if (player_one_kills == player_two_kills) and (player_one_kills > 0 and player_two_kills > 0) then
-                                        local p1_deaths, p2_deaths = get_var(player_one_id, "$deaths"), get_var(player_two_id, "$deaths")
-                                        
-                                        local p1_kdr = (player_one_kills/p1_deaths)
-                                        local p2_kdr = (player_two_kills/p2_deaths)
-                                        
-                                        tie[#tie + 1] = {player_one_id, player_two_id, p1_kdr, p2_kdr}
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-            end
             
             if (kills == 0) then 
                 return nil,nil 
-            end
-            if (#tie >0) then
-                return tie, nil
             else
                 return kills, name
             end
@@ -550,10 +533,8 @@ function maniac:SelectManiac()
         if (kills ~= nil and name ~= nil) then
             local msg = gsub(set.end_of_game, "%%name%%", name)
             maniac:broadcast(msg, true)
-        elseif (kills ~= nil and name == nil) then
-            for i = 1,#kills do
-                print(kills[i])
-            end
+        else
+            maniac:broadcast("GAME OVER | No one has any kills!", true)
         end
     end
 end
