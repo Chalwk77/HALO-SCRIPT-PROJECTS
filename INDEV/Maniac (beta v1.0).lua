@@ -141,87 +141,78 @@ function OnTick()
     local player_count = maniac:GetPlayerCount()
     local countdown_begun = (init_countdown == true)
 
-    for i = 1, 16 do
-        if player_present(i) then
-        
-            -- # Continuous message emitted when there aren't enough players to start the game:
-            if (print_nep) and (not gamestarted) and (player_count < set.required_players) then
-                maniac:cls(i, 25)
-                local msg = gsub(gsub(set.not_enough_players,
-                "%%current%%", player_count),
-                "%%required%%", set.required_players)
-                rprint(i, msg)
-            elseif (countdown_begun) and (not gamestarted) and (set.pregame) then
-                maniac:cls(i, 25)
-                rprint(i, set.pregame)
-            end
+    -- # Continuous message emitted when there aren't enough players to start the game:
+    if (print_nep) and (not gamestarted) and (player_count < set.required_players) then
+        local msg = gsub(gsub(set.not_enough_players,
+        "%%current%%", player_count),
+        "%%required%%", set.required_players)
+        maniac:rprintAll(msg)
+    elseif (countdown_begun) and (not gamestarted) and (set.pregame) then
+        maniac:rprintAll(set.pregame)
+    end
 
-            if (gamestarted) then 
-                if player_alive(i) then 
-                    local player_object = get_dynamic_player(i)
-                    for _, shooter in pairs(active_shooter) do
-                        if (shooter) then
-                            if (shooter.id == i and shooter.active) and (not shooter.expired) then
-                                maniac:CamoOnCrouch(i)
-                                shooter.timer = shooter.timer + 0.03333333333333333
-                                
-                                local delta_time = ((shooter.duration) - (shooter.timer))
-                                local minutes, seconds = select(1, secondsToTime(delta_time)), select(2, secondsToTime(delta_time))
+    if (gamestarted) then 
+        for _, shooter in pairs(active_shooter) do
+            if (shooter) then
+                local player_object = get_dynamic_player(shooter.id)
+                if (shooter.active) and (not shooter.expired) then
+                    if player_alive(shooter.id) then
                     
-                                if (set.use_timer) then
-                                    local msg = gsub(gsub(gsub(set.on_timer, "%%minutes%%", minutes), "%%seconds%%", seconds), "%%name%%", shooter.name)
-                                    maniac:rprintAll(msg)
-                                end
-                                
-                                if (tonumber(seconds) <= 0) then
-                                    shooter.active, shooter.expired = false, true
-                                    execute_command("ungod " .. i)
-                                    execute_command("s " .. i .. " 1")
-                                    maniac:killPlayer(i)
-                                    maniac:SelectManiac()
-                                    
-                                elseif (player_object ~= 0) then
-                                    for type, attribute in pairs(attributes) do
-                                    
-                                        if (type == "maniac") then
-                                            if (attribute.running_speed > 0) then
-                                                execute_command("s " .. i .. " " .. tonumber(attribute.running_speed))
-                                            end
-                                            
-                                        elseif (type == "weapons") and (set.assign[i]) then
-                                            set.assign[i] = false
-                                            
-                                            local x, y, z = read_vector3d(player_object + 0x5C)
-                                            execute_command("god " .. i)
-                                            execute_command("wdel " .. i)
-                                            
-                                            for K,V in pairs(attribute) do
-                                                if (K == 1 or K == 2) then
-                                                    local weapon = spawn_object(V[1], V[2], x, y, z)
-                                                    assign_weapon(weapon, i)
-                                                elseif (K == 3 or K == 4) then
-                                                    timer(100, "DelayAssign", i, V[1], V[2], x,y,z)
-                                                end
-                                            end
-                                        end
+                        maniac:CamoOnCrouch(shooter.id)
+                        shooter.timer = shooter.timer + 0.03333333333333333
+                    
+                        local delta_time = ((shooter.duration) - (shooter.timer))
+                        local minutes, seconds = select(1, secondsToTime(delta_time)), select(2, secondsToTime(delta_time))
+            
+                        if (set.use_timer) then
+                            local msg = gsub(gsub(gsub(set.on_timer, "%%minutes%%", minutes), "%%seconds%%", seconds), "%%name%%", shooter.name)
+                            maniac:rprintAll(msg)
+                        end
+                            
+                        if (tonumber(seconds) <= 0) then
+                            shooter.active, shooter.expired = false, true
+                            execute_command("ungod " .. shooter.id)
+                            execute_command("s " .. shooter.id .. " 1")
+                            maniac:killPlayer(shooter.id)
+                            maniac:SelectManiac()
+                            
+                        elseif (player_object ~= 0) then
+                            for type, attribute in pairs(attributes) do
+                            
+                                if (type == "maniac") then
+                                    if (attribute.running_speed > 0) then
+                                        execute_command("s " .. shooter.id .. " " .. tonumber(attribute.running_speed))
                                     end
                                     
-                                    write_word(player_object + 0x31F, 7)
-                                    write_word(player_object + 0x31E, 0x7F7F)
-                                    for j = 0, 3 do
-                                        local weapon = get_object_memory(read_dword(player_object + 0x2F8 + j * 4))
-                                        if (weapon ~= 0) then
-                                            write_word(weapon + 0x2B6, 9999)
+                                elseif (type == "weapons") and (set.assign[shooter.id]) then
+                                    set.assign[shooter.id] = false
+                                    
+                                    local x, y, z = read_vector3d(player_object + 0x5C)
+                                    execute_command("god " .. shooter.id)
+                                    execute_command("wdel " .. shooter.id)
+                                    
+                                    for K,V in pairs(attribute) do
+                                        if (K == 1 or K == 2) then
+                                            local weapon = spawn_object(V[1], V[2], x, y, z)
+                                            assign_weapon(weapon, shooter.id)
+                                        elseif (K == 3 or K == 4) then
+                                            timer(100, "DelayAssign", shooter.id, V[1], V[2], x,y,z)
                                         end
                                     end
                                 end
                             end
+                            
+                            write_word(player_object + 0x31F, 7)
+                            write_word(player_object + 0x31E, 0x7F7F)
+                            for j = 0, 3 do
+                                local weapon = get_object_memory(read_dword(player_object + 0x2F8 + j * 4))
+                                if (weapon ~= 0) then
+                                    write_word(weapon + 0x2B6, 9999)
+                                end
+                            end
                         end
-                    end
-                elseif (set.use_timer) then
-                    local player = maniac:isManiac(i)
-                    if (player) then
-                        maniac:rprintAll("Maniac: " .. player.name .. " (AWAITING RESPAWN)")
+                    else 
+                        maniac:rprintAll("Maniac: " .. shooter.name .. " (AWAITING RESPAWN)")
                     end
                 end
             end
