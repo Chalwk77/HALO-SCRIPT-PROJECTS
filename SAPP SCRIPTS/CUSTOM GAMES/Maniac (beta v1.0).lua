@@ -210,6 +210,10 @@ function OnTick()
                                 set.assign[shooter.id] = false
 
                                 local weapons = maniac:GetRandomWeapon()
+                                
+                                
+                                
+                                -- Weapons: {clag_class, tag_name}
                                 if (#weapons > 0) then
 
                                     local picked = 0
@@ -219,6 +223,7 @@ function OnTick()
                                         return weapons[math.random(1, #weapons)]
                                     end
 
+                                    -- Choose 4 random weapons from weapons table:
                                     for _ = 1, 4 do
                                         local index = RandomWeaponIndex()
                                         if (picked ~= index) then
@@ -244,6 +249,9 @@ function OnTick()
                                         if (K == 1 or K == 2) then
                                             local weapon = spawn_object(V[1], V[2], x, y, z)
                                             assign_weapon(weapon, shooter.id)
+                                            
+                                            -- To assign a 3rd and 4 weapon, we have to delay 
+                                            -- the tertiary and quaternary assignments by at least 200 ms:
                                         elseif (K == 3 or K == 4) then
                                             timer(200, "DelayAssign", shooter.id, V[1], V[2], x, y, z)
                                         end
@@ -286,6 +294,8 @@ function OnTick()
 
             for i = 1, 16 do
                 if player_present(i) then
+                
+                    -- Init table values for all players:
                     active_shooter[#active_shooter + 1] = {
                         name = get_var(i, "$name"),
                         id = i,
@@ -350,12 +360,20 @@ function maniac:gameStartCheck(p)
 
     maniac:modifyScorelimit()
 
+    -- Game hasn't started yet and there are enough players to init the pre-game countdown.
+    -- Start the timer:
     if (player_count >= required) and (not init_countdown) and (not gamestarted) then
         maniac:StartTimer()
+    
     elseif (player_count >= required) and (print_nep) then
         print_nep = false
+    
+    -- Not enough players to start the game. Set the "not enough players (print_nep)" flag to true.
+    -- This will invoke a continuous message that is broadcast server wide 
     elseif (player_count > 0 and player_count < required) then
         print_nep = true
+        
+    -- Init table values for this player:
     elseif (game_started) then
         active_shooter[#active_shooter + 1] = {
             name = get_var(p, "$name"),
@@ -563,19 +581,8 @@ function maniac:SelectManiac()
     if (#players > 0) then
 
         math.randomseed(os.time())
-        math.random();
-        math.random();
-        math.random();
-        function getRandomPlayer(players)
-            --Selects a random item from a table
-            local keys = {}
-            for key, _ in pairs(players) do
-                keys[#keys + 1] = key --Store keys in another table
-            end
-            index = keys[math.random(1, #keys)]
-            return players[index]
-        end
-        local random_player = getRandomPlayer(players)
+        math.random();math.random();math.random();
+        local random_player = players[math.random(1, #players)]
 
         for _, v in pairs(active_shooter) do
             if (v.id == random_player) then
@@ -584,8 +591,8 @@ function maniac:SelectManiac()
             end
         end
     else
-        -- Determine who won the game:
 
+        -- # Determine who won the game:
         local function HighestKills()
             local kills, name = 0, nil
             for _, player in pairs(active_shooter) do
