@@ -31,7 +31,7 @@ function maniac:init()
     maniac.settings = {
 
         -- # Number of players required to set the game in motion (cannot be less than 2)
-        required_players = 2,
+        required_players = 5,
 
         -- # Continuous message emitted when there aren't enough players.
         not_enough_players = "%current%/%required% players needed to start the game.",
@@ -41,7 +41,7 @@ function maniac:init()
         delay = 10,
 
         -- # Duration (in seconds) that players will be the Maniac:
-        turn_timer = 60,
+        turn_timer = 5,
 
         -- DYNAMIC SCORING SYSTEM --
         -- The game will end when a Maniac reaches this scorelimit:
@@ -76,13 +76,6 @@ function maniac:init()
         use_timer = true,
 
         attributes = {
-            -- Tag Type | Tag Name | Primary Ammo | Secondary Ammo
-            ["weapons"] = {
-                [1] = { "weap", "weapons\\sniper rifle\\sniper rifle" },
-                [2] = { "weap", "weapons\\pistol\\pistol" },
-                [3] = { "weap", "weapons\\rocket launcher\\rocket launcher" },
-                [4] = { "weap", "weapons\\shotgun\\shotgun" },
-            },
             ["maniac"] = {
                 -- Maniac Health: 0 to 99999 (Normal = 1)
                 health = 999999,
@@ -210,27 +203,54 @@ function OnTick()
                             for type, attribute in pairs(attributes) do
 
                                 if (type == "maniac") then
-
                                     -- Set Maniac running speed:
                                     if (attribute.running_speed > 0) then
                                         execute_command("s " .. shooter.id .. " " .. tonumber(attribute.running_speed))
                                     end
+                                end
 
-                                elseif (type == "weapons") and (set.assign[shooter.id]) then
-
-                                    -- Weapon assignment for Maniac:
+                                if (set.assign[shooter.id]) then
                                     set.assign[shooter.id] = false
+                                    
+                                    local weapons = maniac:GetRandomWeapon()
+                                    if (#weapons > 0) then
+                                    
+                                        local picked = 0
+                                        local picked_weapons = { }
+                                        
+                                        local function RandomWeaponIndex()
+                                            return weapons[math.random(1, #weapons)]
+                                        end
+                                        
+                                        for i = 1,4 do
+                                            local index = RandomWeaponIndex()
+                                            if (picked ~= index) then
+                                                picked = index
+                                                picked_weapons[#picked_weapons + 1] = picked
+                                            else
+                                                local index = RandomWeaponIndex()
+                                                print('dupe!')
+                                                while (picked == index) do
+                                                    index = RandomWeaponIndex()
+                                                    if (picked ~= index) then
+                                                        picked = index
+                                                        picked_weapons[#picked_weapons + 1] = picked
+                                                    end
+                                                end
+                                            end
+                                        end
+                                        
+                                        local x, y, z = read_vector3d(player_object + 0x5C)
+                                        execute_command("god " .. shooter.id)
+                                        execute_command("wdel " .. shooter.id)
 
-                                    local x, y, z = read_vector3d(player_object + 0x5C)
-                                    execute_command("god " .. shooter.id)
-                                    execute_command("wdel " .. shooter.id)
-
-                                    for K, V in pairs(attribute) do
-                                        if (K == 1 or K == 2) then
-                                            local weapon = spawn_object(V[1], V[2], x, y, z)
-                                            assign_weapon(weapon, shooter.id)
-                                        elseif (K == 3 or K == 4) then
-                                            timer(100, "DelayAssign", shooter.id, V[1], V[2], x, y, z)
+                                        for K, V in pairs(picked_weapons) do
+                                            if (K == 1 or K == 2) then
+                                                local weapon = spawn_object(V[1], V[2], x, y, z)
+                                                assign_weapon(weapon, shooter.id)
+                                            elseif (K == 3 or K == 4) then
+                                                timer(200, "DelayAssign", shooter.id, V[1], V[2], x, y, z)
+                                            end
                                         end
                                     end
                                 end
@@ -553,10 +573,16 @@ function maniac:SelectManiac()
     if (#players > 0) then
 
         math.randomseed(os.time())
-        math.random();
-        math.random();
-        math.random();
-        local random_player = players[math.random(#players)]
+        math.random(); math.random();math.random();        
+        function getRandomPlayer(players) --Selects a random item from a table
+            local keys = {}
+            for key, value in pairs(players) do
+                keys[#keys+1] = key --Store keys in another table
+            end
+            index = keys[math.random(1, #keys)]
+            return players[index]
+        end
+        local random_player = getRandomPlayer(players)
 
         for _, v in pairs(active_shooter) do
             if (v.id == random_player) then
@@ -699,4 +725,19 @@ end
 
 function maniac:SetScorelimit(score)
     current_scorelimit = score
+end
+
+function maniac:GetRandomWeapon()
+    local weapons = { }
+    local tag_address = read_dword(0x40440000)
+    local tag_count = read_dword(0x4044000C)
+    for i = 0, tag_count - 1 do
+        local tag = tag_address + 0x20 * i
+        local tag_name = read_string(read_dword(tag + 0x10))
+        local class = string.reverse(string.sub(read_string(tag), 1, 4))
+        if (class == "weap") then
+            weapons[#weapons + 1] = {class, tag_name}
+        end
+    end
+    return weapons
 end
