@@ -229,7 +229,6 @@ function OnTick()
                                                 picked_weapons[#picked_weapons + 1] = picked
                                             else
                                                 local index = RandomWeaponIndex()
-                                                print('dupe!')
                                                 while (picked == index) do
                                                     index = RandomWeaponIndex()
                                                     if (picked ~= index) then
