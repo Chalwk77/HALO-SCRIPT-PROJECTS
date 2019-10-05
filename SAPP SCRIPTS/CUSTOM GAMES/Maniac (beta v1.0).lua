@@ -76,15 +76,13 @@ function maniac:init()
         use_timer = true,
 
         attributes = {
-            ["maniac"] = {
-                -- Maniac Health: 0 to 99999 (Normal = 1)
-                health = 999999,
-                -- Set to 0 to disable (normal speed is 1)
-                running_speed = 1.3,
-                damage_multiplier = 10, -- (0 to 10) (Normal = 1)
-                -- Set to 'false' to disable:
-                invisibility_on_crouch = true,
-            },
+            -- Maniac Health: 0 to 99999 (Normal = 1)
+            health = 999999,
+            -- Set to 0 to disable (normal speed is 1)
+            running_speed = 1.3,
+            damage_multiplier = 10, -- (0 to 10) (Normal = 1)
+            -- Set to 'false' to disable:
+            invisibility_on_crouch = true,
         },
 
         -- Some functions temporarily remove the server prefix while broadcasting a message.
@@ -178,7 +176,7 @@ function OnTick()
                         shooter.timer = shooter.timer + 0.03333333333333333
 
                         local delta_time = ((shooter.duration) - (shooter.timer))
-                        local minutes, seconds = select(1, secondsToTime(delta_time)), select(2, secondsToTime(delta_time))
+                        local minutes, seconds = select(1, maniac:secondsToTime(delta_time)), select(2, maniac:secondsToTime(delta_time))
 
                         if (set.use_timer) then
                             local msg = gsub(gsub(gsub(set.on_timer, "%%minutes%%", minutes),
@@ -200,56 +198,52 @@ function OnTick()
                             
                             maniac:SetNav(shooter.id)
                         
-                            for type, attribute in pairs(attributes) do
-
-                                if (type == "maniac") then
-                                    -- Set Maniac running speed:
-                                    if (attribute.running_speed > 0) then
-                                        execute_command("s " .. shooter.id .. " " .. tonumber(attribute.running_speed))
+                            -- Set Maniac running speed:
+                            if (attributes.running_speed > 0) then
+                                execute_command("s " .. shooter.id .. " " .. tonumber(attributes.running_speed))
+                            end
+                            
+                            -- Weapon Assignment logic:
+                            if (set.assign[shooter.id]) then
+                                set.assign[shooter.id] = false
+                                
+                                local weapons = maniac:GetRandomWeapon()
+                                if (#weapons > 0) then
+                                
+                                    local picked = 0
+                                    local picked_weapons = { }
+                                    
+                                    local function RandomWeaponIndex()
+                                        return weapons[math.random(1, #weapons)]
                                     end
-                                end
-
-                                if (set.assign[shooter.id]) then
-                                    set.assign[shooter.id] = false
                                     
-                                    local weapons = maniac:GetRandomWeapon()
-                                    if (#weapons > 0) then
-                                    
-                                        local picked = 0
-                                        local picked_weapons = { }
-                                        
-                                        local function RandomWeaponIndex()
-                                            return weapons[math.random(1, #weapons)]
-                                        end
-                                        
-                                        for i = 1,4 do
+                                    for i = 1,4 do
+                                        local index = RandomWeaponIndex()
+                                        if (picked ~= index) then
+                                            picked = index
+                                            picked_weapons[#picked_weapons + 1] = picked
+                                        else
                                             local index = RandomWeaponIndex()
-                                            if (picked ~= index) then
-                                                picked = index
-                                                picked_weapons[#picked_weapons + 1] = picked
-                                            else
-                                                local index = RandomWeaponIndex()
-                                                while (picked == index) do
-                                                    index = RandomWeaponIndex()
-                                                    if (picked ~= index) then
-                                                        picked = index
-                                                        picked_weapons[#picked_weapons + 1] = picked
-                                                    end
+                                            while (picked == index) do
+                                                index = RandomWeaponIndex()
+                                                if (picked ~= index) then
+                                                    picked = index
+                                                    picked_weapons[#picked_weapons + 1] = picked
                                                 end
                                             end
                                         end
-                                        
-                                        local x, y, z = read_vector3d(player_object + 0x5C)
-                                        execute_command("god " .. shooter.id)
-                                        execute_command("wdel " .. shooter.id)
+                                    end
+                                    
+                                    local x, y, z = read_vector3d(player_object + 0x5C)
+                                    execute_command("god " .. shooter.id)
+                                    execute_command("wdel " .. shooter.id)
 
-                                        for K, V in pairs(picked_weapons) do
-                                            if (K == 1 or K == 2) then
-                                                local weapon = spawn_object(V[1], V[2], x, y, z)
-                                                assign_weapon(weapon, shooter.id)
-                                            elseif (K == 3 or K == 4) then
-                                                timer(200, "DelayAssign", shooter.id, V[1], V[2], x, y, z)
-                                            end
+                                    for K, V in pairs(picked_weapons) do
+                                        if (K == 1 or K == 2) then
+                                            local weapon = spawn_object(V[1], V[2], x, y, z)
+                                            assign_weapon(weapon, shooter.id)
+                                        elseif (K == 3 or K == 4) then
+                                            timer(200, "DelayAssign", shooter.id, V[1], V[2], x, y, z)
                                         end
                                     end
                                 end
@@ -278,7 +272,7 @@ function OnTick()
         countdown = countdown + 0.03333333333333333
 
         local delta_time = ((set.delay) - (countdown))
-        local minutes, seconds = select(1, secondsToTime(delta_time)), select(2, secondsToTime(delta_time))
+        local minutes, seconds = select(1, maniac:secondsToTime(delta_time)), select(2, maniac:secondsToTime(delta_time))
 
         set.pregame = set.pregame or ""
         set.pregame = gsub(gsub(set.pre_game_message, "%%minutes%%", minutes), "%%seconds%%", seconds)
@@ -460,11 +454,7 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
         local isManiac = maniac:isManiac(CauserIndex)
         if (isManiac) then
             local attributes = maniac.settings.attributes
-            for type, attribute in pairs(attributes) do
-                if (type == "maniac") then
-                    return true, Damage * attribute.damage_multiplier
-                end
-            end
+            return true, Damage * attributes.damage_multiplier
         end
     end
 end
@@ -500,7 +490,7 @@ function maniac:broadcast(message, gameover)
     end
 end
 
-function secondsToTime(seconds, bool)
+function maniac:secondsToTime(seconds, bool)
     local seconds = tonumber(seconds)
     if (seconds <= 0) and (bool) then
         return "00", "00";
@@ -587,10 +577,8 @@ function maniac:SelectManiac()
             if (v.id == random_player) then
                 v.active, set.assign[v.id] = true, true
                 maniac:broadcast(gsub(set.new_maniac, "%%name%%", v.name), false)
-                maniac:SetNav(v.id)
             end
         end
-
     else
         -- Determine who won the game:
 
@@ -635,16 +623,12 @@ end
 
 function maniac:CamoOnCrouch(PlayerIndex)
     local attributes = maniac.settings.attributes
-    for type, attribute in pairs(attributes) do
-        if (type == "maniac") then
-            if (attribute.invisibility_on_crouch) then
-                local player_object = get_dynamic_player(PlayerIndex)
-                if (player_object ~= 0) then
-                    local couching = read_float(player_object + 0x50C)
-                    if (couching == 1) then
-                        execute_command("camo " .. PlayerIndex .. " 2")
-                    end
-                end
+    if (attributes.invisibility_on_crouch) then
+        local player_object = get_dynamic_player(PlayerIndex)
+        if (player_object ~= 0) then
+            local couching = read_float(player_object + 0x50C)
+            if (couching == 1) then
+                execute_command("camo " .. PlayerIndex .. " 2")
             end
         end
     end
