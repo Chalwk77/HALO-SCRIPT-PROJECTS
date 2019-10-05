@@ -31,7 +31,7 @@ function maniac:init()
     maniac.settings = {
 
         -- # Number of players required to set the game in motion (cannot be less than 2)
-        required_players = 5,
+        required_players = 3,
 
         -- # Continuous message emitted when there aren't enough players.
         not_enough_players = "%current%/%required% players needed to start the game.",
@@ -41,7 +41,7 @@ function maniac:init()
         delay = 10,
 
         -- # Duration (in seconds) that players will be the Maniac:
-        turn_timer = 5,
+        turn_timer = 60,
 
         -- DYNAMIC SCORING SYSTEM --
         -- The game will end when a Maniac reaches this scorelimit:
