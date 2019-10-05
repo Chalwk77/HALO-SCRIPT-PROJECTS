@@ -31,7 +31,7 @@ function maniac:init()
     maniac.settings = {
 
         -- # Number of players required to set the game in motion (cannot be less than 2)
-        required_players = 3,
+        required_players = 4,
 
         -- # Continuous message emitted when there aren't enough players.
         not_enough_players = "%current%/%required% players needed to start the game.",
