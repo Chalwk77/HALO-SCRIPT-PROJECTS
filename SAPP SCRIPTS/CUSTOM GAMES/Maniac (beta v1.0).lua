@@ -127,17 +127,17 @@ function OnScriptLoad()
     register_callback(cb['EVENT_DIE'], 'OnManiacKill')
     register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
 
-    gametype_base = read_dword(sig_scan("B9360000008BF3BF78545F00") + 0x8)
-
+    gametype_base = read_dword(sig_scan("B9360000008BF3BF78545F00") + 0x8)    
+    
     if (get_var(0, '$gt') ~= "n/a") then
+        write_byte(gametype_base + 0x7E, 1)
+        
         maniac:init()
+        
         for i = 1, 16 do
             if player_present(i) then
                 current_scorelimit = 0
                 maniac:gameStartCheck(i)
-                -- I thought this would work but it doesn't.
-                -- It's supposed to set the "kill in order" flag to true.
-                write_byte(gametype_base + 0x7E, 1)
             end
         end
     end
@@ -331,6 +331,8 @@ end
 
 function OnGameStart()
     if (get_var(0, '$gt') ~= "n/a") then
+        write_byte(gametype_base + 0x7E, 1)
+        
         maniac:init()
         current_scorelimit = 0
         
@@ -340,10 +342,6 @@ function OnGameStart()
         else
             maniac:SetScorelimit(scoreTable.default_scorelimit)
         end
-
-        -- I thought this would work but it doesn't.
-        -- It's supposed to set the "kill in order" flag to true.
-        write_byte(gametype_base + 0x7E, 1)
     end
 end
 
