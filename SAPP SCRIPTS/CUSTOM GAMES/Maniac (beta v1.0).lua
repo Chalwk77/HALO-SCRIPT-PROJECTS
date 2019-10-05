@@ -734,7 +734,7 @@ function maniac:GetRandomWeapon()
         local tag = tag_address + 0x20 * i
         local tag_name = read_string(read_dword(tag + 0x10))
         local class = string.reverse(string.sub(read_string(tag), 1, 4))
-        if (class == "weap") then
+        if (class == "weap") and (tag_name ~= "weapons\\flag\\flag" and tag_name ~= "weapons\\ball\\ball") then
             weapons[#weapons + 1] = {class, tag_name}
         end
     end
