@@ -360,7 +360,7 @@ function maniac:gameStartCheck(p)
 
     maniac:modifyScorelimit()
 
-    -- Game hasn't started yet and there are enough players to init the pre-game countdown.
+    -- Game hasn't started yet and there ARE enough players to init the pre-game countdown.
     -- Start the timer:
     if (player_count >= required) and (not init_countdown) and (not gamestarted) then
         maniac:StartTimer()
