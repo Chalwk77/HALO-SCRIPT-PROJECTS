@@ -71,7 +71,7 @@ function maniac:init()
         new_maniac = "%name% is now the maniac!",
 
         -- # This message is broadcast to the whole server:
-        on_timer = "|lManiac:|c%name%|rTime until Switch: %minutes%:%seconds%",
+        on_timer = "|lManiac:|c%name%  -  (Maniac Kills: %kills%)|rTime until Switch: %minutes%:%seconds%",
         -- If true, the above message will be broadcast server-wide.
         use_timer = true,
 
@@ -177,9 +177,10 @@ function OnTick()
                         local minutes, seconds = select(1, maniac:secondsToTime(delta_time)), select(2, maniac:secondsToTime(delta_time))
 
                         if (set.use_timer) then
-                            local msg = gsub(gsub(gsub(set.on_timer, "%%minutes%%", minutes),
+                            local msg = gsub(gsub(gsub(gsub(set.on_timer, "%%minutes%%", minutes),
                                     "%%seconds%%", seconds),
-                                    "%%name%%", shooter.name)
+                                    "%%name%%", shooter.name),
+                                    "%%kills%%", shooter.kills)
                             maniac:rprintAll(msg)
                         end
 
