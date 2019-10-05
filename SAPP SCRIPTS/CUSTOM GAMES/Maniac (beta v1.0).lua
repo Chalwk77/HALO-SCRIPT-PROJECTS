@@ -137,6 +137,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
 
     gametype_base = read_dword(sig_scan("B9360000008BF3BF78545F00")+0x8)
+    write_byte(gametype_base + 0x7E, 1)
     
     if (get_var(0, '$gt') ~= "n/a") then
         maniac:init()
