@@ -100,12 +100,10 @@ end
 
 -- Variables for String Library:
 local format = string.format
-local sub, gsub = string.sub, string.gsub
-local lower, upper = string.lower, string.upper
-local match, gmatch = string.match, string.gmatch
+local gsub = string.gsub
 
 -- Variables for Math Library:
-local floor, sqrt = math.floor, math.sqrt
+local floor = math.floor
 
 -- Game Variables:
 local gamestarted
@@ -127,8 +125,8 @@ function OnScriptLoad()
     register_callback(cb['EVENT_DIE'], 'OnManiacKill')
     register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
 
-    gametype_base = read_dword(sig_scan("B9360000008BF3BF78545F00")+0x8)
-    
+    gametype_base = read_dword(sig_scan("B9360000008BF3BF78545F00") + 0x8)
+
     if (get_var(0, '$gt') ~= "n/a") then
         maniac:init()
         for i = 1, 16 do
@@ -195,29 +193,29 @@ function OnTick()
                             maniac:SelectManiac()
 
                         elseif (player_object ~= 0) then
-                            
+
                             maniac:SetNav(shooter.id)
-                        
+
                             -- Set Maniac running speed:
                             if (attributes.running_speed > 0) then
                                 execute_command("s " .. shooter.id .. " " .. tonumber(attributes.running_speed))
                             end
-                            
+
                             -- Weapon Assignment logic:
                             if (set.assign[shooter.id]) then
                                 set.assign[shooter.id] = false
-                                
+
                                 local weapons = maniac:GetRandomWeapon()
                                 if (#weapons > 0) then
-                                
+
                                     local picked = 0
                                     local picked_weapons = { }
-                                    
+
                                     local function RandomWeaponIndex()
                                         return weapons[math.random(1, #weapons)]
                                     end
-                                    
-                                    for i = 1,4 do
+
+                                    for _ = 1, 4 do
                                         local index = RandomWeaponIndex()
                                         if (picked ~= index) then
                                             picked = index
@@ -225,15 +223,15 @@ function OnTick()
                                         else
                                             local index = RandomWeaponIndex()
                                             while (picked == index) do
-                                                index = RandomWeaponIndex()
-                                                if (picked ~= index) then
-                                                    picked = index
+                                                local new_index = RandomWeaponIndex()
+                                                if (picked ~= new_index) then
+                                                    picked = new_index
                                                     picked_weapons[#picked_weapons + 1] = picked
                                                 end
                                             end
                                         end
                                     end
-                                    
+
                                     local x, y, z = read_vector3d(player_object + 0x5C)
                                     execute_command("god " .. shooter.id)
                                     execute_command("wdel " .. shooter.id)
@@ -327,7 +325,7 @@ function OnGameStart()
         else
             maniac:SetScorelimit(scoreTable.default_scorelimit)
         end
-        
+
         -- I thought this would work but it doesn't.
         -- It's supposed to set the "kill in order" flag to true.
         write_byte(gametype_base + 0x7E, 1)
@@ -422,15 +420,13 @@ function OnPlayerDisconnect(PlayerIndex)
     end
 end
 
-function OnManiacKill(PlayerIndex, KillerIndex)
+function OnManiacKill(_, KillerIndex)
 
     if (gamestarted) then
 
         local killer = tonumber(KillerIndex)
         if (killer > 0) then
 
-            local set = maniac.settings
-            local active_shooter = set.active_shooter
             local isManiac = maniac:isManiac(killer)
 
             if (isManiac) then
@@ -448,7 +444,7 @@ function OnManiacKill(PlayerIndex, KillerIndex)
     end
 end
 
-function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
+function OnDamageApplication(PlayerIndex, CauserIndex, _, Damage, _, _)
     if (tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex and gamestarted) then
 
         local isManiac = maniac:isManiac(CauserIndex)
@@ -562,11 +558,14 @@ function maniac:SelectManiac()
     if (#players > 0) then
 
         math.randomseed(os.time())
-        math.random(); math.random();math.random();        
-        function getRandomPlayer(players) --Selects a random item from a table
+        math.random();
+        math.random();
+        math.random();
+        function getRandomPlayer(players)
+            --Selects a random item from a table
             local keys = {}
-            for key, value in pairs(players) do
-                keys[#keys+1] = key --Store keys in another table
+            for key, _ in pairs(players) do
+                keys[#keys + 1] = key --Store keys in another table
             end
             index = keys[math.random(1, #keys)]
             return players[index]
@@ -719,7 +718,7 @@ function maniac:GetRandomWeapon()
         local tag_name = read_string(read_dword(tag + 0x10))
         local class = string.reverse(string.sub(read_string(tag), 1, 4))
         if (class == "weap") and (tag_name ~= "weapons\\flag\\flag" and tag_name ~= "weapons\\ball\\ball") then
-            weapons[#weapons + 1] = {class, tag_name}
+            weapons[#weapons + 1] = { class, tag_name }
         end
     end
     return weapons
