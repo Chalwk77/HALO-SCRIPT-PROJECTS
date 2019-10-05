@@ -120,6 +120,7 @@ local floor, sqrt = math.floor, math.sqrt
 local gamestarted
 local current_scorelimit
 local countdown, init_countdown, print_nep
+local gametype_base
 
 function OnScriptLoad()
 
@@ -135,6 +136,8 @@ function OnScriptLoad()
     register_callback(cb['EVENT_DIE'], 'OnManiacKill')
     register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
 
+    gametype_base = read_dword(sig_scan("B9360000008BF3BF78545F00")+0x8)
+    
     if (get_var(0, '$gt') ~= "n/a") then
         maniac:init()
         for i = 1, 16 do
@@ -198,6 +201,9 @@ function OnTick()
                             maniac:SelectManiac()
 
                         elseif (player_object ~= 0) then
+                            
+                            maniac:SetNav(shooter.id)
+                        
                             for type, attribute in pairs(attributes) do
 
                                 if (type == "maniac") then
@@ -305,6 +311,10 @@ function OnGameStart()
         else
             maniac:SetScorelimit(scoreTable.default_scorelimit)
         end
+        
+        -- I thought this would work but it doesn't.
+        -- It's supposed to set the "kill in order" flag to true.
+        write_byte(gametype_base + 0x7E, 1)
     end
 end
 
