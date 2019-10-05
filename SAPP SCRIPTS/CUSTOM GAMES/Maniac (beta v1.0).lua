@@ -13,7 +13,8 @@ You'll want to avoid the maniac at all costs.
 2). Ability to go invisible when they crouch
 3). Run at lightning speeds
 
-A NAV marker will appear above the Maniacs head if your set the "kill in order" gametype flag to "yes". This only works on FFA and Team Slayer.
+A NAV marker will appear above the Maniacs head if your set the "kill in order" gametype flag to "yes". 
+This only works on FFA and Team Slayer gametypes.
 
 The game will end when the first player (as Maniac) reaches the specified kill threshold.
 If all players have had their turn and no one has reached the kill threshold, the player with the most kills (as Maniac) wins.
