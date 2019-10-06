@@ -623,19 +623,6 @@ function maniac:SelectManiac()
     end
 end
 
-function maniac:deleteWeapons(PlayerIndex)
-    local PlayerObject = get_dynamic_player(PlayerIndex)
-    if (PlayerObject ~= 0) then
-        local WeaponID = read_dword(PlayerObject + 0x118)
-        if (WeaponID ~= 0) then
-            for j = 0, 3 do
-                local ObjectID = read_dword(PlayerObject + 0x2F8 + j * 4)
-                destroy_object(ObjectID)
-            end
-        end
-    end
-end
-
 function maniac:CamoOnCrouch(PlayerIndex)
     local attributes = maniac.settings.attributes
     if (attributes.invisibility_on_crouch) then
