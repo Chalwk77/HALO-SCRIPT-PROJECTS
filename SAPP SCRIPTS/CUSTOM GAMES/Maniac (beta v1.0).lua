@@ -34,7 +34,7 @@ function maniac:init()
     maniac.settings = {
 
         -- # Number of players required to set the game in motion (cannot be less than 2)
-        required_players = 4,
+        required_players = 2,
 
         -- # Continuous message emitted when there aren't enough players.
         not_enough_players = "%current%/%required% players needed to start the game.",
@@ -44,7 +44,7 @@ function maniac:init()
         delay = 10,
 
         -- # Duration (in seconds) that players will be the Maniac:
-        turn_timer = 60,
+        turn_timer = 15,
 
         -- DYNAMIC SCORING SYSTEM --
         -- The game will end when a Maniac reaches this scorelimit:
@@ -97,6 +97,7 @@ function maniac:init()
         --# Do Not Touch #--
         assign = { },
         active_shooter = { },
+        weapons = { },
         --
     }
 end
@@ -141,6 +142,12 @@ function OnScriptLoad()
                 maniac:gameStartCheck(i)
             end
         end
+        
+        -- Credits to Kavawuvi for this:
+        if(read_dword(0x40440000) > 0x40440000 and read_dword(0x40440000) < 0xFFFFFFFF) then
+            maniac:SaveMapWeapons()
+        end
+        --
     end
 end
 
@@ -207,66 +214,58 @@ function OnTick()
                             end
 
                             -- Weapon Assignment logic:
-                            if (set.assign[shooter.id]) then
-                                set.assign[shooter.id] = false
-
-                                local weapons = maniac:GetRandomWeapon()
+                            local weapons = set.weapons
+                            if(#weapons > 0) then
+                                if (set.assign[shooter.id]) then
                                 
-                                
-                                
-                                -- Weapons: {clag_class, tag_name}
-                                if (#weapons > 0) then
+                                    local coords = maniac:getXYZ(shooter.id, player_object)
+                                    if (not coords.invehicle) then
+                                        set.assign[shooter.id] = false
+                                    
+              
+                                        local picked = 0
+                                        local picked_weapons = { }
 
-                                    local picked = 0
-                                    local picked_weapons = { }
-
-                                    local function RandomWeaponIndex()
-                                        return weapons[math.random(1, #weapons)]
-                                    end
-
-                                    -- Choose 4 random weapons from weapons table:
-                                    for _ = 1, 4 do
-                                        local index = RandomWeaponIndex()
-                                        if (picked ~= index) then
-                                            picked = index
-                                            picked_weapons[#picked_weapons + 1] = picked
-                                        else
-                                            local index = RandomWeaponIndex()
-                                            while (picked == index) do
-                                                local new_index = RandomWeaponIndex()
-                                                if (picked ~= new_index) then
-                                                    picked = new_index
-                                                    picked_weapons[#picked_weapons + 1] = picked
+                                        for _ = 1, 4 do
+                                            local index = weapons[rand(1, #weapons)]
+                                            if (picked ~= index) then
+                                                picked = index
+                                                picked_weapons[#picked_weapons + 1] = index
+                                            else
+                                                while (picked == index) do
+                                                    local new_index = weapons[rand(1, #weapons)]
+                                                    if (picked ~= new_index) then
+                                                        picked = new_index
+                                                        picked_weapons[#picked_weapons + 1] = new_index
+                                                    end
                                                 end
                                             end
                                         end
-                                    end
 
-                                    local x, y, z = read_vector3d(player_object + 0x5C)
-                                    execute_command("god " .. shooter.id)
-                                    execute_command("wdel " .. shooter.id)
+                                        execute_command("god " .. shooter.id)
+                                        execute_command("wdel " .. shooter.id)
 
-                                    for K, V in pairs(picked_weapons) do
-                                        if (K == 1 or K == 2) then
-                                            local weapon = spawn_object(V[1], V[2], x, y, z)
-                                            assign_weapon(weapon, shooter.id)
-                                            
-                                            -- To assign a 3rd and 4 weapon, we have to delay 
-                                            -- the tertiary and quaternary assignments by at least 200 ms:
-                                        elseif (K == 3 or K == 4) then
-                                            timer(200, "DelayAssign", shooter.id, V[1], V[2], x, y, z)
+                                        for K, V in pairs(picked_weapons) do
+                                            if (K == 1 or K == 2) then
+                                                assign_weapon(spawn_object("weap","something",coords.x,coords.y,coords.z+1,0.0,V),shooter.id)
+                                                
+                                                -- To assign a 3rd and 4 weapon, we have to delay 
+                                                -- the tertiary and quaternary assignments by at least 200 ms:
+                                            elseif (K == 3 or K == 4) then
+                                                timer(200, "DelayAssign", shooter.id, V, coords.x, coords.y, coords.z)
+                                            end
                                         end
                                     end
                                 end
-                            end
-
-                            -- Set infinite ammo and grenades:
-                            write_word(player_object + 0x31F, 7)
-                            write_word(player_object + 0x31E, 0x7F7F)
-                            for j = 0, 3 do
-                                local weapon = get_object_memory(read_dword(player_object + 0x2F8 + j * 4))
-                                if (weapon ~= 0) then
-                                    write_word(weapon + 0x2B6, 9999)
+                                
+                                -- Set infinite ammo and grenades:
+                                write_word(player_object + 0x31F, 7)
+                                write_word(player_object + 0x31E, 0x7F7F)
+                                for j = 0, 3 do
+                                    local weapon = get_object_memory(read_dword(player_object + 0x2F8 + j * 4))
+                                    if (weapon ~= 0) then
+                                        write_word(weapon + 0x2B6, 9999)
+                                    end
                                 end
                             end
                         end
@@ -343,6 +342,12 @@ function OnGameStart()
         else
             maniac:SetScorelimit(scoreTable.default_scorelimit)
         end
+        
+        -- Credits to Kavawuvi for this:
+        if(read_dword(0x40440000) > 0x40440000 and read_dword(0x40440000) < 0xFFFFFFFF) then
+            maniac:SaveMapWeapons()
+        end
+        --
     end
 end
 
@@ -674,9 +679,8 @@ function maniac:GetPlayerCount()
     return tonumber(get_var(0, "$pn"))
 end
 
-function DelayAssign(PlayerIndex, tag_type, tag_name, x, y, z)
-    local weapon = spawn_object(tag_type, tag_name, x, y, z)
-    assign_weapon(weapon, PlayerIndex)
+function DelayAssign(PlayerIndex, WeaponObject, x, y, z)
+    assign_weapon(spawn_object("weap","weapon",x,y,z+1,0.0,WeaponObject),PlayerIndex)
 end
 
 function maniac:modifyScorelimit()
@@ -720,17 +724,108 @@ function maniac:SetScorelimit(score)
     current_scorelimit = score
 end
 
-function maniac:GetRandomWeapon()
-    local weapons = { }
-    local tag_address = read_dword(0x40440000)
-    local tag_count = read_dword(0x4044000C)
-    for i = 0, tag_count - 1 do
-        local tag = tag_address + 0x20 * i
-        local tag_name = read_string(read_dword(tag + 0x10))
-        local class = string.reverse(string.sub(read_string(tag), 1, 4))
-        if (class == "weap") and (tag_name ~= "weapons\\flag\\flag" and tag_name ~= "weapons\\ball\\ball") then
-            weapons[#weapons + 1] = { class, tag_name }
+function maniac:getXYZ(PlayerIndex, PlayerObject)
+    local coords, x,y,z = { }
+    
+    local VehicleID = read_dword(PlayerObject + 0x11C)
+    if (VehicleID == 0xFFFFFFFF) then
+        coords.invehicle = false
+        x, y, z = read_vector3d(PlayerObject + 0x5c)
+    else
+        coords.invehicle = true
+        x, y, z = read_vector3d(get_object_memory(VehicleID) + 0x5c)
+    end
+    
+    coords.x, coords.y, coords.z = x, y, z
+    return coords
+end
+
+--========================================================================================--
+-- Huge credits to Kavawuvi (002) for all of the code below:
+-- Taken from this project: https://opencarnage.net/index.php?/topic/4443-random-weapons/
+--========================================================================================--
+function maniac:SaveMapWeapons()
+    local weapons = maniac.settings.weapons
+
+    local function RandomWeaponsContains(TagID)
+        for k,v in pairs(weapons) do
+            if(v == TagID) then return true end
+        end
+        return false
+    end
+
+    local function ValidWeapon(TagID)
+        if(RandomWeaponsContains(TagID)) then return false end
+        local tag_index = bit.band(TagID,0xFFFF)
+        local tag_count = read_dword(0x4044000C)
+        if(tag_index >= tag_count) then return false end
+        local tag_array = read_dword(0x40440000)
+        local tag_data = read_dword(tag_array + tag_index * 0x20 + 0x14)
+        if(read_word(tag_data) ~= 2) then return false end
+        local weapon_flags = read_dword(tag_data + 0x308)
+        if(bit.band(weapon_flags,math.pow(2,31-28)) > 0) then return false end
+        if(read_word(tag_data + 0x45C) == 0xFFFF) then return false end
+        return true
+    end
+
+    local function AddWeaponToList(TagID)
+        if(ValidWeapon(TagID)) then
+            weapons[#weapons + 1] = TagID
         end
     end
-    return weapons
+
+    local function ScanNetgameEquipment(TagID)
+        local tag_array = read_dword(0x40440000)
+        local tag_count = read_dword(0x4044000C)
+        local tag_index = bit.band(TagID,0xFFFF)
+        if(tag_index >= tag_count) then return false end
+        local tag_data = read_dword(tag_array + tag_index * 0x20 + 0x14)
+        local permutations_count = read_dword(tag_data + 0)
+        local permutations_data = read_dword(tag_data + 4)
+        for i=0,permutations_count-1 do
+            AddWeaponToList(read_dword(permutations_data + i * 84 + 0x24 + 0xC))
+        end
+    end
+
+    local tag_array = read_dword(0x40440000)
+    local tag_count = read_dword(0x4044000C)
+
+    for i=0,tag_count-1 do
+        local tag = tag_array + i * 0x20
+        if(read_dword(tag) == 0x6D617467) then
+            local tag_name = read_dword(tag + 0x10)
+            if(read_string(tag_name) == "globals\\globals") then
+                local tag_data = read_dword(tag + 0x14)
+                local weapons_list_count = read_dword(tag_data + 0x14C)
+                local weapons_list_data = read_dword(tag_data + 0x14C + 4)
+                for i=0,weapons_list_count-1 do
+                    local weapon_id = read_dword(weapons_list_data + i * 0x10)
+                    if(ValidWeapon(weapon_id)) then
+                        AddWeaponToList(weapon_id)
+                    end
+                end
+            end
+        end
+    end
+
+    local scnr_tag_data = read_dword(tag_array + 0x20 * read_word(0x40440004) + 0x14)
+    local netgame_equipment_count = read_dword(scnr_tag_data + 0x384)
+    local netgame_equipment_address = read_dword(scnr_tag_data + 0x384 + 4)
+    
+    for i=0,netgame_equipment_count-1 do
+        local netgame_equip = read_dword(netgame_equipment_address + i * 144 + 0x50 + 0xC)
+        ScanNetgameEquipment(netgame_equip)
+    end
+    
+    local starting_equipment_count = read_dword(scnr_tag_data + 0x390)
+    local starting_equipment_address = read_dword(scnr_tag_data + 0x390 + 4)
+    
+    for i=0,starting_equipment_count-1 do
+        ScanNetgameEquipment(read_dword(starting_equipment_address + i * 204 + 0x3C + 0xC))
+        ScanNetgameEquipment(read_dword(starting_equipment_address + i * 204 + 0x4C + 0xC))
+        ScanNetgameEquipment(read_dword(starting_equipment_address + i * 204 + 0x5C + 0xC))
+        ScanNetgameEquipment(read_dword(starting_equipment_address + i * 204 + 0x6C + 0xC))
+        ScanNetgameEquipment(read_dword(starting_equipment_address + i * 204 + 0x7C + 0xC))
+        ScanNetgameEquipment(read_dword(starting_equipment_address + i * 204 + 0x8C + 0xC))
+    end
 end
