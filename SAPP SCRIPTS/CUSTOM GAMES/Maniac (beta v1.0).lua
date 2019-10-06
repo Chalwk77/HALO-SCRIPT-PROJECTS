@@ -44,7 +44,7 @@ function maniac:init()
         delay = 10,
 
         -- # Duration (in seconds) that players will be the Maniac:
-        turn_timer = 15,
+        turn_timer = 60,
 
         -- DYNAMIC SCORING SYSTEM --
         -- The game will end when a Maniac reaches this scorelimit:
@@ -222,30 +222,30 @@ function OnTick()
                                     if (not coords.invehicle) then
                                         set.assign[shooter.id] = false
                                     
-              
-                                        local picked = 0
-                                        local picked_weapons = { }
-
-                                        for _ = 1, 4 do
-                                            local index = weapons[rand(1, #weapons)]
-                                            if (picked ~= index) then
-                                                picked = index
-                                                picked_weapons[#picked_weapons + 1] = index
-                                            else
-                                                while (picked == index) do
-                                                    local new_index = weapons[rand(1, #weapons)]
-                                                    if (picked ~= new_index) then
-                                                        picked = new_index
-                                                        picked_weapons[#picked_weapons + 1] = new_index
-                                                    end
+                                        local chosen_weapons = { }
+                                        
+                                        local loops = 0
+                                        while(true) do
+                                            loops = loops + 1
+                                            math.random();math.random();math.random();
+                                            local weapon = weapons[math.random(1, #weapons)]
+                                            
+                                            for i=1,#chosen_weapons do
+                                                if(chosen_weapons[i] == weapon) then 
+                                                    weapon = nil
+                                                    break 
                                                 end
                                             end
+                                            if(weapon ~= nil) then
+                                                chosen_weapons[#chosen_weapons + 1] = weapon
+                                            end
+                                            if(#chosen_weapons == 4 or loops > 500) then break end
                                         end
 
                                         execute_command("god " .. shooter.id)
                                         execute_command("wdel " .. shooter.id)
                                         
-                                        for slot, Weapon in pairs(picked_weapons) do
+                                        for slot, Weapon in pairs(chosen_weapons) do
                                             if (slot == 1 or slot == 2) then
                                                 assign_weapon(spawn_object("null", "null", coords.x, coords.y, coords.z, 0, Weapon), shooter.id)
                                                 
@@ -362,8 +362,6 @@ function maniac:gameStartCheck(p)
     local player_count = maniac:GetPlayerCount()
     local required = set.required_players
 
-    maniac:modifyScorelimit()
-
     -- Game hasn't started yet and there ARE enough players to init the pre-game countdown.
     -- Start the timer:
     if (player_count >= required) and (not init_countdown) and (not gamestarted) then
@@ -378,7 +376,9 @@ function maniac:gameStartCheck(p)
         print_nep = true
         
     -- Init table values for this player:
-    elseif (game_started) then
+    elseif (gamestarted) then
+        maniac:modifyScorelimit()
+        local active_shooter = maniac.settings.active_shooter
         active_shooter[#active_shooter + 1] = {
             name = get_var(p, "$name"),
             id = p,
@@ -459,10 +459,6 @@ function OnManiacKill(_, KillerIndex)
             if (isManiac) then
                 if (killer ~= victim) then
                     isManiac.kills = isManiac.kills + 1
-                else
-                    -- Just in case:
-                    isManiac.active = false
-                    maniac:SelectManiac()
                 end
 
                 maniac:endGameCheck(killer, isManiac.kills)
@@ -542,6 +538,7 @@ end
 
 function maniac:endGameCheck(PlayerIndex, Kills)
     if (Kills >= current_scorelimit) then
+        local set = maniac.settings
         local name = get_var(PlayerIndex, "$name")
         local msg = gsub(set.end_of_game, "%%name%%", name)
         maniac:broadcast(msg, true)
