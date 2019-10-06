@@ -34,7 +34,7 @@ function maniac:init()
     maniac.settings = {
 
         -- # Number of players required to set the game in motion (cannot be less than 2)
-        required_players = 5,
+        required_players = 2,
 
         -- # Continuous message emitted when there aren't enough players.
         not_enough_players = "%current%/%required% players needed to start the game.",
@@ -244,15 +244,15 @@ function OnTick()
 
                                         execute_command("god " .. shooter.id)
                                         execute_command("wdel " .. shooter.id)
-
-                                        for K, V in pairs(picked_weapons) do
-                                            if (K == 1 or K == 2) then
-                                                assign_weapon(spawn_object("weap","",coords.x,coords.y,coords.z,0,V),shooter.id)
+                                        
+                                        for slot, Weapon in pairs(picked_weapons) do
+                                            if (slot == 1 or slot == 2) then
+                                                assign_weapon(spawn_object("null", "null", coords.x, coords.y, coords.z, 0, Weapon), shooter.id)
                                                 
                                                 -- To assign a 3rd and 4 weapon, we have to delay 
-                                                -- the tertiary and quaternary assignments by at least 200 ms:
-                                            elseif (K == 3 or K == 4) then
-                                                timer(200, "DelayAssign", shooter.id, V, coords.x, coords.y, coords.z)
+                                                -- the tertiary and quaternary assignments by at least 250 ms:
+                                            elseif (slot == 3 or slot == 4) then
+                                                timer(250, "DelayAssign", shooter.id, Weapon, coords.x, coords.y, coords.z)
                                             end
                                         end
                                     end
@@ -666,8 +666,8 @@ function maniac:GetPlayerCount()
     return tonumber(get_var(0, "$pn"))
 end
 
-function DelayAssign(PlayerIndex, WeaponObject, x, y, z)
-    assign_weapon(spawn_object("weap","",x,y,z,0,WeaponObject),PlayerIndex)
+function DelayAssign(PlayerIndex, Weapon, x, y, z)
+    assign_weapon(spawn_object("null", "null", x, y, z, 0, Weapon), PlayerIndex)
 end
 
 function maniac:modifyScorelimit()
