@@ -205,18 +205,6 @@ function GetRequiredVersion()
 end
 function OnScriptLoad(processId, game, persistent)
     profilepath = getprofilepath()
-    local file = io.open(string.format("%s\\data\\auth_" .. tostring(process) .. ".key", profilepath), "r")
-    if file then
-        server_id = file:read("*line")
-        for line in file:lines() do
-            local words = tokenizestring(line, ",")
-            server_token = words[1]
-            server_id = words[2]
-        end
-    else
-        server_id = AuthorizeServer()
-    end
-    server_id = AuthorizeServer()
     GAME = game
     GetGameAddresses(game)
     if game == true or game == "PC" then
