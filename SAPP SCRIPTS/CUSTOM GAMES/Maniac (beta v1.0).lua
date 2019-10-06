@@ -34,7 +34,7 @@ function maniac:init()
     maniac.settings = {
 
         -- # Number of players required to set the game in motion (cannot be less than 2)
-        required_players = 2,
+        required_players = 5,
 
         -- # Continuous message emitted when there aren't enough players.
         not_enough_players = "%current%/%required% players needed to start the game.",
@@ -247,7 +247,7 @@ function OnTick()
 
                                         for K, V in pairs(picked_weapons) do
                                             if (K == 1 or K == 2) then
-                                                assign_weapon(spawn_object("weap","something",coords.x,coords.y,coords.z+1,0.0,V),shooter.id)
+                                                assign_weapon(spawn_object("weap","",coords.x,coords.y,coords.z,0,V),shooter.id)
                                                 
                                                 -- To assign a 3rd and 4 weapon, we have to delay 
                                                 -- the tertiary and quaternary assignments by at least 200 ms:
@@ -680,7 +680,7 @@ function maniac:GetPlayerCount()
 end
 
 function DelayAssign(PlayerIndex, WeaponObject, x, y, z)
-    assign_weapon(spawn_object("weap","weapon",x,y,z+1,0.0,WeaponObject),PlayerIndex)
+    assign_weapon(spawn_object("weap","",x,y,z,0,WeaponObject),PlayerIndex)
 end
 
 function maniac:modifyScorelimit()
@@ -733,10 +733,10 @@ function maniac:getXYZ(PlayerIndex, PlayerObject)
         x, y, z = read_vector3d(PlayerObject + 0x5c)
     else
         coords.invehicle = true
-        x, y, z = read_vector3d(get_object_memory(VehicleID) + 0x5c)
+        x, y, z  = read_vector3d(get_object_memory(VehicleID) + 0x5c)
     end
     
-    coords.x, coords.y, coords.z = x, y, z
+    coords.x, coords.y, coords.z = x, y, z + 1
     return coords
 end
 
