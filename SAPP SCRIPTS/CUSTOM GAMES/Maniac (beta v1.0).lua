@@ -651,8 +651,18 @@ function maniac:GetHighScores()
                                     header = false 
                                     tie.players[#tie.players + 1] = "--- TIE BETWEEN THESE PLAYERS ---" 
                                 end
-                                tie.players[#tie.players + 1] = get_var(i, "$name") .. " (K: " .. maniac:getManiacKills(i) .. " )   (D: " .. get_var(i, "$deaths") .. " )"
-                                tie.players[#tie.players + 1] = get_var(j, "$name") .. " (K: " .. maniac:getManiacKills(j) .. " )   (D: " .. get_var(j, "$deaths") .. " )"
+                                
+                                local i_name = get_var(i, "$name")
+                                local j_name = get_var(j, "$name")
+                                
+                                local i_kills = maniac:getManiacKills(i)
+                                local j_kills = maniac:getManiacKills(j)
+                                
+                                local i_deaths = get_var(i, "$deaths")
+                                local j_deaths = get_var(j, "$deaths")
+                                
+                                tie.players[#tie.players + 1] = i_name .. "   (K: " .. i_kills .. " )   (D: " .. i_deaths .. " )"
+                                tie.players[#tie.players + 1] = j_name .. "   (K: " .. j_kills .. " )   (D: " .. j_deaths .. " )"
                             end
                         end
                     end
