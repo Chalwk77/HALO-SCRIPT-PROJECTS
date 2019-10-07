@@ -348,6 +348,47 @@ function OnGameStart()
             maniac:SaveMapWeapons()
         end
         --
+        
+        
+        local scores = { }
+        scores[1] = 5
+        scores[2] = 2
+        scores[3] = 300
+        scores[10] = 50
+        scores[16] = 6
+        scores[4] = 18
+        
+        if ( scores == nil or #scores == 0 ) then
+            -- no one has any maniac kills
+        else        
+        
+            local function compare( a, b )
+                return a > b
+            end
+            
+            local score = { }
+            for i = 1, 16 do
+                if (scores[i]) then
+                    table.insert(score, scores[i])
+                end
+            end
+            
+            table.sort(score)
+            local highest_score = score[#score]
+            
+            local tie = { }
+            for i = 1,16 do
+                if score[i] then
+                    for j = 1,16 do
+                        if score[j] then
+                            if score[i] == score[j] then
+                                tie[#tie+1] = {i,j}
+                            end
+                        end
+                    end
+                end
+            end
+        end
     end
 end
 
@@ -615,7 +656,7 @@ function maniac:SelectManiac()
             local msg = gsub(set.end_of_game, "%%name%%", name)
             maniac:broadcast(msg, true)
         else
-            maniac:broadcast("GAME OVER | No one has any kills!", true)
+            maniac:broadcast("GAME OVER | No one has any maniac kills!", true)
         end
     end
 end
