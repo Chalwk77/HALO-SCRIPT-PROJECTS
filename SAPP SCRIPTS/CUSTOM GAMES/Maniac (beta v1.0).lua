@@ -41,10 +41,10 @@ function maniac:init()
 
         -- # Countdown delay (in seconds)
         -- This is a pre-game-start countdown initiated at the beginning of each game.
-        delay = 10,
+        delay = 3,
 
         -- # Duration (in seconds) that players will be the Maniac:
-        turn_timer = 20,
+        turn_timer = 15,
 
         -- DYNAMIC SCORING SYSTEM --
         -- The game will end when a Maniac reaches this scorelimit:
@@ -498,12 +498,22 @@ function maniac:isManiac(PlayerIndex)
     return false
 end
 
+function maniac:getManiacKills(PlayerIndex)
+    local active_shooter = maniac.settings.active_shooter
+    for _, shooter in pairs(active_shooter) do
+        if (shooter) and (shooter.id == PlayerIndex) then
+            return tonumber(shooter.kills)
+        end
+    end
+    return nil
+end
+
 function maniac:broadcast(message, gameover)
     execute_command("msg_prefix \"\"")
     say_all(message)
     execute_command("msg_prefix \" " .. maniac.settings.server_prefix .. "\"")
     if (gameover) then
-        execute_command("sv_map_next")
+        -- execute_command("sv_map_next")
     end
 end
 
@@ -544,10 +554,21 @@ function maniac:endGameCheck(PlayerIndex, Kills)
 end
 
 function maniac:rprintAll(msg)
-    for i = 1, 16 do
-        if player_present(i) then
-            maniac:cls(i, 25)
-            rprint(i, msg)
+    if type(msg) == "string" then    
+        for i = 1, 16 do
+            if player_present(i) then
+                maniac:cls(i, 25)
+                rprint(i, msg)
+            end
+        end
+    elseif type(msg) == "table" then
+        for i = 1,16 do
+            if player_present(i) then
+                maniac:cls(i, 25)
+                for j = 1,#msg do
+                    rprint(i, msg[j])
+                end
+            end
         end
     end
 end
@@ -589,7 +610,6 @@ function maniac:SelectManiac()
                 maniac:broadcast(gsub(set.new_maniac, "%%name%%", shooter.name), false)
             end
         end
-
     else
         maniac:GetHighScores()
     end
@@ -602,7 +622,11 @@ function maniac:GetHighScores()
     local min, max = 0,0
     local name
     
+    local tie = {}
+    tie.players = { }
+    
     for _,player in pairs(active_shooter) do
+        tie[player.id] = player.kills
         if (player.kills > min) then
             min = player.kills
             max = player.kills
@@ -614,8 +638,47 @@ function maniac:GetHighScores()
         -- no one has any maniac kills
         maniac:broadcast("GAME OVER | No one has any maniac kills!", true)
     else        
-        local msg = gsub(gsub(set.end_of_game, "%%name%%", name), "%%kills%%", max)
-        maniac:broadcast(msg, true)
+        
+        -- Save Player Tie information:
+        local header = true
+        for i = 1,16 do
+            if tie[i] then
+                for j = 1,16 do
+                    if tie[j] then
+                        if (i ~= j) then
+                            if (tie[i] == tie[j]) then
+                                if (header) then 
+                                    header = false 
+                                    tie.players[#tie.players + 1] = "--- TIE BETWEEN THESE PLAYERS ---" 
+                                    tie.players[#tie.players + 1] = "Name     |     Maniac Kills     |     Deaths" 
+                                end
+                                tie.players[#tie.players + 1] = get_var(i, "$name") .. " " .. maniac:getManiacKills(i) .. " " .. get_var(i, "$deaths")
+                                tie.players[#tie.players + 1] = get_var(j, "$name") .. " " .. maniac:getManiacKills(j) .. " " .. get_var(j, "$deaths")
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        
+        if (#tie.players > 0) then        
+            local dupe, results = { }, { }
+            for _,v in ipairs(tie.players) do
+               if (not dupe[v]) then
+                   results[#results + 1] = v
+                   dupe[v] = true
+               end
+            end
+            
+            for i = 1,#results do
+                maniac:rprintAll(results)
+            end
+            
+        else
+            local msg = gsub(gsub(set.end_of_game, "%%name%%", name), "%%kills%%", max)
+            maniac:broadcast(msg, true)
+        end
+        
     end
 end
 
