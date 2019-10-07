@@ -41,10 +41,10 @@ function maniac:init()
 
         -- # Countdown delay (in seconds)
         -- This is a pre-game-start countdown initiated at the beginning of each game.
-        delay = 3,
+        delay = 10,
 
         -- # Duration (in seconds) that players will be the Maniac:
-        turn_timer = 15,
+        turn_timer = 60,
 
         -- DYNAMIC SCORING SYSTEM --
         -- The game will end when a Maniac reaches this scorelimit:
@@ -650,10 +650,9 @@ function maniac:GetHighScores()
                                 if (header) then 
                                     header = false 
                                     tie.players[#tie.players + 1] = "--- TIE BETWEEN THESE PLAYERS ---" 
-                                    tie.players[#tie.players + 1] = "Name     |     Maniac Kills     |     Deaths" 
                                 end
-                                tie.players[#tie.players + 1] = get_var(i, "$name") .. " " .. maniac:getManiacKills(i) .. " " .. get_var(i, "$deaths")
-                                tie.players[#tie.players + 1] = get_var(j, "$name") .. " " .. maniac:getManiacKills(j) .. " " .. get_var(j, "$deaths")
+                                tie.players[#tie.players + 1] = get_var(i, "$name") .. " (K: " .. maniac:getManiacKills(i) .. " )   (D: " .. get_var(i, "$deaths") .. " )"
+                                tie.players[#tie.players + 1] = get_var(j, "$name") .. " (K: " .. maniac:getManiacKills(j) .. " )   (D: " .. get_var(j, "$deaths") .. " )"
                             end
                         end
                     end
