@@ -598,32 +598,23 @@ end
 function maniac:GetHighScores()
     local set = maniac.settings
     local active_shooter = set.active_shooter
-    local scores = { }
     
-    for k,shooter in pairs(active_shooter) do
-        scores[shooter.id] = shooter.kills
+    local min, max = 0,0
+    local name
+    
+    for _,player in pairs(active_shooter) do
+        if (player.kills > min) then
+            min = player.kills
+            max = player.kills
+            name = player.name
+        end
     end
 
-    if ( scores == nil or #scores == 0 ) then
+    if ( max == 0 ) then
         -- no one has any maniac kills
         maniac:broadcast("GAME OVER | No one has any maniac kills!", true)
     else        
-
-        local min = 0
-        local function HighScore(table)
-            local highest, name = 0, nil
-            for ID, score in pairs(table) do
-                if (score > min) then
-                    min = score
-                    highest = score
-                    name = get_var(ID, "$name")
-                end
-            end
-            return highest, name
-        end
-        
-        local kills, name = HighScore(scores)
-        local msg = gsub(gsub(set.end_of_game, "%%name%%", name), "%%kills%%", kills)
+        local msg = gsub(gsub(set.end_of_game, "%%name%%", name), "%%kills%%", max)
         maniac:broadcast(msg, true)
     end
 end
