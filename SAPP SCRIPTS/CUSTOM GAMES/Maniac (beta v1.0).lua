@@ -44,7 +44,7 @@ function maniac:init()
         delay = 10,
 
         -- # Duration (in seconds) that players will be the Maniac:
-        turn_timer = 60,
+        turn_timer = 20,
 
         -- DYNAMIC SCORING SYSTEM --
         -- The game will end when a Maniac reaches this scorelimit:
@@ -596,6 +596,8 @@ function maniac:SelectManiac()
 end
 
 function maniac:GetHighScores()
+    local set = maniac.settings
+    local active_shooter = set.active_shooter
     local scores = { }
     
     for k,shooter in pairs(active_shooter) do
