@@ -68,7 +68,7 @@ function maniac:init()
         on_game_begin = "The game has begun",
 
         -- # This message is broadcast when the game is over:
-        end_of_game = "%name% won the game!",
+        end_of_game = "%name% won the game with %kills% maniac kills!",
 
         -- # This message is broadcast when someone becomes the maniac:
         new_maniac = "%name% is now the maniac!",
@@ -348,47 +348,6 @@ function OnGameStart()
             maniac:SaveMapWeapons()
         end
         --
-        
-        
-        local scores = { }
-        scores[1] = 5
-        scores[2] = 2
-        scores[3] = 300
-        scores[10] = 50
-        scores[16] = 6
-        scores[4] = 18
-        
-        if ( scores == nil or #scores == 0 ) then
-            -- no one has any maniac kills
-        else        
-        
-            local function compare( a, b )
-                return a > b
-            end
-            
-            local score = { }
-            for i = 1, 16 do
-                if (scores[i]) then
-                    table.insert(score, scores[i])
-                end
-            end
-            
-            table.sort(score)
-            local highest_score = score[#score]
-            
-            local tie = { }
-            for i = 1,16 do
-                if score[i] then
-                    for j = 1,16 do
-                        if score[j] then
-                            if score[i] == score[j] then
-                                tie[#tie+1] = {i,j}
-                            end
-                        end
-                    end
-                end
-            end
-        end
     end
 end
 
@@ -468,9 +427,7 @@ function OnPlayerDisconnect(PlayerIndex)
             for i = 1, 16 do
                 if (tonumber(i) ~= tonumber(p)) then
                     if player_present(i) then
-                        -- Send game over message to the last remaining player:
-                        local msg = gsub(set.end_of_game, "%%name%%", get_var(i, "$name"))
-                        maniac:broadcast(msg, true)
+                        maniac:broadcast("You win!", true)
                         break
                     end
                 end
@@ -581,7 +538,7 @@ function maniac:endGameCheck(PlayerIndex, Kills)
     if (Kills >= current_scorelimit) then
         local set = maniac.settings
         local name = get_var(PlayerIndex, "$name")
-        local msg = gsub(set.end_of_game, "%%name%%", name)
+        local msg = gsub(gsub(set.end_of_game, "%%name%%", name), "%%kills%%", Kills)
         maniac:broadcast(msg, true)
     end
 end
@@ -626,38 +583,46 @@ function maniac:SelectManiac()
         math.random();math.random();math.random();
         local random_player = players[math.random(1, #players)]
 
-        for _, v in pairs(active_shooter) do
-            if (v.id == random_player) then
-                v.active, set.assign[v.id] = true, true
-                maniac:broadcast(gsub(set.new_maniac, "%%name%%", v.name), false)
+        for _, shooter in pairs(active_shooter) do
+            if (shooter.id == random_player) then
+                shooter.active, set.assign[shooter.id] = true, true
+                maniac:broadcast(gsub(set.new_maniac, "%%name%%", shooter.name), false)
             end
         end
-    else
 
-        -- # Determine who won the game:
-        local function HighestKills()
-            local kills, name = 0, nil
-            for _, player in pairs(active_shooter) do
-                if (player.kills > kills) then
-                    kills = player.kills
-                    name = player.name
+    else
+        maniac:GetHighScores()
+    end
+end
+
+function maniac:GetHighScores()
+    local scores = { }
+    
+    for k,shooter in pairs(active_shooter) do
+        scores[shooter.id] = shooter.kills
+    end
+
+    if ( scores == nil or #scores == 0 ) then
+        -- no one has any maniac kills
+        maniac:broadcast("GAME OVER | No one has any maniac kills!", true)
+    else        
+
+        local min = 0
+        local function HighScore(table)
+            local highest, name = 0, nil
+            for ID, score in pairs(table) do
+                if (score > min) then
+                    min = score
+                    highest = score
+                    name = get_var(ID, "$name")
                 end
             end
-
-            if (kills == 0) then
-                return nil, nil
-            else
-                return kills, name
-            end
+            return highest, name
         end
-
-        local kills, name = HighestKills()
-        if (kills ~= nil and name ~= nil) then
-            local msg = gsub(set.end_of_game, "%%name%%", name)
-            maniac:broadcast(msg, true)
-        else
-            maniac:broadcast("GAME OVER | No one has any maniac kills!", true)
-        end
+        
+        local kills, name = HighScore(scores)
+        local msg = gsub(gsub(set.end_of_game, "%%name%%", name), "%%kills%%", kills)
+        maniac:broadcast(msg, true)
     end
 end
 
