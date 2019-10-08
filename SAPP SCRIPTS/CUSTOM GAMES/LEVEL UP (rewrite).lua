@@ -718,7 +718,8 @@ function game:GetPlayerCount()
 end
 
 function game:GetScoreLimit()
-    return (game.settings.levels[#game.settings.levels][4])
+    local table = game.settings.levels
+    return (table[#table].kills_required)
 end
 
 function game:getXYZ(PlayerIndex, PlayerObject)
