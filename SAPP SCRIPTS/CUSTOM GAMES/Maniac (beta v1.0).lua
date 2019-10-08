@@ -513,7 +513,7 @@ function maniac:broadcast(message, gameover)
     say_all(message)
     execute_command("msg_prefix \" " .. maniac.settings.server_prefix .. "\"")
     if (gameover) then
-        -- execute_command("sv_map_next")
+        execute_command("sv_map_next")
     end
 end
 
