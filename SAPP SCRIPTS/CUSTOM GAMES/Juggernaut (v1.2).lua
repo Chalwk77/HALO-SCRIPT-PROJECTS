@@ -40,12 +40,12 @@ function juggernaut:init()
         new_juggernaut = "%name% is now the Juggernaut!",
 
         -- # This message is broadcast to the whole server:
-        on_timer = "|lJuggernaut: %name%|cJuggernaut Health: %health%|rTime until Switch: %minutes%:%seconds%",
+        on_timer = "|lJuggernaut: %name%|cHealth: %health% Shield: %shield%|rTime until Switch: %minutes%:%seconds%",
         -- If true, the above message will be broadcast server-wide.
         use_timer = true,
 
         attributes = {
-            -- Juggernaut Health: 0 to 99999 (Normal = 1)
+            -- Juggernaut Health: (0 to 99999) (Normal = 1)
             health = 10,
             
             -- Set to 0 to disable (normal speed is 1)
@@ -59,6 +59,9 @@ function juggernaut:init()
             
             -- Set to 'false' to disable temporary overshield:
             overshield = true,
+            
+            -- (0 to 100) (Normal = 1) (Full overshield = 3)
+            shield = 10,
             
             -- If true, the Juggernaut will have regenerating health:
             regenerating_health = true,
@@ -157,11 +160,14 @@ function OnTick()
 
                         if (set.use_timer) then
                             local health = format("%0.3f", read_float(player_object + 0xE0))
-                            local msg = gsub(gsub(gsub(gsub(set.on_timer, 
+                            local shield = format("%0.3f", read_float(player_object + 0xE4))
+                                                        
+                            local msg = gsub(gsub(gsub(gsub(gsub(set.on_timer, 
                             "%%name%%", shooter.name),
                             "%%minutes%%", minutes),
                             "%%seconds%%", seconds), 
-                            "%%health%%", health)
+                            "%%health%%", health),
+                            "%%shield%%", shield)
                             juggernaut:rprintAll(msg)
                         end
                         
@@ -205,11 +211,12 @@ function OnTick()
                                     local coords = juggernaut:getXYZ(shooter.id, player_object)
                                     if (not coords.invehicle) then
                                         shooter.assign = false
-                                        
+
+                                        execute_command("hp " .. shooter.id .. " " .. attributes.health)
                                         execute_command("wdel " .. shooter.id)
                                         
                                         if (attributes.overshield) then
-                                            execute_command("sh " .. shooter.id .. " 3")
+                                            execute_command("sh " .. shooter.id .. " " .. attributes.shield)
                                         end
                                     
                                         local chosen_weapons = { }
@@ -247,7 +254,7 @@ function OnTick()
                                 
                                 -- Set infinite ammo and grenades:
                                 write_word(player_object + 0x31F, 7)
-                                write_word(player_object + 0x31E, 0x7F7F)
+                                write_word(player_object + 0x31E, 7)
                                 
                                 for j = 0, 3 do
                                     local weapon = get_object_memory(read_dword(player_object + 0x2F8 + j * 4))
@@ -420,6 +427,17 @@ function OnJuggernautKill(PlayerIndex, KillerIndex)
                     juggernaut:Set(victim, false)
                     juggernaut:selectRandomJuggernaut(victim)
                 end
+                
+                local player_object = get_dynamic_player(victim)
+                local WeaponID = read_dword(player_object + 0x118)
+                write_word(player_object + 0x31E, 0)
+                write_word(player_object + 0x31F, 0)
+                if (WeaponID ~= 0) then
+                    for j = 0, 3 do
+                        local Weapon = read_dword(player_object + 0x2F8 + j * 4)
+                        destroy_object(Weapon)
+                    end
+                end
             end
         end
     end
@@ -566,7 +584,6 @@ function juggernaut:Set(PlayerIndex, State)
                 if (State == true) then                
                     v.timer, v.active, v.assign = 0, true, true
                     juggernaut:broadcast(gsub(set.new_juggernaut, "%%name%%", v.name), false)
-                    execute_command("hp " .. v.id .. " " .. attributes.health)
                 else
                     v.timer, v.active, v.assign = 0, false, false
                     execute_command("s " .. v.id .. " 1")
