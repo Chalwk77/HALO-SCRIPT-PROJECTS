@@ -95,7 +95,6 @@ function maniac:init()
 
 
         --# Do Not Touch #--
-        assign = { },
         active_shooter = { },
         weapons = { },
         --
@@ -187,7 +186,8 @@ function OnTick()
                         local minutes, seconds = select(1, maniac:secondsToTime(delta_time)), select(2, maniac:secondsToTime(delta_time))
 
                         if (set.use_timer) then
-                            local msg = gsub(gsub(gsub(gsub(gsub(set.on_timer, "%%minutes%%", minutes),
+                            local msg = gsub(gsub(gsub(gsub(gsub(set.on_timer, 
+                                    "%%minutes%%", minutes),
                                     "%%seconds%%", seconds),
                                     "%%name%%", shooter.name),
                                     "%%kills%%", shooter.kills),
@@ -216,11 +216,11 @@ function OnTick()
                             -- Weapon Assignment logic:
                             local weapons = set.weapons
                             if(#weapons > 0) then
-                                if (set.assign[shooter.id]) then
+                                if (shooter.assign) then
                                 
                                     local coords = maniac:getXYZ(shooter.id, player_object)
                                     if (not coords.invehicle) then
-                                        set.assign[shooter.id] = false
+                                        shooter.assign = false
                                     
                                         local chosen_weapons = { }
                                         
@@ -294,16 +294,7 @@ function OnTick()
 
             for i = 1, 16 do
                 if player_present(i) then
-                
-                    -- Init table values for all players:
-                    active_shooter[#active_shooter + 1] = {
-                        name = get_var(i, "$name"),
-                        id = i,
-                        timer = 0,
-                        duration = set.turn_timer,
-                        active = false, expired = false,
-                        kills = 0,
-                    }
+                    maniac:initManiac(i)
                 end
             end
 
@@ -378,15 +369,7 @@ function maniac:gameStartCheck(p)
     -- Init table values for this player:
     elseif (gamestarted) then
         maniac:modifyScorelimit()
-        local active_shooter = maniac.settings.active_shooter
-        active_shooter[#active_shooter + 1] = {
-            name = get_var(p, "$name"),
-            id = p,
-            timer = 0,
-            duration = set.turn_timer,
-            active = false, expired = false,
-            kills = 0
-        }
+        maniac:initManiac(p)
     end
 end
 
@@ -606,7 +589,7 @@ function maniac:SelectManiac()
 
         for _, shooter in pairs(active_shooter) do
             if (shooter.id == random_player) then
-                shooter.active, set.assign[shooter.id] = true, true
+                shooter.active, shooter.assign = true, true
                 maniac:broadcast(gsub(set.new_maniac, "%%name%%", shooter.name), false)
             end
         end
@@ -719,6 +702,25 @@ function maniac:SetNav(Maniac)
         end
     end
 end
+
+function maniac:initManiac(PlayerIndex)
+    if (PlayerIndex) then
+    
+        local set = maniac.settings
+        local active_shooter = set.active_shooter
+        
+        active_shooter[#active_shooter + 1] = {
+            name = get_var(tonumber(PlayerIndex), "$name"),
+            id = tonumber(PlayerIndex),
+            timer = 0,
+            kills = 0,
+            duration = set.turn_timer,
+            active = false,
+            assign = false
+        }
+    end
+end
+
 
 function maniac:getChar(input)
     local char = ""
