@@ -31,7 +31,7 @@ function juggernaut:init()
         turn_timer = 60,
 
         -- # This message is the pre-game broadcast:
-        pre_game_message = "Juggernaut (beta v1.0) will begin in %minutes%:%seconds%",
+        pre_game_message = "Juggernaut (v1.2) will begin in %minutes%:%seconds%",
 
         -- # This message is broadcast when the game begins:
         on_game_begin = "The game has begun",
