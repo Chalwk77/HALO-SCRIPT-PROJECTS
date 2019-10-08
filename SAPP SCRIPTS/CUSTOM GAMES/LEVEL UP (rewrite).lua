@@ -32,7 +32,7 @@ function game:init()
 
         -- # This message is broadcast when the game begins:
         on_game_begin = "The game has begun",
-        
+
         current_level = "|lLevel: %level% (%weapon%) |rNext Level: %next_level% (%next_weapon% - Kills: %cur_kills%/%req_kills%)",
         on_levelup = "(+) %name% is now Level %level%",
         on_suicide = "(-) %name% committed suicide and is now Level %level%",
@@ -41,89 +41,89 @@ function game:init()
         levels = {
             -- Starting Level:
             start = 1,
-            
+
             -- Weapon | Name | Instructions | Kills Required | Frags/Plasmas | Ammo Multiplier
-            [1] = { 
-                    weapon = "weapons\\shotgun\\shotgun",
-                    vehicle = nil,
-                    title = "Shotgun", 
-                    kills_required = 1, 
-                    grenades = { 6, 6 }, 
-                    multiplier = 0 
-                },
-            [2] = { 
-                    weapon = "weapons\\assault rifle\\assault rifle",
-                    vehicle = nil,
-                    title = "Assault Rifle",  
-                    kills_required = 2, 
-                    grenades = { 2, 2 },  
-                    multiplier = 240 
-                },
-            [3] = { 
-                    weapon = "weapons\\pistol\\pistol",
-                    vehicle = nil,
-                    title = "Pistol",  
-                    kills_required = 3,  
-                    grenades = { 2, 1 },  
-                    multiplier = 36 
-                },
-            [4] = { 
-                    weapon = "weapons\\sniper rifle\\sniper rifle",
-                    vehicle = nil,
-                    title = "Sniper Rifle",  
-                    kills_required = 4,   
-                    grenades = { 3, 2 },  
-                    multiplier = 12 
-                },
-            [5] = { 
-                    weapon = "weapons\\rocket launcher\\rocket launcher",
-                    vehicle = nil,
-                    title = "Rocket Launcher",  
-                    kills_required = 5,   
-                    grenades = { 1, 1 },  
-                    multiplier = 6 
-                },
-            [6] = { 
-                    weapon = "weapons\\plasma_cannon\\plasma_cannon",
-                    vehicle = nil,
-                    title = "Fuel Rod",  
-                    kills_required = 6,   
-                    grenades = { 3, 1 },  
-                    multiplier = 0 
-                },
-            
-            [7] = { 
-                    vehicle = "vehicles\\ghost\\ghost_mp", 
-                    weapon = "weapons\\shotgun\\shotgun",  
-                    title = "Ghost",  
-                    kills_required = 7,   
-                    grenades = { 0, 0 },  
-                    multiplier = 0 
-                },
-            [8] = { 
-                    vehicle = "vehicles\\rwarthog\\rwarthog",
-                    weapon = "weapons\\shotgun\\shotgun",  
-                    title = "Rocket Hog",  
-                    kills_required = 8,   
-                    grenades = { 0, 0 },  
-                    multiplier = 0 
-                },
-            [9] = { 
-                    vehicle = "vehicles\\scorpion\\scorpion_mp",
-                    weapon = "weapons\\shotgun\\shotgun",  
-                    title = "Tank",  
-                    kills_required = 9,   
-                    grenades = { 0, 0 },  
-                    multiplier = 0 
-                },
-            [10] = { 
-                    vehicle = "vehicles\\banshee\\banshee_mp",
-                    weapon = "weapons\\shotgun\\shotgun",  
-                    title = "Banshee",  
-                    kills_required = 10,   
-                    grenades = { 0, 0 },  
-                    multiplier = 0 
-                }
+            [1] = {
+                weapon = "weapons\\shotgun\\shotgun",
+                vehicle = nil,
+                title = "Shotgun",
+                kills_required = 1,
+                grenades = { 6, 6 },
+                multiplier = 0
+            },
+            [2] = {
+                weapon = "weapons\\assault rifle\\assault rifle",
+                vehicle = nil,
+                title = "Assault Rifle",
+                kills_required = 2,
+                grenades = { 2, 2 },
+                multiplier = 240
+            },
+            [3] = {
+                weapon = "weapons\\pistol\\pistol",
+                vehicle = nil,
+                title = "Pistol",
+                kills_required = 3,
+                grenades = { 2, 1 },
+                multiplier = 36
+            },
+            [4] = {
+                weapon = "weapons\\sniper rifle\\sniper rifle",
+                vehicle = nil,
+                title = "Sniper Rifle",
+                kills_required = 4,
+                grenades = { 3, 2 },
+                multiplier = 12
+            },
+            [5] = {
+                weapon = "weapons\\rocket launcher\\rocket launcher",
+                vehicle = nil,
+                title = "Rocket Launcher",
+                kills_required = 5,
+                grenades = { 1, 1 },
+                multiplier = 6
+            },
+            [6] = {
+                weapon = "weapons\\plasma_cannon\\plasma_cannon",
+                vehicle = nil,
+                title = "Fuel Rod",
+                kills_required = 6,
+                grenades = { 3, 1 },
+                multiplier = 0
+            },
+
+            [7] = {
+                vehicle = "vehicles\\ghost\\ghost_mp",
+                weapon = "weapons\\shotgun\\shotgun",
+                title = "Ghost",
+                kills_required = 7,
+                grenades = { 0, 0 },
+                multiplier = 0
+            },
+            [8] = {
+                vehicle = "vehicles\\rwarthog\\rwarthog",
+                weapon = "weapons\\shotgun\\shotgun",
+                title = "Rocket Hog",
+                kills_required = 8,
+                grenades = { 0, 0 },
+                multiplier = 0
+            },
+            [9] = {
+                vehicle = "vehicles\\scorpion\\scorpion_mp",
+                weapon = "weapons\\shotgun\\shotgun",
+                title = "Tank",
+                kills_required = 9,
+                grenades = { 0, 0 },
+                multiplier = 0
+            },
+            [10] = {
+                vehicle = "vehicles\\banshee\\banshee_mp",
+                weapon = "weapons\\shotgun\\shotgun",
+                title = "Banshee",
+                kills_required = 10,
+                grenades = { 0, 0 },
+                multiplier = 0
+            }
         },
 
         -- Some functions temporarily remove the server prefix while broadcasting a message.
@@ -132,65 +132,65 @@ function game:init()
         server_prefix = "** SERVER **",
 
         damage_multipliers = {
-        
+
             melee = {
-                {"weapons\\assault rifle\\melee", 4},
-                {"weapons\\ball\\melee", 4},
-                {"weapons\\flag\\melee", 4},
-                {"weapons\\flamethrower\\melee", 4},
-                {"weapons\\needler\\melee", 4},
-                {"weapons\\pistol\\melee", 1},
-                {"weapons\\plasma pistol\\melee", 4},
-                {"weapons\\plasma rifle\\melee", 3},
-                {"weapons\\rocket launcher\\melee", 1},
-                {"weapons\\shotgun\\melee", 2},
-                {"weapons\\sniper rifle\\melee", 2},
-                {"weapons\\plasma_cannon\\effects\\plasma_cannon_melee", 2},
-                
+                { "weapons\\assault rifle\\melee", 4 },
+                { "weapons\\ball\\melee", 4 },
+                { "weapons\\flag\\melee", 4 },
+                { "weapons\\flamethrower\\melee", 4 },
+                { "weapons\\needler\\melee", 4 },
+                { "weapons\\pistol\\melee", 1 },
+                { "weapons\\plasma pistol\\melee", 4 },
+                { "weapons\\plasma rifle\\melee", 3 },
+                { "weapons\\rocket launcher\\melee", 1 },
+                { "weapons\\shotgun\\melee", 2 },
+                { "weapons\\sniper rifle\\melee", 2 },
+                { "weapons\\plasma_cannon\\effects\\plasma_cannon_melee", 2 },
+
             },
-            
+
             grenades = {
-                {"weapons\\frag grenade\\explosion", 2},
-                {"weapons\\plasma grenade\\explosion", 2},
-                {"weapons\\plasma grenade\\attached", 10},
+                { "weapons\\frag grenade\\explosion", 2 },
+                { "weapons\\plasma grenade\\explosion", 2 },
+                { "weapons\\plasma grenade\\attached", 10 },
             },
-            
-            vehicles = { 
-                {"vehicles\\ghost\\ghost bolt", 1.015},
-                {"vehicles\\scorpion\\bullet", 1.020},
-                {"vehicles\\warthog\\bullet", 1.025},
-                {"vehicles\\c gun turret\\mp bolt", 1.030},
-                {"vehicles\\banshee\\banshee bolt", 1.035},
-                {"vehicles\\scorpion\\shell explosion", 1.040},
-                {"vehicles\\banshee\\mp_fuel rod explosion", 1.045},
+
+            vehicles = {
+                { "vehicles\\ghost\\ghost bolt", 1.015 },
+                { "vehicles\\scorpion\\bullet", 1.020 },
+                { "vehicles\\warthog\\bullet", 1.025 },
+                { "vehicles\\c gun turret\\mp bolt", 1.030 },
+                { "vehicles\\banshee\\banshee bolt", 1.035 },
+                { "vehicles\\scorpion\\shell explosion", 1.040 },
+                { "vehicles\\banshee\\mp_fuel rod explosion", 1.045 },
             },
-            
+
             projectiles = {
-                {"weapons\\pistol\\bullet", 1.00},
-                {"weapons\\plasma rifle\\bolt", 1.50},
-                {"weapons\\shotgun\\pellet", 1.20},
-                {"weapons\\plasma pistol\\bolt", 1.50},
-                {"weapons\\needler\\explosion", 2.00},
-                {"weapons\\assault rifle\\bullet", 2.00},
-                {"weapons\\needler\\impact damage", 1.10},
-                {"weapons\\flamethrower\\explosion", 2.00},
-                {"weapons\\sniper rifle\\sniper bullet", 4.00},
-                {"weapons\\rocket launcher\\explosion", 5.00},
-                {"weapons\\needler\\detonation damage", 2.00},
-                {"weapons\\plasma rifle\\charged bolt", 3.00},
-                {"weapons\\plasma_cannon\\effects\\plasma_cannon_melee", 2.50},
-                {"weapons\\plasma_cannon\\effects\\plasma_cannon_explosion", 2.50},
+                { "weapons\\pistol\\bullet", 1.00 },
+                { "weapons\\plasma rifle\\bolt", 1.50 },
+                { "weapons\\shotgun\\pellet", 1.20 },
+                { "weapons\\plasma pistol\\bolt", 1.50 },
+                { "weapons\\needler\\explosion", 2.00 },
+                { "weapons\\assault rifle\\bullet", 2.00 },
+                { "weapons\\needler\\impact damage", 1.10 },
+                { "weapons\\flamethrower\\explosion", 2.00 },
+                { "weapons\\sniper rifle\\sniper bullet", 4.00 },
+                { "weapons\\rocket launcher\\explosion", 5.00 },
+                { "weapons\\needler\\detonation damage", 2.00 },
+                { "weapons\\plasma rifle\\charged bolt", 3.00 },
+                { "weapons\\plasma_cannon\\effects\\plasma_cannon_melee", 2.50 },
+                { "weapons\\plasma_cannon\\effects\\plasma_cannon_explosion", 2.50 },
             },
-            
+
             vehicle_collision = {
-                {"globals\\vehicle_collision", 10},
+                { "globals\\vehicle_collision", 10 },
             },
-            
+
             fall_damage = {
-                {"globals\\falling", 1},
-                {"globals\\distance", 1},
+                { "globals\\falling", 1 },
+                { "globals\\distance", 1 },
             },
-            
+
         },
         --# Do Not Touch #--
         players = { }
@@ -219,17 +219,17 @@ function OnScriptLoad()
 
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
-    
+
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
     register_callback(cb['EVENT_VEHICLE_EXIT'], "OnVehicleExit")
 
     register_callback(cb['EVENT_DIE'], 'OnPlayerKill')
     register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
-    
+
     if (get_var(0, '$gt') ~= "n/a") then
-        
+
         game:init()
-        
+
         for i = 1, 16 do
             if player_present(i) then
                 game:StartCheck(i)
@@ -251,40 +251,42 @@ function OnTick()
 
     -- # Continuous message emitted when there aren't enough players to start the game:
     if (print_nep) and (not gamestarted) and (player_count < set.required_players) then
-        local msg = gsub(gsub(set.not_enough_players, "%%current%%", player_count), "%%required%%", set.required_players)
+        local msg = gsub(gsub(set.not_enough_players,
+                "%%current%%", player_count),
+                "%%required%%", set.required_players)
         game:rprintAll(msg)
     elseif (countdown_begun) and (not gamestarted) and (set.pregame) then
         game:rprintAll(set.pregame)
     end
-    
+
     if (gamestarted) then
-    
-    
+
+
         for _, player in pairs(players) do
             if (player and player.id) then
                 if player_alive(player.id) then
-                    
-                    local msg = gsub(gsub(gsub(gsub(gsub(gsub(set.current_level, 
-                    "%%level%%", player.level),
-                    "%%weapon%%", player.title),
-                    "%%next_level%%", function()
-                        if (player.level == #set.levels) then
-                            return "NONE"
-                        else
-                            return player.level + 1
-                        end
-                    end),
-                    
-                    "%%next_weapon%%", player.next_item),
-                    "%%cur_kills%%", player.kills),
-                    "%%req_kills%%", player.kills_required)
+
+                    local msg = gsub(gsub(gsub(gsub(gsub(gsub(set.current_level,
+                            "%%level%%", player.level),
+                            "%%weapon%%", player.title),
+                            "%%next_level%%", function()
+                                if (player.level == #set.levels) then
+                                    return "NONE"
+                                else
+                                    return player.level + 1
+                                end
+                            end),
+
+                            "%%next_weapon%%", player.next_item),
+                            "%%cur_kills%%", player.kills),
+                            "%%req_kills%%", player.kills_required)
 
                     game:cls(player.id, 25)
                     rprint(player.id, msg)
-                    
+
                     local player_object = get_dynamic_player(player.id)
                     if (player_object ~= 0 and player.assign) then
-                        
+
                         local coords = game:getXYZ(player.id, player_object)
                         if (not coords.invehicle) then
                             player.assign = false
@@ -314,10 +316,10 @@ function OnTick()
                     game:InitPlayer(i)
                 end
             end
-            
+
             -- # Disable Vehicles:
             execute_command("disable_all_vehicles 0 1")
-            
+
             -- # Disable Weapon Pick Ups
             execute_command("disable_object 'weapons\\assault rifle\\assault rifle'")
             execute_command("disable_object 'weapons\\flamethrower\\flamethrower'")
@@ -329,14 +331,14 @@ function OnTick()
             execute_command("disable_object 'weapons\\rocket launcher\\rocket launcher'")
             execute_command("disable_object 'weapons\\shotgun\\shotgun'")
             execute_command("disable_object 'weapons\\sniper rifle\\sniper rifle'")
-            
+
             -- # Disable Grenade Pick Ups
             execute_command("disable_object 'weapons\\frag grenade\\frag grenade'")
             execute_command("disable_object 'weapons\\plasma grenade\\plasma grenade'")
-            
+
             local scorelimit = game:GetScoreLimit()
             execute_command("scorelimit " .. scorelimit)
-            
+
             if (#players > 0) then
 
                 -- Remove default death messages (temporarily)
@@ -378,16 +380,16 @@ function game:StartCheck(p)
     -- Start the timer:
     if (player_count >= required) and (not init_countdown) and (not gamestarted) then
         game:StartTimer()
-    
+
     elseif (player_count >= required) and (print_nep) then
         print_nep = false
-    
-    -- Not enough players to start the game. Set the "not enough players (print_nep)" flag to true.
-    -- This will invoke a continuous message that is broadcast server wide 
+
+        -- Not enough players to start the game. Set the "not enough players (print_nep)" flag to true.
+        -- This will invoke a continuous message that is broadcast server wide
     elseif (player_count > 0 and player_count < required) then
         print_nep = true
-        
-    -- Init table values for this player:
+
+        -- Init table values for this player:
     elseif (gamestarted) then
         game:InitPlayer(p)
     end
@@ -414,7 +416,7 @@ function OnPlayerDisconnect(PlayerIndex)
                 players[index] = nil
             end
         end
-        
+
         if (player_count <= 0) then
             -- Ensure all timer parameters are set to their default values.
             game:StopTimer()
@@ -440,36 +442,36 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
         local victim = tonumber(PlayerIndex)
 
         if (killer > 0) then
-        
+
             local params = { }
-            
+
             if (killer ~= victim) then
-                
+
                 local set = game.settings
                 local players = set.players
 
                 -- MELEE | LEVEL DOWN (victim)
-                for _,player in pairs(players) do
+                for _, player in pairs(players) do
                     if (player.id == killer) then
                         player.kills = player.kills + 1
-                    
+
                         if (player.damage_applied ~= nil) then
                             local multipliers = set.damage_multipliers
-                            for Tab,v in pairs(multipliers) do
+                            for Tab, _ in pairs(multipliers) do
                                 if (Tab == "melee") then
-                                    for _,Tag in pairs(multipliers[Tab]) do
+                                    for _, Tag in pairs(multipliers[Tab]) do
                                         if (player.damage_applied == GetTag("jpt!", Tag[1])) then
                                             params.melee = true
                                             params.killer = player.name
                                             game:resetScore(victim)
                                             game:CycleLevel(victim, params)
-                                            player.damage_applied = nil                        
+                                            player.damage_applied = nil
                                         end
                                     end
                                 end
                             end
                         end
-                                                
+
                         -- PvP | LEVEL UP (killer)
                         if (player.kills >= player.kills_required) then
                             params.levelup = true
@@ -478,7 +480,7 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
                     end
                 end
             else
-            
+
                 -- SUICIDE | LEVEL DOWN (victim)
                 params.suicide = true
                 game:CycleLevel(killer, params)
@@ -492,12 +494,12 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
     if (tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex and gamestarted) then
         local players = game.settings.players
         players[CauserIndex].damage_applied = MetaID
-        
+
         local set = game.settings
         local multipliers = set.damage_multipliers
-        for Tab,v in pairs(multipliers) do
+        for Tab, _ in pairs(multipliers) do
             if (Tab) then
-                for _,Tag in pairs(multipliers[Tab]) do
+                for _, Tag in pairs(multipliers[Tab]) do
                     if (MetaID == GetTag("jpt!", Tag[1])) then
                         return true, Damage * Tag[2]
                     end
@@ -509,9 +511,9 @@ end
 
 function OnPlayerSpawn(PlayerIndex)
     if (gamestarted) then
-        for _,player in pairs(game.settings.players) do
+        for _, player in pairs(game.settings.players) do
             if (player.id == PlayerIndex) then
-                player.kills = 0                        
+                player.kills = 0
                 player.damage_applied = nil
                 game:resetScore(player.id)
             end
@@ -541,7 +543,7 @@ function game:broadcast(message, endgame, exclude, player)
     if (not exclude) then
         say_all(message)
     else
-        for i = 1,16 do
+        for i = 1, 16 do
             if player_present(i) then
                 if (i ~= player) then
                     say(i, message)
@@ -550,7 +552,7 @@ function game:broadcast(message, endgame, exclude, player)
         end
     end
     execute_command("msg_prefix \" " .. game.settings.server_prefix .. "\"")
-        
+
     if (endgame) then
         execute_command("sv_map_next")
     end
@@ -592,29 +594,28 @@ function game:rprintAll(msg)
     end
 end
 
-function game:cls(PlayerIndex, count)
-    local count = count or 25
-    for _ = 1, count do
+function game:cls(PlayerIndex, Lines)
+    local Lines = Lines or 25
+    for _ = 1, Lines do
         rprint(PlayerIndex, " ")
     end
 end
 
-function game:GetLevelInfo(PlayerIndex, CurrentLevel)
+function game:GetLevelInfo(CurrentLevel)
     local table = game.settings.levels
-    for Level,Data in pairs(table) do
+    for Level, Data in pairs(table) do
         if (CurrentLevel == Level) then
             return Data
         end
     end
 end
 
-function game:GetNext(PlayerIndex, CurrentLevel)
-    
-    local players = game.settings.players
+function game:GetNext(CurrentLevel)
+
     local max = #game.settings.levels
-        
+
     if (CurrentLevel < max) then
-        return game:GetLevelInfo(PlayerIndex, CurrentLevel + 1)
+        return game:GetLevelInfo(CurrentLevel + 1)
     elseif (CurrentLevel == max) then
         return nil
     end
@@ -622,13 +623,13 @@ end
 
 function game:InitPlayer(PlayerIndex)
     if (PlayerIndex) then
-    
+
         local set = game.settings
         local StartLevel = set.levels.start
-        local Level = game:GetLevelInfo(PlayerIndex, StartLevel)
-                
-        local NextItem = game:GetNext(PlayerIndex, StartLevel)
-        if (NextItem ~= nil) then                
+        local Level = game:GetLevelInfo(StartLevel)
+
+        local NextItem = game:GetNext(StartLevel)
+        if (NextItem ~= nil) then
             _next_ = NextItem.title
         else
             _next_ = "FINISHED"
@@ -655,39 +656,38 @@ function game:CycleLevel(PlayerIndex, State)
 
     local set = game.settings
     local players = set.players
-    
-    for _,player in pairs(players) do
+
+    for _, player in pairs(players) do
         if (player.id == PlayerIndex) then
-        
-                      
+
+
             if (State.levelup) then
                 player.level = player.level + 1
             else
                 player.level = player.level - 1
             end
-            
+
             if (player.level <= 0) then
                 player.level = set.levels.start
             end
-            
-            
+
             local max = #game.settings.levels
             if (player.level <= max) then
-            
-                local Level = game:GetLevelInfo(player.id, player.level)
-                
+
+                local Level = game:GetLevelInfo(player.level)
+
                 player.weapon = Level.weapon
                 player.title = Level.title
                 player.kills_required = Level.kills_required
                 player.vehicle = Level.vehicle
-                
-                local NextItem = game:GetNext(player.id, player.level)
-                if (NextItem ~= nil) then                
+
+                local NextItem = game:GetNext(player.level)
+                if (NextItem ~= nil) then
                     player.next_item = NextItem.title
                 else
                     player.next_item = "FINISHED"
                 end
-            
+
                 if (player.vehicle == nil) then
                     player.assign = true
                 else
@@ -697,7 +697,7 @@ function game:CycleLevel(PlayerIndex, State)
                     local Vehicle = spawn_object("vehi", player.vehicle, x, y, z + 0.5)
                     enter_vehicle(Vehicle, player.id, 0)
                 end
-            
+
                 if (State.levelup) then
                     local msg = gsub(gsub(set.on_levelup, "%%name%%", player.name), "%%level%%", player.level)
                     game:broadcast(msg, false)
@@ -708,7 +708,7 @@ function game:CycleLevel(PlayerIndex, State)
                     local msg = gsub(gsub(gsub(set.on_melee, "%%name%%", player.name), "%%level%%", player.level), "%%killer%%", State.killer)
                     game:broadcast(msg, false, false, player.id)
                 end
-                
+
             elseif (player.level > max) then
                 -- game over
                 execute_command("sv_map_next")
@@ -727,31 +727,31 @@ function game:GetScoreLimit()
 end
 
 function game:getXYZ(PlayerIndex, PlayerObject)
-    local coords, x,y,z = { }
-    
+    local coords, x, y, z = { }
+
     local VehicleID = read_dword(PlayerObject + 0x11C)
     if (VehicleID == 0xFFFFFFFF) then
         coords.invehicle = false
         x, y, z = read_vector3d(PlayerObject + 0x5c)
     else
         coords.invehicle = true
-        x, y, z  = read_vector3d(get_object_memory(VehicleID) + 0x5c)
+        x, y, z = read_vector3d(get_object_memory(VehicleID) + 0x5c)
     end
-    
+
     coords.x, coords.y, coords.z = x, y, z + 1
     return coords
 end
 
 function OnVehicleExit(PlayerIndex)
     local players = game.settings.players
-    for _,player in pairs(players) do
+    for _, player in pairs(players) do
         if (player.id == PlayerIndex) then
             if (player.vehicle ~= nil) then
                 player.assign = true
             end
         end
     end
-end 
+end
 
 -- Credits to Kavawuvi (002) for this function:
 function GetTag(tagclass, tagname)
