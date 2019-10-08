@@ -399,17 +399,15 @@ function OnJuggernautKill(PlayerIndex, KillerIndex)
             -- Victim was Juggernaut | Make Killer Juggernaut
             local isJuggernaut = juggernaut:isjuggernaut(victim)
             
-            if (isJuggernaut) and (killer ~= victim) then
-                juggernaut:Set(victim, false)
-                
-                local set = juggernaut.settings
-                
-                local active_shooter = set.active_shooter
-                for _, Killer in pairs(active_shooter) do
-                    if (Killer.id == killer) then
-                        Killer.active, Killer.assign = true, true
-                        juggernaut:broadcast(gsub(set.new_juggernaut, "%%name%%", Killer.name), false)
-                    end
+            if (isJuggernaut) then
+            
+                if (killer ~= victim) then
+                    juggernaut:Set(victim, false)
+                    juggernaut:Set(killer, true)
+                else
+                    -- Juggernaut committed suicide | Reset them and select someone new!
+                    juggernaut:Set(victim, false)
+                    juggernaut:selectRandomJuggernaut(victim)
                 end
             end
         end
