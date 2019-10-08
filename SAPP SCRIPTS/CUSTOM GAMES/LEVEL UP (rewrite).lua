@@ -292,6 +292,8 @@ function OnTick()
                             player.assign = false
                             execute_command("wdel " .. player.id)
                             assign_weapon(spawn_object("weap", player.weapon, coords.x, coords.y, coords.z), player.id)
+                            write_word(player_object + 0x31E, player.frags)
+                            write_word(player_object + 0x31F, player.plasmas)
                         end
                     end
                 end
@@ -644,6 +646,8 @@ function game:InitPlayer(PlayerIndex)
             kills = 0,
             weapon = Level.weapon,
             vehicle = Level.vehicle,
+            frags = Level.grenades[1],
+            plasmas = Level.grenades[2],
             title = Level.title,
             next_item = _next_,
             kills_required = Level.kills_required,
@@ -680,6 +684,8 @@ function game:CycleLevel(PlayerIndex, State)
                 player.title = Level.title
                 player.kills_required = Level.kills_required
                 player.vehicle = Level.vehicle
+                player.frags = Level.grenades[1]
+                player.plasmas = Level.grenades[2]
 
                 local NextItem = game:GetNext(player.level)
                 if (NextItem ~= nil) then
