@@ -43,17 +43,87 @@ function game:init()
             start = 1,
             
             -- Weapon | Name | Instructions | Kills Required | Frags/Plasmas | Ammo Multiplier
-            [1] = { "weapons\\shotgun\\shotgun", "Shotgun", 1, { 6, 6 }, 0 },
-            [2] = { "weapons\\assault rifle\\assault rifle", "Assualt Rifle", 2, { 2, 2 }, 240 },
-            [3] = { "weapons\\pistol\\pistol", "Pistol", 3, { 2, 1 }, 36 },
-            [4] = { "weapons\\sniper rifle\\sniper rifle", "Sniper Rifle", 4, { 3, 2 }, 12 },
-            [5] = { "weapons\\rocket launcher\\rocket launcher", "Rocket Launcher", 5, { 1, 1 }, 6 },
-            [6] = { "weapons\\plasma_cannon\\plasma_cannon", "Fuel Rod", 6, { 3, 1 }, 0 },
+            [1] = { 
+                    weapon = "weapons\\shotgun\\shotgun",
+                    vehicle = nil,
+                    title = "Shotgun", 
+                    kills_required = 1, 
+                    grenades = { 6, 6 }, 
+                    multiplier = 0 
+                },
+            [2] = { 
+                    weapon = "weapons\\assault rifle\\assault rifle",
+                    vehicle = nil,
+                    title = "Assault Rifle",  
+                    kills_required = 2, 
+                    grenades = { 2, 2 },  
+                    multiplier = 240 
+                },
+            [3] = { 
+                    weapon = "weapons\\pistol\\pistol",
+                    vehicle = nil,
+                    title = "Pistol",  
+                    kills_required = 3,  
+                    grenades = { 2, 1 },  
+                    multiplier = 36 
+                },
+            [4] = { 
+                    weapon = "weapons\\sniper rifle\\sniper rifle",
+                    vehicle = nil,
+                    title = "Sniper Rifle",  
+                    kills_required = 4,   
+                    grenades = { 3, 2 },  
+                    multiplier = 12 
+                },
+            [5] = { 
+                    weapon = "weapons\\rocket launcher\\rocket launcher",
+                    vehicle = nil,
+                    title = "Rocket Launcher",  
+                    kills_required = 5,   
+                    grenades = { 1, 1 },  
+                    multiplier = 6 
+                },
+            [6] = { 
+                    weapon = "weapons\\plasma_cannon\\plasma_cannon",
+                    vehicle = nil,
+                    title = "Fuel Rod",  
+                    kills_required = 6,   
+                    grenades = { 3, 1 },  
+                    multiplier = 0 
+                },
             
-            [7] = { "vehicles\\ghost\\ghost_mp", "weapons\\shotgun\\shotgun", "Ghost", 7, { 0, 0 }, 0 },
-            [8] = { "vehicles\\rwarthog\\rwarthog", "weapons\\shotgun\\shotgun", "Rocket Hog", 8, { 0, 0 }, 0 },
-            [9] = { "vehicles\\scorpion\\scorpion_mp", "weapons\\shotgun\\shotgun", "Tank", 9, { 0, 0 }, 0 },
-            [10] = { "vehicles\\banshee\\banshee_mp", "weapons\\shotgun\\shotgun", "Banshee", 10, { 0, 0 }, 0 }
+            [7] = { 
+                    vehicle = "vehicles\\ghost\\ghost_mp", 
+                    weapon = "weapons\\shotgun\\shotgun",  
+                    title = "Ghost",  
+                    kills_required = 7,   
+                    grenades = { 0, 0 },  
+                    multiplier = 0 
+                },
+            [8] = { 
+                    vehicle = "vehicles\\rwarthog\\rwarthog",
+                    weapon = "weapons\\shotgun\\shotgun",  
+                    title = "Rocket Hog",  
+                    kills_required = 8,   
+                    grenades = { 0, 0 },  
+                    multiplier = 0 
+                },
+            [9] = { 
+                    vehicle = "vehicles\\scorpion\\scorpion_mp",
+                    weapon = "weapons\\shotgun\\shotgun",  
+                    title = "Tank",  
+                    kills_required = 9,   
+                    grenades = { 0, 0 },  
+                    multiplier = 0 
+                },
+            [10] = { 
+                    vehicle = "vehicles\\banshee\\banshee_mp",
+                    weapon = "weapons\\shotgun\\shotgun",  
+                    title = "Banshee",  
+                    kills_required = 10,   
+                    grenades = { 0, 0 },  
+                    multiplier = 0 
+                }
         },
 
         -- Some functions temporarily remove the server prefix while broadcasting a message.
@@ -193,14 +263,10 @@ function OnTick()
         for _, player in pairs(players) do
             if (player and player.id) then
                 if player_alive(player.id) then
-                
-                    local req_kills = game:GetKillThreshold(player.id)  
-                    local current_weapon = game:GetNextWeapon(player.id, "current")
-                    local next_weapon = game:GetNextWeapon(player.id, "next")
                     
                     local msg = gsub(gsub(gsub(gsub(gsub(gsub(set.current_level, 
                     "%%level%%", player.level),
-                    "%%weapon%%", current_weapon),
+                    "%%weapon%%", player.title),
                     "%%next_level%%", function()
                         if (player.level == #set.levels) then
                             return "NONE"
@@ -209,9 +275,9 @@ function OnTick()
                         end
                     end),
                     
-                    "%%next_weapon%%", next_weapon),
+                    "%%next_weapon%%", "THIS"),
                     "%%cur_kills%%", player.kills),
-                    "%%req_kills%%", req_kills)
+                    "%%req_kills%%", player.kills_required)
 
                     game:cls(player.id, 25)
                     rprint(player.id, msg)
@@ -403,11 +469,9 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
                                 end
                             end
                         end
-                        
-                        local kill_threshold = game:GetKillThreshold(player.id)
-                        
+                                                
                         -- PvP | LEVEL UP (killer)
-                        if (player.kills >= kill_threshold) then
+                        if (player.kills >= player.kills_required) then
                             params.levelup = true
                             game:CycleLevel(player.id, params)
                         end
@@ -535,54 +599,6 @@ function game:cls(PlayerIndex, count)
     end
 end
 
-function game:GetWeapon(PlayerIndex, VehicleLevel, CurrentWeapon)
-    if (PlayerIndex) then
-        local levels = game.settings.levels
-        local current_level = game:GetLevel(PlayerIndex)
-        for level,weapon in pairs(levels) do
-            if (level == current_level) then
-                if (not VehicleLevel) then
-                    return weapon[1]
-                else
-                    return weapon[2]
-                end
-            end
-        end
-    end
-end
-
-function game:GetVehicle(PlayerIndex)
-    if (PlayerIndex) then
-        local levels = game.settings.levels
-        local current_level = game:GetLevel(PlayerIndex)
-        for level,vehicle in pairs(levels) do
-            if (level == current_level) then
-                return vehicle[1]
-            end
-        end
-    end
-end
-
-function game:GetLevel(PlayerIndex)
-    local set = game.settings
-    local players = set.players
-    return(tonumber(players[PlayerIndex].level))
-end
-
-function game:GetKillThreshold(PlayerIndex)
-    if (PlayerIndex) then
-        local levels = game.settings.levels
-        local current_level = game:GetLevel(PlayerIndex)
-        for level,kills in pairs(levels) do
-            if (level < 7 and level == current_level) then
-                return tonumber(kills[3])
-            elseif (level > 6 and level == current_level) then
-                return tonumber(kills[4])
-            end
-        end
-    end
-end
-
 function game:GetNextWeapon(PlayerIndex, Type)
     if (PlayerIndex) then
         local levels = game.settings.levels
@@ -608,23 +624,34 @@ function game:GetNextWeapon(PlayerIndex, Type)
     end
 end
 
+function game:GetLevelInfo(PlayerIndex, CurrentLevel)
+    local table = game.settings.levels
+    for Level,Data in pairs(table) do
+        if (CurrentLevel == Level) then
+            return Data
+        end
+    end
+end
+
 function game:InitPlayer(PlayerIndex)
     if (PlayerIndex) then
     
         local set = game.settings
-        local starting_level = set.levels.start
-        
+        local StartLevel = set.levels.start
+        local Level = game:GetLevelInfo(PlayerIndex, StartLevel)
         local players = set.players
         players[#players + 1] = {
             name = get_var(tonumber(PlayerIndex), "$name"),
             id = tonumber(PlayerIndex),
-            level = starting_level,
+            level = StartLevel,
             assign = true,
             kills = 0,
+            weapon = Level.weapon,
+            vehicle = Level.vehicle,
+            title = Level.title,
+            kills_required = Level.kills_required,
             damage_applied = nil
         }
-        players[PlayerIndex].weapon = game:GetWeapon(PlayerIndex)
-        players[PlayerIndex].vehicle = game:GetVehicle(PlayerIndex)
     end
 end
 
@@ -635,6 +662,7 @@ function game:CycleLevel(PlayerIndex, State)
     
     for _,player in pairs(players) do
         if (player.id == PlayerIndex) then
+        
                       
             if (State.levelup) then
                 player.level = player.level + 1
@@ -646,18 +674,20 @@ function game:CycleLevel(PlayerIndex, State)
                 player.level = set.levels.start
             end
             
+            
             local max = #game.settings.levels
             if (player.level <= max) then
             
+                local LevelInfo = game:GetLevel(player.id, player.level)
+                player.weapon = LevelInfo.weapon
+                player.title = LevelInfo.title
+                player.kills_required = LevelInfo.kills_required
+                player.vehicle = LevelInfo.vehicle
             
-                if (player.level <= 6) then
-                    player.weapon = game:GetWeapon(PlayerIndex)
+                if (player.vehicle == nil) then
                     player.assign = true
                 else
-                    
-                    player.weapon = game:GetWeapon(PlayerIndex, true)
-                    player.vehicle = game:GetVehicle(PlayerIndex)
-                    
+                    -- Enter player into relevant vehicle:
                     local player_object = get_dynamic_player(player.id)
                     local x, y, z = read_vector3d(player_object + 0x5c)
                     local Vehicle = spawn_object("vehi", player.vehicle, x, y, z + 0.5)
@@ -709,11 +739,9 @@ end
 
 function OnVehicleExit(PlayerIndex)
     local players = game.settings.players
-    local current_level = game:GetLevel(PlayerIndex)
-
     for _,player in pairs(players) do
         if (player.id == PlayerIndex) then
-            if (current_level > 6) then
+            if (player.vehicle ~= nil) then
                 player.assign = true
             end
         end
