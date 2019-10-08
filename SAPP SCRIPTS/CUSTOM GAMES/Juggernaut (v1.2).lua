@@ -143,46 +143,50 @@ function OnTick()
                     if player_alive(shooter.id) then
                         local player_object = get_dynamic_player(shooter.id)
 
-                        juggernaut:CamoOnCrouch(shooter.id)
                         shooter.timer = shooter.timer + 0.03333333333333333
 
                         local delta_time = ((shooter.duration) - (shooter.timer))
                         local minutes, seconds = select(1, juggernaut:secondsToTime(delta_time)), select(2, juggernaut:secondsToTime(delta_time))
 
                         if (set.use_timer) then
+                            local health = format("%0.3f", read_float(player_object + 0xE0))
                             local msg = gsub(gsub(gsub(gsub(set.on_timer, 
                             "%%name%%", shooter.name),
                             "%%minutes%%", minutes),
                             "%%seconds%%", seconds), 
-                            "%%health%%", format("%0.3f", read_float(player_object + 0xE0)))
+                            "%%health%%", health)
                             juggernaut:rprintAll(msg)
                         end
+                        
+                        juggernaut:CamoOnCrouch(shooter.id, player_object)
 
                         if (tonumber(seconds) <= 0) then
                             
                             local OldJuggernaut = shooter.id
-                            -- Reset Juggernaut:
+                            -- Reset this Juggernaut:
                             juggernaut:Set(shooter.id, false)
                             
-                            -- Kill Juggernaut
+                            -- Kill this Juggernaut:
                             juggernaut:killPlayer(shooter.id)
                             
-                            -- Choose random player to become the new Juggernaut;
+                            -- Select new Juggernaut:
                             juggernaut:selectRandomJuggernaut(OldJuggernaut)
                             
                         elseif (player_object ~= 0) then
 
+                            -- Set NAV Market to the current Juggernaut
                             juggernaut:SetNav(shooter.id)
 
-                            -- Set juggernaut running speed:
+                            -- Set Juggernaut running speed:
                             if (attributes.running_speed > 0) then
                                 execute_command("s " .. shooter.id .. " " .. tonumber(attributes.running_speed))
                             end
                             
-                            -- Regenerate Player Health
+                            -- Regenerate Juggernaut Health
                             if (attributes.regenerating_health) then
-                                if read_float(player_object + 0xE0) < 1 then
-                                    write_float(player_object + 0xE0, read_float(player_object + 0xE0) + attributes.increment)
+                                local health = read_float(player_object + 0xE0)
+                                if (health < 1) then
+                                    write_float(player_object + 0xE0, health + attributes.increment)
                                 end
                             end
 
@@ -448,7 +452,6 @@ function juggernaut:isjuggernaut(PlayerIndex)
     return false
 end
 
-
 function juggernaut:broadcast(message, endgame)
     execute_command("msg_prefix \"\"")
     say_all(message)
@@ -501,15 +504,12 @@ function juggernaut:cls(PlayerIndex, count)
     end
 end
 
-function juggernaut:CamoOnCrouch(PlayerIndex)
+function juggernaut:CamoOnCrouch(PlayerIndex, PlayerObject)
     local attributes = juggernaut.settings.attributes
     if (attributes.invisibility_on_crouch) then
-        local player_object = get_dynamic_player(PlayerIndex)
-        if (player_object ~= 0) then
-            local couching = read_float(player_object + 0x50C)
-            if (couching == 1) then
-                execute_command("camo " .. PlayerIndex .. " 2")
-            end
+        local couching = read_float(PlayerObject + 0x50C)
+        if (couching == 1) then
+            execute_command("camo " .. PlayerIndex .. " 2")
         end
     end
 end
