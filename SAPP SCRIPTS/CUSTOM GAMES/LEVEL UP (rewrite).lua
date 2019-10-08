@@ -3,13 +3,6 @@
 Script Name: Level Up (v1.2), for SAPP (PC & CE)
 Description: 
 
-~~~ BEING REWRITTEN BEING REWRITTEN BEING REWRITTEN
-~~~ BEING REWRITTEN BEING REWRITTEN BEING REWRITTEN
-~~~ BEING REWRITTEN BEING REWRITTEN BEING REWRITTEN
-~~~ BEING REWRITTEN BEING REWRITTEN BEING REWRITTEN
-~~~ BEING REWRITTEN BEING REWRITTEN BEING REWRITTEN
-~~~ BEING REWRITTEN BEING REWRITTEN BEING REWRITTEN
-
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -40,7 +33,7 @@ function game:init()
         -- # This message is broadcast when the game begins:
         on_game_begin = "The game has begun",
         
-        current_level = "|lLevel: %level% (%weapon%) |rNext Level: %next_level% (%next_weapon% - Kills Req: %req_kills%)",
+        current_level = "|lLevel: %level% (%weapon%) |rNext Level: %next_level% (%next_weapon% - Kills: %cur_kills%/%req_kills%)",
         on_levelup = "(+) %name% is now Level %level%",
         on_suicide = "(-) %name% committed suicide and is now Level %level%",
         on_melee = "(-) %name% was melee'd by %killer% and is now Level %level%",
@@ -52,7 +45,7 @@ function game:init()
             -- Weapon | Name | Instructions | Kills Required | Frags/Plasmas | Ammo Multiplier
             [1] = { "weapons\\shotgun\\shotgun", "Shotgun", 1, { 6, 6 }, 0 },
             [2] = { "weapons\\assault rifle\\assault rifle", "Assualt Rifle", 2, { 2, 2 }, 240 },
-            [3] = { "weapons\\pistol\\pistol", "Pistol", "Aim for the head", 3, { 2, 1 }, 36 },
+            [3] = { "weapons\\pistol\\pistol", "Pistol", 3, { 2, 1 }, 36 },
             [4] = { "weapons\\sniper rifle\\sniper rifle", "Sniper Rifle", 4, { 3, 2 }, 12 },
             [5] = { "weapons\\rocket launcher\\rocket launcher", "Rocket Launcher", 5, { 1, 1 }, 6 },
             [6] = { "weapons\\plasma_cannon\\plasma_cannon", "Fuel Rod", 6, { 3, 1 }, 0 },
@@ -173,25 +166,6 @@ function OnScriptLoad()
             end
         end
     end
-    
-    -- # Disable Vehicles:
-    execute_command("disable_all_vehicles 0 1")
-    
-    -- # Disable Weapon Pick Ups
-    execute_command("disable_object 'weapons\\assault rifle\\assault rifle'")
-    execute_command("disable_object 'weapons\\flamethrower\\flamethrower'")
-    execute_command("disable_object 'weapons\\needler\\mp_needler'")
-    execute_command("disable_object 'weapons\\pistol\\pistol'")
-    execute_command("disable_object 'weapons\\plasma pistol\\plasma pistol'")
-    execute_command("disable_object 'weapons\\plasma rifle\\plasma rifle'")
-    execute_command("disable_object 'weapons\\plasma_cannon\\plasma_cannon'")
-    execute_command("disable_object 'weapons\\rocket launcher\\rocket launcher'")
-    execute_command("disable_object 'weapons\\shotgun\\shotgun'")
-    execute_command("disable_object 'weapons\\sniper rifle\\sniper rifle'")
-    
-    -- # Disable Grenade Pick Ups
-    execute_command("disable_object 'weapons\\frag grenade\\frag grenade'")
-    execute_command("disable_object 'weapons\\plasma grenade\\plasma grenade'")
 end
 
 function OnScriptUnload()
@@ -214,6 +188,8 @@ function OnTick()
     end
     
     if (gamestarted) then
+    
+    
         for _, player in pairs(players) do
             if (player and player.id) then
                 if player_alive(player.id) then
@@ -222,17 +198,19 @@ function OnTick()
                     local current_weapon = game:GetNextWeapon(player.id, "current")
                     local next_weapon = game:GetNextWeapon(player.id, "next")
                     
-                    local msg = gsub(gsub(gsub(gsub(gsub(set.current_level, 
+                    local msg = gsub(gsub(gsub(gsub(gsub(gsub(set.current_level, 
                     "%%level%%", player.level),
                     "%%weapon%%", current_weapon),
                     "%%next_level%%", function()
                         if (player.level == #set.levels) then
-                            return player.level - 1
+                            return "NONE"
                         else
                             return player.level + 1
                         end
                     end),
+                    
                     "%%next_weapon%%", next_weapon),
+                    "%%cur_kills%%", player.kills),
                     "%%req_kills%%", req_kills)
 
                     game:cls(player.id, 25)
@@ -270,6 +248,28 @@ function OnTick()
                     game:InitPlayer(i)
                 end
             end
+            
+            -- # Disable Vehicles:
+            execute_command("disable_all_vehicles 0 1")
+            
+            -- # Disable Weapon Pick Ups
+            execute_command("disable_object 'weapons\\assault rifle\\assault rifle'")
+            execute_command("disable_object 'weapons\\flamethrower\\flamethrower'")
+            execute_command("disable_object 'weapons\\needler\\mp_needler'")
+            execute_command("disable_object 'weapons\\pistol\\pistol'")
+            execute_command("disable_object 'weapons\\plasma pistol\\plasma pistol'")
+            execute_command("disable_object 'weapons\\plasma rifle\\plasma rifle'")
+            execute_command("disable_object 'weapons\\plasma_cannon\\plasma_cannon'")
+            execute_command("disable_object 'weapons\\rocket launcher\\rocket launcher'")
+            execute_command("disable_object 'weapons\\shotgun\\shotgun'")
+            execute_command("disable_object 'weapons\\sniper rifle\\sniper rifle'")
+            
+            -- # Disable Grenade Pick Ups
+            execute_command("disable_object 'weapons\\frag grenade\\frag grenade'")
+            execute_command("disable_object 'weapons\\plasma grenade\\plasma grenade'")
+            
+            local scorelimit = game:GetScoreLimit()
+            execute_command("scorelimit " .. scorelimit)
             
             if (#players > 0) then
 
@@ -395,6 +395,7 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
                                         if (player.damage_applied == GetTag("jpt!", Tag[1])) then
                                             params.melee = true
                                             params.killer = player.name
+                                            game:resetScore(victim)
                                             game:CycleLevel(victim, params)
                                             player.damage_applied = nil                        
                                         end
@@ -417,6 +418,7 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
                 -- SUICIDE | LEVEL DOWN (victim)
                 params.suicide = true
                 game:CycleLevel(killer, params)
+                game:resetScore(killer)
             end
         end
     end
@@ -446,10 +448,17 @@ function OnPlayerSpawn(PlayerIndex)
         for _,player in pairs(game.settings.players) do
             if (player.id == PlayerIndex) then
                 player.kills = 0                        
-                player.damage_applied = nil                        
+                player.damage_applied = nil
+                game:resetScore(player.id)
             end
         end
     end
+end
+
+function game:resetScore(PlayerIndex)
+    execute_command("score " .. PlayerIndex .. " 0")
+    execute_command("kills " .. PlayerIndex .. " 0")
+    execute_command("assists " .. PlayerIndex .. " 0")
 end
 
 function game:killPlayer(PlayerIndex)
@@ -676,6 +685,10 @@ end
 
 function game:GetPlayerCount()
     return tonumber(get_var(0, "$pn"))
+end
+
+function game:GetScoreLimit()
+    return (game.settings.levels[#game.settings.levels][4])
 end
 
 function game:getXYZ(PlayerIndex, PlayerObject)
