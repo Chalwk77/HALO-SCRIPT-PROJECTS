@@ -47,15 +47,22 @@ function juggernaut:init()
         attributes = {
             -- Juggernaut Health: 0 to 99999 (Normal = 1)
             health = 10,
+            
             -- Set to 0 to disable (normal speed is 1)
             running_speed = 1.5,
-            damage_multiplier = 10, -- (0 to 10) (Normal = 1)
+            
+            -- Weapon damage multiplier (0 to 10) (Normal = 1)
+            damage_multiplier = 10,
+            
             -- Set to 'false' to disable:
             invisibility_on_crouch = true,
+            
             -- Set to 'false' to disable temporary overshield:
             overshield = true,
-            -- If true, the last man standing will have regenerating health:
+            
+            -- If true, the Juggernaut will have regenerating health:
             regenerating_health = true,
+            
             -- Health will regenerate in chunks of this percent every 30 ticks until they gain maximum health.
             increment = 0.0005,
         },
