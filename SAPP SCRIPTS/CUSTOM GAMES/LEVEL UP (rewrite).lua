@@ -275,7 +275,7 @@ function OnTick()
                         end
                     end),
                     
-                    "%%next_weapon%%", "THIS"),
+                    "%%next_weapon%%", player.next_item),
                     "%%cur_kills%%", player.kills),
                     "%%req_kills%%", player.kills_required)
 
@@ -599,31 +599,6 @@ function game:cls(PlayerIndex, count)
     end
 end
 
-function game:GetNextWeapon(PlayerIndex, Type)
-    if (PlayerIndex) then
-        local levels = game.settings.levels
-        local current_level = game:GetLevel(PlayerIndex)
-        
-        local table
-        
-        if (Type == "next") then
-            table = levels[current_level + 1]
-        elseif (Type == "current") then
-            table = levels[current_level]
-        end
-        
-        if (current_level < #levels) then
-            if (current_level < 7) then
-                return table[2]
-            elseif (current_level > 6) then
-                return table[3]
-            end
-        else
-            return "NONE"
-        end
-    end
-end
-
 function game:GetLevelInfo(PlayerIndex, CurrentLevel)
     local table = game.settings.levels
     for Level,Data in pairs(table) do
@@ -633,12 +608,32 @@ function game:GetLevelInfo(PlayerIndex, CurrentLevel)
     end
 end
 
+function game:GetNext(PlayerIndex, CurrentLevel)
+    
+    local players = game.settings.players
+    local max = #game.settings.levels
+        
+    if (CurrentLevel < max) then
+        return game:GetLevelInfo(PlayerIndex, CurrentLevel + 1)
+    elseif (CurrentLevel == max) then
+        return nil
+    end
+end
+
 function game:InitPlayer(PlayerIndex)
     if (PlayerIndex) then
     
         local set = game.settings
         local StartLevel = set.levels.start
         local Level = game:GetLevelInfo(PlayerIndex, StartLevel)
+                
+        local NextItem = game:GetNext(PlayerIndex, StartLevel)
+        if (NextItem ~= nil) then                
+            _next_ = NextItem.title
+        else
+            _next_ = "FINISHED"
+        end
+
         local players = set.players
         players[#players + 1] = {
             name = get_var(tonumber(PlayerIndex), "$name"),
@@ -649,6 +644,7 @@ function game:InitPlayer(PlayerIndex)
             weapon = Level.weapon,
             vehicle = Level.vehicle,
             title = Level.title,
+            next_item = _next_,
             kills_required = Level.kills_required,
             damage_applied = nil
         }
@@ -678,11 +674,19 @@ function game:CycleLevel(PlayerIndex, State)
             local max = #game.settings.levels
             if (player.level <= max) then
             
-                local LevelInfo = game:GetLevel(player.id, player.level)
-                player.weapon = LevelInfo.weapon
-                player.title = LevelInfo.title
-                player.kills_required = LevelInfo.kills_required
-                player.vehicle = LevelInfo.vehicle
+                local Level = game:GetLevelInfo(player.id, player.level)
+                
+                player.weapon = Level.weapon
+                player.title = Level.title
+                player.kills_required = Level.kills_required
+                player.vehicle = Level.vehicle
+                
+                local NextItem = game:GetNext(player.id, player.level)
+                if (NextItem ~= nil) then                
+                    player.next_item = NextItem.title
+                else
+                    player.next_item = "FINISHED"
+                end
             
                 if (player.vehicle == nil) then
                     player.assign = true
