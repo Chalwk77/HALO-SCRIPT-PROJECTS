@@ -457,11 +457,11 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
                 local set = game.settings
                 local players = set.players
 
-                -- MELEE | LEVEL DOWN (victim)
                 for _, player in pairs(players) do
                     if (player.id == killer) then
                         player.kills = player.kills + 1
 
+                        -- MELEE | LEVEL DOWN (victim)
                         if (player.damage_applied ~= nil) then
                             local multipliers = set.damage_multipliers
                             for Tab, _ in pairs(multipliers) do
