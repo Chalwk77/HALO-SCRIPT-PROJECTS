@@ -3,11 +3,6 @@
 Script Name: Level Up (v1.2), for SAPP (PC & CE)
 Description: Level up is a progression based game
 
-
--- TODO: 
--- Set Prim/Tert Ammo (+ battery for Energy Weapons)
--- Delete Player Vehicle when they exit it!
-
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -52,7 +47,7 @@ function game:init()
                 title = "Shotgun",
                 kills_required = 1, -- Number of kils required to level up
                 grenades = { 6, 6 }, -- Frags|Plasmas
-                multiplier = { 0, 0 } -- Weapon (Primary Ammo, Secondary Ammo)
+                ammo = { 0, 0 } -- Weapon (Primary Ammo, Secondary Ammo)
             },
             [2] = {
                 weapon = "weapons\\assault rifle\\assault rifle",
@@ -60,7 +55,7 @@ function game:init()
                 title = "Assault Rifle",
                 kills_required = 2,
                 grenades = { 2, 2 },
-                multiplier = { 240, 100 }
+                ammo = { 240, 100 }
             },
             [3] = {
                 weapon = "weapons\\pistol\\pistol",
@@ -68,7 +63,7 @@ function game:init()
                 title = "Pistol",
                 kills_required = 3,
                 grenades = { 2, 1 },
-                multiplier = { 36, 18 }
+                ammo = { 36, 18 }
             },
             [4] = {
                 weapon = "weapons\\sniper rifle\\sniper rifle",
@@ -76,7 +71,7 @@ function game:init()
                 title = "Sniper Rifle",
                 kills_required = 4,
                 grenades = { 3, 2 },
-                multiplier = { 24, 12 }
+                ammo = { 24, 12 }
             },
             [5] = {
                 weapon = "weapons\\rocket launcher\\rocket launcher",
@@ -84,7 +79,7 @@ function game:init()
                 title = "Rocket Launcher",
                 kills_required = 5,
                 grenades = { 1, 1 },
-                multiplier = { 12, 6 }
+                ammo = { 12, 6 }
             },
             [6] = {
                 weapon = "weapons\\plasma_cannon\\plasma_cannon",
@@ -92,7 +87,7 @@ function game:init()
                 title = "Fuel Rod",
                 kills_required = 6,
                 grenades = { 3, 1 },
-                multiplier = { 100, 0 }
+                ammo = { 100, 0 }
             },
 
             [7] = {
@@ -101,7 +96,7 @@ function game:init()
                 title = "Ghost",
                 kills_required = 7,
                 grenades = { 0, 0 },
-                multiplier = { 0, 0 }
+                ammo = { 0, 0 }
             },
             [8] = {
                 vehicle = "vehicles\\rwarthog\\rwarthog",
@@ -109,7 +104,7 @@ function game:init()
                 title = "Rocket Hog",
                 kills_required = 8,
                 grenades = { 0, 0 },
-                multiplier = { 0, 0 },
+                ammo = { 0, 0 },
             },
             [9] = {
                 vehicle = "vehicles\\scorpion\\scorpion_mp",
@@ -117,7 +112,7 @@ function game:init()
                 title = "Tank",
                 kills_required = 9,
                 grenades = { 0, 0 },
-                multiplier = { 0, 0 },
+                ammo = { 0, 0 },
             },
             [10] = {
                 vehicle = "vehicles\\banshee\\banshee_mp",
@@ -125,7 +120,7 @@ function game:init()
                 title = "Banshee",
                 kills_required = 10,
                 grenades = { 0, 0 },
-                multiplier = { 0, 0 },
+                ammo = { 0, 0 },
             }
         },
 
@@ -296,12 +291,11 @@ function OnTick()
                             assign_weapon(spawn_object("weap", player.weapon, coords.x, coords.y, coords.z), player.id)
                             
                             -- Set player Grenades:
-                            write_word(player_object + 0x31E, player.frags)
-                            write_word(player_object + 0x31F, player.plasmas)
+                            write_word(player_object + 0x31E, player.grenades[1])
+                            write_word(player_object + 0x31F, player.grenades[2])
                             
-                            -- Set Player Ammo:
-                            -- TODO: 
-                            -- Set Prim/Tert Ammo (+ battery for Energy Weapons)
+                            execute_command_sequence("w8 1;ammo " .. player.id .. " " .. tonumber(player.ammo[1]))
+                            execute_command_sequence("w8 1;mag " .. player.id .. " " .. tonumber(player.ammo[2]))
                         end
                     end
                 end
@@ -662,8 +656,8 @@ function game:InitPlayer(PlayerIndex)
             weapon = Level.weapon,
             vehicle = Level.vehicle,
             vehicle_object = nil,
-            frags = Level.grenades[1],
-            plasmas = Level.grenades[2],
+            grenades = Level.grenades,
+            ammo = Level.ammo,
             title = Level.title,
             next_item = _next_,
             kills_required = Level.kills_required,
@@ -700,8 +694,8 @@ function game:CycleLevel(PlayerIndex, State)
                 player.title = Level.title
                 player.kills_required = Level.kills_required
                 player.vehicle = Level.vehicle
-                player.frags = Level.grenades[1]
-                player.plasmas = Level.grenades[2]
+                player.grenades = Level.grenades
+                player.ammo = Level.ammo
 
                 local NextItem = game:GetNext(player.level)
                 if (NextItem ~= nil) then
