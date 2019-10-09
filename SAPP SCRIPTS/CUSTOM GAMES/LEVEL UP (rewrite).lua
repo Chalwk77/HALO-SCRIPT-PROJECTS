@@ -428,7 +428,7 @@ function OnPlayerDisconnect(PlayerIndex)
             -- Ensure all timer parameters are set to their default values.
             game:StopTimer()
 
-            -- One player remains | ends the game.
+            -- One player remains | end the game.
         elseif (player_count == 1) then
             game:broadcast("You win!", true)
         end
@@ -562,8 +562,7 @@ function game:broadcast(message, endgame, exclude, player)
         end
     end
     execute_command("msg_prefix \" " .. game.settings.server_prefix .. "\"")
-
-    -- End the game if variable "GameOver" is true.
+    
     if (endgame) then
         execute_command("sv_map_next")
     end
