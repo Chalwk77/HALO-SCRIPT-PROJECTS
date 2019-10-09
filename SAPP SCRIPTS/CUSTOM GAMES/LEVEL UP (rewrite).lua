@@ -1,7 +1,12 @@
 --[[
 --=====================================================================================================--
 Script Name: Level Up (v1.2), for SAPP (PC & CE)
-Description: 
+Description: Level up is a progression based game
+
+
+-- TODO: 
+-- Set Prim/Tert Ammo (+ battery for Energy Weapons)
+-- Delete Player Vehicle when they exit it!
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -28,10 +33,10 @@ function game:init()
         delay = 10,
 
         -- # This message is the pre-game broadcast:
-        pre_game_message = "Level Up (v1.2) will begin in %minutes%:%seconds%",
+        pre_game_message = "Game will begin in %minutes%:%seconds%",
 
         -- # This message is broadcast when the game begins:
-        on_game_begin = "The game has begun",
+        on_game_begin = "The game has begun!",
 
         current_level = "|lLevel: %level% (%weapon%) |rNext Level: %next_level% (%next_weapon% - Kills: %cur_kills%/%req_kills%)",
         on_levelup = "(+) %name% is now Level %level%",
@@ -41,15 +46,13 @@ function game:init()
         levels = {
             -- Starting Level:
             start = 1,
-
-            -- Weapon | Name | Instructions | Kills Required | Frags/Plasmas | Ammo Multiplier
             [1] = {
                 weapon = "weapons\\shotgun\\shotgun",
                 vehicle = nil,
                 title = "Shotgun",
-                kills_required = 1,
-                grenades = { 6, 6 },
-                multiplier = 0
+                kills_required = 1, -- Number of kils required to level up
+                grenades = { 6, 6 }, -- Frags|Plasmas
+                multiplier = { 0, 0 } -- Weapon (Primary Ammo, Secondary Ammo)
             },
             [2] = {
                 weapon = "weapons\\assault rifle\\assault rifle",
@@ -57,7 +60,7 @@ function game:init()
                 title = "Assault Rifle",
                 kills_required = 2,
                 grenades = { 2, 2 },
-                multiplier = 240
+                multiplier = { 240, 100 }
             },
             [3] = {
                 weapon = "weapons\\pistol\\pistol",
@@ -65,7 +68,7 @@ function game:init()
                 title = "Pistol",
                 kills_required = 3,
                 grenades = { 2, 1 },
-                multiplier = 36
+                multiplier = { 36, 18 }
             },
             [4] = {
                 weapon = "weapons\\sniper rifle\\sniper rifle",
@@ -73,7 +76,7 @@ function game:init()
                 title = "Sniper Rifle",
                 kills_required = 4,
                 grenades = { 3, 2 },
-                multiplier = 12
+                multiplier = { 24, 12 }
             },
             [5] = {
                 weapon = "weapons\\rocket launcher\\rocket launcher",
@@ -81,7 +84,7 @@ function game:init()
                 title = "Rocket Launcher",
                 kills_required = 5,
                 grenades = { 1, 1 },
-                multiplier = 6
+                multiplier = { 12, 6 }
             },
             [6] = {
                 weapon = "weapons\\plasma_cannon\\plasma_cannon",
@@ -89,7 +92,7 @@ function game:init()
                 title = "Fuel Rod",
                 kills_required = 6,
                 grenades = { 3, 1 },
-                multiplier = 0
+                multiplier = { 100, 0 }
             },
 
             [7] = {
@@ -98,7 +101,7 @@ function game:init()
                 title = "Ghost",
                 kills_required = 7,
                 grenades = { 0, 0 },
-                multiplier = 0
+                multiplier = { 0, 0 }
             },
             [8] = {
                 vehicle = "vehicles\\rwarthog\\rwarthog",
@@ -106,7 +109,7 @@ function game:init()
                 title = "Rocket Hog",
                 kills_required = 8,
                 grenades = { 0, 0 },
-                multiplier = 0
+                multiplier = { 0, 0 },
             },
             [9] = {
                 vehicle = "vehicles\\scorpion\\scorpion_mp",
@@ -114,7 +117,7 @@ function game:init()
                 title = "Tank",
                 kills_required = 9,
                 grenades = { 0, 0 },
-                multiplier = 0
+                multiplier = { 0, 0 },
             },
             [10] = {
                 vehicle = "vehicles\\banshee\\banshee_mp",
@@ -122,7 +125,7 @@ function game:init()
                 title = "Banshee",
                 kills_required = 10,
                 grenades = { 0, 0 },
-                multiplier = 0
+                multiplier = { 0, 0 },
             }
         },
 
@@ -246,8 +249,8 @@ function OnTick()
 
     local set = game.settings
     local players = set.players
-    local player_count = game:GetPlayerCount()
     local countdown_begun = (init_countdown == true)
+    local player_count = game:GetPlayerCount()
 
     -- # Continuous message emitted when there aren't enough players to start the game:
     if (print_nep) and (not gamestarted) and (player_count < set.required_players) then
@@ -260,7 +263,6 @@ function OnTick()
     end
 
     if (gamestarted) then
-
 
         for _, player in pairs(players) do
             if (player and player.id) then
@@ -292,8 +294,14 @@ function OnTick()
                             player.assign = false
                             execute_command("wdel " .. player.id)
                             assign_weapon(spawn_object("weap", player.weapon, coords.x, coords.y, coords.z), player.id)
+                            
+                            -- Set player Grenades:
                             write_word(player_object + 0x31E, player.frags)
                             write_word(player_object + 0x31F, player.plasmas)
+                            
+                            -- Set Player Ammo:
+                            -- TODO: 
+                            -- Set Prim/Tert Ammo (+ battery for Energy Weapons)
                         end
                     end
                 end
@@ -415,6 +423,9 @@ function OnPlayerDisconnect(PlayerIndex)
 
         for index, player in pairs(players) do
             if (player.id == p) then
+                if (player.vehicle_object ~= nil) then                    
+                    destroy_object(player.vehicle_object)
+                end
                 players[index] = nil
             end
         end
@@ -479,6 +490,8 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
                             params.levelup = true
                             game:CycleLevel(player.id, params)
                         end
+                        
+                        game:DestroyVehicle(victim, false)
                     end
                 end
             else
@@ -487,6 +500,7 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
                 params.suicide = true
                 game:CycleLevel(killer, params)
                 game:resetScore(killer)
+                game:DestroyVehicle(killer, false)
             end
         end
     end
@@ -555,6 +569,7 @@ function game:broadcast(message, endgame, exclude, player)
     end
     execute_command("msg_prefix \" " .. game.settings.server_prefix .. "\"")
 
+    -- End the game if variable "GameOver" is true.
     if (endgame) then
         execute_command("sv_map_next")
     end
@@ -646,6 +661,7 @@ function game:InitPlayer(PlayerIndex)
             kills = 0,
             weapon = Level.weapon,
             vehicle = Level.vehicle,
+            vehicle_object = nil,
             frags = Level.grenades[1],
             plasmas = Level.grenades[2],
             title = Level.title,
@@ -701,6 +717,7 @@ function game:CycleLevel(PlayerIndex, State)
                     local player_object = get_dynamic_player(player.id)
                     local x, y, z = read_vector3d(player_object + 0x5c)
                     local Vehicle = spawn_object("vehi", player.vehicle, x, y, z + 0.5)
+                    player.vehicle_object = Vehicle
                     enter_vehicle(Vehicle, player.id, 0)
                 end
 
@@ -754,6 +771,39 @@ function OnVehicleExit(PlayerIndex)
         if (player.id == PlayerIndex) then
             if (player.vehicle ~= nil) then
                 player.assign = true
+                game:DestroyVehicle(player.id, true)
+            end
+        end
+    end
+end
+
+function game:DestroyVehicle(PlayerIndex, Delay)
+    local players = game.settings.players
+    for _, player in pairs(players) do
+        if (player.id == PlayerIndex) then
+            if (player.vehicle_object ~= nil) then
+
+                if (not Delay) then
+                    destroy_object(player.vehicle_object)
+                else                
+                    local delta_time = 1000 -- 1 second (in ms)
+                    timer(delta_time * 2, "DelayDestroy", player.vehicle_object, player.id)
+                end
+                
+                break
+            end
+        end
+    end
+end
+
+function DelayDestroy(Object, PlayerIndex)
+    if (Object) then
+        destroy_object(Object)
+        local players = game.settings.players
+        for _,player in pairs(players) do
+            if (player.id == PlayerIndex) then
+                player.vehicle_object = nil
+                break
             end
         end
     end
