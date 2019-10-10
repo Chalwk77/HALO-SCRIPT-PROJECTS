@@ -70,7 +70,8 @@ function OnPreJoin(p)
                 if logtime then logtime = false end
             end
             
-            local msg = gsub(gsub(gsub(vpn_blocker.feedback2, "%%name%%", player.name),
+            local msg = gsub(gsub(gsub(vpn_blocker.feedback2, 
+            "%%name%%", player.name),
             "%%action%%", action), 
             "%%ip%%", player.ip)
             cprint(msg, 4+8)
