@@ -1215,8 +1215,10 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     end
     command = lower(command) or upper(command)
     
-    game:PauseHUD(PlayerIndex, true, 10)
-
+    if (command) then
+        game:PauseHUD(PlayerIndex, true, 5)
+    end
+    
     local set = game.settings
     local cmd = set.command
 
@@ -1425,9 +1427,7 @@ end
 function game:Respond(p, msg, color)
     local color = color or 4 + 8
     if not game:isConsole(p) then
-        execute_command("msg_prefix \"\"")
-        say(p, msg)
-        execute_command("msg_prefix \" " .. game.settings.server_prefix .. "\"")
+        rprint(p, msg)
     else
         cprint(msg, color)
     end
