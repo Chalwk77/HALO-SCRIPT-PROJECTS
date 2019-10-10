@@ -11,7 +11,7 @@ Script Name: VPN Blocker (VERSION 2), for SAPP (PC & CE)
 #3: Sign up for an account at www.ipqualityscore.com.
 - Navigate to Proxy Detection Overview page: https://www.ipqualityscore.com/documentation/proxy-detection/overview
 - Copy your unique "Private Key" from that page and paste 
-it into the API_KEY field (line 29) in this script (see config below).
+it into the API_KEY field (line 32) in this script (see config below).
 
 If VPN Blocker kicks or bans someone it will log the details of that action 
 to a file called "VPN Blocker.log" in the servers root directory.
