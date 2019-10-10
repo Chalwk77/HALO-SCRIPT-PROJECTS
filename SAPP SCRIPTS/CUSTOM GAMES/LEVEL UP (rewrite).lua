@@ -25,7 +25,7 @@ function game:init()
 
         -- # Countdown delay (in seconds)
         -- This is a pre-game-start countdown initiated at the beginning of each game.
-        delay = 10,
+        delay = 3,
 
         -- # This message is the pre-game broadcast:
         pre_game_message = "Game will begin in %minutes%:%seconds%",
@@ -190,6 +190,134 @@ function game:init()
             },
 
         },
+        
+        -- If true, this script will simulate CTF game play on Slayer game types:
+        ctf_mode = true,
+        
+        flag = {
+                
+            ["bloodgulch"] = {
+                -- Blue Base X,Y,Z:
+                { 95.687797546387, -159.44900512695, -0.10000000149012 },
+                -- Red Base X,Y,Z:
+                { 40.240600585938, -79.123199462891, -0.10000000149012 },
+                -- Flag X,Y,Z:
+                { 65.749893188477, -120.40949249268, 0.11860413849354 },
+                -- Flag runner speed:
+                { 1.5 }
+            },
+            ["deathisland"] = {
+                { -26.576030731201, -6.9761986732483, 9.6631727218628 },
+                { 29.843469619751, 15.971487045288, 8.2952880859375 },
+                { -30.282138824463, 31.312761306763, 16.601940155029 },
+                { 1.5 }
+            },
+            ["icefields"] = {
+                { 24.85000038147, -22.110000610352, 2.1110000610352 },
+                { -77.860000610352, 86.550003051758, 2.1110000610352 },
+                { -26.032163619995, 32.365093231201, 9.0070295333862 },
+                { 1.5 }
+            },
+            ["infinity"] = {
+                { 0.67973816394806, -164.56719970703, 15.039022445679 },
+                { -1.8581243753433, 47.779975891113, 11.791272163391 },
+                { 9.6316251754761, -64.030670166016, 7.7762198448181 },
+                { 1.5 }
+            },
+            ["sidewinder"] = {
+                { -32.038200378418, -42.066699981689, -3.7000000476837 },
+                { 30.351499557495, -46.108001708984, -3.7000000476837 },
+                { 2.0510597229004, 55.220195770264, -2.8019363880157 },
+                { 1.5 }
+            },
+            ["timberland"] = {
+                { 17.322099685669, -52.365001678467, -17.751399993896 },
+                { -16.329900741577, 52.360000610352, -17.741399765015 },
+                { 1.2504668235779, -1.4873152971268, -21.264007568359 },
+                { 1.5 }
+            },
+            ["dangercanyon"] = {
+                { -12.104507446289, -3.4351840019226, -2.2419033050537 },
+                { 12.007399559021, -3.4513700008392, -2.2418999671936 },
+                { -0.47723594307899, 55.331966400146, 0.23940123617649 },
+                { 1.5 }
+            },
+            ["beavercreek"] = {
+                { 29.055599212646, 13.732000350952, -0.10000000149012 },
+                { -0.86037802696228, 13.764800071716, -0.0099999997764826 },
+                { 14.01514339447, 14.238339424133, -0.91193699836731 },
+                { 1.5 }
+            },
+            ["boardingaction"] = {
+                { 1.723109960556, 0.4781160056591, 0.60000002384186 },
+                { 18.204000473022, -0.53684097528458, 0.60000002384186 },
+                { 4.3749675750732, -12.832932472229, 7.2201852798462 },
+                { 1.5 }
+            },
+            ["carousel"] = {
+                { 5.6063799858093, -13.548299789429, -3.2000000476837 },
+                { -5.7499198913574, 13.886699676514, -3.2000000476837 },
+                { 0.033261407166719, 0.0034416019916534, -0.85620224475861 },
+                { 1.5 }
+            },
+            ["chillout"] = {
+                { 7.4876899719238, -4.49059009552, 2.5 },
+                { -7.5086002349854, 9.750340461731, 0.10000000149012 },
+                { 1.392117857933, 4.7001452445984, 3.108856678009 },
+                { 1.5 }
+            },
+            ["damnation"] = {
+                { 9.6933002471924, -13.340399742126, 6.8000001907349 },
+                { -12.17884349823, 14.982703208923, -0.20000000298023 },
+                { -2.0021493434906, -4.3015551567078, 3.3999974727631 },
+                { 1.5 }
+            },
+            ["gephyrophobia"] = {
+                { 26.884338378906, -144.71551513672, -16.049139022827 },
+                { 26.727857589722, 0.16621616482735, -16.048349380493 },
+                { 63.513668060303, -74.088592529297, -1.0624552965164 },
+                { 1.5 }
+            },
+            ["hangemhigh"] = {
+                { 13.047902107239, 9.0331249237061, -3.3619771003723 },
+                { 32.655700683594, -16.497299194336, -1.7000000476837 },
+                { 21.020147323608, -4.6323413848877, -4.2290902137756 },
+                { 1.5 }
+            },
+            ["longest"] = {
+                { -12.791899681091, -21.6422996521, -0.40000000596046 },
+                { 11.034700393677, -7.5875601768494, -0.40000000596046 },
+                { -0.84, -14.54, 2.41 },
+                { 1.5 }
+            },
+            ["prisoner"] = {
+                { -9.3684597015381, -4.9481601715088, 5.6999998092651 },
+                { 9.3676500320435, 5.1193399429321, 5.6999998092651 },
+                { 0.90271377563477, 0.088873945176601, 1.392499089241 },
+                { 1.5 }
+            },
+            ["putput"] = {
+                { -18.89049911499, -20.186100006104, 1.1000000238419 },
+                { 34.865299224854, -28.194700241089, 0.10000000149012 },
+                { -2.3500289916992, -21.121452331543, 0.90232092142105 },
+                { 1.5 }
+            },
+            ["ratrace"] = {
+                { -4.2277698516846, -0.85564690828323, -0.40000000596046 },
+                { 18.613000869751, -22.652599334717, -3.4000000953674 },
+                { 8.6629104614258, -11.159770965576, 0.2217468470335 },
+                { 1.5 }
+            },
+            ["wizard"] = {
+                { -9.2459697723389, 9.3335800170898, -2.5999999046326 },
+                { 9.1828498840332, -9.1805400848389, -2.5999999046326 },
+                { -5.035900592804, -5.0643291473389, -2.7504394054413 },
+                { 1.5 }
+            },
+            
+            
+            ["FLAG"] = {},
+        },
         --# Do Not Touch #--
         players = { }
         --------------------------------------------------------------
@@ -202,10 +330,12 @@ local gsub = string.gsub
 
 -- Variables for Math Library:
 local floor = math.floor
+local sqrt = math.sqrt
 
 -- Game Variables:
 local gamestarted
 local countdown, init_countdown, print_nep
+local delta_time = 0.03333333333333333
 
 function OnScriptLoad()
 
@@ -220,6 +350,8 @@ function OnScriptLoad()
 
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
     register_callback(cb['EVENT_VEHICLE_EXIT'], "OnVehicleExit")
+    register_callback(cb['EVENT_WEAPON_DROP'], "OnWeaponDrop")
+    register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
 
     register_callback(cb['EVENT_DIE'], 'OnPlayerKill')
     register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
@@ -227,6 +359,10 @@ function OnScriptLoad()
     if (get_var(0, '$gt') ~= "n/a") then
 
         game:init()
+        
+        if (set.ctf_mode) then            
+            game:SpawnFlag(true)
+        end
 
         for i = 1, 16 do
             if player_present(i) then
@@ -258,6 +394,29 @@ function OnTick()
     end
 
     if (gamestarted) then
+
+        game:MonitorFlag()
+        local flag_table = game.settings.flag["FLAG"]
+        for index,flag in pairs(flag_table) do
+            if (flag.object) and (not flag.held) then
+                if (flag.respawn_trigger) then
+                    flag.timer = flag.timer + delta_time
+                   
+                    local time = ((flag.respawn_time) - (flag.timer))
+                    local seconds = select(2, game:secondsToTime(time))
+    
+                    if (tonumber(seconds) == flag.respawn_time/2) then
+                        print("The Flag will respawn in " .. flag.respawn_time/2 .. " seconds!")
+
+                    elseif (tonumber(seconds) <= 0) then
+                        print("the flag has respawned!")
+                        
+                        flag_table[index] = nil
+                        
+                    end
+                end
+            end
+        end
 
         for _, player in pairs(players) do
             if (player and player.id) then
@@ -302,7 +461,7 @@ function OnTick()
             end
         end
     elseif (countdown_begun) then
-        countdown = countdown + 0.03333333333333333
+        countdown = countdown + delta_time
 
         local delta_time = ((set.delay) - (countdown))
         local minutes, seconds = select(1, game:secondsToTime(delta_time)), select(2, game:secondsToTime(delta_time))
@@ -314,6 +473,10 @@ function OnTick()
 
             gamestarted = true
             game:StopTimer()
+            
+            if (set.ctf_mode) then            
+                game:SpawnFlag(true)
+            end
 
             for i = 1, 16 do
                 if player_present(i) then
@@ -428,7 +591,7 @@ function OnPlayerDisconnect(PlayerIndex)
             -- Ensure all timer parameters are set to their default values.
             game:StopTimer()
 
-            -- One player remains | end the game.
+            -- One player remains | ends the game.
         elseif (player_count == 1) then
             game:broadcast("You win!", true)
         end
@@ -562,7 +725,8 @@ function game:broadcast(message, endgame, exclude, player)
         end
     end
     execute_command("msg_prefix \" " .. game.settings.server_prefix .. "\"")
-    
+
+    -- End the game if variable "GameOver" is true.
     if (endgame) then
         execute_command("sv_map_next")
     end
@@ -673,7 +837,6 @@ function game:CycleLevel(PlayerIndex, State)
     for _, player in pairs(players) do
         if (player.id == PlayerIndex) then
 
-
             if (State.levelup) then
                 player.level = player.level + 1
             else
@@ -758,6 +921,141 @@ function game:getXYZ(PlayerIndex, PlayerObject)
     return coords
 end
 
+function game:SpawnFlag(DestroyOldFlag)
+
+    local set = game.settings
+    local map = get_var(0, "$map")
+    local flag = game.settings.flag
+    local coords = flag[map]
+
+    if (coords ~= nil) then
+    
+        local flag_table = flag["FLAG"]
+        
+        if (DestroyOldFlag) then
+            for i,f in pairs(flag_table) do
+                if (i) then
+                    destroy_object(f.object)
+                    flag_table[i] = nil
+                end
+            end
+        end
+        
+        local object = spawn_object("weap", "weapons\\flag\\flag", coords[3][1], coords[3][2], coords[3][3])
+        local FlagObject = get_object_memory(object)
+        
+        flag_table[FlagObject] = {
+            held = false, held_by = nil,
+            object = object,
+            timer = 0,
+            respawn_time = 15,
+            respawn_trigger = false,
+            running_speed = coords[4][1],
+            bx = coords[1][1], by = coords[1][2], bz = coords[1][3],
+            rx = coords[2][1], ry = coords[2][2], rz = coords[2][3],
+        }
+    end
+end
+
+function game:MonitorFlag()
+    
+    local map = get_var(0, "$map")
+    local flag_table = game.settings.flag["FLAG"]
+           
+    for index,flag in pairs(flag_table) do
+        if (flag.object and flag.held) then
+            
+            local player = flag.held_by
+            local player_object = get_dynamic_player(player)
+            if (player_object ~= 0) then
+            
+                execute_command("s " .. player .. " " .. flag.running_speed)
+                
+                local coords = game:getXYZ(player, player_object)
+                if (coords) then
+                             
+                    local CapReds = (game:GetDistance(coords.x, coords.y, coords.z, flag.bx, flag.by, flag.bz) <= 0.9)
+                    local CapBlue = (game:GetDistance(coords.x, coords.y, coords.z, flag.rx, flag.ry, flag.rz) <= 0.9)
+                    
+                    if (CapReds or CapBlue ) then
+                        flag.held = false
+                        
+                        local params = { }
+                        params.levelup = true
+                        
+                        execute_command("s " .. PlayerIndex .. " 1")
+                        
+                        game:CycleLevel(player, params)
+                        game:SpawnFlag(true)
+                    end
+                end
+            end
+        end
+    end
+end
+
+function game:GetDistance(pX, pY, pZ, X, Y, Z)
+    return sqrt((pX - X) ^ 2 + (pY - Y) ^ 2 + (pZ - Z) ^ 2)
+end
+
+function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
+    local set = game.settings
+    if (gamestarted and set.ctf_mode and tonumber(Type) == 1) then
+        game:OnFlagPickup(PlayerIndex, WeaponIndex)           
+    end
+end
+
+function OnWeaponDrop(PlayerIndex)
+    local set = game.settings
+    if (gamestarted and set.ctf_mode) then
+        game:PlayerHadFlag(PlayerIndex)
+    end
+end
+
+function game:PlayerHadFlag(PlayerIndex)
+    local flag_table = game.settings.flag["FLAG"]
+    for _,flag in pairs(flag_table) do
+        if (flag.object and flag.held) then
+            if (flag.held_by == PlayerIndex) then
+                flag.held = false
+                flag.held_by = nil
+                flag.respawn_trigger = true
+                flag.timer = 0
+                execute_command("s " .. PlayerIndex .. " 1")
+            end
+        end
+    end
+end
+
+function game:OnFlagPickup(PlayerIndex, WeaponIndex)
+    local player_object = get_dynamic_player(PlayerIndex)
+    local WeaponID = read_dword(player_object + 0x118)
+    if (WeaponID ~= 0) then
+
+        local weapon = read_dword(player_object + 0x2F8 + (tonumber(WeaponIndex) - 1) * 4)
+        local WeaponObject = get_object_memory(weapon)
+        
+        local has_flag = (game:ObjectTagID(WeaponObject) == "weapons\\flag\\flag")
+        if (has_flag) then
+                    
+            local flag_table = game.settings.flag["FLAG"]
+            for _,flag in pairs(flag_table) do
+                if (weapon == flag.object) then
+                
+                    game:broadcast(get_var(PlayerIndex, "$name") .. " has the flag!", false)
+                    flag.held_by = PlayerIndex
+                    flag.held = true
+                    
+                    if (flag.respawn_trigger) then
+                        flag.respawn_trigger = false
+                        flag.timer = 0
+                    end
+                end
+            end
+        end
+    end
+end
+
 function OnVehicleExit(PlayerIndex)
     local players = game.settings.players
     for _, player in pairs(players) do
@@ -799,6 +1097,14 @@ function DelayDestroy(Object, PlayerIndex)
                 break
             end
         end
+    end
+end
+
+function game:ObjectTagID(object)
+    if (object ~= nil and object ~= 0) then
+        return read_string(read_dword(read_word(object) * 32 + 0x40440038))
+    else
+        return ""
     end
 end
 
