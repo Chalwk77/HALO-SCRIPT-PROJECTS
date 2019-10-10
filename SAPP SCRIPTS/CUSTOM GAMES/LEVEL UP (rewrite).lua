@@ -38,6 +38,14 @@ function game:init()
         on_suicide = "(-) %victim% committed suicide and is now Level %level%",
         on_melee = "(-) %victim% was meleed by %killer% and is now Level %level%",
 
+        -- Custom Command (Use this command to level up/down players):
+        -- Command Syntax: /levelup [player id] [level]
+        command = "setlevel",
+        -- Minimum permission needed to execute the custom command:
+        permission = 1,
+        -- Minimum permission needed to execute the custom command on others players:
+        permission_extra = 4,
+
         levels = {
             -- Starting Level:
             start = 1,
@@ -323,14 +331,17 @@ function game:init()
             ["FLAG"] = {},
         },
         --# Do Not Touch #--
-        players = { }
+        players = { },
+        messages = { }
         --------------------------------------------------------------
     }
 end
 
 -- Variables for String Library:
 local format = string.format
-local gsub = string.gsub
+local sub, gsub = string.sub, string.gsub
+local lower, upper = string.lower, string.upper
+local match = string.match
 
 -- Variables for Math Library:
 local floor = math.floor
@@ -341,23 +352,18 @@ local gamestarted
 local countdown, init_countdown, print_nep
 local delta_time = 0.03333333333333333
 
+-- Game Table:
+local cmd_error = { }
+
 function OnScriptLoad()
 
     -- Register needed event callbacks:
     register_callback(cb['EVENT_TICK'], "OnTick")
 
-    register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
 
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
-
-    register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
-    register_callback(cb['EVENT_VEHICLE_EXIT'], "OnVehicleExit")
-    register_callback(cb['EVENT_WEAPON_DROP'], "OnWeaponDrop")
-
-    register_callback(cb['EVENT_DIE'], 'OnPlayerKill')
-    register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
 
     kill_message_addresss = sig_scan("8B42348A8C28D500000084C9") + 3
     originl_kill_message = read_dword(kill_message_addresss)
@@ -445,23 +451,50 @@ function OnTick()
                         game:MonitorFlag(player)
                     end
 
-                    local msg = gsub(gsub(gsub(gsub(gsub(gsub(set.current_level,
-                            "%%level%%", player.level),
-                            "%%weapon%%", player.title),
-                            "%%next_level%%", function()
-                                if (player.level == #set.levels) then
-                                    return "NONE"
-                                else
-                                    return player.level + 1
+                    if not game:isPaused(player.id) then
+                        local msg = gsub(gsub(gsub(gsub(gsub(gsub(set.current_level,
+                                "%%level%%", player.level),
+                                "%%weapon%%", player.title),
+                                "%%next_level%%", function()
+                                    if (player.level == #set.levels) then
+                                        return "NONE"
+                                    else
+                                        return player.level + 1
+                                    end
+                                end),
+
+                                "%%next_weapon%%", player.next_item),
+                                "%%cur_kills%%", player.kills),
+                                "%%req_kills%%", player.kills_required)
+
+                        game:cls(player.id, 25)
+                        rprint(player.id, msg)
+                    end
+                    
+                    local messages = set.messages[player.id]
+                    if (messages ~= nil) then    
+                        for Index,Console in pairs(messages) do
+                            if (not Console.paused) then
+                                if (Console.type == "table") then
+                                    for index = 1,#Console.message do                    
+                                        rprint(Console.player, Console.message[index])
+                                    end
+                                elseif (Console.type == "string") then           
+                                    rprint(Console.player, Console.message)
                                 end
-                            end),
-
-                            "%%next_weapon%%", player.next_item),
-                            "%%cur_kills%%", player.kills),
-                            "%%req_kills%%", player.kills_required)
-
-                    game:cls(player.id, 25)
-                    rprint(player.id, msg)
+                                
+                                Console.time = Console.time + delta_time
+                                if (Console.time >= Console.duration) then
+                                    messages[Index] = nil
+                                end
+                            else
+                                Console.pause_timer = Console.pause_timer + delta_time
+                                if (Console.pause_timer >= 5) then
+                                    Console.paused = false
+                                end
+                            end
+                        end
+                    end
 
                     local player_object = get_dynamic_player(player.id)
                     if (player_object ~= 0 and player.assign) then
@@ -493,6 +526,14 @@ function OnTick()
         set.pregame = gsub(gsub(set.pre_game_message, "%%minutes%%", minutes), "%%seconds%%", seconds)
 
         if (tonumber(minutes) <= 0) and (tonumber(seconds) <= 0) then
+
+            register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
+            register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
+            register_callback(cb['EVENT_VEHICLE_EXIT'], "OnVehicleExit")
+            register_callback(cb['EVENT_WEAPON_DROP'], "OnWeaponDrop")
+            register_callback(cb['EVENT_DIE'], 'OnPlayerKill')
+            register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
+            register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
 
             gamestarted = true
             game:StopTimer()
@@ -586,6 +627,11 @@ function OnPlayerDisconnect(PlayerIndex)
     local set = game.settings
     local player_count = game:GetPlayerCount()
     player_count = player_count - 1
+    
+    local messages = set.messages[PlayerIndex]
+    if (messages) then
+        message = nil
+    end
 
     if (gamestarted) then
 
@@ -852,16 +898,17 @@ function game:CycleLevel(params)
 
     local set = game.settings
     local players = set.players
-    
     for _, player in pairs(players) do
         if (player.id == params.target) then
-        
-            if (params.levelup) then
+                    
+            if (params.cmd) then
+                player.level = tonumber(params.level)
+            elseif (params.levelup) then
                 player.level = player.level + 1
             else
                 player.level = player.level - 1
             end
-
+        
             if (player.level <= 0) then
                 player.level = set.levels.start
             end
@@ -909,7 +956,10 @@ function game:CycleLevel(params)
                 end
 
                 if (params.levelup) then
-                    if (not params.flagcap) then
+                    if (params.cmd) then
+                        game:broadcast(player.name .. " now level " .. player.level, false)
+                        
+                    elseif (not params.flagcap) then
                         local msg = gsub(gsub(gsub(set.on_levelup, 
                         "%%killer%%", player.name), "%%victim%%", params.vname), 
                         "%%level%%", player.level)
@@ -1034,7 +1084,16 @@ function game:MonitorFlag(player)
             
             if (flag.broadcast) then
                 flag.broadcast = false
-                game:broadcast(player.name .. " has the flag!", false)
+                
+                local msg_table = {
+                    "|cReturn the flag to a base to gain a level",
+                    "|c- " .. tostring(flag.running_speed) .. "x speed",
+                    " ",
+                    " ",
+                    " ",
+                }
+                game:NewMessage(msg_table, 10, player.id, "table")
+                game:broadcast(player.name .. " has the flag!", false, true, player.id)
             end
             
             if (flag.respawn_trigger) then
@@ -1073,15 +1132,6 @@ function game:MonitorFlag(player)
     end
 end
 
-function game:hadFlag(PlayerIndex)
-    local flag_table = game.settings.flag["FLAG"]
-    for _,flag in pairs(flag_table) do
-        if game:holdingFlag(player.id) then
-            print()
-        end
-    end
-end
-
 function game:GetDistance(pX, pY, pZ, X, Y, Z)
     return sqrt((pX - X) ^ 2 + (pY - Y) ^ 2 + (pZ - Z) ^ 2)
 end
@@ -1094,6 +1144,7 @@ function OnWeaponDrop(PlayerIndex)
             if (flag.object and flag.held_by == PlayerIndex) then
                 flag.held_by, flag.timer = nil, 0
                 flag.warnbool, flag.respawn_trigger = true, true
+                flag.broadcast = true
                 execute_command("s " .. PlayerIndex .. " 1")
                 break
             end
@@ -1101,32 +1152,39 @@ function OnWeaponDrop(PlayerIndex)
     end
 end
 
-function OnVehicleExit(PlayerIndex)
+function OnVehicleExit(Player)
     local players = game.settings.players
     for _, player in pairs(players) do
-        if (player.id == PlayerIndex) then
-            if (player.vehicle ~= nil) then
-                player.assign = true
-                game:DestroyVehicle(player.id, true)
-                break
-            end
+        if (player.id == Player and player.vehicle ~= nil) then
+            player.assign = true
+            game:DestroyVehicle(player.id, true)
+            break
         end
     end
 end
 
-function game:DestroyVehicle(PlayerIndex, Delay)
+function game:DestroyVehicle(Player, Delay)
     local players = game.settings.players
     for _, player in pairs(players) do
-        if (player.id == PlayerIndex) then
-            if (player.vehicle_object ~= nil) then
-                if (not Delay) then
-                    destroy_object(player.vehicle_object)
-                else                
-                    local delta_time = 1000 -- 1 second (in ms)
-                    timer(delta_time * 2, "DelayDestroy", player.vehicle_object, player.id)
-                end
-                break
+        if (player.id == Player and player.vehicle_object ~= nil) then
+            if (not Delay) then
+                destroy_object(player.vehicle_object)
+            else                
+                local delta_time = 1000 -- 1 second (in ms)
+                timer(delta_time * 2, "DelayDestroy", player.vehicle_object, player.id)
             end
+            break
+        end
+    end
+end
+
+function DelayDestroy(Object, PlayerIndex)
+    destroy_object(Object)
+    local players = game.settings.players
+    for _,player in pairs(players) do
+        if (player.id == PlayerIndex) then
+            player.vehicle_object = nil
+            break
         end
     end
 end
@@ -1135,25 +1193,352 @@ function DelayGunnerSeat(PlayerIndex, VehicleID)
     enter_vehicle(VehicleID, PlayerIndex, 2)
 end
 
-function DelayDestroy(Object, PlayerIndex)
-    if (Object) then
-        destroy_object(Object)
-        local players = game.settings.players
-        for _,player in pairs(players) do
-            if (player.id == PlayerIndex) then
-                player.vehicle_object = nil
-                break
-            end
-        end
-    end
-end
-
 function game:ObjectTagID(object)
     if (object ~= nil and object ~= 0) then
         return read_string(read_dword(read_word(object) * 32 + 0x40440038))
     else
         return ""
     end
+end
+
+function OnServerCommand(PlayerIndex, Command, Environment, Password)
+    local command, args = game:StringSplit(Command)
+    local executor = tonumber(PlayerIndex)
+    
+    if (command == nil) then
+        return
+    end
+    command = lower(command) or upper(command)
+    
+    if (command) then
+        game:PauseMessages(PlayerIndex)
+    end
+
+    local set = game.settings
+    local cmd = set.command
+
+    if (command == cmd) then
+        if not game:isGameOver(executor) then
+            if game:checkAccess(executor) then
+                if (args[1] ~= nil and args[2] ~= nil) then
+                
+                    local params = game:ValidateCommand(executor, args)
+                    
+                    if (params ~= nil) and (not params.target_all) and (not params.is_error) then
+                        local Target = tonumber(args[1]) or tonumber(executor)
+                        if game:isOnline(Target, executor) then
+                            game:ExecuteCore(params)
+                        end
+                    end
+                else
+                    local msg = gsub("Invalid Syntax: Usage: /%cmd% on|off [me | id | */all]","%%cmd%%", cmd)
+                    game:Respond(p, msg, 4+8)
+                end
+            end
+        end
+        return false
+    end
+end
+
+
+
+function game:ExecuteCore(params)
+    local params = params or nil
+    if (params ~= nil) then
+                    
+        -- Target Parameters:
+        local tid = params.tid
+        local eid = params.eid
+        
+        print(eid, tid)
+        -- 
+        
+        local is_console = game:isConsole(eid)
+        if is_console then
+            en = "SERVER"
+        end
+
+        local is_self = (eid == tid)
+        local admin_level = tonumber(get_var(eid, '$lvl'))
+                
+        local proceed = game:executeOnOthers(eid, is_self, is_console, admin_level)
+        local valid_state
+        
+        if (proceed) then
+                    
+            local p = { }
+            p.target, p.levelup, p.cmd = tid, true, true    
+            p.level = params.level
+            game:CycleLevel(p)
+        end
+    end
+end
+
+function game:ValidateCommand(executor, args)
+    local params = { }
+                
+    local function getplayers(arg)
+        local players = { }
+        
+        if (arg == nil) or (arg == 'me') then
+            table.insert(players, executor)
+        elseif (arg:match('%d+')) then
+            table.insert(players, tonumber(arg))
+        elseif (arg == '*' or arg == 'all') then
+            params.target_all = true
+            for i = 1, 16 do
+                if player_present(i) then
+                    table.insert(players, i)
+                end
+            end
+        elseif (arg == 'rand' or arg == 'random') then
+            local temp = { }
+            for i = 1,16 do
+                if player_present(i) then
+                    temp[#temp + 1] = i
+                end
+            end
+            table.insert(players, temp[math.random(#temp)])
+        else
+            game:Respond(executor, "Invalid player id. Usage: [number: 1-16] | */all | me", 4 + 8)
+            params.is_error = true
+            return false
+        end
+
+        for i = 1, #players do
+            if (executor ~= tonumber(players[i])) then
+                cmd_error[executor] = true
+            end
+        end
+        
+        if players[1] then return players end
+        return false
+    end
+    
+    local pl = getplayers(args[1])
+    if (pl) then
+        for i = 1, #pl do
+        
+            if (pl[i] == nil) then
+                break
+            end
+
+            params.level = args[2]
+            params.eid, params.tid = executor, tonumber(pl[i])
+
+            if (params.target_all) then
+                game:ExecuteCore(params)
+            end
+        end
+    end
+    return params
+end
+
+function game:isOnline(target, executor)
+    if (target > 0 and target < 17) then
+        if player_present(target) then
+            return true
+        else
+            game:Respond(executor, "Command Failed. Player not online!", 4 + 8)
+            return false
+        end
+    else
+        game:Respond(executor, "Invalid Player ID. Please enter a number between 1-16", 4 + 8)
+    end
+end
+
+function game:isAdmin(p)
+    local set = game.settings
+    if (tonumber(get_var(p, "$lvl"))) >= set.permission then
+        return true
+    end
+end
+
+function game:checkAccess(p)
+    if not game:isConsole(p) then
+        if game:isAdmin(p) then
+            return true
+        else
+            game:Respond(p, "Command Failed. Insufficient permission!", 4 + 8)
+            return true
+        end
+    else
+        return true
+    end
+    return false
+end
+
+function game:executeOnOthers(e, self, is_console, level)
+    local set = game.settings
+    if (not self) and (not is_console) then
+        if tonumber(level) >= set.permission_extra then
+            return true
+        elseif (cmd_error[e]) then
+            cmd_error[e] = nil
+            game:Respond(e, "You are not allowed to execute this command on other players.", 4 + 8)
+            return false
+        end
+    else
+        return true
+    end
+end
+
+function game:isConsole(e)
+    if (e) then
+        if (e ~= -1 and e >= 1 and e < 16) then
+            return false
+        else
+            return true
+        end
+    end
+end
+
+function game:isGameOver(p)
+    if (not gamestarted) then
+        game:Respond(p, "Please wait until the next game has started.", 4+8)
+        return true
+    end
+end
+
+function game:Respond(p, msg, color)
+    local color = color or 4 + 8
+    if not game:isConsole(p) then
+        game:NewMessage(msg, 5, p, "string")
+    else
+        cprint(msg, color)
+    end
+end
+
+function game:NewMessage(Message, Duration, Player, Type)
+    
+    local message_table = game.settings.messages
+    message_table[Player] = message_table[Player] or { }
+    local messages = message_table[Player]
+
+    local function Add(a, b, c, d, State)
+        return {
+            message = a,
+            duration = b,
+            player = c,
+            type = d,
+            time = 0, pause_timer = 0,
+            paused = State,
+        }
+    end
+
+    local function isDupe(msg)
+        for k,v in pairs(messages) do
+            if (v.type == "table") then
+            
+                for i = 1,#v.message do          
+                    for j = 1,#msg do
+                        if (v.message[i] == msg[j]) then
+                            return true
+                        end
+                    end
+                end
+                
+            elseif (v.type == "string") then
+                if (v.message == msg) then
+                    return true
+                end
+            end
+        end
+        return false
+    end
+    
+    if (#messages <= 0) then
+        table.insert(messages, Add(Message, Duration, Player, Type, false))
+    elseif game:isPaused(Player) then
+        if not isDupe(Message) then
+            table.insert(messages, Add(Message, Duration, Player, Type, true))
+        end
+    elseif not isDupe(Message) then
+        table.insert(messages, Add(Message, Duration, Player, Type, false))
+    end
+end
+
+function game:PauseMessages(PlayerIndex)
+    local message_table = game.settings.messages
+    local messages = message_table[PlayerIndex]
+    if (messages) then
+        for k,v in pairs(messages) do
+            if (v.player == PlayerIndex) then
+                v.paused = true
+                v.time = v.duration
+                print('paused')
+            end
+        end
+    end
+end
+
+function game:isPaused(PlayerIndex)
+    local message_table = game.settings.messages
+    local messages = message_table[PlayerIndex]
+    if (messages ~= nil) then
+        for k,v in pairs(messages) do
+            if (v.paused) then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+function game:StringSplit(str, bool)
+    local subs = {}
+    local sub = ""
+    local ignore_quote, inquote, endquote
+    for i = 1, string.len(str) do
+        local bool
+        local char = string.sub(str, i, i)
+        if char == " " then
+            if (inquote and endquote) or (not inquote and not endquote) then
+                bool = true
+            end
+        elseif char == "\\" then
+            ignore_quote = true
+        elseif char == "\"" then
+            if not ignore_quote then
+                if not inquote then
+                    inquote = true
+                else
+                    endquote = true
+                end
+            end
+        end
+
+        if char ~= "\\" then
+            ignore_quote = false
+        end
+
+        if bool then
+            if inquote and endquote then
+                sub = string.sub(sub, 2, string.len(sub) - 1)
+            end
+
+            if sub ~= "" then
+                table.insert(subs, sub)
+            end
+            sub = ""
+            inquote = false
+            endquote = false
+        else
+            sub = sub .. char
+        end
+
+        if i == string.len(str) then
+            if string.sub(sub, 1, 1) == "\"" and string.sub(sub, string.len(sub), string.len(sub)) == "\"" then
+                sub = string.sub(sub, 2, string.len(sub) - 1)
+            end
+            table.insert(subs, sub)
+        end
+    end
+
+    local cmd, args = subs[1], subs
+    table.remove(args, 1)
+
+    return cmd, args
 end
 
 -- Credits to Kavawuvi (002) for this function:
