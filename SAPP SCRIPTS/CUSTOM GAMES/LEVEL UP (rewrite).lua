@@ -450,23 +450,30 @@ function OnTick()
                         game:MonitorFlag(player)
                     end
 
-                    local msg = gsub(gsub(gsub(gsub(gsub(gsub(set.current_level,
-                            "%%level%%", player.level),
-                            "%%weapon%%", player.title),
-                            "%%next_level%%", function()
-                                if (player.level == #set.levels) then
-                                    return "NONE"
-                                else
-                                    return player.level + 1
-                                end
-                            end),
+                    if not (player.hud_paused) then
+                        local msg = gsub(gsub(gsub(gsub(gsub(gsub(set.current_level,
+                                "%%level%%", player.level),
+                                "%%weapon%%", player.title),
+                                "%%next_level%%", function()
+                                    if (player.level == #set.levels) then
+                                        return "NONE"
+                                    else
+                                        return player.level + 1
+                                    end
+                                end),
 
-                            "%%next_weapon%%", player.next_item),
-                            "%%cur_kills%%", player.kills),
-                            "%%req_kills%%", player.kills_required)
-
-                    game:cls(player.id, 25)
-                    rprint(player.id, msg)
+                                "%%next_weapon%%", player.next_item),
+                                "%%cur_kills%%", player.kills),
+                                "%%req_kills%%", player.kills_required)
+                        game:cls(player.id, 25)
+                        rprint(player.id, msg)
+                    else
+                        player.hud_timer = player.hud_timer + delta_time
+                        if (player.hud_timer >= player.hud_pause_duration) then
+                            player.hud_timer = 0
+                            player.hud_paused = false
+                        end
+                    end
 
                     local player_object = get_dynamic_player(player.id)
                     if (player_object ~= 0 and player.assign) then
@@ -856,7 +863,11 @@ function game:InitPlayer(PlayerIndex)
             title = Level.title,
             next_item = _next_,
             kills_required = Level.kills_required,
-            damage_applied = nil
+            damage_applied = nil,
+            
+            hud_timer = 0,
+            hud_paused = false,
+            hud_pause_duration = 5,
         }
     end
 end
@@ -890,7 +901,11 @@ function game:CycleLevel(params)
                 player.kills_required = Level.kills_required
                 player.vehicle = Level.vehicle
                 player.grenades = Level.grenades
-                player.ammo = Level.ammo
+                player.ammo = Level.ammo                
+                
+                player.hud_pause_duration = 5
+                player.hud_timer = 0
+                player.hud_paused = false
 
                 local NextItem = game:GetNext(player.level)
                 if (NextItem ~= nil) then
@@ -968,6 +983,25 @@ end
 function game:GetScoreLimit()
     local table = game.settings.levels
     return (table[#table].kills_required)
+end
+
+function game:PauseHUD(Player, Pause, time)
+    local players = game.settings.players
+    
+    time = time or 5
+        
+    for _, player in pairs(players) do
+        if (player.id == Player) then
+            if (Pause) then
+                player.hud_paused = true
+                player.hud_pause_duration = time
+            else
+                player.hud_paused = false
+            end
+            player.hud_timer = 0
+            break
+        end
+    end
 end
 
 function game:getXYZ(PlayerIndex, PlayerObject)
@@ -1059,6 +1093,8 @@ function game:MonitorFlag(player)
                     " ",
                     " ",
                 }
+                
+                game:PauseHUD(player.id, true, 5)
                 for i = 1,#msg_table do
                     rprint(player.id, msg_table[i])
                 end
@@ -1178,6 +1214,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         return
     end
     command = lower(command) or upper(command)
+    
+    game:PauseHUD(PlayerIndex, true, 10)
 
     local set = game.settings
     local cmd = set.command
