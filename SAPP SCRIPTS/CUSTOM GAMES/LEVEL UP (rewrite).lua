@@ -34,9 +34,9 @@ function game:init()
         on_game_begin = "The game has begun!",
 
         current_level = "|lLevel: %level% (%weapon%) |rNext Level: %next_level% (%next_weapon% - Kills: %cur_kills%/%req_kills%)",
-        on_levelup = "(+) %name% is now Level %level%",
-        on_suicide = "(-) %name% committed suicide and is now Level %level%",
-        on_melee = "(-) %name% was melee'd by %killer% and is now Level %level%",
+        on_levelup = "%killer% killed %victim% and is now level %level%",
+        on_suicide = "(-) %victim% committed suicide and is now Level %level%",
+        on_melee = "(-) %victim% was meleed by %killer% and is now Level %level%",
 
         levels = {
             -- Starting Level:
@@ -197,7 +197,7 @@ function game:init()
                 
             on_capture = "%name% captured a flag!",
             on_respawn_trigger = "The flag was dropped and will respawn in %time% seconds",
-            on_respawn = "The Flag has re spawned!",
+            on_respawn = "The flag respawned!",
             item = "weapons\\flag\\flag",
             
             ["bloodgulch"] = {
@@ -374,10 +374,25 @@ function OnScriptLoad()
             end
         end
     end
+
+    kill_message_addresss = sig_scan("8B42348A8C28D500000084C9") + 3
+    originl_kill_message = read_dword(kill_message_addresss)
 end
 
 function OnScriptUnload()
     --
+end
+
+function game:enableKillMessages()
+    safe_write(true)
+    write_dword(kill_message_addresss, originl_kill_message)
+    safe_write(false)
+end
+
+function game:disableKillMessages()
+    safe_write(true)
+    write_dword(kill_message_addresss, 0x03EB01B1)
+    safe_write(false)
 end
 
 function OnTick()
@@ -475,6 +490,7 @@ function OnTick()
         set.pregame = gsub(gsub(set.pre_game_message, "%%minutes%%", minutes), "%%seconds%%", seconds)
 
         if (tonumber(minutes) <= 0) and (tonumber(seconds) <= 0) then
+            game:disableKillMessages()
 
             gamestarted = true
             game:StopTimer()
@@ -512,20 +528,7 @@ function OnTick()
             execute_command("scorelimit " .. scorelimit)
 
             if (#players > 0) then
-
-                -- Remove default death messages (temporarily)
-                local kma = sig_scan("8B42348A8C28D500000084C9") + 3
-                local original = read_dword(kma)
-                safe_write(true)
-                write_dword(kma, 0x03EB01B1)
-                safe_write(false)
-
                 execute_command("sv_map_reset")
-
-                -- Re enables default death messages
-                safe_write(true)
-                write_dword(kma, original)
-                safe_write(false)
             end
         end
     end
@@ -534,6 +537,7 @@ end
 function OnGameStart()
     if (get_var(0, '$gt') ~= "n/a") then
         game:init()
+        game:enableKillMessages()
     end
 end
 
@@ -615,17 +619,17 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
 
         local killer = tonumber(KillerIndex)
         local victim = tonumber(PlayerIndex)
+        local set = game.settings
 
         if (killer > 0) then
 
             local params = { }
-
-            if (killer ~= victim) then
-
-                local set = game.settings
-                local players = set.players
-
-                for _, player in pairs(players) do
+                        
+            if (killer ~= victim) then            
+                params.kname = get_var(killer, "$name")
+                params.vname = get_var(victim, "$name")
+                
+                for _, player in pairs(set.players) do
                     if (player.id == killer) then
                         player.kills = player.kills + 1
 
@@ -636,11 +640,10 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
                                 if (Tab == "melee") then
                                     for _, Tag in pairs(multipliers[Tab]) do
                                         if (player.damage_applied == GetTag("jpt!", Tag[1])) then
-                                            params.melee = true
-                                            params.killer = player.name
-                                            game:resetScore(victim)
-                                            game:CycleLevel(victim, params)
                                             player.damage_applied = nil
+                                            params.target, params.melee = victim, true
+                                            game:resetScore(victim)
+                                            game:CycleLevel(params)
                                         end
                                     end
                                 end
@@ -649,22 +652,24 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
 
                         -- PvP | LEVEL UP (killer)
                         if (player.kills >= player.kills_required) then
-                            params.levelup = true
-                            game:CycleLevel(player.id, params)
+                            params.target, params.levelup = killer, true
+                            game:CycleLevel(params)
                         end
                         
                         game:DestroyVehicle(victim, false)
                     end
                 end
             else
-
                 -- SUICIDE | LEVEL DOWN (victim)
-                params.suicide = true
-                game:CycleLevel(killer, params)
-                game:resetScore(killer)
-                
-                game:DestroyVehicle(killer, false)
+                params.target, params.suicide = victim, true
+                game:CycleLevel(params)
+                game:resetScore(victim)
+                game:DestroyVehicle(victim, false)
             end
+        elseif (killer == -1) or (killer == nil) or (killer == 0) then
+            execute_command("msg_prefix \"\"")
+            game:broadcast(get_var(victim, "$name") .. " died", false)
+            execute_command("msg_prefix \" " .. set.server_prefix .. "\"")
         end
     end
 end
@@ -835,15 +840,15 @@ function game:InitPlayer(PlayerIndex)
     end
 end
 
-function game:CycleLevel(PlayerIndex, State)
+function game:CycleLevel(params)
 
     local set = game.settings
     local players = set.players
-
+    
     for _, player in pairs(players) do
-        if (player.id == PlayerIndex) then
-
-            if (State.levelup) then
+        if (player.id == params.target) then
+        
+            if (params.levelup) then
                 player.level = player.level + 1
             else
                 player.level = player.level - 1
@@ -895,15 +900,37 @@ function game:CycleLevel(PlayerIndex, State)
                     end
                 end
 
-                if (State.levelup) then
-                    local msg = gsub(gsub(set.on_levelup, "%%name%%", player.name), "%%level%%", player.level)
-                    game:broadcast(msg, false)
-                elseif (State.suicide and player.level > 1) then
-                    local msg = gsub(gsub(set.on_suicide, "%%name%%", player.name), "%%level%%", player.level)
-                    game:broadcast(msg, false)
-                elseif (State.meleee and player.level > 1) then
-                    local msg = gsub(gsub(gsub(set.on_melee, "%%name%%", player.name), "%%level%%", player.level), "%%killer%%", State.killer)
-                    game:broadcast(msg, false, false, player.id)
+                if (params.levelup) then
+                
+                    if (not params.flagcap) then
+                        local msg = gsub(gsub(gsub(set.on_levelup, 
+                        "%%killer%%", player.name), 
+                        "%%victim%%", params.vname), 
+                        "%%level%%", player.level)
+                        game:broadcast(msg, false)
+                    else
+                        local msg = gsub(game.settings.flag.on_capture, "%%name%%", player.name)
+                        game:broadcast(msg, false)
+                    end
+                    
+                elseif (params.suicide) then
+                    if (player.level > 1) then
+                        local msg = gsub(gsub(set.on_suicide, "%%victim%%", player.name), "%%level%%", player.level)
+                        game:broadcast(msg, false)
+                    else
+                        game:broadcast(player.name .. " committed suicide", false)
+                    end
+                    
+                elseif (params.meleee) then
+                    if (player.level > 1) then
+                        local msg = gsub(gsub(gsub(set.on_melee, 
+                        "%%victim%%", player.name), 
+                        "%%level%%", player.level), 
+                        "%%killer%%", params.kname)
+                        game:broadcast(msg, false, false, player.id)
+                    else
+                        game:broadcast(player.name .. " was killed by " .. params.kname, false)
+                    end
                 end
 
             elseif (player.level > max) then
@@ -980,7 +1007,7 @@ function game:MonitorFlag()
     local map = get_var(0, "$map")
     local flag_table = game.settings.flag["FLAG"]
            
-    for index,flag in pairs(flag_table) do
+    for index,flag in pairs(flag_table) do    
         if (flag.object and flag.held) then
             
             local player = flag.held_by
@@ -999,14 +1026,12 @@ function game:MonitorFlag()
                         flag.held = false
                         
                         local params = { }
-                        params.levelup = true
+                        params.levelup, params.flagcap = true, true
+                        params.target = player
                         
                         execute_command("s " .. player .. " 1")
                         
-                        local msg = gsub(game.settings.flag.on_capture, "%%name%%", get_var(player, "$name"))
-                        game:broadcast(msg, false)
-                        
-                        game:CycleLevel(player, params)
+                        game:CycleLevel(params)
                         game:SpawnFlag(true)
                     end
                 end
