@@ -355,7 +355,6 @@ function OnScriptLoad()
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
     register_callback(cb['EVENT_VEHICLE_EXIT'], "OnVehicleExit")
     register_callback(cb['EVENT_WEAPON_DROP'], "OnWeaponDrop")
-    register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
 
     register_callback(cb['EVENT_DIE'], 'OnPlayerKill')
     register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
@@ -414,9 +413,8 @@ function OnTick()
 
     if (gamestarted) then
 
-        game:MonitorFlag()
         local flag_table = game.settings.flag["FLAG"]
-        for index,flag in pairs(flag_table) do
+        for _,flag in pairs(flag_table) do
             if (flag.object) and (not flag.held) then
                 if (flag.respawn_trigger) then
                     flag.timer = flag.timer + delta_time
@@ -441,6 +439,10 @@ function OnTick()
         for _, player in pairs(players) do
             if (player and player.id) then
                 if player_alive(player.id) then
+                
+                    if (set.ctf_mode) then
+                        game:MonitorFlag(player)
+                    end
 
                     local msg = gsub(gsub(gsub(gsub(gsub(gsub(set.current_level,
                             "%%level%%", player.level),
@@ -679,11 +681,10 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
         local players = game.settings.players
         players[CauserIndex].damage_applied = MetaID
 
-        local set = game.settings
-        local multipliers = set.damage_multipliers
-        for Tab, _ in pairs(multipliers) do
-            if (Tab) then
-                for _, Tag in pairs(multipliers[Tab]) do
+        local multipliers = game.settings.damage_multipliers
+        for Table, _ in pairs(multipliers) do
+            for _, Tag in pairs(multipliers[Table]) do
+                if Tag[1] then
                     if (MetaID == GetTag("jpt!", Tag[1])) then
                         return true, Damage * Tag[2]
                     end
@@ -901,18 +902,15 @@ function game:CycleLevel(params)
                 end
 
                 if (params.levelup) then
-                
                     if (not params.flagcap) then
                         local msg = gsub(gsub(gsub(set.on_levelup, 
-                        "%%killer%%", player.name), 
-                        "%%victim%%", params.vname), 
+                        "%%killer%%", player.name), "%%victim%%", params.vname), 
                         "%%level%%", player.level)
                         game:broadcast(msg, false)
                     else
                         local msg = gsub(game.settings.flag.on_capture, "%%name%%", player.name)
                         game:broadcast(msg, false)
                     end
-                    
                 elseif (params.suicide) then
                     if (player.level > 1) then
                         local msg = gsub(gsub(set.on_suicide, "%%victim%%", player.name), "%%level%%", player.level)
@@ -920,13 +918,11 @@ function game:CycleLevel(params)
                     else
                         game:broadcast(player.name .. " committed suicide", false)
                     end
-                    
                 elseif (params.meleee) then
                     if (player.level > 1) then
                         local msg = gsub(gsub(gsub(set.on_melee, 
-                        "%%victim%%", player.name), 
+                        "%%victim%%", player.name), "%%killer%%", params.kname)
                         "%%level%%", player.level), 
-                        "%%killer%%", params.kname)
                         game:broadcast(msg, false, false, player.id)
                     else
                         game:broadcast(player.name .. " was killed by " .. params.kname, false)
@@ -966,6 +962,24 @@ function game:getXYZ(PlayerIndex, PlayerObject)
     return coords
 end
 
+function game:holdingFlag(PlayerIndex)
+    local player_object = get_dynamic_player(PlayerIndex)
+    for i = 0, 3 do
+        local weapon_id = read_dword(player_object + 0x2F8 + 0x4 * i)
+        if (weapon_id ~= 0xFFFFFFFF) then
+            local weap_object = get_object_memory(weapon_id)
+            if (weap_object ~= 0) then
+                local tag_address = read_word(weap_object)
+                local tagdata = read_dword(read_dword(0x40440000) + tag_address * 0x20 + 0x14)
+                if (read_bit(tagdata + 0x308, 3) == 1) then
+                    return true
+                end
+            end
+        end
+    end
+    return false
+end
+
 function game:SpawnFlag(DestroyOldFlag)
 
     local set = game.settings
@@ -990,10 +1004,11 @@ function game:SpawnFlag(DestroyOldFlag)
         local FlagObject = get_object_memory(object)
         
         flag_table[FlagObject] = {
-            held = false, held_by = nil,
+            held_by = nil,
             object = object,
             timer = 0,
             respawn_time = 15,
+            broadcast = true,
             respawn_trigger = false,
             running_speed = coords[4][1],
             bx = coords[1][1], by = coords[1][2], bz = coords[1][3],
@@ -1002,37 +1017,48 @@ function game:SpawnFlag(DestroyOldFlag)
     end
 end
 
-function game:MonitorFlag()
+function game:MonitorFlag(player)
     
-    local map = get_var(0, "$map")
     local flag_table = game.settings.flag["FLAG"]
-           
-    for index,flag in pairs(flag_table) do    
-        if (flag.object and flag.held) then
+    for _,flag in pairs(flag_table) do
+        
+        if game:holdingFlag(player.id) then
+            flag.held_by = player.id
             
-            local player = flag.held_by
-            local player_object = get_dynamic_player(player)
+            if (flag.broadcast) then
+                flag.broadcast = false
+                game:broadcast(player.name .. " has the flag!", false)
+            end
+            
+            if (flag.respawn_trigger) then
+                flag.respawn_trigger = false
+                flag.timer = 0
+            end
+
+            local player_object = get_dynamic_player(player.id)
             if (player_object ~= 0) then
             
-                execute_command("s " .. player .. " " .. flag.running_speed)
+                execute_command("s " .. player.id .. " " .. flag.running_speed)
                 
-                local coords = game:getXYZ(player, player_object)
+                local coords = game:getXYZ(player.id, player_object)
                 if (coords) then
                              
-                    local CapReds = (game:GetDistance(coords.x, coords.y, coords.z, flag.bx, flag.by, flag.bz) <= 0.9)
-                    local CapBlue = (game:GetDistance(coords.x, coords.y, coords.z, flag.rx, flag.ry, flag.rz) <= 0.9)
+                    local CapReds = (game:GetDistance(coords.x, coords.y, coords.z, flag.bx, flag.by, flag.bz) <= 1.1)
+                    local CapBlue = (game:GetDistance(coords.x, coords.y, coords.z, flag.rx, flag.ry, flag.rz) <= 1.1)
                     
-                    if (CapReds or CapBlue ) then
-                        flag.held = false
+                    if (CapReds or CapBlue) then
+                        
+                        flag.held_by = nil
                         
                         local params = { }
                         params.levelup, params.flagcap = true, true
-                        params.target = player
+                        params.target = player.id
                         
-                        execute_command("s " .. player .. " 1")
+                        execute_command("s " .. player.id .. " 1")
                         
                         game:CycleLevel(params)
                         game:SpawnFlag(true)
+                        break
                     end
                 end
             end
@@ -1044,60 +1070,15 @@ function game:GetDistance(pX, pY, pZ, X, Y, Z)
     return sqrt((pX - X) ^ 2 + (pY - Y) ^ 2 + (pZ - Z) ^ 2)
 end
 
-function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
-    local set = game.settings
-    if (gamestarted and set.ctf_mode and tonumber(Type) == 1) then
-        game:OnFlagPickup(PlayerIndex, WeaponIndex)           
-    end
-end
-
 function OnWeaponDrop(PlayerIndex)
     local set = game.settings
     if (gamestarted and set.ctf_mode) then
-        game:PlayerHadFlag(PlayerIndex)
-    end
-end
-
-function game:PlayerHadFlag(PlayerIndex)
-    local flag_table = game.settings.flag["FLAG"]
-    for _,flag in pairs(flag_table) do
-        if (flag.object and flag.held) then
-            if (flag.held_by == PlayerIndex) then
-                flag.held = false
-                flag.held_by = nil
-                flag.warnbool = true
-                flag.respawn_trigger = true
-                flag.timer = 0
+        local flag_table = set.flag["FLAG"]
+        for _,flag in pairs(flag_table) do
+            if (flag.object and flag.held_by == PlayerIndex) then
+                flag.held_by, flag.timer = nil, 0
+                flag.warnbool, flag.respawn_trigger = true, true
                 execute_command("s " .. PlayerIndex .. " 1")
-            end
-        end
-    end
-end
-
-function game:OnFlagPickup(PlayerIndex, WeaponIndex)
-    local player_object = get_dynamic_player(PlayerIndex)
-    local WeaponID = read_dword(player_object + 0x118)
-    if (WeaponID ~= 0) then
-
-        local weapon = read_dword(player_object + 0x2F8 + (tonumber(WeaponIndex) - 1) * 4)
-        local WeaponObject = get_object_memory(weapon)
-        
-        local has_flag = (game:ObjectTagID(WeaponObject) == game.settings.flag.item)
-        if (has_flag) then
-                    
-            local flag_table = game.settings.flag["FLAG"]
-            for _,flag in pairs(flag_table) do
-                if (weapon == flag.object) then
-                
-                    game:broadcast(get_var(PlayerIndex, "$name") .. " has the flag!", false)
-                    flag.held_by = PlayerIndex
-                    flag.held = true
-                    
-                    if (flag.respawn_trigger) then
-                        flag.respawn_trigger = false
-                        flag.timer = 0
-                    end
-                end
             end
         end
     end
@@ -1120,14 +1101,12 @@ function game:DestroyVehicle(PlayerIndex, Delay)
     for _, player in pairs(players) do
         if (player.id == PlayerIndex) then
             if (player.vehicle_object ~= nil) then
-
                 if (not Delay) then
                     destroy_object(player.vehicle_object)
                 else                
                     local delta_time = 1000 -- 1 second (in ms)
                     timer(delta_time * 2, "DelayDestroy", player.vehicle_object, player.id)
                 end
-                
                 break
             end
         end
