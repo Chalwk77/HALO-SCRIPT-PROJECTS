@@ -332,7 +332,6 @@ function game:init()
         },
         --# Do Not Touch #--
         players = { },
-        messages = { }
         --------------------------------------------------------------
     }
 end
@@ -451,50 +450,23 @@ function OnTick()
                         game:MonitorFlag(player)
                     end
 
-                    if not game:isPaused(player.id) then
-                        local msg = gsub(gsub(gsub(gsub(gsub(gsub(set.current_level,
-                                "%%level%%", player.level),
-                                "%%weapon%%", player.title),
-                                "%%next_level%%", function()
-                                    if (player.level == #set.levels) then
-                                        return "NONE"
-                                    else
-                                        return player.level + 1
-                                    end
-                                end),
+                    local msg = gsub(gsub(gsub(gsub(gsub(gsub(set.current_level,
+                            "%%level%%", player.level),
+                            "%%weapon%%", player.title),
+                            "%%next_level%%", function()
+                                if (player.level == #set.levels) then
+                                    return "NONE"
+                                else
+                                    return player.level + 1
+                                end
+                            end),
 
-                                "%%next_weapon%%", player.next_item),
-                                "%%cur_kills%%", player.kills),
-                                "%%req_kills%%", player.kills_required)
+                            "%%next_weapon%%", player.next_item),
+                            "%%cur_kills%%", player.kills),
+                            "%%req_kills%%", player.kills_required)
 
-                        game:cls(player.id, 25)
-                        rprint(player.id, msg)
-                    end
-                    
-                    local messages = set.messages[player.id]
-                    if (messages ~= nil) then    
-                        for Index,Console in pairs(messages) do
-                            if (not Console.paused) then
-                                if (Console.type == "table") then
-                                    for index = 1,#Console.message do                    
-                                        rprint(Console.player, Console.message[index])
-                                    end
-                                elseif (Console.type == "string") then           
-                                    rprint(Console.player, Console.message)
-                                end
-                                
-                                Console.time = Console.time + delta_time
-                                if (Console.time >= Console.duration) then
-                                    messages[Index] = nil
-                                end
-                            else
-                                Console.pause_timer = Console.pause_timer + delta_time
-                                if (Console.pause_timer >= 5) then
-                                    Console.paused = false
-                                end
-                            end
-                        end
-                    end
+                    game:cls(player.id, 25)
+                    rprint(player.id, msg)
 
                     local player_object = get_dynamic_player(player.id)
                     if (player_object ~= 0 and player.assign) then
@@ -627,11 +599,6 @@ function OnPlayerDisconnect(PlayerIndex)
     local set = game.settings
     local player_count = game:GetPlayerCount()
     player_count = player_count - 1
-    
-    local messages = set.messages[PlayerIndex]
-    if (messages) then
-        message = nil
-    end
 
     if (gamestarted) then
 
@@ -1092,7 +1059,9 @@ function game:MonitorFlag(player)
                     " ",
                     " ",
                 }
-                game:NewMessage(msg_table, 10, player.id, "table")
+                for i = 1,#msg_table do
+                    rprint(player.id, msg_table[i])
+                end
                 game:broadcast(player.name .. " has the flag!", false, true, player.id)
             end
             
@@ -1209,10 +1178,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         return
     end
     command = lower(command) or upper(command)
-    
-    if (command) then
-        game:PauseMessages(PlayerIndex)
-    end
 
     local set = game.settings
     local cmd = set.command
@@ -1232,15 +1197,13 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     end
                 else
                     local msg = gsub("Invalid Syntax: Usage: /%cmd% on|off [me | id | */all]","%%cmd%%", cmd)
-                    game:Respond(p, msg, 4+8)
+                    game:Respond(PlayerIndex, msg, 4+8)
                 end
             end
         end
         return false
     end
 end
-
-
 
 function game:ExecuteCore(params)
     local params = params or nil
@@ -1249,10 +1212,9 @@ function game:ExecuteCore(params)
         -- Target Parameters:
         local tid = params.tid
         local eid = params.eid
-        
-        print(eid, tid)
         -- 
         
+        local set = game.settings
         local is_console = game:isConsole(eid)
         if is_console then
             en = "SERVER"
@@ -1265,11 +1227,28 @@ function game:ExecuteCore(params)
         local valid_state
         
         if (proceed) then
-                    
-            local p = { }
-            p.target, p.levelup, p.cmd = tid, true, true    
-            p.level = params.level
-            game:CycleLevel(p)
+            
+            local level = params.level
+            
+            if level:match('%d+') then
+                local players = set.players
+                for _,player in pairs(players) do
+                    if (player.id == tid player.level == level)then
+                        if (not is_self) then
+                            game:Respond(eid, "That player is already level " .. level)
+                        else
+                            game:Respond(eid, "You are already level " .. level)
+                        end
+                    end
+                end
+                
+                local p = { }
+                p.target, p.levelup, p.cmd = tid, true, true    
+                p.level = level
+                game:CycleLevel(p)
+            else
+                game:Respond(eid, "Invalid Level! Please choose a number between 1-" .. #set.levels, 4+8)
+            end
         end
     end
 end
@@ -1403,86 +1382,12 @@ end
 function game:Respond(p, msg, color)
     local color = color or 4 + 8
     if not game:isConsole(p) then
-        game:NewMessage(msg, 5, p, "string")
+        execute_command("msg_prefix \"\"")
+        say(p, msg)
+        execute_command("msg_prefix \" " .. game.settings.server_prefix .. "\"")
     else
         cprint(msg, color)
     end
-end
-
-function game:NewMessage(Message, Duration, Player, Type)
-    
-    local message_table = game.settings.messages
-    message_table[Player] = message_table[Player] or { }
-    local messages = message_table[Player]
-
-    local function Add(a, b, c, d, State)
-        return {
-            message = a,
-            duration = b,
-            player = c,
-            type = d,
-            time = 0, pause_timer = 0,
-            paused = State,
-        }
-    end
-
-    local function isDupe(msg)
-        for k,v in pairs(messages) do
-            if (v.type == "table") then
-            
-                for i = 1,#v.message do          
-                    for j = 1,#msg do
-                        if (v.message[i] == msg[j]) then
-                            return true
-                        end
-                    end
-                end
-                
-            elseif (v.type == "string") then
-                if (v.message == msg) then
-                    return true
-                end
-            end
-        end
-        return false
-    end
-    
-    if (#messages <= 0) then
-        table.insert(messages, Add(Message, Duration, Player, Type, false))
-    elseif game:isPaused(Player) then
-        if not isDupe(Message) then
-            table.insert(messages, Add(Message, Duration, Player, Type, true))
-        end
-    elseif not isDupe(Message) then
-        table.insert(messages, Add(Message, Duration, Player, Type, false))
-    end
-end
-
-function game:PauseMessages(PlayerIndex)
-    local message_table = game.settings.messages
-    local messages = message_table[PlayerIndex]
-    if (messages) then
-        for k,v in pairs(messages) do
-            if (v.player == PlayerIndex) then
-                v.paused = true
-                v.time = v.duration
-                print('paused')
-            end
-        end
-    end
-end
-
-function game:isPaused(PlayerIndex)
-    local message_table = game.settings.messages
-    local messages = message_table[PlayerIndex]
-    if (messages ~= nil) then
-        for k,v in pairs(messages) do
-            if (v.paused) then
-                return true
-            end
-        end
-    end
-    return false
 end
 
 function game:StringSplit(str, bool)
