@@ -25,7 +25,7 @@ function game:init()
 
         -- # Countdown delay (in seconds)
         -- This is a pre-game-start countdown initiated at the beginning of each game.
-        delay = 3,
+        delay = 10,
 
         -- # This message is the pre-game broadcast:
         pre_game_message = "Game will begin in %minutes%:%seconds%",
@@ -45,7 +45,7 @@ function game:init()
                 weapon = "weapons\\shotgun\\shotgun",
                 vehicle = nil,
                 title = "Shotgun",
-                kills_required = 1, -- Number of kils required to level up
+                kills_required = 1, -- Number of kills required to level up
                 grenades = { 6, 6 }, -- Frags|Plasmas
                 ammo = { 0, 0 } -- Weapon (Primary Ammo, Secondary Ammo)
             },
@@ -89,7 +89,6 @@ function game:init()
                 grenades = { 3, 1 },
                 ammo = { 100, 0 }
             },
-
             [7] = {
                 vehicle = "vehicles\\ghost\\ghost_mp",
                 weapon = "weapons\\shotgun\\shotgun",
@@ -195,6 +194,10 @@ function game:init()
         ctf_mode = true,
         
         flag = {
+                
+            on_capture = "%name% captured a flag!",
+            on_respawn_trigger = "The flag was dropped and will respawn in %time% seconds",
+            on_respawn = "The Flag has re spawned!",
                 
             ["bloodgulch"] = {
                 -- Blue Base X,Y,Z:
@@ -404,15 +407,16 @@ function OnTick()
                    
                     local time = ((flag.respawn_time) - (flag.timer))
                     local seconds = select(2, game:secondsToTime(time))
-    
-                    if (tonumber(seconds) == flag.respawn_time/2) then
-                        print("The Flag will respawn in " .. flag.respawn_time/2 .. " seconds!")
-
+                    
+                    if (tonumber(seconds) == floor(flag.respawn_time/2)) then
+                        if (flag.warnbool) then
+                            flag.warnbool = false                            
+                            local msg = gsub(set.flag.on_respawn_trigger, "%%time%%", flag.respawn_time/2)
+                            game:broadcast(msg, false)
+                        end
                     elseif (tonumber(seconds) <= 0) then
-                        print("the flag has respawned!")
-                        
-                        flag_table[index] = nil
-                        
+                        game:broadcast(set.flag.on_respawn, false)
+                        game:SpawnFlag(true)
                     end
                 end
             end
@@ -642,22 +646,22 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
                             end
                         end
 
+                        game:DestroyVehicle(victim, false)
                         -- PvP | LEVEL UP (killer)
                         if (player.kills >= player.kills_required) then
                             params.levelup = true
                             game:CycleLevel(player.id, params)
                         end
                         
-                        game:DestroyVehicle(victim, false)
                     end
                 end
             else
 
                 -- SUICIDE | LEVEL DOWN (victim)
+                game:DestroyVehicle(killer, false)
                 params.suicide = true
                 game:CycleLevel(killer, params)
                 game:resetScore(killer)
-                game:DestroyVehicle(killer, false)
             end
         end
     end
@@ -869,12 +873,17 @@ function game:CycleLevel(PlayerIndex, State)
                 if (player.vehicle == nil) then
                     player.assign = true
                 else
+                    
                     -- Enter player into relevant vehicle:
                     local player_object = get_dynamic_player(player.id)
                     local x, y, z = read_vector3d(player_object + 0x5c)
                     local Vehicle = spawn_object("vehi", player.vehicle, x, y, z + 0.5)
                     player.vehicle_object = Vehicle
+                    
                     enter_vehicle(Vehicle, player.id, 0)
+                    if (player.level == 8) then
+                        timer(0, "DelayGunnerSeat", player.id, Vehicle)
+                    end
                 end
 
                 if (State.levelup) then
@@ -983,7 +992,10 @@ function game:MonitorFlag()
                         local params = { }
                         params.levelup = true
                         
-                        execute_command("s " .. PlayerIndex .. " 1")
+                        execute_command("s " .. player .. " 1")
+                        
+                        local msg = gsub(game.settings.flag.on_capture, "%%name%%", get_var(player, "$name"))
+                        game:broadcast(msg, false)
                         
                         game:CycleLevel(player, params)
                         game:SpawnFlag(true)
@@ -1019,6 +1031,7 @@ function game:PlayerHadFlag(PlayerIndex)
             if (flag.held_by == PlayerIndex) then
                 flag.held = false
                 flag.held_by = nil
+                flag.warnbool = true
                 flag.respawn_trigger = true
                 flag.timer = 0
                 execute_command("s " .. PlayerIndex .. " 1")
@@ -1085,6 +1098,10 @@ function game:DestroyVehicle(PlayerIndex, Delay)
             end
         end
     end
+end
+
+function DelayGunnerSeat(PlayerIndex, VehicleID)
+    enter_vehicle(VehicleID, PlayerIndex, 2)
 end
 
 function DelayDestroy(Object, PlayerIndex)
