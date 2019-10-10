@@ -1233,7 +1233,7 @@ function game:ExecuteCore(params)
             if level:match('%d+') then
                 local players = set.players
                 for _,player in pairs(players) do
-                    if (player.id == tid player.level == level)then
+                    if (player.id == tid and player.level == level)then
                         if (not is_self) then
                             game:Respond(eid, "That player is already level " .. level)
                         else
