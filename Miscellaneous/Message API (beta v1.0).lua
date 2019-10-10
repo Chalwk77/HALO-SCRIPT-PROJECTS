@@ -2,7 +2,6 @@
 --=====================================================================================================--
 Script Name: Message API (beta v1.0), for SAPP (PC & CE)
 
-
 Call this to init a new timed message:
 API:NewMessage(Message, Duration, Player, Type)
 
@@ -47,6 +46,7 @@ function API:NewMessage(Message, Duration, Player, Type)
 end
 
 function API:Pause(PlayerIndex)
+    local messages = API.Messages
     for k,v in pairs(messages) do
         if (v.player == PlayerIndex) then
             v.time = v.duration
