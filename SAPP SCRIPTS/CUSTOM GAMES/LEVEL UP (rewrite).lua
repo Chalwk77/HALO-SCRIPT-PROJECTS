@@ -1232,20 +1232,25 @@ function game:ExecuteCore(params)
             
             if level:match('%d+') then
                 local players = set.players
+
                 for _,player in pairs(players) do
-                    if (player.id == tid and player.level == level)then
-                        if (not is_self) then
-                            game:Respond(eid, "That player is already level " .. level)
+                    if (player.id == tid) then 
+                                            
+                        if (player.level == tonumber(level))then
+                            if (not is_self) then
+                                game:Respond(eid, get_var(tid, "$name") .. " is already level " .. level)
+                            else
+                                game:Respond(eid, "You are already level " .. level)
+                            end
                         else
-                            game:Respond(eid, "You are already level " .. level)
+                            local p = { }
+                            p.target, p.levelup, p.cmd = tid, true, true    
+                            p.level = level
+                            game:CycleLevel(p)
                         end
                     end
                 end
                 
-                local p = { }
-                p.target, p.levelup, p.cmd = tid, true, true    
-                p.level = level
-                game:CycleLevel(p)
             else
                 game:Respond(eid, "Invalid Level! Please choose a number between 1-" .. #set.levels, 4+8)
             end
