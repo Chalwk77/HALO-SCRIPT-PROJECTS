@@ -25,7 +25,7 @@ function game:init()
 
         -- # Countdown delay (in seconds)
         -- This is a pre-game-start countdown initiated at the beginning of each game.
-        delay = 10,
+        delay = 3,
 
         -- # This message is the pre-game broadcast:
         pre_game_message = "Game will begin in %minutes%:%seconds%",
@@ -646,22 +646,23 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
                             end
                         end
 
-                        game:DestroyVehicle(victim, false)
                         -- PvP | LEVEL UP (killer)
                         if (player.kills >= player.kills_required) then
                             params.levelup = true
                             game:CycleLevel(player.id, params)
                         end
                         
+                        game:DestroyVehicle(victim, false)
                     end
                 end
             else
 
                 -- SUICIDE | LEVEL DOWN (victim)
-                game:DestroyVehicle(killer, false)
                 params.suicide = true
                 game:CycleLevel(killer, params)
                 game:resetScore(killer)
+                
+                game:DestroyVehicle(killer, false)
             end
         end
     end
@@ -874,15 +875,22 @@ function game:CycleLevel(PlayerIndex, State)
                     player.assign = true
                 else
                     
+                    local old_vehicle = player.vehicle_object
+                    
                     -- Enter player into relevant vehicle:
                     local player_object = get_dynamic_player(player.id)
-                    local x, y, z = read_vector3d(player_object + 0x5c)
-                    local Vehicle = spawn_object("vehi", player.vehicle, x, y, z + 0.5)
+                    local coords = game:getXYZ(player.id, player_object)
+                    
+                    local Vehicle = spawn_object("vehi", player.vehicle, coords.x, coords.y, coords.z + 0.5)
                     player.vehicle_object = Vehicle
                     
                     enter_vehicle(Vehicle, player.id, 0)
                     if (player.level == 8) then
                         timer(0, "DelayGunnerSeat", player.id, Vehicle)
+                    end
+                    
+                    if (old_vehicle) then
+                        destroy_object(old_vehicle)
                     end
                 end
 
