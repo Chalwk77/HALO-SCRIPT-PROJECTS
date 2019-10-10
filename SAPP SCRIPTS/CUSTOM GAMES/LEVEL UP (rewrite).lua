@@ -351,8 +351,12 @@ local gamestarted
 local countdown, init_countdown, print_nep
 local delta_time = 0.03333333333333333
 
--- Game Table:
+-- Game Tables:
 local cmd_error = { }
+
+-- ======== from Giraffe's auto-vehicle-flip script ======== --
+local rider_ejection = nil
+--------------------------------------------------------------
 
 function OnScriptLoad()
 
@@ -382,10 +386,27 @@ function OnScriptLoad()
         end
         game:disableKillMessages()
     end
+    -- ======== from Giraffe's auto-vehicle-flip script ======== --
+    if(halo_type == "CE") then
+        rider_ejection = read_byte(0x59A34C)
+        write_byte(0x59A34C, 0)
+    else
+        rider_ejection = read_byte(0x6163EC)
+        write_byte(0x6163EC, 0)
+    end
+    -- ==============================================================
 end
 
 function OnScriptUnload()
     game:enableKillMessages()
+    
+    -- ======== from Giraffe's auto-vehicle-flip script ======== --
+    if(halo_type == "CE") then
+        write_byte(0x59A34C, rider_ejection)
+    else
+        write_byte(0x6163EC, rider_ejection)
+    end
+    -- ============================================================== --
 end
 
 function game:enableKillMessages()
@@ -445,6 +466,15 @@ function OnTick()
         for _, player in pairs(players) do
             if (player and player.id) then
                 if player_alive(player.id) then
+                    local player_object = get_dynamic_player(player.id)
+                
+                    -- ======== from Giraffe's auto-vehicle-flip script ======== --
+                    local VehicleID = read_dword(player_object + 0x11C)
+                    if(VehicleID ~= 0xFFFFFFFF) then
+                        local vehicle = get_object_memory(VehicleID)
+                        flip_vehicle(vehicle)
+                    end
+                    -- ============================================================== --
                 
                     if (set.ctf_mode) then
                         game:MonitorFlag(player)
@@ -475,7 +505,6 @@ function OnTick()
                         end
                     end
 
-                    local player_object = get_dynamic_player(player.id)
                     if (player_object ~= 0 and player.assign) then
 
                         local coords = game:getXYZ(player.id, player_object)
@@ -1275,7 +1304,9 @@ function game:ExecuteCore(params)
 
                 for _,player in pairs(players) do
                     if (player.id == tid) then 
-                                            
+                        
+                        if game:holdingFlag(tid) then drop_weapon(tid) end
+                        
                         if (player.level == tonumber(level))then
                             if (not is_self) then
                                 game:Respond(eid, get_var(tid, "$name") .. " is already level " .. level)
@@ -1503,3 +1534,14 @@ function GetTag(tagclass, tagname)
     end
     return nil
 end
+
+-- ======== from Giraffe's auto-vehicle-flip script ======== --
+function flip_vehicle(Object)
+    if(read_bit(Object + 0x8B, 7) == 1) then
+        if(read_bit(Object + 0x10, 1) == 0) then
+            return
+        end
+        write_vector3d(Object + 0x80, 0, 0, 1)
+    end
+end
+-- ============================================================== --
