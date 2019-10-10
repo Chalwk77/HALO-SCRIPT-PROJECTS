@@ -339,8 +339,6 @@ local sqrt = math.sqrt
 -- Game Variables:
 local gamestarted
 local countdown, init_countdown, print_nep
-local globals = nil
-local red_flag, blue_flag
 local delta_time = 0.03333333333333333
 
 function OnScriptLoad()
@@ -376,11 +374,6 @@ function OnScriptLoad()
             end
         end
     end
-    local gp = sig_scan("8B3C85????????3BF9741FE8????????8B8E2C0200008B4610") + 3
-    if (gp == 3) then
-        return
-    end
-    globals = read_dword(gp)
 end
 
 function OnScriptUnload()
@@ -541,7 +534,6 @@ end
 function OnGameStart()
     if (get_var(0, '$gt') ~= "n/a") then
         game:init()
-        red_flag, blue_flag = read_dword(globals + 0x8), read_dword(globals + 0xC)
     end
 end
 
