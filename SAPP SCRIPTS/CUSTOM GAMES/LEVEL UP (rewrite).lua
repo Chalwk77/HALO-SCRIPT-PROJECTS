@@ -359,11 +359,14 @@ function OnScriptLoad()
     register_callback(cb['EVENT_DIE'], 'OnPlayerKill')
     register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
 
+    kill_message_addresss = sig_scan("8B42348A8C28D500000084C9") + 3
+    originl_kill_message = read_dword(kill_message_addresss)
+    
     if (get_var(0, '$gt') ~= "n/a") then
 
         game:init()
         
-        if (set.ctf_mode) then            
+        if (game.settings.ctf_mode) then            
             game:SpawnFlag(true)
         end
 
@@ -372,14 +375,12 @@ function OnScriptLoad()
                 game:StartCheck(i)
             end
         end
+        game:disableKillMessages()
     end
-
-    kill_message_addresss = sig_scan("8B42348A8C28D500000084C9") + 3
-    originl_kill_message = read_dword(kill_message_addresss)
 end
 
 function OnScriptUnload()
-    --
+    game:enableKillMessages()
 end
 
 function game:enableKillMessages()
@@ -492,7 +493,6 @@ function OnTick()
         set.pregame = gsub(gsub(set.pre_game_message, "%%minutes%%", minutes), "%%seconds%%", seconds)
 
         if (tonumber(minutes) <= 0) and (tonumber(seconds) <= 0) then
-            game:disableKillMessages()
 
             gamestarted = true
             game:StopTimer()
@@ -529,6 +529,8 @@ function OnTick()
             local scorelimit = game:GetScoreLimit()
             execute_command("scorelimit " .. scorelimit)
 
+            game:disableKillMessages()
+            
             if (#players > 0) then
                 execute_command("sv_map_reset")
             end
@@ -627,9 +629,14 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
 
             local params = { }
                         
-            if (killer ~= victim) then            
+            if (killer ~= victim) then
+            
                 params.kname = get_var(killer, "$name")
                 params.vname = get_var(victim, "$name")
+                
+                if game:holdingFlag(killer) then
+                    drop_weapon(killer)
+                end
                 
                 for _, player in pairs(set.players) do
                     if (player.id == killer) then
@@ -1066,6 +1073,15 @@ function game:MonitorFlag(player)
     end
 end
 
+function game:hadFlag(PlayerIndex)
+    local flag_table = game.settings.flag["FLAG"]
+    for _,flag in pairs(flag_table) do
+        if game:holdingFlag(player.id) then
+            print()
+        end
+    end
+end
+
 function game:GetDistance(pX, pY, pZ, X, Y, Z)
     return sqrt((pX - X) ^ 2 + (pY - Y) ^ 2 + (pZ - Z) ^ 2)
 end
@@ -1079,6 +1095,7 @@ function OnWeaponDrop(PlayerIndex)
                 flag.held_by, flag.timer = nil, 0
                 flag.warnbool, flag.respawn_trigger = true, true
                 execute_command("s " .. PlayerIndex .. " 1")
+                break
             end
         end
     end
@@ -1091,6 +1108,7 @@ function OnVehicleExit(PlayerIndex)
             if (player.vehicle ~= nil) then
                 player.assign = true
                 game:DestroyVehicle(player.id, true)
+                break
             end
         end
     end
