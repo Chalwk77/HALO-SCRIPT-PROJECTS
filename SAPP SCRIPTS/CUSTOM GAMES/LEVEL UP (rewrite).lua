@@ -198,7 +198,8 @@ function game:init()
             on_capture = "%name% captured a flag!",
             on_respawn_trigger = "The flag was dropped and will respawn in %time% seconds",
             on_respawn = "The Flag has re spawned!",
-                
+            item = "weapons\\flag\\flag",
+            
             ["bloodgulch"] = {
                 -- Blue Base X,Y,Z:
                 { 95.687797546387, -159.44900512695, -0.10000000149012 },
@@ -338,6 +339,8 @@ local sqrt = math.sqrt
 -- Game Variables:
 local gamestarted
 local countdown, init_countdown, print_nep
+local globals = nil
+local red_flag, blue_flag
 local delta_time = 0.03333333333333333
 
 function OnScriptLoad()
@@ -373,6 +376,11 @@ function OnScriptLoad()
             end
         end
     end
+    local gp = sig_scan("8B3C85????????3BF9741FE8????????8B8E2C0200008B4610") + 3
+    if (gp == 3) then
+        return
+    end
+    globals = read_dword(gp)
 end
 
 function OnScriptUnload()
@@ -533,6 +541,7 @@ end
 function OnGameStart()
     if (get_var(0, '$gt') ~= "n/a") then
         game:init()
+        red_flag, blue_flag = read_dword(globals + 0x8), read_dword(globals + 0xC)
     end
 end
 
@@ -897,10 +906,10 @@ function game:CycleLevel(PlayerIndex, State)
                 if (State.levelup) then
                     local msg = gsub(gsub(set.on_levelup, "%%name%%", player.name), "%%level%%", player.level)
                     game:broadcast(msg, false)
-                elseif (State.suicide) then
+                elseif (State.suicide and player.level > 1) then
                     local msg = gsub(gsub(set.on_suicide, "%%name%%", player.name), "%%level%%", player.level)
                     game:broadcast(msg, false)
-                elseif (State.melee) then
+                elseif (State.meleee and player.level > 1) then
                     local msg = gsub(gsub(gsub(set.on_melee, "%%name%%", player.name), "%%level%%", player.level), "%%killer%%", State.killer)
                     game:broadcast(msg, false, false, player.id)
                 end
@@ -958,7 +967,7 @@ function game:SpawnFlag(DestroyOldFlag)
             end
         end
         
-        local object = spawn_object("weap", "weapons\\flag\\flag", coords[3][1], coords[3][2], coords[3][3])
+        local object = spawn_object("weap", flag.item, coords[3][1], coords[3][2], coords[3][3])
         local FlagObject = get_object_memory(object)
         
         flag_table[FlagObject] = {
@@ -1056,7 +1065,7 @@ function game:OnFlagPickup(PlayerIndex, WeaponIndex)
         local weapon = read_dword(player_object + 0x2F8 + (tonumber(WeaponIndex) - 1) * 4)
         local WeaponObject = get_object_memory(weapon)
         
-        local has_flag = (game:ObjectTagID(WeaponObject) == "weapons\\flag\\flag")
+        local has_flag = (game:ObjectTagID(WeaponObject) == game.settings.flag.item)
         if (has_flag) then
                     
             local flag_table = game.settings.flag["FLAG"]
