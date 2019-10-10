@@ -49,6 +49,7 @@ end
 function API:Pause(PlayerIndex)
     for k,v in pairs(messages) do
         if (v.player == PlayerIndex) then
+            v.time = v.duration
             v.paused = true
         end
     end
@@ -88,8 +89,6 @@ function OnTick()
                 else
                     
                     v.pause_timer = v.pause_timer + delta_time
-                    v.time = v.duration
-                    
                     if (v.pause_timer >= 5) then
                         v.paused = false
                     end
