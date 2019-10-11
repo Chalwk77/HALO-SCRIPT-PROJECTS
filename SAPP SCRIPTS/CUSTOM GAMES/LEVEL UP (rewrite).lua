@@ -55,7 +55,7 @@ function game:init()
                 title = "Shotgun",
                 kills_required = 1, -- Number of kills required to level up
                 grenades = { 6, 6 }, -- Frags|Plasmas
-                ammo = { 0, 0 } -- Weapon (Primary Ammo, Secondary Ammo)
+                ammo = { 3, 0 } -- Weapon (Primary Ammo, Secondary Ammo)
             },
             [2] = {
                 weapon = "weapons\\assault rifle\\assault rifle",
@@ -63,7 +63,7 @@ function game:init()
                 title = "Assault Rifle",
                 kills_required = 2,
                 grenades = { 2, 2 },
-                ammo = { 240, 100 }
+                ammo = { 100, 100 }
             },
             [3] = {
                 weapon = "weapons\\pistol\\pistol",
@@ -71,7 +71,7 @@ function game:init()
                 title = "Pistol",
                 kills_required = 3,
                 grenades = { 2, 1 },
-                ammo = { 36, 18 }
+                ammo = { 12, 8 }
             },
             [4] = {
                 weapon = "weapons\\sniper rifle\\sniper rifle",
@@ -79,7 +79,7 @@ function game:init()
                 title = "Sniper Rifle",
                 kills_required = 4,
                 grenades = { 3, 2 },
-                ammo = { 24, 12 }
+                ammo = { 4, 12 }
             },
             [5] = {
                 weapon = "weapons\\rocket launcher\\rocket launcher",
@@ -87,7 +87,7 @@ function game:init()
                 title = "Rocket Launcher",
                 kills_required = 5,
                 grenades = { 1, 1 },
-                ammo = { 12, 6 }
+                ammo = { 2, 8 }
             },
             [6] = {
                 weapon = "weapons\\plasma_cannon\\plasma_cannon",
@@ -103,7 +103,7 @@ function game:init()
                 title = "Ghost",
                 kills_required = 7,
                 grenades = { 0, 0 },
-                ammo = { 0, 0 }
+                ammo = { 12, 0 }
             },
             [8] = {
                 vehicle = "vehicles\\rwarthog\\rwarthog",
@@ -111,7 +111,7 @@ function game:init()
                 title = "Rocket Hog",
                 kills_required = 8,
                 grenades = { 0, 0 },
-                ammo = { 0, 0 },
+                ammo = { 12, 0 },
             },
             [9] = {
                 vehicle = "vehicles\\scorpion\\scorpion_mp",
@@ -119,7 +119,7 @@ function game:init()
                 title = "Tank",
                 kills_required = 9,
                 grenades = { 0, 0 },
-                ammo = { 0, 0 },
+                ammo = { 12, 0 },
             },
             [10] = {
                 vehicle = "vehicles\\banshee\\banshee_mp",
@@ -127,7 +127,7 @@ function game:init()
                 title = "Banshee",
                 kills_required = 10,
                 grenades = { 0, 0 },
-                ammo = { 0, 0 },
+                ammo = { 12, 0 },
             }
         },
 
@@ -517,8 +517,9 @@ function OnTick()
                             write_word(player_object + 0x31E, player.grenades[1])
                             write_word(player_object + 0x31F, player.grenades[2])
                             
-                            execute_command_sequence("w8 1;ammo " .. player.id .. " " .. tonumber(player.ammo[1]))
-                            execute_command_sequence("w8 1;mag " .. player.id .. " " .. tonumber(player.ammo[2]))
+                            execute_command_sequence("w8 1;mag " .. player.id .. " " .. tonumber(player.ammo[1]))
+                            execute_command_sequence("w8 1;ammo " .. player.id .. " " .. tonumber(player.ammo[2]))
+                            execute_command_sequence("w8 1;battery " .. player.id .. " " .. tonumber(player.ammo[1]))
                         end
                     end
                 end
