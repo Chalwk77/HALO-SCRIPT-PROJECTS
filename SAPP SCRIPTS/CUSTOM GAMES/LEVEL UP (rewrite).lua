@@ -40,11 +40,19 @@ function game:init()
 
         -- Custom Command (Use this command to level up/down players):
         -- Command Syntax: /levelup [player id] [level]
-        command = "setlevel",
-        -- Minimum permission needed to execute the custom command:
-        permission = 1,
-        -- Minimum permission needed to execute the custom command on others players:
-        permission_extra = 4,
+        
+        commands = {            
+            [1] = {
+                command = "setlevel", -- Custom Command (level UP|DOWN yourself or other players)
+                permission = 1, -- Minimum level required to execute this command
+                permission_extra = 4, -- Minimum level required to execute this command on other players
+            },
+            [2] = {
+                command = "reenter", -- Custom Command (re-enter yourself or others into last known vehicle)
+                permission = 1, -- Minimum level required to execute this command
+                permission_extra = 4, -- Minimum level required to execute this command on other players
+            },
+        },
 
         levels = {
             -- Starting Level:
@@ -1036,31 +1044,34 @@ end
 
 function game:getXYZ(PlayerIndex, PlayerObject)
     local coords, x, y, z = { }
+    if player_alive(PlayerIndex) then
+        local VehicleID = read_dword(PlayerObject + 0x11C)
+        if (VehicleID == 0xFFFFFFFF) then
+            coords.invehicle = false
+            x, y, z = read_vector3d(PlayerObject + 0x5c)
+        else
+            coords.invehicle = true
+            x, y, z = read_vector3d(get_object_memory(VehicleID) + 0x5c)
+        end
 
-    local VehicleID = read_dword(PlayerObject + 0x11C)
-    if (VehicleID == 0xFFFFFFFF) then
-        coords.invehicle = false
-        x, y, z = read_vector3d(PlayerObject + 0x5c)
-    else
-        coords.invehicle = true
-        x, y, z = read_vector3d(get_object_memory(VehicleID) + 0x5c)
+        coords.x, coords.y, coords.z = x, y, z + 1
     end
-
-    coords.x, coords.y, coords.z = x, y, z + 1
     return coords
 end
 
 function game:holdingFlag(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
-    for i = 0, 3 do
-        local weapon_id = read_dword(player_object + 0x2F8 + 0x4 * i)
-        if (weapon_id ~= 0xFFFFFFFF) then
-            local weap_object = get_object_memory(weapon_id)
-            if (weap_object ~= 0) then
-                local tag_address = read_word(weap_object)
-                local tagdata = read_dword(read_dword(0x40440000) + tag_address * 0x20 + 0x14)
-                if (read_bit(tagdata + 0x308, 3) == 1) then
-                    return true
+    if player_alive(PlayerIndex) then    
+        for i = 0, 3 do
+            local weapon_id = read_dword(player_object + 0x2F8 + 0x4 * i)
+            if (weapon_id ~= 0xFFFFFFFF) then
+                local weap_object = get_object_memory(weapon_id)
+                if (weap_object ~= 0) then
+                    local tag_address = read_word(weap_object)
+                    local tagdata = read_dword(read_dword(0x40440000) + tag_address * 0x20 + 0x14)
+                    if (read_bit(tagdata + 0x308, 3) == 1) then
+                        return true
+                    end
                 end
             end
         end
@@ -1250,28 +1261,48 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     end
     
     local set = game.settings
-    local cmd = set.command
+    local cmd_table = set.commands
 
-    if (command == cmd) then
-        if not game:isGameOver(executor) then
-            if game:checkAccess(executor) then
-                if (args[1] ~= nil and args[2] ~= nil) then
+    for cmd_index = 1,#cmd_table do
+        if (command == cmd_table[cmd_index].command) then
+
+            if not game:isGameOver(executor) then
+                if game:checkAccess(executor, cmd_table[cmd_index]) then
                 
-                    local params = game:ValidateCommand(executor, args)
-                    
-                    if (params ~= nil) and (not params.target_all) and (not params.is_error) then
-                        local Target = tonumber(args[1]) or tonumber(executor)
-                        if game:isOnline(Target, executor) then
-                            game:ExecuteCore(params)
+                    if (cmd_index == 1) then
+                        if (args[1] ~= nil and args[2] ~= nil) then
+                            local params = game:ValidateCommand(executor, args, cmd_table[cmd_index], cmd_index)
+                            if (params ~= nil) and (not params.target_all) and (not params.is_error) then
+                                local Target = tonumber(args[1]) or tonumber(executor)
+                                if game:isOnline(Target, executor) then
+                                    game:ExecuteCore(params)
+                                end
+                            end
+                        else
+                            local msg = gsub("Invalid Syntax: Usage: /%cmd% [me | id | */all] [level]","%%cmd%%", cmd_table[cmd_index].command)
+                            game:Respond(PlayerIndex, msg, 4+8)
+                        end
+                        
+                    elseif (cmd_index == 2) then
+                        if (args[1] ~= nil and args[2] == nil) then
+                            
+                            local params = game:ValidateCommand(executor, args, cmd_table[cmd_index], cmd_index)
+                            
+                            if (params ~= nil) and (not params.target_all) and (not params.is_error) then
+                                local Target = tonumber(args[1]) or tonumber(executor)
+                                if game:isOnline(Target, executor) then
+                                    game:ExecuteCore(params)
+                                end
+                            end
+                        else
+                            local msg = gsub("Invalid Syntax: Usage: /%cmd% [me | id | */all]","%%cmd%%", cmd_table[cmd_index].command)
+                            game:Respond(PlayerIndex, msg, 4+8)
                         end
                     end
-                else
-                    local msg = gsub("Invalid Syntax: Usage: /%cmd% on|off [me | id | */all]","%%cmd%%", cmd)
-                    game:Respond(PlayerIndex, msg, 4+8)
                 end
             end
+            return false
         end
-        return false
     end
 end
 
@@ -1292,45 +1323,77 @@ function game:ExecuteCore(params)
 
         local is_self = (eid == tid)
         local admin_level = tonumber(get_var(eid, '$lvl'))
-                
-        local proceed = game:executeOnOthers(eid, is_self, is_console, admin_level)
+           
+        local cmd_table = params.cmd_table
+        local proceed = game:executeOnOthers(eid, is_self, is_console, admin_level, cmd_table)
         local valid_state
         
         if (proceed) then
-            
-            local level = params.level
-            
-            if level:match('%d+') then
-                local players = set.players
-
-                for _,player in pairs(players) do
-                    if (player.id == tid) then 
-                        
-                        if game:holdingFlag(tid) then drop_weapon(tid) end
-                        
-                        if (player.level == tonumber(level))then
-                            if (not is_self) then
-                                game:Respond(eid, get_var(tid, "$name") .. " is already level " .. level)
+            local players = set.players
+            for _,player in pairs(players) do
+                if (player.id == tid) then 
+                
+                    if game:holdingFlag(tid) then drop_weapon(tid) end
+                    
+                    -- FOR LEVELING UP
+                    if (params.level) then
+                        local level = params.level
+                        if level:match('%d+') then
+                            if (player.level == tonumber(level))then
+                                if (not is_self) then
+                                    game:Respond(eid, get_var(tid, "$name") .. " is already level " .. level)
+                                else
+                                    game:Respond(eid, "You are already level " .. level)
+                                end
                             else
-                                game:Respond(eid, "You are already level " .. level)
+                                local p = { }
+                                p.target, p.levelup, p.cmd = tid, true, true    
+                                p.level = level
+                                game:CycleLevel(p)
                             end
                         else
-                            local p = { }
-                            p.target, p.levelup, p.cmd = tid, true, true    
-                            p.level = level
-                            game:CycleLevel(p)
+                            game:Respond(eid, "Invalid Level! Please choose a number between 1-" .. #set.levels, 4+8)
+                        end
+                    elseif (params.entervehicle) then
+                        local coords = game:getXYZ(tid, get_dynamic_player(tid))
+                        if (not coords.invehicle) then
+
+                            if (player.vehicle ~= nil) then
+                                local Vehicle = spawn_object("vehi", player.vehicle, coords.x, coords.y, coords.z + 0.5)
+                                player.vehicle_object = Vehicle
+                                
+                                enter_vehicle(Vehicle, player.id, 0)
+                                if (player.level == 8) then
+                                    timer(0, "DelayGunnerSeat", player.id, Vehicle)
+                                end
+                        
+                                if (not is_self) then
+                                    game:Respond(eid, "Entering " .. get_var(tid, "$name") .. " into " .. player.title)
+                                else
+                                    game:Respond(eid, "Entering " .. player.title)
+                                end
+                            else
+                                if (not is_self) then
+                                    game:Respond(eid, get_var(tid, "$name") .. " is not on a Vehicle Level")
+                                else
+                                    game:Respond(eid, "You are not on a Vehicle Level")
+                                end
+                            end
+                        else
+                            if (not is_self) then
+                                game:Respond(eid, get_var(tid, "$name") .. " is already in " .. player.title)
+                            else
+                                game:Respond(eid, "You are already in " .. player.title)
+                            end
                         end
                     end
                 end
-                
-            else
-                game:Respond(eid, "Invalid Level! Please choose a number between 1-" .. #set.levels, 4+8)
             end
         end
     end
 end
 
-function game:ValidateCommand(executor, args)
+function game:ValidateCommand(executor, args, cmd_table, cmd_index)
     local params = { }
                 
     local function getplayers(arg)
@@ -1378,9 +1441,15 @@ function game:ValidateCommand(executor, args)
             if (pl[i] == nil) then
                 break
             end
-
-            params.level = args[2]
+        
+            if (cmd_index == 1) then
+                params.level = args[2]
+            elseif (cmd_index == 2) then
+                params.entervehicle = true
+            end
+            
             params.eid, params.tid = executor, tonumber(pl[i])
+            params.cmd_table = cmd_table
 
             if (params.target_all) then
                 game:ExecuteCore(params)
@@ -1403,16 +1472,16 @@ function game:isOnline(target, executor)
     end
 end
 
-function game:isAdmin(p)
-    local set = game.settings
-    if (tonumber(get_var(p, "$lvl"))) >= set.permission then
+function game:isAdmin(p, cmd_table)
+    local permission = cmd_table.permission
+    if (tonumber(get_var(p, "$lvl"))) >= permission then
         return true
     end
 end
 
-function game:checkAccess(p)
+function game:checkAccess(p, cmd_table)
     if not game:isConsole(p) then
-        if game:isAdmin(p) then
+        if game:isAdmin(p, cmd_table) then
             return true
         else
             game:Respond(p, "Command Failed. Insufficient permission!", 4 + 8)
@@ -1424,10 +1493,10 @@ function game:checkAccess(p)
     return false
 end
 
-function game:executeOnOthers(e, self, is_console, level)
-    local set = game.settings
+function game:executeOnOthers(e, self, is_console, level, cmd_table)
+    local permission = cmd_table.permission_extra
     if (not self) and (not is_console) then
-        if tonumber(level) >= set.permission_extra then
+        if tonumber(level) >= permission then
             return true
         elseif (cmd_error[e]) then
             cmd_error[e] = nil
