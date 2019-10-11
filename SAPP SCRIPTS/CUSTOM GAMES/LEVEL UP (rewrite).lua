@@ -25,7 +25,7 @@ function game:init()
 
         -- # Countdown delay (in seconds)
         -- This is a pre-game-start countdown initiated at the beginning of each game.
-        delay = 3,
+        delay = 10,
 
         -- # This message is the pre-game broadcast:
         pre_game_message = "Game will begin in %minutes%:%seconds%",
