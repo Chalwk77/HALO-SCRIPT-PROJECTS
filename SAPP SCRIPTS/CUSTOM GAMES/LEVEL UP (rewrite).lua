@@ -43,12 +43,12 @@ function game:init()
         
         commands = {            
             [1] = {
-                command = "setlevel", -- Custom Command (level UP|DOWN yourself or other players)
+                command = "setlevel", -- Custom Command (Use this command to level UP|DOWN yourself or others)
                 permission = 1, -- Minimum level required to execute this command
                 permission_extra = 4, -- Minimum level required to execute this command on other players
             },
             [2] = {
-                command = "reenter", -- Custom Command (re-enter yourself or others into last known vehicle)
+                command = "reenter", -- Custom Command (Use this command to re-enter yourself into the level-specific vehicle.)
                 permission = 1, -- Minimum level required to execute this command
                 permission_extra = 4, -- Minimum level required to execute this command on other players
             },
