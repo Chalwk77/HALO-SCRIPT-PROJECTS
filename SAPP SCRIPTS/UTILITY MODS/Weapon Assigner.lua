@@ -26,7 +26,7 @@ function mod:init()
         
         -- To disable a slot, set it to nil:
         -- Example: ["mymap"] = {weapon[1], nil, nil, nil},
-        -- In the above example, you will only spawn with one weapon on the map "mymap"
+        -- In the above example, you will only spawn with the pistol on the map "mymap"
         
         -- =========== [ STOCK MAPS ] =========== --
         -- PRIMARY | SECONDARY | TERTIARY | QUATERNARY
