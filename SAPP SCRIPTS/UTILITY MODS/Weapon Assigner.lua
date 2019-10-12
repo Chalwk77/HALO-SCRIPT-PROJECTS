@@ -36,8 +36,6 @@ function mod:init()
         -- weapon[2] = sniper
         -- etc...
         ["beavercreek"] = { weapon[1], weapon[2], nil, nil},
-        
-        
         ["bloodgulch"] = { weapon[2], weapon[1], weapon[9], weapon[5]},
         ["boardingaction"] = { weapon[10], weapon[1], nil, nil},
         ["carousel"] = { weapon[2], weapon[1], weapon[10], nil},
