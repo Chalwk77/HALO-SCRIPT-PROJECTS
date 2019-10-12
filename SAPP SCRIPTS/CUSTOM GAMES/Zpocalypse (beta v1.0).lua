@@ -36,7 +36,7 @@ function zombies:init()
         on_game_begin = "The game has begun: You are on the %team% team",
 
         -- Message emitted when a human is killed by a zombie:
-        on_zombify = "%name% has been zombified!",
+        on_zombify = "%name% was zombified by %killer%",
 
         on_last_man = "%name% is the last human standing!",
 
@@ -421,6 +421,9 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
 
         local kteam = get_var(killer, "$team")
         local vteam = get_var(victim, "$team")
+        
+        local kname = get_var(killer, "$name")
+        local vname = get_var(victim, "$name")
 
         local set = zombies.settings
 
@@ -429,7 +432,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             -- Check for suicide:
             if (killer == victim) then
                 zombies:SwitchTeam(victim, "blue")
-                local message = gsub(set.on_zombify, "%%name%%", get_var(victim, "$name"))
+                local message = gsub(gsub(set.on_zombify, "%%name%%", vname), "%%killer%%", kname)
                 zombies:announceZombify(message)
                 zombies:endGameCheck()
             end
@@ -443,21 +446,20 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
 
                     -- Switch victim to Zombie team:
                     zombies:SwitchTeam(victim, "blue")
-                    local message = gsub(set.on_zombify, "%%name%%", get_var(victim, "$name"))
+                    local message = gsub(gsub(set.on_zombify, "%%name%%", vname), "%%killer%%", kname)
                     zombies:announceZombify(message)
 
                     -- If zombie has "cure_threshold" kills, set them to human team:
                     set.zkills[killer] = set.zkills[killer] + 1
                     if (set.zkills[killer] == set.cure_threshold) then
                         zombies:SwitchTeam(killer, "red")
-                        local message = gsub(set.on_cure, "%%name%%", get_var(killer, "$name"))
+                        local message = gsub(set.on_cure, "%%name%%", kname)
                         zombies:announceCured(message)
                     end
 
                 elseif (kteam == "red") and (vteam == "blue") then
                     zombies:CleanUpDrones(victim)
                 end
-
             end
 
             zombies:endGameCheck()
