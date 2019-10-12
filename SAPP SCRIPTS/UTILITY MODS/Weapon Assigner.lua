@@ -30,7 +30,14 @@ function mod:init()
         
         -- =========== [ STOCK MAPS ] =========== --
         -- PRIMARY | SECONDARY | TERTIARY | QUATERNARY
+        
+        
+        -- weapon[1] = pistol
+        -- weapon[2] = sniper
+        -- etc...
         ["beavercreek"] = { weapon[1], weapon[2], nil, nil},
+        
+        
         ["bloodgulch"] = { weapon[2], weapon[1], weapon[9], weapon[5]},
         ["boardingaction"] = { weapon[10], weapon[1], nil, nil},
         ["carousel"] = { weapon[2], weapon[1], weapon[10], nil},
@@ -49,7 +56,7 @@ function mod:init()
         ["wizard"] = { weapon[1], weapon[2], nil, nil},
        
         -- =========== [ CUSTOM MAPS ] =========== --
-        ["bigassv2,104"] = {weapon[16], weapon[20], weapon[18], weapon[19]}, -- slot 1, dmr
+        ["bigassv2,104"] = {weapon[16], weapon[20], weapon[18], weapon[19]},
         -- Repeat the structure to add more entries
         ["mapname"] = {weapon[0], weapon[0], weapon[0], weapon[0]},
     }
