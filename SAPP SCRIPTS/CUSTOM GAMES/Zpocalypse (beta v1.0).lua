@@ -1,3 +1,4 @@
+
 --[[
 --=====================================================================================================--
 Script Name: Zpocalypse (beta v1.0), for SAPP (PC & CE)
@@ -25,7 +26,7 @@ function zombies:init()
 
         -- #Countdown delay (in seconds)
         -- This is a pre-game-start countdown initiated at the beginning of each game.
-        delay = 10,
+        delay = 5,
 
         -- #Pre Game message (%timeRemaining% will be replaced with the time remaining)
         pre_game_message = "Zpocalypse will begin in %time_remaining% second%s%",
@@ -39,6 +40,13 @@ function zombies:init()
         on_zombify = "%name% was zombified by %killer%",
 
         on_last_man = "%name% is the last human standing!",
+        
+        -- A NAV marker will appear above the last man standing if your set the "kill in order" gametype flag to "yes". 
+        -- This only works on FFA and Team Slayer gametypes.
+        use_nav_marker = true,
+        
+        -- If this is true, the teams will be evenly balanced at the beginning of the game
+        balance_teams = false,
 
         -- #Respawn time (override)
         -- When enabled, players who are killed by the opposing team will respawn immediately.
@@ -113,6 +121,8 @@ local floor, sqrt = math.floor, math.sqrt
 -- Game Variables:
 local gamestarted
 local countdown, init_countdown, print_nep
+local kill_message_addresss, originl_kill_message
+
 
 function OnScriptLoad()
 
@@ -131,7 +141,9 @@ function OnScriptLoad()
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
 
     register_callback(cb['EVENT_WEAPON_DROP'], "OnWeaponDrop")
-
+    
+    kill_message_addresss = sig_scan("8B42348A8C28D500000084C9") + 3
+    originl_kill_message = read_dword(kill_message_addresss)
 
     if (get_var(0, '$gt') ~= "n/a") then
         zombies:init()
@@ -145,6 +157,18 @@ end
 
 function OnScriptUnload()
     --
+end
+
+function zombies:enableKillMessages()
+    safe_write(true)
+    write_dword(kill_message_addresss, originl_kill_message)
+    safe_write(false)
+end
+
+function zombies:disableKillMessages()
+    safe_write(true)
+    write_dword(kill_message_addresss, 0x03EB01B1)
+    safe_write(false)
 end
 
 function OnTick()
@@ -168,29 +192,25 @@ function OnTick()
                 rprint(i, set.pregame)
             end
 
-            -- Assign "skull" to zombies:
-            local player_object = get_dynamic_player(i)
-            if player_alive(i) and set.assign[i] then
-                execute_command("wdel " .. i)
-                local x, y, z = read_vector3d(player_object + 0x5C)
-
-                local oddball = spawn_object("weap", "weapons\\ball\\ball", x, y, z)
-                local object_spawned = assign_weapon(oddball, i)
-
-                local drone = get_object_memory(oddball)
-                set.drones[#set.drones + 1] = {pid = i, drone = oddball}
-
-                set.assign[i] = false
-            end
-
             if (gamestarted) and player_alive(i) then
-
-                -- Apply camouflage when the player crouches (last man & zombies)
-                zombies:CamoOnCrouch(i)
+                local player_object = get_dynamic_player(i)
+                
+                -- Assign "skull" to zombies:
+                if (set.assign[i]) then
+                    set.assign[i] = false
+                    
+                    execute_command("wdel " .. i)
+                    local x, y, z = read_vector3d(player_object + 0x5C)
+                    local oddball = spawn_object("weap", "weapons\\ball\\ball", x, y, z)
+                    local drone = get_object_memory(oddball)
+                    set.drones[#set.drones + 1] = {pid = i, drone = oddball}
+                end
 
                 local attributes = zombies.settings.attributes
                 local team = get_var(i, "$team")
                 for k, v in pairs(attributes) do
+                
+                
                     if (k == "Humans") and (team == "red") then
                         if (v.running_speed > 0) then
                             execute_command("s " .. i .. " " .. tonumber(v.running_speed))
@@ -199,13 +219,18 @@ function OnTick()
                         if (v.running_speed > 0) then
                             execute_command("s " .. i .. " " .. tonumber(v.running_speed))
                         end
+                        zombies:CamoOnCrouch(i)
                     elseif (k == "Last Man Standing") and (team == "red") then
                         if (set.last_man ~= nil) and (set.last_man == i) then
-                            zombies:SetNav(i)
+                            
+                            if (set.use_nav_marker) then
+                                zombies:SetNav(i)
+                            end
 
                             if (v.running_speed > 0) then
                                 execute_command("s " .. i .. " " .. tonumber(v.running_speed))
                             end
+                            zombies:CamoOnCrouch(i)
 
                             if (v.regenerating_health) then
                                 if (player_object ~= 0) then
@@ -234,29 +259,25 @@ function OnTick()
         if (timeRemaining <= 0) then
             gamestarted = true
             zombies:StopTimer()
-            for i = 1, 16 do
-                if player_present(i) then
-                    zombies:sortPlayers(i)
-                    local team = zombies:GetTeamType(i)
-                    local msg = gsub(set.on_game_begin, "%%team%%", team)
-                    rprint(i, msg)
+            
+            if (set.balance_teams) then
+                for i = 1, 16 do
+                    if player_present(i) then
+                        zombies:sortPlayers(i, true)
+                        local team = zombies:GetTeamType(i)
+                        local msg = gsub(set.on_game_begin, "%%team%%", team)
+                        rprint(i, msg)
+                    end
                 end
+            else
+                zombies:sortPlayers(nil, false)
             end
+            
             zombies:SetLastMan()
 
-            -- Remove default death messages (temporarily)
-            local kma = sig_scan("8B42348A8C28D500000084C9") + 3
-            original = read_dword(kma)
-            safe_write(true)
-            write_dword(kma, 0x03EB01B1)
-            safe_write(false)
-
+            zombies:disableKillMessages()
             execute_command("sv_map_reset")
-
-            -- Re enables default death messages
-            safe_write(true)
-            write_dword(kma, original)
-            safe_write(false)
+            zombies:enableKillMessages()
         end
     end
 end
@@ -385,19 +406,22 @@ function OnPlayerSpawn(PlayerIndex)
     local PlayerObject = get_dynamic_player(PlayerIndex)
     if (PlayerObject ~= 0 and gamestarted) then
 
-        local set = zombies.settings
-        local team = get_var(PlayerIndex, "$team")
+        if player_alive(PlayerIndex) then
+            local set = zombies.settings
+            local team = get_var(PlayerIndex, "$team")
 
-        if (team == "blue") then
-            -- Set grenades to 0 for zombies:
-            write_word(PlayerObject + 0x31E, 0)
-            write_word(PlayerObject + 0x31F, 0)
-
-            -- Set weapon assignment flag to true:
-            set.assign[PlayerIndex] = true
+            if (team == "blue") then
             
-            -- Set zombie kill count to zero:
-            set.zkills[PlayerIndex] = 0
+                -- Set grenades to 0 for zombies:
+                write_word(PlayerObject + 0x31E, 0)
+                write_word(PlayerObject + 0x31F, 0)
+
+                -- Set weapon assignment flag to true:
+                set.assign[PlayerIndex] = true
+                
+                -- Set zombie kill count to zero:
+                set.zkills[PlayerIndex] = 0
+            end
         end
     end
 end
@@ -495,9 +519,12 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
 end
 
 function zombies:killPlayer(PlayerIndex)
-    local PlayerObject = read_dword(get_player(PlayerIndex) + 0x34)
-    if (PlayerObject ~= nil) then
-        destroy_object(PlayerObject)
+    local player = get_player(PlayerIndex)
+    if (player ~= 0) then        
+        local PlayerObject = read_dword(player + 0x34)
+        if (PlayerObject ~= nil) then
+            destroy_object(PlayerObject)
+        end
     end
 end
 
@@ -506,23 +533,18 @@ function zombies:SwitchTeam(PlayerIndex, team, bool)
 
         local set = zombies.settings
 
-        -- Temporarily disables default death messages (to prevent "Player Died" message).
-        local kma = sig_scan("8B42348A8C28D500000084C9") + 3
-        original = read_dword(kma)
-        safe_write(true)
-        write_dword(kma, 0x03EB01B1)
-        safe_write(false)
-
-        -- Switch player to relevant team
-        execute_command("st " .. tonumber(PlayerIndex) .. " " .. tostring(team))
-
-        -- Re enables default death messages
-        safe_write(true)
-        write_dword(kma, original)
-        safe_write(false)
+        local Team = get_var(PlayerIndex, "$team")
+        if (Team ~= team) then
+            zombies:disableKillMessages()
+            execute_command("st " .. tonumber(PlayerIndex) .. " " .. tostring(team))
+            zombies:enableKillMessages()
+        end
 
         if (set.respawn_override == true) then
-            write_dword(get_player(PlayerIndex) + 0x2C, set.respawn_time * 33)
+            local player = get_player(PlayerIndex)
+            if (player ~= 0) then
+                write_dword(player + 0x2C, set.respawn_time * 33)
+            end
         end
 
         local health = zombies:setHealth(PlayerIndex, team)
@@ -660,19 +682,52 @@ function zombies:isTeamPlay()
     end
 end
 
-function zombies:sortPlayers(PlayerIndex)
+function zombies:sortPlayers(PlayerIndex, BalanceTeams)
     if (gamestarted) then
-        if (useEvenNumbers) then
-            if (tonumber(PlayerIndex) % 2 == 0) then
-                zombies:setTeam(PlayerIndex, "blue")
+        local set = zombies.settings
+    
+        if (BalanceTeams) then
+            if (useEvenNumbers) then
+                if (tonumber(PlayerIndex) % 2 == 0) then
+                    zombies:setTeam(PlayerIndex, "blue")
+                else
+                    zombies:setTeam(PlayerIndex, "red")
+                end
             else
-                zombies:setTeam(PlayerIndex, "red")
+                if (tonumber(PlayerIndex) % 2 == 0) then
+                    zombies:setTeam(PlayerIndex, "red")
+                else
+                    zombies:setTeam(PlayerIndex, "blue")
+                end
             end
         else
-            if (tonumber(PlayerIndex) % 2 == 0) then
-                zombies:setTeam(PlayerIndex, "red")
-            else
-                zombies:setTeam(PlayerIndex, "blue")
+        
+            local players = { }
+            for i = 1, 16 do
+                if player_present(i) then
+                    players[#players + 1] = i
+                end
+            end
+
+            if (#players > 0) then
+
+                math.randomseed(os.time())
+                math.random();math.random();math.random();
+                local player = players[math.random(1, #players)]
+                zombies:setTeam(player, "blue")
+                
+                local team = zombies:GetTeamType(player)
+                local msg = gsub(set.on_game_begin, "%%team%%", team)
+                rprint(player, msg)
+                        
+                for i = 1,16 do
+                    if (i ~= player) then
+                        zombies:setTeam(i, "red")
+                        local team = zombies:GetTeamType(i)
+                        local msg = gsub(set.on_game_begin, "%%team%%", team)
+                        rprint(i, msg)
+                    end
+                end
             end
         end
     end
@@ -704,7 +759,7 @@ end
 
 function zombies:setTeam(PlayerIndex, team)
 
-    zombies:deleteWeapons(PlayerIndex)
+    --zombies:deleteWeapons(PlayerIndex)
     local PlayerObject = get_dynamic_player(PlayerIndex)
 
     if (PlayerObject ~= 0) then
