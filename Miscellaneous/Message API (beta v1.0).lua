@@ -66,7 +66,7 @@ function API:NewMessage(Message, Duration, Player, Type)
     
     if (#messages <= 0) then
         table.insert(messages, Add(Message, Duration, Player, Type, false))
-    elseif game:isPaused(Player) then
+    elseif API:isPaused(Player) then
         if not isDupe(Message) then
             table.insert(messages, Add(Message, Duration, Player, Type, true))
         end
