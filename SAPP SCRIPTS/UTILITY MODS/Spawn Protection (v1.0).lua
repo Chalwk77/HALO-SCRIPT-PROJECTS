@@ -1,6 +1,9 @@
 --[[
 --=====================================================================================================--
 Script Name: Spawn Protection (v1.0), for SAPP (PC & CE)
+Description: This mod will block receiving damage for a configurable amount of time (after the player spawns).
+             You can optionally allow or block the victim's capabilities of inflicting damage while under protection, also.
+
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
