@@ -128,7 +128,7 @@ function OnTick()
                         
                         console.time = console.time + delta_time
                         if (console.time >= console.duration) then
-                            messages[k] = nil
+                            messages[index] = nil
                         end
                     else
                         console.pause_timer = console.pause_timer + delta_time
@@ -152,9 +152,7 @@ end
 
 function OnPlayerDisconnect(PlayerIndex)
     local messages = API.Messages[PlayerIndex]
-    if (messages) then
-        message = nil
-    end
+    if (messages) then messages = nil end
 end
 
 return API
