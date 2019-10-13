@@ -19,7 +19,7 @@ function mod:init()
     mod.protection_duration = 5
     
     -- Should the player be able to inflict damage on others while under protection?
-    mod.inflict_damage = false
+    mod.inflict_damage = true
     --------------------------
     
     -- Do Not Touch --
