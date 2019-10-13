@@ -28,6 +28,8 @@ function mod:init()
 end
 
 function OnScriptLoad()
+
+    -- Register needed event callbacks:
     register_callback(cb["EVENT_TICK"], "OnTick")
     register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
@@ -71,7 +73,6 @@ function OnTick()
     for _,player in pairs(mod.players) do
         if (player.id) then 
             if (player_alive(player.id) and player.protect) then
-                
                 player.timer = player.timer + mod.delta_time
                 local timeRemaining = player.duration - math.floor(player.timer % 60)
                 if (timeRemaining <= 0) then
