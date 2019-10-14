@@ -634,13 +634,15 @@ end
 -- This function deletes stray oddballs:
 function zombies:CleanUpDrones(PlayerIndex, Assign)
     local player = zombies:PlayerTable(PlayerIndex)
-    if (player.drone) then
-        destroy_object(player.drone)
-        player.drone = nil
-    end
-    if (Assign) then
-        player.assign = true
-    end
+    if (player.team == parameters.zombie_team) then
+        if (player.drone) then
+            destroy_object(player.drone)
+            player.drone = nil
+        end
+        if (Assign) then
+            player.assign = true
+        end
+   end
 end
 
 function zombies:cls(PlayerIndex, count)
