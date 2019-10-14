@@ -1,7 +1,17 @@
 --[[
 --=====================================================================================================--
 Script Name: Zpocalypse (beta v1.0), for SAPP (PC & CE)
-Description: Custom Zombie Game.
+Description: A custom Zombies Game designed for Team-Slayer game types.
+
+### Game Play Mechanics:
+- Blue Team play as the "zombies".
+- Red Team play as the "humans".
+- Zombies wield a "skull" with which they melee humans.
+- When a human is killed by a zombie they become a zombie themselves.
+- When all players have become a zombie the game will end.
+- Zombies are lighting fast and slightly stronger than humans.
+- Zombies have the ability to camouflage themselves when they crouch.
+- The last human alive will have special abilities, such as regenerating health, camouflage and super speed among other things.
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
