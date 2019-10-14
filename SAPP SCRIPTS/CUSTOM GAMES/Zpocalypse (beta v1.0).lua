@@ -17,6 +17,8 @@ local zombies = {}
 local parameters = nil
 
 function zombies:init()
+    local weapon = zombies:GetTag()
+    
     zombies.settings = {
     
         -- #Numbers of players required to set the game in motion (cannot be less than 2)
@@ -107,6 +109,49 @@ function zombies:init()
                 -- A NAV marker will appear above the last man standing if your set the "kill in order" gametype flag to "yes". 
                 -- This only works on FFA and Team Slayer gametypes.
                 use_nav_marker = true
+            },
+            
+            weapons = {
+            
+                -- If true, humans will be given up to 4 custom weapons:
+                use = true, -- Set to "false" to disable weapon assignments for all maps
+                
+                -- Set the weapon index to the corresponding tag number (see function mod:GetTag() on line 1089)
+                
+                -- To disable a slot, set it to nil:
+                -- Example: ["mymap"] = {weapon[1], nil, nil, nil},
+                -- In the above example, you will only spawn with the pistol on the map "mymap"
+                
+                -- =========== [ STOCK MAPS ] =========== --
+                -- PRIMARY | SECONDARY | TERTIARY | QUATERNARY
+                
+                -- weapon[1] = pistol
+                -- weapon[2] = sniper
+                -- etc...
+                
+                -- Set all slots to "nil" to disable weapon assignment for that map.
+                -- For example: ["mymap"] = {nil, nil, nil, nil},
+                
+                ["beavercreek"] = { weapon[1], weapon[2], weapon[3], nil}, -- pistol, sniper, shotgun
+                ["bloodgulch"] = { weapon[2], weapon[1], weapon[9], weapon[5]},
+                ["boardingaction"] = { weapon[10], weapon[1], nil, nil},
+                ["carousel"] = { weapon[2], weapon[1], weapon[10], nil},
+                ["dangercanyon"] = { weapon[1], weapon[4], weapon[7], nil},
+                ["deathisland"] = { weapon[2], weapon[1], weapon[7], nil},
+                ["gephyrophobia"] = { weapon[2], weapon[1], weapon[4], nil},
+                ["icefields"] = { weapon[1], weapon[7], nil, nil},
+                ["infinity"] = { weapon[1], weapon[2], weapon[4], nil},
+                ["sidewinder"] = { weapon[1], weapon[4], weapon[3], weapon[2]},
+                ["timberland"] = { weapon[1], weapon[2], weapon[10], nil},
+                ["hangemhigh"] = { weapon[1], weapon[10], nil, nil},
+                ["ratrace"] = { weapon[7], weapon[1], nil, nil},
+                ["damnation"] = { weapon[7], weapon[1], nil, nil},
+                ["putput"] = { weapon[5], weapon[6], weapon[3], weapon[8]},
+                ["prisoner"] = { weapon[1], weapon[4], nil, nil},
+                ["wizard"] = { weapon[1], weapon[2], nil, nil},
+                
+                -- Repeat the structure to add more entries:
+                ["mapname"] = {nil, nil, nil, nil},
             }
         },
 
@@ -118,7 +163,25 @@ function zombies:init()
     
     --# Do Not Touch #--
     zombies.players = {}
+    zombies.map = get_var(0, "$map")
+        
     parameters = zombies.settings
+    
+    local weapons = parameters.attributes.weapons
+    local use_custom_weapons = (weapons.use == true)
+    zombies.human_weapons = use_custom_weapons
+    
+    if (zombies.human_weapons) then
+        local count = 0
+        for Slot,Weapon in pairs(weapons[zombies.map]) do
+            if (Weapon ~= nil) then
+                count = count + 1
+            end
+        end
+        if (count == 0) then
+            zombies.human_weapons = false
+        end
+    end
 end
 
 -- Variables for String Library:
@@ -183,6 +246,10 @@ function OnTick()
     for _, player in pairs(zombies.players) do
         if (player) and player_present(player.id) then
 
+            local isHteam = (player.team == parameters.human_team)
+            local isZteam = (player.team == parameters.zombie_team)
+            local isLastMan = (player.last_man ~= nil)
+    
             if (print_nep) and (not gamestarted) and (count < parameters.required_players) then
                 zombies:cls(player.id, 25)
                 local msg = gsub(gsub(parameters.not_enough_players, 
@@ -199,45 +266,69 @@ function OnTick()
 
                 local player_object = get_dynamic_player(player.id)
                 if (player_object ~= 0) then
-
-                    if (player.assign) then
+                
+                    if (isZteam) and (player.zombie_assign) then
                         local coords = zombies:getXYZ(player.id, player_object)
                         if (not coords.invehicle) then
-                            player.assign = false
+                            player.zombie_assign = false
                             execute_command("wdel " .. player.id)
                             local oddball = spawn_object("weap", player.weapon, coords.x, coords.y, coords.z)
                             assign_weapon(oddball, player.id)
                             player.drone = oddball
                         end
                     end
-
-                    for index, attribute in pairs(parameters.attributes) do
-                        if (index == "Humans") and (player.team == parameters.human_team) then
+                    
+                    local attributes = parameters.attributes
+                    local weapons = attributes.weapons
+                    
+                    for index, attribute in pairs(attributes) do
+                        
+                        -- Human Weapon Assignment:
+                        if (player.human_assign) and (index == "Humans") and (isHteam or isLastMan) then
+                            local coords = zombies:getXYZ(player.id, player_object)
+                            if (not coords.invehicle) then
+                                player.human_assign = false
+                                execute_command("wdel " .. player.id)
+                                for Slot, Weapon in pairs(weapons[zombies.map]) do
+                                    if (Slot == 1 or Slot == 2) then
+                                        assign_weapon(spawn_object("weap", Weapon, coords.x, coords.y, coords.z), player.id)
+                                    elseif (Slot == 3 or Slot == 4) then
+                                        timer(250, "DelaySecQuat", player.id, Weapon, coords.x, coords.y, coords.z)
+                                    end
+                                end
+                            end
+                        end
+                        
+                        if (index == "Humans") and (isHteam) then
+                            
+                            -- Player is HUMAN:
                             if (attribute.running_speed > 0) then
                                 execute_command("s " .. player.id .. " " .. tonumber(attribute.running_speed))
                             end
-                        elseif (index == "Zombies") and (player.team == parameters.zombie_team) then
+                            
+                            -- Player is ZOMBIE:
+                        elseif (index == "Zombies") and (isZteam) then
                             if (attribute.running_speed > 0) then
                                 execute_command("s " .. player.id .. " " .. tonumber(attribute.running_speed))
                             end
                             zombies:CamoOnCrouch(player.id)
-                        elseif (index == "Last Man Standing") and (player.team == parameters.human_team) then
-                            if (player.last_man ~= nil) then
+                            
+                            
+                            -- Player is LAST MAN STANDING
+                        elseif (index == "Last Man Standing") and (isHteam and isLastMan) then
+                            if (attribute.use_nav_marker) then
+                                zombies:SetNav(player.id)
+                            end
 
-                                if (attribute.use_nav_marker) then
-                                    zombies:SetNav(player.id)
-                                end
+                            if (attribute.running_speed > 0) then
+                                execute_command("s " .. player.id .. " " .. tonumber(attribute.running_speed))
+                            end
+                            zombies:CamoOnCrouch(player.id)
 
-                                if (attribute.running_speed > 0) then
-                                    execute_command("s " .. player.id .. " " .. tonumber(attribute.running_speed))
-                                end
-                                zombies:CamoOnCrouch(player.id)
-
-                                if (attribute.regenerating_health) then
-                                    if (player_object ~= 0) then
-                                        if read_float(player_object + 0xE0) < 1 then
-                                            write_float(player_object + 0xE0, read_float(player_object + 0xE0) + attribute.increment)
-                                        end
+                            if (attribute.regenerating_health) then
+                                if (player_object ~= 0) then
+                                    if read_float(player_object + 0xE0) < 1 then
+                                        write_float(player_object + 0xE0, read_float(player_object + 0xE0) + attribute.increment)
                                     end
                                 end
                             end
@@ -410,19 +501,28 @@ function OnPlayerSpawn(PlayerIndex)
     local PlayerObject = get_dynamic_player(PlayerIndex)
     if (PlayerObject ~= 0 and gamestarted) then
         if player_alive(PlayerIndex) then
-            local team = get_var(PlayerIndex, "$team")
-
-            if (team == parameters.zombie_team) then
+            local player = zombies:PlayerTable(PlayerIndex)
+            
+            local isHteam = (player.team == parameters.human_team)
+            local isZteam = (player.team == parameters.zombie_team)
+            local isLastMan = (player.last_man ~= nil)
+            
+            local weapons = parameters.attributes.weapons
+            local use = (weapons.use == true)
+            
+            if (isZteam) then
 
                 -- Set grenades to 0 for zombies:
                 write_word(PlayerObject + 0x31E, 0)
                 write_word(PlayerObject + 0x31F, 0)
 
-                local player = zombies:PlayerTable(PlayerIndex)
                 -- Set weapon assignment flag to true:
-                player.assign = true
+                player.zombie_assign = true
                 -- Set zombie kill count to zero:
                 player.kills = 0
+                
+            elseif (isHteam or isLastMan) and (use) then
+                player.human_assign = zombies.human_weapons
             end
         end
     end
@@ -640,7 +740,7 @@ function zombies:CleanUpDrones(PlayerIndex, Assign)
             player.drone = nil
         end
         if (Assign) then
-            player.assign = true
+            player.zombie_assign = true
         end
    end
 end
@@ -937,10 +1037,13 @@ function zombies:initPlayer(PlayerIndex, Team, Init)
                 kills = 0,
                 team = Team,
                 drone = nil,
-                assign = false,
+                zombie_assign = false,
+                human_assign = false,
                 last_man = nil,
                 id = PlayerIndex,
+                -- Zombie Weapon:
                 weapon = "weapons\\ball\\ball",
+                -- Human Weapons:
                 name = get_var(PlayerIndex, "$name"),
             }
         else
@@ -981,4 +1084,51 @@ function zombies:getXYZ(PlayerIndex, PlayerObject)
         coords.x, coords.y, coords.z = x, y, z
     end
     return coords
+end
+
+function zombies:GetTag()
+    return {
+    
+        -- ============= [ STOCK WEAPONS ] ============= --
+        [1] = "weapons\\pistol\\pistol",
+        [2] = "weapons\\sniper rifle\\sniper rifle",
+        [3] = "weapons\\plasma_cannon\\plasma_cannon",
+        [4] = "weapons\\rocket launcher\\rocket launcher",
+        [5] = "weapons\\plasma pistol\\plasma pistol",
+        [6] = "weapons\\plasma rifle\\plasma rifle",
+        [7] = "weapons\\assault rifle\\assault rifle",
+        [8] = "weapons\\flamethrower\\flamethrower",
+        [9] = "weapons\\needler\\mp_needler",
+        [10] = "weapons\\shotgun\\shotgun",
+        [11] = "weapons\\ball\\ball",
+        [12] = "weapons\\flag\\flag",
+        
+        -- ============= [ CUSTOM WEAPONS ] ============= --
+        -- Weapon indexes 11-30 belong to bigassv2,104
+        [13] = "altis\\weapons\\binoculars\\binoculars",
+        [14] = "altis\\weapons\\binoculars\\gauss spawner\\create gauss",
+        [15] = "altis\\weapons\\smoke\\smoke",
+        [16] = "bourrin\\halo reach\\vehicles\\warthog\\gauss\\gauss gun",
+        [17] = "bourrin\\halo reach\\vehicles\\warthog\\rocket\\rocket",
+        [18] = "bourrin\\weapons\\dmr\\dmr",
+        [19] = "bourrin\\weapons\\ma5k\\cmt's ma5k reloaded",
+        [20] = "bourrin\\weapons\\masternoob's assault rifle\\assault rifle",
+        [21] = "cmt\\weapons\\human\\shotgun\\shotgun",
+        [22] = "cmt\\weapons\\human\\stealth_sniper\\sniper rifle",
+        [23] = "halo reach\\objects\\weapons\\support_high\\spartan_laser\\spartan laser",
+        [24] = "halo3\\weapons\\odst pistol\\odst pistol",
+        [25] = "my_weapons\\trip-mine\\trip-mine",
+        [26] = "reach\\objects\\weapons\\pistol\\magnum\\magnum",
+        [27] = "vehicles\\le_falcon\\weapon",
+        [28] = "vehicles\\scorpion\\scorpion cannon_heat",
+        [29] = "weapons\\gauss sniper\\gauss sniper",
+        [30] = "weapons\\rocket launcher\\rocket launcher test",
+        
+        -- repeat the structure to add more weapon tags:
+        [31] = "tag_goes_here",
+    }
+end
+
+function DelaySecQuat(PlayerIndex, Weapon, x, y, z)
+    assign_weapon(spawn_object("weap", Weapon, x, y, z), PlayerIndex)
 end
