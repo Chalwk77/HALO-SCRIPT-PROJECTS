@@ -14,93 +14,107 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.11.0.0"
 
 local zombies = {}
+local parameters = nil
+
 function zombies:init()
+    zombies.settings = {
+    
+        -- #Numbers of players required to set the game in motion (cannot be less than 2)
+        required_players = 3,
 
+        -- Continuous message emitted when there aren't enough players.
+        not_enough_players = "%current%/%required% players needed to start the game.",
 
-    -- #Numbers of players required to set the game in motion (cannot be less than 2)
-    zombies.required_players = 3
+        -- #Countdown delay (in seconds)
+        -- This is a pre-game-start countdown initiated at the beginning of each game.
+        delay = 10,
 
-    -- Continuous message emitted when there aren't enough players.
-    zombies.not_enough_players = "%current%/%required% players needed to start the game."
+        -- #Pre Game message (%timeRemaining% will be replaced with the time remaining)
+        pre_game_message = "Zpocalypse will begin in %time_remaining% second%s%",
 
-    -- #Countdown delay (in seconds)
-    -- This is a pre-game-start countdown initiated at the beginning of each game.
-    zombies.delay = 10
+        -- #End of Game message (%team% will be replaced with the winning team)
+        end_of_game = "The %team% team won!",
+        
+        on_game_begin = "The game has begun: You are on the %team% team",
 
-    -- #Pre Game message (%timeRemaining% will be replaced with the time remaining)
-    zombies.pre_game_message = "Zpocalypse will begin in %time_remaining% second%s%"
+        -- Zombies vs Human:
+        on_zombify = "%victim% was zombified by %killer%",
+        
+        -- Normal Suicide
+        on_suicide = "%victim% committed suicide",
+        
+        -- Human vs Zombie:
+        on_kill = "%victim% was killed by %killer%",
 
-    -- #End of Game message (%team% will be replaced with the winning team)
-    zombies.end_of_game = "The %team% team won!"
-
-    zombies.on_game_begin = "The game has begun: You are on the %team% team"
-
-    -- Message emitted when a human is killed by a zombie:
-    zombies.on_zombify = "%name% was zombified by %killer%"
-
-    zombies.on_last_man = "%name% is the last human standing!"
-
-    -- If this is true, the teams will be evenly balanced at the beginning of the game
-    zombies.balance_teams = false
-
-    -- #Respawn time (override)
-    -- When enabled, players who are killed by the opposing team will respawn immediately.
-    -- Does not affect suicides or other deaths (PvP only by design).
-    zombies.respawn_override = true
-    zombies.respawn_time = 0 -- In seconds (0 = immediate)
-
-    -- Message emitted when someone becomes a human again:
-    zombies.on_cure = "%name% has been cured!"
-    -- Get this many consecutive kills per life and become human again!
-    zombies.cure_threshold = 5
-
-    zombies.attributes = {
-        ["Humans"] = {
-            -- Set to 0 to disable (normal speed is 1)
-            running_speed = 1,
-            -- Zombie Health: (0 to 99999) (Normal = 1)
-            health = 1,
-            damage_multiplier = 1, -- (0 to 10) (Normal = 1)
+        on_last_man = {
+            -- Zombie vs second-to-last human:
+            normal = "%victim% was killed by %killer%. %lastman% is the last human standing!",
+            -- Second-to-last Human committed suicide:
+            suicide = "%victim% committed suicide. %lastman% is the last last human standing!",
         },
-        ["Zombies"] = {
-            -- Set to 0 to disable (normal speed is 1)
-            running_speed = 1.2,
-            -- Zombie Health: (0 to 99999) (Normal = 1)
-            health = 1.3,
-            damage_multiplier = 10, -- (0 to 10) (Normal = 1)
-            -- Set to 'false' to disable:
-            invisibility_on_crouch = true,
-        },
-        ["Last Man Standing"] = {
-            -- Set to 0 to disable (normal speed is 1)
-            running_speed = 1.2,
-            -- Zombie Health: (0 to 99999) (Normal = 1)
-            health = 1.5,
-            -- Set to 'false' to disable temporary overshield:
-            overshield = true,
-            -- Set to 'false' to disable this feature:
-            invisibility_on_crouch = true,
-            -- If true, the last man standing will have regenerating health:
-            regenerating_health = true,
-            -- Health will regenerate in chunks of this percent every 30 ticks until they gain maximum health.
-            increment = 0.0005,
-            -- Last Man damage multiplier
-            damage_multiplier = 2.00, -- (0 to 9999) (Normal = 1)
 
-            -- A NAV marker will appear above the last man standing if your set the "kill in order" gametype flag to "yes". 
-            -- This only works on FFA and Team Slayer gametypes.
-            use_nav_marker = true
-        }
+        -- If this is true, the teams will be evenly balanced at the beginning of the game
+        balance_teams = false,
+
+        -- #Respawn time (override)
+        -- When enabled, players who are killed by the opposing team will respawn immediately.
+        -- Does not affect suicides or other deaths (PvP only by design).
+        respawn_override = true,
+        respawn_time = 0, -- In seconds (0 = immediate)
+
+        -- Message emitted when someone becomes a human again:
+        on_cure = "%killer% killed %victim% and was cured!",
+        -- Get this many consecutive kills per life and become human again!
+        cure_threshold = 5,
+
+        attributes = {
+            ["Humans"] = {
+                -- Set to 0 to disable (normal speed is 1)
+                running_speed = 1,
+                -- Zombie Health: (0 to 99999) (Normal = 1)
+                health = 1,
+                damage_multiplier = 1, -- (0 to 10) (Normal = 1)
+            },
+            ["Zombies"] = {
+                -- Set to 0 to disable (normal speed is 1)
+                running_speed = 1.2,
+                -- Zombie Health: (0 to 99999) (Normal = 1)
+                health = 1.3,
+                damage_multiplier = 10, -- (0 to 10) (Normal = 1)
+                -- Set to 'false' to disable:
+                invisibility_on_crouch = true,
+            },
+            ["Last Man Standing"] = {
+                -- Set to 0 to disable (normal speed is 1)
+                running_speed = 1.2,
+                -- Zombie Health: (0 to 99999) (Normal = 1)
+                health = 1.5,
+                -- Set to 'false' to disable temporary overshield:
+                overshield = true,
+                -- Set to 'false' to disable this feature:
+                invisibility_on_crouch = true,
+                -- If true, the last man standing will have regenerating health:
+                regenerating_health = true,
+                -- Health will regenerate in chunks of this percent every 30 ticks until they gain maximum health.
+                increment = 0.0005,
+                -- Last Man damage multiplier
+                damage_multiplier = 2.00, -- (0 to 9999) (Normal = 1)
+
+                -- A NAV marker will appear above the last man standing if your set the "kill in order" gametype flag to "yes". 
+                -- This only works on FFA and Team Slayer gametypes.
+                use_nav_marker = true
+            }
+        },
+
+        -- Some functions temporarily remove the server prefix while broadcasting a message.
+        -- This prefix will be restored to 'server_prefix' when the message relay is done.
+        -- Enter your servers default prefix here:
+        server_prefix = "** SERVER **",
     }
-
-    -- Some functions temporarily remove the server prefix while broadcasting a message.
-    -- This prefix will be restored to 'server_prefix' when the message relay is done.
-    -- Enter your servers default prefix here:
-    zombies.server_prefix = "** SERVER **"
-
-
+    
     --# Do Not Touch #--
     zombies.players = {}
+    parameters = zombies.settings
 end
 
 -- Variables for String Library:
@@ -142,7 +156,7 @@ function OnScriptLoad()
 end
 
 function OnScriptUnload()
-    --
+    zombies:enableKillMessages()
 end
 
 function zombies:enableKillMessages()
@@ -161,21 +175,20 @@ function OnTick()
 
     local count = zombies:GetPlayerCount()
     local countdown_begun = (init_countdown == true)
-    local Z = zombies
 
-    for _, player in pairs(Z.players) do
+    for _, player in pairs(zombies.players) do
         if (player) and player_present(player.id) then
 
-            if (print_nep) and (not gamestarted) and (count < Z.required_players) then
-                Z:cls(player.id, 25)
-                local msg = gsub(gsub(Z.not_enough_players, 
+            if (print_nep) and (not gamestarted) and (count < parameters.required_players) then
+                zombies:cls(player.id, 25)
+                local msg = gsub(gsub(parameters.not_enough_players, 
                 "%%current%%", count), 
-                "%%required%%", Z.required_players)
+                "%%required%%", parameters.required_players)
                 rprint(player.id, msg)
 
-            elseif (countdown_begun) and (not gamestarted) and (Z.pregame) then
-                Z:cls(player.id, 25)
-                rprint(player.id, Z.pregame)
+            elseif (countdown_begun) and (not gamestarted) and (zombies.pregame) then
+                zombies:cls(player.id, 25)
+                rprint(player.id, zombies.pregame)
 
                 -- Weapon Assignment and Attribute Logic:
             elseif (gamestarted) and player_alive(player.id) then
@@ -184,7 +197,7 @@ function OnTick()
                 if (player_object ~= 0) then
 
                     if (player.assign) then
-                        local coords = Z:getXYZ(player.id, player_object)
+                        local coords = zombies:getXYZ(player.id, player_object)
                         if (not coords.invehicle) then
                             player.assign = false
                             execute_command("wdel " .. player.id)
@@ -194,7 +207,7 @@ function OnTick()
                         end
                     end
 
-                    for index, attribute in pairs(Z.attributes) do
+                    for index, attribute in pairs(parameters.attributes) do
                         if (index == "Humans") and (player.team == "red") then
                             if (attribute.running_speed > 0) then
                                 execute_command("s " .. player.id .. " " .. tonumber(attribute.running_speed))
@@ -203,18 +216,18 @@ function OnTick()
                             if (attribute.running_speed > 0) then
                                 execute_command("s " .. player.id .. " " .. tonumber(attribute.running_speed))
                             end
-                            Z:CamoOnCrouch(player.id)
+                            zombies:CamoOnCrouch(player.id)
                         elseif (index == "Last Man Standing") and (player.team == "red") then
                             if (player.last_man ~= nil) then
 
                                 if (attribute.use_nav_marker) then
-                                    Z:SetNav(player.id)
+                                    zombies:SetNav(player.id)
                                 end
 
                                 if (attribute.running_speed > 0) then
                                     execute_command("s " .. player.id .. " " .. tonumber(attribute.running_speed))
                                 end
-                                Z:CamoOnCrouch(player.id)
+                                zombies:CamoOnCrouch(player.id)
 
                                 if (attribute.regenerating_health) then
                                     if (player_object ~= 0) then
@@ -234,36 +247,34 @@ function OnTick()
     if (countdown_begun) then
         countdown = countdown + 0.03333333333333333
 
-        local timeRemaining = Z.delay - floor(countdown % 60)
-        local char = Z:getChar(timeRemaining)
+        local timeRemaining = parameters.delay - floor(countdown % 60)
+        local char = zombies:getChar(timeRemaining)
 
-        Z.pregame = Z.pregame or ""
-        Z.pregame = gsub(gsub(Z.pre_game_message, 
+        zombies.pregame = zombies.pregame or ""
+        zombies.pregame = gsub(gsub(parameters.pre_game_message, 
         "%%time_remaining%%", timeRemaining), 
         "%%s%%", char)
 
         if (timeRemaining <= 0) then
+        
+            zombies:disableKillMessages()            
             gamestarted = true
-            Z:StopTimer()
+            zombies:StopTimer()
 
-            if (Z.balance_teams) then
+            if (parameters.balance_teams) then
                 for i = 1, 16 do
                     if player_present(i) then
-                        Z:sortPlayers(i, true)
-                        local team = Z:GetTeamType(i)
-                        local msg = gsub(Z.on_game_begin, "%%team%%", team)
+                        zombies:sortPlayers(i, true)
+                        local team = zombies:GetTeamType(i)
+                        local msg = gsub(parameters.on_game_begin, "%%team%%", team)
                         rprint(i, msg)
                     end
                 end
             else
-                Z:sortPlayers(nil, false)
+                zombies:sortPlayers(nil, false)
             end
-
-            Z:SetLastMan()
-
-            Z:disableKillMessages()
+            zombies:SetLastMan()
             execute_command("sv_map_reset")
-            Z:enableKillMessages()
         end
     end
 end
@@ -274,7 +285,7 @@ function OnGameStart()
 
         if not zombies:isTeamPlay() then
             zombies:unregisterSAPPEvents('Only supports team play!')
-        elseif (zombies.required_players < 2) then
+        elseif (parameters.required_players < 2) then
             zombies:unregisterSAPPEvents('Setting "required_players" cannot be less than 2!')
         else
             zombies:StopTimer()
@@ -288,10 +299,10 @@ function OnGameStart()
             end
             if (oddOrEven(1, 2) % 2 == 0) then
                 -- Number is even
-                zombies.useEvenNumbers = true
+                parameters.useEvenNumbers = true
             else
                 -- Number is odd
-                zombies.useEvenNumbers = false
+                parameters.useEvenNumbers = false
             end
         end
     end
@@ -307,7 +318,7 @@ function zombies:gameStartCheck(p)
     zombies:initPlayer(p, get_var(p, "$team"), true)
 
     local player_count = zombies:GetPlayerCount()
-    local required = zombies.required_players
+    local required = parameters.required_players
 
     if (player_count >= required) and (not init_countdown) and (not gamestarted) then
         zombies:StartTimer()
@@ -362,7 +373,7 @@ function OnPlayerDisconnect(PlayerIndex)
                     if player_present(i) then
                         -- Send game over message to the last remaining player:
                         local team = zombies:GetTeamType(i)
-                        zombies:broadcast(gsub(zombies.end_of_game, "%%team%%", team), true)
+                        zombies:broadcast(gsub(parameters.end_of_game, "%%team%%", team), true)
                         break
                     end
                 end
@@ -370,15 +381,15 @@ function OnPlayerDisconnect(PlayerIndex)
 
             -- Checks if the remaining players are on the same team | ends the game.
         elseif (Zombies <= 0 and Humans >= 1) then
-            zombies:broadcast(gsub(zombies.end_of_game, "%%team%%", "human"), true)
+            zombies:broadcast(gsub(parameters.end_of_game, "%%team%%", "human"), true)
         elseif (Humans <= 0 and Zombies >= 1) then
-            zombies:broadcast(gsub(zombies.end_of_game, "%%team%%", "zombie"), true)
+            zombies:broadcast(gsub(parameters.end_of_game, "%%team%%", "zombie"), true)
         end
 
         -- Pre-Game countdown was initiated but someone left before the game began.
         -- Stop the timer, reset the countdown and display the continuous
         -- message emitted when there aren't enough players to start the game.
-    elseif (not gamestarted) and (init_countdown and player_count < zombies.required_players) then
+    elseif (not gamestarted) and (init_countdown and player_count < parameters.required_players) then
         print_nep = true
         countdown, init_countdown = 0, false
     end
@@ -426,36 +437,47 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         if (killer > 0) then
 
             -- Check for suicide:
+            local params = {}
+            params.kname = kname
+            params.vname = vname
+            
             if (killer == victim) then
+                params.suicide = true
                 zombies:SwitchTeam(victim, "blue")
-                zombies:broadcast(gsub(gsub(zombies.on_zombify, "%%name%%", vname), "%%killer%%", kname), false)
-                zombies:endGameCheck()
             end
 
             -- PvP:
             if (killer ~= victim) then
-                if (kteam == "blue") and (vteam == "red") then
-
+                
+                -- Zombie killed Human:
+                if (kteam == "blue") and (vteam == "red") then        
+                    params.zombified = true
                     -- Switch victim to Zombie team:
                     zombies:SwitchTeam(victim, "blue")
-                    zombies:broadcast(gsub(gsub(zombies.on_zombify, "%%name%%", vname), "%%killer%%", kname), false)
 
                     -- If zombie has "cure_threshold" kills, set them to human team:
                     local player = zombies:PlayerTable(killer)
                     player.kills = player.kills + 1
 
                     if (player.kills == zombies.cure_threshold) then
+                        params.cured = true
                         zombies:SwitchTeam(killer, "red")
-                        zombies:broadcast(gsub(zombies.on_cure, "%%name%%", kname), false)
                     end
 
+                -- Human killed Zombie:
                 elseif (kteam == "red") and (vteam == "blue") then
+                    params.pvp = true
                     zombies:CleanUpDrones(victim, false)
                 end
             end
 
             zombies:endGameCheck()
-            zombies:SetLastMan()
+            zombies:SetLastMan(params)
+            
+        elseif (killer == nil) or (killer == 0) then
+            execute_command("msg_prefix \"\"")
+            zombies:broadcast(vname .. " died", false)
+            execute_command("msg_prefix \" " .. parameters.server_prefix .. "\"")
         end
     end
 end
@@ -469,7 +491,7 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
         if (cTeam == vTeam) then
             return false
         else
-            for index, attribute in pairs(zombies.attributes) do
+            for index, attribute in pairs(parameters.attributes) do
                 if (index == "Humans") and (cTeam == "red") then
                     return true, Damage * attribute.damage_multiplier
                 elseif (index == "Zombies") and (cTeam == "blue") then
@@ -504,22 +526,20 @@ function zombies:SwitchTeam(PlayerIndex, team, bool)
         -- Set the player's team:
         local Team = get_var(PlayerIndex, "$team")
         if (Team ~= team) then
-            zombies:disableKillMessages()
             execute_command("st " .. tonumber(PlayerIndex) .. " " .. tostring(team))
-            zombies:enableKillMessages()
         end
 
         -- Override respawn time:
         if (zombies.respawn_override == true) then
             local player = get_player(PlayerIndex)
             if (player ~= 0) then
-                write_dword(player + 0x2C, zombies.respawn_time * 33)
+                write_dword(player + 0x2C, parameters.respawn_time * 33)
             end
         end
 
         -- Set their health:
         local health = zombies:setHealth(PlayerIndex, team)
-        execute_command_sequence("w8 " .. (zombies.respawn_time + 1) .. ";hp " .. PlayerIndex .. " " .. health)
+        execute_command_sequence("w8 " .. (parameters.respawn_time + 1) .. ";hp " .. PlayerIndex .. " " .. health)
     else
         -- Set the player's team:
         execute_command("st " .. tonumber(PlayerIndex) .. " " .. tostring(team))
@@ -541,7 +561,7 @@ function zombies:broadcast(message, endgame, exclude, player)
             end
         end
     end
-    execute_command("msg_prefix \" " .. zombies.server_prefix .. "\"")
+    execute_command("msg_prefix \" " .. parameters.server_prefix .. "\"")
     -- End the game if variable "GameOver" is true.
     if (endgame) then
         execute_command("sv_map_next")
@@ -596,7 +616,7 @@ function zombies:endGameCheck()
 
     -- No humans left -> zombies win
     if (Humans == 0 and Zombies >= 1) then
-        zombies:broadcast(gsub(zombies.end_of_game, "%%team%%", "Zombies"), true)
+        zombies:broadcast(gsub(parameters.end_of_game, "%%team%%", "Zombies"), true)
     end
 end
 
@@ -629,7 +649,7 @@ function zombies:sortPlayers(PlayerIndex, BalanceTeams)
     if (gamestarted) then
 
         if (BalanceTeams) then
-            if (zombies.useEvenNumbers) then
+            if (parameters.useEvenNumbers) then
                 if (tonumber(PlayerIndex) % 2 == 0) then
                     zombies:setTeam(PlayerIndex, "blue")
                 else
@@ -662,7 +682,7 @@ function zombies:sortPlayers(PlayerIndex, BalanceTeams)
                 local player = players[math.random(1, #players)]
                 zombies:setTeam(player, "blue")
                 local team = zombies:GetTeamType(player)
-                local msg = gsub(zombies.on_game_begin, "%%team%%", team)
+                local msg = gsub(parameters.on_game_begin, "%%team%%", team)
                 rprint(player, msg)
 
                 -- Set every other player as a human (red team):
@@ -670,7 +690,7 @@ function zombies:sortPlayers(PlayerIndex, BalanceTeams)
                     if (player_present(i) and i ~= player) then
                         zombies:setTeam(i, "red")
                         local team = zombies:GetTeamType(i)
-                        local msg = gsub(zombies.on_game_begin, "%%team%%", team)
+                        local msg = gsub(parameters.on_game_begin, "%%team%%", team)
                         rprint(i, msg)
                     end
                 end
@@ -680,7 +700,7 @@ function zombies:sortPlayers(PlayerIndex, BalanceTeams)
 end
 
 function zombies:setHealth(PlayerIndex, Team)
-    for index, attribute in pairs(zombies.attributes) do
+    for index, attribute in pairs(parameters.attributes) do
         if (index == "Humans") and (Team == "red") then
             return tonumber(attribute.health)
         elseif (index == "Zombies") and (Team == "blue") then
@@ -730,18 +750,21 @@ function zombies:deleteWeapons(PlayerIndex, PlayerObject)
     end
 end
 
-function zombies:SetLastMan()
+function zombies:SetLastMan(params)
 
     local team_count = zombies:getTeamCount() -- blues[1], reds[2]
     local Zombies, Humans = team_count[1], team_count[2]
+
+    local msg = nil
+    local params = params or {}
 
     if (Humans == 1 and Zombies >= 1) then
         for _, player in pairs(zombies.players) do
             if (player) then
                 if (player.team == "red") then
                     if (player.last_man == nil) then
-                        player.last_man = true
-                        for index, attribute in pairs(zombies.attributes) do
+                        player.last_man, params.last_man = true, player.name
+                        for index, attribute in pairs(parameters.attributes) do
                             if (index == "Last Man Standing") then
                                 local player_object = get_dynamic_player(player.id)
                                 if (player_object ~= 0) then
@@ -752,12 +775,44 @@ function zombies:SetLastMan()
                                 end
                             end
                         end
-                        zombies:broadcast(gsub(zombies.on_last_man, "%%name%%", player.name), false)
                         break
                     end
                 end
             end
         end
+    end
+
+    if (params.last_man) then
+        if (params.suicide) then
+            msg = gsub(gsub(parameters.on_last_man.suicide, "%%victim%%", params.vname), "%%lastman%%", params.last_man)  
+        else
+            msg = gsub(gsub(gsub(parameters.on_last_man.normal, 
+            "%%victim%%", params.vname), 
+            "%%killer%%", params.kname),
+            "%%lastman%%", params.last_man)
+        end
+    elseif (not params.last_man) then
+    
+        -- Suicide:
+        if (params.suicide) then
+            msg = gsub(parameters.on_suicide, "%%victim%%", params.vname)
+        
+        -- Zombie kills Human (not cured)
+        elseif (params.zombified and not params.cured) then
+            msg = gsub(gsub(parameters.on_zombify, "%%victim%%", params.vname), "%%killer%%", params.kname)
+            
+        -- Zombie kills Human (cured)
+        elseif (params.zombified and params.cured) then
+            msg = gsub(gsub(parameters.on_cure, "%%victim%%", params.vname), "%%killer%%", params.kname)
+            
+        -- Human kills Zombie:
+        elseif (params.pvp) then
+            msg = gsub(gsub(parameters.on_kill, "%%victim%%", params.vname), "%%killer%%", params.kname)
+        end
+    end
+    
+    if (msg ~= nil) then
+        zombies:broadcast(msg, false)
     end
 end
 
@@ -771,7 +826,7 @@ end
 function zombies:CamoOnCrouch(PlayerIndex)
     local team = get_var(PlayerIndex, "$team")
 
-    for index, attribute in pairs(zombies.attributes) do
+    for index, attribute in pairs(parameters.attributes) do
         if (index == "Zombies" and team == "blue") or (index == "Last Man Standing" and team == "red") then
             if (attribute.invisibility_on_crouch) then
                 local player_object = get_dynamic_player(PlayerIndex)
