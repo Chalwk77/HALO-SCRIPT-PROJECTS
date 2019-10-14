@@ -120,17 +120,12 @@ function OnScriptLoad()
     -- Register needed event callbacks:
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     register_callback(cb['EVENT_TICK'], "OnTick")
-
     register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
-
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
-
     register_callback(cb['EVENT_DIE'], 'OnPlayerDeath')
     register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
-
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
-
     register_callback(cb['EVENT_WEAPON_DROP'], "OnWeaponDrop")
 
     kill_message_addresss = sig_scan("8B42348A8C28D500000084C9") + 3
@@ -173,7 +168,9 @@ function OnTick()
 
             if (print_nep) and (not gamestarted) and (count < Z.required_players) then
                 Z:cls(player.id, 25)
-                local msg = gsub(gsub(Z.not_enough_players, "%%current%%", count), "%%required%%", Z.required_players)
+                local msg = gsub(gsub(Z.not_enough_players, 
+                "%%current%%", count), 
+                "%%required%%", Z.required_players)
                 rprint(player.id, msg)
 
             elseif (countdown_begun) and (not gamestarted) and (Z.pregame) then
@@ -241,7 +238,9 @@ function OnTick()
         local char = Z:getChar(timeRemaining)
 
         Z.pregame = Z.pregame or ""
-        Z.pregame = gsub(gsub(Z.pre_game_message, "%%time_remaining%%", timeRemaining), "%%s%%", char)
+        Z.pregame = gsub(gsub(Z.pre_game_message, 
+        "%%time_remaining%%", timeRemaining), 
+        "%%s%%", char)
 
         if (timeRemaining <= 0) then
             gamestarted = true
@@ -499,11 +498,7 @@ end
 function zombies:SwitchTeam(PlayerIndex, team, bool)
     local player = zombies:PlayerTable(PlayerIndex)
     player.team = team
-
-    if (player.team == "blue") then
-        player.assign = true
-    end
-
+    
     if not (bool) then
 
         -- Set the player's team:
