@@ -126,7 +126,7 @@ function zombies:init()
                 -- If true, humans will be given up to 4 custom weapons:
                 use = true, -- Set to "false" to disable weapon assignments for all maps
                 
-                -- Set the weapon index to the corresponding tag number (see function mod:GetTag() on line 1089)
+                -- Set the weapon index to the corresponding tag number (see function mod:GetTag() on line 1099)
                 
                 -- To disable a slot, set it to nil:
                 -- Example: ["mymap"] = {weapon[1], nil, nil, nil},
