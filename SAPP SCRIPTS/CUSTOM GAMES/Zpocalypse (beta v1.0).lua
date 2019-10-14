@@ -954,8 +954,9 @@ function zombies:getXYZ(PlayerIndex, PlayerObject)
             coords.invehicle = true
             x, y, z = read_vector3d(get_object_memory(VehicleID) + 0x5c)
         end
-
-        coords.x, coords.y, coords.z = x, y, z + 1
+            
+        if (coords.invehicle) then z = z + 1 end
+        coords.x, coords.y, coords.z = x, y, z
     end
     return coords
 end
