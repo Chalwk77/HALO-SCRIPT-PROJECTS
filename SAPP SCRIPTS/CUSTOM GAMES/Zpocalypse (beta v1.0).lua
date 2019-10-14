@@ -764,10 +764,9 @@ end
 function zombies:SetLastMan(params)
 
     local msg = nil
+    local Zombies, Humans = 0,0
     local params = params or {}
     
-    local Zombies, Humans = 0,0
-        
     if (params.disconnect) then
         Zombies, Humans = params.zombie_count, params.human_count 
     else      
