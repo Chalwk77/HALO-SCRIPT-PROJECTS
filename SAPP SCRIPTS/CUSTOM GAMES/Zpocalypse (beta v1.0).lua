@@ -27,7 +27,7 @@ function zombies:init()
 
         -- #Countdown delay (in seconds)
         -- This is a pre-game-start countdown initiated at the beginning of each game.
-        delay = 3,
+        delay = 10,
 
         -- #Pre Game message (%timeRemaining% will be replaced with the time remaining)
         pre_game_message = "Zpocalypse will begin in %time_remaining% second%s%",
