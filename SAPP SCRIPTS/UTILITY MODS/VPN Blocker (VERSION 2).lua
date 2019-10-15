@@ -11,7 +11,7 @@ Script Name: VPN Blocker (VERSION 2), for SAPP (PC & CE)
 #3: Sign up for an account at www.ipqualityscore.com.
 - Navigate to Proxy Detection Overview page: https://www.ipqualityscore.com/documentation/proxy-detection/overview
 - Copy your unique "Private Key" from that page and paste 
-it into the API_KEY field (line 32) in this script (see config below).
+it into the API_KEY field (line 29) in this script (see config below).
 
 If VPN Blocker kicks or bans someone it will log the details of that action 
 to a file called "VPN Blocker.log" in the servers root directory.
@@ -51,10 +51,15 @@ function OnPreJoin(p)
     local data = vpn_blocker:Query(tostring(url .. player.ip))
         
     if (data) then
-        cprint("VPN Blocker -> Running Ip Lookup ^ Please wait...", 2+8)
+        cprint("VPN Blocker -> Running Ip Lookup ^ Please wait...", 4+8)
         
         local ip_lookup = json:decode(data)
+        local valid = true
+        
         if (ip_lookup.host ~= "localhost") and (ip_lookup.vpn) or (ip_lookup.tor) then
+            
+            valid = false
+            
             say(p, vpn_blocker.feedback1)
             execute_command(vpn_blocker.action .. " " .. p)
             
@@ -70,12 +75,15 @@ function OnPreJoin(p)
                 if logtime then logtime = false end
             end
             
-            local msg = gsub(gsub(gsub(vpn_blocker.feedback2, 
-            "%%name%%", player.name),
+            local msg = gsub(gsub(gsub(vpn_blocker.feedback2, "%%name%%", player.name),
             "%%action%%", action), 
             "%%ip%%", player.ip)
             cprint(msg, 4+8)
         end
+        
+    end
+    if (not valid) then
+        cprint("VPN Blocker -> Player connected successfully!", 2+8)
     end
 end
 
