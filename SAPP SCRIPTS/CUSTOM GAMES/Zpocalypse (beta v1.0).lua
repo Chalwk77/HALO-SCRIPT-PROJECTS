@@ -83,7 +83,13 @@ function zombies:init()
         -- Does not affect suicides or other deaths (PvP only by design).
         respawn_override = true,
         respawn_time = 0, -- In seconds (0 = immediate)
-
+        
+        -- If true, zombies who are killed "assistance_threshold" times 
+        -- will trigger a random human to be switch to the zombie team to assist.
+        assistance = true,
+        assistance_threshold = 7,
+        assistance_switch = "%player% was switched to the Zombie Team to assist!",
+        
         -- Message emitted when someone becomes a human again:
         on_cure = "%killer% killed %victim% and was cured!",
         -- Get this many consecutive kills per life and become human again!
@@ -594,8 +600,49 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
 
                     -- Human killed Zombie:
                 elseif (kteam == parameters.human_team) and (vteam == parameters.zombie_team) then
+                    
                     params.pvp = true
                     zombies:CleanUpDrones(victim, false)
+                    
+                    if (parameters.assistance) then
+                        local player = zombies:PlayerTable(victim)
+                        player.deaths = player.deaths + 1
+                        
+                        if (player.deaths == parameters.assistance_threshold) then
+                            player.deaths = 0 
+                            
+                            local players = { }
+                            for i = 1,16 do
+                                if player_present(i) then
+                                    if (get_var(i, "$team") == parameters.human_team) then
+                                       players[#players+1] = i 
+                                    end
+                                end
+                            end
+                            
+                            if (#players >0) then
+
+                                local chosen_player, loops = nil, 0
+                                while(true) do
+                                    loops = loops + 1
+                                    
+                                    math.random();math.random();math.random();
+                                    local index = players[math.random(1, #players)]
+                                    
+                                    local player = zombies:PlayerTable(index)
+                                    if (player.last_man == nil) then
+                                        zombies:setTeam(player.id, parameters.zombie_team)
+                                        local msg = gsub(parameters.assistance_switch, "%%player%%", player.name)
+                                        zombies:broadcast(msg, false)
+                                        break 
+                                    end
+                                    if (loops > 500) then 
+                                        break 
+                                    end
+                                end
+                            end
+                        end
+                    end
                 end
             end
 
@@ -1054,6 +1101,7 @@ function zombies:initPlayer(PlayerIndex, Team, Init)
         if (Init) then
             players[#players + 1] = {
                 kills = 0,
+                deaths = 0,
                 team = Team,
                 drone = nil,
                 zombie_assign = false,
