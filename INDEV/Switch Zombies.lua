@@ -218,9 +218,12 @@ function zombies:init()
 
     if (zombies.human_weapons) then
         local count = 0
-        for Slot, Weapon in pairs(weapons[zombies.map]) do
-            if (Weapon ~= nil) then
-                count = count + 1
+        local map = weapons[zombies.map]
+        if (map) then
+            for Slot, Weapon in pairs(weapons[zombies.map]) do
+                if (Weapon ~= nil) then
+                    count = count + 1
+                end
             end
         end
         if (count == 0) then
