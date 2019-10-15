@@ -35,7 +35,7 @@ function zombies:init()
     zombies.settings = {
 
         -- #Numbers of players required to set the game in motion (cannot be less than 2)
-        required_players = 2,
+        required_players = 3,
 
         -- #Continuous message emitted when there aren't enough players:
         not_enough_players = "%current%/%required% players needed to start the game.",
@@ -1436,6 +1436,12 @@ function report()
 end
 
 function OnError()
-    cprint(debug.traceback(), 4 + 8)
+    local error = debug.traceback()
+    cprint(error, 4 + 8)
+    local file = io.open("zombies error log.log", "a+")
+    if file then
+        file:write(error .. "\n")
+        file:close()
+    end
     timer(50, "report")
 end
