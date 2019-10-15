@@ -37,14 +37,13 @@ function zombies:init()
         -- #Numbers of players required to set the game in motion (cannot be less than 2)
         required_players = 3,
 
-        -- Continuous message emitted when there aren't enough players:
+        -- #Continuous message emitted when there aren't enough players:
         not_enough_players = "%current%/%required% players needed to start the game.",
 
-        -- #Countdown delay (in seconds)
-        -- This is a pre-game-start countdown initiated at the beginning of each game:
+        -- #This is a pre-game countdown initiated at the beginning of each game (in seconds):
         game_start_delay = 10,
 
-        -- #Pre Game message (%timeRemaining% will be replaced with the time remaining):
+        -- #Pre-Game message:
         pre_game_message = "Zpocalypse will begin in %time_remaining% second%s%",
 
         -- #End of Game message:
@@ -57,34 +56,56 @@ function zombies:init()
         human_team = "red",
         --Zombie Team
         zombie_team = "blue",
-
-        -- Zombies vs Human:
-        on_zombify = "%victim% was zombified by %killer%",
         
-        on_zombify_falldamage = "%victim% was zombified from fall damage",
-
-        -- Normal Suicide
-        on_suicide = "%victim% committed suicide",
+        
+        
+        -- Zombie vs Human:
+        zombie_vs_human = "%victim% was Zombified by %killer%",
+        -- Zombie vs Human (someone is now last human alive):
+        zombie_vs_human_lastman = "%victim% was Zombified by %killer%. %lastman% is the Last Human Alive!",
+        
+        -- Human Fall Damage:
+        human_falldamage = "%victim% fell and was Zombified!",
+        -- Human Fall Damage (someone is now last human alive):
+        human_falldamage_lastman = "%victim% fell and was Zombified. %lastman% is the Last Human Alive!",
+        -- Zombie Fall Damage
+        zombie_falldamage = "%victim% fell and died",
+        
+        -- Zombie Suicide:
+        zombie_suicide = "%victim% committed suicide",
 
         -- Human vs Zombie:
-        on_kill = "%victim% was killed by %killer%",
+        human_vs_zombie = "%victim% was killed by %killer%",
         
-        no_zombies = "%player% was switched to the %zombie_team%",
+        -- Human Suicide:
+        human_suicide = "%victim% committed suicide and was Zombified!",
+        -- Human Suicide (someone is now last human alive):
+        human_suicide_lastman = "%victim% committed suicide. %lastman% is the Last Human Alive!",
         
-        -- Time (in seconds) until someone is chosen to become a zombie (when there are no zombies left)
+        -- OTHER:
+        last_man = "%lastman% is the Last Human Alive",
+        
+        -- Zombie Cured:
+        zombie_cured = "%killer% killed %victim% and was cured!",
+        cure_threshold = 5,
+        
+        -- No Zombies: (utilizes last_man message if the remaining human is last human alive)
+        no_zombies = "No Zombies! Switching random human in %time_remaining% second%s%",
+        no_zombies_switch = "%random_human% was switched to the Zombie Team",
         no_zombies_delay = 5,
         
-        no_zombies_message = "No Zombies! Switching random human in %time_remaining% second%s%",
+        -- Zombie Assistance: (utilizes last_man message if the remaining human is last human alive)
+        assistance = true,
+        zombie_assistance = "Zombies need Assistance! Switching random Human in s%time_remaining% second%s%",
+        zombie_assistance_switch = "%random_human% was switched to assist the Zombies",
+        zombie_assistance_delay = 10,
+        zombie_assistance_threshold = 7,
 
-        -- Last man Standing Messages:
-        on_last_man = {
-            -- Zombie vs second-to-last human:
-            normal = "%victim% was killed by %killer%. %lastman% is the last human standing!",
-            -- Second-to-last Human committed suicide:
-            suicide = "%victim% committed suicide. %lastman% is the last last human standing!",
-            other = "%lastman% is the last last human standing!",
-        },
 
+
+
+
+        
         zombie_weapon = weapon[11], -- oddball (see function mod:GetTag() on line 1280)
     
         -- If this is true, the teams will be evenly balanced at the beginning of the game
@@ -95,20 +116,6 @@ function zombies:init()
         -- Does not affect suicides or other deaths (PvP only by design).
         respawn_override = true,
         respawn_time = 0, -- In seconds (0 = immediate)
-        
-        -- If true, zombies who are killed "assistance_threshold" times 
-        -- will trigger a random human to be switch to the zombie team to assist.
-        assistance = true,
-        -- Time (in seconds) until someone is picked at random
-        assistance_delay = 10,
-        assistance_threshold = 7,
-        assistance_on_timer = "Zombies need Assistance! Switching random human in %time_remaining% second%s%",
-        assistance_switch = "%player% was switched to assist the zombies!",
-        
-        -- Message emitted when someone becomes a human again:
-        on_cure = "%killer% killed %victim% and was cured!",
-        -- Get this many consecutive kills per life and become human again!
-        cure_threshold = 5,
 
         attributes = {
             ["Humans"] = {
@@ -421,7 +428,7 @@ function OnTick()
             else
                 zombies:sortPlayers(nil, false)
             end
-            zombies:SetLastMan()
+            zombies:LastManCheck()
             execute_command("sv_map_reset")
         end
     elseif (nozombies.init) then
@@ -438,7 +445,7 @@ function OnTick()
             zombies:SwitchToZombies(2, true)
             local params = {}
             params.disconnect = true
-            zombies:SetLastMan(params)
+            zombies:LastManCheck(params)
         end
     elseif (assistance.init) then
         assistance.timer = assistance.timer + delta_time
@@ -454,7 +461,7 @@ function OnTick()
             zombies:SwitchToZombies(1, false)
             local params = {}
             params.random = true
-            zombies:SetLastMan(params)
+            zombies:LastManCheck(params)
         end
     end
 end
@@ -561,7 +568,7 @@ function OnPlayerDisconnect(PlayerIndex)
         elseif (zombies.human_count <= 0 and zombies.zombie_count >= 1) then
             zombies:broadcast(gsub(parameters.end_of_game, "%%team%%", "zombie"), true)
         elseif (zombies.human_count == 1 and zombies.zombie_count >= 1) then
-            zombies:SetLastMan(zombies)
+            zombies:LastManCheck(zombies)
         end
 
         -- Pre-Game countdown was initiated but someone left before the game began.
@@ -645,13 +652,16 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
 
         if (killer > 0) then
 
-            -- Check for suicide:
             params.kname = kname
             params.vname = vname
 
+            -- Check for suicide:
             if (killer == victim) then
                 params.suicide = true
-                zombies:SwitchTeam(victim, parameters.zombie_team)
+                if (vteam == parameters.human_team) then
+                    params.suicide_human = true
+                    zombies:SwitchTeam(victim, parameters.zombie_team)
+                end
             end
 
             -- PvP:
@@ -697,18 +707,17 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             end
 
             zombies:endGameCheck()
-            zombies:SetLastMan(params)
+            zombies:LastManCheck(params)
             
         elseif (killer == nil) or (killer == 0) then
             zombies:SayDied(victim, vname)
         elseif (fall_damage or distance_damage) then
-            local player = zombies:PlayerTable(victim)
-            if (player.team == parameters.human_team) then        
+            if (vteam == parameters.human_team) then        
                 zombies:SwitchTeam(victim, parameters.zombie_team)
-                params.falldamage, params.vname = true, player.name
+                params.falldamage, params.vname = true, vname
                 
                 zombies:endGameCheck()
-                zombies:SetLastMan(params)
+                zombies:LastManCheck(params)
             else                
                 zombies:SayDied(victim, vname)
             end
@@ -718,7 +727,7 @@ end
 
 function zombies:SayDied(PlayerIndex, Name)
     execute_command("msg_prefix \"\"")
-    zombies:broadcast(Name .. " died", false)
+    zombies:broadcast(Name .. " DIED!", false)
     execute_command("msg_prefix \" " .. parameters.server_prefix .. "\"")
 end
 
@@ -1061,11 +1070,9 @@ function zombies:deleteWeapons(PlayerIndex, PlayerObject)
     end
 end
 
-function zombies:SetLastMan(params)
+function zombies:LastManCheck(params)
 
-    local msg = nil
     local params = params or {}
-        
     if (zombies.human_count == 1 and zombies.zombie_count >= 1) then
         for _, player in pairs(zombies.players) do
             if (player) then
@@ -1089,41 +1096,31 @@ function zombies:SetLastMan(params)
             end
         end
     end
-
-    if (params.last_man) then
-        if (params.suicide) then
-            msg = gsub(gsub(parameters.on_last_man.suicide, "%%victim%%", params.vname), "%%lastman%%", params.last_man)
-        elseif (params.falldamage) then
-                msg = gsub(parameters.on_zombify_falldamage, "%%victim%%", params.vname)
-        elseif (not params.disconnect) and (not params.random) then
-            msg = gsub(gsub(gsub(parameters.on_last_man.normal,
-                    "%%victim%%", params.vname),
-                    "%%killer%%", params.kname),
-                    "%%lastman%%", params.last_man)
-        else
-            msg = gsub(parameters.on_last_man.other, "%%lastman%%", params.last_man)
+    
+    local msg = nil
+    if (not params.last_man) then
+        if (params.zombie_vs_human) then
+            msg = gsub(gsub(parameters.zombie_vs_human, "%%victim%%", params.vname), "%%killer%%", params.kname)
+        elseif (params.human_falldamage) then
+            msg = gsub(parameters.human_falldamage, "%%victim%%", params.vname)
+        elseif (params.zombie_falldamage) then
+            msg = gsub(parameters.zombie_falldamage, "%%victim%%", params.vname)
+        elseif (params.zombie_suicide) then
+            msg = gsub(parameters.zombie_suicide, "%%victim%%", params.vname)
+        elseif (params.human_vs_zombie) then
+            msg = gsub(gsub(parameters.human_vs_zombie, "%%victim%%", params.vname), "%%killer%%", params.kname)
+        elseif (params.human_suicide) then
+            msg = gsub(parameters.human_suicide, "%%victim%%", params.vname)
         end
-    elseif (not params.last_man) then
-
-        -- Suicide:
-        if (params.suicide) then
-            msg = gsub(parameters.on_suicide, "%%victim%%", params.vname)
-
-            -- Zombie kills Human (not cured)
-        elseif (params.zombified and not params.cured) then
-            msg = gsub(gsub(parameters.on_zombify, "%%victim%%", params.vname), "%%killer%%", params.kname)
-
-            -- Zombie kills Human (cured)
-        elseif (params.zombified and params.cured) then
-            msg = gsub(gsub(parameters.on_cure, "%%victim%%", params.vname), "%%killer%%", params.kname)
-
-            -- Human kills Zombie:
-        elseif (params.pvp) then
-            msg = gsub(gsub(parameters.on_kill, "%%victim%%", params.vname), "%%killer%%", params.kname)
-        
-            -- Fall Damage:
-        elseif (params.falldamage) then
-            msg = gsub(parameters.on_zombify_falldamage, "%%victim%%", params.vname)
+    else
+        if (params.zombie_vs_human) then
+            msg = gsub(gsub(parameters.zombie_vs_human_lastman, "%%victim%%", params.vname), "%%lastman%%", params.last_man)
+        elseif (params.human_falldamage) then
+            msg = gsub(gsub(parameters.human_falldamage_lastman, "%%victim%%", params.vname), "%%lastman%%", params.last_man)
+        elseif (params.human_suicide) then
+            msg = gsub(gsub(parameters.human_suicide_lastman, "%%victim%%", params.vname), "%%lastman%%", params.last_man)
+        elseif (params.last_man) then
+            msg = gsub(parameters.last_man, "%%lastman%%", params.lastman)
         end
     end
 
