@@ -42,7 +42,7 @@ function zombies:init()
 
         -- #Countdown delay (in seconds)
         -- This is a pre-game-start countdown initiated at the beginning of each game:
-        game_start_delay = 3,
+        game_start_delay = 10,
 
         -- #Pre Game message (%timeRemaining% will be replaced with the time remaining):
         pre_game_message = "Zpocalypse will begin in %time_remaining% second%s%",
@@ -101,7 +101,7 @@ function zombies:init()
         assistance = true,
         -- Time (in seconds) until someone is picked at random
         assistance_delay = 10,
-        assistance_threshold = 2,
+        assistance_threshold = 7,
         assistance_on_timer = "Zombies need Assistance! Switching random human in %time_remaining% second%s%",
         assistance_switch = "%player% was switched to assist the zombies!",
         
