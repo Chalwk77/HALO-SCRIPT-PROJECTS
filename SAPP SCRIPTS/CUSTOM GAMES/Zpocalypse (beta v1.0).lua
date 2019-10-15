@@ -126,7 +126,7 @@ function zombies:init()
                 -- If true, humans will be given up to 4 custom weapons:
                 use = true, -- Set to "false" to disable weapon assignments for all maps
                 
-                -- Set the weapon index to the corresponding tag number (see function mod:GetTag() on line 1099)
+                -- Set the weapon index to the corresponding tag number (see function mod:GetTag() on line 1103)
                 
                 -- To disable a slot, set it to nil:
                 -- Example: ["mymap"] = {weapon[1], nil, nil, nil},
@@ -612,12 +612,16 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
         if (cTeam == vTeam) then
             return false
         else
+        
+            local isHteam = (cTeam == parameters.human_team)
+            local isZteam = (cTeam == parameters.zombie_team)
+        
             for index, attribute in pairs(parameters.attributes) do
-                if (index == "Humans") and (cTeam == parameters.human_team) then
+                if (index == "Humans") and (isHteam) then
                     return true, Damage * attribute.damage_multiplier
-                elseif (index == "Zombies") and (cTeam == parameters.zombie_team) then
+                elseif (index == "Zombies") and (isZteam) then
                     return true, Damage * attribute.damage_multiplier
-                elseif (index == "Last Man Standing") and (cTeam == parameters.human_team) then
+                elseif (index == "Last Man Standing") and (isHteam) then
                     local player = zombies:PlayerTable(PlayerIndex)
                     if (player.last_man ~= nil) then
                         return true, Damage * attribute.damage_multiplier
