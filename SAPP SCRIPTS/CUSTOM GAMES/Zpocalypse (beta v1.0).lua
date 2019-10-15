@@ -13,6 +13,9 @@ Description: A custom Zombies Game designed for Team-Slayer game types.
 - Zombies have the ability to camouflage themselves when they crouch.
 - The last human alive will have special abilities, such as regenerating health, camouflage and super speed among other things.
 
+- Zombie Assistance: If enabled, a zombie that is killed "assistance_threshold" times 
+consecutively will trigger a random human to be selected as a zombie to assist fellow zombies.
+
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -73,7 +76,7 @@ function zombies:init()
             other = "%lastman% is the last last human standing!",
         },
 
-        zombie_weapon = weapon[11], -- oddball (see function mod:GetTag() on line 1109)
+        zombie_weapon = weapon[11], -- oddball (see function mod:GetTag() on line 1160)
     
         -- If this is true, the teams will be evenly balanced at the beginning of the game
         balance_teams = false,
@@ -138,7 +141,7 @@ function zombies:init()
                 -- If true, humans will be given up to 4 custom weapons:
                 use = true, -- Set to "false" to disable weapon assignments for all maps
 
-                -- Set the weapon index to the corresponding tag number (see function mod:GetTag() on line 1109)
+                -- Set the weapon index to the corresponding tag number (see function mod:GetTag() on line 1160)
 
                 -- To disable a slot, set it to nil:
                 -- Example: ["mymap"] = {weapon[1], nil, nil, nil},
