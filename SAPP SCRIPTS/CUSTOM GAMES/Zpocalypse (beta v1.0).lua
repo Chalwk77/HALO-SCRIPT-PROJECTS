@@ -73,7 +73,7 @@ function zombies:init()
             other = "%lastman% is the last last human standing!",
         },
 
-        zombie_weapon = weapon[11], -- oddball (see function mod:GetTag() on line 1110)
+        zombie_weapon = weapon[11], -- oddball (see function mod:GetTag() on line 1109)
     
         -- If this is true, the teams will be evenly balanced at the beginning of the game
         balance_teams = false,
@@ -132,7 +132,7 @@ function zombies:init()
                 -- If true, humans will be given up to 4 custom weapons:
                 use = true, -- Set to "false" to disable weapon assignments for all maps
 
-                -- Set the weapon index to the corresponding tag number (see function mod:GetTag() on line 1110)
+                -- Set the weapon index to the corresponding tag number (see function mod:GetTag() on line 1109)
 
                 -- To disable a slot, set it to nil:
                 -- Example: ["mymap"] = {weapon[1], nil, nil, nil},
@@ -400,20 +400,22 @@ function OnGameStart()
             zombies:unregisterSAPPEvents('Setting "required_players" cannot be less than 2!')
         else
             zombies:StopTimer()
-            local function oddOrEven(Min, Max)
-                math.randomseed(os.time())
-                math.random();
-                local num = math.random(Min, Max)
-                if (num) then
-                    return num
+            if (parameters.balance_teams) then
+                local function oddOrEven(Min, Max)
+                    math.randomseed(os.time())
+                    math.random();math.random();math.random();
+                    local num = math.random(Min, Max)
+                    if (num) then
+                        return num
+                    end
                 end
-            end
-            if (oddOrEven(1, 2) % 2 == 0) then
-                -- Number is even
-                parameters.useEvenNumbers = true
-            else
-                -- Number is odd
-                parameters.useEvenNumbers = false
+                if (oddOrEven(1, 2) % 2 == 0) then
+                    -- Number is even
+                    parameters.useEvenNumbers = true
+                else
+                    -- Number is odd
+                    parameters.useEvenNumbers = false
+                end
             end
         end
     end
@@ -806,9 +808,7 @@ function zombies:sortPlayers(PlayerIndex, BalanceTeams)
             if (#players > 0) then
 
                 math.randomseed(os.time())
-                math.random();
-                math.random();
-                math.random();
+                math.random();math.random();math.random();
 
                 -- Choose random player to become Zombie (blue team):
                 local player = players[math.random(1, #players)]
@@ -1062,7 +1062,6 @@ function zombies:initPlayer(PlayerIndex, Team, Init)
                 id = PlayerIndex,
                 -- Zombie Weapon:
                 weapon = zombies.zombie_weapon,
-                -- Human Weapons:
                 name = get_var(PlayerIndex, "$name"),
             }
         else
@@ -1125,7 +1124,7 @@ function zombies:GetTag()
         [12] = "weapons\\flag\\flag",
 
         -- ============= [ CUSTOM WEAPONS ] ============= --
-        -- Weapon indexes 11-30 belong to bigassv2,104
+        -- Weapon indexes 13-30 belong to bigassv2,104
         [13] = "altis\\weapons\\binoculars\\binoculars",
         [14] = "altis\\weapons\\binoculars\\gauss spawner\\create gauss",
         [15] = "altis\\weapons\\smoke\\smoke",
