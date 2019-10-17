@@ -23,7 +23,7 @@ local remove_all = true
 
 -- Enter the IP Addresses that will be excluded from the dupe-ip-check.
 local exclusion_list = {
-    "127.0.0.1" --localhost
+    "127.0.0.1", --localhost
     "000.000.000.000",
     "000.000.000.000",
     "000.000.000.000",
