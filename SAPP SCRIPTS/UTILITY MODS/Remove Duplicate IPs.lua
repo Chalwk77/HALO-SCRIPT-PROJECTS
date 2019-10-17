@@ -31,13 +31,8 @@ local exclusion_list = {
 }
 -- Config Ends --
 
-
 function OnScriptLoad()
     register_callback(cb['EVENT_PREJOIN'], "OnPlayerPrejoin")
-end
-
-function OnScriptUnload()
-    --
 end
 
 function OnPlayerPrejoin(PlayerIndex)
@@ -91,4 +86,8 @@ function takeAction(Player)
         execute_command("b" .. " " .. Player .. " " .. bantime .. " \"" .. reason .. "\"")
         cprint(name .. " was banned for " .. bantime .. " minutes for " .. reason, 4 + 8)
     end
+end
+
+function OnScriptUnload()
+    --
 end
