@@ -37,12 +37,13 @@ end
 
 function OnPreJoin(PlayerIndex)
     local IP1 = get_var(PlayerIndex, "$ip"):match("(%d+.%d+.%d+.%d+)")
-    CheckIPs(PlayerIndex, IP1)
+    CheckIPs(PlayerIndex, IP1) -- Validate IP
 end
 
 function CheckIPs(Player, IP1)
     local ips = { }
 
+    -- Loop through all players and check for duplicate IP address:
     for i = 1,16 do
         if player_present(i) then
             if (Player ~= i) then
@@ -56,8 +57,8 @@ function CheckIPs(Player, IP1)
     
     if (#ips > 0) then
         if (not remove_all) then
-            takeAction(Player)
-        else
+            takeAction(Player) -- Remove the player who just joined
+        else -- Remove all players with the same IP
             ips[#ips+1] = Player
             for i = 1,#ips do 
                 takeAction(ips[i])
@@ -67,6 +68,7 @@ function CheckIPs(Player, IP1)
 end
 
 function isExcluded(IP)
+    -- Check if IP is in the exclusion list.
     for i = 1,#exclusion_list do
         if (exclusion_list[i]) then
             if (IP == exclusion_list[i]) then
@@ -78,6 +80,7 @@ function isExcluded(IP)
 end
 
 function takeAction(Player)
+    -- Remove the player (kick/ban)
     local name = get_var(Player, "$name")
     if (action == "kick") then
         execute_command("k" .. " " .. Player .. " \"" .. reason .. "\"")
