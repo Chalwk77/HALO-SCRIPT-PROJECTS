@@ -14,7 +14,7 @@ api_version = "1.12.0.0"
 
 -- Config Starts --
 local action = "kick" -- Valid actions are 'kick' & 'ban'
-local bantime = 10 -- (In Minutes) -- Set to zero to ban permanently
+local bantime = 999 -- (In Minutes) -- Set to zero to ban permanently
 local reason = "Duplicate IP"
 
 -- If TRUE, all players currently online with the same IP will be kicked.
@@ -52,7 +52,7 @@ function CheckIPs(Player, IP1)
         if player_present(i) then
             if (Player ~= i) then
                 local IP2 = get_var(i, "$ip"):match("(%d+.%d+.%d+.%d+)")
-                if (IP1 == IP2 and not isExcluded(Player, IP1)) then
+                if (IP1 == IP2 and not isExcluded(IP1)) then
                    ips[#ips+1] = i
                 end
             end
@@ -71,7 +71,7 @@ function CheckIPs(Player, IP1)
     end
 end
 
-function isExcluded(Player, IP)
+function isExcluded(IP)
     for i = 1,#exclusion_list do
         if (exclusion_list[i]) then
             if (IP == exclusion_list[i]) then
