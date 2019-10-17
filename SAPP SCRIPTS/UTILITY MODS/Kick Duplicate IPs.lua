@@ -1,0 +1,94 @@
+--[[
+--=====================================================================================================--
+Script Name: Kick Duplicate IPs (beta), for SAPP (PC & CE)
+
+Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
+* Notice: You can use this document subject to the following conditions:
+https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
+
+* Written by Jericho Crosby (Chalwk)
+--=====================================================================================================--
+]] --
+
+api_version = "1.12.0.0"
+
+-- Config Starts --
+local action = "kick" -- Valid actions are 'kick' & 'ban'
+local bantime = 10 -- (In Minutes) -- Set to zero to ban permanently
+local reason = "Duplicate IP"
+
+-- If TRUE, all players currently online with the same IP will be kicked.
+-- If FALSE, only newly joined players with the same IP will be allowed. The first player will stay.
+local kick_all = true
+
+-- Enter the IP Addresses that will be excluded from the dupe-ip-check.
+local exclusion_list = {
+   "127.0.0.1",
+   "000.000.000.000",
+   "000.000.000.000",
+   "000.000.000.000",
+   -- Repeat the structure to add more entries
+}
+-- Config Ends --
+
+
+function OnScriptLoad()
+    register_callback(cb['EVENT_PREJOIN'], "OnPlayerPrejoin")
+end
+
+function OnScriptUnload()
+    --
+end
+
+function OnPlayerPrejoin(PlayerIndex)
+    local IP1 = get_var(PlayerIndex, "$ip"):match("(%d+.%d+.%d+.%d+)")
+    CheckIPs(PlayerIndex, IP1)
+end
+
+function CheckIPs(Player, IP1)
+    local ips = { }
+
+    for i = 1,16 do
+        if player_present(i) then
+            if (Player ~= i) then
+                local IP2 = get_var(i, "$ip"):match("(%d+.%d+.%d+.%d+)")
+                if (IP1 == IP2 and not isExcluded(Player, IP1)) then
+                   ips[#ips+1] = i
+                end
+            end
+        end
+    end
+    
+    if (#ips > 0) then
+        if (not kick_all) then
+            takeAction(Player)
+        else
+            ips[#ips+1] = Player
+            for i = 1,#ips do 
+                takeAction(ips[i])
+            end
+        end
+    end
+end
+
+function isExcluded(Player, IP)
+    for i = 1,#exclusion_list do
+        if (exclusion_list[i]) then
+            if (IP == exclusion_list[i]) then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+function takeAction(Player)
+    local name = get_var(Player, "$name")
+    if (action == "kick") then
+        execute_command("k" .. " " .. Player .. " \"" .. reason .. "\"")
+        cprint(name .. " was kicked for " .. reason, 4 + 8)
+    elseif (action == "ban") then
+        execute_command("b" .. " " .. Player .. " " .. bantime .. " \"" .. reason .. "\"")
+        cprint(name .. " was banned for " .. bantime .. " minutes for " .. reason, 4 + 8)
+    end
+end
