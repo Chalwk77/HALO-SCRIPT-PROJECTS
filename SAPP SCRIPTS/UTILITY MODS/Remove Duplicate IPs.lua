@@ -18,7 +18,7 @@ local bantime = 999 -- (In Minutes) -- Set to zero to ban permanently
 local reason = "Duplicate IP"
 
 -- If TRUE, all players currently online with the same IP will be kicked.
--- If FALSE, only newly joined players with the same IP will be allowed. The first player will stay.
+-- If FALSE, only newly joined players with the same IP will be removed. The first player will stay.
 local kick_all = true
 
 -- Enter the IP Addresses that will be excluded from the dupe-ip-check.
