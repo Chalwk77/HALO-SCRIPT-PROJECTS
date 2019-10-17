@@ -181,7 +181,7 @@ function zombies:init()
                 -- Set all slots to "nil" to disable weapon assignment for that map.
                 -- For example: ["mymap"] = {nil, nil, nil, nil},
 
-                ["beavercreek"] = { weapon[1], weapon[2], weapon[3], nil }, -- pistol, sniper, shotgun
+                ["beavercreek"] = { weapon[1], weapon[2], weapon[10], nil }, -- pistol, sniper, shotgun
                 ["bloodgulch"] = { weapon[2], weapon[1], weapon[9], weapon[5] },
                 ["boardingaction"] = { weapon[10], weapon[1], nil, nil },
                 ["carousel"] = { weapon[2], weapon[1], weapon[10], nil },
