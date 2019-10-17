@@ -17,9 +17,9 @@ local action = "kick" -- Valid actions are 'kick' & 'ban'
 local bantime = 999 -- (In Minutes) -- Set to zero to ban permanently
 local reason = "Duplicate IP"
 
--- If TRUE, all players currently online with the same IP will be kicked.
+-- If TRUE, all players currently online with the same IP will be removed.
 -- If FALSE, only newly joined players with the same IP will be removed. The first player will stay.
-local kick_all = true
+local remove_all = true
 
 -- Enter the IP Addresses that will be excluded from the dupe-ip-check.
 local exclusion_list = {
@@ -32,10 +32,10 @@ local exclusion_list = {
 -- Config Ends --
 
 function OnScriptLoad()
-    register_callback(cb['EVENT_PREJOIN'], "OnPlayerPrejoin")
+    register_callback(cb['EVENT_PREJOIN'], "OnPreJoin")
 end
 
-function OnPlayerPrejoin(PlayerIndex)
+function OnPreJoin(PlayerIndex)
     local IP1 = get_var(PlayerIndex, "$ip"):match("(%d+.%d+.%d+.%d+)")
     CheckIPs(PlayerIndex, IP1)
 end
@@ -55,7 +55,7 @@ function CheckIPs(Player, IP1)
     end
     
     if (#ips > 0) then
-        if (not kick_all) then
+        if (not remove_all) then
             takeAction(Player)
         else
             ips[#ips+1] = Player
