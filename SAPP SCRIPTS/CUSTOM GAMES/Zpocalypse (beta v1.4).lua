@@ -109,7 +109,7 @@ function zombies:init()
         zombies_assistance_delay = 10,
         zombies_assistance_threshold = 7,
 
-        zombie_weapon = weapon[11], -- oddball (see function mod:GetTag() on line 1296)
+        zombie_weapon = weapon[11], -- oddball (see function mod:GetTag() on line 1285)
 
         -- If this is true, the teams will be evenly balanced at the beginning of the game
         balance_teams = false,
@@ -163,7 +163,7 @@ function zombies:init()
                 -- If true, humans will be given up to 4 custom weapons:
                 use = true, -- Set to "false" to disable weapon assignments for all maps
 
-                -- Set the weapon index to the corresponding tag number (see function mod:GetTag() on line 1296)
+                -- Set the weapon index to the corresponding tag number (see function mod:GetTag() on line 1285)
 
                 -- To disable a slot, set it to nil:
                 -- Example: ["mymap"] = {weapon[1], nil, nil, nil},
@@ -431,7 +431,7 @@ function OnTick()
             else
                 zombies:sortPlayers(nil, false)
             end
-
+            
             gamestarted = true
             zombies:LastManCheck()
             execute_command("sv_map_reset")
@@ -735,6 +735,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         if (params) then
             zombies:LastManCheck(params)
         end
+        execute_command("wdel " .. victim)
     end
 end
 
@@ -1059,7 +1060,7 @@ end
 function zombies:setTeam(PlayerIndex, team, AutoSort)
 
     local PlayerObject = get_dynamic_player(PlayerIndex)
-    zombies:deleteWeapons(PlayerIndex, PlayerObject)
+    execute_command("wdel " .. PlayerIndex)
 
     if (PlayerObject ~= 0) then
         zombies:killPlayer(PlayerIndex)
@@ -1068,18 +1069,6 @@ function zombies:setTeam(PlayerIndex, team, AutoSort)
     end
     zombies:SwitchTeam(PlayerIndex, team, nil, nil, AutoSort)
     zombies:ResetScore(PlayerIndex)
-end
-
-function zombies:deleteWeapons(PlayerObject)
-    if (PlayerObject ~= 0) then
-        local WeaponID = read_dword(PlayerObject + 0x118)
-        if WeaponID ~= 0 then
-            for j = 0, 3 do
-                local ObjectID = read_dword(PlayerObject + 0x2F8 + j * 4)
-                destroy_object(ObjectID)
-            end
-        end
-    end
 end
 
 function zombies:LastManCheck(params)
