@@ -92,13 +92,13 @@ function zombies:init()
         -- Zombie Cured:
         zombie_cured = "%killer% zombified %victim% and was cured!",
         zombie_cured_lastman = "%lastman% zombified %victim%, was cured and is the Last Human Alive!",
-        cure_threshold = 3,
+        cure_threshold = 4,
 
         -- No Zombies:
         no_zombies = "No Zombies! Switching random human in %time_remaining% second%s%",
         no_zombies_switch = "%random_human% was switched to the Zombie Team",
         no_zombies_switch_lastman = "%random_human% was switched to Zombies. %lastman% is the Last Human Alive!",
-        no_zombies_delay = 5,
+        no_zombies_delay = 10,
 
         -- Zombie Assistance:
         assistance = true,
@@ -107,7 +107,7 @@ function zombies:init()
         zombie_assistance_switch_lastman = "%random_human% was switched to Zombies. %lastman% is the Last Human Alive!",
 
         zombies_assistance_delay = 10,
-        zombies_assistance_threshold = 3,
+        zombies_assistance_threshold = 7,
 
         zombie_weapon = weapon[11], -- oddball (see function mod:GetTag() on line 1296)
 
