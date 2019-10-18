@@ -42,7 +42,7 @@ function zombies:init()
         game_start_delay = 10,
 
         -- #Pre-Game message:
-        pre_game_message = "Zpocalypse will begin in %time_remaining% second%s%",
+        pre_game_message = "Zpocalypse (Beta v1.4) will begin in %time_remaining% second%s%",
 
         -- #End of Game message:
         end_of_game = "The %team% team won!",
