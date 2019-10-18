@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Remove Duplicate IPs (beta), for SAPP (PC & CE)
+Script Name: Block Duplicate IPs (beta), for SAPP (PC & CE)
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
