@@ -109,7 +109,7 @@ function zombies:init()
         zombies_assistance_delay = 10,
         zombies_assistance_threshold = 7,
 
-        zombie_weapon = weapon[11], -- oddball (see function mod:GetTag() on line 1285)
+        zombie_weapon = weapon[11], -- oddball (see function mod:GetTag() on line 1318)
 
         -- If this is true, the teams will be evenly balanced at the beginning of the game
         balance_teams = false,
@@ -163,7 +163,7 @@ function zombies:init()
                 -- If true, humans will be given up to 4 custom weapons:
                 use = true, -- Set to "false" to disable weapon assignments for all maps
 
-                -- Set the weapon index to the corresponding tag number (see function mod:GetTag() on line 1285)
+                -- Set the weapon index to the corresponding tag number (see function mod:GetTag() on line 1318)
 
                 -- To disable a slot, set it to nil:
                 -- Example: ["mymap"] = {weapon[1], nil, nil, nil},
