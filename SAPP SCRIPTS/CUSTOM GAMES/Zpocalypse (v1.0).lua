@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Zpocalypse (beta v1.6), for SAPP (PC & CE)
+Script Name: Zpocalypse (v1.0), for SAPP (PC & CE)
 Description: A custom Zombies Game designed for Team-Slayer game types.
 
 ### Game Play Mechanics:
