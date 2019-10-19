@@ -33,13 +33,13 @@ function zombies:init()
     zombies.settings = {
 
         -- #Numbers of players required to set the game in motion (cannot be less than 2)
-        required_players = 2,
+        required_players = 3,
 
         -- #Continuous message emitted when there aren't enough players:
         not_enough_players = "%current%/%required% players needed to start the game.",
 
         -- #This is a pre-game countdown initiated at the beginning of each game (in seconds):
-        game_start_delay = 3,
+        game_start_delay = 10,
 
         -- #Pre-Game message:
         pre_game_message = "Zpocalypse (Beta v1.4) will begin in %time_remaining% second%s%",
@@ -54,7 +54,6 @@ function zombies:init()
         human_team = "red",
         --Zombie Team
         zombie_team = "blue",
-
 
         -- Zombie vs Human:
         zombie_vs_human = "%victim% was Zombified by %killer%",
@@ -109,7 +108,7 @@ function zombies:init()
         zombies_assistance_delay = 10,
         zombies_assistance_threshold = 7,
 
-        zombie_weapon = weapon[11], -- oddball (see function mod:GetTag() on line 1295)
+        zombie_weapon = weapon[11], -- oddball (see function mod:GetTag() on line 1294)
 
         -- If this is true, the teams will be evenly balanced at the beginning of the game
         balance_teams = false,
@@ -130,7 +129,7 @@ function zombies:init()
             },
             ["Zombies"] = {
                 -- Set to 0 to disable (normal speed is 1)
-                running_speed = 2.5,
+                running_speed = 2.3,
                 -- Zombie Health: (0 to 99999) (Normal = 1)
                 health = 2.3,
                 damage_multiplier = 10, -- (0 to 10) (Normal = 1)
@@ -139,7 +138,7 @@ function zombies:init()
             },
             ["Last Man Standing"] = {
                 -- Set to 0 to disable (normal speed is 1)
-                running_speed = 3.5,
+                running_speed = 3.3,
                 -- Zombie Health: (0 to 99999) (Normal = 1)
                 health = 2.5,
                 -- Set to 'false' to disable temporary overshield:
@@ -163,7 +162,7 @@ function zombies:init()
                 -- If true, humans will be given up to 4 custom weapons:
                 use = true, -- Set to "false" to disable weapon assignments for all maps
 
-                -- Set the weapon index to the corresponding tag number (see function mod:GetTag() on line 1295)
+                -- Set the weapon index to the corresponding tag number (see function mod:GetTag() on line 1294)
 
                 -- To disable a slot, set it to nil:
                 -- Example: ["mymap"] = {weapon[1], nil, nil, nil},
@@ -270,7 +269,7 @@ local floor = math.floor
 local gamestarted
 local delta_time = 0.03333333333333333
 local kill_message_addresss, originl_kill_message
-local script_version = 1.3
+local script_version = 1.0
 
 function OnScriptLoad()
 
