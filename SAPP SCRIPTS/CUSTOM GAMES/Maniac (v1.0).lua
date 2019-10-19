@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Maniac (beta v1.0), for SAPP (PC & CE)
+Script Name: Maniac (v1.0), for SAPP (PC & CE)
 Description: This game is a variation of Juggernaut and Hide and Seek.
 
 -- GAME MECHANICS --
