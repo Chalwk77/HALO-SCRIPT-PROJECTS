@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Zpocalypse (beta v1.4), for SAPP (PC & CE)
+Script Name: Zpocalypse (beta v1.5), for SAPP (PC & CE)
 Description: A custom Zombies Game designed for Team-Slayer game types.
 
 ### Game Play Mechanics:
@@ -292,6 +292,7 @@ function OnScriptLoad()
         zombies:init()
         for i = 1, 16 do
             if player_present(i) then
+                zombies:initPlayer(i, get_var(i, "$team"), true)
                 zombies:gameStartCheck(i)
             end
         end
@@ -324,7 +325,7 @@ function OnTick()
 
     for _, player in pairs(zombies.players) do
         if (player) and player_present(player.id) then
-
+        
             local isHteam = (player.team == parameters.human_team)
             local isZteam = (player.team == parameters.zombie_team)
             local isLastMan = (player.last_man ~= nil)
@@ -341,7 +342,7 @@ function OnTick()
                 rprint(player.id, zombies.pregame)
 
             elseif (gamestarted) then
-
+            
                 -- Weapon Assignment and Attribute Logic:
                 if player_alive(player.id) then
                     local player_object = get_dynamic_player(player.id)
@@ -413,7 +414,6 @@ function OnTick()
         zombies.pregame = gsub(gsub(parameters.pre_game_message,
                 "%%time_remaining%%", timeRemaining),
                 "%%s%%", char)
-
         if (timeRemaining <= 0) then
 
             zombies:disableKillMessages()
@@ -501,8 +501,6 @@ end
 
 function zombies:gameStartCheck(p)
 
-    zombies:initPlayer(p, get_var(p, "$team"), true)
-
     local player_count = zombies:GetPlayerCount()
     local required = parameters.required_players
 
@@ -524,6 +522,7 @@ function zombies:gameStartCheck(p)
 end
 
 function OnPlayerConnect(p)
+    zombies:initPlayer(p, get_var(p, "$team"), true)
     zombies:gameStartCheck(p)
 end
 
@@ -542,6 +541,7 @@ function OnPlayerDisconnect(PlayerIndex)
     end
 
     zombies:initPlayer(p, nil, false)
+    local _, countdown = zombies:GetTimer("Pre-Game Countdown")
 
     if (gamestarted) then
         if (player_count <= 0) then
@@ -574,8 +574,7 @@ function OnPlayerDisconnect(PlayerIndex)
         -- Pre-Game countdown was initiated but someone left before the game began.
         -- Stop the timer, reset the countdown and display the continuous
         -- message emitted when there aren't enough players to start the game.
-    elseif (not gamestarted) and (init_countdown and player_count < parameters.required_players) then
-        local _, countdown = zombies:GetTimer("Pre-Game Countdown")
+    elseif (not gamestarted) and (countdown.init and player_count < parameters.required_players) then
         countdown.init, countdown.timer, countdown.print_nep = false, 0, true
     end
 end
@@ -786,9 +785,10 @@ function zombies:killPlayer(PlayerIndex)
 end
 
 function zombies:SwitchTeam(PlayerIndex, team, bool, GameStartCheck, AutoSort)
+    
     local player = zombies:PlayerTable(PlayerIndex)
     player.team = team
-
+    
     local CurrentTeam = get_var(PlayerIndex, "$team")
     local sameteam = (CurrentTeam == team)
 
@@ -1057,8 +1057,7 @@ function zombies:GetTeamType(p)
     end
 end
 
-function zombies:setTeam(PlayerIndex, team, AutoSort)
-
+function zombies:setTeam(PlayerIndex, team, AutoSort)    
     local PlayerObject = get_dynamic_player(PlayerIndex)
     execute_command("wdel " .. PlayerIndex)
 
@@ -1067,8 +1066,21 @@ function zombies:setTeam(PlayerIndex, team, AutoSort)
         write_word(PlayerObject + 0x31E, 0)
         write_word(PlayerObject + 0x31F, 0)
     end
-    zombies:SwitchTeam(PlayerIndex, team, nil, nil, AutoSort)
-    zombies:ResetScore(PlayerIndex)
+    
+
+    local function Validate(a,b)
+        local player = zombies:PlayerTable(a)
+        if (not player) then
+            zombies:initPlayer(a, b, true)
+        end
+        return true
+    end
+    
+    local valid = Validate(PlayerIndex, team)
+    if (valid) then
+        zombies:SwitchTeam(PlayerIndex, team, nil, nil, AutoSort)
+        zombies:ResetScore(PlayerIndex)
+    end
 end
 
 function zombies:LastManCheck(params)
@@ -1227,19 +1239,39 @@ function zombies:initPlayer(PlayerIndex, Team, Init)
         local players = zombies.players
         if (Init) then
             zombies.damage[PlayerIndex] = nil
-            players[#players + 1] = {
-                kills = 0,
-                assistance_score = 0,
-                team = Team,
-                drone = nil,
-                zombie_assign = false,
-                human_assign = false,
-                last_man = nil,
-                id = PlayerIndex,
-                -- Zombie Weapon:
-                weapon = zombies.zombie_weapon,
-                name = get_var(PlayerIndex, "$name"),
-            }
+            local proceed = true
+            for k,v in pairs(players) do
+                if (v) then
+                    if (v.id == PlayerIndex) then
+                        v.kills = 0
+                        v.assistance_score = 0
+                        v.team = Team
+                        v.drone = nil
+                        v.zombie_assign = false
+                        v.human_assign = false
+                        v.last_man = nil
+                        v.id = PlayerIndex
+                        v.weapon = zombies.zombie_weapon
+                        v.name = get_var(PlayerIndex, "$name")
+                        proceed = false
+                    end
+                end
+            end
+            if (proceed) then
+                players[#players + 1] = {
+                    kills = 0,
+                    assistance_score = 0,
+                    team = Team,
+                    drone = nil,
+                    zombie_assign = false,
+                    human_assign = false,
+                    last_man = nil,
+                    id = PlayerIndex,
+                    -- Zombie Weapon:
+                    weapon = zombies.zombie_weapon,
+                    name = get_var(PlayerIndex, "$name"),
+                }
+            end
         else
             for index, player in pairs(players) do
                 if (player.id == PlayerIndex) then
@@ -1248,6 +1280,7 @@ function zombies:initPlayer(PlayerIndex, Team, Init)
             end
         end
     end
+    return true
 end
 
 function zombies:PlayerTable(PlayerIndex)
