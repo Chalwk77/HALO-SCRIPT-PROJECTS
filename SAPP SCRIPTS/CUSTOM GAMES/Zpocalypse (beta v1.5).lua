@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Zpocalypse (beta v1.5), for SAPP (PC & CE)
+Script Name: Zpocalypse (beta v1.6), for SAPP (PC & CE)
 Description: A custom Zombies Game designed for Team-Slayer game types.
 
 ### Game Play Mechanics:
@@ -33,13 +33,13 @@ function zombies:init()
     zombies.settings = {
 
         -- #Numbers of players required to set the game in motion (cannot be less than 2)
-        required_players = 3,
+        required_players = 2,
 
         -- #Continuous message emitted when there aren't enough players:
         not_enough_players = "%current%/%required% players needed to start the game.",
 
         -- #This is a pre-game countdown initiated at the beginning of each game (in seconds):
-        game_start_delay = 10,
+        game_start_delay = 3,
 
         -- #Pre-Game message:
         pre_game_message = "Zpocalypse (Beta v1.4) will begin in %time_remaining% second%s%",
@@ -109,7 +109,7 @@ function zombies:init()
         zombies_assistance_delay = 10,
         zombies_assistance_threshold = 7,
 
-        zombie_weapon = weapon[11], -- oddball (see function mod:GetTag() on line 1318)
+        zombie_weapon = weapon[11], -- oddball (see function mod:GetTag() on line 1295)
 
         -- If this is true, the teams will be evenly balanced at the beginning of the game
         balance_teams = false,
@@ -163,7 +163,7 @@ function zombies:init()
                 -- If true, humans will be given up to 4 custom weapons:
                 use = true, -- Set to "false" to disable weapon assignments for all maps
 
-                -- Set the weapon index to the corresponding tag number (see function mod:GetTag() on line 1318)
+                -- Set the weapon index to the corresponding tag number (see function mod:GetTag() on line 1295)
 
                 -- To disable a slot, set it to nil:
                 -- Example: ["mymap"] = {weapon[1], nil, nil, nil},
@@ -292,7 +292,7 @@ function OnScriptLoad()
         zombies:init()
         for i = 1, 16 do
             if player_present(i) then
-                zombies:initPlayer(i, get_var(i, "$team"), true)
+                zombies:initPlayer(p, get_var(p, "$team"), true)
                 zombies:gameStartCheck(i)
             end
         end
@@ -323,38 +323,38 @@ function OnTick()
     local assist_index, assistance = zombies:GetTimer("Assistance")
     local countdown_begun = (countdown.init == true)
 
-    for _, player in pairs(zombies.players) do
-        if (player) and player_present(player.id) then
+    for i, player in pairs(zombies.players) do
+        if (player) and player_present(i) then
         
             local isHteam = (player.team == parameters.human_team)
             local isZteam = (player.team == parameters.zombie_team)
             local isLastMan = (player.last_man ~= nil)
 
             if (countdown.print_nep) and (not gamestarted) and (count < parameters.required_players) then
-                zombies:cls(player.id, 25)
+                zombies:cls(i, 25)
                 local msg = gsub(gsub(parameters.not_enough_players,
                         "%%current%%", count),
                         "%%required%%", parameters.required_players)
-                rprint(player.id, msg)
+                rprint(i, msg)
 
             elseif (countdown_begun) and (not gamestarted) and (zombies.pregame) then
-                zombies:cls(player.id, 25)
-                rprint(player.id, zombies.pregame)
+                zombies:cls(i, 25)
+                rprint(i, zombies.pregame)
 
             elseif (gamestarted) then
-            
+                        
                 -- Weapon Assignment and Attribute Logic:
-                if player_alive(player.id) then
-                    local player_object = get_dynamic_player(player.id)
+                if player_alive(i) then
+                    local player_object = get_dynamic_player(i)
                     if (player_object ~= 0) then
 
                         if (isZteam) and (player.zombie_assign) then
-                            local coords = zombies:getXYZ(player.id, player_object)
+                            local coords = zombies:getXYZ(i, player_object)
                             if (not coords.invehicle) then
                                 player.zombie_assign = false
-                                execute_command("wdel " .. player.id)
-                                local oddball = spawn_object("weap", player.weapon, coords.x, coords.y, coords.z)
-                                assign_weapon(oddball, player.id)
+                                execute_command("wdel " .. i)
+                                local oddball = spawn_object("weap", zombies.zombie_weapon, coords.x, coords.y, coords.z)
+                                assign_weapon(oddball, i)
                                 player.drone = oddball
                             end
                         end
@@ -366,15 +366,15 @@ function OnTick()
 
                             -- Human Weapon Assignment:
                             if (player.human_assign) and (index == "Humans") and (isHteam or isLastMan) then
-                                local coords = zombies:getXYZ(player.id, player_object)
+                                local coords = zombies:getXYZ(i, player_object)
                                 if (not coords.invehicle) then
                                     player.human_assign = false
-                                    execute_command("wdel " .. player.id)
+                                    execute_command("wdel " .. i)
                                     for Slot, Weapon in pairs(weapons[zombies.map]) do
                                         if (Slot == 1 or Slot == 2) then
-                                            assign_weapon(spawn_object("weap", Weapon, coords.x, coords.y, coords.z), player.id)
+                                            assign_weapon(spawn_object("weap", Weapon, coords.x, coords.y, coords.z), i)
                                         elseif (Slot == 3 or Slot == 4) then
-                                            timer(250, "DelaySecQuat", player.id, Weapon, coords.x, coords.y, coords.z)
+                                            timer(250, "DelaySecQuat", i, Weapon, coords.x, coords.y, coords.z)
                                         end
                                     end
                                 end
@@ -382,12 +382,12 @@ function OnTick()
 
                             -- Player is ZOMBIE:
                             if (index == "Zombies") and (isZteam) then
-                                zombies:CamoOnCrouch(player.id)
+                                zombies:CamoOnCrouch(i)
                                 -- Player is LAST MAN STANDING
                             elseif (index == "Last Man Standing") and (isHteam and isLastMan) then
-                                zombies:CamoOnCrouch(player.id)
+                                zombies:CamoOnCrouch(i)
                                 if (attribute.use_nav_marker) then
-                                    zombies:SetNav(player.id)
+                                    zombies:SetNav(i)
                                 end
                                 if (attribute.regenerating_health) then
                                     if (player_object ~= 0) then
@@ -414,6 +414,7 @@ function OnTick()
         zombies.pregame = gsub(gsub(parameters.pre_game_message,
                 "%%time_remaining%%", timeRemaining),
                 "%%s%%", char)
+        cprint("TR: " .. countdown.duration - countdown.timer % 60)
         if (timeRemaining <= 0) then
 
             zombies:disableKillMessages()
@@ -787,11 +788,23 @@ end
 function zombies:SwitchTeam(PlayerIndex, team, bool, GameStartCheck, AutoSort)
     
     local player = zombies:PlayerTable(PlayerIndex)
-    player.team = team
     
+    local NullCheck = nil
+    local function InitPlayer()
+        if (not player) then
+            NullCheck = true
+            if (GameStartCheck) then
+                team = parameters.zombie_team
+            end
+            zombies:initPlayer(PlayerIndex, team, true)
+            player = zombies:PlayerTable(PlayerIndex)
+        end
+    end
+    InitPlayer()
+   
     local CurrentTeam = get_var(PlayerIndex, "$team")
     local sameteam = (CurrentTeam == team)
-
+    
     if (AutoSort) then
 
         -- Human -> Human
@@ -810,10 +823,10 @@ function zombies:SwitchTeam(PlayerIndex, team, bool, GameStartCheck, AutoSort)
 
     elseif (GameStartCheck) then
 
-        -- Human -> Human
-        if (CurrentTeam == parameters.human_team) then
+        if (CurrentTeam == parameters.human_team) and (not NullCheck) then
+            -- Human -> Human
             zombies:AddOrRemove("Humans", true)
-        else
+        elseif (CurrentTeam == parameters.zombie_team) and (not NullCheck) then
             -- Human -> Human
             zombies:AddOrRemove("Zombies", true)
         end
@@ -852,6 +865,7 @@ function zombies:SwitchTeam(PlayerIndex, team, bool, GameStartCheck, AutoSort)
         local health = zombies:setHealth(PlayerIndex, team)
         execute_command_sequence("w8 2;hp " .. PlayerIndex .. " " .. health)
     end
+    player.team = team
 end
 
 function zombies:broadcast(message, endgame, exclude, player, Console)
@@ -1066,42 +1080,30 @@ function zombies:setTeam(PlayerIndex, team, AutoSort)
         write_word(PlayerObject + 0x31E, 0)
         write_word(PlayerObject + 0x31F, 0)
     end
-    
 
-    local function Validate(a,b)
-        local player = zombies:PlayerTable(a)
-        if (not player) then
-            zombies:initPlayer(a, b, true)
-        end
-        return true
-    end
-    
-    local valid = Validate(PlayerIndex, team)
-    if (valid) then
-        zombies:SwitchTeam(PlayerIndex, team, nil, nil, AutoSort)
-        zombies:ResetScore(PlayerIndex)
-    end
+    zombies:SwitchTeam(PlayerIndex, team, nil, nil, AutoSort)
+    zombies:ResetScore(PlayerIndex)
 end
 
 function zombies:LastManCheck(params)
 
     local params = params or {}
     if (zombies.human_count == 1 and zombies.zombie_count >= 1) then
-        for _, player in pairs(zombies.players) do
-            if (player) then
+        for i, player in pairs(zombies.players) do
+            if (player) and player_present(i) then
                 if (player.team == parameters.human_team) then
                     if (player.last_man == nil) then
                         player.last_man, params.last_man = true, player.name
                         for index, attribute in pairs(parameters.attributes) do
                             if (index == "Last Man Standing") then
-                                local player_object = get_dynamic_player(player.id)
+                                local player_object = get_dynamic_player(i)
                                 if (player_object ~= 0) then
                                     if (attribute.overshield) then
-                                        zombies:ApplyOvershield(player.id)
+                                        zombies:ApplyOvershield(i)
                                     end
                                     write_float(player_object + 0xE0, floor(tonumber(attribute.health)))
                                     local speed = zombies:GetSpeed(player)
-                                    execute_command_sequence("w8 0.5;s " .. player.id .. " " .. speed)
+                                    execute_command_sequence("w8 0.5;s " .. i .. " " .. speed)
                                 end
                             end
                         end
@@ -1239,42 +1241,19 @@ function zombies:initPlayer(PlayerIndex, Team, Init)
         local players = zombies.players
         if (Init) then
             zombies.damage[PlayerIndex] = nil
-            local proceed = true
-            for k,v in pairs(players) do
-                if (v) then
-                    if (v.id == PlayerIndex) then
-                        v.kills = 0
-                        v.assistance_score = 0
-                        v.team = Team
-                        v.drone = nil
-                        v.zombie_assign = false
-                        v.human_assign = false
-                        v.last_man = nil
-                        v.id = PlayerIndex
-                        v.weapon = zombies.zombie_weapon
-                        v.name = get_var(PlayerIndex, "$name")
-                        proceed = false
-                    end
-                end
-            end
-            if (proceed) then
-                players[#players + 1] = {
-                    kills = 0,
-                    assistance_score = 0,
-                    team = Team,
-                    drone = nil,
-                    zombie_assign = false,
-                    human_assign = false,
-                    last_man = nil,
-                    id = PlayerIndex,
-                    -- Zombie Weapon:
-                    weapon = zombies.zombie_weapon,
-                    name = get_var(PlayerIndex, "$name"),
-                }
-            end
+            players[PlayerIndex] = {
+                kills = 0,
+                assistance_score = 0,
+                team = Team,
+                drone = nil,
+                zombie_assign = false,
+                human_assign = false,
+                last_man = nil,
+                name = get_var(PlayerIndex, "$name"),
+            }
         else
             for index, player in pairs(players) do
-                if (player.id == PlayerIndex) then
+                if (Index == PlayerIndex) then
                     players[index] = nil
                 end
             end
@@ -1285,11 +1264,9 @@ end
 
 function zombies:PlayerTable(PlayerIndex)
     local players = zombies.players
-    for _, player in pairs(players) do
-        if (player) then
-            if (player.id == PlayerIndex) then
-                return player
-            end
+    for Index, player in pairs(players) do
+        if (player) and (Index == PlayerIndex) then
+            return player
         end
     end
     return nil
@@ -1388,7 +1365,7 @@ function zombies:SwitchToZombies(Type, params)
             if (player.last_man == nil) then
                 local params = {}
                 params.vname = player.name
-                zombies:setTeam(player.id, parameters.zombie_team)
+                zombies:setTeam(pIndex, parameters.zombie_team)
 
                 if (Type == 1) then
                     params.zombie_assistance_switch = true
