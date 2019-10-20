@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Zpocalypse (v1.0), for SAPP (PC & CE)
+Script Name: Zpocalypse (v1.1), for SAPP (PC & CE)
 Description: A custom Zombies Game designed for Team-Slayer game types.
 
 ### Game Play Mechanics:
@@ -91,7 +91,7 @@ function zombies:init()
         -- Zombie Cured:
         zombie_cured = "%killer% zombified %victim% and was cured!",
         zombie_cured_lastman = "%lastman% zombified %victim%, was cured and is the Last Human Alive!",
-        cure_threshold = 4,
+        cure_threshold = 4, -- Number of consecutive kills to become human again
 
         -- No Zombies:
         no_zombies = "No Zombies! Switching random human in %time_remaining% second%s%",
@@ -101,14 +101,16 @@ function zombies:init()
 
         -- Zombie Assistance:
         assistance = true,
+        assistance_zombie_count = 2, -- If there are only this many (or less) zombies, Zombie Assistance will be triggered.
+        zombies_assistance_threshold = 7,
         zombie_assistance = "Zombies need Assistance! Switching random Human in %time_remaining% second%s%",
         zombie_assistance_switch = "%random_human% was switched to assist the Zombies",
         zombie_assistance_switch_lastman = "%random_human% was switched to Zombies. %lastman% is the Last Human Alive!",
-
+        -- When triggered, a random human will be switched to Zombie Team after this many seconds.
         zombies_assistance_delay = 10,
-        zombies_assistance_threshold = 7,
+        --
 
-        zombie_weapon = weapon[11], -- oddball (see function mod:GetTag() on line 1294)
+        zombie_weapon = weapon[11], -- oddball (see function mod:GetTag() on line 1289)
 
         -- If this is true, the teams will be evenly balanced at the beginning of the game
         balance_teams = false,
@@ -162,7 +164,7 @@ function zombies:init()
                 -- If true, humans will be given up to 4 custom weapons:
                 use = true, -- Set to "false" to disable weapon assignments for all maps
 
-                -- Set the weapon index to the corresponding tag number (see function mod:GetTag() on line 1294)
+                -- Set the weapon index to the corresponding tag number (see function mod:GetTag() on line 1289)
 
                 -- To disable a slot, set it to nil:
                 -- Example: ["mymap"] = {weapon[1], nil, nil, nil},
@@ -341,7 +343,7 @@ function OnTick()
                 rprint(i, zombies.pregame)
 
             elseif (gamestarted) then
-                        
+                      
                 -- Weapon Assignment and Attribute Logic:
                 if player_alive(i) then
                     local player_object = get_dynamic_player(i)
@@ -413,7 +415,6 @@ function OnTick()
         zombies.pregame = gsub(gsub(parameters.pre_game_message,
                 "%%time_remaining%%", timeRemaining),
                 "%%s%%", char)
-        cprint("TR: " .. countdown.duration - countdown.timer % 60)
         if (timeRemaining <= 0) then
 
             zombies:disableKillMessages()
@@ -515,9 +516,7 @@ function zombies:gameStartCheck(p)
 
     -- Game has already begun. Set player to zombie team:
     if (gamestarted) and (p) then
-        if (get_var(p, "$team") == parameters.human_team) then
-            zombies:SwitchTeam(p, parameters.zombie_team, true, true, false)
-        end
+        zombies:SwitchTeam(p, parameters.zombie_team, true, true, false)
     end
 end
 
@@ -683,15 +682,17 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                     -- If zombie has "cure_threshold" kills, set them to human team:
                     local player = zombies:PlayerTable(killer)
                     player.kills = player.kills + 1
-                    player.assistance_score = player.assistance_score - 1
+                    
+                    if (zombies.zombie_count <= zombies.assistance_zombie_count) then
+                        player.assistance_score = player.assistance_score - 1
+                        if (player.assistance_score <= 0) then
+                            player.assistance_score = 0
+                        end
 
-                    if (player.assistance_score <= 0) then
-                        player.assistance_score = 0
-                    end
-
-                    if (player.kills == parameters.cure_threshold) then
-                        params.zombie_cured = true
-                        zombies:SwitchTeam(killer, parameters.human_team)
+                        if (player.kills == parameters.cure_threshold) then
+                            params.zombie_cured = true
+                            zombies:SwitchTeam(killer, parameters.human_team)
+                        end
                     end
 
                     -- Human vs Zombie:
@@ -821,14 +822,8 @@ function zombies:SwitchTeam(PlayerIndex, team, bool, GameStartCheck, AutoSort)
         end
 
     elseif (GameStartCheck) then
-
-        if (CurrentTeam == parameters.human_team) and (not NullCheck) then
-            -- Human -> Human
-            zombies:AddOrRemove("Humans", true)
-        elseif (CurrentTeam == parameters.zombie_team) and (not NullCheck) then
-            -- Human -> Human
-            zombies:AddOrRemove("Zombies", true)
-        end
+        -- Game has already started. Increment zombie count by 1
+        zombies:AddOrRemove("Zombies", true)
 
         -- Human -> Zombie
     elseif (not sameteam) and (CurrentTeam == parameters.human_team) then
