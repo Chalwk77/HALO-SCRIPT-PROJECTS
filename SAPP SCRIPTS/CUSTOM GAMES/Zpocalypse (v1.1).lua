@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Zpocalypse (v1.1), for SAPP (PC & CE)
+Script Name: Zpocalypse (v1.2), for SAPP (PC & CE)
 Description: A custom Zombies Game designed for Team-Slayer game types.
 
 ### Game Play Mechanics:
@@ -293,7 +293,7 @@ function OnScriptLoad()
         zombies:init()
         for i = 1, 16 do
             if player_present(i) then
-                zombies:initPlayer(p, get_var(p, "$team"), true)
+                zombies:initPlayer(i, get_var(i, "$team"), true)
                 zombies:gameStartCheck(i)
             end
         end
@@ -683,7 +683,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                     local player = zombies:PlayerTable(killer)
                     player.kills = player.kills + 1
                     
-                    if (zombies.zombie_count <= zombies.assistance_zombie_count) then
+                    if (zombies.zombie_count <= parameters.assistance_zombie_count) then
                         player.assistance_score = player.assistance_score - 1
                         if (player.assistance_score <= 0) then
                             player.assistance_score = 0
