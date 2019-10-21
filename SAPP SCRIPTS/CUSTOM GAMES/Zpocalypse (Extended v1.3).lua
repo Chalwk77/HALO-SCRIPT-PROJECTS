@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Zpocalypse (Extended Message Output v1.3), for SAPP (PC & CE)
+Script Name: Zpocalypse (Extended v1.3), for SAPP (PC & CE)
 Description: A custom Zombies Game designed for Team-Slayer game types.
 
 ### Game Play Mechanics:
