@@ -1,7 +1,7 @@
 --[[
 --=====================================================================================================--
 Script Name: Suicide Punisher, for SAPP (PC & CE)
-Description: If a player excessively commits suicide "kick_threshold" times within "punish_period", 
+Description: If a player excessively commits suicide "suicide_threshold" times within "punish_period" seconds, 
              this script will kick or ban them (see config).
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
@@ -15,7 +15,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.12.0.0"
 
 -- Config starts
-local kick_threshold = 5
+local suicide_threshold = 5
 local punish_period = 10 -- In Seconds
 local action = "kick" -- Valid actions are 'kick' & 'ban'
 local bantime = 10 -- In Minutes (set to zero to ban permanently)
@@ -63,7 +63,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     
     if (killer > 0 and killer == victim) then
         suicide[victim].deaths = suicide[victim].deaths + 1
-        if (suicide[victim].deaths >= kick_threshold) then
+        if (suicide[victim].deaths >= suicide_threshold) then
             takeAction(victim)
         end
     end
@@ -73,7 +73,7 @@ function OnTick()
     for i = 1,16 do
         if player_present(i) then
             if (suicide[i]) then
-                if (suicide[i].deaths > 0 and suicide[i].deaths < kick_threshold) then
+                if (suicide[i].deaths > 0 and suicide[i].deaths < suicide_threshold) then
                     suicide[i].timer = suicide[i].timer + 0.03333333333333333
                     local delta_time = punish_period - math.floor(suicide[i].timer % 60)
                     if (delta_time <= 0) then
