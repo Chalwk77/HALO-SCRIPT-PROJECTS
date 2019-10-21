@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Zpocalypse (v1.2), for SAPP (PC & CE)
+Script Name: Zpocalypse (v1.3), for SAPP (PC & CE)
 Description: A custom Zombies Game designed for Team-Slayer game types.
 
 ### Game Play Mechanics:
@@ -110,7 +110,7 @@ function zombies:init()
         zombies_assistance_delay = 10,
         --
 
-        zombie_weapon = weapon[11], -- oddball (see function mod:GetTag() on line 1289)
+        zombie_weapon = weapon[11], -- oddball (see function mod:GetTag() on line 1295)
 
         -- If this is true, the teams will be evenly balanced at the beginning of the game
         balance_teams = false,
@@ -164,7 +164,7 @@ function zombies:init()
                 -- If true, humans will be given up to 4 custom weapons:
                 use = true, -- Set to "false" to disable weapon assignments for all maps
 
-                -- Set the weapon index to the corresponding tag number (see function mod:GetTag() on line 1289)
+                -- Set the weapon index to the corresponding tag number (see function mod:GetTag() on line 1295)
 
                 -- To disable a slot, set it to nil:
                 -- Example: ["mymap"] = {weapon[1], nil, nil, nil},
@@ -654,8 +654,11 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         local distance_damage = (zombies.damage[victim] == zombies.distancedamage)
         local params = {}
 
-        params.kname = kname
-        params.vname = vname
+
+        local function SetName()
+            params.kname = kname
+            params.vname = vname
+        end
 
         if (killer > 0) then
 
@@ -715,6 +718,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                     end
                 end
             end
+            SetName()
         elseif (killer == nil) or (killer == 0) then
             zombies:SayDied(victim, vname)
         elseif (fall_damage) then
@@ -724,6 +728,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             else
                 params.zombie_falldamage = true
             end
+            SetName()
         elseif (distance_damage) then
             if (vteam == parameters.human_team) then
                 zombies:SwitchTeam(victim, parameters.zombie_team)
@@ -731,6 +736,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             else
                 params.zombie_distancedamage = true
             end
+            SetName()
         end
         if (params) then
             zombies:LastManCheck(params)
@@ -1359,7 +1365,7 @@ function zombies:SwitchToZombies(Type, params)
             if (player.last_man == nil) then
                 local params = {}
                 params.vname = player.name
-                zombies:setTeam(pIndex, parameters.zombie_team)
+                zombies:setTeam(index, parameters.zombie_team)
 
                 if (Type == 1) then
                     params.zombie_assistance_switch = true
