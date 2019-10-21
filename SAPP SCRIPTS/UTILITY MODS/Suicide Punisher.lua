@@ -16,7 +16,7 @@ api_version = "1.12.0.0"
 
 -- Config starts
 local suicide_threshold = 5
-local punish_period = 10 -- In Seconds
+local punish_period = 30 -- In Seconds
 local action = "kick" -- Valid actions are 'kick' & 'ban'
 local bantime = 10 -- In Minutes (set to zero to ban permanently)
 local reason = "Excessive Suicide"
