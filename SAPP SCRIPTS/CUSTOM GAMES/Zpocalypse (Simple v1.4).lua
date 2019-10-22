@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Zpocalypse (Simple v1.3), for SAPP (PC & CE)
+Script Name: Zpocalypse (simplified v1.4), for SAPP (PC & CE)
 Description: A custom Zombies Game designed for Team-Slayer game types.
 
 ### Game Play Mechanics:
@@ -75,7 +75,8 @@ function zombies:init()
 
         -- Zombie Cured:
         cure_threshold = 4, -- Number of consecutive kills to become human again
-        zombie_weapon = weapon[11], -- oddball (see function mod:GetTag() on line 1289)
+        zombie_cured = "%killer% was cured!",
+        zombie_weapon = weapon[11], -- oddball (see function mod:GetTag() on line 1210)
 
         -- If this is true, the teams will be evenly balanced at the beginning of the game
         balance_teams = false,
@@ -129,7 +130,7 @@ function zombies:init()
                 -- If true, humans will be given up to 4 custom weapons:
                 use = true, -- Set to "false" to disable weapon assignments for all maps
 
-                -- Set the weapon index to the corresponding tag number (see function mod:GetTag() on line 1289)
+                -- Set the weapon index to the corresponding tag number (see function mod:GetTag() on line 1210)
 
                 -- To disable a slot, set it to nil:
                 -- Example: ["mymap"] = {weapon[1], nil, nil, nil},
@@ -643,7 +644,6 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                     -- Switch victim to Zombie team:
                     zombies:SwitchTeam(victim, parameters.zombie_team)
 
-                    -- If zombie has "cure_threshold" kills, set them to human team:
                     local player = zombies:PlayerTable(killer)
                     player.kills = player.kills + 1
                     
@@ -652,10 +652,12 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                         if (player.assistance_score <= 0) then
                             player.assistance_score = 0
                         end
+                    end
 
-                        if (player.kills == parameters.cure_threshold) then
-                            zombies:SwitchTeam(killer, parameters.human_team)
-                        end
+                    -- If zombie has "cure_threshold" kills, set them to human team:
+                    if (player.kills == parameters.cure_threshold) then
+                        params.zombie_cured = true
+                        zombies:SwitchTeam(killer, parameters.human_team)
                     end
 
                     -- Human vs Zombie:
@@ -701,19 +703,18 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, _, _)
             return false
         else
 
+            local player = zombies:PlayerTable(CauserIndex)
             local isHteam = (cTeam == parameters.human_team)
             local isZteam = (cTeam == parameters.zombie_team)
+            local isLastMan = (player.last_man ~= nil)
 
             for index, attribute in pairs(parameters.attributes) do
-                if (index == "Humans") and (isHteam) then
+                if (index == "Humans") and (isHteam) and (not isLastMan) then
+                    return true, Damage * attribute.damage_multiplier
+                elseif (index == "Last Man Standing") and (isHteam and isLastMan) then
                     return true, Damage * attribute.damage_multiplier
                 elseif (index == "Zombies") and (isZteam) then
                     return true, Damage * attribute.damage_multiplier
-                elseif (index == "Last Man Standing") and (isHteam) then
-                    local player = zombies:PlayerTable(PlayerIndex)
-                    if (player.last_man ~= nil) then
-                        return true, Damage * attribute.damage_multiplier
-                    end
                 end
             end
         end
@@ -746,7 +747,9 @@ function zombies:SwitchTeam(PlayerIndex, team, bool, GameStartCheck, AutoSort)
         end
     end
     InitPlayer()
-   
+    
+    player.team = team
+    
     local CurrentTeam = get_var(PlayerIndex, "$team")
     local sameteam = (CurrentTeam == team)
     
@@ -806,7 +809,6 @@ function zombies:SwitchTeam(PlayerIndex, team, bool, GameStartCheck, AutoSort)
         execute_command_sequence("w8 2;hp " .. PlayerIndex .. " " .. health)
     end
     zombies:enableKillMessages()
-    player.team = team
 end
 
 function zombies:broadcast(message, endgame, exclude, player, Console)
@@ -989,16 +991,19 @@ function zombies:sortPlayers(PlayerIndex, BalanceTeams)
 end
 
 function zombies:setHealth(PlayerIndex, Team)
+
+    local player = zombies:PlayerTable(PlayerIndex)
+    local isHteam = (player.team == parameters.human_team)
+    local isZteam = (player.team == parameters.zombie_team)
+    local isLastMan = (player.last_man ~= nil)
+
     for index, attribute in pairs(parameters.attributes) do
-        if (index == "Humans") and (Team == parameters.human_team) then
+        if (index == "Humans") and (isHteam) and (not isLastMan) then
             return tonumber(attribute.health)
-        elseif (index == "Zombies") and (Team == parameters.zombie_team) then
+        elseif (index == "Last Man Standing") and (isHteam and isLastMan) then
             return tonumber(attribute.health)
-        elseif (index == "Last Man Standing") and (Team == parameters.human_team) then
-            local player = zombies:PlayerTable(PlayerIndex)
-            if (player.last_man ~= nil) then
-                return tonumber(attribute.health)
-            end
+        elseif (index == "Zombies") and (isZteam) then
+            return tonumber(attribute.health)
         end
     end
 end
@@ -1058,7 +1063,9 @@ function zombies:LastManCheck(params)
     local msg, endgamecheck = nil, nil
     if (not params.last_man) then
         endgamecheck = true
-        if (params.on_zombify) then
+        if (params.on_zombify) and (not params.zombie_cured) then
+            msg = gsub(gsub(parameters.on_zombify, "%%victim%%", params.vname), "%%killer%%", params.kname)
+        elseif (params.on_zombify) and (params.zombie_cured) then
             msg = gsub(gsub(parameters.on_zombify, "%%victim%%", params.vname), "%%killer%%", params.kname)
         end
     else
