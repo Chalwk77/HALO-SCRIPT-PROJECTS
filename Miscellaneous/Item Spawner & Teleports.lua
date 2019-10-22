@@ -47,6 +47,7 @@ function init()
             { 97.476, -188.912, 15.718, 0.5, 53.653, -157.885, 21.753},
             { 48.046, -153.087, 21.181, 0.5, 23.112, -59.428, 16.352},
             { 118.263, -120.761, 17.192, 0.5, 40.194, -139.990, 2.733},
+            -- Repeat the structure to add more entries
         }
     }
     
@@ -67,6 +68,7 @@ function init()
             { "eqip", "powerups\\health pack", 131.737, - 169.891, 15.870},
             { "eqip", "powerups\\health pack", 121.011, - 188.595, 13.771},
             { "eqip", "powerups\\health pack", 97.504, - 188.913, 15.784}
+            -- Repeat the structure to add more entries
         }
     }
     -- Configuration ENDS -------------------------------------
