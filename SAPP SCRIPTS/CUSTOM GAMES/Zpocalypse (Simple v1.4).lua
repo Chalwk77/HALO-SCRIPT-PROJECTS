@@ -39,7 +39,7 @@ function zombies:init()
         not_enough_players = "%current%/%required% players needed to start the game.",
 
         -- #This is a pre-game countdown initiated at the beginning of each game (in seconds):
-        game_start_delay = 10,
+        game_start_delay = 3,
 
         -- #Pre-Game message:
         pre_game_message = "Zpocalypse will begin in %time_remaining% second%s%",
@@ -74,7 +74,7 @@ function zombies:init()
         --
 
         -- Zombie Cured:
-        cure_threshold = 4, -- Number of consecutive kills to become human again
+        cure_threshold = 2, -- Number of consecutive kills to become human again
         zombie_cured = "%killer% was cured!",
         zombie_weapon = weapon[11], -- oddball (see function mod:GetTag() on line 1210)
 
@@ -1066,7 +1066,7 @@ function zombies:LastManCheck(params)
         if (params.on_zombify) and (not params.zombie_cured) then
             msg = gsub(gsub(parameters.on_zombify, "%%victim%%", params.vname), "%%killer%%", params.kname)
         elseif (params.on_zombify) and (params.zombie_cured) then
-            msg = gsub(gsub(parameters.on_zombify, "%%victim%%", params.vname), "%%killer%%", params.kname)
+            msg = gsub(gsub(parameters.zombie_cured, "%%victim%%", params.vname), "%%killer%%", params.kname)
         end
     else
         msg = gsub(parameters.last_man, "%%lastman%%", params.last_man)
