@@ -113,7 +113,7 @@ function OnTick()
     for i = 1, 16 do
         if player_present(i) and player_alive(i) then
             for j = 1, #tp do
-                if tp[j] ~= nil then
+                if (tp[j] ~= nil) then
                     local player_object = get_dynamic_player(i)
                     if (player_object ~= 0) then
                         
