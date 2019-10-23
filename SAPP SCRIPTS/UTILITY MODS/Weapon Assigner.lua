@@ -19,7 +19,7 @@ function mod:init()
     
     mod.weapons = { 
     
-        -- Set the weapon index to the corresponding tag number (see function mod:GetTag() on line 65)
+        -- Set the weapon index to the corresponding tag number (see function mod:GetTag() on line 84)
         -- You can spawn with up to 4 weapons.
         -- Warning: The 4th slot is reserved for the objective (flag & oddball)
         -- If this slot is taken up, you wont be able to pick up the flag or oddball but you'll still spawn with 4 weapons.
@@ -47,7 +47,7 @@ function mod:init()
         ["sidewinder"] = { weapon[1], weapon[4], weapon[3], weapon[2]},
         ["timberland"] = { weapon[1], weapon[7], weapon[9], nil},
         ["hangemhigh"] = { weapon[1], weapon[10], nil, nil},
-        ["ratrace"] = { weapon[7], weapon[1], nil, nil},
+        ["ratrace"] = { weapon[7], weapon[1], weapon[9], nil},
         ["damnation"] = { weapon[7], weapon[1], nil, nil},
         ["putput"] = { weapon[5], weapon[6], weapon[3], weapon[8]},
         ["prisoner"] = { weapon[1], weapon[4], nil, nil},
@@ -64,6 +64,20 @@ function mod:init()
     --# Do Not Touch #--
     mod.players = { }
     mod.map = get_var(0, "$map")
+    local weapons = mod.weapons
+    
+    local count = 0
+    local map = weapons[mod.map]
+    if (map) then
+        for _, Weapon in pairs(map) do
+            if (Weapon ~= nil) then
+                count = count + 1
+            end
+        end
+    end
+    if (count > 0) then
+        mod.assign = true
+    end
     ----------------------------
 end
 
@@ -112,17 +126,15 @@ function mod:GetTag()
 end
 
 function OnScriptLoad()
-    register_callback(cb["EVENT_TICK"], "OnTick")
-    register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
-    register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
-    register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
-    register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
     if (get_var(0, "$gt") ~= "n/a") then
         mod:init()
-        for i = 1, 16 do
-            if player_present(i) then
-                mod:initPlayer(i, true)
+        if (mod.assign) then
+            RegisterSAPPEvents(true)
+            for i = 1, 16 do
+                if player_present(i) then
+                    mod:initPlayer(i, true)
+                end
             end
         end
     end
@@ -131,6 +143,9 @@ end
 function OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
         mod:init()
+        if (mod.assign) then
+            RegisterSAPPEvents(true)
+        end
     end
 end
 
@@ -140,6 +155,7 @@ function OnGameEnd()
             mod:initPlayer(i, false)
         end
     end
+    RegisterSAPPEvents(false)
 end
 
 function OnTick()
@@ -222,4 +238,21 @@ function mod:getXYZ(PlayerIndex, PlayerObject)
     
     coords.x, coords.y, coords.z = x, y, z
     return coords
+end
+
+function RegisterSAPPEvents(Init)
+    if (Init) then
+        register_callback(cb["EVENT_TICK"], "OnTick")
+        register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
+        register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
+        register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
+        register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
+    else
+        unregister_callback(cb['EVENT_TICK'])
+        unregister_callback(cb["EVENT_JOIN"])
+        unregister_callback(cb["EVENT_LEAVE"])
+        unregister_callback(cb['EVENT_SPAWN'])
+        unregister_callback(cb['EVENT_GAME_END'])
+        unregister_callback(cb['EVENT_GAME_START'])
+    end
 end
