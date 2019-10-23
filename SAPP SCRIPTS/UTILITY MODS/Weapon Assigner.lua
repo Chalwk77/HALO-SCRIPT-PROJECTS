@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Weapon Assigner (v1.0), for SAPP (PC & CE)
+Script Name: Weapon Assigner (v1.1), for SAPP (PC & CE)
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
