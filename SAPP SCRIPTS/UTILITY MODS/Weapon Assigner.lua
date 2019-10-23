@@ -253,6 +253,5 @@ function RegisterSAPPEvents(Init)
         unregister_callback(cb["EVENT_LEAVE"])
         unregister_callback(cb['EVENT_SPAWN'])
         unregister_callback(cb['EVENT_GAME_END'])
-        unregister_callback(cb['EVENT_GAME_START'])
     end
 end
