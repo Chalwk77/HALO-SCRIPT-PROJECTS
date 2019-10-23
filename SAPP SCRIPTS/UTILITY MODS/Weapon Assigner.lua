@@ -19,7 +19,7 @@ function mod:init()
     
     mod.weapons = { 
     
-        -- Set the weapon index to the corresponding tag number (see function mod:GetTag() on line 84)
+        -- Set the weapon index to the corresponding tag number (see function mod:GetTag() on line 85)
         -- You can spawn with up to 4 weapons.
         -- Warning: The 4th slot is reserved for the objective (flag & oddball)
         -- If this slot is taken up, you wont be able to pick up the flag or oddball but you'll still spawn with 4 weapons.
@@ -64,8 +64,9 @@ function mod:init()
     --# Do Not Touch #--
     mod.players = { }
     mod.map = get_var(0, "$map")
-    local weapons = mod.weapons
+    mod.weapons_table = nil
     
+    local weapons = mod.weapons
     local count = 0
     local map = weapons[mod.map]
     if (map) then
@@ -76,7 +77,7 @@ function mod:init()
         end
     end
     if (count > 0) then
-        mod.assign = true
+        mod.weapons_table = map
     end
     ----------------------------
 end
@@ -129,7 +130,7 @@ function OnScriptLoad()
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     if (get_var(0, "$gt") ~= "n/a") then
         mod:init()
-        if (mod.assign) then
+        if (mod.weapons_table ~= nil) then
             RegisterSAPPEvents(true)
             for i = 1, 16 do
                 if player_present(i) then
@@ -143,7 +144,7 @@ end
 function OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
         mod:init()
-        if (mod.assign) then
+        if (mod.weapons_table ~= nil) then
             RegisterSAPPEvents(true)
         end
     end
@@ -159,21 +160,21 @@ function OnGameEnd()
 end
 
 function OnTick()
-    for _,player in pairs(mod.players) do
-        if (player.id) and player_alive(player.id) then
+    for i,player in pairs(mod.players) do
+        if (i) and player_alive(i) then
             if (player.assign) then
             
-                local player_object = get_dynamic_player(player.id)
-                local coords = mod:getXYZ(player.id, player_object)
+                local player_object = get_dynamic_player(i)
+                local coords = mod:getXYZ(i, player_object)
                 
                 if (not coords.invehicle) then
                     player.assign = false
-                    execute_command("wdel " .. player.id)
-                    for Slot, Weapon in pairs(mod.weapons[mod.map]) do
+                    execute_command("wdel " .. i)
+                    for Slot, Weapon in pairs(mod.weapons_table) do
                         if (Slot == 1 or Slot == 2) then
-                            assign_weapon(spawn_object("weap", Weapon, coords.x, coords.y, coords.z), player.id)
+                            assign_weapon(spawn_object("weap", Weapon, coords.x, coords.y, coords.z), i)
                         elseif (Slot == 3 or Slot == 4) then
-                            timer(250, "DelaySecQuat", player.id, Weapon, coords.x, coords.y, coords.z)
+                            timer(250, "DelaySecQuat", i, Weapon, coords.x, coords.y, coords.z)
                         end
                     end
                 end
@@ -183,8 +184,8 @@ function OnTick()
 end
 
 function OnPlayerSpawn(PlayerIndex)
-    for _,player in pairs(mod.players) do
-        if (player.id == PlayerIndex) then 
+    for index,player in pairs(mod.players) do
+        if (index == PlayerIndex) then
             player.assign = true 
         end
     end
@@ -204,14 +205,14 @@ end
 
 function mod:initPlayer(PlayerIndex, Init)
     local players = mod.players
+    
     if (Init) then
-        players[#players + 1] = {
-            id = tonumber(PlayerIndex),
-            assign = false,
+        players[PlayerIndex] = {
+            assign = false
         }
     else
-        for index,player in pairs(players) do
-            if (player.id == PlayerIndex) then
+        for index,_ in pairs(players) do
+            if (index == PlayerIndex) then
                 players[index] = nil
             end
         end
