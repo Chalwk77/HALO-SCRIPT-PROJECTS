@@ -51,7 +51,7 @@ local vpn_blocker = {
         --Check if IP address suspected to be a proxy? (SOCKS, Elite, Anonymous, VPN, Tor, etc.)
         
         fraud_score = 85,
-        --The overall fraud score of the user based on the IP, user agent, language, and any other optionally passed variables. 
+        --Fraud Score Threshold: 
         --Fraud Scores >= 75 are suspicious, but not necessarily fraudulent. 
         --I recommend flagging or blocking traffic with Fraud Scores >= 85, 
         --but you may find it beneficial to use a higher or lower threshold.
@@ -70,7 +70,7 @@ local vpn_blocker = {
     -- Configuration [ends]
 }
 
-local gsub = string.gsub
+local gsub, format = string.gsub, string.format
 local json = (loadfile "json.lua")()
 
 function OnScriptLoad()
@@ -138,7 +138,7 @@ function vpn_blocker:WriteLog(k,v, logtime)
             file:write(os.date("[%H:%M:%S - %d/%m/%Y]: ").."\n")
         end
     
-        local line = string.format("%s\t%s\n", tostring(k), tostring(v))
+        local line = format("%s\t%s\n", tostring(k), tostring(v))
         file:write(line)
         file:close()
     end
