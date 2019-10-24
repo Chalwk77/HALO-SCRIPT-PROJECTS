@@ -90,7 +90,7 @@ function OnPreJoin(p)
                 cprint("VPN Blocker -> Running Ip Lookup ^ Please wait...", 4+8)
                 for k,v in pairs(vpn_blocker.checks) do
                     if (type(v) == "boolean") then
-                        if (v == true) and (ip_lookup[k]) then
+                        if (v) and (ip_lookup[k]) then
                             return false
                         end
                     elseif (type(v) == "number") then
