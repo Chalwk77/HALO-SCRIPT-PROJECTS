@@ -34,6 +34,39 @@ local vpn_blocker = {
     action = "k", -- k = kick, b = ban
     feedback1 = "We\'ve detected that you\'re using a VPN or Proxy - we do not allow these!'",
     feedback2 = "%name% was %action% for using a VPN or Proxy (IP: %ip%)",
+    
+    checks = {
+
+        is_crawler = true,
+        --Check if IP is associated with being a confirmed crawler 
+        --such as Googlebot, Bingbot, etc based on hostname or IP address verification.
+        
+        vpn = true,
+        --Check if IP suspected of being a VPN connection?
+        
+        tor = true,
+        --Check if IP suspected of being a Tor connection?
+        
+        proxy = true,
+        --Check if IP address suspected to be a proxy? (SOCKS, Elite, Anonymous, VPN, Tor, etc.)
+        
+        fraud_score = 85,
+        --The overall fraud score of the user based on the IP, user agent, language, and any other optionally passed variables. 
+        --Fraud Scores >= 75 are suspicious, but not necessarily fraudulent. 
+        --I recommend flagging or blocking traffic with Fraud Scores >= 85, 
+        --but you may find it beneficial to use a higher or lower threshold.
+        
+        bot_status = true,
+        --Premium Account Feature:
+        --Indicates if bots or non-human traffic has recently used this IP address to engage 
+        --in automated fraudulent behavior. Provides stronger confidence that the IP address is suspicious.
+    },
+    
+    exclusion_list = {
+        "127.0.0.1", -- localhost
+        "000.000.000.000",
+        -- Repeat the structure to add more entries
+    }
     -- Configuration [ends]
 }
 
@@ -47,43 +80,53 @@ end
 function OnPreJoin(p)
 
     local player = vpn_blocker:GetCredentials(p)
-    local url = gsub(vpn_blocker.url, "api_key", vpn_blocker.api_key)
-    local data = vpn_blocker:Query(tostring(url .. player.ip))
-        
-    if (data) then
-        cprint("VPN Blocker -> Running Ip Lookup ^ Please wait...", 4+8)
-        
-        local ip_lookup = json:decode(data)
-        local valid = true
-        
-        if (ip_lookup.host ~= "localhost") and (ip_lookup.vpn) or (ip_lookup.tor) then
+    if (player) then
+        local url = gsub(vpn_blocker.url, "api_key", vpn_blocker.api_key)
+        local data = vpn_blocker:Query(tostring(url .. player.ip))
             
-            valid = false
-            
-            say(p, vpn_blocker.feedback1)
-            execute_command(vpn_blocker.action .. " " .. p)
-            
-            if (vpn_blocker.action == "k") then
-                action = "kicked"
-            elseif (vpn_blocker.action == "b") then
-                action = "banned"
+        if (data) then
+            local ip_lookup = json:decode(data)
+            local connected = function()
+                cprint("VPN Blocker -> Running Ip Lookup ^ Please wait...", 4+8)
+                for k,v in pairs(vpn_blocker.checks) do
+                    if (type(v) == "boolean") then
+                        if (v == true) and (ip_lookup[k]) then
+                            return false
+                        end
+                    elseif (type(v) == "number") then
+                        if (ip_lookup[k] >= v) then
+                            return false
+                        end
+                    end
+                end
+                return true
             end
-            
-            local logtime = true
-            for k,v in pairs(ip_lookup) do
-                vpn_blocker:WriteLog(k,v, logtime)
-                if logtime then logtime = false end
+
+            if (not connected()) then
+                            
+                say(p, vpn_blocker.feedback1)
+                execute_command(vpn_blocker.action .. " " .. p)
+                
+                if (vpn_blocker.action == "k") then
+                    action = "kicked"
+                elseif (vpn_blocker.action == "b") then
+                    action = "banned"
+                end
+                
+                local logtime = true
+                for key,value in pairs(ip_lookup) do
+                    vpn_blocker:WriteLog(key,value, logtime)
+                    if logtime then logtime = false end
+                end
+                
+                local msg = gsub(gsub(gsub(vpn_blocker.feedback2, "%%name%%", player.name),
+                "%%action%%", action), 
+                "%%ip%%", player.ip)
+                cprint(msg, 4+8)
+            else        
+                cprint("VPN Blocker -> Player connected successfully.", 2+8)
             end
-            
-            local msg = gsub(gsub(gsub(vpn_blocker.feedback2, "%%name%%", player.name),
-            "%%action%%", action), 
-            "%%ip%%", player.ip)
-            cprint(msg, 4+8)
         end
-        
-    end
-    if (not valid) then
-        cprint("VPN Blocker -> Player connected successfully!", 2+8)
     end
 end
 
@@ -101,11 +144,28 @@ function vpn_blocker:WriteLog(k,v, logtime)
     end
 end
 
-
+function isExcluded(IP)
+    -- Check if IP is in the exclusion list.
+    local t = vpn_blocker.exclusion_list
+    for i = 1,#t do
+        if (t[i]) then
+            if (IP == t[i]) then
+                return true
+            end
+        end
+    end
+    return false
+end
+    
 function vpn_blocker:GetCredentials(p)
-    local ip = get_var(p, "$ip")
-    local name = get_var(p, "$name")
-    return {ip = ip:match('(%d+.%d+.%d+.%d+)'), name = name}
+    local ip = get_var(p, "$ip"):match('(%d+.%d+.%d+.%d+)')
+    if (not isExcluded(ip)) then
+        local name = get_var(p, "$name")
+        return {ip = ip, name = name}
+    else
+        print('excluded')
+        return nil
+    end
 end
 
 -- Credits to Kavawuvi (002) for HTTP client functionality:
@@ -136,3 +196,5 @@ end
 function OnScriptUnload()
     --
 end
+
+return vpn_blocker
