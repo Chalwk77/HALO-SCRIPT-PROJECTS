@@ -29,45 +29,6 @@ local len = string.len
 
 function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
-    register_callback(cb['EVENT_GAME_START'], "OnGameStart")
-end
-
-function OnGameStart()
-              
-    local pl = {}
-    pl[#pl+1] = {id = 1,name = "Chalwk",team = "red",ip = "127.0.0.1:2309",}
-    pl[#pl+1] = {id = 2,name = "Whicker",team = "blue",ip = "127.0.0.1:21774",}
-    pl[#pl+1] = {id = 3,name = "Sneak",team = "red",ip = "127.0.0.1:30947",}
-    pl[#pl+1] = {id = 4,name = "Walla Walla",team = "blue",ip = "127.0.0.1:3485",}
-    pl[#pl+1] = {id = 5,name = "Howard",team = "red",ip = "127.0.0.1:1581",}
-    pl[#pl+1] = {id = 6,name = "Saucy",team = "blue",ip = "127.0.0.1:10627",}
-    pl[#pl+1] = {id = 7,name = "Stompy",team = "red",ip = "127.0.0.1:13435",}
-    pl[#pl+1] = {id = 8,name = "The Big L",team = "blue",ip = "127.0.0.1:16036",}
-    
-    local header = " [ ID.    -    Name.    -    Team.    -    IP.    -    Total Players: %total%/16 ]"
-    cprint(gsub(header, "%%total%%", #pl), 2+8)
-    
-    for i = 1,#pl do
-        local name_len = len(pl[i].name)
-        local nameteam_spacing = ""
-        for _ = (name_len),13 do
-            nameteam_spacing = nameteam_spacing .. " "
-        end
-                    
-        local ip_spaces = 0
-        if (pl[i].team == "red") or (pl[i].team == "ffa") then
-            ip_spaces = 11
-        else
-            ip_spaces = 10
-        end
-        
-        local ip_spacing = ""
-        for _ = 1,ip_spaces do
-            ip_spacing = ip_spacing .. " "
-        end
-        local str = "    " .. pl[i].id .. ".         " .. pl[i].name .. nameteam_spacing .. pl[i].team .. ip_spacing .. pl[i].ip
-        cprint(str)
-    end
 end
 
 function OnScriptUnload()
@@ -137,27 +98,28 @@ function showlist(e)
         for i = 1,#pl do
         
             if (get_var(0, "$ffa") ~= "0") then
-                team = "ffa"
+                pl[i].team = "ffa"
             end
         
             local name_len = len(pl[i].name)
             local nameteam_spacing = ""
-            for _ = (name_len),13 do
+            for _ = (name_len),14 do
                 nameteam_spacing = nameteam_spacing .. " "
             end
                         
             local ip_spaces = 0
             if (pl[i].team == "red") or (pl[i].team == "ffa") then
-                ip_spaces = 11
+                ip_spaces = 13
             else
-                ip_spaces = 10
+                ip_spaces = 12
             end
             
             local ip_spacing = ""
             for _ = 1,ip_spaces do
                 ip_spacing = ip_spacing .. " "
             end
-            local str = "    " .. pl[i].id .. ".         " .. pl[i].name .. nameteam_spacing .. pl[i].team .. ip_spacing .. pl[i].ip
+            
+            local str = "     " .. pl[i].id .. ".         " .. pl[i].name .. nameteam_spacing .. pl[i].team .. ip_spacing .. pl[i].ip
             if not (isConsole(e)) then
                 respond(e, str, "rcon")
             else
