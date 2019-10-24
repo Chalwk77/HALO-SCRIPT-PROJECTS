@@ -2,20 +2,42 @@
 --=====================================================================================================--
 Script Name: VPN Blocker (VERSION 2), for SAPP (PC & CE)
 
-#1: This mod requires that the following plugins are installed to your server:
-- https://opencarnage.net/index.php?/topic/5998-sapp-http-client/
-- http://regex.info/blog/lua/json
+Description: VPN Blocker will detect whether an IP Address is a Proxy, Tor, or VPN Connection
+             and retrieve an overall Fraud Score that provides accurate risk analysis. 
 
-#2: Place "json.lua" and the contents of "sapp-http-client" in your servers root directory.
+             The Fraud Score is a probability of malicious intent based on Machine Learning 
+             and Data Analysis systems that are run by IP Quality Score.
 
-#3: Sign up for an account at www.ipqualityscore.com.
-- Navigate to Proxy Detection Overview page: https://www.ipqualityscore.com/documentation/proxy-detection/overview
-- Copy your unique "Private Key" from that page and paste 
-it into the API_KEY field (line 29) in this script (see config below).
+             For each IP lookup, an IP address and other forensic factors of the connection are analysed to determine 
+             if the user is hiding behind a spoofed or anonymized IP, tunneled connection, 
+             botnet, or attempting to frequently change their device.
+ 
+             Private VPNs can be detected, but it might pay to upgrade your IP Quality Score account,
+             but this is at your own expense, obviously. I provide the tool to connect to their API but it's up to 
+             the end user to decide what account type they register with. The Free account is pretty good in general.
 
-If VPN Blocker kicks or bans someone it will log the details of that action 
-to a file called "VPN Blocker.log" in the servers root directory.
+I M P O R T A N T
+-----------------
 
+1): This mod requires that the following plugins are installed to your server:
+    https://opencarnage.net/index.php?/topic/5998-sapp-http-client/
+    http://regex.info/blog/lua/json
+
+2): Place "json.lua" and the contents of "sapp-http-client" in your servers root directory.
+
+3): Sign up for an account at www.ipqualityscore.com.
+    Navigate to Proxy Detection Overview page: https://www.ipqualityscore.com/documentation/proxy-detection/overview
+    Copy your unique "Private Key" from that page and paste it into the API_KEY field (line 54) in this script (see config below).
+
+    If VPN Blocker kicks or bans someone it will log the details of that action 
+    to a file called "VPN Blocker.log" in the servers root directory.
+
+D I S C L A I M E R
+-------------------
+Some genuine players use a VPN to protect their privacy online and also game while using one. 
+VPN Blocker cannot differentiate between good and bad intentions 
+and will, therefore, kick or ban on sight if their IP is on the VPN Blocker database.
+--
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
