@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: List Players (SAPP alternative), for SAPP (PC & CE)
+Script Name: List Players, for SAPP (PC & CE)
 Description: An alternative player list mod (Overrides SAPP's built in /pl command.)
      
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
@@ -15,12 +15,17 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = '1.12.0.0'
 
--- CONFIG (starts) -------------------------------------------------------------------
-local command_aliases = { "pl", "players", "playerlist", "playerslist" }
-local permission_level = 1 -- <<- Minimum privilege level required to execute (-1 for all players, 1-4 for admins):
--- CONFIG (ends) -------------------------------------------------------------------
+-- Config [starts]
+local command_aliases = { 
+    "pl", "players", "playerlist", "playerslist" 
+}
+    
+-- Minimum privilege level required to execute (-1 for all players, 1-4 for admins):
+local permission_level = 1 
+-- Config [ends]
 
-local script_version = 1.2
+local gsub = string.gsub
+
 function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
 end
@@ -36,7 +41,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     
     local function checkAccess(e, level)
         if (e ~= -1 and e >= 1 and e < 16) then
-            if (tonumber(get_var(e, "$lvl"))) >= level then
+            if (level >= permission_level) then
                 return true
             else
                 respond(e, "Command failed. Insufficient Permission.", "rcon", 4+8)
@@ -46,7 +51,6 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             return true
         end
     end
-
     for i = 1, #command_aliases do
         if (command == command_aliases[i]) then
             if (checkAccess(executor, level)) then
@@ -74,53 +78,53 @@ end
 function showlist(e)
     local header, cheader, ffa
     local player_count = 0
-    local bool = true
+    local header_bool, ffa = true, false
     
-    local isTeamPlay = function()
-        if (get_var(0, "$ffa") == "0") then
-            return true
-        end
-    end
-    
-    if (isTeamPlay) then
-        header = "[ ID.    -    Name.    -    Team.    -    IP. ]"
-        cheader = "ID.        Name.        Team.        IP."
+    if (get_var(0, "$ffa") == "0") then
+        header = "|l [ ID.    -    Name.    -    Team.    -    IP.    -    Total Players: %total%/16 ]"
+        cheader = "    ID.   Name.   Team.   IP.   (Total Players:%total%/16)"
     else
         ffa = true
-        header = "[ ID.    -    Name.    -    IP. ]"
-        cheader = "ID.        Name.        IP"
+        header = "|l [ ID.    -    Name.    -    IP.    -    Total Players: %total%/16 ]"
+        cheader = "    ID.   Name.   IP.   (Total Players:%total%/16)"
     end
     
     for i = 1, 16 do
         if player_present(i) then
-            if (bool) then
-                bool = false
+            player_count = player_count + 1
+        
+            if (header_bool) then
+                header_bool = false
                 if not (isConsole(e)) then
-                    respond(e, header, "rcon", 7 + 8)
+                    header = gsub(header, "%%total%%", player_count)
+                    respond(e, header, "rcon")
                 else
-                    respond(e, cheader, "rcon", 7 + 8)
+                    cheader = gsub(cheader, "%%total%%", player_count)
+                    respond(e, cheader, 7 + 8)
                 end
             end
+        
             
-            player_count = player_count + 1
-            local id, name, team, ip = get_var(i, "$n"), get_var(i, "$name"), get_var(i, "$team"), get_var(i, "$ip"):match("(%d+.%d+.%d+.%d+)")
+            local id, name, team, ip = get_var(i, "$n"), get_var(i, "$name"), get_var(i, "$team"), get_var(i, "$ip")
 
             local sep, seperator = ".         ", " | "
-
             local str = ""
-            
+
             if not (ffa) then
                 str = "    " .. id .. sep .. name .. seperator .. team .. seperator .. ip
             else
                 str = "    " .. id .. sep .. name .. seperator .. ip
             end
-            respond(e, str, "rcon", 5 + 8)
+            if not (isConsole(e)) then
+                respond(e, "|l " .. str, "rcon")
+            else
+                respond(e, str, "rcon", 5 + 8)
+            end
         end
     end
-    
     if (player_count == 0) and (isConsole(e)) then
         respond(e, "------------------------------------", "rcon", 5 + 8)
-        respond(e, "There are no players online", "rcon", 5 + 8)
+        respond(e, "There are no players online", 4 + 8)
         respond(e, "------------------------------------", "rcon", 5 + 8)
     end
 end
@@ -195,17 +199,4 @@ function cmdsplit(str)
     table.remove(args, 1)
 
     return cmd, args
-end
-
-function report()
-    cprint("--------------------------------------------------------", 5 + 8)
-    cprint("Please report this error on github:", 7 + 8)
-    cprint("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", 7 + 8)
-    cprint("Script Version: " .. script_version, 7 + 8)
-    cprint("--------------------------------------------------------", 5 + 8)
-end
-
-function OnError()
-    cprint(debug.traceback(), 4 + 8)
-    timer(50, "report")
 end
