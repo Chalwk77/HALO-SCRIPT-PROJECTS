@@ -185,7 +185,6 @@ function vpn_blocker:GetCredentials(p)
         local name = get_var(p, "$name")
         return {ip = ip, name = name}
     else
-        print('excluded')
         return nil
     end
 end
