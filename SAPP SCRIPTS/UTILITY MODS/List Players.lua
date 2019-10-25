@@ -21,7 +21,8 @@ local command_aliases = {
 }
     
 -- Minimum privilege level required to execute (-1 for all players, 1-4 for admins):
-local permission_level = 1 
+local permission_level = 1
+
 -- Config [ends]
 
 local gsub = string.gsub
@@ -77,7 +78,6 @@ local function isConsole(e)
 end
 
 function showlist(e)
-    
     local pl = {}
     for i = 1, 16 do
         if player_present(i) then
@@ -89,37 +89,15 @@ function showlist(e)
             }
         end
     end
-
     if (#pl > 0) then
-    
-        local header = " [ ID.    -    Name.    -    Team.    -    IP.    -    Total Players: %total%/16 ]"
+        local header = "[ ID.    -    Name.    -    Team.    -    IP.    -    Total Players: %total%/16 ]"
         respond(e, gsub(header, "%%total%%", #pl), "rcon", 2+8)
-
         for i = 1,#pl do
-        
             if (get_var(0, "$ffa") ~= "0") then
                 pl[i].team = "ffa"
             end
-        
-            local name_len = len(pl[i].name)
-            local nameteam_spacing = ""
-            for _ = (name_len),14 do
-                nameteam_spacing = nameteam_spacing .. " "
-            end
-                        
-            local ip_spaces = 0
-            if (pl[i].team == "red") or (pl[i].team == "ffa") then
-                ip_spaces = 13
-            else
-                ip_spaces = 12
-            end
-            
-            local ip_spacing = ""
-            for _ = 1,ip_spaces do
-                ip_spacing = ip_spacing .. " "
-            end
-            
-            local str = "     " .. pl[i].id .. ".         " .. pl[i].name .. nameteam_spacing .. pl[i].team .. ip_spacing .. pl[i].ip
+            local seperator = " | "
+            local str = "     " .. pl[i].id .. ".         " .. pl[i].name .. seperator .. pl[i].team .. seperator .. pl[i].ip
             if not (isConsole(e)) then
                 respond(e, str, "rcon")
             else
