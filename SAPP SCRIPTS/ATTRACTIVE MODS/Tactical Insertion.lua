@@ -15,22 +15,17 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]]--
 
 api_version = "1.12.0.0"
+local players = {}
 
-local mod = {}
+-- ============== Configuration Starts ============== --
+local command = "ti"
+local permission = -1
+local on_execute = "Tac-Insert Coordinates set to X: %x%, Y: %y%, Z: %z%"
 
-function mod:init()
-    -- ============== Configuration Starts ============== --
-    
-    -- Custom Command:
-    mod.command = "ti"
-    -- Minimum permission needed to execute the custom command (set to -1 for all players. 1-4 admins)
-    mod.permission = -1
-    mod.on_execute = "Tac-Insert Coordinates set to X: %x%, Y: %y%, Z: %z%"
-        -- ============== Configuration Ends ============== --
-    
-    -- # Do Not Touch # --
-    mod.players = {}
-end
+-- If true, the script will broadcasts a global message announcing that the player has used a Tac-Insert 
+local broadcast = true
+local broadcast_message = "%name% used a Tac-Insert"
+-- ============== Configuration Ends ============== --
 
 -- Variables for String Library:
 local gsub = string.gsub
@@ -52,11 +47,10 @@ function OnScriptLoad()
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
     
     if (get_var(0, "$gt") ~= "n/a") then
-        mod:init()
-        game_over = false
+        players, game_over = {}, false
         for i = 1,16 do
             if player_present(i) then
-                mod:initPlayer(i, true)
+                initPlayer(i, true)
             end
         end
     end
@@ -64,8 +58,7 @@ end
 
 function OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
-        mod:init()
-        game_over = false
+        players, game_over = {}, false
     end
 end
 
@@ -74,15 +67,15 @@ function OnGameEnd()
 end
 
 function OnPlayerConnect(p)
-    mod:initPlayer(p, true)
+    initPlayer(p, true)
 end
 
 function OnPlayerDisconnect(p)
-    mod:initPlayer(p, false)
+    initPlayer(p, false)
 end
 
 function OnPlayerPrespawn(PlayerIndex)
-    local insertion = mod.players[PlayerIndex]
+    local insertion = players[PlayerIndex]
     insertion.expired = false
     
     if (insertion.trigger) then
@@ -96,24 +89,24 @@ function OnPlayerPrespawn(PlayerIndex)
 end
 
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
-    local args = mod:StringSplit(Command)
+    local args = StringSplit(Command)
     local executor = tonumber(PlayerIndex)
     
     if (args[1] == nil) then
         return
     end
-    local command = lower(args[1]) or upper(args[1])
+    local cmd = lower(args[1]) or upper(args[1])
 
-    if (command == mod.command) then
-        if not mod:isGameOver(executor) then
-            if mod:checkAccess(executor) then
+    if (cmd == command) then
+        if not isGameOver(executor) then
+            if checkAccess(executor) then
                 if (args[2] == nil) then
                     if player_alive(executor) then
                         local player_object = get_dynamic_player(executor)
                         if (player_object ~= 0) then
-                            local coords = mod:getXYZ(executor, player_object)
+                            local coords = getXYZ(executor, player_object)
                             if (coords) then
-                                local insertion = mod.players[executor]
+                                local insertion = players[executor]
                                 if (not insertion.expired) then
                                     insertion.expired = true
                                     insertion.x = coords.x
@@ -122,20 +115,27 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                     local x = format("%0.3f", coords.x)
                                     local y = format("%0.3f", coords.x)
                                     local z = format("%0.3f", coords.x)
-                                    local msg = gsub(gsub(gsub(mod.on_execute,"%%x%%", x),"%%y%%", y),"%%z%%", z)
-                                    mod:Respond(executor, msg, 4 + 8)
-                                    
-                                    insertion.trigger = true                            
+                                    local msg = gsub(gsub(gsub(on_execute,"%%x%%", x),"%%y%%", y),"%%z%%", z)
+                                    Respond(executor, msg, "rcon")
+                                    if (broadcast) then
+                                        local msg = gsub(gsub(gsub(on_execute,"%%x%%", x),"%%y%%", y),"%%z%%", z)
+                                        for i = 1,16 do
+                                            if (i ~= executor) then                                                
+                                                Respond(i, gsub(broadcast_message, "%%name%%", insertion.name), "chat")
+                                            end
+                                        end
+                                    end
+                                    insertion.trigger = true                         
                                 else                                    
-                                    mod:Respond(executor, "You have already used Tac-Insert for this life.", 4 + 8)
+                                    Respond(executor, "You have already used Tac-Insert for this life.", "rcon")
                                 end
                             end
                         end
                     else
-                        mod:Respond(executor, "You must be alive to execute this command", 4 + 8)
+                        Respond(executor, "You must be alive to execute this command", "rcon")
                     end
                 else
-                    mod:Respond(executor, "Invalid Syntax. Usage: /"..command, 4 + 8)
+                    Respond(executor, "Invalid Syntax. Usage: /"..command, "rcon")
                 end
             end
         end
@@ -143,24 +143,28 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     end
 end
 
-function mod:isGameOver(p)
+function isGameOver(p)
     if (game_over) then
-        mod:Respond(p, "Please wait until the next game has started.")
+        Respond(p, "Please wait until the next game has started.", "rcon")
         return true
     end
     return false
 end
 
-function mod:Respond(p, msg, color)
-    local color = color or 4 + 8
-    if not mod:isConsole(p) then
-        rprint(p, msg)
+function Respond(p, msg, environment)
+    if not isConsole(p) then
+        environment = environment or "rcon" 
+        if (environment == "rcon") then    
+            rprint(p, msg)
+        else
+            say(p, msg)
+        end
     else
-        cprint(msg, color)
+        cprint(msg, 4+8)
     end
 end
 
-function mod:isConsole(p)
+function isConsole(p)
     if (p ~= -1 and p >= 1 and p < 16) then
         return false
     else
@@ -168,19 +172,18 @@ function mod:isConsole(p)
     end
 end
 
-function mod:checkAccess(p)
-    if not mod:isConsole(p) then
+function checkAccess(p)
+    if not isConsole(p) then
         local level = tonumber(get_var(p, "$lvl"))
-        if (level >= mod.permission) then
+        if (level >= permission) then
             return true
         end
     else
-        mod:Respond(p, "Server cannot execute this command", 4+8)
+        Respond(p, "Server cannot execute this command")
     end
 end
 
-function mod:initPlayer(PlayerIndex, Init)
-    local players = mod.players
+function initPlayer(PlayerIndex, Init)
     if (Init) then
         players[PlayerIndex] = {
             x = 0,
@@ -188,13 +191,14 @@ function mod:initPlayer(PlayerIndex, Init)
             z = 0,
             expired = false,
             trigger = false,
+            name = get_var(PlayerIndex, "$name"),
         }
     else
         players[PlayerIndex] = nil
     end
 end
 
-function mod:getXYZ(PlayerIndex, PlayerObject)
+function getXYZ(PlayerIndex, PlayerObject)
     local coords, x, y, z = { }
     if player_alive(PlayerIndex) then
         local VehicleID = read_dword(PlayerObject + 0x11C)
@@ -214,7 +218,7 @@ function OnScriptUnload()
     --
 end
 
-function mod:StringSplit(InputString, Seperator)
+function StringSplit(InputString, Seperator)
     if Seperator == nil then
         Seperator = "%s"
     end
