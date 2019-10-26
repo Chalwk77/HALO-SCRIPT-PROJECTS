@@ -115,10 +115,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                     local x = format("%0.3f", coords.x)
                                     local y = format("%0.3f", coords.x)
                                     local z = format("%0.3f", coords.x)
-                                    local msg = gsub(gsub(gsub(on_execute,"%%x%%", x),"%%y%%", y),"%%z%%", z)
-                                    Respond(executor, msg, "rcon")
+                                    Respond(executor, gsub(gsub(gsub(on_execute,"%%x%%", x),"%%y%%", y),"%%z%%", z), "rcon")
                                     if (broadcast) then
-                                        local msg = gsub(gsub(gsub(on_execute,"%%x%%", x),"%%y%%", y),"%%z%%", z)
                                         for i = 1,16 do
                                             if (i ~= executor and not isConsole(i)) then                                                
                                                 Respond(i, gsub(broadcast_message, "%%name%%", insertion.name), "chat")
