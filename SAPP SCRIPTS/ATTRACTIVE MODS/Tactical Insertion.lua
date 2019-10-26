@@ -120,7 +120,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                     if (broadcast) then
                                         local msg = gsub(gsub(gsub(on_execute,"%%x%%", x),"%%y%%", y),"%%z%%", z)
                                         for i = 1,16 do
-                                            if (i ~= executor) then                                                
+                                            if (i ~= executor and not isConsole(i)) then                                                
                                                 Respond(i, gsub(broadcast_message, "%%name%%", insertion.name), "chat")
                                             end
                                         end
