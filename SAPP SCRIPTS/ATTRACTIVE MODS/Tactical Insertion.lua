@@ -22,7 +22,8 @@ local command = "ti"
 local permission = -1
 local on_execute = "Tac-Insert Coordinates set to X: %x%, Y: %y%, Z: %z%"
 
--- If true, the script will broadcasts a global message announcing that the player has used a Tac-Insert 
+-- If true, the script will broadcast a global message announcing that the player has used a Tac-Insert
+-- The player executing the command wont see this message.
 local broadcast = true
 local broadcast_message = "%name% used a Tac-Insert"
 -- ============== Configuration Ends ============== --
