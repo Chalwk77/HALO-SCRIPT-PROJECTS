@@ -119,8 +119,10 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                     Respond(executor, gsub(gsub(gsub(on_execute,"%%x%%", x),"%%y%%", y),"%%z%%", z), "rcon")
                                     if (broadcast) then
                                         for i = 1,16 do
-                                            if (i ~= executor and not isConsole(i)) then                                                
-                                                Respond(i, gsub(broadcast_message, "%%name%%", insertion.name), "chat")
+                                            if player_present(i) then
+                                                if (i ~= executor) then                                                
+                                                    Respond(i, gsub(broadcast_message, "%%name%%", insertion.name), "chat")
+                                                end
                                             end
                                         end
                                     end
