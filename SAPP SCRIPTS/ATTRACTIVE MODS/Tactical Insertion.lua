@@ -113,8 +113,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                     insertion.y = coords.y
                                     insertion.z = coords.z
                                     local x = format("%0.3f", coords.x)
-                                    local y = format("%0.3f", coords.x)
-                                    local z = format("%0.3f", coords.x)
+                                    local y = format("%0.3f", coords.y)
+                                    local z = format("%0.3f", coords.z)
                                     Respond(executor, gsub(gsub(gsub(on_execute,"%%x%%", x),"%%y%%", y),"%%z%%", z), "rcon")
                                     if (broadcast) then
                                         for i = 1,16 do
