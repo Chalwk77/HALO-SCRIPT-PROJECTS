@@ -97,16 +97,12 @@ end
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
     if (tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex) then
         for Table, _ in pairs(tags) do
-            for _, Table in pairs(tags) do
-                if (Table[4]) then
-                    if (MetaID == GetTag("jpt!", Table[1])) then
-                        for i,player in pairs(players) do
-                            if (i == PlayerIndex) and player_alive(PlayerIndex) then
-                                player.stunned, player.timer = true, 0
-                                player.stun_duration, player.stun_percent = Table[2], Table[3]
-                                return true
-                            end
-                        end
+            if (Table[4] and MetaID == GetTag("jpt!", Table[1])) then
+                for i,player in pairs(players) do
+                    if (i == PlayerIndex) and player_alive(PlayerIndex) then
+                        player.stunned, player.timer = true, 0
+                        player.stun_duration, player.stun_percent = Table[2], Table[3]
+                        return true
                     end
                 end
             end
