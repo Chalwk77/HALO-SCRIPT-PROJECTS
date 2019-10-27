@@ -50,11 +50,7 @@ function OnGameStart()
 end
 
 function OnPlayerSpawn(PlayerIndex)
-    for i,player in pairs(players) do
-        if (i == PlayerIndex) then
-            player.stunned, player.timer = false, 0
-        end
-    end
+    initPlayer(PlayerIndex, true)
 end
 
 function OnTick()
