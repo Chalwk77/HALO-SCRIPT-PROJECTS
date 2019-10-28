@@ -2,20 +2,12 @@
 --=====================================================================================================--
 Script Name: Dynamic Scoring (utility), for SAPP (PC & CE)
 Description: Scorelimit changes automatically, depending on number of players currently online.
-
 * Updated 6/09/19
 - Scoring is now set on a per-gametype/per-gamemode basis.
-
-* Updated 14/09/19
-- The logic that sets the scorelimit will no longer be called during the Post Game Carnage Report.
-
-
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
-
 Inspiration taken from a mod made by {OZ}Shadow.
-
 * Written by Jericho Crosby (Chalwk)
 --=====================================================================================================--
 ]]--
@@ -23,14 +15,13 @@ Inspiration taken from a mod made by {OZ}Shadow.
 -- Configuration [starts] ----------------------------------------
 api_version = "1.12.0.0"
 local scorelimit, scoreTable = { }
-local gamestarted = nil
 
 -- CAPTURE THE FLAG ----------------------------------------------------
 scorelimit.ctf = {
     [1] = 3, -- 4 players or less
-    [2] = 5, -- 4-8 players
-    [3] = 7, -- 8-12 players
-    [4] = 9, -- 12-16 players
+    [2] = 3, -- 4-8 players
+    [3] = 3, -- 8-12 players
+    [4] = 3, -- 12-16 players
     txt = "Score limit changed to: %scorelimit%",
 }
 
@@ -125,24 +116,18 @@ function OnScriptLoad()
     scorelimit.Reset()
     
     if (get_var(0, "$gt") ~= "n/a") then
-        gamestarted = true
-    
         for i = 1, 16 do
             if player_present(i) then
                 current_players = current_players + 1
             end
         end
-        
-        scorelimit.Modify()
+        if (scorelimit.setScoreTable()) then
+            scorelimit.Modify()
+        end
     end
 end
 
-function OnGameStart()
-
-    gamestarted = true
-
-    -- Returns the current game type:
-    local gametype = get_var(0, "$gt")
+function scorelimit.setScoreTable()
     
     -- Returns TRUE if team based gamemode.
     local function isTeamPlay()
@@ -150,6 +135,9 @@ function OnGameStart()
             return true
         end
     end
+    
+    -- Returns the current game type:
+    local gametype = get_var(0, "$gt")
     
     -- Determine what scorelimit table to use:
     if (gametype == "ctf") then   
@@ -179,13 +167,17 @@ function OnGameStart()
             scoreTable = scorelimit.race[2]
         end
     end
-    
-    -- Set initial scorelimit:
-    scorelimit.Set(scoreTable[1])
+    return true
+end
+
+function OnGameStart()
+    if (get_var(0, "$gt") ~= "n/a") then
+        scorelimit.setScoreTable()
+        scorelimit.Set(scoreTable[1])
+    end
 end
 
 function OnGameEnd()
-    gamestarted = false
     scorelimit.Reset()
 end
 
@@ -194,19 +186,15 @@ function OnScriptUnload()
 end
 
 function OnPlayerConnect(PlayerIndex)
-    if (gamestarted) then
-        -- Increment player count by 1
-        current_players = current_players + 1
-        scorelimit.Modify()
-    end
+    -- Increment player count by 1
+    current_players = current_players + 1
+    scorelimit.Modify()
 end
 
 function OnPlayerDisconnect(PlayerIndex)
-    if (gamestarted) then
-        -- Decrement player count by 1
-        current_players = current_players - 1
-        scorelimit.Modify()
-    end
+    -- Decrement player count by 1
+    current_players = current_players - 1
+    scorelimit.Modify()
 end
 
 -- Determine whether to pluralize 'lap' or 'minute' input (text) from scoreTable.txt:
