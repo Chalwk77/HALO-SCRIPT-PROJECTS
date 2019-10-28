@@ -2,8 +2,13 @@
 --=====================================================================================================--
 Script Name: Dynamic Scoring (utility), for SAPP (PC & CE)
 Description: Scorelimit changes automatically, depending on number of players currently online.
+
 * Updated 6/09/19
 - Scoring is now set on a per-gametype/per-gamemode basis.
+
+* Updated 28/10/19
+- Fixed a bug prevent script from loading when you execute the /reload command.
+
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -172,17 +177,14 @@ end
 
 function OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
-        scorelimit.setScoreTable()
-        scorelimit.Set(scoreTable[1])
+        if (scorelimit.setScoreTable()) then        
+            scorelimit.Set(scoreTable[1])
+        end
     end
 end
 
 function OnGameEnd()
     scorelimit.Reset()
-end
-
-function OnScriptUnload()
-    -- not used
 end
 
 function OnPlayerConnect(PlayerIndex)
@@ -241,4 +243,8 @@ end
 function scorelimit.Set(score)
     current_scorelimit = score
     execute_command("scorelimit " .. score)
+end
+
+function OnScriptUnload()
+    -- not used
 end
