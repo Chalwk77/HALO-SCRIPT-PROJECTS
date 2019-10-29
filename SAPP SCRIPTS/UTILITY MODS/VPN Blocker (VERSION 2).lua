@@ -54,6 +54,8 @@ local vpn_blocker = {
     api_key = "API_KEY", -- paste your api key here (from www.ipqualityscore.com)
     url = "https://www.ipqualityscore.com/api/json/ip/api_key/",
     action = "k", -- k = kick, b = ban
+    bantime = 0, -- This is the duration a player will be banned (set to 0 for permanent ban)
+    reason = "VPN Connection",
     feedback1 = "We\'ve detected that you\'re using a VPN or Proxy - we do not allow these!'",
     feedback2 = "%name% was %action% for using a VPN or Proxy (IP: %ip%)",
     
@@ -127,12 +129,14 @@ function OnPreJoin(p)
             if (not connected()) then
                             
                 say(p, vpn_blocker.feedback1)
-                execute_command(vpn_blocker.action .. " " .. p)
+                local state = "none"
                 
                 if (vpn_blocker.action == "k") then
-                    action = "kicked"
+                    state = "kicked"
+                    execute_command("k" .. " " .. p .. " \"" .. vpn_blocker.reason .. "\"")
                 elseif (vpn_blocker.action == "b") then
-                    action = "banned"
+                    state = "banned"
+                    execute_command("b" .. " " .. p .. " " .. vpn_blocker.bantime .. " \"" .. vpn_blocker.reason .. "\"")
                 end
                 
                 local logtime = true
@@ -142,7 +146,7 @@ function OnPreJoin(p)
                 end
                 
                 local msg = gsub(gsub(gsub(vpn_blocker.feedback2, "%%name%%", player.name),
-                "%%action%%", action), 
+                "%%action%%", state), 
                 "%%ip%%", player.ip)
                 cprint(msg, 4+8)
             else        
