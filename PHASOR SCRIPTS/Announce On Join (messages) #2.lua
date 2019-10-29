@@ -5,7 +5,7 @@ Copyright (c) 2016-2018
 * Author: Jericho Crosby
 * IGN: Chalwk
 * Written and Created by Jericho Crosby
------------------------------------
+------------------------------------
 ]]--
 
 -- Settings
