@@ -52,9 +52,8 @@ api_version = "1.12.0.0"
 local vpn_blocker = { 
     -- Configuration [starts]
     api_key = "API_KEY", -- paste your api key here (from www.ipqualityscore.com)
-    url = "https://www.ipqualityscore.com/api/json/ip/api_key/",
     action = "k", -- k = kick, b = ban
-    bantime = 0, -- This is the duration a player will be banned (set to 0 for permanent ban)
+    bantime = 10, -- This is the duration a player will be banned (set to 0 for permanent ban)
     reason = "VPN Connection",
     feedback1 = "We\'ve detected that you\'re using a VPN or Proxy - we do not allow these!'",
     feedback2 = "%name% was %action% for using a VPN or Proxy (IP: %ip%)",
@@ -105,52 +104,63 @@ function OnPreJoin(p)
 
     local player = vpn_blocker:GetCredentials(p)
     if (player) then
-        local url = gsub(vpn_blocker.url, "api_key", vpn_blocker.api_key)
-        local data = vpn_blocker:Query(tostring(url .. player.ip))
+        
+        local url = "https://www.ipqualityscore.com/api/json/ip/api_key/"
+        local entry_point = gsub(url, "api_key", vpn_blocker.api_key)
+        local data = vpn_blocker:Query(tostring(entry_point .. player.ip))
             
         if (data) then
             local ip_lookup = json:decode(data)
-            local connected = function()
-                cprint("VPN Blocker -> Running Ip Lookup ^ Please wait...", 4+8)
-                for k,v in pairs(vpn_blocker.checks) do
-                    if (type(v) == "boolean") then
-                        if (v) and (ip_lookup[k]) then
-                            return false
-                        end
-                    elseif (type(v) == "number") then
-                        if (ip_lookup[k] >= v) then
-                            return false
+            if (ip_lookup.success) then
+                local connected = function()
+                    cprint("VPN Blocker -> Running Ip Lookup ^ Please wait...", 4+8)
+                    for k,v in pairs(vpn_blocker.checks) do
+                        if (type(v) == "boolean") then
+                            if (v) and (ip_lookup[k]) then
+                                return false
+                            end
+                        elseif (type(v) == "number") then
+                            if (ip_lookup[k] >= v) then
+                                return false
+                            end
                         end
                     end
+                    return true
                 end
-                return true
-            end
 
-            if (not connected()) then
-                            
-                say(p, vpn_blocker.feedback1)
-                local state = "none"
-                
-                if (vpn_blocker.action == "k") then
-                    state = "kicked"
-                    execute_command("k" .. " " .. p .. " \"" .. vpn_blocker.reason .. "\"")
-                elseif (vpn_blocker.action == "b") then
-                    state = "banned"
-                    execute_command("b" .. " " .. p .. " " .. vpn_blocker.bantime .. " \"" .. vpn_blocker.reason .. "\"")
+                if (not connected()) then
+                                
+                    say(p, vpn_blocker.feedback1)
+                    local state = "none"
+                    
+                    if (vpn_blocker.action == "k") then
+                        state = "kicked"
+                        execute_command("k" .. " " .. p .. " \"" .. vpn_blocker.reason .. "\"")
+                    elseif (vpn_blocker.action == "b") then
+                        state = "banned"
+                        execute_command("b" .. " " .. p .. " " .. vpn_blocker.bantime .. " \"" .. vpn_blocker.reason .. "\"")
+                    end
+                    
+                    local logtime = true
+                    for key,value in pairs(ip_lookup) do
+                        vpn_blocker:WriteLog(key,value, logtime)
+                        if logtime then logtime = false end
+                    end
+                    
+                    local msg = gsub(gsub(gsub(vpn_blocker.feedback2, "%%name%%", player.name),
+                    "%%action%%", state), 
+                    "%%ip%%", player.ip)
+                    cprint(msg, 4+8)
+                else        
+                    cprint("VPN Blocker -> Player connected successfully.", 2+8)
                 end
-                
-                local logtime = true
-                for key,value in pairs(ip_lookup) do
-                    vpn_blocker:WriteLog(key,value, logtime)
-                    if logtime then logtime = false end
+            else
+                -- Error Handling
+                cprint("[VPN BLOCKER ERROR]", 4+8)
+                for k,v in pairs(ip_lookup) do
+                    print(k,v)
                 end
-                
-                local msg = gsub(gsub(gsub(vpn_blocker.feedback2, "%%name%%", player.name),
-                "%%action%%", state), 
-                "%%ip%%", player.ip)
-                cprint(msg, 4+8)
-            else        
-                cprint("VPN Blocker -> Player connected successfully.", 2+8)
+                cprint("=========================================================", 4+8)
             end
         end
     end
