@@ -27,7 +27,7 @@ I M P O R T A N T
 
 3): Sign up for an account at www.ipqualityscore.com.
     Navigate to Proxy Detection Overview page: https://www.ipqualityscore.com/documentation/proxy-detection/overview
-    Copy your unique "Private Key" from that page and paste it into the API_KEY field (line 54) in this script (see config below).
+    Copy your unique "Private Key" from that page and paste it into the API_KEY field (line 62) in this script (see config below).
 
     If VPN Blocker kicks or bans someone it will log the details of that action 
     to a file called "VPN Blocker.log" in the servers root directory.
@@ -50,39 +50,77 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.12.0.0"
 
 local vpn_blocker = { 
-    -- Configuration [starts]
-    api_key = "API_KEY", -- paste your api key here (from www.ipqualityscore.com)
-    action = "k", -- k = kick, b = ban
-    bantime = 10, -- This is the duration a player will be banned (set to 0 for permanent ban)
+    --====================================== --
+    -- Configuration [STARTS]
+    --====================================== --
+    
+    -- I recommend reading the API Documentation before changing any settings:
+    -- https://www.ipqualityscore.com/documentation/proxy-detection/overview
+    
+    
+    -- Paste your API KEY here (from the above link)
+    api_key = "API_KEY", 
+    
+    -- If the player is using a VPN Connection, do this action:
+    -- k = kick, b = ban
+    action = "k",
+    
+    -- If action is "b" the player will be banned for this amount of time ((in minutes) set to 0 for permanent ban)
+    bantime = 10,
+    
+    -- The reason for being kicked or banned:
     reason = "VPN Connection",
+    
+    -- Message output to the joining player:
     feedback1 = "We\'ve detected that you\'re using a VPN or Proxy - we do not allow these!'",
+    
+    -- Message output to Dedicated Server Console:
     feedback2 = "%name% was %action% for using a VPN or Proxy (IP: %ip%)",
     
+    -- Request Parameters:
     checks = {
-
-        is_crawler = true,
         --Check if IP is associated with being a confirmed crawler 
         --such as Googlebot, Bingbot, etc based on hostname or IP address verification.
+        is_crawler = true,
         
-        vpn = true,
         --Check if IP suspected of being a VPN connection?
+        vpn = true,
         
-        tor = true,
         --Check if IP suspected of being a Tor connection?
+        tor = true,
         
-        proxy = true,
         --Check if IP address suspected to be a proxy? (SOCKS, Elite, Anonymous, VPN, Tor, etc.)
+        proxy = true,
         
-        fraud_score = 85,
         --Fraud Score Threshold: 
         --Fraud Scores >= 75 are suspicious, but not necessarily fraudulent. 
         --I recommend flagging or blocking traffic with Fraud Scores >= 85, 
         --but you may find it beneficial to use a higher or lower threshold.
+        fraud_score = 85,
         
-        bot_status = true,
         --Premium Account Feature:
         --Indicates if bots or non-human traffic has recently used this IP address to engage 
         --in automated fraudulent behavior. Provides stronger confidence that the IP address is suspicious.
+        bot_status = true,
+    },
+    
+    parameters = {
+        -- How in depth (strict) do you want this query to be? 
+        -- Higher values take longer to process and may provide a higher false-positive rate. 
+        -- It is recommended to start at "0", the lowest strictness setting, and increasing to "1" or "2" depending on your needs.
+        strictness = 0,
+        
+        -- Bypasses certain checks for IP addresses from education and research institutions, schools, and some corporate connections 
+        -- to better accommodate audiences that frequently use public connections.
+        allow_public_access_points = true,
+        
+        -- Enable this setting to lower detection rates and Fraud Scores for mixed quality IP addresses. 
+        -- If you experience any false-positives with your traffic then enabling this feature will provide better results.
+        lighter_penalties = false,
+        
+        -- This setting is used for time-sensitive lookups that require a faster response time. 
+        -- Accuracy is slightly degraded with the "fast" approach, but not significantly noticeable.
+        fast = false,
     },
     
     exclusion_list = {
@@ -90,7 +128,9 @@ local vpn_blocker = {
         "000.000.000.000",
         -- Repeat the structure to add more entries
     }
-    -- Configuration [ends]
+    --====================================== --
+    -- Configuration [ENDS]
+    --====================================== --
 }
 
 local gsub, format = string.gsub, string.format
@@ -105,12 +145,24 @@ function OnPreJoin(p)
     local player = vpn_blocker:GetCredentials(p)
     if (player) then
         
-        local url = "https://www.ipqualityscore.com/api/json/ip/api_key/"
-        local entry_point = gsub(url, "api_key", vpn_blocker.api_key)
-        local data = vpn_blocker:Query(tostring(entry_point .. player.ip))
+        local site = "https://www.ipqualityscore.com/api/json/ip/api_key/"
+        local key = gsub(site, "api_key", vpn_blocker.api_key)
+        
+        local query_link = tostring(key .. player.ip .. "?")
+        local count = 0
+        for k,v in pairs(vpn_blocker.parameters) do
+            if (count == 0) then
+                query_link = query_link ..k.."="..tostring(v)
+            else
+                query_link = query_link .."&"..k.."="..tostring(v)
+            end
+            count = count + 1
+        end
+        
+        local JsonData = vpn_blocker:Query(query_link)
             
-        if (data) then
-            local ip_lookup = json:decode(data)
+        if (JsonData) then
+            local ip_lookup = json:decode(JsonData)
             if (ip_lookup.success) then
                 local connected = function()
                     cprint("VPN Blocker -> Running Ip Lookup ^ Please wait...", 4+8)
