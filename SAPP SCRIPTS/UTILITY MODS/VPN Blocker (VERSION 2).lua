@@ -121,6 +121,9 @@ local vpn_blocker = {
         -- This setting is used for time-sensitive lookups that require a faster response time. 
         -- Accuracy is slightly degraded with the "fast" approach, but not significantly noticeable.
         fast = false,
+        
+        -- You can optionally specify that this lookup should be treated as a mobile device.
+        mobile = false,
     },
     
     exclusion_list = {
@@ -160,7 +163,6 @@ function OnPreJoin(p)
         end
         
         local JsonData = vpn_blocker:Query(query_link)
-            
         if (JsonData) then
             local ip_lookup = json:decode(JsonData)
             if (ip_lookup.success) then
