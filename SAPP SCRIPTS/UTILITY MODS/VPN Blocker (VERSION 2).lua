@@ -12,8 +12,8 @@ Description: VPN Blocker will detect whether an IP Address is a Proxy, Tor, or V
              if the user is hiding behind a spoofed or anonymized IP, tunneled connection, 
              botnet, or attempting to frequently change their device.
  
-             Private VPNs can be detected, but it might pay to upgrade your IP Quality Score account,
-             but this is at your own expense, obviously. I provide the tool to connect to their API but it's up to 
+             Private VPNs can be detected, but it might pay to upgrade your IP Quality Score account.
+             This is at your own expense, obviously. I provide the tool to connect to the API but it's up to 
              the end user to decide what account type they register with. The Free account is pretty good in general.
 
 I M P O R T A N T
@@ -108,7 +108,7 @@ local vpn_blocker = {
         -- How in depth (strict) do you want this query to be? 
         -- Higher values take longer to process and may provide a higher false-positive rate. 
         -- It is recommended to start at "0", the lowest strictness setting, and increasing to "1" or "2" depending on your needs.
-        strictness = 0,
+        strictness = 1,
         
         -- Bypasses certain checks for IP addresses from education and research institutions, schools, and some corporate connections 
         -- to better accommodate audiences that frequently use public connections.
@@ -152,20 +152,22 @@ function OnPreJoin(p)
         local key = gsub(site, "api_key", vpn_blocker.api_key)
         
         local query_link = tostring(key .. player.ip .. "?")
-        local count = 0
+        local i_iteration = 0
         for k,v in pairs(vpn_blocker.parameters) do
-            if (count == 0) then
+            if (i_iteration == 0) then
                 query_link = query_link ..k.."="..tostring(v)
             else
                 query_link = query_link .."&"..k.."="..tostring(v)
             end
-            count = count + 1
+            i_iteration = i_iteration + 1
         end
         
         local JsonData = vpn_blocker:Query(query_link)
         if (JsonData) then
+            
             local ip_lookup = json:decode(JsonData)
             if (ip_lookup.success) then
+                
                 local connected = function()
                     cprint("VPN Blocker -> Running Ip Lookup ^ Please wait...", 4+8)
                     for k,v in pairs(vpn_blocker.checks) do
