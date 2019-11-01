@@ -8,13 +8,15 @@ Description: VPN Blocker will detect whether an IP Address is a Proxy, Tor, or V
              The Fraud Score is a probability of malicious intent based on Machine Learning 
              and Data Analysis systems that are run by IP Quality Score.
 
-             For each IP lookup, an IP address and other forensic factors of the connection are analysed to determine 
-             if the user is hiding behind a spoofed or anonymized IP, tunneled connection, 
-             botnet, or attempting to frequently change their device.
- 
+             For each IP lookup, an IP address and other forensic factors of the connection are analysed to 
+             determine if the user is hiding behind a spoofed or anonymized IP, tunnelled connection, a botnet, 
+             or attempting to frequently change their device.
+
              Private VPNs can be detected, but it might pay to upgrade your IP Quality Score account.
-             This is at your own expense, obviously. I provide the tool to connect to the API but it's up to 
-             the end user to decide what account type they register with. The Free account is pretty good in general.
+             This is at your own expense, obviously. 
+             I provide the tool to connect to the API but it's up to the end-user to decide what account type they register with. 
+             The Free account is pretty good in general.
+
 
 I M P O R T A N T
 -----------------
