@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: VPN Blocker (VERSION 2), for SAPP (PC & CE)
+Script Name: VPN Blocker (v 1.0), for SAPP (PC & CE)
 
 Description: VPN Blocker will detect whether an IP Address is a Proxy, Tor, or VPN Connection
              and retrieve an overall Fraud Score that provides accurate risk analysis. 
@@ -56,7 +56,7 @@ local vpn_blocker = {
     
     -- I recommend reading the API Documentation before changing any settings:
     -- https://www.ipqualityscore.com/documentation/proxy-detection/overview
-    
+
     
     -- Paste your API KEY here (from the above link)
     api_key = "API_KEY", 
