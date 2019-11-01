@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: VPN Blocker (VERSION 1), for SAPP (PC & CE)
+Script Name: VPN Blocker (alternate version 1), for SAPP (PC & CE)
 
 1). This mod requires that the following plugin is installed to your server:
 https://opencarnage.net/index.php?/topic/5998-sapp-http-client/
