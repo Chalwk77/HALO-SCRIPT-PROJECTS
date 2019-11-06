@@ -19,10 +19,10 @@ api_version = "1.11.0.0"
 
 
 -- config starts -- 
--- Server will check if the player has moved beyond (max_distance) every (max_camp_time) seconds
+-- Script will check if the player has moved beyond (max_distance) every (max_camp_time) seconds
 local max_camp_time = 30 
 
--- Distance (in world units) the player must travel every (max_camp_time) seconds
+-- Distance (in world units) the player must travel before (max_camp_time) seconds elapses
 local max_distance = 10
 
 -- Player will receive a warning message after (max_camp_time/2) seconds
