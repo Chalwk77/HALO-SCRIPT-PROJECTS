@@ -1,7 +1,14 @@
 --[[
 --=====================================================================================================--
 Script Name: Anti-Camp (type 1, v1.0), for SAPP (PC & CE)
-Description: N/A
+
+- Description -
+Player enters Anti-Camp Zone.
+A warning message appears with a countdown from X seconds.
+If the player doesn't leave that area before the countdown has elapsed it will teleport them to another location.
+
+The x,y,z coordinates for each anti-camp zone and teleport locations can be configured along with customizable messages. 
+The countdown duration can be customized on a per-location basis as well as the radius (in world units) in which it is triggered.
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
