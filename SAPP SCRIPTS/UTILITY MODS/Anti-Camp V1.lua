@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Anti-Camp (type 1, v1.0), for SAPP (PC & CE)
+Script Name: Anti-Camp V1 (v1.0), for SAPP (PC & CE)
 
 - Description -
 Player enters Anti-Camp Zone.
