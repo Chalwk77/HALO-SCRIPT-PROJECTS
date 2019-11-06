@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Anti-Camp (type 1, v1.0), for SAPP (PC & CE)
+Script Name: Anti-Camp (type 2, v1.0), for SAPP (PC & CE)
 Description: N/A
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
