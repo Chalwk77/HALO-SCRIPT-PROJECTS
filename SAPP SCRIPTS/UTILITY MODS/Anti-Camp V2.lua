@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Anti-Camp (type 2, v1.0), for SAPP (PC & CE)
+Script Name: Anti-Camp V2 (v1.0), for SAPP (PC & CE)
 
 - Description -
 Checks if a player is camping anywhere at any time regardless of map or game type.
