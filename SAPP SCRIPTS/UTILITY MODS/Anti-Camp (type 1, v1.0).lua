@@ -119,8 +119,6 @@ function OnTick()
                             cls(i, 25)
                             rprint(i, gsub(gsub(on_camp, "%%seconds%%", time_remaining), "%%s%%", char))
                         elseif (time_remaining <= 0) and (player.warned) then
-                            player.warned = false
-                            player.camp_time = 0
                             killPlayer(i)
                             cls(i, 25)
                             say(i, on_kill[1])
@@ -128,8 +126,6 @@ function OnTick()
                             broadcast(msg, i)
                         end
                     end
-                else
-                    print('cannot check ' .. i)
                 end
             end
         end
