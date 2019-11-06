@@ -17,6 +17,8 @@ api_version = "1.11.0.0"
 -- config starts -- 
 local max_distance = 80
 local total_camp_time = 30
+local on_camp = "Anti-Camp: You have %seconds% second%s% to out of the area!"
+local on_kill "%name% was killed for camping"
 -- config ends --
 
 -- Do Not Touch:
@@ -27,7 +29,7 @@ local gamestarted, delta_time = 0.03333333333333333
 
 function OnScriptLoad()
 
-    register_callback(cb['EVENT_TICK'], "OnTick")
+    register_*callback(cb['EVENT_TICK'], "OnTick")
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
@@ -75,8 +77,8 @@ function OnTick()
                     local oldX,oldY,oldZ = coords.x,coords.y,coords.z
                     
                     player.timer = player.timer + delta_time
-                    local delay = (1 - floor(player.timer % 60))
-                    if (delay <= 0) then
+                    local check_delay = (1 - floor(player.timer % 60))
+                    if (check_delay <= 0) then
                         player.timer = 0
                     
                         local coords = getXYZ(i, player_object)
@@ -90,11 +92,10 @@ function OnTick()
                         end
                         
                         local time_remaining = (total_camp_time - floor(player.stationary_time % 60))
-                        if (time_remaining == (time_remaining/2) and (not player.warned)) then
+                        if (time_remaining == (total_camp_time/2) and (not player.warned)) then
                             cprint("You have 10 seconds to move")
                             player.warned = true
-                        end
-                        if (time_remaining <= 0) and (warned) then
+                        elseif (time_remaining <= 0) and (warned) then
                             cprint('kicking player')
                             player.warned = false
                         end
