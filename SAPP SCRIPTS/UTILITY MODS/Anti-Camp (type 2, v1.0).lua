@@ -1,7 +1,11 @@
 --[[
 --=====================================================================================================--
 Script Name: Anti-Camp (type 2, v1.0), for SAPP (PC & CE)
-Description: N/A
+
+- Description -
+Checks if a player is camping anywhere at any time regardless of map or game type.
+Kills the player if they haven't moved beyond (max_distance) every (max_camp_time) seconds.
+Broadcasts two custom messages afterwards.
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
