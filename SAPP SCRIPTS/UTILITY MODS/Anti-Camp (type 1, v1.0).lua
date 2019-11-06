@@ -113,7 +113,7 @@ function OnTick()
                         end
                         
                         local time_remaining = (max_camp_time - floor(player.camp_time % 60))
-                        if (time_remaining <= (max_camp_time/2) and time_remaining > 0) then
+                        if (time_remaining > 0 and time_remaining <= (max_camp_time/2)) then
                             player.warned = true
                             local char = getChar(time_remaining)
                             cls(i, 25)
@@ -157,15 +157,10 @@ function getXYZ(PlayerIndex, PlayerObject)
     if player_alive(PlayerIndex) then
         local VehicleID = read_dword(PlayerObject + 0x11C)
         if (VehicleID == 0xFFFFFFFF) then
-            coords.invehicle = false
             x, y, z = read_vector3d(PlayerObject + 0x5c)
         else
             coords.invehicle = true
             x, y, z = read_vector3d(get_object_memory(VehicleID) + 0x5c)
-        end
-
-        if (coords.invehicle) then
-            z = z + 1
         end
         coords.x, coords.y, coords.z = x, y, z
     end
