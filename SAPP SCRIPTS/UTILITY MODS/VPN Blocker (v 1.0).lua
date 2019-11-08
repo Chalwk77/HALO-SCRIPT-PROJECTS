@@ -50,7 +50,6 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]] --
 
 api_version = "1.12.0.0"
-
 local vpn_blocker = { 
     --====================================== --
     -- Configuration [STARTS]
@@ -59,7 +58,6 @@ local vpn_blocker = {
     -- I recommend reading the API Documentation before changing any settings:
     -- https://www.ipqualityscore.com/documentation/proxy-detection/overview
 
-    
     -- Paste your API KEY here (from the above link)
     api_key = "API_KEY", 
     
