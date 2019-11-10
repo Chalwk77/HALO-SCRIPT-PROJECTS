@@ -24,7 +24,7 @@ local kill_threshold = 15    -- Player must have >= this many kills to take thei
 -- Players will be warned to slow down if they have (>= kill_threshold/2) kills.
 local warning_message = "Please slow down! You are killing excessively!"
 
-local on_assign = "Your inventory was modified for excessive killing (cooldown %seconds% seconds)"
+local on_punish = "Your inventory was modified for excessive killing (cooldown %seconds% seconds)"
 local weapon_tag = "weapons\\plasma pistol\\plasma pistol"
 -- Configuration Ends --
 
@@ -115,15 +115,13 @@ function OnTick()
                         InitPlayer(i, true)
 
                         cls(i, 25)
-                        rprint(i, gsub(on_assign, "%%seconds%%", cooldown_period))
+                        rprint(i, gsub(on_punish, "%%seconds%%", cooldown_period))
 
                         if hasFlag(i, player_object) then
                             drop_weapon(i)
-                            execute_command("w8 2;wdel " .. i)
-                        else
-                            execute_command("wdel " .. i)
                         end
 
+                        execute_command("wdel " .. i)
                         local weapon = spawn_object("weap", weapon_tag, coords.x, coords.y, coords.z)
                         assign_weapon(weapon, i)
                     end
