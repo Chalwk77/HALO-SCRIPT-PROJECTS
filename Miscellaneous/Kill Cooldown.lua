@@ -1,7 +1,8 @@
 --[[
 --=====================================================================================================--
 Script Name: Kill Cooldown (BlAcK 2316), for SAPP (PC & CE)
-Description: N/A
+Description: If a player gets "kill_threshold" kills within "cooldown_period", 
+             their inventory will be replaced with a plasma pistol.
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -19,21 +20,18 @@ local players, game_over = {}
 local cooldown_period = 30   -- In seconds
 local kill_threshold = 30    -- Player must have >= this many kills to take their weapons away.
 
+-- Players will be warned to slow down if they have (>= kill_threshold/2) kills.
 local warning_message = "Please slow down! You are killing excessively!"
 local on_assign = "Your inventory was modified for excessive killing (cooldown %seconds% seconds)"
-
 local weapon_tag = "weapons\\plasma pistol\\plasma pistol"
 -- Configuration Ends --
 
 
 -- # Do Not Touch # --
-
 -- Variables for String Library:
 local gsub = string.gsub
-
 -- Variables for Math Library:
 local floor = math.floor
-
 -- Game Variabes:
 local delta_time = 0.03333333333333333
 
@@ -74,7 +72,9 @@ function OnPlayerKill(VictimIndex, KillerIndex)
             for i, player in pairs(players) do
                 if (i == killer) then
                     player.kills = player.kills + 1
-                    player.warn = true
+                    if (player.kills >= kill_threshold/2) then
+                        player.warn = true
+                    end
                     if (not player.init_timer) then
                        player.init_timer = true
                     end
