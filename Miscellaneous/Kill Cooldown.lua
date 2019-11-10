@@ -69,19 +69,17 @@ function OnPlayerKill(VictimIndex, KillerIndex)
         local killer = tonumber(KillerIndex)
         local victim = tonumber(VictimIndex)
 
-        if (killer > 0) then
-            for i, player in pairs(players) do
-                if (i == killer) then
-                    player.kills = player.kills + 1
-                    if (player.kills >= kill_threshold / 2) then
-                        player.warn = true
-                    end
-                    if (not player.init_timer) then
-                        player.init_timer = true
-                    end
-                elseif (i == victim) then
-                    InitPlayer(i, true)
+        for i, player in pairs(players) do
+            if (i == killer) then
+                player.kills = player.kills + 1
+                if (player.kills >= kill_threshold / 2) then
+                    player.warn = true
                 end
+                if (not player.init_timer) then
+                    player.init_timer = true
+                end
+            elseif (i == victim) then
+                InitPlayer(i, true)
             end
         end
     end
