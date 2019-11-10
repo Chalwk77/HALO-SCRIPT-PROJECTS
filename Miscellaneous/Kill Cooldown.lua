@@ -43,7 +43,7 @@ function OnScriptLoad()
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     if get_var(0, "$gt") ~= "n/a" then
         game_over, players = false, {}
-        for i = 1,16 do
+        for i = 1, 16 do
             if player_present(i) then
                 InitPlayer(i, true)
             end
@@ -63,20 +63,19 @@ end
 
 function OnPlayerKill(VictimIndex, KillerIndex)
     if (not game_over) then
-        
+
         local killer = tonumber(KillerIndex)
         local victim = tonumber(VictimIndex)
-    
-    
+
         if (killer > 0) then
             for i, player in pairs(players) do
                 if (i == killer) then
                     player.kills = player.kills + 1
-                    if (player.kills >= kill_threshold/2) then
+                    if (player.kills >= kill_threshold / 2) then
                         player.warn = true
                     end
                     if (not player.init_timer) then
-                       player.init_timer = true
+                        player.init_timer = true
                     end
                 elseif (i == victim) then
                     InitPlayer(i, true)
@@ -91,7 +90,7 @@ function OnTick()
         if (player) and player_present(i) then
             local player_object = get_dynamic_player(i)
             if (player_object ~= 0) then
-            
+
                 if (player.init_timer) then
                     player.timer = player.timer + delta_time
                     local cooldown = cooldown_period - floor(player.timer % 60)
@@ -102,26 +101,26 @@ function OnTick()
                                 cls(i, 25)
                                 rprint(i, warning_message)
                             end
-                        else                            
+                        else
                             player.assign = true
                         end
                     elseif (cooldown <= 0) then
                         InitPlayer(i, true)
                     end
                 end
-                
+
                 if (player.assign) then
                     local coords = getXYZ(i, player_object)
                     if (not coords.invehicle) then
                         InitPlayer(i, true)
-                        
+
                         cls(i, 25)
                         rprint(i, gsub(on_assign, "%%seconds%%", cooldown_period))
 
-                        if hasFlag(i) then
+                        if hasFlag(i, player_object) then
                             drop_weapon(i)
                             execute_command("w8 2;wdel " .. i)
-                        else                            
+                        else
                             execute_command("wdel " .. i)
                         end
 
@@ -134,26 +133,6 @@ function OnTick()
     end
 end
 
-function hasFlag(PlayerIndex)
-    local player_object = get_dynamic_player(PlayerIndex)
-    if player_alive(PlayerIndex) then    
-        for i = 0, 3 do
-            local weapon_id = read_dword(player_object + 0x2F8 + 0x4 * i)
-            if (weapon_id ~= 0xFFFFFFFF) then
-                local weap_object = get_object_memory(weapon_id)
-                if (weap_object ~= 0) then
-                    local tag_address = read_word(weap_object)
-                    local tagdata = read_dword(read_dword(0x40440000) + tag_address * 0x20 + 0x14)
-                    if (read_bit(tagdata + 0x308, 3) == 1) then
-                        return true
-                    end
-                end
-            end
-        end
-    end
-    return false
-end
-
 function OnPlayerConnect(PlayerIndex)
     InitPlayer(PlayerIndex, true)
 end
@@ -163,10 +142,10 @@ function OnPlayerDisconnect(PlayerIndex)
 end
 
 function InitPlayer(PlayerIndex, Init)
-    if (Init) then    
+    if (Init) then
         players[PlayerIndex] = {
             init_timer = false,
-            assign = false, 
+            assign = false,
             warn = false,
             kills = 0,
             timer = 0,
@@ -194,6 +173,25 @@ function getXYZ(PlayerIndex, PlayerObject)
         coords.x, coords.y, coords.z = x, y, z
     end
     return coords
+end
+
+function hasFlag(PlayerIndex, PlayerObject)
+    if player_alive(PlayerIndex) then
+        for i = 0, 3 do
+            local weapon_id = read_dword(PlayerObject + 0x2F8 + 0x4 * i)
+            if (weapon_id ~= 0xFFFFFFFF) then
+                local weap_object = get_object_memory(weapon_id)
+                if (weap_object ~= 0) then
+                    local tag_address = read_word(weap_object)
+                    local tagdata = read_dword(read_dword(0x40440000) + tag_address * 0x20 + 0x14)
+                    if (read_bit(tagdata + 0x308, 3) == 1) then
+                        return true
+                    end
+                end
+            end
+        end
+    end
+    return false
 end
 
 function cls(PlayerIndex, count)
