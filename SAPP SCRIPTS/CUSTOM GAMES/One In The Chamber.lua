@@ -107,7 +107,7 @@ function OnTick()
                 else
                     mod:cls(i, 25)
                     local ammo = mod:GetAmmo(i, "loaded")
-                    rprint(i, gsub(player.hud_msg, "%%count%%", ammo))
+                    rprint(i, gsub(mod.hud_message, "%%count%%", ammo))
                 end
             end
         end
@@ -162,14 +162,11 @@ function mod:SetAmmo(PlayerIndex, Type, Amount)
     if (player_object ~= 0) then
         local WeaponID = read_dword(player_object + 0x118)
         if (WeaponID ~= 0) then
-            local players = mod.players
             for w = 1, 4 do
                 if (Type == "unloaded") then
                     execute_command("ammo " .. PlayerIndex .. " " ..Amount .. " " .. w)
-                    players[tonumber(PlayerIndex)].unloaded = Amount
                 elseif (Type == "loaded") then
                     execute_command("mag " .. PlayerIndex .. " " ..Amount .. " " .. w)
-                    players[tonumber(PlayerIndex)].loaded = Amount
                 end
             end
         end
@@ -179,10 +176,9 @@ end
 function OnPlayerSpawn(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
     if (player_object ~= 0) then
-        local players = mod.players
         write_byte(player_object + 0x31E, mod.starting_frags)
         write_byte(player_object + 0x31F, mod.starting_plasmas)
-        players[PlayerIndex].assign = true
+        mod.players[PlayerIndex].assign = true
     end
 end
 
@@ -194,16 +190,10 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
     end
 end
 function mod:InitPlayer(PlayerIndex, Init)
-    local players = mod.players
     if (Init) then
-        players[PlayerIndex] = {
-            assign = false,
-            loaded = mod.starting_primary_ammo,
-            unloaded = mod.starting_secondary_ammo,
-            hud_msg = mod.hud_message,
-        }
+        mod.players[PlayerIndex] = {assign = false}
     else
-        players[PlayerIndex] = nil
+        mod.players[PlayerIndex] = nil
     end
 end
 
