@@ -24,6 +24,7 @@ function mod:Init()
     mod.starting_primary_ammo = 1
     mod.starting_secondary_ammo = 0
     mod.ammo_per_kill = 1
+    mod.bonus_ammo = 1
 
     mod.starting_frags = 0
     mod.starting_plasmas = 0
@@ -130,7 +131,7 @@ function OnPlayerKill(VictimIndex, KillerIndex)
 
         for i, _ in pairs(mod.players) do
             if (i == killer) then
-                local ammo = mod:GetAmmo(i, "loaded") + (mod.ammo_per_kill + 1)
+                local ammo = mod:GetAmmo(i, "loaded") + (mod.ammo_per_kill + mod.bonus_ammo)
                 mod:SetAmmo(i, "loaded", ammo)
             elseif (i == victim) then
                 mod:InitPlayer(i, true)
