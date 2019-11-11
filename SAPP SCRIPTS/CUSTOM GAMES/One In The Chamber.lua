@@ -19,21 +19,21 @@ api_version = "1.12.0.0"
 
 local mod = {}
 function mod:Init()
-    
+
     -- Configuration Starts --
     mod.starting_primary_ammo = 1
     mod.starting_secondary_ammo = 0
     mod.ammo_per_kill = 1
-    
+
     mod.starting_frags = 0
     mod.starting_plasmas = 0
-    
+
     mod.weapon = "weapons\\pistol\\pistol"
     mod.bullet_damage_multiplier = 10
     mod.hud_message = "Bullets: %count%"
-    
+
     -- Configuration Ends --
-    
+
     -- # Do Not Touch # --
     mod.players = {}
     mod.game_over = false
@@ -54,7 +54,7 @@ function OnScriptLoad()
 
     -- Disable all vehicles
     execute_command("disable_all_vehicles 0 1")
-    
+
     -- Disable weapon pick ups:
     execute_command("disable_object 'weapons\\assault rifle\\assault rifle'")
     execute_command("disable_object 'weapons\\flamethrower\\flamethrower'")
@@ -66,13 +66,13 @@ function OnScriptLoad()
     execute_command("disable_object 'weapons\\rocket launcher\\rocket launcher'")
     execute_command("disable_object 'weapons\\shotgun\\shotgun'")
     execute_command("disable_object 'weapons\\sniper rifle\\sniper rifle'")
-    
+
     -- Disable grenade pick ups:
     execute_command("disable_object 'weapons\\frag grenade\\frag grenade'")
     execute_command("disable_object 'weapons\\plasma grenade\\plasma grenade'")
     if (get_var(0, "$gt") ~= "n/a") then
         mod:Init()
-        for i = 1,16 do
+        for i = 1, 16 do
             if player_present(i) then
                 mod:InitPlayer(i, true)
             end
@@ -128,7 +128,7 @@ function OnPlayerKill(VictimIndex, KillerIndex)
         local killer = tonumber(KillerIndex)
         local victim = tonumber(VictimIndex)
 
-        for i, player in pairs(mod.players) do
+        for i, _ in pairs(mod.players) do
             if (i == killer) then
                 local ammo = mod:GetAmmo(i, "loaded") + (mod.ammo_per_kill + 1)
                 mod:SetAmmo(i, "loaded", ammo)
@@ -164,9 +164,9 @@ function mod:SetAmmo(PlayerIndex, Type, Amount)
         if (WeaponID ~= 0) then
             for w = 1, 4 do
                 if (Type == "unloaded") then
-                    execute_command("ammo " .. PlayerIndex .. " " ..Amount .. " " .. w)
+                    execute_command("ammo " .. PlayerIndex .. " " .. Amount .. " " .. w)
                 elseif (Type == "loaded") then
-                    execute_command("mag " .. PlayerIndex .. " " ..Amount .. " " .. w)
+                    execute_command("mag " .. PlayerIndex .. " " .. Amount .. " " .. w)
                 end
             end
         end
@@ -191,22 +191,22 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
 end
 function mod:InitPlayer(PlayerIndex, Init)
     if (Init) then
-        mod.players[PlayerIndex] = {assign = false}
+        mod.players[PlayerIndex] = { assign = false }
     else
         mod.players[PlayerIndex] = nil
     end
 end
 
 function mod:getXYZ(PlayerIndex, PlayerObject)
-    local coords, x,y,z = { }
-    
+    local coords, x, y, z = { }
+
     local VehicleID = read_dword(PlayerObject + 0x11C)
     if (VehicleID == 0xFFFFFFFF) then
         coords.invehicle = false
         x, y, z = read_vector3d(PlayerObject + 0x5c)
     else
         coords.invehicle = true
-        x, y, z  = read_vector3d(get_object_memory(VehicleID) + 0x5c)
+        x, y, z = read_vector3d(get_object_memory(VehicleID) + 0x5c)
     end
     coords.x, coords.y, coords.z = x, y, z
     return coords
@@ -224,7 +224,8 @@ function GetTag(obj_type, obj_name)
     return tag ~= 0 and read_dword(tag + 0xC) or nil
 end
 
-
 function OnScriptUnload()
     --
 end
+
+return mod
