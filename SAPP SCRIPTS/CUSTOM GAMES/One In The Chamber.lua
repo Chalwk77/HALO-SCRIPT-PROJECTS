@@ -17,30 +17,19 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.12.0.0"
 
-local mod = {}
-function mod:Init()
+-- Configuration Starts --
+local starting_primary_ammo = 1
+local starting_secondary_ammo = 0
+local ammo_per_kill = 1
+local starting_frags = 0
+local starting_plasmas = 0
+local weapon = "weapons\\pistol\\pistol"
+local bullet_damage_multiplier = 10
+local hud_message = "Bullets: %count%"
+-- Configuration Ends --
 
-    -- Configuration Starts --
-    mod.starting_primary_ammo = 1
-    mod.starting_secondary_ammo = 0
-    mod.ammo_per_kill = 1
-    mod.bonus_ammo = 1
-
-    mod.starting_frags = 0
-    mod.starting_plasmas = 0
-
-    mod.weapon = "weapons\\pistol\\pistol"
-    mod.bullet_damage_multiplier = 10
-    mod.hud_message = "Bullets: %count%"
-
-    -- Configuration Ends --
-
-    -- # Do Not Touch # --
-    mod.players = {}
-    mod.game_over = false
-end
-
--- Variables for String Library
+-- # Do Not Touch # --
+local players, game_over = {}, false
 local gsub = string.gsub
 
 function OnScriptLoad()
@@ -72,10 +61,10 @@ function OnScriptLoad()
     execute_command("disable_object 'weapons\\frag grenade\\frag grenade'")
     execute_command("disable_object 'weapons\\plasma grenade\\plasma grenade'")
     if (get_var(0, "$gt") ~= "n/a") then
-        mod:Init()
+        players = {}
         for i = 1, 16 do
             if player_present(i) then
-                mod:InitPlayer(i, true)
+                InitPlayer(i, true)
             end
         end
     end
@@ -83,32 +72,32 @@ end
 
 function OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
-        mod:Init()
+        players = {}
     end
 end
 
 function OnGameEnd()
-    mod.game_over = true
+    game_over = true
 end
 
 function OnTick()
-    if (not mod.game_over) then
-        for i, player in pairs(mod.players) do
+    if (not game_over) then
+        for i, player in pairs(players) do
             if player_present(i) and player_alive(i) then
                 if (player.assign) then
                     local player_object = get_dynamic_player(i)
-                    local coords = mod:getXYZ(i, player_object)
+                    local coords = getXYZ(i, player_object)
                     if (not coords.invehicle) then
                         player.assign = false
                         execute_command("wdel " .. i)
-                        assign_weapon(spawn_object("weap", mod.weapon, coords.x, coords.y, coords.z), i)
-                        mod:SetAmmo(i, "loaded", mod.starting_primary_ammo)
-                        mod:SetAmmo(i, "unloaded", mod.starting_secondary_ammo)
+                        assign_weapon(spawn_object("weap", weapon, coords.x, coords.y, coords.z), i)
+                        SetAmmo(i, "loaded", starting_primary_ammo)
+                        SetAmmo(i, "unloaded", starting_secondary_ammo)
                     end
                 else
-                    mod:cls(i, 25)
-                    local ammo = mod:GetAmmo(i, "loaded")
-                    rprint(i, gsub(mod.hud_message, "%%count%%", ammo))
+                    cls(i, 25)
+                    local ammo = GetAmmo(i, "loaded")
+                    rprint(i, gsub(hud_message, "%%count%%", ammo))
                 end
             end
         end
@@ -116,31 +105,31 @@ function OnTick()
 end
 
 function OnPlayerConnect(PlayerIndex)
-    mod:InitPlayer(PlayerIndex, true)
+    InitPlayer(PlayerIndex, true)
 end
 
 function OnPlayerDisconnect(PlayerIndex)
-    mod:InitPlayer(PlayerIndex, false)
+    InitPlayer(PlayerIndex, false)
 end
 
 function OnPlayerKill(VictimIndex, KillerIndex)
-    if (not mod.game_over) then
+    if (not game_over) then
 
         local killer = tonumber(KillerIndex)
         local victim = tonumber(VictimIndex)
 
-        for i, _ in pairs(mod.players) do
+        for i, _ in pairs(players) do
             if (i == killer) then
-                local ammo = mod:GetAmmo(i, "loaded") + (mod.ammo_per_kill + mod.bonus_ammo)
-                mod:SetAmmo(i, "loaded", ammo)
+                local ammo = GetAmmo(i, "loaded") + (ammo_per_kill)
+                SetAmmo(i, "loaded", ammo)
             elseif (i == victim) then
-                mod:InitPlayer(i, true)
+                InitPlayer(i, true)
             end
         end
     end
 end
 
-function mod:GetAmmo(PlayerIndex, Type)
+function GetAmmo(PlayerIndex, Type)
     local player_object = get_dynamic_player(PlayerIndex)
     if (player_object ~= 0) then
         local WeaponID = read_dword(player_object + 0x118)
@@ -158,7 +147,7 @@ function mod:GetAmmo(PlayerIndex, Type)
     return 0
 end
 
-function mod:SetAmmo(PlayerIndex, Type, Amount)
+function SetAmmo(PlayerIndex, Type, Amount)
     local player_object = get_dynamic_player(PlayerIndex)
     if (player_object ~= 0) then
         local WeaponID = read_dword(player_object + 0x118)
@@ -177,28 +166,29 @@ end
 function OnPlayerSpawn(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
     if (player_object ~= 0) then
-        write_byte(player_object + 0x31E, mod.starting_frags)
-        write_byte(player_object + 0x31F, mod.starting_plasmas)
-        mod.players[PlayerIndex].assign = true
+        write_byte(player_object + 0x31E, starting_frags)
+        write_byte(player_object + 0x31F, starting_plasmas)
+        players[PlayerIndex].assign = true
     end
 end
 
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
     if (tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex) then
         if (MetaID == GetTag("jpt!", "weapons\\pistol\\bullet")) then
-            return true, Damage * mod.bullet_damage_multiplier
+            return true, Damage * bullet_damage_multiplier
         end
     end
 end
-function mod:InitPlayer(PlayerIndex, Init)
+
+function InitPlayer(PlayerIndex, Init)
     if (Init) then
-        mod.players[PlayerIndex] = { assign = false }
+        players[PlayerIndex] = { assign = false }
     else
-        mod.players[PlayerIndex] = nil
+        players[PlayerIndex] = nil
     end
 end
 
-function mod:getXYZ(PlayerIndex, PlayerObject)
+function getXYZ(PlayerIndex, PlayerObject)
     local coords, x, y, z = { }
 
     local VehicleID = read_dword(PlayerObject + 0x11C)
@@ -213,7 +203,7 @@ function mod:getXYZ(PlayerIndex, PlayerObject)
     return coords
 end
 
-function mod:cls(PlayerIndex, Count)
+function cls(PlayerIndex, Count)
     Count = Count or 25
     for _ = 1, Count do
         rprint(PlayerIndex, " ")
@@ -228,5 +218,3 @@ end
 function OnScriptUnload()
     --
 end
-
-return mod
