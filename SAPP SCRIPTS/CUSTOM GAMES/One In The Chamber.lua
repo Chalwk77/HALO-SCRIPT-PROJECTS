@@ -134,7 +134,7 @@ function OnScriptLoad()
         execute_command("disable_object 'weapons\\frag grenade\\frag grenade'")
         execute_command("disable_object 'weapons\\plasma grenade\\plasma grenade'")
     end
-    
+
     if (get_var(0, "$gt") ~= "n/a") then
         players = {}
         for i = 1, 16 do
@@ -219,26 +219,29 @@ function GetAmmo(PlayerIndex, Type)
 end
 
 function SetAmmo(PlayerIndex, Type, Amount)
-    for w = 1,4 do
+
+    for w = 1, 4 do
         if (Type == "unloaded") then
             execute_command("ammo " .. PlayerIndex .. " " .. Amount .. " " .. w)
         elseif (Type == "loaded") then
             execute_command("mag " .. PlayerIndex .. " " .. Amount .. " " .. w)
         end
     end
+
     cls(PlayerIndex, 25)
     local ammo = GetAmmo(PlayerIndex, "loaded")
     rprint(PlayerIndex, gsub(hud_message, "%%count%%", ammo))
+
 end
 
 function OnPlayerSpawn(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
     if (player_object ~= 0) then
+        players[PlayerIndex].assign = true
         if (remove_grenades_on_spawn) then
             write_byte(player_object + 0x31E, starting_frags)
             write_byte(player_object + 0x31F, starting_plasmas)
         end
-        players[PlayerIndex].assign = true
     end
 end
 
@@ -264,7 +267,7 @@ function InitPlayer(PlayerIndex, Init)
     end
 end
 
-function getXYZ(PlayerIndex, PlayerObject)
+function getXYZ(PlayerObject)
     local coords, x, y, z = { }
 
     local VehicleID = read_dword(PlayerObject + 0x11C)
