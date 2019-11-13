@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Anti-Camp V1 (v1.0), for SAPP (PC & CE)
+Script Name: Anti-Camp V1 (v1.1), for SAPP (PC & CE)
 
 - Description -
 Player enters Anti-Camp Zone.
@@ -22,6 +22,8 @@ api_version = "1.11.0.0"
 
 local mod, positions = {},{}
 function mod:init()
+
+    mod.team = "red" -- Valid Teams: "red", "blue" & "both"
 
     mod.messages = {
         on_enter = { -- to camper
@@ -161,41 +163,44 @@ function OnTick()
             if player_present(i) and (gamestarted) then
                 
                 if player_alive(i) then
-                    local player_object = get_dynamic_player(i)
-                    if (player_object ~= 0) then
-                        local coords = mod:getXYZ(i, player_object)
-                        local px,py,pz = coords.x,coords.y,coords.z
-                        local name = get_var(i, "$name")
-                        for k,v in pairs(positions) do
-                            
-                            -- CHECK IF PLAYER IS IN CAMP SITE:
-                            if inCampSite(px,py,pz, v[1], v[2], v[3], v[7]) then
-                                v.onsite[i] = true
-                                v.timer[i] = v.timer[i] + delta_time
+                    local team = get_var(i, "$team")
+                    if (team == mod.team or mod.team == "both") then
+                        local player_object = get_dynami c_player(i)
+                        if (player_object ~= 0) then
+                            local coords = mod:getXYZ(i, player_object)
+                            local px,py,pz = coords.x,coords.y,coords.z
+                            local name = get_var(i, "$name")
+                            for k,v in pairs(positions) do
                                 
-                                local timeRemaining = v[8] - floor(v.timer[i] % 60)
-                                mod:cls(i, 25)
-                                
-                                -- WARN PLAYER:
-                                local char = mod:getChar(timeRemaining)
-                                for j = 1,#messages.on_enter do
-                                    local msg = gsub(gsub(messages.on_enter[j], "%%seconds%%", timeRemaining), "%%s%%", char)
-                                    rprint(i, msg)
-                                end
-                                
-                                -- TELEPORT PLAYER
-                                if (timeRemaining <= 0) then
+                                -- CHECK IF PLAYER IS IN CAMP SITE:
+                                if inCampSite(px,py,pz, v[1], v[2], v[3], v[7]) then
+                                    v.onsite[i] = true
+                                    v.timer[i] = v.timer[i] + delta_time
+                                    
+                                    local timeRemaining = v[8] - floor(v.timer[i] % 60)
+                                    mod:cls(i, 25)
+                                    
+                                    -- WARN PLAYER:
+                                    local char = mod:getChar(timeRemaining)
+                                    for j = 1,#messages.on_enter do
+                                        local msg = gsub(gsub(messages.on_enter[j], "%%seconds%%", timeRemaining), "%%s%%", char)
+                                        rprint(i, msg)
+                                    end
+                                    
+                                    -- TELEPORT PLAYER
+                                    if (timeRemaining <= 0) then
+                                        mod:cls(i, 25)
+                                        v.onsite[i], v.timer[i] = false, 0 
+                                        write_vector3d(player_object + 0x5C, v[4], v[5], v[6])
+                                        say(i, messages.on_teleport[1])
+                                        local msg = gsub(messages.on_teleport[2], "%%name%%", name)
+                                        mod:broadcast(msg, i)
+                                    end
+                                    
+                                elseif (v.onsite[i]) then
                                     mod:cls(i, 25)
                                     v.onsite[i], v.timer[i] = false, 0 
-                                    write_vector3d(player_object + 0x5C, v[4], v[5], v[6])
-                                    say(i, messages.on_teleport[1])
-                                    local msg = gsub(messages.on_teleport[2], "%%name%%", name)
-                                    mod:broadcast(msg, i)
                                 end
-                                
-                            elseif (v.onsite[i]) then
-                                mod:cls(i, 25)
-                                v.onsite[i], v.timer[i] = false, 0 
                             end
                         end
                     end
