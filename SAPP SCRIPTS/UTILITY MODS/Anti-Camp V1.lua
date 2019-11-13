@@ -5,7 +5,7 @@ Script Name: Anti-Camp V1 (v1.1), for SAPP (PC & CE)
 - Description -
 Player enters Anti-Camp Zone.
 A warning message appears with a countdown from X seconds.
-If the player doesn't leave that area before the countdown has elapsed it will teleport them to another location.
+If the player doesn't leave that area before the countdown has elapsed it will teleport (or kill) them.
 
 The x,y,z coordinates for each anti-camp zone and teleport locations can be configured along with customizable messages. 
 The countdown duration can be customized on a per-location basis as well as the radius (in world units) in which it is triggered.
@@ -24,6 +24,7 @@ local mod, positions = {},{}
 function mod:init()
 
     mod.team = "red" -- Valid Teams: "red", "blue" & "both"
+    mod.action = "kill" -- Valid Actions: "teleport, kill"
 
     mod.messages = {
         on_enter = { -- to camper
@@ -33,65 +34,70 @@ function mod:init()
         on_teleport = {
             "You were teleported for camping.", -- to camper
             "%name% was teleported for camping.", -- to other players
+        },
+        on_kill = {
+            "You were killed for camping."
         }
     }
 
     positions = {
     
         -- Camp Site X,Y,Z | Teleport X,Y,Z | Trigger Radius | Duration
-    
+        -- Set teleport x,y,z coordinates are only required if "mod.action" is set to "teleport".
+        
+        
         ["beavercreek"] = { 
-            {15.360, 16.324, 5.059, 22.104, 16.398, -1.356, 5, 10},
+            {15.360, 16.324, 5.059, nil, nil, nil, 3, 10},
         },
         ["bloodgulch"] = { 
-            {0, 0, 0, 000, 000, 000, 3, 10},
+            {0, 0, 0, nil, nil, nil, 3, 10},
         },
         ["boardingaction"] = { 
-            {0, 0, 0, 000, 000, 000, 3, 10},
+            {0, 0, 0, nil, nil, nil, 3, 10},
         },
         ["carousel"] = { 
-            {0, 0, 0, 000, 000, 000, 3, 10},
+            {0, 0, 0, nil, nil, nil, 3, 10},
         },
         ["dangercanyon"] = { 
-            {0, 0, 0, 000, 000, 000, 3, 10},
+            {0, 0, 0, nil, nil, nil, 3, 10},
         },
         ["deathisland"] = { 
-            {0, 0, 0, 000, 000, 000, 3, 10},
+            {0, 0, 0, nil, nil, nil, 3, 10},
         },
         ["gephyrophobia"] = { 
-            {0, 0, 0, 000, 000, 000, 3, 10},
+            {0, 0, 0, nil, nil, nil, 3, 10},
         },
         ["icefields"] = { 
-            {0, 0, 0, 000, 000, 000, 3, 10},
+            {0, 0, 0, nil, nil, nil, 3, 10},
         },
         ["infinity"] = { 
-            {0, 0, 0, 000, 000, 000, 3, 10},
+            {0, 0, 0, nil, nil, nil, 3, 10},
         },
         ["sidewinder"] = { 
-            {0, 0, 0, 000, 000, 000, 3, 10},
+            {0, 0, 0, nil, nil, nil, 3, 10},
         },
         ["timberland"] = { 
-            {0.97, -1.18,-21.20, 21, 22, 23, 5, 10},
+            {0.97, -1.18,-21.20, nil, nil, nil, 3, 10},
         },
         ["hangemhigh"] = { 
-            {7.84, 2.02, -3.45, 16.16, 3.72, -7.95, 3, 10},
+            {7.84, 2.02, -3.45, nil, nil, nil, 3, 10},
         },
         ["ratrace"] = { 
-            {0, 0, 0, 000, 000, 000, 3, 10},
+            {0, 0, 0, nil, nil, nil, 3, 10},
         },
         ["damnation"] = { 
-            {-7.13, 12.93, 5.60, -11.12, 13.09, -0.40, 3, 10},
-            {-10.47, -13.62, 3.82, -7.23, -6.50, -0.20, 3, 10},
-            {-10.53, -9.80, 3.82, -7.23, -6.50, -0.20, 3, 10},
+            {-7.13, 12.93, 5.60, nil, nil, nil, 3, 10},
+            {-10.47, -13.62, 3.82, nil, nil, nil, 3, 10},
+            {-10.53, -9.80, 3.82, nil, nil, nil, 3, 10},
         },
         ["putput"] = { 
-            {0, 0, 0, 000, 000, 000, 3, 10},
+            {0, 0, 0, nil, nil, nil, 3, 10},
         },
         ["prisoner"] = { 
-            {0, 0, 0, 000, 000, 000, 3, 10},
+            {0, 0, 0, nil, nil, nil, 3, 10},
         },
         ["wizard"] = { 
-            {0, 0, 0, 000, 000, 000, 3, 10},
+            {0, 0, 0, nil, nil, nil, 3, 10},
         },
     }
     --# Do Not Touch #--
@@ -191,8 +197,17 @@ function OnTick()
                                     if (timeRemaining <= 0) then
                                         mod:cls(i, 25)
                                         v.onsite[i], v.timer[i] = false, 0 
-                                        write_vector3d(player_object + 0x5C, v[4], v[5], v[6])
-                                        say(i, messages.on_teleport[1])
+                                        if (mod.action == "teleport") then
+                                            write_vector3d(player_object + 0x5C, v[4], v[5], v[6])
+                                            say(i, messages.on_teleport[1])
+                                        elseif (mod.action == "kill") then
+                                            local player = get_player(i)
+                                            local OldValue = read_word(player + 0xD4)
+                                            write_word(player + 0xD4, 0xFFFF)
+                                            kill(i)
+                                            write_word(player + 0xD4, OldValue)
+                                            say(i, messages.on_kill[1])
+                                        end
                                         local msg = gsub(messages.on_teleport[2], "%%name%%", name)
                                         mod:broadcast(msg, i)
                                     end
