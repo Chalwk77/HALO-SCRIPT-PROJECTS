@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Zpocalypse (simplified v1.4), for SAPP (PC & CE)
+Script Name: Zpocalypse (simplified v1.5), for SAPP (PC & CE)
 Description: A custom Zombies Game designed for Team-Slayer game types.
 
 ### Game Play Mechanics:
@@ -39,7 +39,7 @@ function zombies:init()
         not_enough_players = "%current%/%required% players needed to start the game.",
 
         -- #This is a pre-game countdown initiated at the beginning of each game (in seconds):
-        game_start_delay = 3,
+        game_start_delay = 10,
 
         -- #Pre-Game message:
         pre_game_message = "Zpocalypse will begin in %time_remaining% second%s%",
@@ -74,9 +74,9 @@ function zombies:init()
         --
 
         -- Zombie Cured:
-        cure_threshold = 2, -- Number of consecutive kills to become human again
+        cure_threshold = 5, -- Number of consecutive kills to become human again
         zombie_cured = "%killer% was cured!",
-        zombie_weapon = weapon[11], -- oddball (see function mod:GetTag() on line 1210)
+        zombie_weapon = weapon[11], -- oddball (see function mod:GetTag() on line 1208)
 
         -- If this is true, the teams will be evenly balanced at the beginning of the game
         balance_teams = false,
@@ -130,7 +130,7 @@ function zombies:init()
                 -- If true, humans will be given up to 4 custom weapons:
                 use = true, -- Set to "false" to disable weapon assignments for all maps
 
-                -- Set the weapon index to the corresponding tag number (see function mod:GetTag() on line 1210)
+                -- Set the weapon index to the corresponding tag number (see function mod:GetTag() on line 1208)
 
                 -- To disable a slot, set it to nil:
                 -- Example: ["mymap"] = {weapon[1], nil, nil, nil},
@@ -383,7 +383,6 @@ function OnTick()
                 "%%s%%", char)
         if (timeRemaining <= 0) then
             zombies:disableKillMessages()
-
             zombies:StopTimer(countdown_index, false)
 
             if (parameters.balance_teams) then
@@ -443,9 +442,7 @@ function OnGameStart()
         elseif (parameters.balance_teams) then
             local function oddOrEven(Min, Max)
                 math.randomseed(os.time())
-                math.random();
-                math.random();
-                math.random();
+                math.random();math.random();math.random();
                 local num = math.random(Min, Max)
                 if (num) then
                     return num
@@ -735,10 +732,8 @@ function zombies:SwitchTeam(PlayerIndex, team, bool, GameStartCheck, AutoSort)
     
     local player = zombies:PlayerTable(PlayerIndex)
     
-    local NullCheck = nil
     local function InitPlayer()
         if (not player) then
-            NullCheck = true
             if (GameStartCheck) then
                 team = parameters.zombie_team
             end
@@ -752,6 +747,13 @@ function zombies:SwitchTeam(PlayerIndex, team, bool, GameStartCheck, AutoSort)
     
     local CurrentTeam = get_var(PlayerIndex, "$team")
     local sameteam = (CurrentTeam == team)
+    
+    if (team == parameters.zombie_team) then
+        local nozombie_index, nozombies = zombies:GetTimer("No Zombies")
+        if (nozombies.init) then
+            zombies:StopTimer(nozombie_index, false)
+        end
+    end
     
     if (AutoSort) then
 
@@ -1167,11 +1169,7 @@ function zombies:initPlayer(PlayerIndex, Team, Init)
                 name = get_var(PlayerIndex, "$name"),
             }
         else
-            for index, player in pairs(players) do
-                if (Index == PlayerIndex) then
-                    players[index] = nil
-                end
-            end
+            players[PlayerIndex] = nil
         end
     end
     return true
