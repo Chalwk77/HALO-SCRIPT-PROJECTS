@@ -43,7 +43,8 @@ function mod:init()
     positions = {
     
         -- Camp Site X,Y,Z | Teleport X,Y,Z | Trigger Radius | Duration
-        -- Set teleport x,y,z coordinates are only required if "mod.action" is set to "teleport".
+        
+        -- NOTE: Teleport x,y,z coordinates are only required if "mod.action" is set to "teleport".
         
         
         ["beavercreek"] = { 
