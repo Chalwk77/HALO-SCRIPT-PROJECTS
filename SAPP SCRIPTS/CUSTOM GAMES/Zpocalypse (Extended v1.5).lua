@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Zpocalypse (v1.4), for SAPP (PC & CE)
+Script Name: Zpocalypse (v1.5), for SAPP (PC & CE)
 Description: A custom Zombies Game designed for Team-Slayer game types.
 
 ### Game Play Mechanics:
@@ -91,7 +91,7 @@ function zombies:init()
         -- Zombie Cured:
         zombie_cured = "%killer% zombified %victim% and was cured!",
         zombie_cured_lastman = "%lastman% zombified %victim%, was cured and is the Last Human Alive!",
-        cure_threshold = 4, -- Number of consecutive kills to become human again
+        cure_threshold = 5, -- Number of consecutive kills to become human again
 
         -- No Zombies:
         no_zombies = "No Zombies! Switching random human in %time_remaining% second%s%",
