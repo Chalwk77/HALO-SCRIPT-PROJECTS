@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Zpocalypse (v1.5), for SAPP (PC & CE)
+Script Name: Zpocalypse (v1.6), for SAPP (PC & CE)
 Description: A custom Zombies Game designed for Team-Slayer game types.
 
 ### Game Play Mechanics:
@@ -271,7 +271,7 @@ local floor = math.floor
 local gamestarted
 local delta_time = 0.03333333333333333
 local kill_message_addresss, originl_kill_message
-local script_version = 1.5
+local script_version = 1.6
 
 function OnScriptLoad()
 
@@ -739,6 +739,11 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             SetName()
         end
         if (params) then
+            local player = zombies:PlayerTable(victim)
+            local isLastMan = (player.last_man ~= nil)
+            if (isLastMan) then
+                player.last_man = nil
+            end
             zombies:LastManCheck(params)
         end
         execute_command("wdel " .. victim)
