@@ -271,7 +271,7 @@ local floor = math.floor
 local gamestarted
 local delta_time = 0.03333333333333333
 local kill_message_addresss, originl_kill_message
-local script_version = 1.0
+local script_version = 1.5
 
 function OnScriptLoad()
 
