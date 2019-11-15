@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Anti-Camp V1 (v1.1), for SAPP (PC & CE)
+Script Name: Anti-Camp V1 (v1.2), for SAPP (PC & CE)
 
 - Description -
 Player enters Anti-Camp Zone.
@@ -23,7 +23,7 @@ api_version = "1.11.0.0"
 local mod, positions = {},{}
 function mod:init()
 
-    mod.team = "red" -- Valid Teams: "red", "blue" & "both"
+    mod.team = "both" -- Valid Teams: "red", "blue" & "both"
     mod.action = "kill" -- Valid Actions: "teleport, kill"
 
     mod.messages = {
@@ -98,7 +98,10 @@ function mod:init()
             {0, 0, 0, nil, nil, nil, 3, 10},
         },
         ["wizard"] = { 
-            {0, 0, 0, nil, nil, nil, 3, 10},
+            {-9.916, 9.950, 0.027, nil, nil, nil, 2, 10},
+            {-9.969, -9.956, 0.064, nil, nil, nil, 2, 10},
+            {9.915, -9.949, 0.025, nil, nil, nil, 2, 10},
+            {9.957, 9.964, 0.059, nil, nil, nil, 2, 10},
         },
     }
     --# Do Not Touch #--
@@ -172,7 +175,7 @@ function OnTick()
                 if player_alive(i) then
                     local team = get_var(i, "$team")
                     if (team == mod.team or mod.team == "both") then
-                        local player_object = get_dynami c_player(i)
+                        local player_object = get_dynamic_player(i)
                         if (player_object ~= 0) then
                             local coords = mod:getXYZ(i, player_object)
                             local px,py,pz = coords.x,coords.y,coords.z
