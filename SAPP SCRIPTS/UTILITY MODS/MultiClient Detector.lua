@@ -232,10 +232,10 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                             Respond(e, "Command Failed. Player #" .. target .. " is not online", 12)
                         end
                     else
-                        Respond(e, "Invalid Player. Please type a number between 1-16", 12)
+                        Respond(e, "Invalid Player. Please type a number between [1-16]", 12)
                     end
                 else
-                    Respond(e, "Invalid Syntax. Usage: /" .. query_command .. " [player id", 12)
+                    Respond(e, "Invalid Syntax. Usage: /" .. query_command .. " [player id]", 12)
                 end
             else
                 Respond(e, "Insufficient Permission", 12)
