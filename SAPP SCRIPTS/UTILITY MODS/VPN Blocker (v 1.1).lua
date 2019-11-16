@@ -62,8 +62,8 @@ local vpn_blocker = {
     api_key = "API_KEY", 
     
     -- If the player is using a VPN Connection, do this action:
-    -- k = kick, b = ban, c = crash
-    action = "c",
+    -- k = kick, b = ban, c = crash (Warning: Crash function only works on stock maps!)
+    action = "k",
     
     -- If action is "b" the player will be banned for this amount of time ((in minutes) set to 0 for permanent ban)
     bantime = 10,
