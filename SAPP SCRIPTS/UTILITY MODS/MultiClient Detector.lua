@@ -146,7 +146,7 @@ function SetProbability(PlayerIndex)
         -- MultiClient generates a random port & hash every time you start halo.
         -- This checks if their current port & hash matches their last known port & hash.
         -- If no match is made then it's likely that they are using a MultiClient.
-        -- Most people don't frequently change their port number. 
+        -- Most people don't frequently change their port number.
         
         local DataOnFile = LoadPort(ip)
         if (DataOnFile.port ~= port) then
@@ -159,6 +159,7 @@ function SetProbability(PlayerIndex)
         
         
         -- Check if their port is in the list of common ports:
+        -- MultiClient almost never generates a common port.
         local common_port = false
         for i = 1,#common_ports do
             local min, max = common_ports[i][1], common_ports[i][2]
