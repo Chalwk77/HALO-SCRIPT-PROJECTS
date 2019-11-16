@@ -109,17 +109,18 @@ function OnPlayerConnect(PlayerIndex)
     probability[PlayerIndex] = 0
     
     local IP = get_var(PlayerIndex, "$ip")
+    local hash = get_var(PlayerIndex, "$hash")
     local ip = IP:match('(%d+.%d+.%d+.%d+)')
     local port = IP:match(":(%d+)")
-    SavePort(ip, port)
-    SetProbability(PlayerIndex, ip, port)
+    SavePort(ip, port, hash)
+    SetProbability(PlayerIndex)
 end
 
 function OnPlayerDisconnect(PlayerIndex)
     probability[PlayerIndex] = nil
 end
 
-function SetProbability(PlayerIndex, IP, Port)
+function SetProbability(PlayerIndex)
     
     -- Check if the players hash is on the list of known pirated hashes.
     -- If the player hash is not on this list it is a stronger indicator that they 
@@ -135,53 +136,63 @@ function SetProbability(PlayerIndex, IP, Port)
     -- Players game client is NOT on list of known pirated hashes.
     -- Run some more checks:
     if (not pirated) then
+        
+        local IP = get_var(PlayerIndex, "$ip")
+        local ip = IP:match('(%d+.%d+.%d+.%d+)')
+        local port = IP:match(":(%d+)")
+    
         probability[PlayerIndex] = probability[PlayerIndex] + 1
         
-        -- MultiClient generates a random port every time you start halo.
-        -- This checks if their current port matches their last known port.
+        -- MultiClient generates a random port & hash every time you start halo.
+        -- This checks if their current port & hash matches their last known port & hash.
         -- If no match is made then it's likely that they are using a MultiClient.
         -- Most people don't frequently change their port number. 
         
-        local PortOnFile = LoadPort(IP)
-        if (PortOnFile ~= Port) then
+        local DataOnFile = LoadPort(ip)
+        if (DataOnFile.port ~= port) then
+            probability[PlayerIndex] = probability[PlayerIndex] + 1 
+        end
+        if (DataOnFile.hash ~= hash) then
             probability[PlayerIndex] = probability[PlayerIndex] + 1 
         end
         --
+        
         
         -- Check if their port is in the list of common ports:
         local common_port = false
         for i = 1,#common_ports do
             local min, max = common_ports[i][1], common_ports[i][2]
-            if (tonumber(Port) >= min and tonumber(Port) <= max) then
+            if (tonumber(port) >= min and tonumber(port) <= max) then
                 common_port = true
             end
         end
+        --
+        
         
         -- Port is not common:
         -- Run some more checks:
         if (not common_port) then
             probability[PlayerIndex] = probability[PlayerIndex] + 1
-            
             -- Statistically, most people do not use ports greater than 4 digits.
             -- This provides a greater indication that they are using multiclient.
             -- Statistics taken from 9 years of halo server logs.
-            if (len(Port) > 4) then
+            if (len(port) > 4) then
                 probability[PlayerIndex] = probability[PlayerIndex] + 1
-            elseif (tonumber(Port) >= min_range and tonumber(Port) <= max_range) then
+            elseif (tonumber(port) >= min_range and tonumber(port) <= max_range) then
                 probability[PlayerIndex] = probability[PlayerIndex] + 1
             end
         end
         
-        probability[PlayerIndex] = (probability[PlayerIndex]/4) * 100
+        probability[PlayerIndex] = (probability[PlayerIndex]/5) * 100
     end
 end
 
-function SavePort(ip, port)
+function SavePort(ip, port, hash)
     local file = io.open(path, "a+")
     if (file) then
-        local player_data = LoadPort(ip)
-        if (player_data == nil) then
-            local contents = tostring( ip ) .. "|" .. tostring(port)
+        local data = LoadPort(ip)
+        if (data == nil) then
+            local contents = tostring(ip) .. "|" .. tostring(port) .. "-" .. tostring(hash)
             file:write( contents .. "\n")
         end
     end
@@ -189,17 +200,19 @@ function SavePort(ip, port)
 end
 
 function LoadPort(ip)
-    local port = nil
+    local data = nil
     local lines = lines_from(path)
     for line, file_data in pairs(lines) do
         if (line ~= nil) then
             local ip = file_data:match(ip)
             if (ip) then
-                port = file_data:match("|(%d+)")
+                data = {}
+                data.port = file_data:match("|(%d+)")
+                data.hash = file_data:match("-(.+)")
             end
         end
     end
-    return port
+    return data
 end
 
 function lines_from(file)
