@@ -148,10 +148,7 @@ function OnScriptLoad()
     end
 end
 
-function OnPreJoin(p)
-
-    vpn_blocker[p] = {}
-    
+function OnPreJoin(p) 
     local player = vpn_blocker:GetCredentials(p)
     if (player) then
         
@@ -204,6 +201,7 @@ function OnPreJoin(p)
                         execute_command("b" .. " " .. p .. " " .. vpn_blocker.bantime .. " \"" .. vpn_blocker.reason .. "\"")
                     elseif (vpn_blocker.action == "c") then
                         state = "crashed"
+                        vpn_blocker[p] = {}
                         vpn_blocker[p].crash = true
                     end
                     
@@ -232,10 +230,11 @@ function OnPreJoin(p)
     end
 end
 
+----------------------------------------------------------
+-- Only used if vpn_blocker.action is set to "c"
 function OnPlayerDisconnect(PlayerIndex)
     vpn_blocker[PlayerIndex] = nil
 end
-
 function OnPlayerSpawn(PlayerIndex)
     if player_alive(PlayerIndex) then
         if (vpn_blocker[PlayerIndex].crash) then
@@ -243,6 +242,7 @@ function OnPlayerSpawn(PlayerIndex)
         end
     end
 end
+----------------------------------------------------------
 
 function vpn_blocker:CrashPlayer(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
