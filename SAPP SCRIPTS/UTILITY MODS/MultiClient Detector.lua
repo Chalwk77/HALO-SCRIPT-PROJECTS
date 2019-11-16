@@ -1,11 +1,9 @@
 --[[
 --=====================================================================================================--
+Description: This script will detect whether a players game client is a Generic Multi-Client and retrieve an overall probability score. 
 Script Name: MultiClient Detector (v1.0), for SAPP (PC & CE)
-
-Description: 
-This script will detect whether a players game client is a Generic Multi-Client and retrieve an overall probability score. 
-The probability score is a score based on a number of factors that are analyzed.
-             
+             The probability score is a score based on a number of factors that are analyzed.
+             Unfortunately, this mod will never be 100% accurate but provides a good indication.
             
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -20,20 +18,24 @@ api_version = "1.12.0.0"
 local path = "sapp\\multiclients.txt"
 
 -- Players with common ports are not considered to be using a MultiClient.
+-- MultiClient almost never generates a common port.
 -- Min Range, Max Range
 local common_ports = {{2300, 2400}}
 
--- If the port is NOT common and is 4 digits, what range should be considered MultiClient?
+-- If the port is NOT common and is within a 4 digit range, what range should be considered as suspicious?
 local min_range = 2401
 local max_range = 9999
 
 -- Query Command Syntax: /query_command [player id]
 local query_command = "mc"
+
 -- Command Output:
 local output_message = "%name% - MultiClient Probability: %probability%% chance."
+
 -- Minimum permission needed to execute "query_command"
 local permission_level = 4
 
+-- This is a list of all known pirated hashes:
 local known_pirated_hashes = {
     "388e89e69b4cc08b3441f25959f74103",
     "81f9c914b3402c2702a12dc1405247ee",
