@@ -1,7 +1,7 @@
 --[[
 --=====================================================================================================--
-Description: This script will detect whether a players game client is a Generic Multi-Client and retrieve an overall probability score. 
 Script Name: MultiClient Detector (v1.0), for SAPP (PC & CE)
+Description: This script will detect whether a players game client is a Generic Multi-Client and retrieve an overall probability score. 
              The probability score is a score based on a number of factors that are analyzed.
              Unfortunately, this mod will never be 100% accurate but provides a good indication.
             
