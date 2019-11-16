@@ -3,7 +3,7 @@
 Script Name: MultiClient Detector (v1.0), for SAPP (PC & CE)
 
 Description: 
-This script will detect whether a player's game client is a Generic Multi-Client and retrieve an overall probability score. 
+This script will detect whether a players game client is a Generic Multi-Client and retrieve an overall probability score. 
 The probability score is a score based on a number of factors that are analyzed.
              
             
@@ -121,8 +121,8 @@ end
 
 function SetProbability(PlayerIndex, IP, Port)
     
-    -- Check if the player's hash is on the list of known pirated hashes.
-    -- If the player's hash is not on this list it is a stronger indicator that they 
+    -- Check if the players hash is on the list of known pirated hashes.
+    -- If the player hash is not on this list it is a stronger indicator that they 
     -- are using a multiclient.
     local pirated = false
     local hash = get_var(PlayerIndex, "$hash")
