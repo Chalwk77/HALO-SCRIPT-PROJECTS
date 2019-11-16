@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: VPN Blocker (v 1.0), for SAPP (PC & CE)
+Script Name: VPN Blocker (v 1.1), for SAPP (PC & CE)
 
 Description: VPN Blocker will detect whether an IP Address is a Proxy, Tor, or VPN Connection
              and retrieve an overall Fraud Score that provides accurate risk analysis. 
@@ -62,8 +62,8 @@ local vpn_blocker = {
     api_key = "API_KEY", 
     
     -- If the player is using a VPN Connection, do this action:
-    -- k = kick, b = ban
-    action = "k",
+    -- k = kick, b = ban, c = crash
+    action = "c",
     
     -- If action is "b" the player will be banned for this amount of time ((in minutes) set to 0 for permanent ban)
     bantime = 10,
@@ -138,13 +138,20 @@ local vpn_blocker = {
 
 local gsub, format = string.gsub, string.format
 local json = (loadfile "json.lua")()
+local script_version = 1.1
 
 function OnScriptLoad()
     register_callback(cb["EVENT_PREJOIN"], "OnPreJoin")
+    if (vpn_blocker.action == "c") then
+        register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
+        register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
+    end
 end
 
 function OnPreJoin(p)
 
+    vpn_blocker[p] = {}
+    
     local player = vpn_blocker:GetCredentials(p)
     if (player) then
         
@@ -195,6 +202,9 @@ function OnPreJoin(p)
                     elseif (vpn_blocker.action == "b") then
                         state = "banned"
                         execute_command("b" .. " " .. p .. " " .. vpn_blocker.bantime .. " \"" .. vpn_blocker.reason .. "\"")
+                    elseif (vpn_blocker.action == "c") then
+                        state = "crashed"
+                        vpn_blocker[p].crash = true
                     end
                     
                     local logtime = true
@@ -218,6 +228,34 @@ function OnPreJoin(p)
                 end
                 cprint("=========================================================", 4+8)
             end
+        end
+    end
+end
+
+function OnPlayerDisconnect(PlayerIndex)
+    vpn_blocker[PlayerIndex] = nil
+end
+
+function OnPlayerSpawn(PlayerIndex)
+    if player_alive(PlayerIndex) then
+        if (vpn_blocker[PlayerIndex].crash) then
+            vpn_blocker:CrashPlayer(PlayerIndex)
+        end
+    end
+end
+
+function vpn_blocker:CrashPlayer(PlayerIndex)
+    local player_object = get_dynamic_player(PlayerIndex)
+    if (player_object ~= 0) then
+        local x,y,z = read_vector3d(player_object + 0x5C)
+        local VehicleID = spawn_object("vehi", "vehicles\\rwarthog\\rwarthog")
+        local VehicleObject = get_object_memory(VehicleID)
+        if (VehicleObject ~= 0) then
+            for j = 0,20 do
+                enter_vehicle(VehicleID, PlayerIndex, j)
+                exit_vehicle(PlayerIndex)
+            end
+            destroy_object(VehicleID)
         end
     end
 end
@@ -288,4 +326,26 @@ function OnScriptUnload()
     --
 end
 
+-- In the event of an error, the script will trigger these two functions: OnError(), report()
+function report()
+    local script_version = format("%0.2f", script_version)
+    cprint("--------------------------------------------------------", 5 + 8)
+    cprint("Please report this error on github:", 7 + 8)
+    cprint("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", 7 + 8)
+    cprint("Script Version: " .. script_version, 7 + 8)
+    cprint("--------------------------------------------------------", 5 + 8)
+end
+
+-- This function will return a string with a traceback of the stack call...
+-- ...and call function 'report' after 50 milliseconds.
+function OnError()
+    cprint(debug.traceback(), 4 + 8)
+    timer(50, "report")
+end
+
 return vpn_blocker
+
+
+-- CHANGE LOG --
+-- 16th November 2019
+-- You can now optionally crash players with VPN Connections instead of kicking/banning them.
