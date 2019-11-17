@@ -221,40 +221,44 @@ end
 
 local function QuitJoin(PlayerIndex, Type)
     local log, color
+    local t = players[PlayerIndex]
+    local time_stamp = os.date("%A %d %B %Y - %X")
+    
     if (Type == "JOIN") then
         log, color = on_join, 10
+        if (print_player_info) then
+            cprint("Join Time: " .. time_stamp, 10)
+            cprint("Status: " .. t["%%name%%"] .. " connected successfully.", 13)
+            cprint("________________________________________________________________________________", 10)
+        end
     elseif (Type == "QUIT") then
+        if (print_player_info) then
+            cprint("________________________________________________________________________________", 12)
+            t["%%total%%"] = get_var(0, "$pn") - 1
+            local tab = t.all_info
+            for i = 1,#tab do
+                cprint(tab[i], 12)
+            end
+            cprint("Quit Time: " .. time_stamp, 12)
+            cprint("________________________________________________________________________________", 12)
+        end
         log, color = on_quit, 12
         players[PlayerIndex] = nil
     end
+    
+    for k,v in pairs(t) do
+        log = gsub(log, k, v)
+    end
+    Write(log, full_log_path)
     return log
 end
 
 function OnPlayerConnect(PlayerIndex)
-    local log = QuitJoin(PlayerIndex, "JOIN")
-    Write(log, full_log_path)
-    if (print_player_info) then
-        local time_stamp = os.date("%A %d %B %Y - %X")
-        cprint("Join Time: " .. time_stamp, 10)
-        local name = players[PlayerIndex]["%%name%%"]
-        cprint("Status: " .. name .. " connected successfully.", 13)
-        cprint("________________________________________________________________________________", 10)
-    end
+    QuitJoin(PlayerIndex, "JOIN")
 end
 
 function OnPlayerDisconnect(PlayerIndex)
-    if (print_player_info) then
-        cprint("________________________________________________________________________________", 12)
-        local t = players[PlayerIndex].all_info
-        for i = 1,#t do
-            cprint(t[i], 12)
-        end
-        local time_stamp = os.date("%A %d %B %Y - %X")
-        cprint("Quit Time: " .. time_stamp, 12)
-        cprint("________________________________________________________________________________", 12)
-    end
-    local log = QuitJoin(PlayerIndex, "QUIT")
-    Write(log, full_log_path)
+    QuitJoin(PlayerIndex, "QUIT")
 end
 
 function SaveClientData(PlayerIndex)
