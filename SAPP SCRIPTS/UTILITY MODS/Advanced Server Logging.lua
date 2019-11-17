@@ -13,7 +13,11 @@ This script will log:
 * Chat Commands (w/password filtering)
 * Rcon/Console Commands (w/password filtering)
 
-Chat & Command logs will be simultaneously saved to serverlog.txt, command.txt/chatlogs.txt.
+Chat & Command logs will be simultaneously saved to Logs.Full.txt, Logs.Chat.txt/Logs.Commands.txt.
+
+This script will create 3 files in the same directory where admins.txt is located.
+The first file is the Full Log - it will contain logs of everything.
+The other two log only chat messages and command logs.
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -26,7 +30,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.12.0.0"
 
 -- Configuration Starts --
-local full_log_path = "sapp\\serverlog.txt"
+local full_log_path = "sapp\\Logs.Full.txt"
 
 --[[
     These variables in can be used in on_join/on_quit & on_command/on_chat messages:
@@ -49,7 +53,7 @@ local on_unload = "[SCRIPT UNLOAD] Chat Logging was unloaded"
 local on_game_end = "[GAME END] The Game has Ended (post game carnage report showing)"
 local on_game_start = "[GAME START] A new game has started on [%map% | mode: %mode%]"
 
-local chat_logs_path = "sapp\\serverchat.txt"
+local chat_logs_path = "sapp\\Logs.Chat.txt"
 local on_chat = {
     ["TEAM"] = "[TEAM] %name%: [%id%] %message%",
     ["GLOBAL"] = "[GLOBAL] %name%: [%id%] %message%",
@@ -57,7 +61,7 @@ local on_chat = {
     ["UNKNOWN"] = "[UNKNOWN] %name%: [%id%] %message%",
 }
 
-local command_logs_path = "sapp\\commandlogs.txt"
+local command_logs_path = "sapp\\Logs.Commands.txt"
 local on_command = {
     ["CHAT COMMAND"] = "[CHAT COMMAND] [Admin = %state% | Level: %level%] %name%: [%id%] /%message%",
     ["RCON COMMAND"] = "[RCON COMMAND] [Admin = %state% | Level: %level%] %name%: [%id%] %message%",
@@ -124,6 +128,8 @@ function OnGameStart()
         local mode = get_var(0, "$mode")
         local log = gsub(gsub(on_game_start, "%%map%%", map), "%%mode%%", mode)
         Write(log, full_log_path)
+        Write(log, chat_logs_path)
+        Write(log, command_logs_path)
     end
 end
 
@@ -132,6 +138,8 @@ function OnGameEnd()
     local mode = get_var(0, "$mode")
     local log = gsub(gsub(on_game_end, "%%map%%", map), "%%mode%%", mode)
     Write(log, full_log_path)
+    Write(log, chat_logs_path)
+    Write(log, command_logs_path)
 end
 
 function OnServerChat(PlayerIndex, Message, type)
