@@ -99,18 +99,18 @@ local lower, upper = string.lower, string.upper
 function OnScriptLoad()
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
-    
+
     register_callback(cb["EVENT_CHAT"], "OnServerChat")
     register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
-    
+
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
-    
+
     register_callback(cb['EVENT_PREJOIN'], "OnPlayerPrejoin")
-    
+
     if (get_var(0, "$gt") ~= "n/a") then
         players = { }
-        for i = 1,16 do
+        for i = 1, 16 do
             if player_present(i) then
                 SaveClientData(i)
             end
@@ -147,10 +147,10 @@ function OnServerChat(PlayerIndex, Message, type)
         if (#msg == 0 or msg == nil) then
             return
         elseif not isCommand(msg) then
-        
+
             local t = players[PlayerIndex]
             t["%%message%%"], t["%%total%%"] = Message, get_var(0, "$pn")
-                        
+
             if (type == 0) then
                 type = "GLOBAL"
             elseif (type == 1) then
@@ -160,12 +160,12 @@ function OnServerChat(PlayerIndex, Message, type)
             else
                 type = "UNKNOWN"
             end
-           
+
             local log = on_chat[type]
-            for k,v in pairs(t) do
+            for k, v in pairs(t) do
                 log = gsub(log, k, v)
             end
-            
+
             cprint(log, 11)
             Write(log, full_log_path)
             Write(log, chat_logs_path)
@@ -178,7 +178,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     if (#cmd == 0 or cmd == nil) then
         return
     else
-    
+
         local t = players[PlayerIndex]
         t["%%message%%"], t["%%total%%"] = Command, get_var(0, "$pn")
 
@@ -189,18 +189,18 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         elseif (Environment == 0) then
             Environment = "CONSOLE COMMAND"
         end
-        
+
         local content = CensoredContent(Command)
         if (content ~= nil) then
             Command = content
             Environment = "CENSORED"
         end
-        
+
         local log = on_command[Environment]
-        for k,v in pairs(t) do
+        for k, v in pairs(t) do
             log = gsub(log, k, v)
         end
-        
+
         cprint(log, 11)
         Write(log, full_log_path)
         Write(log, command_logs_path)
@@ -213,19 +213,19 @@ function OnPlayerPrejoin(PlayerIndex)
         cprint("________________________________________________________________________________", 10)
         cprint("Player attempting to connect to the server...", 13)
         local t = players[PlayerIndex].all_info
-        for i = 1,#t do
+        for i = 1, #t do
             cprint(t[i], 10)
         end
     end
 end
 
 local function QuitJoin(PlayerIndex, Type)
-    local log, color
+    local log
     local t = players[PlayerIndex]
     local time_stamp = os.date("%A %d %B %Y - %X")
-    
+
     if (Type == "JOIN") then
-        log, color = on_join, 10
+        log = on_join
         if (print_player_info) then
             cprint("Join Time: " .. time_stamp, 10)
             cprint("Status: " .. t["%%name%%"] .. " connected successfully.", 13)
@@ -236,17 +236,17 @@ local function QuitJoin(PlayerIndex, Type)
             cprint("________________________________________________________________________________", 12)
             t["%%total%%"] = get_var(0, "$pn") - 1
             local tab = t.all_info
-            for i = 1,#tab do
+            for i = 1, #tab do
                 cprint(tab[i], 12)
             end
             cprint("Quit Time: " .. time_stamp, 12)
             cprint("________________________________________________________________________________", 12)
         end
-        log, color = on_quit, 12
+        log = on_quit
         players[PlayerIndex] = nil
     end
-    
-    for k,v in pairs(t) do
+
+    for k, v in pairs(t) do
         log = gsub(log, k, v)
     end
     Write(log, full_log_path)
@@ -262,11 +262,11 @@ function OnPlayerDisconnect(PlayerIndex)
 end
 
 function SaveClientData(PlayerIndex)
-    
+
     local p = tonumber(PlayerIndex)
     local level = tonumber(get_var(p, "$lvl"))
     local state = tostring((level >= 1))
-    
+
     players[p] = {
         ["%%id%%"] = p,
         ["%%name%%"] = get_var(p, "$name"),
@@ -277,13 +277,13 @@ function SaveClientData(PlayerIndex)
         ["%%state%%"] = state,
         ["%%total%%"] = get_var(0, "$pn")
     }
-    
+
     local t = {}
-    for i = 1,#player_info do
-        t[#t+1] = player_info[i]
+    for i = 1, #player_info do
+        t[#t + 1] = player_info[i]
     end
-    for k,v in pairs(players[p]) do
-        for i = 1,#t do
+    for k, v in pairs(players[p]) do
+        for i = 1, #t do
             t[i] = gsub(t[i], k, v)
         end
     end
@@ -309,7 +309,7 @@ function TextSplit(Message)
 end
 
 function isCommand(table)
-    if ( sub(table[1], 1, 1) == "/" or sub(table[1], 1, 1) == "\\" ) then
+    if (sub(table[1], 1, 1) == "/" or sub(table[1], 1, 1) == "\\") then
         return true
     end
 end
