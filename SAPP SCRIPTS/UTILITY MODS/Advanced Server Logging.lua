@@ -250,7 +250,6 @@ local function QuitJoin(PlayerIndex, Type)
         log = gsub(log, k, v)
     end
     Write(log, full_log_path)
-    return log
 end
 
 function OnPlayerConnect(PlayerIndex)
