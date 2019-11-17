@@ -15,6 +15,7 @@ This script will log:
 
 > Chat Logs will be simultaneously saved to Logs.Full.txt and Logs.Chat.txt
 > Command Logs will be simultaneously saved to Logs.Full.txt and Logs.Commands.txt
+> This script will also censor passwords in command logs.
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
