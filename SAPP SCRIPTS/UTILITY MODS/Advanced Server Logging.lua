@@ -69,7 +69,7 @@ local on_command = {
 
 -- Any command containing these words will be censored:
 local censored_content = {
-    censor_character = "*****",
+    censor_character = "*",
     "login",
     "admin_add",
     "change_password",
@@ -192,7 +192,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
 
         local content = CensoredContent(Command)
         if (content ~= nil) then
-            Command = content
+            t["%%message%%"] = content
             Environment = "CENSORED"
         end
 
@@ -318,7 +318,12 @@ function CensoredContent(Message)
     for i = 1, #words do
         local word = words[i]
         if find(Message:lower(), word) then
-            return words.censor_character
+            local len = string.len(Message)
+            local replaced_phrase = ""
+            for w = 1,len do
+                replaced_phrase = replaced_phrase .. words.censor_character
+            end
+            return replaced_phrase
         end
     end
     return nil
