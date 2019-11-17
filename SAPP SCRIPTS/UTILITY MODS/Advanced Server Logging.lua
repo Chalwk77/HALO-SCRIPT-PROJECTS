@@ -110,6 +110,7 @@ function OnScriptLoad()
 
     if (get_var(0, "$gt") ~= "n/a") then
         players = { }
+        SaveClientData(0)
         for i = 1, 16 do
             if player_present(i) then
                 SaveClientData(i)
@@ -129,6 +130,7 @@ function OnGameStart()
         Write(log, full_log_path)
         Write(log, chat_logs_path)
         Write(log, command_logs_path)
+        SaveClientData(0)
     end
 end
 
@@ -178,7 +180,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     if (#cmd == 0 or cmd == nil) then
         return
     else
-
+        
         local t = players[PlayerIndex]
         t["%%message%%"], t["%%total%%"] = Command, get_var(0, "$pn")
 
@@ -200,8 +202,9 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         for k, v in pairs(t) do
             log = gsub(log, k, v)
         end
-
-        cprint(log, 11)
+        if (PlayerIndex ~= 0) then
+            cprint(log, 11)
+        end
         Write(log, full_log_path)
         Write(log, command_logs_path)
     end
@@ -261,16 +264,26 @@ function OnPlayerDisconnect(PlayerIndex)
 end
 
 function SaveClientData(PlayerIndex)
-
     local p = tonumber(PlayerIndex)
     local level = tonumber(get_var(p, "$lvl"))
     local state = tostring((level >= 1))
 
+    local name = get_var(p, "$name")
+    local ip = get_var(p, "$ip")
+    local hash = get_var(p, "$hash")
+    
+    if (p == 0) then
+        name = "[SERVER]"
+        ip = "N/A"
+        hash = "N/A"
+        state = "true"
+    end
+
     players[p] = {
         ["%%id%%"] = p,
-        ["%%name%%"] = get_var(p, "$name"),
-        ["%%ip%%"] = get_var(p, "$ip"),
-        ["%%hash%%"] = get_var(p, "$hash"),
+        ["%%name%%"] = name,
+        ["%%ip%%"] = ip,
+        ["%%hash%%"] = hash,
         ["%%level%%"] = level,
         ["%%message%%"] = "",
         ["%%state%%"] = state,
