@@ -45,9 +45,9 @@ local full_log_path = "sapp\\Logs.Full.txt"
 local on_join = "[JOIN]    Name: %name%    ID: [%id%]    IP: [%ip%]    CD-Key Hash: [%hash%]    Total Players: [%total%/16]"
 local on_quit = "[QUIT]    Name: %name%    ID: [%id%]    IP: [%ip%]    CD-Key Hash: [%hash%]    Total Players: [%total%/16]"
 
-local on_load = "[SCRIPT LOAD] Chat Logging was Loaded"
+local on_load = "[SCRIPT LOAD] Advanced Logger was Loaded"
 local on_reload = "[SERVER] Server Was Reloaded"
-local on_unload = "[SCRIPT UNLOAD] Chat Logging was unloaded"
+local on_unload = "[SCRIPT UNLOAD] Advanced Logger was unloaded"
 local on_game_end = "[GAME END] The Game has Ended (post game carnage report showing)"
 local on_game_start = "[GAME START] A new game has started on [%map% | mode: %mode%]"
 
