@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Zpocalypse (simplified v1.6), for SAPP (PC & CE)
+Script Name: Zpocalypse (v1.7), for SAPP (PC & CE)
 Description: A custom Zombies Game designed for Team-Slayer game types.
 
 ### Game Play Mechanics:
@@ -65,8 +65,8 @@ function zombies:init()
 
         -- Zombie Assistance:
         assistance = true,
-        assistance_zombie_count = 2, -- If there are only this many (or less) zombies, Zombie Assistance will be triggered.
-        zombies_assistance_threshold = 7,
+        assistance_zombie_count = 3, -- If there are only this many (or less) zombies, Zombie Assistance will be triggered.
+        zombies_assistance_threshold = 6,
         zombie_assistance = "Zombies need Assistance! Switching random Human in %time_remaining% second%s%",
         zombie_assistance_switch = "%random_human% was switched to assist the Zombies",
         -- When triggered, a random human will be switched to Zombie Team after this many seconds.
@@ -97,7 +97,7 @@ function zombies:init()
             },
             ["Zombies"] = {
                 -- Set to 0 to disable (normal speed is 1)
-                running_speed = 2.3,
+                running_speed = 1,
                 -- Zombie Health: (0 to 99999) (Normal = 1)
                 health = 2.3,
                 damage_multiplier = 10, -- (0 to 10) (Normal = 1)
@@ -414,7 +414,7 @@ function OnTick()
         zombies:broadcast(msg, false, false, nil, true)
         if (timeRemaining <= 0) then
             zombies:StopTimer(nozombie_index, false)
-            zombies:SwitchToZombies(2, true)
+            zombies:SwitchToZombies()
         end
     elseif (assistance.init) then
         assistance.timer = assistance.timer + delta_time
@@ -427,7 +427,7 @@ function OnTick()
         zombies:broadcast(msg, false, false, nil, true)
         if (timeRemaining <= 0) then
             zombies:StopTimer(assist_index, false)
-            zombies:SwitchToZombies(1, false)
+            zombies:SwitchToZombies()
         end
     end
 end
@@ -1067,10 +1067,8 @@ function zombies:LastManCheck(params)
         end
     end
     
-    
-    local msg, endgamecheck = nil, nil
+    local msg = nil
     if (not params.last_man) then
-        endgamecheck = true
         if (params.on_zombify) and (not params.zombie_cured) then
             msg = gsub(gsub(parameters.on_zombify, "%%victim%%", params.vname), "%%killer%%", params.kname)
         elseif (params.on_zombify) and (params.zombie_cured) then
@@ -1082,10 +1080,9 @@ function zombies:LastManCheck(params)
 
     if (msg ~= nil) then
         zombies:broadcast(msg, false)
-        if (endgamecheck) then
-            zombies:endGameCheck()
-        end
     end
+    
+    zombies:endGameCheck()
 end
 
 function zombies:ApplyOvershield(PlayerIndex)
@@ -1258,7 +1255,7 @@ function DelaySecQuat(PlayerIndex, Weapon, x, y, z)
     assign_weapon(spawn_object("weap", Weapon, x, y, z), PlayerIndex)
 end
 
-function zombies:SwitchToZombies(Type, params)
+function zombies:SwitchToZombies()
 
     local players = { }
     for i = 1, 16 do
@@ -1285,12 +1282,8 @@ function zombies:SwitchToZombies(Type, params)
                 local params = {}
                 params.vname = player.name
                 zombies:setTeam(index, parameters.zombie_team)
-
-                if (Type == 1) then
-                    params.zombie_assistance_switch = true
-                elseif (Type == 2) then
-                    params.no_zombies_switch = true
-                end
+                
+                zombies:broadcast(player.name .. " was switched to zombie team")
                 zombies:LastManCheck(params)
                 break
             end
