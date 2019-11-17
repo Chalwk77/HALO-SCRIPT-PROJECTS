@@ -13,11 +13,8 @@ This script will log:
 * Chat Commands (w/password filtering)
 * Rcon/Console Commands (w/password filtering)
 
-Chat & Command logs will be simultaneously saved to Logs.Full.txt, Logs.Chat.txt/Logs.Commands.txt.
-
-This script will create 3 files in the same directory where admins.txt is located.
-The first file is the Full Log - it will contain logs of everything.
-The other two log only chat messages and command logs.
+> Chat Logs will be simultaneously saved to Logs.Full.txt and Logs.Chat.txt
+> Command Logs will be simultaneously saved to Logs.Full.txt and Logs.Commands.txt
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
