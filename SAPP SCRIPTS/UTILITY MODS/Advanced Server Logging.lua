@@ -73,6 +73,7 @@ local on_command = {
 local censored_content = {
     censor_character = "*****",
     "login",
+    "admin_add",
     "change_password",
     "admin_change_pw",
     "admin_add_manually",
