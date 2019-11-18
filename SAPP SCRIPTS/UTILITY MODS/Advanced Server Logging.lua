@@ -28,7 +28,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.12.0.0"
 
 -- Configuration Starts --
-local full_log_path = "sapp\\Logs.Full.txt"
+local full_log_path = "sapp\\%date%.FullLog.txt"
 
 --[[
     These variables in can be used in on_join/on_quit & on_command/on_chat messages:
@@ -51,7 +51,7 @@ local on_unload = "[SCRIPT UNLOAD] Advanced Logger was unloaded"
 local on_game_end = "[GAME END] The Game has Ended (post game carnage report showing)"
 local on_game_start = "[GAME START] A new game has started on [%map% | mode: %mode%]"
 
-local chat_logs_path = "sapp\\Logs.Chat.txt"
+local chat_logs_path = "sapp\\%date%.Chat.txt"
 local on_chat = {
     ["TEAM"] = "[TEAM] %name%: [%id%] %message%",
     ["GLOBAL"] = "[GLOBAL] %name%: [%id%] %message%",
@@ -59,7 +59,7 @@ local on_chat = {
     ["UNKNOWN"] = "[UNKNOWN] %name%: [%id%] %message%",
 }
 
-local command_logs_path = "sapp\\Logs.Commands.txt"
+local command_logs_path = "sapp\\%date%.Commands.txt"
 local on_command = {
     ["CHAT COMMAND"] = "[CHAT COMMAND] [Admin = %state% | Level: %level%] %name%: [%id%] /%message%",
     ["RCON COMMAND"] = "[RCON COMMAND] [Admin = %state% | Level: %level%] %name%: [%id%] %message%",
@@ -69,7 +69,7 @@ local on_command = {
 
 -- Any command containing these words will be censored:
 local censored_content = {
-    censor_character = "*",
+    censor_character = "*****",
     "login",
     "admin_add",
     "change_password",
@@ -110,7 +110,6 @@ function OnScriptLoad()
 
     if (get_var(0, "$gt") ~= "n/a") then
         players = { }
-        SaveClientData(0)
         for i = 1, 16 do
             if player_present(i) then
                 SaveClientData(i)
@@ -130,7 +129,6 @@ function OnGameStart()
         Write(log, full_log_path)
         Write(log, chat_logs_path)
         Write(log, command_logs_path)
-        SaveClientData(0)
     end
 end
 
@@ -180,7 +178,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     if (#cmd == 0 or cmd == nil) then
         return
     else
-        
+
         local t = players[PlayerIndex]
         t["%%message%%"], t["%%total%%"] = Command, get_var(0, "$pn")
 
@@ -194,7 +192,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
 
         local content = CensoredContent(Command)
         if (content ~= nil) then
-            t["%%message%%"] = content
+            Command = content
             Environment = "CENSORED"
         end
 
@@ -202,9 +200,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         for k, v in pairs(t) do
             log = gsub(log, k, v)
         end
-        if (PlayerIndex ~= 0) then
-            cprint(log, 11)
-        end
+
+        cprint(log, 11)
         Write(log, full_log_path)
         Write(log, command_logs_path)
     end
@@ -264,26 +261,16 @@ function OnPlayerDisconnect(PlayerIndex)
 end
 
 function SaveClientData(PlayerIndex)
+
     local p = tonumber(PlayerIndex)
     local level = tonumber(get_var(p, "$lvl"))
     local state = tostring((level >= 1))
 
-    local name = get_var(p, "$name")
-    local ip = get_var(p, "$ip")
-    local hash = get_var(p, "$hash")
-    
-    if (p == 0) then
-        name = "[SERVER]"
-        ip = "N/A"
-        hash = "N/A"
-        state = "true"
-    end
-
     players[p] = {
         ["%%id%%"] = p,
-        ["%%name%%"] = name,
-        ["%%ip%%"] = ip,
-        ["%%hash%%"] = hash,
+        ["%%name%%"] = get_var(p, "$name"),
+        ["%%ip%%"] = get_var(p, "$ip"),
+        ["%%hash%%"] = get_var(p, "$hash"),
         ["%%level%%"] = level,
         ["%%message%%"] = "",
         ["%%state%%"] = state,
@@ -303,7 +290,11 @@ function SaveClientData(PlayerIndex)
 end
 
 function Write(Content, Path)
-    local file = io.open(Path, "a+")
+
+    local Date = os.date("[%d/%m/%Y]"):gsub('[:/]','-')
+    local path = gsub(Path, "%%date%%",Date)
+    local file = io.open(path, "a+")
+
     if (file) then
         local timestamp = os.date("[%d/%m/%Y - %H:%M:%S]")
         file:write(timestamp .. " " .. Content .. "\n")
@@ -331,12 +322,7 @@ function CensoredContent(Message)
     for i = 1, #words do
         local word = words[i]
         if find(Message:lower(), word) then
-            local len = string.len(Message)
-            local replaced_phrase = ""
-            for w = 1,len do
-                replaced_phrase = replaced_phrase .. words.censor_character
-            end
-            return replaced_phrase
+            return words.censor_character
         end
     end
     return nil
