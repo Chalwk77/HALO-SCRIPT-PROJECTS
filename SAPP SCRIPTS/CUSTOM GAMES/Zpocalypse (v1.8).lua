@@ -97,7 +97,7 @@ function zombies:init()
             },
             ["Zombies"] = {
                 -- Set to 0 to disable (normal speed is 1)
-                running_speed = 1,
+                running_speed = 1.3,
                 -- Zombie Health: (0 to 99999) (Normal = 1)
                 health = 2.3,
                 damage_multiplier = 10, -- (0 to 10) (Normal = 1)
@@ -256,6 +256,7 @@ function OnScriptLoad()
     originl_kill_message = read_dword(kill_message_addresss)
 
     if (get_var(0, '$gt') ~= "n/a") then
+        gamestarted = false
         zombies:init()
         for i = 1, 16 do
             if player_present(i) then
