@@ -53,8 +53,6 @@ local function FormatTable(params)
                 invincible = params.invincible or 0,
                 anomgstopkillingme = params.anomgstopkillingme or 0,
             },
-            medals = {},
-            weapons = {},
         }
     }
     return structure
@@ -75,46 +73,36 @@ function OnPlayerConnect(PlayerIndex)
     params.name = get_var(PlayerIndex, "$name")
     params.hash = get_var(PlayerIndex, "$hash")
     params.ip = get_var(PlayerIndex, "$ip"):match('(%d+.%d+.%d+.%d+)')
-    
-    local stats = GetStats(params)
-    
-    if (not stats) then
-        params.new_entry = true
-        UpdateStats(params)
-    else
-        params.rank = "Other Rank" -- test
-        UpdateStats(params)
-    end    
+
+    UpdateStats(params)
 end
 
 function UpdateStats(params)
-    if (not params.new_entry) then
-    
-        -- copy:
-        local stats = nil
-        local file = io.open(path,"r")
-        if (file ~= nil) then
-            local data = file:read("*all")
-            stats = json:decode(data)
-            io.close(file)
-        end
-        
-        -- update:
-        if (stats) then
-            
-            -- test
-            for k,v in pairs(stats) do
-                if (k == params.ip) then
-                    v.rank = params.rank
+    local stats = GetStats(params)
+    if (stats) then
+        for IP,Tab in pairs(stats) do 
+            if (IP == params.ip) then
+                for k1,v1 in pairs(Tab) do
+                    for k2,v2 in pairs(params) do
+                        if (k1 == k2) then
+                            if (type(k1) == "string") then
+                                Tab[k1] = params[k2]
+                            -- elseif (type(k1) == "table") then
+                                -- for i = 1,#k1 do
+                                    -- for j = 1,#params[k2] do
+                                        -- Tab[k1][i] = params[k2][j]
+                                    -- end
+                                -- end
+                            end
+                        end
+                    end
                 end
             end
-            --
-        
-            local file = assert(io.open(path, "r+"))
-            if (file) then
-                file:write(json:encode_pretty(stats))
-                io.close(file)
-            end
+        end
+        local file = assert(io.open(path, "r+"))
+        if (file) then
+            file:write(json:encode_pretty(stats))
+            io.close(file)
         end
     else
         local file = assert(io.open(path, "a+"))
@@ -131,9 +119,6 @@ function GetStats(params)
     if (file ~= nil) then
         local data = file:read("*all")
         stats = json:decode(data)
-        if (stats) then
-            stats = stats[params.ip]
-        end
         io.close(file)
     end
     return stats
