@@ -82,8 +82,8 @@ function UpdateStats(params)
     if (stats) then
         for IP,Tab in pairs(stats) do 
             if (IP == params.ip) then
-                for k1,v1 in pairs(Tab) do
-                    for k2,v2 in pairs(params) do
+                for k1,_ in pairs(Tab) do
+                    for k2,_ in pairs(params) do
                         if (k1 == k2) then
                             if (type(k1) == "string") then
                                 Tab[k1] = params[k2]
