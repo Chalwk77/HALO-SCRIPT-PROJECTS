@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Zpocalypse (v1.7), for SAPP (PC & CE)
+Script Name: Zpocalypse (v1.8), for SAPP (PC & CE)
 Description: A custom Zombies Game designed for Team-Slayer game types.
 
 ### Game Play Mechanics:
@@ -429,6 +429,10 @@ function OnTick()
             zombies:StopTimer(assist_index, false)
             zombies:SwitchToZombies()
         end
+        
+    end
+    if (gamestarted) then
+        zombies:endGameCheck()
     end
 end
 
@@ -902,7 +906,8 @@ end
 
 function zombies:endGameCheck()
     -- No humans left -> zombies win
-    if (zombies.human_count == 0 and zombies.zombie_count >= 1) then
+    local reds, blues = tonumber(get_var(0, "$reds")), tonumber(get_var(0, "$blues"))
+    if (reds == 0 and blues >= 1) then
         zombies:broadcast(gsub(parameters.end_of_game, "%%team%%", "Zombies"), true)
     end
 end
@@ -1057,7 +1062,7 @@ function zombies:LastManCheck(params)
                                     end
                                     write_float(player_object + 0xE0, floor(tonumber(attribute.health)))
                                     local speed = zombies:GetSpeed(player)
-                                    execute_command_sequence("w8 0.5;s " .. i .. " " .. speed)
+                                    execute_command_sequence("w8 1;s " .. i .. " " .. speed)
                                 end
                             end
                         end
@@ -1081,8 +1086,6 @@ function zombies:LastManCheck(params)
     if (msg ~= nil) then
         zombies:broadcast(msg, false)
     end
-    
-    zombies:endGameCheck()
 end
 
 function zombies:ApplyOvershield(PlayerIndex)
