@@ -20,7 +20,7 @@ local path = "sapp\\playerdata.json"
 
 local function FormatTable(params) 
     local structure = {
-        [params.hash] = {
+        [params.ip] = {
             id = params.id,
             name = params.name,
             hash = params.hash,
@@ -78,13 +78,13 @@ function OnPlayerConnect(PlayerIndex)
     
     local stats = GetStats(params)
     
-    if (stats ~= nil) then
-        params.rank = stats.rank
-    else
+    if (not stats) then
         params.new_entry = true
-    end
-    
-    UpdateStats(params)
+        UpdateStats(params)
+    else
+        params.rank = "Other Rank" -- test
+        UpdateStats(params)
+    end    
 end
 
 function UpdateStats(params)
@@ -101,7 +101,16 @@ function UpdateStats(params)
         
         -- update:
         if (stats) then
-            local file = assert(io.open(path, "w"))
+            
+            -- test
+            for k,v in pairs(stats) do
+                if (k == params.ip) then
+                    v.rank = params.rank
+                end
+            end
+            --
+        
+            local file = assert(io.open(path, "r+"))
             if (file) then
                 file:write(json:encode_pretty(stats))
                 io.close(file)
@@ -123,7 +132,7 @@ function GetStats(params)
         local data = file:read("*all")
         stats = json:decode(data)
         if (stats) then
-            stats = stats[params.hash]
+            stats = stats[params.ip]
         end
         io.close(file)
     end
