@@ -13,8 +13,8 @@ This script will log:
 * Chat Commands (w/password filtering)
 * Rcon/Console Commands (w/password filtering)
 
-> Chat Logs will be simultaneously saved to Logs.Full.txt and Logs.Chat.txt
-> Command Logs will be simultaneously saved to Logs.Full.txt and Logs.Commands.txt
+> Chat Logs will be simultaneously saved to date.FullLog.txt and date.Chat.txt
+> Command Logs will be simultaneously saved to date.FullLog.txt and date.Commands.txt
 > This script will also censor passwords in command logs.
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
@@ -110,6 +110,7 @@ function OnScriptLoad()
 
     if (get_var(0, "$gt") ~= "n/a") then
         players = { }
+        SaveClientData(0)
         for i = 1, 16 do
             if player_present(i) then
                 SaveClientData(i)
@@ -129,6 +130,7 @@ function OnGameStart()
         Write(log, full_log_path)
         Write(log, chat_logs_path)
         Write(log, command_logs_path)
+        SaveClientData(0)
     end
 end
 
@@ -180,30 +182,32 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     else
 
         local t = players[PlayerIndex]
-        t["%%message%%"], t["%%total%%"] = Command, get_var(0, "$pn")
+        if (t) then
+            t["%%message%%"], t["%%total%%"] = Command, get_var(0, "$pn")
 
-        if (Environment == 2) then
-            Environment = "CHAT COMMAND"
-        elseif (Environment == 1) then
-            Environment = "RCON COMMAND"
-        elseif (Environment == 0) then
-            Environment = "CONSOLE COMMAND"
+            if (Environment == 2) then
+                Environment = "CHAT COMMAND"
+            elseif (Environment == 1) then
+                Environment = "RCON COMMAND"
+            elseif (Environment == 0) then
+                Environment = "CONSOLE COMMAND"
+            end
+
+            local content = CensoredContent(Command)
+            if (content ~= nil) then
+                Command = content
+                Environment = "CENSORED"
+            end
+
+            local log = on_command[Environment]
+            for k, v in pairs(t) do
+                log = gsub(log, k, v)
+            end
+
+            cprint(log, 11)
+            Write(log, full_log_path)
+            Write(log, command_logs_path)
         end
-
-        local content = CensoredContent(Command)
-        if (content ~= nil) then
-            Command = content
-            Environment = "CENSORED"
-        end
-
-        local log = on_command[Environment]
-        for k, v in pairs(t) do
-            log = gsub(log, k, v)
-        end
-
-        cprint(log, 11)
-        Write(log, full_log_path)
-        Write(log, command_logs_path)
     end
 end
 
@@ -266,11 +270,21 @@ function SaveClientData(PlayerIndex)
     local level = tonumber(get_var(p, "$lvl"))
     local state = tostring((level >= 1))
 
+    local name = get_var(p, "$name")
+    local ip = get_var(p, "$ip")
+    local hash = get_var(p, "$hash") 
+    
+    if (p == 0) then
+        name = "SERVER"
+        ip = "N/A"
+        hash = "N/A"
+    end
+
     players[p] = {
         ["%%id%%"] = p,
-        ["%%name%%"] = get_var(p, "$name"),
-        ["%%ip%%"] = get_var(p, "$ip"),
-        ["%%hash%%"] = get_var(p, "$hash"),
+        ["%%name%%"] = name,
+        ["%%ip%%"] = ip,
+        ["%%hash%%"] = hash,
         ["%%level%%"] = level,
         ["%%message%%"] = "",
         ["%%state%%"] = state,
