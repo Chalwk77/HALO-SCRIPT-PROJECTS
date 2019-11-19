@@ -36,7 +36,7 @@ local function FormatTable(params)
                 betrays = params.betrays or 0,
                 suicides = params.suicides or 0,
                 joins = params.joins or 0,
-                krd = params.kdr or 0,
+                kdr = params.kdr or 0,
                 games_played = params.games_played or 0,
                 distance_traveled = params.distance_traveled or 0,
             },
@@ -218,7 +218,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
 
     local killer = tonumber(KillerIndex)
     local victim = tonumber(PlayerIndex)
-    
+                
     local kteam = get_var(killer, "$team")
     local vteam = get_var(victim, "$team")
 
@@ -227,33 +227,32 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
 
     -- killed by server --
     if (killer == -1) then
-        mode = 0
-    end
-    -- fall / distance damage
-    if (v.last_damage == tags[1] or v.last_damage == tags[2]) then
         mode = 1
-    end
-    -- guardians / unkown --
-    if (killer == nil) then
+        
+    -- guardians / unknown --
+    elseif (killer == nil) then
         mode = 2
-    end
+    
     -- killed by vehicle --
-    if (killer == 0) then
+    elseif (killer == 0) then
         mode = 3
-    end
+    
     -- pVp --
-    if (killer > 0) and (victim ~= killer) then
+    elseif (killer > 0) and (victim ~= killer) then
         mode = 4
-    end
+    
     -- betray / team kill --
-    if (kteam == vteam) and (killer ~= victim) then
+    elseif (kteam == vteam) and (killer ~= victim) then
         mode = 5
-    end
+    
     -- suicide --
-    if (killer == vicitm) then
+    elseif (killer == vicitm) then
         mode = 6
+    
+    -- fall / distance damage
+    elseif (v.last_damage == tags[1] or v.last_damage == tags[2]) then
+        mode = 7
     end
-
     
     if (killer > 0) then
         if (mode == 6) then
