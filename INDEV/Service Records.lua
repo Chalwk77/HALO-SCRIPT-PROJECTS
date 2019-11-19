@@ -23,6 +23,7 @@ local players = {}
 local path = "sapp\\playerdata.json"
 
 local AnnounceRank = true
+local rank_feedback = "Server Statistics: You are currently ranked %rank% out of %total%."
 
 local function FormatTable(PlayerIndex)
     local ip = players[PlayerIndex].ip
@@ -214,6 +215,9 @@ local tags = {}
 local game_over
 local script_version = 1.0
 
+local gsub = string.gsub
+local format = string.format
+
 function OnScriptLoad()
     
     -- Register needed event callbacks:
@@ -394,7 +398,6 @@ function GetStats(ip)
 end
 
 function AnnouncePlayerRank(PlayerIndex)
-    local rank, total
 
     local t = players[PlayerIndex]
     local stats = GetStats()
@@ -409,10 +412,8 @@ function AnnouncePlayerRank(PlayerIndex)
     end)
 
     for k,v in pairs(credits) do
-        if (t.ip == v.ip) then
-            rank = k
-            total = #credits
-            local msg = "Server Statistics: You are currently ranked " .. rank .. " out of " .. total .. "."
+        if (v.ip == t.ip) then
+            local msg = gsub(gsub(rank_feedback, "%%rank%%", k), "%%total%%", #credits)
             return rprint(PlayerIndex, msg)
         end
     end
@@ -494,7 +495,7 @@ function report()
     cprint("--------------------------------------------------------", 5 + 8)
     cprint("Please report this error on github:", 7 + 8)
     cprint("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", 7 + 8)
-    cprint("Script Version: " .. string.format("%0.2f", script_version), 7 + 8)
+    cprint("Script Version: " .. format("%0.2f", script_version), 7 + 8)
     cprint("--------------------------------------------------------", 5 + 8)
 end
 
