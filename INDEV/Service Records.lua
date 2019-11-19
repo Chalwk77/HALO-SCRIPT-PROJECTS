@@ -227,16 +227,11 @@ function UpdateStats(PlayerIndex)
     local stats = GetStats()
     local t = players[PlayerIndex]
     if (stats) then
-        for k, v in pairs(stats) do
-            if (k == t.ip) then
-                v = t.data
-                local file = assert(io.open(path, "w"))
-                if (file) then
-                    file:write(json:encode_pretty(stats))
-                    io.close(file)
-                end
-                break
-            end
+        stats[t.ip] = t.data
+        local file = assert(io.open(path, "w"))
+        if (file) then
+            file:write(json:encode_pretty(stats))
+            io.close(file)
         end
     end
 end
