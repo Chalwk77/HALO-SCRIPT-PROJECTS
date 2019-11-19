@@ -70,6 +70,7 @@ local function FormatTable(PlayerIndex)
                 joins = 0,
                 kdr = 0,
                 games_played = 0,
+                time_played = 0,
                 distance_traveled = 0,
             },
             sprees = {
@@ -90,6 +91,20 @@ local function FormatTable(PlayerIndex)
                 invincible = 0,
                 anomgstopkillingme = 0,
             },
+            medals = {
+                sprees = "False",
+                assists = "False",
+                closequarters = "False",
+                crackshot = "False",
+                roadrage = "False",
+                grenadier = "False",
+                heavyweapons = "False",
+                jackofalltrades = "False",
+                mobileasset = "False",
+                multikill = "False",
+                sidearm = "False",
+                triggerman = "False",
+            }
         }
     }
     return structure
