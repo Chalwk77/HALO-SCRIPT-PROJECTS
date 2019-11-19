@@ -22,44 +22,45 @@ local players = {}
 -- Configuration Starts --
 local path = "sapp\\playerdata.json"
 
-local function FormatTable(params)
+local function FormatTable(PlayerIndex)
+    local ip = players[PlayerIndex].ip
     local structure = {
-        [params.ip] = {
-            id = params.id,
-            name = params.name,
-            hash = params.hash,
-            rank = params.rank or "Recruit",
-            credits = params.credits or 0,
-            credits_until_next_rank = params.credits_until_next_rank or 7500,
+        [ip] = {
+            id = PlayerIndex,
+            name = get_var(PlayerIndex, "$name"),
+            hash = get_var(PlayerIndex, "$hash"),
+            rank = "Recruit",
+            credits = 0,
+            credits_until_next_rank = 7500,
             last_damage = "",
             stats = {
-                kills = params.kills or 0,
-                deaths = params.deaths or 0,
-                assists = params.assists or 0,
-                betrays = params.betrays or 0,
-                suicides = params.suicides or 0,
-                joins = params.joins or 0,
-                kdr = params.kdr or 0,
-                games_played = params.games_played or 0,
-                distance_traveled = params.distance_traveled or 0,
+                kills = 0,
+                deaths = 0,
+                assists = 0,
+                betrays = 0,
+                suicides = 0,
+                joins = 0,
+                kdr = 0,
+                games_played = 0,
+                distance_traveled = 0,
             },
             sprees = {
-                double_kill = params.double_kill or 0,
-                triple_kill = params.triple_kill or 0,
-                overkill = params.overkill or 0,
-                killtacular = params.killtacular or 0,
-                killtrocity = params.killtrocity or 0,
-                killimanjaro = params.killimanjaro or 0,
-                killtastrophe = params.killtastrophe or 0,
-                killpocalypse = params.killpocalypse or 0,
-                killionaire = params.killionaire or 0,
-                kiling_spree = params.kiling_spree or 0,
-                killing_frenzy = params.killing_frenzy or 0,
-                running_riot = params.running_riot or 0,
-                rampage = params.rampage or 0,
-                untouchable = params.untouchable or 0,
-                invincible = params.invincible or 0,
-                anomgstopkillingme = params.anomgstopkillingme or 0,
+                double_kill = 0,
+                triple_kill = 0,
+                overkill = 0,
+                killtacular = 0,
+                killtrocity = 0,
+                killimanjaro = 0,
+                killtastrophe = 0,
+                killpocalypse = 0,
+                killionaire = 0,
+                kiling_spree = 0,
+                killing_frenzy = 0,
+                running_riot = 0,
+                rampage = 0,
+                untouchable = 0,
+                invincible = 0,
+                anomgstopkillingme = 0,
             },
         }
     }
@@ -171,9 +172,10 @@ local game_over
 local script_version = 1.0
 
 function OnScriptLoad()
-    register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb['EVENT_DIE'], 'OnPlayerDeath')
+    register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb['EVENT_GAME_START'], 'OnGameStart')
+    register_callback(cb['EVENT_LEAVE'], 'OnPlayerDisconnect')
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
     if (get_var(0, "$gt") ~= "n/a") then
         CheckFile()
@@ -207,24 +209,22 @@ end
 function OnPlayerConnect(PlayerIndex)
 
     local p = tonumber(PlayerIndex)
-
     local ip = get_var(p, "$ip"):match('(%d+.%d+.%d+.%d+)')
-    players[p] = { ip = ip, data = {}}
+    players[p] = {ip = ip, data = {}}
 
     if (not GetStats(ip)) then
-        local params = {}
-        params.id = p
-        params.name = get_var(p, "$name")
-        params.hash = get_var(p, "$hash")
-        params.ip = ip
         local file = assert(io.open(path, "a+"))
         if (file) then
-            file:write(json:encode_pretty(FormatTable(params)))
+            file:write(json:encode_pretty(FormatTable(p)))
             io.close(file)
         end
     end
 
     players[p].data = GetStats(ip)
+end
+
+function OnPlayerDisconnect(PlayerIndex)
+    players[p] = nil
 end
 
 function OnPlayerDeath(PlayerIndex, KillerIndex)
@@ -369,7 +369,7 @@ function report()
     cprint("--------------------------------------------------------", 5 + 8)
     cprint("Please report this error on github:", 7 + 8)
     cprint("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", 7 + 8)
-    cprint("Script Version: " .. format("%0.2f", script_version), 7 + 8)
+    cprint("Script Version: " .. string.format("%0.2f", script_version), 7 + 8)
     cprint("--------------------------------------------------------", 5 + 8)
 end
 
