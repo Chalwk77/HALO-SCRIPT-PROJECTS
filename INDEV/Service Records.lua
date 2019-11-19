@@ -191,7 +191,7 @@ function OnPlayerConnect(PlayerIndex)
     local p = tonumber(PlayerIndex)
 
     local ip = get_var(p, "$ip"):match('(%d+.%d+.%d+.%d+)')
-    players[p] = { ip = ip, data = nil }
+    players[p] = { ip = ip, data = {} }
 
     if (not GetStats(ip)) then
         local params = {}
@@ -225,11 +225,11 @@ end
 
 function UpdateStats(PlayerIndex)
     local stats = GetStats()
-    local Tab = players[PlayerIndex]
+    local t = players[PlayerIndex]
     if (stats) then
         for k, v in pairs(stats) do
-            if (k == Tab.ip) then
-                v = Tab.data
+            if (k == t.ip) then
+                v = t.data
                 local file = assert(io.open(path, "w"))
                 if (file) then
                     file:write(json:encode_pretty(stats))
