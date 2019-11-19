@@ -483,8 +483,6 @@ function report()
     cprint("--------------------------------------------------------", 5 + 8)
 end
 
--- This function will return a string with a traceback of the stack call...
--- ...and call function 'report' after 50 milliseconds.
 function OnError()
     cprint(debug.traceback(), 4 + 8)
     timer(50, "report")
