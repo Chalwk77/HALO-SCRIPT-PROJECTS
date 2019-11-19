@@ -28,6 +28,7 @@ local function FormatTable(params)
             rank = params.rank or "Recruit",
             credits = params.credits or 0,
             credits_until_next_rank = params.credits_until_next_rank or 7500,
+            last_damage = nil,
             stats = {
                 kills = params.kills or 0,
                 deaths = params.deaths or 0,
@@ -162,18 +163,21 @@ local ranks = {
 -- Configuration Ends --
 
 local json = (loadfile "json.lua")()
+local tags = {}
 
 function OnScriptLoad()
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb['EVENT_DIE'], 'OnPlayerDeath')
     register_callback(cb['EVENT_GAME_START'], 'OnGameStart')
+    register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
     if (get_var(0, "$gt") ~= "n/a") then
         CheckFile()
+        LoadItems()
         players = {}
         for i = 1, 16 do
             if player_present(i) then
                 local ip = get_var(i, "$ip"):match('(%d+.%d+.%d+.%d+)')
-                players[i] = { ip = ip, data = GetStats(ip) }
+                players[i] = { ip = ip, data = GetStats(ip)}
             end
         end
     end
@@ -182,6 +186,7 @@ end
 function OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
         CheckFile()
+        LoadItems()
         players = {}
     end
 end
@@ -190,8 +195,8 @@ function OnPlayerConnect(PlayerIndex)
 
     local p = tonumber(PlayerIndex)
 
-    local ip = get_var(p, "$ip"):match('(%d+.%d+.%d+.%d+)')
-    players[p] = { ip = ip, data = {} }
+    local ip = get_var(p, "$ip"):match('(%d+.%d+.%d+.%d+)')1
+    players[p] = { ip = ip, data = {}}
 
     if (not GetStats(ip)) then
         local params = {}
@@ -213,13 +218,56 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
 
     local killer = tonumber(KillerIndex)
     local victim = tonumber(PlayerIndex)
+    
+    local kteam = get_var(killer, "$team")
+    local vteam = get_var(victim, "$team")
 
+    local mode = nil
     local k, v = players[killer].data, players[victim].data
+
+    -- killed by server --
+    if (killer == -1) then
+        mode = 0
+    end
+    -- fall / distance damage
+    if (v.last_damage == tags[1] or v.last_damage == tags[2]) then
+        mode = 1
+    end
+    -- guardians / unkown --
+    if (killer == nil) then
+        mode = 2
+    end
+    -- killed by vehicle --
+    if (killer == 0) then
+        mode = 3
+    end
+    -- pVp --
+    if (killer > 0) and (victim ~= killer) then
+        mode = 4
+    end
+    -- betray / team kill --
+    if (kteam == vteam) and (killer ~= victim) then
+        mode = 5
+    end
+    -- suicide --
+    if (killer == vicitm) then
+        mode = 6
+    end
+
+    
     if (killer > 0) then
-        if (killer == victim) then
+        if (mode == 6) then
             v.stats.suicides = v.stats.suicides + 1
             UpdateStats(victim)
         end
+    end
+end
+
+
+function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
+    if (tonumber(CauserIndex) > 0) then
+        local k, v = players[CauserIndex].data, players[PlayerIndex].data
+        k.damage, v.damage = MetaID,MetaID
     end
 end
 
@@ -255,6 +303,65 @@ function CheckFile()
     if (file ~= nil) then
         io.close(file)
     end
+end
+
+function LoadItems()
+    tags = {
+        -- fall damage --
+        [1] = GetTag("jpt!", "globals\\falling"),
+        [2] = GetTag("jpt!", "globals\\distance"),
+
+        -- vehicle collision --
+        [3] = GetTag("jpt!", "globals\\vehicle_collision"),
+
+        -- vehicle projectiles --
+        [4] = GetTag("jpt!", "vehicles\\ghost\\ghost bolt"),
+        [5] = GetTag("jpt!", "vehicles\\scorpion\\bullet"),
+        [6] = GetTag("jpt!", "vehicles\\warthog\\bullet"),
+        [7] = GetTag("jpt!", "vehicles\\c gun turret\\mp bolt"),
+        [8] = GetTag("jpt!", "vehicles\\banshee\\banshee bolt"),
+        [9] = GetTag("jpt!", "vehicles\\scorpion\\shell explosion"),
+        [10] = GetTag("jpt!", "vehicles\\banshee\\mp_fuel rod explosion"),
+
+        -- weapon projectiles --
+        [11] = GetTag("jpt!", "weapons\\pistol\\bullet"),
+        [12] = GetTag("jpt!", "weapons\\plasma rifle\\bolt"),
+        [13] = GetTag("jpt!", "weapons\\shotgun\\pellet"),
+        [14] = GetTag("jpt!", "weapons\\plasma pistol\\bolt"),
+        [15] = GetTag("jpt!", "weapons\\needler\\explosion"),
+        [16] = GetTag("jpt!", "weapons\\assault rifle\\bullet"),
+        [17] = GetTag("jpt!", "weapons\\needler\\impact damage"),
+        [18] = GetTag("jpt!", "weapons\\flamethrower\\explosion"),
+        [19] = GetTag("jpt!", "weapons\\sniper rifle\\sniper bullet"),
+        [20] = GetTag("jpt!", "weapons\\rocket launcher\\explosion"),
+        [21] = GetTag("jpt!", "weapons\\needler\\detonation damage"),
+        [22] = GetTag("jpt!", "weapons\\plasma rifle\\charged bolt"),
+        [23] = GetTag("jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_melee"),
+        [24] = GetTag("jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_explosion"),
+
+        -- grenades --
+        [25] = GetTag("jpt!", "weapons\\frag grenade\\explosion"),
+        [26] = GetTag("jpt!", "weapons\\plasma grenade\\attached"),
+        [27] = GetTag("jpt!", "weapons\\plasma grenade\\explosion"),
+
+        -- weapon melee --
+        [28] = GetTag("jpt!", "weapons\\flag\\melee"),
+        [29] = GetTag("jpt!", "weapons\\ball\\melee"),
+        [30] = GetTag("jpt!", "weapons\\pistol\\melee"),
+        [31] = GetTag("jpt!", "weapons\\needler\\melee"),
+        [32] = GetTag("jpt!", "weapons\\shotgun\\melee"),
+        [33] = GetTag("jpt!", "weapons\\flamethrower\\melee"),
+        [34] = GetTag("jpt!", "weapons\\sniper rifle\\melee"),
+        [35] = GetTag("jpt!", "weapons\\plasma rifle\\melee"),
+        [36] = GetTag("jpt!", "weapons\\plasma pistol\\melee"),
+        [37] = GetTag("jpt!", "weapons\\assault rifle\\melee"),
+        [38] = GetTag("jpt!", "weapons\\rocket launcher\\melee"),
+    }
+end
+
+function GetTag(obj_type, obj_name)
+    local tag = lookup_tag(obj_type, obj_name)
+    return tag ~= 0 and read_dword(tag + 0xC) or nil
 end
 
 function OnScriptUnload()
