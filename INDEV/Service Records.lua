@@ -14,6 +14,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]]--
 
 api_version = "1.12.0.0"
+local players = {}
 
 -- Configuration Starts --
 local path = "sapp\\playerdata.json"
@@ -64,46 +65,25 @@ local json = (loadfile "json.lua")()
 
 function OnScriptLoad()
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
+    register_callback(cb['EVENT_DIE'], 'OnPlayerDeath')
 end
 
 function OnPlayerConnect(PlayerIndex)
  
+    local ip = get_var(PlayerIndex, "$ip"):match('(%d+.%d+.%d+.%d+)')
+ 
+    players[PlayerIndex] = {ip = ip, stats = {}}
+    
     local params = {}
     params.id = tonumber(PlayerIndex)
     params.name = get_var(PlayerIndex, "$name")
     params.hash = get_var(PlayerIndex, "$hash")
-    params.ip = get_var(PlayerIndex, "$ip"):match('(%d+.%d+.%d+.%d+)')
+    params.ip = ip
 
-    UpdateStats(params)
-end
-
-function UpdateStats(params)
-    local stats = GetStats(params)
+    local stats = GetStats(ip)
     if (stats) then
-        for IP,Tab in pairs(stats) do 
-            if (IP == params.ip) then
-                for k1,_ in pairs(Tab) do
-                    for k2,_ in pairs(params) do
-                        if (k1 == k2) then
-                            if (type(k1) == "string") then
-                                Tab[k1] = params[k2]
-                            -- elseif (type(k1) == "table") then
-                                -- for i = 1,#k1 do
-                                    -- for j = 1,#params[k2] do
-                                        -- Tab[k1][i] = params[k2][j]
-                                    -- end
-                                -- end
-                            end
-                        end
-                    end
-                end
-            end
-        end
-        local file = assert(io.open(path, "r+"))
-        if (file) then
-            file:write(json:encode_pretty(stats))
-            io.close(file)
-        end
+        stats.rank = "New Rank"
+        players[PlayerIndex].stats = stats
     else
         local file = assert(io.open(path, "a+"))
         if (file) then
@@ -113,12 +93,51 @@ function UpdateStats(params)
     end
 end
 
-function GetStats(params)
+function OnPlayerDeath(PlayerIndex, KillerIndex)
+
+    local killer = tonumber(KillerIndex)
+    local victim = tonumber(PlayerIndex)
+    
+    local vip = players[killer].ip
+    local kip = players[victim].ip
+    
+    if (killer > 0) then
+        local k, v = GetStats(kip), GetStats(vip)
+        
+        if (killer == victim) then
+            if (k) then
+                k.stats.suicides = k.stats.suicides + 1
+                UpdateStats(PlayerIndex)
+            end
+        end
+    end
+end
+
+function UpdateStats(PlayerIndex)
+    local stats = GetStats()
+    if (stats) then
+        for k,v in pairs(stats) do
+            if (k == players[PlayerIndex].ip) then
+                v = players[PlayerIndex].stats
+                local file = assert(io.open(path, "r+"))
+                if (file) then
+                    file:write(json:encode_pretty(stats))
+                    io.close(file)
+                end
+            end
+        end
+    end
+end
+
+function GetStats(ip)
     local stats = nil
     local file = io.open(path,"r")
     if (file ~= nil) then
         local data = file:read("*all")
         stats = json:decode(data)
+        if (stats and ip) then
+            stats = stats[ip]
+        end
         io.close(file)
     end
     return stats
