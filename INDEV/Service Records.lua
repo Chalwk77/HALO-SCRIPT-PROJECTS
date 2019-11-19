@@ -334,7 +334,10 @@ end
 
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
     if (tonumber(CauserIndex) > 0) then
-        players[PlayerIndex].data.last_damage = MetaID
+        local t = players[PlayerIndex]
+        if (t) then
+            t.data.last_damage = MetaID
+        end
     end
 end
 
@@ -342,7 +345,7 @@ function UpdateStats(PlayerIndex)
     if (PlayerIndex > 0) then
         local stats = GetStats()
         local t = players[PlayerIndex]
-        if (stats) then
+        if (stats and t) then
             stats[t.ip] = t.data
             local file = assert(io.open(path, "w"))
             if (file) then
