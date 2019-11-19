@@ -225,40 +225,19 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     local mode = nil
     local k, v = players[killer].data, players[victim].data
 
-    -- killed by server --
-    if (killer == -1) then
-        mode = 1
-        
-    -- guardians / unknown --
-    elseif (killer == nil) then
-        mode = 2
+    local suicide = (killer == victim)
+    local betrayal = ((kteam == vteam) and killer ~= victim)
+    local pvp = ((killer > 0) and killer ~= victim)
+    local vehicle_squash = (killer == 0)
+    local guardians = (killer == nil)
+    local server = (killer == -1)
+    local fall_distance_damage = (v.last_damage == tags[1] or v.last_damage == tags[2])
     
-    -- killed by vehicle --
-    elseif (killer == 0) then
-        mode = 3
+    v.stats.deaths = v.stats.deaths + 1
     
-    -- pVp --
-    elseif (killer > 0) and (victim ~= killer) then
-        mode = 4
-    
-    -- betray / team kill --
-    elseif (kteam == vteam) and (killer ~= victim) then
-        mode = 5
-    
-    -- suicide --
-    elseif (killer == vicitm) then
-        mode = 6
-    
-    -- fall / distance damage
-    elseif (v.last_damage == tags[1] or v.last_damage == tags[2]) then
-        mode = 7
-    end
-    
-    if (killer > 0) then
-        if (mode == 6) then
-            v.stats.suicides = v.stats.suicides + 1
-            UpdateStats(victim)
-        end
+    if (suicide) then
+        v.stats.suicides = v.stats.suicides + 1
+        UpdateStats(victim)
     end
 end
 
