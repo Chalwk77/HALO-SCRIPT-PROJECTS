@@ -250,16 +250,16 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                 
     local kteam = get_var(killer, "$team")
     local vteam = get_var(victim, "$team")
-
-    local mode = nil
     
     local v = players[victim]
     if (v) then
         v = v.data
+        
         local k = players[killer]
         if (k) then
             k = k.data
         end
+        
         local suicide = (killer == victim)
         local betrayal = ((kteam == vteam) and killer ~= victim)
         local pvp = ((killer > 0) and killer ~= victim)
