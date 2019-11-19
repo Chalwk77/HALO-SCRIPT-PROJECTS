@@ -22,6 +22,8 @@ local players = {}
 -- Configuration Starts --
 local path = "sapp\\playerdata.json"
 
+local AnnounceRank = true
+
 local function FormatTable(PlayerIndex)
     local ip = players[PlayerIndex].ip
     local structure = {
@@ -172,11 +174,15 @@ local game_over
 local script_version = 1.0
 
 function OnScriptLoad()
+    
+    -- Register needed event callbacks:
     register_callback(cb['EVENT_DIE'], 'OnPlayerDeath')
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb['EVENT_GAME_START'], 'OnGameStart')
     register_callback(cb['EVENT_LEAVE'], 'OnPlayerDisconnect')
+    register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPreSpawn")
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
+    
     if (get_var(0, "$gt") ~= "n/a") then
         CheckFile()
         LoadItems()
@@ -221,10 +227,20 @@ function OnPlayerConnect(PlayerIndex)
     end
 
     players[p].data = GetStats(ip)
+    
+    if (AnnounceRank) then
+        AnnouncePlayerRank(p)
+    end
 end
 
 function OnPlayerDisconnect(PlayerIndex)
     players[p] = nil
+end
+
+function OnPlayerPreSpawn(PlayerIndex)
+    if player_present(PlayerIndex) then
+        players[PlayerIndex].data.last_damage = ""
+    end    
 end
 
 function OnPlayerDeath(PlayerIndex, KillerIndex)
@@ -236,28 +252,37 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     local vteam = get_var(victim, "$team")
 
     local mode = nil
-    local k, v = players[killer].data, players[victim].data
-
-    local suicide = (killer == victim)
-    local betrayal = ((kteam == vteam) and killer ~= victim)
-    local pvp = ((killer > 0) and killer ~= victim)
-    local vehicle_squash = (killer == 0)
-    local guardians = (killer == nil)
-    local server = (killer == -1)
-    local fall_distance_damage = (v.last_damage == tags[1] or v.last_damage == tags[2])
     
-    v.stats.deaths = v.stats.deaths + 1
-    
-    if (suicide) then
-        v.stats.suicides = v.stats.suicides + 1
-    elseif (pvp) then
-        k.stats.kills = k.stats.kills + 1
-    elseif (betrayal) then
-        k.stats.betrays = k.stats.betrays + 1        
+    local v = players[victim]
+    if (v) then
+        v = v.data
+        local k = players[killer]
+        if (k) then
+            k = k.data
+        end
+        local suicide = (killer == victim)
+        local betrayal = ((kteam == vteam) and killer ~= victim)
+        local pvp = ((killer > 0) and killer ~= victim)
+        local vehicle_squash = (killer == 0)
+        local guardians = (killer == nil)
+        local server = (killer == -1)
+        local fall_distance_damage = (v.last_damage == tags[1] or v.last_damage == tags[2])
+        
+        v.stats.deaths = v.stats.deaths + 1
+        
+        if (suicide) then
+            v.stats.suicides = v.stats.suicides + 1
+        elseif (pvp) then
+            k.stats.kills = k.stats.kills + 1
+        elseif (betrayal) then
+            k.stats.betrays = k.stats.betrays + 1
+        elseif (fall_distance_damage) then
+            --
+        end
+        
+        UpdateStats(victim)
+        UpdateStats(killer)
     end
-    
-    UpdateStats(victim)
-    UpdateStats(killer)
 end
 
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
@@ -293,6 +318,31 @@ function GetStats(ip)
         io.close(file)
     end
     return stats
+end
+
+function AnnouncePlayerRank(PlayerIndex)
+    local rank, total
+
+    local t = players[PlayerIndex]
+    local stats = GetStats()
+    
+    local credits = { }
+    for k,v in pairs(stats) do
+        table.insert(credits, { ip = k, credits = v.credits })
+    end
+
+    table.sort(credits, function(a, b)
+        return a.credits > b.credits
+    end)
+
+    for k,v in pairs(credits) do
+        if (t.ip == v.ip) then
+            rank = k
+            total = #credits
+            local msg = "Server Statistics: You are currently ranked " .. rank .. " out of " .. total .. "."
+            return rprint(PlayerIndex, msg)
+        end
+    end
 end
 
 function CheckFile()
