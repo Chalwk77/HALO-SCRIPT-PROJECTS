@@ -1,9 +1,12 @@
 --[[
 --=====================================================================================================--
 Script Name: Service Records, for SAPP (PC & CE)
-Description: N/A
 
-IN DEVELOPMENT -> IN DEVELOPMENT -> IN DEVELOPMENT -> IN DEVELOPMENT
+### Important:
+This mod requires that the following json library is installed to your server:
+http://regex.info/blog/lua/json
+
+Place "json.lua" in your servers root directory.
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
