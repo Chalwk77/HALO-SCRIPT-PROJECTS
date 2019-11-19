@@ -204,6 +204,7 @@ function OnScriptLoad()
     
     -- Register needed event callbacks:
     register_callback(cb['EVENT_DIE'], 'OnPlayerDeath')
+    register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb['EVENT_GAME_START'], 'OnGameStart')
     register_callback(cb['EVENT_LEAVE'], 'OnPlayerDisconnect')
@@ -238,11 +239,9 @@ function OnGameEnd()
         game_over = true
         for i = 1,16 do
             if player_present(i) then
-                local t = players[i]
-                if (t) then
-                    t.stats.games_played = t.stats.games_played + 1
-                    UpdateStats(i)
-                end
+                local t = players[i].data
+                t.stats.games_played = t.stats.games_played + 1
+                UpdateStats(i)
             end
         end
     end
