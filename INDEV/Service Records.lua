@@ -165,6 +165,7 @@ local ranks = {
 local json = (loadfile "json.lua")()
 local tags = {}
 local game_over
+local script_version = 1.0
 
 function OnScriptLoad()
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
@@ -361,3 +362,17 @@ function OnScriptUnload()
 
 end
 
+function report()
+    cprint("--------------------------------------------------------", 5 + 8)
+    cprint("Please report this error on github:", 7 + 8)
+    cprint("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", 7 + 8)
+    cprint("Script Version: " .. format("%0.2f", script_version), 7 + 8)
+    cprint("--------------------------------------------------------", 5 + 8)
+end
+
+-- This function will return a string with a traceback of the stack call...
+-- ...and call function 'report' after 50 milliseconds.
+function OnError()
+    cprint(debug.traceback(), 4 + 8)
+    timer(50, "report")
+end
