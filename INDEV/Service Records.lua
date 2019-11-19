@@ -263,7 +263,6 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     end
 end
 
-
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
     if (tonumber(CauserIndex) > 0) then
         local k, v = players[CauserIndex].data, players[PlayerIndex].data
