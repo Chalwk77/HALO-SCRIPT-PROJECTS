@@ -36,11 +36,38 @@ local function FormatTable(PlayerIndex)
             credits_until_next_rank = 7500,
             last_damage = "",
             stats = {
-                kills = 0,
-                deaths = 0,
-                assists = 0,
-                betrays = 0,
-                suicides = 0,
+                kills = {
+                    total = 0,
+                    deaths = 0,
+                    assists = 0,
+                    betrays = 0,
+                    suicides = 0,
+                    
+                    melee = 0,
+                    fragnade = 0,
+                    plasmanade = 0,
+                    grenadestuck = 0,
+                    sniper = 0,
+                    shotgun = 0,
+                    rocket = 0,
+                    fuelrod = 0,
+                    plasmarifle = 0,
+                    plasmapistol = 0,
+                    pistol = 0,
+                    needler = 0,
+                    flamethrower = 0,
+                    flagmelee = 0,
+                    oddballmelee = 0,
+                    assaultrifle = 0,
+                    chainhog = 0,
+                    tankshell = 0,
+                    tankmachinegun = 0,
+                    ghost = 0,
+                    turret = 0,
+                    bansheefuelrod = 0,
+                    banshee = 0,
+                    splatter = 0,
+                },
                 joins = 0,
                 kdr = 0,
                 games_played = 0,
@@ -209,6 +236,15 @@ end
 function OnGameEnd()
     if (get_var(0, "$gt") ~= "n/a") then
         game_over = true
+        for i = 1,16 do
+            if player_present(i) then
+                local t = players[i]
+                if (t) then
+                    t.stats.games_played = t.stats.games_played + 1
+                    UpdateStats(i)
+                end
+            end
+        end
     end
 end
 
@@ -268,18 +304,30 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         local server = (killer == -1)
         local fall_distance_damage = (v.last_damage == tags[1] or v.last_damage == tags[2])
         
-        v.stats.deaths = v.stats.deaths + 1
+        v.stats.kills.deaths = v.stats.kills.deaths + 1
         
-        if (suicide) then
-            v.stats.suicides = v.stats.suicides + 1
-        elseif (pvp) then
-            k.stats.kills = k.stats.kills + 1
-        elseif (betrayal) then
-            k.stats.betrays = k.stats.betrays + 1
-        elseif (fall_distance_damage) then
-            --
+        local melee = function()
+            for i = 1,#tags.melee do
+                if (v.last_damage == tags.melee[i]) then
+                    return true
+                end
+            end
         end
         
+        if (suicide) then
+            v.stats.kills.suicides = v.stats.kills.suicides + 1
+        elseif (pvp) then
+            k.stats.kills.total = k.stats.kills.total + 1
+        elseif (betrayal) then
+            k.stats.kills.betrays = k.stats.kills.betrays + 1
+        elseif (fall_distance_damage) then
+
+        end
+        
+        if (melee) then
+            k.stats.kills.melee = k.stats.kills.melee + 1
+        end
+         
         UpdateStats(victim)
         UpdateStats(killer)
     end
@@ -383,26 +431,28 @@ function LoadItems()
         [20] = GetTag("jpt!", "weapons\\rocket launcher\\explosion"),
         [21] = GetTag("jpt!", "weapons\\needler\\detonation damage"),
         [22] = GetTag("jpt!", "weapons\\plasma rifle\\charged bolt"),
-        [23] = GetTag("jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_melee"),
-        [24] = GetTag("jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_explosion"),
+        [23] = GetTag("jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_explosion"),
 
         -- grenades --
-        [25] = GetTag("jpt!", "weapons\\frag grenade\\explosion"),
-        [26] = GetTag("jpt!", "weapons\\plasma grenade\\attached"),
-        [27] = GetTag("jpt!", "weapons\\plasma grenade\\explosion"),
+        [24] = GetTag("jpt!", "weapons\\frag grenade\\explosion"),
+        [25] = GetTag("jpt!", "weapons\\plasma grenade\\attached"),
+        [26] = GetTag("jpt!", "weapons\\plasma grenade\\explosion"),
 
-        -- weapon melee --
-        [28] = GetTag("jpt!", "weapons\\flag\\melee"),
-        [29] = GetTag("jpt!", "weapons\\ball\\melee"),
-        [30] = GetTag("jpt!", "weapons\\pistol\\melee"),
-        [31] = GetTag("jpt!", "weapons\\needler\\melee"),
-        [32] = GetTag("jpt!", "weapons\\shotgun\\melee"),
-        [33] = GetTag("jpt!", "weapons\\flamethrower\\melee"),
-        [34] = GetTag("jpt!", "weapons\\sniper rifle\\melee"),
-        [35] = GetTag("jpt!", "weapons\\plasma rifle\\melee"),
-        [36] = GetTag("jpt!", "weapons\\plasma pistol\\melee"),
-        [37] = GetTag("jpt!", "weapons\\assault rifle\\melee"),
-        [38] = GetTag("jpt!", "weapons\\rocket launcher\\melee"),
+        melee = {
+            -- weapon melee --
+            [1] = GetTag("jpt!", "weapons\\flag\\melee"),
+            [2] = GetTag("jpt!", "weapons\\ball\\melee"),
+            [3] = GetTag("jpt!", "weapons\\pistol\\melee"),
+            [4] = GetTag("jpt!", "weapons\\needler\\melee"),
+            [5] = GetTag("jpt!", "weapons\\shotgun\\melee"),
+            [6] = GetTag("jpt!", "weapons\\flamethrower\\melee"),
+            [7] = GetTag("jpt!", "weapons\\sniper rifle\\melee"),
+            [8] = GetTag("jpt!", "weapons\\plasma rifle\\melee"),
+            [9] = GetTag("jpt!", "weapons\\plasma pistol\\melee"),
+            [10] = GetTag("jpt!", "weapons\\assault rifle\\melee"),
+            [11] = GetTag("jpt!", "weapons\\rocket launcher\\melee"),
+            [12] = GetTag("jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_melee"),
+        },
     }
 end
 
