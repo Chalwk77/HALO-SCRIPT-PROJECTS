@@ -151,26 +151,28 @@ function OnServerChat(PlayerIndex, Message, type)
         elseif not isCommand(msg) then
 
             local t = players[PlayerIndex]
-            t["%%message%%"], t["%%total%%"] = Message, get_var(0, "$pn")
+            if (t) then
+                t["%%message%%"], t["%%total%%"] = Message, get_var(0, "$pn")
 
-            if (type == 0) then
-                type = "GLOBAL"
-            elseif (type == 1) then
-                type = "TEAM"
-            elseif (type == 2) then
-                type = "VEHICLE"
-            else
-                type = "UNKNOWN"
+                if (type == 0) then
+                    type = "GLOBAL"
+                elseif (type == 1) then
+                    type = "TEAM"
+                elseif (type == 2) then
+                    type = "VEHICLE"
+                else
+                    type = "UNKNOWN"
+                end
+
+                local log = on_chat[type]
+                for k, v in pairs(t) do
+                    log = gsub(log, k, v)
+                end
+
+                cprint(log, 11)
+                Write(log, full_log_path)
+                Write(log, chat_logs_path)
             end
-
-            local log = on_chat[type]
-            for k, v in pairs(t) do
-                log = gsub(log, k, v)
-            end
-
-            cprint(log, 11)
-            Write(log, full_log_path)
-            Write(log, chat_logs_path)
         end
     end
 end
@@ -216,9 +218,12 @@ function OnPlayerPrejoin(PlayerIndex)
     if (print_player_info) then
         cprint("________________________________________________________________________________", 10)
         cprint("Player attempting to connect to the server...", 13)
-        local t = players[PlayerIndex].all_info
-        for i = 1, #t do
-            cprint(t[i], 10)
+        local t = players[PlayerIndex]
+        if (t) then
+            t = t.all_info
+            for i = 1, #t do
+                cprint(t[i], 10)
+            end
         end
     end
 end
@@ -226,34 +231,36 @@ end
 local function QuitJoin(PlayerIndex, Type)
     local log
     local t = players[PlayerIndex]
-    local time_stamp = os.date("%A %d %B %Y - %X")
+    if (t) then
+        local time_stamp = os.date("%A %d %B %Y - %X")
 
-    if (Type == "JOIN") then
-        log = on_join
-        if (print_player_info) then
-            cprint("Join Time: " .. time_stamp, 10)
-            cprint("Status: " .. t["%%name%%"] .. " connected successfully.", 13)
-            cprint("________________________________________________________________________________", 10)
-        end
-    elseif (Type == "QUIT") then
-        if (print_player_info) then
-            cprint("________________________________________________________________________________", 12)
-            t["%%total%%"] = get_var(0, "$pn") - 1
-            local tab = t.all_info
-            for i = 1, #tab do
-                cprint(tab[i], 12)
+        if (Type == "JOIN") then
+            log = on_join
+            if (print_player_info) then
+                cprint("Join Time: " .. time_stamp, 10)
+                cprint("Status: " .. t["%%name%%"] .. " connected successfully.", 13)
+                cprint("________________________________________________________________________________", 10)
             end
-            cprint("Quit Time: " .. time_stamp, 12)
-            cprint("________________________________________________________________________________", 12)
+        elseif (Type == "QUIT") then
+            if (print_player_info) then
+                cprint("________________________________________________________________________________", 12)
+                t["%%total%%"] = get_var(0, "$pn") - 1
+                local tab = t.all_info
+                for i = 1, #tab do
+                    cprint(tab[i], 12)
+                end
+                cprint("Quit Time: " .. time_stamp, 12)
+                cprint("________________________________________________________________________________", 12)
+            end
+            log = on_quit
+            players[PlayerIndex] = nil
         end
-        log = on_quit
-        players[PlayerIndex] = nil
-    end
 
-    for k, v in pairs(t) do
-        log = gsub(log, k, v)
+        for k, v in pairs(t) do
+            log = gsub(log, k, v)
+        end
+        Write(log, full_log_path)
     end
-    Write(log, full_log_path)
 end
 
 function OnPlayerConnect(PlayerIndex)
