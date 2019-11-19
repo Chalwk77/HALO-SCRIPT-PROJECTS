@@ -28,7 +28,7 @@ local function FormatTable(params)
             rank = params.rank or "Recruit",
             credits = params.credits or 0,
             credits_until_next_rank = params.credits_until_next_rank or 7500,
-            last_damage = nil,
+            last_damage = "",
             stats = {
                 kills = params.kills or 0,
                 deaths = params.deaths or 0,
@@ -265,8 +265,7 @@ end
 
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
     if (tonumber(CauserIndex) > 0) then
-        local k, v = players[CauserIndex].data, players[PlayerIndex].data
-        k.last_damage, v.last_damage = MetaID,MetaID
+        players[PlayerIndex].data.last_damage = MetaID
     end
 end
 
