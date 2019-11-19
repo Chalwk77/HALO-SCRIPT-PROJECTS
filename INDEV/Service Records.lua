@@ -42,7 +42,6 @@ local function FormatTable(PlayerIndex)
                     assists = 0,
                     betrays = 0,
                     suicides = 0,
-                    
                     melee = 0,
                     fragnade = 0,
                     plasmanade = 0,
@@ -269,13 +268,22 @@ function OnPlayerConnect(PlayerIndex)
 end
 
 function OnPlayerDisconnect(PlayerIndex)
+    local p = tonumber(PlayerIndex)
     players[p] = nil
+    --
+    
 end
 
 function OnPlayerPreSpawn(PlayerIndex)
-    if player_present(PlayerIndex) then
-        players[PlayerIndex].data.last_damage = ""
-    end    
+    local p = tonumber(PlayerIndex)
+    if player_present(p) then
+        local t = players[p]
+        if (t) then
+            t.data.last_damage = ""
+        end
+    end
+    
+    --
 end
 
 function OnPlayerDeath(PlayerIndex, KillerIndex)
