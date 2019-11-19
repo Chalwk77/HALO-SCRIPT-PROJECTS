@@ -32,6 +32,7 @@ local function FormatTable(params)
                 assists = params.assists or 0,
                 betrays = params.betrays or 0,
                 suicides = params.suicides or 0,
+                joins = params.joins or 0,
                 krd = params.kdr or 0,
                 games_played = params.games_played or 0,
                 distance_traveled = params.distance_traveled or 0,
@@ -82,7 +83,6 @@ function OnPlayerConnect(PlayerIndex)
 
     local stats = GetStats(ip)
     if (stats) then
-        stats.rank = "New Rank"
         players[PlayerIndex].stats = stats
     else
         local file = assert(io.open(path, "a+"))
@@ -103,7 +103,6 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     
     if (killer > 0) then
         local k, v = GetStats(kip), GetStats(vip)
-        
         if (killer == victim) then
             if (k) then
                 k.stats.suicides = k.stats.suicides + 1
@@ -115,15 +114,19 @@ end
 
 function UpdateStats(PlayerIndex)
     local stats = GetStats()
+    local Tab = players[PlayerIndex]
+    
     if (stats) then
+        local t = {"none"}
         for k,v in pairs(stats) do
-            if (k == players[PlayerIndex].ip) then
-                v = players[PlayerIndex].stats
-                local file = assert(io.open(path, "r+"))
+            if (k == Tab.ip) then
+                v = Tab.stats
+                local file = assert(io.open(path, "w"))
                 if (file) then
                     file:write(json:encode_pretty(stats))
                     io.close(file)
                 end
+                break
             end
         end
     end
