@@ -168,11 +168,12 @@ function OnScriptLoad()
     register_callback(cb['EVENT_DIE'], 'OnPlayerDeath')
     register_callback(cb['EVENT_GAME_START'], 'OnGameStart')
     if (get_var(0, "$gt") ~= "n/a") then
+        CheckFile()
         players = {}
         for i = 1, 16 do
             if player_present(i) then
                 local ip = get_var(i, "$ip"):match('(%d+.%d+.%d+.%d+)')
-                players[i] = { ip = ip, stats = GetStats(ip) }
+                players[i] = { ip = ip, data = GetStats(ip) }
             end
         end
     end
@@ -180,20 +181,23 @@ end
 
 function OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
+        CheckFile()
         players = {}
     end
 end
 
 function OnPlayerConnect(PlayerIndex)
 
-    local ip = get_var(PlayerIndex, "$ip"):match('(%d+.%d+.%d+.%d+)')
-    players[PlayerIndex] = { ip = ip, stats = nil }
+    local p = tonumber(PlayerIndex)
+
+    local ip = get_var(p, "$ip"):match('(%d+.%d+.%d+.%d+)')
+    players[p] = { ip = ip, data = nil }
 
     if (not GetStats(ip)) then
         local params = {}
-        params.id = tonumber(PlayerIndex)
-        params.name = get_var(PlayerIndex, "$name")
-        params.hash = get_var(PlayerIndex, "$hash")
+        params.id = p
+        params.name = get_var(p, "$name")
+        params.hash = get_var(p, "$hash")
         params.ip = ip
         local file = assert(io.open(path, "a+"))
         if (file) then
@@ -202,7 +206,7 @@ function OnPlayerConnect(PlayerIndex)
         end
     end
 
-    players[PlayerIndex].stats = GetStats(ip)
+    players[p].data = GetStats(ip)
 end
 
 function OnPlayerDeath(PlayerIndex, KillerIndex)
@@ -210,13 +214,11 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     local killer = tonumber(KillerIndex)
     local victim = tonumber(PlayerIndex)
 
-    local k, v = players[killer], players[vicitm]
-    print(k, v)
-
+    local k, v = players[killer].data, players[victim].data
     if (killer > 0) then
-        if (killer == victim and k) then
+        if (killer == victim) then
             v.stats.suicides = v.stats.suicides + 1
-            UpdateStats(PlayerIndex)
+            UpdateStats(victim)
         end
     end
 end
@@ -224,11 +226,10 @@ end
 function UpdateStats(PlayerIndex)
     local stats = GetStats()
     local Tab = players[PlayerIndex]
-
     if (stats) then
         for k, v in pairs(stats) do
             if (k == Tab.ip) then
-                v = Tab.stats
+                v = Tab.data
                 local file = assert(io.open(path, "w"))
                 if (file) then
                     file:write(json:encode_pretty(stats))
@@ -252,6 +253,13 @@ function GetStats(ip)
         io.close(file)
     end
     return stats
+end
+
+function CheckFile()
+    local file = io.open(path, "a")
+    if (file ~= nil) then
+        io.close(file)
+    end
 end
 
 function OnScriptUnload()
