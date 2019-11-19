@@ -36,6 +36,11 @@ local function FormatTable(PlayerIndex)
             credits = 0,
             credits_until_next_rank = 7500,
             last_damage = "",
+            joins = 0,
+            kdr = 0,
+            games_played = 0,
+            time_played = 0,
+            distance_traveled = 0,
             stats = {
                 kills = {
                     total = 0,
@@ -68,11 +73,6 @@ local function FormatTable(PlayerIndex)
                     banshee = 0,
                     splatter = 0,
                 },
-                joins = 0,
-                kdr = 0,
-                games_played = 0,
-                time_played = 0,
-                distance_traveled = 0,
             },
             sprees = {
                 double_kill = 0,
@@ -105,7 +105,7 @@ local function FormatTable(PlayerIndex)
                 multikill = "False",
                 sidearm = "False",
                 triggerman = "False",
-            }
+            },
         }
     }
     return structure
@@ -249,7 +249,56 @@ function OnGameStart()
         LoadItems()
         players = {}
         game_over = false
+        
+    --=========DEBUG===================================================--
+        local ip = "127.0.0.1"
+        local ip2 = "000.000.000.000"
+        local function SaveTable(IP, NAME)
+            local records = {
+                [IP] = {
+                        name = NAME
+                    }
+                }
+            return records
+        end
+        
+        local function GetTStats(IP)
+            local stats, Match = nil, nil
+            local file = io.open(path, "r")
+            if (file ~= nil) then
+                local data = file:read("*all")
+                stats = json:decode(data)
+                io.close(file)
+                local Match = (stats[IP] ~= nil)
+                if (not Match) then
+                    return false
+                end
+            end
+        end
+        
+        if (not GetTStats(ip2)) then
+        
+            local stats = nil
+            local file = io.open(path, "r")
+            if (file ~= nil) then
+                local data = file:read("*all")
+                stats = json:decode(data)
+                io.close(file)
+            end
+        
+            local file = assert(io.open(path, "w"))
+            if (file) then
+                stats[ip2] = {name = "Player2"}
+                file:write(json:encode_pretty(stats))
+                io.close(file)
+            end
+            
+            for k,v in pairs(stats) do
+                print(k,v)
+            end
+        end
     end
+    --============== DEBUG END ==============--
 end
 
 function OnGameEnd()
@@ -269,9 +318,14 @@ function OnPlayerConnect(PlayerIndex)
 
     local p = tonumber(PlayerIndex)
     local ip = get_var(p, "$ip"):match('(%d+.%d+.%d+.%d+)')
+    if (p == 2) then
+        ip = "000.000.000.000"
+    end
+    
     players[p] = {ip = ip, data = {}}
 
     if (not GetStats(ip)) then
+        print('no data - creating entry')
         local file = assert(io.open(path, "a+"))
         if (file) then
             file:write(json:encode_pretty(FormatTable(p)))
@@ -301,7 +355,6 @@ function OnPlayerPreSpawn(PlayerIndex)
             t.data.last_damage = ""
         end
     end
-    
     --
 end
 
@@ -389,8 +442,17 @@ function GetStats(ip)
     if (file ~= nil) then
         local data = file:read("*all")
         stats = json:decode(data)
-        if (stats and ip) then
-            stats = stats[ip]
+        if (stats ~= nil and ip) then
+            local found = nil
+            for k,v in pairs(stats) do
+                if (ip == k) then
+                    found = true
+                    stats = stats[k]
+                end
+            end
+            if (not found) then
+                stats = nil
+            end
         end
         io.close(file)
     end
