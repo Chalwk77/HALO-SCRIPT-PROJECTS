@@ -164,6 +164,7 @@ local ranks = {
 
 local json = (loadfile "json.lua")()
 local tags = {}
+local game_over
 
 function OnScriptLoad()
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
@@ -174,6 +175,7 @@ function OnScriptLoad()
         CheckFile()
         LoadItems()
         players = {}
+        game_over = false
         for i = 1, 16 do
             if player_present(i) then
                 local ip = get_var(i, "$ip"):match('(%d+.%d+.%d+.%d+)')
@@ -188,6 +190,13 @@ function OnGameStart()
         CheckFile()
         LoadItems()
         players = {}
+        game_over = false
+    end
+end
+
+function OnGameEnd()
+    if (get_var(0, "$gt") ~= "n/a") then
+        game_over = true
     end
 end
 
@@ -237,8 +246,14 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     
     if (suicide) then
         v.stats.suicides = v.stats.suicides + 1
-        UpdateStats(victim)
+    elseif (pvp) then
+        k.stats.kills = k.stats.kills + 1
+    elseif (betrayal) then
+        k.stats.betrays = k.stats.betrays + 1        
     end
+    
+    UpdateStats(victim)
+    UpdateStats(killer)
 end
 
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
@@ -248,14 +263,16 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
 end
 
 function UpdateStats(PlayerIndex)
-    local stats = GetStats()
-    local t = players[PlayerIndex]
-    if (stats) then
-        stats[t.ip] = t.data
-        local file = assert(io.open(path, "w"))
-        if (file) then
-            file:write(json:encode_pretty(stats))
-            io.close(file)
+    if (PlayerIndex > 0) then
+        local stats = GetStats()
+        local t = players[PlayerIndex]
+        if (stats) then
+            stats[t.ip] = t.data
+            local file = assert(io.open(path, "w"))
+            if (file) then
+                file:write(json:encode_pretty(stats))
+                io.close(file)
+            end
         end
     end
 end
