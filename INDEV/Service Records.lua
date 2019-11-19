@@ -60,6 +60,103 @@ local function FormatTable(params)
     return structure
 end
 
+local ranks = {
+    ["Recruit"] = {
+        [1] = 0,
+    },
+    ["Private"] = {
+        [1] = 7500
+    },
+    ["Corporal"] = {
+        [1] = 10000,
+        [2] = 15000, -- grade 1
+    },
+    ["Sergeant"] = {
+        [1] = 20000,
+        [2] = 26250, -- grade 1
+        [3] = 32500, -- grade 2
+    },
+    ["Warrant Officer"] = {
+        [1] = 45000,
+        [2] = 78000, -- grade 1
+        [3] = 111000, -- grade 2
+        [4] = 144000, -- grade 3
+    },
+    ["Captain"] = {
+        [1] = 210000,
+        [2] = 233000, -- grade 1
+        [3] = 256000, -- grade 2
+        [4] = 279000, -- grade 3
+    },
+    ["Major"] = {
+        [1] = 325000,
+        [2] = 350000, -- grade 1
+        [3] = 375000, -- grade 2
+        [4] = 400000, -- grade 3
+    },
+    ["Lt. Colonel"] = {
+        [1] = 450000,
+        [2] = 480000, -- grade 1
+        [3] = 510000, -- grade 2
+        [4] = 540000, -- grade 3
+    },
+    ["Commander"] = {
+        [1] = 600000,
+        [2] = 650000, -- grade 1
+        [3] = 700000, -- grade 2
+        [4] = 750000, -- grade 3
+    },
+    ["Colonel"] = {
+        [1] = 850000,
+        [2] = 960000, -- grade 1
+        [3] = 1070000, -- grade 2
+        [4] = 1180000, -- grade 3
+    },
+    ["Brigadier"] = {
+        [1] = 1400000,
+        [2] = 1520000, -- grade 1
+        [3] = 1640000, -- grade 2
+        [4] = 1760000, -- grade 3
+    },
+    ["General"] = {
+        [1] = 2000000,
+        [2] = 2200000, -- grade 1
+        [3] = 2350000, -- grade 2
+        [4] = 2500000, -- grade 3
+        [5] = 2650000, -- grade 4
+    },
+    ["Field Marshall"] = {
+        [1] = 3000000
+    },
+    ["Hero"] = {
+        [1] = 3700000
+    },
+    ["Legend"] = {
+        [1] = 4600000
+    },
+    ["Mythic"] = {
+        [1] = 5650000
+    },
+    ["Noble"] = {
+        [1] = 7000000
+    },
+    ["Eclipse"] = {
+        [1] = 8500000
+    },
+    ["Nova"] = {
+        [1] = 11000000
+    },
+    ["Forerunner"] = {
+        [1] = 13000000
+    },
+    ["Reclaimer"] = {
+        [1] = 16500000
+    },
+    ["Inheritor"] = {
+        [1] = 20000000
+    },
+}
+
 -- Configuration Ends --
 
 local json = (loadfile "json.lua")()
