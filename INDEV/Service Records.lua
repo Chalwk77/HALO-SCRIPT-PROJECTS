@@ -19,7 +19,7 @@ local players = {}
 -- Configuration Starts --
 local path = "sapp\\playerdata.json"
 
-local function FormatTable(params) 
+local function FormatTable(params)
     local structure = {
         [params.ip] = {
             id = params.id,
@@ -67,47 +67,57 @@ local json = (loadfile "json.lua")()
 function OnScriptLoad()
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb['EVENT_DIE'], 'OnPlayerDeath')
+    register_callback(cb['EVENT_GAME_START'], 'OnGameStart')
+    if (get_var(0, "$gt") ~= "n/a") then
+        players = {}
+        for i = 1, 16 do
+            if player_present(i) then
+                local ip = get_var(i, "$ip"):match('(%d+.%d+.%d+.%d+)')
+                players[i] = { ip = ip, stats = GetStats(ip) }
+            end
+        end
+    end
+end
+
+function OnGameStart()
+    if (get_var(0, "$gt") ~= "n/a") then
+        players = {}
+    end
 end
 
 function OnPlayerConnect(PlayerIndex)
- 
-    local ip = get_var(PlayerIndex, "$ip"):match('(%d+.%d+.%d+.%d+)')
- 
-    players[PlayerIndex] = {ip = ip, stats = {}}
-    
-    local params = {}
-    params.id = tonumber(PlayerIndex)
-    params.name = get_var(PlayerIndex, "$name")
-    params.hash = get_var(PlayerIndex, "$hash")
-    params.ip = ip
 
-    local stats = GetStats(ip)
-    if (stats) then
-        players[PlayerIndex].stats = stats
-    else
+    local ip = get_var(PlayerIndex, "$ip"):match('(%d+.%d+.%d+.%d+)')
+    players[PlayerIndex] = { ip = ip, stats = nil }
+
+    if (not GetStats(ip)) then
+        local params = {}
+        params.id = tonumber(PlayerIndex)
+        params.name = get_var(PlayerIndex, "$name")
+        params.hash = get_var(PlayerIndex, "$hash")
+        params.ip = ip
         local file = assert(io.open(path, "a+"))
         if (file) then
             file:write(json:encode_pretty(FormatTable(params)))
             io.close(file)
         end
     end
+
+    players[PlayerIndex].stats = GetStats(ip)
 end
 
 function OnPlayerDeath(PlayerIndex, KillerIndex)
 
     local killer = tonumber(KillerIndex)
     local victim = tonumber(PlayerIndex)
-    
-    local vip = players[killer].ip
-    local kip = players[victim].ip
-    
+
+    local k, v = players[killer], players[vicitm]
+    print(k, v)
+
     if (killer > 0) then
-        local k, v = GetStats(kip), GetStats(vip)
-        if (killer == victim) then
-            if (k) then
-                k.stats.suicides = k.stats.suicides + 1
-                UpdateStats(PlayerIndex)
-            end
+        if (killer == victim and k) then
+            v.stats.suicides = v.stats.suicides + 1
+            UpdateStats(PlayerIndex)
         end
     end
 end
@@ -115,10 +125,9 @@ end
 function UpdateStats(PlayerIndex)
     local stats = GetStats()
     local Tab = players[PlayerIndex]
-    
+
     if (stats) then
-        local t = {"none"}
-        for k,v in pairs(stats) do
+        for k, v in pairs(stats) do
             if (k == Tab.ip) then
                 v = Tab.stats
                 local file = assert(io.open(path, "w"))
@@ -134,7 +143,7 @@ end
 
 function GetStats(ip)
     local stats = nil
-    local file = io.open(path,"r")
+    local file = io.open(path, "r")
     if (file ~= nil) then
         local data = file:read("*all")
         stats = json:decode(data)
