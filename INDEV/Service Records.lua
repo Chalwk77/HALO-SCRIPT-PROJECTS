@@ -195,7 +195,7 @@ function OnPlayerConnect(PlayerIndex)
 
     local p = tonumber(PlayerIndex)
 
-    local ip = get_var(p, "$ip"):match('(%d+.%d+.%d+.%d+)')1
+    local ip = get_var(p, "$ip"):match('(%d+.%d+.%d+.%d+)')
     players[p] = { ip = ip, data = {}}
 
     if (not GetStats(ip)) then
