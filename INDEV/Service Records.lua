@@ -25,7 +25,9 @@ local function FormatTable(params)
             id = params.id,
             name = params.name,
             hash = params.hash,
-            rank = params.rank or "Private",
+            rank = params.rank or "Recruit",
+            credits = params.credits or 0,
+            credits_until_next_rank = params.credits_until_next_rank or 7500,
             stats = {
                 kills = params.kills or 0,
                 deaths = params.deaths or 0,
