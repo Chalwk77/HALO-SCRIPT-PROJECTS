@@ -13,6 +13,10 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.12.0.0"
 
 local settings = {
+
+    -- [mapname] [gametype] = enabled/disabled
+    -- Example: ["mapname"] = {["lnz-zombies"] = 1, ["epic-tslayer"] = 0},
+    
     ["beavercreek"] = {["gt1"] = 1, ["gt2"] = 1, ["gt3"] = 1},
     
     ["bloodgulch"] = {["gt1"] = 1, ["gt2"] = 1, ["gt3"] = 1},
@@ -33,7 +37,7 @@ local settings = {
     
     ["sidewinder"] = {["gt1"] = 1, ["gt2"] = 1, ["gt3"] = 1},
     
-    ["timberland"] = {["lnz-zombies"] = 1, ["gt2"] = 1, ["gt3"] = 1},
+    ["timberland"] = {["gt1"] = 1, ["gt2"] = 1, ["gt3"] = 1},
     
     ["hangemhigh"] = {["gt1"] = 1, ["gt2"] = 1, ["gt3"] = 1},
     
