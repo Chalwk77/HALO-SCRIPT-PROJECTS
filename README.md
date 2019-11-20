@@ -10,7 +10,8 @@
 
 ### SAPP LINKS:
 > * Sapp Forums: [weblink](http://halo.isimaginary.com/)
-> * SAPP Documentation: [weblink](https://docs.google.com/document/d/1RAnl68RN8z0RAvJcPqnv94ngzWZ6xavaX1EHsAqHeJU)
+> * Revision 2.4: [weblink](https://drive.google.com/open?id=1nHoonWOxoAe8W58HR5XOResE1vd28Mxl)
+> * Revision 2.5: [weblink](https://drive.google.com/open?id=1W3VTUF76wW-L0AP-4UdO-OG_LiAeT63j)
 
 ### PHASOR LINKS:
 > * Phasor Forums: [weblink](http://phasor.proboards.com/)
