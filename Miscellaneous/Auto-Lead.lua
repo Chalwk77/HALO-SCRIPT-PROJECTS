@@ -50,6 +50,10 @@ local settings = {
     ["prisoner"] = {["gt1"] = 1, ["gt2"] = 1, ["gt3"] = 1},
     
     ["wizard"] = {["gt1"] = 1, ["gt2"] = 1, ["gt3"] = 1},
+    
+    -- repeat the structure to add more maps
+    ["mapname"] = {["gametype here"] = 1},
+    
 }
 
 
