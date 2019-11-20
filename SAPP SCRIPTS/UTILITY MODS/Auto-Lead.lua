@@ -1,8 +1,7 @@
 --[[
 --=====================================================================================================--
 Script Name: Auto-Lead, for SAPP (PC & CE)
-Description: Automatically turns No-Lead on/off on a per-map/per-gametype basis.
-             You can have as many game types per map table as you like.
+Description: Automatically turns on/off SAPP's no-lead feature on a per map/per game type basis.
             
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -18,6 +17,7 @@ local settings = {
 
     -- Example: ["mapname"] = {["lnz-zombies"] = 1, ["epic-tslayer"] = 0},
     -- 1 = on, 0 = off
+    -- You can have as many game types per map table as you like.
         
     ["beavercreek"] = {["gt1"] = 1, ["gt2"] = 1, ["gt3"] = 1},
     
