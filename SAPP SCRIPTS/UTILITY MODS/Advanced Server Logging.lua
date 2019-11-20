@@ -197,7 +197,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
 
             local content = CensoredContent(Command)
             if (content ~= nil) then
-                Command = content
+                t["%%message%%"] = content
                 Environment = "CENSORED"
             end
 
