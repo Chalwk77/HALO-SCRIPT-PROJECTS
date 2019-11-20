@@ -1,6 +1,7 @@
 --[[
 --=====================================================================================================--
 Script Name: Auto-Lead, for SAPP (PC & CE)
+Description: Automatically set No Lead on/off on a per-map/per-gametype basis.
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -60,13 +61,13 @@ local settings = {
 function OnScriptLoad()
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     if (get_var(0, "$gt") ~= "n/a") then
-        SetLead()
+        timer(1000, "SetLead")
     end
 end
 
 function OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
-        SetLead()
+        timer(1000, "SetLead")
     end
 end
 
