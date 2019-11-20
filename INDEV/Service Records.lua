@@ -26,8 +26,7 @@ local AnnounceRank = true
 local rank_feedback = "Server Statistics: You are currently ranked %rank% out of %total%."
 
 local function FormatTable(PlayerIndex)
-    local ip = players[PlayerIndex].ip
-    local structure = {
+    return {
         id = PlayerIndex,
         name = get_var(PlayerIndex, "$name"),
         hash = get_var(PlayerIndex, "$hash"),
@@ -57,6 +56,8 @@ local function FormatTable(PlayerIndex)
                 fuelrod = 0,
                 plasmarifle = 0,
                 plasmapistol = 0,
+                empblast = 0,
+                rockethog = 0,
                 pistol = 0,
                 needler = 0,
                 flamethrower = 0,
@@ -71,42 +72,41 @@ local function FormatTable(PlayerIndex)
                 bansheefuelrod = 0,
                 banshee = 0,
                 splatter = 0
+            },
+            sprees = {
+                double_kill = 0,
+                triple_kill = 0,
+                overkill = 0,
+                killtacular = 0,
+                killtrocity = 0,
+                killimanjaro = 0,
+                killtastrophe = 0,
+                killpocalypse = 0,
+                killionaire = 0,
+                kiling_spree = 0,
+                killing_frenzy = 0,
+                running_riot = 0,
+                rampage = 0,
+                untouchable = 0,
+                invincible = 0,
+                anomgstopkillingme = 0
+            },
+            medals = {
+                sprees = "False",
+                assists = "False",
+                closequarters = "False",
+                crackshot = "False",
+                roadrage = "False",
+                grenadier = "False",
+                heavyweapons = "False",
+                jackofalltrades = "False",
+                mobileasset = "False",
+                multikill = "False",
+                sidearm = "False",
+                triggerman = "False"
             }
-        },
-        sprees = {
-            double_kill = 0,
-            triple_kill = 0,
-            overkill = 0,
-            killtacular = 0,
-            killtrocity = 0,
-            killimanjaro = 0,
-            killtastrophe = 0,
-            killpocalypse = 0,
-            killionaire = 0,
-            kiling_spree = 0,
-            killing_frenzy = 0,
-            running_riot = 0,
-            rampage = 0,
-            untouchable = 0,
-            invincible = 0,
-            anomgstopkillingme = 0
-        },
-        medals = {
-            sprees = "False",
-            assists = "False",
-            closequarters = "False",
-            crackshot = "False",
-            roadrage = "False",
-            grenadier = "False",
-            heavyweapons = "False",
-            jackofalltrades = "False",
-            mobileasset = "False",
-            multikill = "False",
-            sidearm = "False",
-            triggerman = "False"
         }
     }
-    return structure
 end
 
 local ranks = {
@@ -217,7 +217,7 @@ local gsub = string.gsub
 local format = string.format
 
 function OnScriptLoad()
-    
+
     -- Register needed event callbacks:
     register_callback(cb['EVENT_DIE'], 'OnPlayerDeath')
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
@@ -226,7 +226,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_LEAVE'], 'OnPlayerDisconnect')
     register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPreSpawn")
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
-    
+
     if (get_var(0, "$gt") ~= "n/a") then
         CheckFile()
         LoadItems()
@@ -235,7 +235,7 @@ function OnScriptLoad()
         for i = 1, 16 do
             if player_present(i) then
                 local ip = get_var(i, "$ip"):match('(%d+.%d+.%d+.%d+)')
-                players[i] = { ip = ip, data = GetStats(ip)}
+                players[i] = { ip = ip, data = GetStats(ip) }
             end
         end
     end
@@ -253,7 +253,7 @@ end
 function OnGameEnd()
     if (get_var(0, "$gt") ~= "n/a") then
         game_over = true
-        for i = 1,16 do
+        for i = 1, 16 do
             if player_present(i) then
                 local t = players[i].data
                 t.stats.games_played = t.stats.games_played + 1
@@ -270,11 +270,11 @@ function OnPlayerConnect(PlayerIndex)
     if (p == 2) then
         ip = "000.000.000.000"
     end
-    
-    players[p] = {ip = ip, data = {}}
+
+    players[p] = { ip = ip, data = {} }
 
     if (not GetStats(ip)) then
-    
+
         local stats = nil
         local file = io.open(path, "r")
         if (file ~= nil) then
@@ -282,7 +282,7 @@ function OnPlayerConnect(PlayerIndex)
             stats = json:decode(data)
             io.close(file)
         end
-    
+
         local file = assert(io.open(path, "w"))
         if (file) then
             stats[ip] = FormatTable(p)
@@ -292,7 +292,7 @@ function OnPlayerConnect(PlayerIndex)
     end
 
     players[p].data = GetStats(ip)
-    
+
     if (AnnounceRank) then
         AnnouncePlayerRank(p)
     end
@@ -302,7 +302,7 @@ function OnPlayerDisconnect(PlayerIndex)
     local p = tonumber(PlayerIndex)
     players[p] = nil
     --
-    
+
 end
 
 function OnPlayerPreSpawn(PlayerIndex)
@@ -320,19 +320,19 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
 
     local killer = tonumber(KillerIndex)
     local victim = tonumber(PlayerIndex)
-                
+
     local kteam = get_var(killer, "$team")
     local vteam = get_var(victim, "$team")
-    
+
     local v = players[victim]
     if (v) then
         v = v.data
-        
+
         local k = players[killer]
         if (k) then
             k = k.data
         end
-        
+
         local suicide = (killer == victim)
         local betrayal = ((kteam == vteam) and killer ~= victim)
         local pvp = ((killer > 0) and killer ~= victim)
@@ -340,31 +340,112 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         local guardians = (killer == nil)
         local server = (killer == -1)
         local fall_distance_damage = (v.last_damage == tags[1] or v.last_damage == tags[2])
-        
+
         v.stats.kills.deaths = v.stats.kills.deaths + 1
-        
+
         local melee = function()
-            for i = 1,#tags.melee do
+            for i = 1, #tags.melee do
                 if (v.last_damage == tags.melee[i]) then
+                    k.credits = k.credits + 13
                     return true
                 end
             end
         end
-        
+
         if (suicide) then
             v.stats.kills.suicides = v.stats.kills.suicides + 1
         elseif (pvp) then
+            local player = read_dword(get_player(victim) + 0x34)
+
             k.stats.kills.total = k.stats.kills.total + 1
+
+            if (v.last_damage == tags[24]) then
+                k.stats.kills.fragnade = k.stats.kills.fragnade + 1
+                k.credits = k.credits + 8
+            elseif (v.last_damage == tags[25]) then
+                k.stats.kills.grenadestuck = k.stats.kills.grenadestuck + 1
+                k.credits = k.credits + 8
+            elseif (v.last_damage == tags[26]) then
+                k.stats.kills.plasmanade = k.stats.kills.plasmanade + 1
+                k.credits = k.credits + 8
+            elseif (v.last_damage == tags[3]) then
+                k.stats.kills.splatter = k.stats.kills.splatter + 1
+                k.credits = k.credits + 13
+            elseif (v.last_damage == tags[10]) then
+                k.stats.kills.bansheefuelrod = k.stats.kills.bansheefuelrod + 1
+                k.credits = k.credits + 13
+            elseif (v.last_damage == tags[8]) then
+                k.stats.kills.banshee = k.stats.kills.banshee + 1
+                k.credits = k.credits + 13
+            elseif (v.last_damage == tags[7]) then
+                k.stats.kills.turret = k.stats.kills.turret + 1
+                k.credits = k.credits + 6
+            elseif (v.last_damage == tags[4]) then
+                k.stats.kills.ghost = k.stats.kills.ghost + 1
+                k.credits = k.credits + 7
+            elseif (v.last_damage == tags[5]) then
+                k.stats.kills.tankmachinegun = k.stats.kills.tankmachinegun + 1
+                k.credits = k.credits + 8
+            elseif (v.last_damage == tags[9]) then
+                k.stats.kills.tankshell = k.stats.kills.tankshell + 1
+                k.credits = k.credits + 13
+            elseif (v.last_damage == tags[6]) then
+                k.stats.kills.chainhog = k.stats.kills.chainhog + 1
+                k.credits = k.credits + 8
+            elseif (v.last_damage == tags[16]) then
+                k.stats.kills.assaultrifle = k.stats.kills.assaultrifle + 1
+                k.credits = k.credits + 8
+            elseif (v.last_damage == tags[18]) then
+                k.stats.kills.flamethrower = k.stats.kills.flamethrower + 1
+                k.credits = k.credits + 6
+            elseif (v.last_damage == tags[15] or v.last_damage == tags[17] or v.last_damage == tags[21]) then
+                k.stats.kills.needler = k.stats.kills.needler + 1
+                k.credits = k.credits + 7
+            elseif (v.last_damage == tags[11]) then
+                k.stats.kills.pistol = k.stats.kills.pistol + 1
+                k.credits = k.credits + 8
+            elseif (v.last_damage == tags[14]) then
+                k.stats.kills.plasmapistol = k.stats.kills.plasmapistol + 1
+                k.credits = k.credits + 6
+            elseif (v.last_damage == tags[22]) then
+                k.stats.kills.empblast = k.stats.kills.empblast + 1
+                k.credits = k.credits + 6
+            elseif (v.last_damage == tags[12]) then
+                k.stats.kills.plasmarifle = k.stats.kills.plasmarifle + 1
+                k.credits = k.credits + 7
+            elseif (v.last_damage == tags[23]) then
+                k.stats.kills.fuelrod = k.stats.kills.fuelrod + 1
+                k.credits = k.credits + 11
+            elseif (v.last_damage == tags[13]) then
+                k.stats.kills.shotgun = k.stats.kills.shotgun + 1
+                k.credits = k.credits + 8
+            elseif (v.last_damage == tags[19]) then
+                k.stats.kills.sniper = k.stats.kills.sniper + 1
+                k.credits = k.credits + 13
+            elseif (v.last_damage == tags[20]) then
+                if (player) then
+                    if (read_byte(player + 0x2A0) == 1) then
+                        k.stats.kills.rockethog = k.stats.kills.rockethog + 1
+                        k.credits = k.credits + 13
+                    else
+                        k.stats.kills.rocket = k.stats.kills.rocket + 1
+                        k.credits = k.credits + 13
+                    end
+                else
+                    k.stats.kills.rocket = k.stats.kills.rocket + 1
+                    k.credits = k.credits + 13
+                end
+            end
         elseif (betrayal) then
             k.stats.kills.betrays = k.stats.kills.betrays + 1
         elseif (fall_distance_damage) then
-
+            --
         end
-        
+        --
         if (melee) then
             k.stats.kills.melee = k.stats.kills.melee + 1
         end
-         
+        --
         UpdateStats(victim)
         UpdateStats(killer)
     end
@@ -412,9 +493,9 @@ function AnnouncePlayerRank(PlayerIndex)
 
     local t = players[PlayerIndex]
     local stats = GetStats()
-    
+
     local credits = { }
-    for k,v in pairs(stats) do
+    for k, v in pairs(stats) do
         table.insert(credits, { ip = k, credits = v.credits })
     end
 
@@ -422,7 +503,7 @@ function AnnouncePlayerRank(PlayerIndex)
         return a.credits > b.credits
     end)
 
-    for k,v in pairs(credits) do
+    for k, v in pairs(credits) do
         if (v.ip == t.ip) then
             local msg = gsub(gsub(rank_feedback, "%%rank%%", k), "%%total%%", #credits)
             return rprint(PlayerIndex, msg)
@@ -435,7 +516,7 @@ function CheckFile()
     if (file ~= nil) then
         io.close(file)
     end
-    
+
     local stats = nil
     local file = io.open(path, "r")
     if (file ~= nil) then
