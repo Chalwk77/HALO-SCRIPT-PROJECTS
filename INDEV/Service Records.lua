@@ -22,90 +22,88 @@ local players = {}
 -- Configuration Starts --
 local path = "sapp\\playerdata.json"
 
-local AnnounceRank = true
+local AnnounceRank = false
 local rank_feedback = "Server Statistics: You are currently ranked %rank% out of %total%."
 
 local function FormatTable(PlayerIndex)
     local ip = players[PlayerIndex].ip
     local structure = {
-        [ip] = {
-            id = PlayerIndex,
-            name = get_var(PlayerIndex, "$name"),
-            hash = get_var(PlayerIndex, "$hash"),
-            rank = "Recruit",
-            credits = 0,
-            credits_until_next_rank = 7500,
-            last_damage = "",
-            joins = 0,
-            kdr = 0,
-            games_played = 0,
-            time_played = 0,
-            distance_traveled = 0,
-            stats = {
-                kills = {
-                    total = 0,
-                    deaths = 0,
-                    assists = 0,
-                    betrays = 0,
-                    suicides = 0,
-                    melee = 0,
-                    fragnade = 0,
-                    plasmanade = 0,
-                    grenadestuck = 0,
-                    sniper = 0,
-                    shotgun = 0,
-                    rocket = 0,
-                    fuelrod = 0,
-                    plasmarifle = 0,
-                    plasmapistol = 0,
-                    pistol = 0,
-                    needler = 0,
-                    flamethrower = 0,
-                    flagmelee = 0,
-                    oddballmelee = 0,
-                    assaultrifle = 0,
-                    chainhog = 0,
-                    tankshell = 0,
-                    tankmachinegun = 0,
-                    ghost = 0,
-                    turret = 0,
-                    bansheefuelrod = 0,
-                    banshee = 0,
-                    splatter = 0,
-                },
-            },
-            sprees = {
-                double_kill = 0,
-                triple_kill = 0,
-                overkill = 0,
-                killtacular = 0,
-                killtrocity = 0,
-                killimanjaro = 0,
-                killtastrophe = 0,
-                killpocalypse = 0,
-                killionaire = 0,
-                kiling_spree = 0,
-                killing_frenzy = 0,
-                running_riot = 0,
-                rampage = 0,
-                untouchable = 0,
-                invincible = 0,
-                anomgstopkillingme = 0,
-            },
-            medals = {
-                sprees = "False",
-                assists = "False",
-                closequarters = "False",
-                crackshot = "False",
-                roadrage = "False",
-                grenadier = "False",
-                heavyweapons = "False",
-                jackofalltrades = "False",
-                mobileasset = "False",
-                multikill = "False",
-                sidearm = "False",
-                triggerman = "False",
-            },
+        id = PlayerIndex,
+        name = get_var(PlayerIndex, "$name"),
+        hash = get_var(PlayerIndex, "$hash"),
+        rank = "Recruit",
+        credits = 0,
+        credits_until_next_rank = 7500,
+        last_damage = "",
+        joins = 0,
+        kdr = 0,
+        games_played = 0,
+        time_played = 0,
+        distance_traveled = 0,
+        stats = {
+            kills = {
+                total = 0,
+                deaths = 0,
+                assists = 0,
+                betrays = 0,
+                suicides = 0,
+                melee = 0,
+                fragnade = 0,
+                plasmanade = 0,
+                grenadestuck = 0,
+                sniper = 0,
+                shotgun = 0,
+                rocket = 0,
+                fuelrod = 0,
+                plasmarifle = 0,
+                plasmapistol = 0,
+                pistol = 0,
+                needler = 0,
+                flamethrower = 0,
+                flagmelee = 0,
+                oddballmelee = 0,
+                assaultrifle = 0,
+                chainhog = 0,
+                tankshell = 0,
+                tankmachinegun = 0,
+                ghost = 0,
+                turret = 0,
+                bansheefuelrod = 0,
+                banshee = 0,
+                splatter = 0
+            }
+        },
+        sprees = {
+            double_kill = 0,
+            triple_kill = 0,
+            overkill = 0,
+            killtacular = 0,
+            killtrocity = 0,
+            killimanjaro = 0,
+            killtastrophe = 0,
+            killpocalypse = 0,
+            killionaire = 0,
+            kiling_spree = 0,
+            killing_frenzy = 0,
+            running_riot = 0,
+            rampage = 0,
+            untouchable = 0,
+            invincible = 0,
+            anomgstopkillingme = 0
+        },
+        medals = {
+            sprees = "False",
+            assists = "False",
+            closequarters = "False",
+            crackshot = "False",
+            roadrage = "False",
+            grenadier = "False",
+            heavyweapons = "False",
+            jackofalltrades = "False",
+            mobileasset = "False",
+            multikill = "False",
+            sidearm = "False",
+            triggerman = "False"
         }
     }
     return structure
@@ -249,56 +247,7 @@ function OnGameStart()
         LoadItems()
         players = {}
         game_over = false
-        
-    --=========DEBUG===================================================--
-        local ip = "127.0.0.1"
-        local ip2 = "000.000.000.000"
-        local function SaveTable(IP, NAME)
-            local records = {
-                [IP] = {
-                        name = NAME
-                    }
-                }
-            return records
-        end
-        
-        local function GetTStats(IP)
-            local stats, Match = nil, nil
-            local file = io.open(path, "r")
-            if (file ~= nil) then
-                local data = file:read("*all")
-                stats = json:decode(data)
-                io.close(file)
-                local Match = (stats[IP] ~= nil)
-                if (not Match) then
-                    return false
-                end
-            end
-        end
-        
-        if (not GetTStats(ip2)) then
-        
-            local stats = nil
-            local file = io.open(path, "r")
-            if (file ~= nil) then
-                local data = file:read("*all")
-                stats = json:decode(data)
-                io.close(file)
-            end
-        
-            local file = assert(io.open(path, "w"))
-            if (file) then
-                stats[ip2] = {name = "Player2"}
-                file:write(json:encode_pretty(stats))
-                io.close(file)
-            end
-            
-            for k,v in pairs(stats) do
-                print(k,v)
-            end
-        end
     end
-    --============== DEBUG END ==============--
 end
 
 function OnGameEnd()
@@ -325,10 +274,19 @@ function OnPlayerConnect(PlayerIndex)
     players[p] = {ip = ip, data = {}}
 
     if (not GetStats(ip)) then
-        print('no data - creating entry')
-        local file = assert(io.open(path, "a+"))
+    
+        local stats = nil
+        local file = io.open(path, "r")
+        if (file ~= nil) then
+            local data = file:read("*all")
+            stats = json:decode(data)
+            io.close(file)
+        end
+    
+        local file = assert(io.open(path, "w"))
         if (file) then
-            file:write(json:encode_pretty(FormatTable(p)))
+            stats[ip] = FormatTable(p)
+            file:write(json:encode_pretty(stats))
             io.close(file)
         end
     end
@@ -443,16 +401,7 @@ function GetStats(ip)
         local data = file:read("*all")
         stats = json:decode(data)
         if (stats ~= nil and ip) then
-            local found = nil
-            for k,v in pairs(stats) do
-                if (ip == k) then
-                    found = true
-                    stats = stats[k]
-                end
-            end
-            if (not found) then
-                stats = nil
-            end
+            stats = stats[ip]
         end
         io.close(file)
     end
@@ -485,6 +434,22 @@ function CheckFile()
     local file = io.open(path, "a")
     if (file ~= nil) then
         io.close(file)
+    end
+    
+    local stats = nil
+    local file = io.open(path, "r")
+    if (file ~= nil) then
+        local data = file:read("*all")
+        stats = json:decode(data)
+        io.close(file)
+    end
+
+    if (stats == nil) then
+        local file = assert(io.open(path, "w"))
+        if (file) then
+            file:write("{\n}")
+            io.close(file)
+        end
     end
 end
 
