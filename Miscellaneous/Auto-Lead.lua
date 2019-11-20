@@ -72,15 +72,11 @@ end
 
 function SetLead()
     local current_map = get_var(0, "$map")
-    local mode = get_var(0, "$mode")
+    local state = get_var(0, "$mode")
     for mapname,gametype in pairs(settings) do
-        if (current_map == mapname) and (gametype[mode] ~= nil) then
-            local state = gametype[mode]
-            if (state == 1) then
-                execute_command("no_lead 1")
-            else
-                execute_command("no_lead 0")
-            end
+        if (current_map == mapname) and (gametype[state] ~= nil) then
+            local state = gametype[state]
+            execute_command("no_lead " .. tostring(state))
         end
     end
 end
