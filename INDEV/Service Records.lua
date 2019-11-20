@@ -22,7 +22,7 @@ local players = {}
 -- Configuration Starts --
 local path = "sapp\\playerdata.json"
 
-local AnnounceRank = false
+local AnnounceRank = true
 local rank_feedback = "Server Statistics: You are currently ranked %rank% out of %total%."
 
 local function FormatTable(PlayerIndex)
