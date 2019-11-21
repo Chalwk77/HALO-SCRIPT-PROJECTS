@@ -358,6 +358,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             local player = read_dword(get_player(victim) + 0x34)
 
             k.stats.kills.total = k.stats.kills.total + 1
+            ConsecutiveKills(killer)
 
             if (v.last_damage == tags[24]) then
                 k.stats.kills.fragnade = k.stats.kills.fragnade + 1
@@ -448,6 +449,37 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         --
         UpdateStats(victim)
         UpdateStats(killer)
+    end
+end
+
+function ConsecutiveKills(killer)
+    local k = players[killer]
+    if (k) then
+        k = k.data
+        local kills = tonumber(get_var(killer, "$kills"))
+        if (kills == 10) then
+            k.credits = k.credits + 5
+        elseif (kills == 20) then
+            k.credits = k.credits + 5
+        elseif (kills == 30) then
+            k.credits = k.credits + 5
+        elseif (kills == 40) then
+            k.credits = k.credits + 5
+        elseif (kills == 50) then
+            k.credits = k.credits + 10
+        elseif (kills == 60) then
+            k.credits = k.credits + 10
+        elseif (kills == 70) then
+            k.credits = k.credits + 10
+        elseif (kills == 80) then
+            k.credits = k.credits + 10
+        elseif (kills == 90) then
+            k.credits = k.credits + 10
+        elseif (kills == 100) then
+            k.credits = k.credits + 10
+        elseif (kills > 100) then
+            k.credits = k.credits + 5
+        end
     end
 end
 
