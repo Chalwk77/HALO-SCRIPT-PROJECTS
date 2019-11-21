@@ -355,10 +355,16 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         if (suicide) then
             v.stats.kills.suicides = v.stats.kills.suicides + 1
         elseif (pvp) then
-            local player = read_dword(get_player(victim) + 0x34)
 
             k.stats.kills.total = k.stats.kills.total + 1
             ConsecutiveKills(killer)
+            MultiKill(killer)
+            KillingSpree(killer)
+            
+            -- Killed from the grave
+            if (not player_alive(killer)) then
+                k.stats.kills.total = k.stats.kills.total + 10
+            end
 
             if (v.last_damage == tags[24]) then
                 k.stats.kills.fragnade = k.stats.kills.fragnade + 1
@@ -424,7 +430,8 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                 k.stats.kills.sniper = k.stats.kills.sniper + 1
                 k.credits = k.credits + 13
             elseif (v.last_damage == tags[20]) then
-                if (player) then
+                local player = read_dword(get_player(victim) + 0x34)
+                if (player ~= 0) then
                     if (read_byte(player + 0x2A0) == 1) then
                         k.stats.kills.rockethog = k.stats.kills.rockethog + 1
                         k.credits = k.credits + 13
@@ -456,29 +463,90 @@ function ConsecutiveKills(killer)
     local k = players[killer]
     if (k) then
         k = k.data
-        local kills = tonumber(get_var(killer, "$kills"))
-        if (kills == 10) then
-            k.credits = k.credits + 5
-        elseif (kills == 20) then
-            k.credits = k.credits + 5
-        elseif (kills == 30) then
-            k.credits = k.credits + 5
-        elseif (kills == 40) then
-            k.credits = k.credits + 5
-        elseif (kills == 50) then
-            k.credits = k.credits + 10
-        elseif (kills == 60) then
-            k.credits = k.credits + 10
-        elseif (kills == 70) then
-            k.credits = k.credits + 10
-        elseif (kills == 80) then
-            k.credits = k.credits + 10
-        elseif (kills == 90) then
-            k.credits = k.credits + 10
-        elseif (kills == 100) then
-            k.credits = k.credits + 10
-        elseif (kills > 100) then
-            k.credits = k.credits + 5
+        local player = get_player(killer)
+        if (player ~= 0) then
+            local kills = tonumber(get_var(killer, "$kills"))
+            if (kills == 10) then
+                k.credits = k.credits + 5
+            elseif (kills == 20) then
+                k.credits = k.credits + 5
+            elseif (kills == 30) then
+                k.credits = k.credits + 5
+            elseif (kills == 40) then
+                k.credits = k.credits + 5
+            elseif (kills == 50) then
+                k.credits = k.credits + 10
+            elseif (kills == 60) then
+                k.credits = k.credits + 10
+            elseif (kills == 70) then
+                k.credits = k.credits + 10
+            elseif (kills == 80) then
+                k.credits = k.credits + 10
+            elseif (kills == 90) then
+                k.credits = k.credits + 10
+            elseif (kills == 100) then
+                k.credits = k.credits + 10
+            elseif (kills > 100) then
+                k.credits = k.credits + 5
+            end
+        end
+    end
+end
+
+function MultiKill(killer)
+    local k = players[killer]
+    if (k) then
+        k = k.data
+        local player = get_player(killer)
+        if (player ~= 0) then
+            local multi = read_word(player + 0x98)
+            if (multi == 2) then
+                k.credits = k.credits + 8
+            elseif (multi == 3) then
+                k.credits = k.credits + 10
+            elseif (multi == 4) then
+                k.credits = k.credits + 12
+            elseif (multi == 5) then
+                k.credits = k.credits + 14
+            elseif (multi == 6) then
+                k.credits = k.credits + 16
+            elseif (multi == 7) then
+                k.credits = k.credits + 18
+            elseif (multi == 8) then
+                k.credits = k.credits + 20
+            elseif (multi == 9) then
+                k.credits = k.credits + 22
+            elseif (multi >= 10) then
+                k.credits = k.credits + 25
+            end
+        end
+    end
+end
+
+function KillingSpree(killer)
+    local k = players[killer]
+    if (k) then
+        k = k.data
+        local player = get_player(killer)
+        if (player ~= 0) then
+            local spree = read_word(player + 0x96)
+            if (spree == 5) then
+                k.credits = k.credits + 5
+            elseif (spree == 10) then
+                k.credits = k.credits + 10
+            elseif (spree == 15) then
+                k.credits = k.credits + 15
+            elseif (spree == 20) then
+                k.credits = k.credits + 20
+            elseif (spree == 25) then
+                k.credits = k.credits + 25
+            elseif (spree == 30) then
+                k.credits = k.credits + 30
+            elseif (spree == 35) then
+                k.credits = k.credits + 35
+            elseif (spree >= 40 --[[and sprees % 5 == 0]]) then
+                k.credits = k.credits + 40
+            end
         end
     end
 end
