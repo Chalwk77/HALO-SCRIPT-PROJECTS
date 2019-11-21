@@ -565,7 +565,7 @@ function KillingSpree(killer)
                 k.credits = k.credits + 30
             elseif (spree == 35) then
                 k.credits = k.credits + 35
-            elseif (spree >= 40 --[[and sprees % 5 == 0]]) then
+            elseif (spree >= 40 and spree % 5 == 0) then
                 k.credits = k.credits + 40
             end
         end
