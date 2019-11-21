@@ -355,6 +355,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             k = k.data
         end
 
+        local player_object = get_dynamic_player(killer)
         local suicide = (killer == victim)
         local betrayal = ((kteam == vteam) and killer ~= victim)
         local pvp = ((killer > 0) and killer ~= victim)
@@ -362,8 +363,14 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         local guardians = (killer == nil)
         local server = (killer == -1)
         local fall_distance_damage = (v.last_damage == tags[1] or v.last_damage == tags[2])
-
+        
         v.stats.kills.deaths = v.stats.kills.deaths + 1
+        
+        local coords = getXYZ(killer, player_object)
+        -- Road Rage:
+        if (coords.invehicle and coords.seat == 0) then
+            k.credits = k.credits + 5
+        end
 
         local melee = function()
             for i = 1, #tags.melee do
@@ -388,7 +395,10 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                 k.stats.kills.total = k.stats.kills.total + 10
             end
 
-            if (v.last_damage == tags[24]) then
+            if (v.last_damage == tags[15] or v.last_damage == tags[17] or v.last_damage == tags[21]) then
+                k.stats.kills.needler = k.stats.kills.needler + 1
+                k.credits = k.credits + 7
+            elseif (v.last_damage == tags[24]) then
                 k.stats.kills.fragnade = k.stats.kills.fragnade + 1
                 k.credits = k.credits + 8
             elseif (v.last_damage == tags[25]) then
@@ -427,9 +437,6 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             elseif (v.last_damage == tags[18]) then
                 k.stats.kills.flamethrower = k.stats.kills.flamethrower + 1
                 k.credits = k.credits + 6
-            elseif (v.last_damage == tags[15] or v.last_damage == tags[17] or v.last_damage == tags[21]) then
-                k.stats.kills.needler = k.stats.kills.needler + 1
-                k.credits = k.credits + 7
             elseif (v.last_damage == tags[11]) then
                 k.stats.kills.pistol = k.stats.kills.pistol + 1
                 k.credits = k.credits + 8
@@ -468,7 +475,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             --
         end
         --
-        if (melee) then
+        if (k and melee) then
             k.stats.kills.melee = k.stats.kills.melee + 1
         end
         --
@@ -582,7 +589,7 @@ function SetRank(PlayerIndex)
                 local NRC = ranks[i+1]
                 if (NRC ~= nil) then
                     NRC = NRC[1]
-                    if (credits > CRC and credits < NRC) then
+                    if (t.credits > CRC and t.credits < NRC) then
                         t.rank = ranks[i].title
                     end
                 end
@@ -733,6 +740,23 @@ end
 function GetTag(obj_type, obj_name)
     local tag = lookup_tag(obj_type, obj_name)
     return tag ~= 0 and read_dword(tag + 0xC) or nil
+end
+
+function getXYZ(PlayerIndex, PlayerObject)
+    local coords, x, y, z = { }
+    if player_alive(PlayerIndex) then
+        local VehicleID = read_dword(PlayerObject + 0x11C)        
+        if (VehicleID == 0xFFFFFFFF) then
+            coords.invehicle = false
+            x, y, z = read_vector3d(PlayerObject + 0x5c)
+        else
+            coords.seat = tonumber(read_word(PlayerObject + 0x2F0))
+            coords.invehicle = true
+            x, y, z = read_vector3d(get_object_memory(VehicleID) + 0x5c)
+        end
+        coords.x, coords.y, coords.z = x, y, z
+    end
+    return coords
 end
 
 function OnScriptUnload()
