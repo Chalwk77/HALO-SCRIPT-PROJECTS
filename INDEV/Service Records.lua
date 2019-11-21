@@ -17,7 +17,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]]--
 
 api_version = "1.12.0.0"
-local players = {}
+local players, ranks = {}, {}
 
 -- Configuration Starts --
 local path = "sapp\\playerdata.json"
@@ -30,9 +30,9 @@ local function FormatTable(PlayerIndex)
         id = PlayerIndex,
         name = get_var(PlayerIndex, "$name"),
         hash = get_var(PlayerIndex, "$hash"),
-        rank = "Recruit",
+        rank = ranks[1].title,
         credits = 0,
-        credits_until_next_rank = 7500,
+        credits_until_next_rank = ranks[2][1],
         last_damage = "",
         joins = 0,
         kdr = 0,
@@ -109,99 +109,121 @@ local function FormatTable(PlayerIndex)
     }
 end
 
-local ranks = {
-    ["Recruit"] = {
+ranks = {
+    [1] = {
+        title = "Recruit",
         [1] = 0,
     },
-    ["Private"] = {
-        [1] = 7500
+    [2] = {
+        title = "Private",
+        [1] = 7500,
     },
-    ["Corporal"] = {
+    [3] = {
+        title = "Corporal",
         [1] = 10000,
         [2] = 15000, -- grade 1
     },
-    ["Sergeant"] = {
+    [4] = {
+        title = "Sergeant",
         [1] = 20000,
         [2] = 26250, -- grade 1
         [3] = 32500, -- grade 2
     },
-    ["Warrant Officer"] = {
+    [5] = {
+        title = "Warrant Officer",
         [1] = 45000,
         [2] = 78000, -- grade 1
         [3] = 111000, -- grade 2
         [4] = 144000, -- grade 3
     },
-    ["Captain"] = {
+    [6] = {
+        title = "Captain",
         [1] = 210000,
         [2] = 233000, -- grade 1
         [3] = 256000, -- grade 2
         [4] = 279000, -- grade 3
     },
-    ["Major"] = {
+    [7] = {
+        title = "Major",
         [1] = 325000,
         [2] = 350000, -- grade 1
         [3] = 375000, -- grade 2
         [4] = 400000, -- grade 3
     },
-    ["Lt. Colonel"] = {
+    [8] = {
+        title = "Lt. Colonel",
         [1] = 450000,
         [2] = 480000, -- grade 1
         [3] = 510000, -- grade 2
         [4] = 540000, -- grade 3
     },
-    ["Commander"] = {
+    [9] = {
+        title = "Commander",
         [1] = 600000,
         [2] = 650000, -- grade 1
         [3] = 700000, -- grade 2
         [4] = 750000, -- grade 3
     },
-    ["Colonel"] = {
+    [10] = {
+        title = "Colonel",
         [1] = 850000,
         [2] = 960000, -- grade 1
         [3] = 1070000, -- grade 2
         [4] = 1180000, -- grade 3
     },
-    ["Brigadier"] = {
+    [11] = {
+       title = "Brigadier",
         [1] = 1400000,
         [2] = 1520000, -- grade 1
         [3] = 1640000, -- grade 2
         [4] = 1760000, -- grade 3
     },
-    ["General"] = {
+    [12] = {
+        title = "General",
         [1] = 2000000,
         [2] = 2200000, -- grade 1
         [3] = 2350000, -- grade 2
         [4] = 2500000, -- grade 3
         [5] = 2650000, -- grade 4
     },
-    ["Field Marshall"] = {
+    [13] = {
+        title = "Field Marshall",
         [1] = 3000000
     },
-    ["Hero"] = {
+    [14] = {
+        title = "Hero",
         [1] = 3700000
     },
-    ["Legend"] = {
+    [15] = {
+        title = "Legend",
         [1] = 4600000
     },
-    ["Mythic"] = {
+    [16] = {
+        title = "Mythic",
         [1] = 5650000
     },
-    ["Noble"] = {
+    [17] = {
+        title = "Noble",
         [1] = 7000000
     },
-    ["Eclipse"] = {
+    [18] = {
+        title = "Eclipse",
         [1] = 8500000
     },
-    ["Nova"] = {
+    [19] = {
+        title = "Nova",
         [1] = 11000000
     },
-    ["Forerunner"] = {
+    [20] = {
+        title = "Forerunner",
         [1] = 13000000
     },
-    ["Reclaimer"] = {
+    [21] = {
+        title = "Reclaimer",
         [1] = 16500000
     },
-    ["Inheritor"] = {
+    [22] = {
+        title = "Inheritor",
         [1] = 20000000
     },
 }
@@ -431,17 +453,13 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                 k.credits = k.credits + 13
             elseif (v.last_damage == tags[20]) then
                 local player = read_dword(get_player(victim) + 0x34)
+                k.credits = k.credits + 13
                 if (player ~= 0) then
                     if (read_byte(player + 0x2A0) == 1) then
                         k.stats.kills.rockethog = k.stats.kills.rockethog + 1
-                        k.credits = k.credits + 13
                     else
                         k.stats.kills.rocket = k.stats.kills.rocket + 1
-                        k.credits = k.credits + 13
                     end
-                else
-                    k.stats.kills.rocket = k.stats.kills.rocket + 1
-                    k.credits = k.credits + 13
                 end
             end
         elseif (betrayal) then
@@ -454,6 +472,9 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             k.stats.kills.melee = k.stats.kills.melee + 1
         end
         --
+        
+        SetRank(killer)
+        
         UpdateStats(victim)
         UpdateStats(killer)
     end
@@ -546,6 +567,25 @@ function KillingSpree(killer)
                 k.credits = k.credits + 35
             elseif (spree >= 40 --[[and sprees % 5 == 0]]) then
                 k.credits = k.credits + 40
+            end
+        end
+    end
+end
+
+function SetRank(PlayerIndex)
+    local t = players[PlayerIndex]
+    if (t) then
+        t = t.data
+        for i = 1,#ranks do
+            for j = 1,#ranks[i] do
+                local CRC = ranks[i][j]
+                local NRC = ranks[i+1]
+                if (NRC ~= nil) then
+                    NRC = NRC[1]
+                    if (credits > CRC and credits < NRC) then
+                        t.rank = ranks[i].title
+                    end
+                end
             end
         end
     end
