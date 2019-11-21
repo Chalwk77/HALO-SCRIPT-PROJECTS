@@ -232,8 +232,10 @@ ranks = {
 
 local json = (loadfile "json.lua")()
 local tags = {}
+local avenger = { }
 local game_over
 local script_version = 1.0
+local first_blood
 
 local gsub = string.gsub
 local format = string.format
@@ -257,7 +259,7 @@ function OnScriptLoad()
         for i = 1, 16 do
             if player_present(i) then
                 local ip = get_var(i, "$ip"):match('(%d+.%d+.%d+.%d+)')
-                players[i] = { ip = ip, data = GetStats(ip) }
+                players[i] = { ip = ip, data = GetStats(ip), avenger = nil }
             end
         end
     end
@@ -291,9 +293,11 @@ function OnPlayerConnect(PlayerIndex)
     local ip = get_var(p, "$ip"):match('(%d+.%d+.%d+.%d+)')
     if (p == 2) then
         ip = "000.000.000.000"
+    elseif (p == 3) then
+        ip = "101.202.303.404"
     end
 
-    players[p] = { ip = ip, data = {} }
+    players[p] = { ip = ip, data = {}, avenger = nil }
 
     if (not GetStats(ip)) then
 
@@ -346,16 +350,18 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
     local kteam = get_var(killer, "$team")
     local vteam = get_var(victim, "$team")
 
-    local v = players[victim]
-    if (v) then
-        v = v.data
+    local v_params = players[victim]
+    if (v_params) then
+        v = v_params.data
 
-        local k = players[killer]
-        if (k) then
-            k = k.data
+        local k_params = players[killer]
+        if (k_params) then
+            k = k_params.data
         end
 
-        local player_object = get_dynamic_player(killer)
+        local k_player_object = get_dynamic_player(killer)
+        local v_player_object = get_dynamic_player(victim)
+        
         local suicide = (killer == victim)
         local betrayal = ((kteam == vteam) and killer ~= victim)
         local pvp = ((killer > 0) and killer ~= victim)
@@ -366,7 +372,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         
         v.stats.kills.deaths = v.stats.kills.deaths + 1
         
-        local coords = getXYZ(killer, player_object)
+        local coords = getXYZ(killer, k_player_object)
         -- Road Rage:
         if (coords.invehicle and coords.seat == 0) then
             k.credits = k.credits + 5
@@ -462,7 +468,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                 local player = read_dword(get_player(victim) + 0x34)
                 k.credits = k.credits + 13
                 if (player ~= 0) then
-                    if (read_byte(player + 0x2A0) == 1) then
+                    if (coords.invehicle) then
                         k.stats.kills.rockethog = k.stats.kills.rockethog + 1
                     else
                         k.stats.kills.rocket = k.stats.kills.rocket + 1
@@ -480,8 +486,37 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         end
         --
         
-        SetRank(killer)
+        -- First Blood:
+        if (first_blood == 0 and k) then
+            first_blood = first_blood + 1
+            k.credits = k.credits + 10
+        end
         
+        -- Reload This
+        local reloading = read_byte(v_player_object + 0x2A4)
+        if (reloading == 5) then
+            k.credits = k.credits + 5
+        end
+        
+        -- Avenger
+        for i = 1, 16 do
+            if player_present(i) then
+                if (i ~= victim) then
+                    if get_var(i, "$team") == get_var(victim, "$team") then
+                        players[i].avenger = k_params.ip
+                    end
+                end
+            end
+        end
+
+        if (k) then
+            if (k_params.avenger == v_params.ip) then
+                k.credits = k.credits + 5
+                print("AVENGER")
+            end
+        end
+        
+        SetRank(killer)
         UpdateStats(victim)
         UpdateStats(killer)
     end
@@ -682,6 +717,7 @@ function CheckFile()
 end
 
 function LoadItems()
+    first_blood = 0
     tags = {
         -- fall damage --
         [1] = GetTag("jpt!", "globals\\falling"),
