@@ -90,11 +90,8 @@ local player_info = {
 
 local players = {}
 
-local gsub, gmatch = string.gsub, string.gmatch
-local sub = string.sub
-
-local find = string.find
-local lower, upper = string.lower, string.upper
+local gsub, gmatch, sub = string.gsub, string.gmatch, string.sub
+local lower, find = string.lower, string.find
 
 function OnScriptLoad()
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
@@ -185,7 +182,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             local content = CensoredContent(Command)
             if (content ~= nil) then
                 t["%%message%%"] = content
-                Environment = 4
+                Environment = 3
             end
 
             local log = on_command[Environment]
