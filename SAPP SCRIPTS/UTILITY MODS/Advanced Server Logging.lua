@@ -45,26 +45,26 @@ local full_log_path = "sapp\\%date%.FullLog.txt"
 local on_join = "[JOIN]    Name: %name%    ID: [%id%]    IP: [%ip%]    CD-Key Hash: [%hash%]    Total Players: [%total%/16]"
 local on_quit = "[QUIT]    Name: %name%    ID: [%id%]    IP: [%ip%]    CD-Key Hash: [%hash%]    Total Players: [%total%/16]"
 
-local on_load = "[SCRIPT LOAD] Advanced Logger was Loaded"
-local on_reload = "[SERVER] Server Was Reloaded"
+local on_load = "[SCRIPT LOAD] Advanced Logger was loaded"
+local on_reload = "[SERVER] SAPP Was Reloaded"
 local on_unload = "[SCRIPT UNLOAD] Advanced Logger was unloaded"
-local on_game_end = "[GAME END] The Game has Ended (post game carnage report showing)"
+local on_game_end = "[GAME END] The Game has ended (post game carnage report showing)"
 local on_game_start = "[GAME START] A new game has started on [%map% | mode: %mode%]"
 
 local chat_logs_path = "sapp\\%date%.Chat.txt"
 local on_chat = {
-    ["TEAM"] = "[TEAM] %name%: [%id%] %message%",
-    ["GLOBAL"] = "[GLOBAL] %name%: [%id%] %message%",
-    ["VEHICLE"] = "[VEHICLE] %name%: [%id%] %message%",
-    ["UNKNOWN"] = "[UNKNOWN] %name%: [%id%] %message%",
+    [0] = "[GLOBAL] %name% ID: [%id%] IP: [%ip%]: %message%",
+    [1] = "[TEAM] %name% ID: [%id%] IP: [%ip%]: %message%",
+    [2] = "[VEHICLE] %name% ID: [%id%] IP: [%ip%]: %message%",
+    [3] = "[UNKNOWN] %name% ID: [%id%] IP: [%ip%]: %message%",
 }
 
 local command_logs_path = "sapp\\%date%.Commands.txt"
 local on_command = {
-    ["CHAT COMMAND"] = "[CHAT COMMAND] [Admin = %state% | Level: %level%] %name%: [%id%] /%message%",
-    ["RCON COMMAND"] = "[RCON COMMAND] [Admin = %state% | Level: %level%] %name%: [%id%] %message%",
-    ["CONSOLE COMMAND"] = "[CONSOLE COMMAND] [Admin = %state% | Level: %level%] %name%: [%id%] %message%",
-    ["CENSORED"] = "[CENSORED] %message%" -- message will be replaced with "censor_character"
+    [0] = "[CONSOLE COMMAND] [Admin = %state% | Level: %level%] %name% ID: [%id%] IP: [%ip%]: %message%",
+    [1] = "[RCON COMMAND] [Admin = %state% | Level: %level%] %name% ID: [%id%] IP: [%ip%]: %message%",
+    [2] = "[CHAT COMMAND] [Admin = %state% | Level: %level%] %name% ID: [%id%] IP: [%ip%]: /%message%",
+    [3] = "[CENSORED] %message%" -- message will be replaced with "censor_character"
 }
 
 -- Any command containing these words will be censored:
@@ -152,26 +152,20 @@ function OnServerChat(PlayerIndex, Message, type)
 
             local t = players[PlayerIndex]
             if (t) then
-                t["%%message%%"], t["%%total%%"] = Message, get_var(0, "$pn")
-
-                if (type == 0) then
-                    type = "GLOBAL"
-                elseif (type == 1) then
-                    type = "TEAM"
-                elseif (type == 2) then
-                    type = "VEHICLE"
-                else
-                    type = "UNKNOWN"
-                end
-
+            
                 local log = on_chat[type]
-                for k, v in pairs(t) do
-                    log = gsub(log, k, v)
-                end
+                if (log) then
+                
+                    t["%%message%%"], t["%%total%%"] = Message, get_var(0, "$pn")
+                    for k, v in pairs(t) do
+                        log = gsub(log, k, v)
+                    end
 
-                cprint(log, 11)
-                Write(log, full_log_path)
-                Write(log, chat_logs_path)
+                    cprint(log, 11)
+                    Write(log, full_log_path)
+                    Write(log, chat_logs_path)
+                    t["%%message%%"] = ""
+                end
             end
         end
     end
@@ -185,30 +179,26 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
 
         local t = players[PlayerIndex]
         if (t) then
+                    
             t["%%message%%"], t["%%total%%"] = Command, get_var(0, "$pn")
-
-            if (Environment == 2) then
-                Environment = "CHAT COMMAND"
-            elseif (Environment == 1) then
-                Environment = "RCON COMMAND"
-            elseif (Environment == 0) then
-                Environment = "CONSOLE COMMAND"
-            end
-
+            
             local content = CensoredContent(Command)
             if (content ~= nil) then
                 t["%%message%%"] = content
-                Environment = "CENSORED"
+                Environment = 4
             end
 
             local log = on_command[Environment]
-            for k, v in pairs(t) do
-                log = gsub(log, k, v)
+            if (log) then
+                for k, v in pairs(t) do
+                    log = gsub(log, k, v)
+                end
+                cprint(log, 11)
+                Write(log, full_log_path)
+                Write(log, command_logs_path)
             end
-
-            cprint(log, 11)
-            Write(log, full_log_path)
-            Write(log, command_logs_path)
+            
+            t["%%message%%"] = ""
         end
     end
 end
@@ -229,19 +219,18 @@ function OnPlayerPrejoin(PlayerIndex)
 end
 
 local function QuitJoin(PlayerIndex, Type)
-    local log
+    local log = ""
     local t = players[PlayerIndex]
     if (t) then
         local time_stamp = os.date("%A %d %B %Y - %X")
-
-        if (Type == "JOIN") then
+        if (Type == 1) then
             log = on_join
             if (print_player_info) then
                 cprint("Join Time: " .. time_stamp, 10)
                 cprint("Status: " .. t["%%name%%"] .. " connected successfully.", 13)
                 cprint("________________________________________________________________________________", 10)
             end
-        elseif (Type == "QUIT") then
+        elseif (Type == 2) then
             if (print_player_info) then
                 cprint("________________________________________________________________________________", 12)
                 t["%%total%%"] = get_var(0, "$pn") - 1
@@ -255,7 +244,6 @@ local function QuitJoin(PlayerIndex, Type)
             log = on_quit
             players[PlayerIndex] = nil
         end
-
         for k, v in pairs(t) do
             log = gsub(log, k, v)
         end
@@ -264,11 +252,11 @@ local function QuitJoin(PlayerIndex, Type)
 end
 
 function OnPlayerConnect(PlayerIndex)
-    QuitJoin(PlayerIndex, "JOIN")
+    QuitJoin(PlayerIndex, 1)
 end
 
 function OnPlayerDisconnect(PlayerIndex)
-    QuitJoin(PlayerIndex, "QUIT")
+    QuitJoin(PlayerIndex, 2)
 end
 
 function SaveClientData(PlayerIndex)
@@ -279,12 +267,13 @@ function SaveClientData(PlayerIndex)
 
     local name = get_var(p, "$name")
     local ip = get_var(p, "$ip")
-    local hash = get_var(p, "$hash") 
+    local hash = get_var(p, "$hash")
     
     if (p == 0) then
         name = "SERVER"
         ip = "N/A"
         hash = "N/A"
+        state = "true"
     end
 
     players[p] = {
@@ -298,16 +287,18 @@ function SaveClientData(PlayerIndex)
         ["%%total%%"] = get_var(0, "$pn")
     }
 
-    local t = {}
-    for i = 1, #player_info do
-        t[#t + 1] = player_info[i]
-    end
-    for k, v in pairs(players[p]) do
-        for i = 1, #t do
-            t[i] = gsub(t[i], k, v)
+    if (print_player_info) then
+        local t = {}
+        for i = 1, #player_info do
+            t[#t + 1] = player_info[i]
         end
+        for k, v in pairs(players[p]) do
+            for i = 1, #t do
+                t[i] = gsub(t[i], k, v)
+            end
+        end
+        players[p].all_info = t
     end
-    players[p].all_info = t
 end
 
 function Write(Content, Path)
