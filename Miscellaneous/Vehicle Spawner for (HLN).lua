@@ -1,7 +1,17 @@
 --[[
 --======================================================================================================--
 Script Name: HLN Vehicle Spawner (v1.0), for SAPP (PC & CE)
-Description: N/A (details to come)
+Description: This script will force you into a vehicle of your choice by means of a keyword typed in chat (see config)
+
+FEATURES: 
+	* Command cooldowns
+	* Auto Vehicle Despawn System
+	* Limited Command uses (per game basis)
+	* Customizable messages
+	
+	
+NOTE: This version (v1.0) has missing logic for the vehicle desspawning system.
+	  The script will still function correctly, however.
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -34,7 +44,6 @@ local settings = {
 	--	6 = passengers (tank)
 	--  7 (custom) - driver/gunner seat 
 
-	
 	["hog"] = {
 		-- valid seats: 
 		seat = 0, -- warthog - driver only
@@ -133,22 +142,22 @@ function OnTick()
 		end
 	end
 	
-	for k,v in pairs(vehicle_objects) do
-		if vehicle_objects[k] ~= nil then
-			local vehicle = get_object_memory(k)
+	-- for k,v in pairs(vehicle_objects) do
+		-- if vehicle_objects[k] ~= nil then
+			-- local vehicle = get_object_memory(k)
 			
-			-- TODO: 
-			-- Occupation Logic
-			if (vehicle == 0xFFFFFFFF) then
+			-- -- TODO: 
+			-- -- Occupation Logic
+			-- if (vehicle == 0xFFFFFFFF) then
 
-				vehicle_objects[k].timer = vehicle_objects[k].timer - time_scale
-				if (vehicle_objects[k].timer <= 0) then
-					destroy_object(k)
-					vehicle_objects[k] = nil
-				end
-			end
-		end
-	end
+				-- vehicle_objects[k].timer = vehicle_objects[k].timer - time_scale
+				-- if (vehicle_objects[k].timer <= 0) then
+					-- destroy_object(k)
+					-- vehicle_objects[k] = nil
+				-- end
+			-- end
+		-- end
+	-- end
 end
 
 function OnPlayerChat(PlayerIndex, Message, Type)
