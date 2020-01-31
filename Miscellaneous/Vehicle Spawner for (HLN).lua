@@ -1,7 +1,8 @@
 --[[
 --======================================================================================================--
 Script Name: HLN Vehicle Spawner (v1.0), for SAPP (PC & CE)
-Description: This script will force you into a vehicle of your choice by means of a keyword typed in chat (see config)
+Description: This script will force you into a vehicle of your choice by 
+             means of a keyword typed in chat (see config)
 
 FEATURES: 
 	* Command cooldowns
@@ -22,15 +23,17 @@ api_version = "1.12.0.0"
 -- Configuration [Starts] ---------------------------------------------
 local settings = {
 
-	spawns_per_game = 10, -- Number of vehicles the player can spawn PER GAME.
-	despawn_time = 30,
-	cooldown_duration = 5,
+	spawns_per_game = 10,  -- Number of vehicles the player can spawn PER GAME.
+	despawn_time = 30,     -- Unoccupied vehicles will despawn after this amount of time (in seconds)"
+	cooldown_duration = 5, -- Command cooldown period. 
 	
+	-- Custom Messages:
 	on_spawn = "Vehicle spawns remaining: %total%",
 	please_wait = "Please wait %seconds% to spawn another vehicle",
-	
 	insufficient_spawns = "You have exceeded your Vehicle Spawn Limit for this game.",
-
+	--
+	
+	-- VEHICLE SETTINGS:
 	-- Valid Seats:
 	--	0 = drivers
 	--	1 = passengers
@@ -40,47 +43,28 @@ local settings = {
 	--	6 = passengers (tank)
 	--  7 (custom) - driver/gunner seat 
 
-	["hog"] = {
-		-- valid seats: 
+	["hog"] = { -- command (keyword typed in chat)
 		seat = 0, -- warthog - driver only
 		vehicle = "vehicles\\warthog\\mp_warthog",
 	},
 	
-	["hog2"] = {
+	["hog2"] = { -- command (keyword typed in chat)
 		seat = 7, -- warthog - drive as gunner
 		vehicle = "vehicles\\warthog\\mp_warthog",
 	},
 	
-	["rhog"] = {
+	["rhog"] = { -- command (keyword typed in chat)
 		seat = 0, -- warthog - driver only
 		vehicle = "vehicles\\rwarthog\\rwarthog",
 	},
 	
-	["rhog2"] = {
+	["rhog2"] = { -- command (keyword typed in chat)
 		seat = 7, -- warthog - drive as gunner
 		vehicle = "vehicles\\rwarthog\\rwarthog",
-	},
-	
-	-- Snowdrop vehicles:
-	["chair"] = {
-		seat = 0,
-		vehicle = "vehicles\\barchair\\bar chair",
-	},
-	["mon"] = {
-		seat = 0,
-		vehicle = "h3r\\vehicles\\mogoose\\c gun turret_mp",
-	},
-	["random"] = {
-		seat = 0,
-		vehicle = "vehicles\\newhog\\newhog mp_warthog",
-	},
-	["volks"] = {
-		seat = 0,
-		vehicle = "test\\test",
 	},
 
-	
-	--[[ STOCK VEHICLE TAG ADDRESSES:
+	--[[ 
+		STOCK VEHICLE TAG ADDRESSES:
 		"vehicles\\banshee\\banshee_mp"
 		"vehicles\\c gun turret\\c gun turret_mp"
 		"vehicles\\ghost\\ghost_mp"
@@ -97,18 +81,6 @@ local spawns = {}
 local vehicle_objects = {}
 local time_scale = 0.03333333333333333
 local gmatch, gsub = string.gmatch, string.gsub
-
-function InitPlayer(PlayerIndex, Reset)
-	if not (Reset) then
-		spawns[PlayerIndex] = {
-			cooldown = settings.cooldown_duration,
-			trigger = false,
-			count = settings.spawns_per_game,
-		}
-	else
-		spawns[PlayerIndex] = {}
-	end
-end
 
 function OnScriptLoad()
 	register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
@@ -255,6 +227,18 @@ function stringSplit(Command)
     return t
 end
 
+function InitPlayer(PlayerIndex, Reset)
+	if not (Reset) then
+		spawns[PlayerIndex] = {
+			cooldown = settings.cooldown_duration,
+			trigger = false,
+			count = settings.spawns_per_game,
+		}
+	else
+		spawns[PlayerIndex] = {}
+	end
+end
+
 function getXYZ(PlayerIndex, PlayerObject)
     local coords, x, y, z = { }
     if player_alive(PlayerIndex) then
@@ -274,4 +258,3 @@ function getXYZ(PlayerIndex, PlayerObject)
     end
     return coords
 end
-
