@@ -2,7 +2,7 @@
 --======================================================================================================--
 Script Name: HLN Damage Prevention (v1.0), for SAPP (PC & CE)
 	This script will prevent: 
-		* :Lone-drivers from receiving damage (or inflicting damage, i.e)
+		* Lone-drivers from receiving damage or inflicting damage
 		* Walkers from inflicting damage to anyone
 		* Any vehicle occupant from inflicting damage on walkers
 
@@ -31,7 +31,6 @@ function OnDamageApplication(VictimIndex, CauserIndex, MetaID, Damage, HitString
 		-- Shooter in vehicle (victim is walker)
 		elseif (shooter.invehicle) and (not victim.invehicle) then
 			return false
-			
 		-- Shooter in vehicle (Victim in Vehicle) - Victim is alone
 		elseif (shooter.invehicle) and (victim.invehicle) then
 			if GetOccupantCount(VictimIndex) == 1 then
@@ -61,8 +60,8 @@ function GetOccupantCount(PlayerIndex)
 	local v1_object_memory = get_object_memory(V1ID)
 	
 	for i = 1,16 do
-		if (i ~= PlayerIndex) then
-			if player_present(i) and player_alive(i) then
+		if player_present(i) and player_alive(i) then
+			if (i ~= PlayerIndex) then
 				local player_object = get_dynamic_player(i)
 				local V2ID = read_dword(player_object + 0x11C)
 				if (V2ID ~= 0xFFFFFFFF) then
@@ -74,5 +73,6 @@ function GetOccupantCount(PlayerIndex)
 			end
 		end
 	end
-	return body_count	
+	
+	return body_count
 end
