@@ -33,6 +33,7 @@ local settings = {
 	--	5 = passengers (tank)
 	--	6 = passengers (tank)
 	--  7 (custom) - driver/gunner seat 
+
 	
 	["hog"] = {
 		-- valid seats: 
@@ -55,6 +56,33 @@ local settings = {
 		vehicle = "vehicles\\rwarthog\\rwarthog",
 	},
 	
+	-- Snowdrop vehicles:
+	["chair"] = {
+		seat = 0,
+		vehicle = "vehicles\\barchair\\bar chair",
+	},
+	["mon"] = {
+		seat = 0,
+		vehicle = "h3r\\vehicles\\mogoose\\c gun turret_mp",
+	},
+	["random"] = {
+		seat = 0,
+		vehicle = "vehicles\\newhog\\newhog mp_warthog",
+	},
+	["volks"] = {
+		seat = 0,
+		vehicle = "test\\test",
+	},
+
+	
+	--[[ STOCK VEHICLE TAG ADDRESSES:
+		"vehicles\\banshee\\banshee_mp"
+		"vehicles\\c gun turret\\c gun turret_mp"
+		"vehicles\\ghost\\ghost_mp"
+		"vehicles\\scorpion\\scorpion_mp"
+		"vehicles\\rwarthog\\rwarthog"
+		"vehicles\\warthog\\mp_warthog"
+	]]
 }
 -- Configuration [Ends] ---------------------------------------------
 
