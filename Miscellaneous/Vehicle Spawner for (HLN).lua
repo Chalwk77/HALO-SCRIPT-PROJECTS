@@ -3,8 +3,6 @@
 Script Name: HLN Vehicle Spawner (v1.0), for SAPP (PC & CE)
 Description: N/A (details to come)
 
-NOTE: This script has missing logic and does not function 100% at this time. Download at your own risk.
-
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -57,12 +55,11 @@ local settings = {
 		vehicle = "vehicles\\rwarthog\\rwarthog",
 	},
 	
-	-- It's now set up so that you will drive as gunner for the warthog but not for the Rhog (for testing)
 }
 -- Configuration [Ends] ---------------------------------------------
 
 
--- do not touch unless you know what you are doing:
+-- do not touch:
 local spawns = {}
 local vehicle_objects = {}
 local time_scale = 0.03333333333333333
@@ -76,7 +73,6 @@ function InitPlayer(PlayerIndex, Reset)
 			count = settings.spawns_per_game,
 		}
 	else
-		-- clear the array for this player:
 		spawns[PlayerIndex] = {}
 	end
 end
@@ -117,7 +113,6 @@ function OnTick()
 			-- Occupation Logic
 			if (vehicle == 0xFFFFFFFF) then
 
-			
 				vehicle_objects[k].timer = vehicle_objects[k].timer - time_scale
 				if (vehicle_objects[k].timer <= 0) then
 					destroy_object(k)
