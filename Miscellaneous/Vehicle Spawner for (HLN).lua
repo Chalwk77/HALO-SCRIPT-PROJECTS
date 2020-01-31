@@ -8,10 +8,6 @@ FEATURES:
 	* Auto Vehicle Despawn System
 	* Limited Command uses (per game basis)
 	* Customizable messages
-	
-	
-NOTE: This version (v1.0) has missing logic for the vehicle desspawning system.
-	  The script will still function correctly, however.
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -141,23 +137,36 @@ function OnTick()
 			end
 		end
 	end
-	
-	-- for k,v in pairs(vehicle_objects) do
-		-- if vehicle_objects[k] ~= nil then
-			-- local vehicle = get_object_memory(k)
-			
-			-- -- TODO: 
-			-- -- Occupation Logic
-			-- if (vehicle == 0xFFFFFFFF) then
+end
 
-				-- vehicle_objects[k].timer = vehicle_objects[k].timer - time_scale
-				-- if (vehicle_objects[k].timer <= 0) then
-					-- destroy_object(k)
-					-- vehicle_objects[k] = nil
-				-- end
-			-- end
-		-- end
-	-- end
+function VehicleOccupation(PlayerIndex)
+	for k,v in pairs(vehicle_objects) do
+		if (vehicle_objects[k] ~= nil) then
+			local vehicle = get_object_memory(k)
+						
+			local occupied = false
+			for i = 1,16 do
+				if player_present(i) and player_alive(i) then
+					local player_object = get_dynamic_player(i)
+					local VehicleID = read_dword(player_object + 0x11C)
+					if (VehicleID ~= 0xFFFFFFFF) then
+						local current_vehicle = get_object_memory(VehicleID)
+						if (v.vehicle == current_vehicle) then
+							occupied = true
+						end
+					end
+				end
+			end
+			
+			if (not occupied) then
+				v.timer = v.timer - time_scale
+				if (vehicle_objects[k].timer <= 0) then
+					destroy_object(k)
+					vehicle_objects[k] = nil
+				end
+			end
+		end
+	end
 end
 
 function OnPlayerChat(PlayerIndex, Message, Type)
@@ -184,11 +193,11 @@ function OnPlayerChat(PlayerIndex, Message, Type)
 								t.count = t.count - 1
 								
 								local vehicle = spawn_object("vehi", settings[k].vehicle, coords.x, coords.y, coords.z)
-								
 								local vehicle_object_memory = get_object_memory(vehicle)
 								
 								if (vehicle_object_memory ~= 0) then
 									vehicle_objects[vehicle] = {
+										vehicle = vehicle_object_memory,
 										occupied = true,
 										timer = settings.despawn_time,
 									}
