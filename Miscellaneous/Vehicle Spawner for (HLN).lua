@@ -30,6 +30,7 @@ local settings = {
 	-- Custom Messages:
 	on_spawn = "Vehicle spawns remaining: %total%",
 	please_wait = "Please wait %seconds% to spawn another vehicle",
+	already_occupied = "You are already in a vehicle!",
 	insufficient_spawns = "You have exceeded your Vehicle Spawn Limit for this game.",
 	--
 	
@@ -187,7 +188,7 @@ function OnPlayerChat(PlayerIndex, Message, Type)
 								
 								return false
 							else
-								rprint(PlayerIndex, "You are already in a vehicle!")
+								rprint(PlayerIndex, settings.already_occupied)
 								return false
 							end
 						else
