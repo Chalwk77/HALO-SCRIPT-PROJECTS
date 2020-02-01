@@ -22,7 +22,7 @@ api_version = "1.12.0.0"
 
 -- Configuration [Starts] ---------------------------------------------
 local settings = {
-
+	path = "sapp\\vehicles.json",
 	spawns_per_game = 10,  -- Number of vehicles the player can spawn PER GAME.
 	despawn_time = 30,     -- Unoccupied vehicles will despawn after this amount of time (in seconds)"
 	cooldown_duration = 5, -- Command cooldown period. 
@@ -32,55 +32,16 @@ local settings = {
 	please_wait = "Please wait %seconds% seconds to entry-spawn another vehicle",
 	already_occupied = "You are already in a vehicle!",
 	insufficient_spawns = "You have exceeded your Vehicle Entry-Spawn Limit for this game.",
-	--
-	
-	-- VEHICLE SETTINGS:
-	-- Valid Seats:
-	--	0 = driver
-	--	1 = passenger
-	--	3 = gunner
-	--	4 = passenger (tank)
-	--	5 = passenger (tank)
-	--	6 = passenger (tank)
-	--  7 (custom) - driver/gunner seat 
-
-	["hog"] = { -- command (keyword typed in chat)
-		seat = 0, -- warthog - driver only
-		vehicle = "vehicles\\warthog\\mp_warthog",
-	},
-	
-	["hog2"] = { -- command (keyword typed in chat)
-		seat = 7, -- warthog - drive as gunner
-		vehicle = "vehicles\\warthog\\mp_warthog",
-	},
-	
-	["rhog"] = { -- command (keyword typed in chat)
-		seat = 0, -- warthog - driver only
-		vehicle = "vehicles\\rwarthog\\rwarthog",
-	},
-	
-	["rhog2"] = { -- command (keyword typed in chat)
-		seat = 7, -- warthog - drive as gunner
-		vehicle = "vehicles\\rwarthog\\rwarthog",
-	},
-
-	--[[ 
-		STOCK VEHICLE TAG ADDRESSES:
-		"vehicles\\banshee\\banshee_mp"
-		"vehicles\\c gun turret\\c gun turret_mp"
-		"vehicles\\ghost\\ghost_mp"
-		"vehicles\\scorpion\\scorpion_mp"
-		"vehicles\\rwarthog\\rwarthog"
-		"vehicles\\warthog\\mp_warthog"
-	]]
 }
 -- Configuration [Ends] ---------------------------------------------
 
-
 -- Do not touch:
 local vehicle_objects, spawns = {}, {}
+local map_data = {}
 local time_scale, game_started = 0.03333333333333333, nil
 local gmatch, gsub, floor = string.gmatch, string.gsub, math.floor
+
+local json = (loadfile "sapp\\json.lua")()
 
 function OnScriptLoad()
 	register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
@@ -93,7 +54,7 @@ function OnScriptLoad()
 	register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
 	
 	if (get_var(0, "$gt") ~= "n/a") then
-		game_started = true
+		CheckFile()
 		for i = 1,16 do
 			InitPlayer(i, false)
 		end
@@ -110,7 +71,9 @@ function OnScriptUnload()
 end
 
 function OnGameStart()
-	game_started = true
+    if (get_var(0, "$gt") ~= "n/a") then
+        CheckFile()
+    end
 end
 
 function OnGameEnd()
@@ -182,15 +145,13 @@ function OnPlayerChat(PlayerIndex, Message, Type)
     local msg = stringSplit(Message)
     local p = tonumber(PlayerIndex)
 	
-	if (Type ~= 6) then
+	if (Type ~= 6) and (map_data) then
 		if (#msg == 0) then
 			return false
 		else
-			for k,v in pairs(settings) do
-				if (msg[1] == k) then
-				
+			for command,Vehicle in pairs(map_data) do
+				if (msg[1] == command) then
 					local t = spawns[PlayerIndex]
-				
 					if (t.uses > 0) then
 						if (not t.cooldown_triggered) then
 						
@@ -201,7 +162,7 @@ function OnPlayerChat(PlayerIndex, Message, Type)
 								t.cooldown_triggered = true
 								t.uses = t.uses - 1
 								
-								local vehicle = spawn_object("vehi", settings[k].vehicle, coords.x, coords.y, coords.z)
+								local vehicle = spawn_object("vehi", Vehicle.vehicle, coords.x, coords.y, coords.z)
 								local vehicle_object_memory = get_object_memory(vehicle)
 								
 								if (vehicle_object_memory ~= 0) then
@@ -212,12 +173,12 @@ function OnPlayerChat(PlayerIndex, Message, Type)
 									}
 								end								
 								
-								if (tonumber(settings[k].seat) == 7) then
+								if (tonumber(Vehicle.seat) == 7) then
 									enter_vehicle(vehicle, PlayerIndex, 0)
 									enter_vehicle(vehicle, PlayerIndex, 2)
 								else
 									enter_vehicle(vehicle, PlayerIndex, 0)
-								end		
+								end
 								
 								local msg = gsub(settings.on_spawn, "%%total%%", tostring(t.uses))
 								rprint(PlayerIndex, msg)
@@ -236,6 +197,7 @@ function OnPlayerChat(PlayerIndex, Message, Type)
 						rprint(PlayerIndex, settings.insufficient_spawns)
 						return false
 					end
+					break
 				end
 			end
 		end
@@ -294,4 +256,49 @@ function getXYZ(PlayerIndex, PlayerObject)
         coords.x, coords.y, coords.z = x, y, z
     end
     return coords
+end
+
+function CheckFile()
+
+	local path = settings.path
+    local file = io.open(path, "a")
+    if (file ~= nil) then
+        io.close(file)
+    end
+
+    local stats = nil
+    local file = io.open(path, "r")
+    if (file ~= nil) then
+        local data = file:read("*all")
+        stats = json:decode(data)
+        io.close(file)
+    end
+
+    if (stats == nil) then
+        local file = assert(io.open(path, "w"))
+        if (file) then
+            file:write("{\n}")
+            io.close(file)
+        end
+    end
+	
+	local current_map = get_var(0, "$map")
+	local info = nil
+	local file = io.open(settings.path, "r")
+	if (file ~= nil) then
+		local data = file:read("*all")
+		info = json:decode(data)
+		io.close(file)
+	end
+	
+	if (info) then
+		for map,v in pairs(info) do
+			if (map) and (map == current_map) then
+				for command,data in pairs(v) do
+					map_data = v
+				end
+			end
+		end
+	end
+	game_started = true
 end
