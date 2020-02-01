@@ -5,11 +5,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -23,11 +23,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -41,11 +41,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -59,11 +59,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -77,11 +77,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -95,11 +95,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -113,11 +113,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -131,11 +131,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -149,11 +149,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -167,11 +167,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -185,11 +185,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -203,11 +203,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -221,11 +221,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -239,11 +239,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -257,11 +257,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -269,17 +269,17 @@
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
-  "revelations": {
+  "revelation": {
     "hog1": {
       "seat": 0,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -293,11 +293,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -311,11 +311,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -329,11 +329,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -347,11 +347,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -365,11 +365,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -383,11 +383,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -401,11 +401,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -419,11 +419,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -437,11 +437,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -455,11 +455,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -473,11 +473,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -491,11 +491,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -509,11 +509,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -527,11 +527,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -545,11 +545,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -563,11 +563,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -581,11 +581,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -599,11 +599,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -617,11 +617,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -635,11 +635,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -653,11 +653,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -671,11 +671,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -689,11 +689,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -707,11 +707,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -725,11 +725,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -743,11 +743,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -761,11 +761,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -779,11 +779,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -797,11 +797,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -815,11 +815,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -833,11 +833,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -851,11 +851,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -869,11 +869,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -887,11 +887,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -905,11 +905,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -923,11 +923,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -941,11 +941,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -959,11 +959,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -977,11 +977,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -995,11 +995,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1013,11 +1013,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1031,11 +1031,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1049,11 +1049,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1067,11 +1067,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1085,11 +1085,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1103,11 +1103,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1121,11 +1121,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1139,11 +1139,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1157,11 +1157,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1175,11 +1175,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1193,11 +1193,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1211,11 +1211,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1229,11 +1229,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1247,11 +1247,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1265,11 +1265,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1283,11 +1283,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1301,11 +1301,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1319,11 +1319,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1337,11 +1337,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1355,11 +1355,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1373,11 +1373,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1391,11 +1391,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1409,11 +1409,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1427,11 +1427,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1445,11 +1445,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1463,11 +1463,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1481,11 +1481,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1499,11 +1499,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1517,11 +1517,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1535,11 +1535,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1553,11 +1553,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1571,11 +1571,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1589,11 +1589,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1607,11 +1607,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1625,11 +1625,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1643,11 +1643,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1661,11 +1661,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1679,11 +1679,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1697,11 +1697,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1715,11 +1715,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1733,11 +1733,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1751,11 +1751,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1769,11 +1769,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1787,11 +1787,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1805,11 +1805,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1823,11 +1823,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1841,11 +1841,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1859,11 +1859,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1877,11 +1877,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1895,11 +1895,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1913,11 +1913,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1931,11 +1931,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1949,11 +1949,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1967,11 +1967,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -1985,11 +1985,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2003,11 +2003,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2021,11 +2021,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2039,11 +2039,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2057,11 +2057,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2075,11 +2075,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2093,11 +2093,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2111,11 +2111,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2129,11 +2129,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2147,11 +2147,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2165,11 +2165,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2183,11 +2183,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2201,11 +2201,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2219,11 +2219,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2237,11 +2237,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2255,11 +2255,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2273,11 +2273,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2291,11 +2291,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2309,11 +2309,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2327,11 +2327,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2345,11 +2345,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2363,11 +2363,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2375,17 +2375,17 @@
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
-  "death_karts": {
+  "death_kart": {
     "hog1": {
       "seat": 0,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2399,11 +2399,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2417,11 +2417,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2435,11 +2435,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2453,11 +2453,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2471,11 +2471,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2489,11 +2489,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2507,11 +2507,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2525,11 +2525,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2543,11 +2543,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2561,11 +2561,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2579,11 +2579,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2597,11 +2597,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2615,11 +2615,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2633,11 +2633,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2651,11 +2651,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2669,11 +2669,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2687,11 +2687,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2705,11 +2705,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2723,11 +2723,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2741,11 +2741,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2759,11 +2759,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2777,11 +2777,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2795,11 +2795,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2813,11 +2813,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2831,11 +2831,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2849,11 +2849,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2867,11 +2867,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2885,11 +2885,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2903,11 +2903,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2921,11 +2921,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2939,11 +2939,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2957,11 +2957,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2975,11 +2975,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -2993,11 +2993,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3011,11 +3011,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3029,11 +3029,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3047,11 +3047,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3065,11 +3065,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3083,11 +3083,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3101,11 +3101,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3119,11 +3119,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3137,11 +3137,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3155,11 +3155,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3173,11 +3173,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3191,11 +3191,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3209,11 +3209,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3227,11 +3227,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3245,11 +3245,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3263,11 +3263,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3281,11 +3281,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3299,11 +3299,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3317,11 +3317,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3335,11 +3335,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3353,11 +3353,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3371,11 +3371,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3389,11 +3389,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3407,11 +3407,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3425,11 +3425,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3443,11 +3443,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3461,11 +3461,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3479,11 +3479,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3497,11 +3497,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3515,11 +3515,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3533,11 +3533,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3551,11 +3551,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3569,11 +3569,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3587,11 +3587,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3599,35 +3599,17 @@
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
-  "Lost_Valley_Of_": {
+  "Lost_Valley_Of_Blood_Beta_Map": {
     "hog1": {
       "seat": 0,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    }
-  },
-  "Blood_Beta_Map": {
-    "hog1": {
       "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "hog2": {
-      "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "rhog1": {
-      "seat": 7,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3641,11 +3623,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3659,11 +3641,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3677,11 +3659,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3695,11 +3677,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3713,11 +3695,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3731,11 +3713,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3749,11 +3731,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3767,11 +3749,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3785,11 +3767,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3803,11 +3785,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3821,11 +3803,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3839,11 +3821,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3857,11 +3839,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3875,11 +3857,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3893,11 +3875,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3911,11 +3893,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3929,11 +3911,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3947,11 +3929,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3965,11 +3947,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -3983,11 +3965,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4001,11 +3983,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4019,11 +4001,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4037,11 +4019,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4055,11 +4037,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4073,11 +4055,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4091,11 +4073,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4109,11 +4091,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4127,11 +4109,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4145,11 +4127,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4163,11 +4145,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4181,11 +4163,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4199,11 +4181,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4217,11 +4199,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4235,11 +4217,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4253,11 +4235,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4271,11 +4253,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4289,11 +4271,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4307,11 +4289,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4325,11 +4307,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4343,11 +4325,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4361,11 +4343,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4379,11 +4361,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4397,11 +4379,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4415,11 +4397,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4433,11 +4415,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4451,11 +4433,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4469,11 +4451,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4487,11 +4469,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4505,11 +4487,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4523,11 +4505,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4541,11 +4523,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4559,11 +4541,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4577,11 +4559,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4595,11 +4577,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4613,11 +4595,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4631,11 +4613,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4649,11 +4631,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4667,11 +4649,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4685,11 +4667,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4703,11 +4685,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4721,11 +4703,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4739,11 +4721,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4757,11 +4739,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4775,11 +4757,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4793,11 +4775,11 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
@@ -4811,11 +4793,29 @@
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
+      "seat": 0,
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
+    },
+    "rhog2": {
       "seat": 7,
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
+    }
+  },
+  "Dam_Assault_Pre-Alpha": {
+    "hog1": {
+      "seat": 0,
+      "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "hog2": {
+      "seat": 7,
+      "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "rhog1": {
+      "seat": 0,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
