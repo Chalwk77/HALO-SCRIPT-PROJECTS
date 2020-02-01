@@ -2,7 +2,7 @@
 --======================================================================================================--
 Script Name: HLN Vehicle Spawner (v1.1), for SAPP (PC & CE)
 Description: This script will force you into a vehicle of your choice by 
-             means of a keyword typed in chat (see config)
+             means of a keyword typed in chat.
 
 FEATURES: 
 	* Command cooldowns
