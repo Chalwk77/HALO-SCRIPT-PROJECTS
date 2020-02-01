@@ -1,6 +1,6 @@
 --[[
 --======================================================================================================--
-Script Name: HLN Vehicle Spawner (v1.1), for SAPP (PC & CE)
+Script Name: HLN Vehicle Spawner (v1.2), for SAPP (PC & CE)
 Description: This script will force you into a vehicle of your choice by 
              means of a keyword typed in chat.
 
@@ -80,43 +80,38 @@ function OnGameEnd()
 end
 
 function OnTick()
-
 	if (game_started) then
-		DespawnHandler()
-	end
-
-	for i = 1,16 do
-		if player_present(i) and player_alive(i) then
-			local t = spawns[i]
-			if (t.cooldown_triggered) then
-				t.cooldown = t.cooldown - time_scale
-				-- print("Cooldown ends in " .. floor(t.cooldown) .. " seconds")
-				if (t.cooldown <= 1) then
-					t.cooldown = settings.cooldown_duration
-					t.cooldown_triggered = false
+		for i = 1,16 do
+			if player_present(i) and player_alive(i) then
+				DespawnHandler(i)
+				local t = spawns[i]
+				if (t.cooldown_triggered) then
+					t.cooldown = t.cooldown - time_scale
+					-- print("Cooldown ends in " .. floor(t.cooldown) .. " seconds")
+					if (t.cooldown <= 1) then
+						t.cooldown = settings.cooldown_duration
+						t.cooldown_triggered = false
+					end
 				end
 			end
 		end
 	end
 end
 
-function DespawnHandler()
+function DespawnHandler(PlayerIndex)
 	for k,v in pairs(vehicle_objects) do
 		if (vehicle_objects[k] ~= nil) then
-			local vehicle = get_object_memory(k)
-			if (vehicle ~= 0) then
+			if (v.vehicle ~= 0) then
 				local occupied = false
 				
-				for i = 1,16 do
-					if player_present(i) and player_alive(i) then
-						local player_object = get_dynamic_player(i)
-						local VehicleID = read_dword(player_object + 0x11C)
-						if (VehicleID ~= 0xFFFFFFFF) then
-							local current_vehicle = get_object_memory(VehicleID)
-							if (v.vehicle == current_vehicle) then
-								v.timer_reset = true
-								occupied = true
-							end
+				local player_object = get_dynamic_player(PlayerIndex)
+				local VehicleID = read_dword(player_object + 0x11C)
+				if (VehicleID ~= 0xFFFFFFFF) then
+					local current_vehicle = get_object_memory(VehicleID)
+					if (current_vehicle ~= 0) then
+						if (v.vehicle == current_vehicle) then
+							occupied = true
+							v.timer_reset = true
 						end
 					end
 				end
@@ -129,7 +124,7 @@ function DespawnHandler()
 					end
 				
 					v.timer = v.timer - time_scale
-					-- print("despawning in " .. floor(v.timer) .. " seconds")
+					-- print("Vehicle [ID "..k.."] despawning in " .. floor(v.timer) .. " seconds")
 					if (vehicle_objects[k].timer <= 0) then
 						destroy_object(k)
 						vehicle_objects[k] = nil
@@ -148,56 +143,55 @@ function OnPlayerChat(PlayerIndex, Message, Type)
 		if (#msg == 0) then
 			return false
 		else
-			for command,Vehicle in pairs(map_data) do
-				if (msg[1] == command) then
-					local t = spawns[PlayerIndex]
-					if (t.uses > 0) then
-						if (not t.cooldown_triggered) then
-						
-							local player_object = get_dynamic_player(PlayerIndex)
-							local coords = getXYZ(PlayerIndex, player_object)
+			if player_alive(PlayerIndex) then
+				for command,Vehicle in pairs(map_data) do
+					if (msg[1] == command) then
+						local t = spawns[PlayerIndex]
+						if (t.uses > 0) then
+							if (not t.cooldown_triggered) then
 							
-							if not (coords.invehicle) then
-								t.cooldown_triggered = true
-								t.uses = t.uses - 1
+								local player_object = get_dynamic_player(PlayerIndex)
+								local coords = getXYZ(PlayerIndex, player_object)
 								
-								local vehicle = spawn_object("vehi", Vehicle.vehicle, coords.x, coords.y, coords.z)
-								local vehicle_object_memory = get_object_memory(vehicle)
-								
-								if (vehicle_object_memory ~= 0) then
-									vehicle_objects[vehicle] = {
-										timer_reset = false,
-										vehicle = vehicle_object_memory,
-										timer = settings.despawn_time,
-									}
-								end								
-								
-								if (tonumber(Vehicle.seat) == 7) then
-									enter_vehicle(vehicle, PlayerIndex, 0)
-									enter_vehicle(vehicle, PlayerIndex, 2)
+								if not (coords.invehicle) then
+									t.cooldown_triggered = true
+									t.uses = t.uses - 1
+									
+									local vehicle = spawn_object("vehi", Vehicle.vehicle, coords.x, coords.y, coords.z)
+									local vehicle_object_memory = get_object_memory(vehicle)
+									
+									if (vehicle_object_memory ~= 0) then
+										vehicle_objects[vehicle] = {
+											timer_reset = false,
+											vehicle = vehicle_object_memory,
+											timer = settings.despawn_time,
+										}
+									end								
+									
+									if (tonumber(Vehicle.seat) == 7) then
+										enter_vehicle(vehicle, PlayerIndex, 0)
+										enter_vehicle(vehicle, PlayerIndex, 2)
+									else
+										enter_vehicle(vehicle, PlayerIndex, 0)
+									end
+									
+									local msg = gsub(settings.on_spawn, "%%total%%", tostring(t.uses))
+									rprint(PlayerIndex, msg)
 								else
-									enter_vehicle(vehicle, PlayerIndex, 0)
+									rprint(PlayerIndex, settings.already_occupied)
 								end
-								
-								local msg = gsub(settings.on_spawn, "%%total%%", tostring(t.uses))
-								rprint(PlayerIndex, msg)
-								
-								return false
 							else
-								rprint(PlayerIndex, settings.already_occupied)
-								return false
+								local message = gsub(settings.please_wait, "%%seconds%%", tostring(floor(t.cooldown)))
+								rprint(PlayerIndex, message)
 							end
 						else
-							local message = gsub(settings.please_wait, "%%seconds%%", tostring(floor(t.cooldown)))
-							rprint(PlayerIndex, message)
-							return false
+							rprint(PlayerIndex, settings.insufficient_spawns)
 						end
-					else
-						rprint(PlayerIndex, settings.insufficient_spawns)
 						return false
 					end
-					break
 				end
+			else
+				rprint(PlayerIndex, "Please wait until you respawn!")
 			end
 		end
 	end
