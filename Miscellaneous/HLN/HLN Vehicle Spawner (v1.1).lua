@@ -44,14 +44,13 @@ local gmatch, gsub, floor = string.gmatch, string.gsub, math.floor
 local json = (loadfile "sapp\\json.lua")()
 
 function OnScriptLoad()
-	register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
-	register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
-	register_callback(cb["EVENT_CHAT"], "OnPlayerChat")
 	register_callback(cb["EVENT_TICK"], "OnTick")
+	register_callback(cb["EVENT_CHAT"], "OnPlayerChat")
 	register_callback(cb["EVENT_DIE"], "OnPlayerDeath")
-	
-	register_callback(cb["EVENT_GAME_START"], "OnGameStart")
 	register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
+	register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
+	register_callback(cb["EVENT_GAME_START"], "OnGameStart")
+	register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
 	
 	if (get_var(0, "$gt") ~= "n/a") then
 		CheckFile()
@@ -266,15 +265,15 @@ function CheckFile()
         io.close(file)
     end
 
-    local stats = nil
+    local info = nil
     local file = io.open(path, "r")
     if (file ~= nil) then
         local data = file:read("*all")
-        stats = json:decode(data)
+        info = json:decode(data)
         io.close(file)
     end
 
-    if (stats == nil) then
+    if (info == nil) then
         local file = assert(io.open(path, "w"))
         if (file) then
             file:write("{\n}")
@@ -282,7 +281,6 @@ function CheckFile()
         end
     end
 	
-	local current_map = get_var(0, "$map")
 	local info = nil
 	local file = io.open(settings.path, "r")
 	if (file ~= nil) then
@@ -291,6 +289,7 @@ function CheckFile()
 		io.close(file)
 	end
 	
+	local current_map = get_var(0, "$map")
 	if (info) then
 		for map,v in pairs(info) do
 			if (map) and (map == current_map) then
