@@ -2,7 +2,7 @@
 --======================================================================================================--
 Script Name: HLN Damage Prevention (v1.0), for SAPP (PC & CE)
 	This script will prevent: 
-		* Lone-drivers from receiving damage or inflicting damage (unless driving as gunner)
+		* Lone-drivers from receiving damage or inflicting damage
 		* Walkers from inflicting damage to anyone
 		* Any vehicle occupant from inflicting damage on walkers
 
@@ -42,7 +42,7 @@ function OnDamageApplication(VictimIndex, CauserIndex, MetaID, Damage, HitString
 				return false
 			end
 		end
-	end	
+	end
 end
 
 function InVehicle(PlayerIndex)
@@ -63,18 +63,18 @@ end
 function GetOccupantCount(PlayerIndex)
 	local count = 1
 
-	local player_object = get_dynamic_player(PlayerIndex)
-	local V1ID = read_dword(player_object + 0x11C)
-	local v1_object_memory = get_object_memory(V1ID)
+	local player_object1 = get_dynamic_player(PlayerIndex)
+	local P1_VID = read_dword(player_object1 + 0x11C)
+	local P1_VObjectMemory = get_object_memory(P1_VID)
 	
 	for i = 1,16 do
 		if player_present(i) and player_alive(i) then
 			if (i ~= PlayerIndex) then
 				local player_object2 = get_dynamic_player(i)
-				local V2ID = read_dword(player_object2 + 0x11C)
-				if (V2ID ~= 0xFFFFFFFF) then
-					local v2_object_memory = get_object_memory(V2ID)
-					if (v1_object_memory == v2_object_memory) then
+				local P2_VID = read_dword(player_object2 + 0x11C)
+				if (P2_VID ~= 0xFFFFFFFF) then
+					local P2_VObjectMemory = get_object_memory(P2_VID)
+					if (P1_VObjectMemory == P2_VObjectMemory) then
 						count = count + 1
 					end
 				end
