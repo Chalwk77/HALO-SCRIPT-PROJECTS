@@ -1,14 +1,10 @@
 --[[
 --======================================================================================================--
-Script Name: HLN Damage Prevention (v1.1), for SAPP (PC & CE)
-	This script will prevent: 
-		* Lone-drivers from receiving damage or inflicting damage
-		* Walkers from inflicting damage to anyone
-		* Any vehicle occupant from inflicting damage on walkers
+Script Name: HLN Damage Prevention (v1.2), for SAPP (PC & CE)
+	* Lone-drivers from receiving damage or inflicting damage
+	* Walkers from inflicting damage to anyone
+	* Any vehicle occupant from inflicting damage on walkers
 		
-		Known Issue: 
-		Currently, lone drivers (as gunner) cannot receive or inflict damage.
-		This will be fixed in a later update.
 	
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -19,31 +15,83 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]]--
 
 api_version = "1.12.0.0"
+local seat = {}
 
 function OnScriptLoad()
 	register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
+    register_callback(cb['EVENT_VEHICLE_ENTER'], "OnVehicleEntry")
+    register_callback(cb['EVENT_LEAVE'], "OnPlayerConnect")
+    register_callback(cb['EVENT_LEAVE'], "OnPlayerDisconnect")
+    register_callback(cb['EVENT_TICK'], "OnTick")
+	
+	if (get_var(0, "$gt") ~= "n/a") then
+		seat = {}
+		for i = 1,16 do
+			if player_present(i) then
+				execute_command("kill " .. i)
+			end
+		end
+	end
+end
+
+function OnTick()
+	for i = 1,16 do
+		if player_present(i) then
+			if (not InVehicle(i) and seat[i] ~= nil) then
+				seat[i] = 0
+			end
+		end
+	end
+end
+
+function OnPlayerConnect(PlayerIndex)
+	seat[PlayerIndex] = 0
+end
+
+function OnPlayerDisconnect(PlayerIndex)
+	seat[PlayerIndex] = 0
+end
+
+function OnVehicleEntry(PlayerIndex, Seat)
+	if player_alive(PlayerIndex) then
+		local current_seat = GetSeat(PlayerIndex)
+		if (current_seat ~= nil) then
+			if (seat[PlayerIndex] ~= current_seat) then
+				seat[PlayerIndex] = "0-2"
+			end
+		end
+	end
 end
 
 function OnDamageApplication(VictimIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
 	if (tonumber(CauserIndex) > 0 and VictimIndex ~= CauserIndex) then
 
+		-- Walker vs Walker
 		if not InVehicle(CauserIndex) then
 			return false
 			
+		-- Walker vs Vehicle Occupant
 		elseif not InVehicle(CauserIndex) and InVehicle(VictimIndex) then
 			return false
 
+		-- Vehicle Occupant vs Walker
 		elseif InVehicle(CauserIndex) and not InVehicle(VictimIndex) then
 			return false
 			
+		-- Driver/Gunner vs Vehicle Occupant
 		elseif InVehicle(CauserIndex) and InVehicle(VictimIndex) then
-			if GetOccupantCount(VictimIndex) == 1 then
-				return false
-			end
+		
+			if (seat[CauserIndex] == "0-2") then
 			
-		elseif InVehicle(CauserIndex) and InVehicle(VictimIndex) then
-			if GetOccupantCount(VictimIndex) > 1 then
-				return false
+				-- Victim is LONE Driver (no gunner/passenger)
+				if (GetOccupantCount(VictimIndex) == 1) then
+					local current_seat = GetSeat(VictimIndex)
+					if (current_seat ~= nil) then
+						if (current_seat == 0) then
+							return false
+						end
+					end
+				end
 			end
 		end
 	end
@@ -54,7 +102,7 @@ function InVehicle(PlayerIndex)
 		local player_object = get_dynamic_player(PlayerIndex)
 		if (player_object ~= 0) then
 			local VehicleID = read_dword(player_object + 0x11C)
-			if (VehicleID == 0xFFFFFFFF) then 
+			if (VehicleID == 0xFFFFFFFF) then
 				return false
 			else
 				return true
@@ -62,6 +110,17 @@ function InVehicle(PlayerIndex)
 		end
 	end
 	return false
+end
+
+function GetSeat(PlayerIndex)
+	local player_object = get_dynamic_player(PlayerIndex)
+	if (player_object ~= 0) then
+		local VehicleID = read_dword(player_object + 0x11C)
+		if (VehicleID ~= 0xFFFFFFFF) then
+			return read_word(player_object + 0x2F0)
+		end
+	end
+	return nil
 end
 
 function GetOccupantCount(PlayerIndex)
@@ -87,4 +146,8 @@ function GetOccupantCount(PlayerIndex)
 	end
 	
 	return count
+end
+
+function Reset(PlayerIndex)
+	seat[PlayerIndex] = 0
 end
