@@ -6,7 +6,6 @@ Script Name: HLN Damage Prevention (v1.1), for SAPP (PC & CE)
 		* Walkers from inflicting damage to anyone
 		* Any vehicle occupant from inflicting damage on walkers
 		
-		
 		Known Issue: 
 		Currently, lone drivers (as gunner) cannot receive or inflict damage.
 		This will be fixed in a later update.
