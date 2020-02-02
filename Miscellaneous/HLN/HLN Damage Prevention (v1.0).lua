@@ -1,11 +1,16 @@
 --[[
 --======================================================================================================--
-Script Name: HLN Damage Prevention (v1.0), for SAPP (PC & CE)
+Script Name: HLN Damage Prevention (v1.1), for SAPP (PC & CE)
 	This script will prevent: 
 		* Lone-drivers from receiving damage or inflicting damage
 		* Walkers from inflicting damage to anyone
 		* Any vehicle occupant from inflicting damage on walkers
-
+		
+		
+		Known Issue: 
+		Currently, lone drivers (as gunner) cannot receive or inflict damage.
+		This will be fixed in a later update.
+	
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
