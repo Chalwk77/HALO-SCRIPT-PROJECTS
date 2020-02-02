@@ -2,7 +2,7 @@
 --======================================================================================================--
 Script Name: HLN Damage Prevention (v1.0), for SAPP (PC & CE)
 	This script will prevent: 
-		* Lone-drivers from receiving damage or inflicting damage
+		* Lone-drivers from receiving damage or inflicting damage (unless driving as gunner)
 		* Walkers from inflicting damage to anyone
 		* Any vehicle occupant from inflicting damage on walkers
 
@@ -22,18 +22,23 @@ end
 
 function OnDamageApplication(VictimIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
 	if (tonumber(CauserIndex) > 0 and VictimIndex ~= CauserIndex) then
-		local shooter = InVehicle(CauserIndex)
-		local victim = InVehicle(VictimIndex)
-		
-		-- Shooter is walker (not in vehicle)
-		if (not shooter.invehicle) then
+
+		if not InVehicle(CauserIndex) then
 			return false
-		-- Shooter in vehicle (victim is walker)
-		elseif (shooter.invehicle) and (not victim.invehicle) then
+			
+		elseif not InVehicle(CauserIndex) and InVehicle(VictimIndex) then
 			return false
-		-- Shooter in vehicle (Victim in Vehicle) - Victim is alone
-		elseif (shooter.invehicle) and (victim.invehicle) then
+
+		elseif InVehicle(CauserIndex) and not InVehicle(VictimIndex) then
+			return false
+			
+		elseif InVehicle(CauserIndex) and InVehicle(VictimIndex) then
 			if GetOccupantCount(VictimIndex) == 1 then
+				return false
+			end
+			
+		elseif InVehicle(CauserIndex) and InVehicle(VictimIndex) then
+			if GetOccupantCount(VictimIndex) > 1 then
 				return false
 			end
 		end
@@ -41,19 +46,22 @@ function OnDamageApplication(VictimIndex, CauserIndex, MetaID, Damage, HitString
 end
 
 function InVehicle(PlayerIndex)
-	local player = {}
 	if player_alive(PlayerIndex) then
-		if (VehicleID == 0xFFFFFFFF) then
-			player.invehicle = false
-		else
-			player.invehicle = true
+		local player_object = get_dynamic_player(PlayerIndex)
+		if (player_object ~= 0) then
+			local VehicleID = read_dword(player_object + 0x11C)
+			if (VehicleID == 0xFFFFFFFF) then 
+				return false
+			else
+				return true
+			end
 		end
 	end
-	return player
+	return false
 end
 
 function GetOccupantCount(PlayerIndex)
-	local body_count = 1
+	local count = 1
 
 	local player_object = get_dynamic_player(PlayerIndex)
 	local V1ID = read_dword(player_object + 0x11C)
@@ -62,17 +70,17 @@ function GetOccupantCount(PlayerIndex)
 	for i = 1,16 do
 		if player_present(i) and player_alive(i) then
 			if (i ~= PlayerIndex) then
-				local player_object = get_dynamic_player(i)
-				local V2ID = read_dword(player_object + 0x11C)
+				local player_object2 = get_dynamic_player(i)
+				local V2ID = read_dword(player_object2 + 0x11C)
 				if (V2ID ~= 0xFFFFFFFF) then
 					local v2_object_memory = get_object_memory(V2ID)
 					if (v1_object_memory == v2_object_memory) then
-						body_count = body_count + 1
+						count = count + 1
 					end
 				end
 			end
 		end
 	end
 	
-	return body_count
+	return count
 end
