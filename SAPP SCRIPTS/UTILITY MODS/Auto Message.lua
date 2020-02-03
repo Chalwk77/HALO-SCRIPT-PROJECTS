@@ -13,6 +13,9 @@ Command Syntax:
         [2] line 2
         [3] etc...
     /broadcast [id]
+
+    Messages can be printed to CHAT or RCON.
+    NOTE: Keep multi-Line messages limited to 6 lines as Halo Chat only supports 6 lines in the buffer.
     
 
 Copyright (c) 2019-2020, Jericho Crosby <jericho.crosby227@gmail.com>
@@ -36,17 +39,15 @@ local privilege_level = 1
 -- #Messages
 local announcements = {
 
-    { "Like us on Facebook | facebook.com/page_id" },
+    -- [new] -- MULTI-LINE SUPPORT (separate lines with a comma - messages must be encapsulated in quotes)
+    { "Message 1 (line 1)", "Message 1 (line 2)" }, -- message 1
 
-    { "Follow us on Twitter | twitter.com/twitter_id" },
-
-    { "We are recruiting. Sign up on our website | website url" },
-
-    { "Rules / Server Information" },
-
-    { "announcement 5" },
-
-    { "other information here" }, -- message 6
+    { "Like us on Facebook | facebook.com/page_id" }, -- message 2
+    { "Follow us on Twitter | twitter.com/twitter_id" }, -- message 3
+    { "We are recruiting. Sign up on our website | website url" }, -- message 4
+    { "Rules / Server Information" }, -- message 5
+    { "announcement 5" }, -- message 6
+    { "other information here" }, -- message 7
     -- Repeat the structure to add more entries.
 }
 
@@ -194,9 +195,4 @@ function CmdSplit(CMD)
         i = i + 1
     end
     return t
-end
-
-function secondsToTime(seconds)
-    seconds = seconds % 60
-    return seconds
 end
