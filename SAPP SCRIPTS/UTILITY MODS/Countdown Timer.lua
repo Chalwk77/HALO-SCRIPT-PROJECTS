@@ -24,7 +24,7 @@ delay = 5 -- In Seconds
 
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
-    
+
     register_callback(cb["EVENT_GAME_START"], "OnNewGame")
     register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
 end
@@ -40,16 +40,16 @@ end
 function OnTick()
     if (init_countdown == true) then
         countdown = countdown + 0.030
-        
+
         local seconds = secondsToTime(countdown)
         timeRemaining = delay - math.floor(seconds)
-        
-        cprint("Game will begin in " .. timeRemaining .. " seconds", 4+8)
-        
+
+        cprint("Game will begin in " .. timeRemaining .. " seconds", 4 + 8)
+
         if (timeRemaining <= 0) then
-            cprint("The game has begun!", 2+8)
+            cprint("The game has begun!", 2 + 8)
             stopTimer()
-            
+
             ----------
             -- DO SOMETHING HERE
             ----------

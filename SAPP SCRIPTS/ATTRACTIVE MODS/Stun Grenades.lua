@@ -17,9 +17,9 @@ local players = {}
 -- Configuration Starts --
 local tags = {
     -- Tag | Stun Time | Stun Percent | Enabled/Disabled
-    { "weapons\\frag grenade\\explosion",       5,      0.5,      true},
-    { "weapons\\plasma grenade\\explosion",     5,      0.5,      true},
-    { "weapons\\plasma grenade\\attached",      10,     0.5,      true},
+    { "weapons\\frag grenade\\explosion", 5, 0.5, true },
+    { "weapons\\plasma grenade\\explosion", 5, 0.5, true },
+    { "weapons\\plasma grenade\\attached", 10, 0.5, true },
 }
 -- Configuration Ends --
 
@@ -54,11 +54,11 @@ function OnPlayerSpawn(PlayerIndex)
 end
 
 function OnTick()
-    for i,player in pairs(players) do
+    for i, player in pairs(players) do
         if player_alive(i) then
             if (player.stunned) then
                 player.timer = player.timer + delta_time
-                local timeRemaining = player.stun_duration - floor(player.timer % 60)                
+                local timeRemaining = player.stun_duration - floor(player.timer % 60)
                 execute_command("s " .. i .. " " .. player.stun_percent)
                 if (timeRemaining <= 0) then
                     initPlayer(i, true)
@@ -98,7 +98,7 @@ function OnDamageApplication(VictimIndex, CauserIndex, MetaID, Damage, HitString
     if (tonumber(CauserIndex) > 0 and VictimIndex ~= CauserIndex) then
         for _, Table in pairs(tags) do
             if (Table[4] and MetaID == GetTag("jpt!", Table[1])) then
-                for i,player in pairs(players) do
+                for i, player in pairs(players) do
                     if (i == VictimIndex) then
                         if player_alive(VictimIndex) then
                             player.stunned, player.timer = true, 0

@@ -20,20 +20,20 @@ local gsub = string.gsub
 
 function taunt.Init()
     -- Configuration [starts] -----------------------------------------------------
-    
+
     -- If "true", the script will send a taunt message to a player when they die.
     taunt.OnDeath = true
-    
+
     -- Message Alignment Setting:
     -- Left = l, Right = r, Centre = c, Tab: t
     taunt.message_alignment = "|l"
-    
+
     -- If true, the script will send a taunt message to the player.
     taunt.OnGameOver = true
-    
+
     -- CUSTOM VARIABLE:
     -- Use "%victim_name%" (without the quotes) to output the victim's name.
-    taunt.deathmessages = { 
+    taunt.deathmessages = {
         " Aw, %victim_name%, I seen better shooting at the county fair!",
         " Ees too bad you got manure for brains!!",
         " Hell's full a' retired Gamers, %victim_name%, And it's time you join em!",
@@ -65,18 +65,18 @@ function taunt.Init()
         " Sell your PC. Just do it.",
         " You disappoint me, %victim_name%.",
     }
-    
+
     -- CUSTOM VARIABLES:
     -- Use "%name%" to output the players name.
     -- Use "%kills%" to output the players kill count.
     taunt.gameover_messages = {
-        
+
         -- The script will select and send one random message from this array,
         -- in respect to how many kills the player has.
-        
+
         ["0"] = { -- No Kills
             "%name%, You have no kills. Noob alert!",
-            
+
             -- You can have multiple entries per kill-threshold.
             -- Only one of these messages will be selected at random (per player)
             "You're not here to spectate, %name%! What were you doing?",
@@ -95,20 +95,20 @@ function taunt.Init()
         },
         -- Repeat the structure to add more entries.
     }
-    
+
     -- Configuration [ends] -----------------------------------------------------
 end
 
 function OnScriptLoad()
-    
+
     taunt.Init()
-    
+
     -- Register needed Event Callbacks: 
 
     if (taunt.OnGameOver) then
         register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
     end
-    
+
     if (taunt.OnDeath) then
         register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
     end
@@ -121,37 +121,39 @@ end
 -- Returns a random array element:
 local function GetMessage(table)
     math.randomseed(os.time())
-    math.random(); math.random(); math.random()
+    math.random();
+    math.random();
+    math.random()
     return table[math.random(#table)]
 end
 
 function OnPlayerDeath(PlayerIndex, KillerIndex)
-    
+
     local victim = tonumber(PlayerIndex)
     local killer = tonumber(KillerIndex)
-    
+
     -- Check if the player committed suicide:
     -- Returns false if they did and a taunt message wont be sent. 
     if (victim == killer) then
         return false
-        
-    -- Check if the player was killed by a vehicle (squashed & unoccupied):
-    -- Returns false if they were and a taunt message wont be sent. 
+
+        -- Check if the player was killed by a vehicle (squashed & unoccupied):
+        -- Returns false if they were and a taunt message wont be sent.
     elseif (killer == 0) then
         return false
-    
-    -- Check if the player was killed by the server:
-    -- Returns false if they were and a taunt message wont be sent.
+
+        -- Check if the player was killed by the server:
+        -- Returns false if they were and a taunt message wont be sent.
     elseif (killer == -1) then
         return false
-        
-    -- Check if the killer was Guardians or Unknown:
-    -- Returns false if it was either of these and a taunt message wont be sent.
+
+        -- Check if the killer was Guardians or Unknown:
+        -- Returns false if it was either of these and a taunt message wont be sent.
     elseif (killer == nil) then
         return false
 
-    -- 1). Check if the killer is a valid player.
-    -- 2). Send victim a random message from the taunt.deathmessages table:
+        -- 1). Check if the killer is a valid player.
+        -- 2). Send victim a random message from the taunt.deathmessages table:
     elseif (killer > 0) then
         local name = get_var(victim, "$name")
         local message = gsub(GetMessage(taunt.deathmessages), "%%victim_name%%", name)
@@ -162,16 +164,16 @@ end
 function OnGameEnd()
     for i = 1, 16 do
         if player_present(i) then
-            
+
             local kills = tonumber(get_var(i, "$kills"))
-            
-            for key,value in pairs(taunt.gameover_messages) do
+
+            for key, value in pairs(taunt.gameover_messages) do
                 if (key) and (kills == tonumber(key)) then
-                
+
                     local name = get_var(i, "$name")
                     local message = gsub(gsub(GetMessage(value), "%%name%%", name), "%%kills%%", kills)
                     rprint(i, taunt.message_alignment .. " " .. message)
-                    
+
                 end
             end
         end

@@ -112,7 +112,7 @@ end
 function OnPlayerChat(PlayerIndex, Message, Type)
     local msg = string.lower(Message)
     if (msg == anger_expression) then
-                
+
         local msg = expressions.anger[math.random(#expressions.anger)]
         broadcast(PlayerIndex, msg)
         return false
@@ -123,7 +123,7 @@ function OnPlayerChat(PlayerIndex, Message, Type)
         return false
 
     elseif (msg == taunt_expression) then
-    
+
         local msg = expressions.taunt[math.random(#expressions.taunt)]
         broadcast(PlayerIndex, msg)
         return false

@@ -50,7 +50,7 @@ local vanish = {}
 
 -- Base Command: 
 vanish.command = "vanish" -- /command on|off [me | id | */all] <cmd_flag>
-vanish.cmd_flags = {"-c", "-h", "-ch"} -- Command flag parameters.
+vanish.cmd_flags = { "-c", "-h", "-ch" } -- Command flag parameters.
 -- If '-c' (short for camouflage) command parameter is specified, you will only have camo!
 -- If '-h' (short for hidden) command parameter is specified, you will only be hidden!
 -- If '-ch' (short for camouflage + hidden) command parameter is specified, you will be both hidden and camouflaged!
@@ -218,9 +218,9 @@ function OnScriptLoad()
 
         register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
         register_callback(cb['EVENT_WEAPON_DROP'], "OnWeaponDrop")
-        
+
         register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
-        
+
         register_callback(cb['EVENT_DIE'], "OnPlayerKill")
 
         if (tonumber(get_var(0, "$pn")) > 0) then
@@ -240,7 +240,7 @@ end
 
 function OnGameEnd()
     game_over = true
-    if (vanish.auto_off) and (tonumber(get_var(0, "$pn")) > 0)then
+    if (vanish.auto_off) and (tonumber(get_var(0, "$pn")) > 0) then
         reset()
     end
 end
@@ -309,32 +309,32 @@ function OnPlayerConnect(p)
 
     ip_table[p] = ip_table[p] or { }
     ip_table[p] = ip
-    
+
     vanish[ip] = vanish[ip] or nil
     local status = vanish[ip]
     local score = get_var(p, "$score")
-    
+
     local function tell(p, bool)
         if (bool) then
             vanish[ip] = { } -- Initialize an array for this player.
             status = vanish[ip]
-            
+
             -- ENABLE VANISH
             status.enabled = true
-            
+
             -- APPLY GOD MDOE
             if (vanish.invincibility) then
                 execute_command("god " .. p)
             end
         end
-        
+
         -- JOIN MESSAGES:
         if (vanish.join_tell) then
             local join_message_1 = gsub(vanish.join_msg, "%%name%%", get_var(p, "$name"))
             respond(p, join_message_1, "rcon", 2 + 8)
             if (vanish.announce_warnings) then
                 local join_message_2 = gsub(vanish.join_warnings_left_msg, "%%warnings%%", status.warnings)
-                respond(p, join_message_2, "rcon", 2+8)
+                respond(p, join_message_2, "rcon", 2 + 8)
             end
         end
 
@@ -343,17 +343,19 @@ function OnPlayerConnect(p)
             announceExclude(p, msg, "rcon", 2 + 8)
         end
     end
-    
+
     local was_vanished = isVanished(ip)
-    if (status ~= nil and status.enabled) then -- no need to declare `vanish[ip].enable`
+    if (status ~= nil and status.enabled) then
+        -- no need to declare `vanish[ip].enable`
         tell(p)
-    elseif (status == nil) and (was_vanished) then -- must declare `vanish[ip] = {}` and `vanish[ip].enable`
+    elseif (status == nil) and (was_vanished) then
+        -- must declare `vanish[ip] = {}` and `vanish[ip].enable`
         tell(p, true)
     elseif (status == nil) and not (was_vanished) then
         vanish[ip] = { } -- Initialize an array for this player.
         status = vanish[ip]
     end
-    
+
     status.teleport, status.warn, status.timer, status.score, status.warnings, status.mode = false, false, 0, score, getWarnings(ip), "default"
 end
 
@@ -419,8 +421,8 @@ function OnTick()
                 -- APPLY SPEED
                 if not (status.warn) and (vanish.speed_boost) then
                     execute_command("s " .. tonumber(i) .. " " .. tonumber(vanish.running_speed))
-                
-                -- WARN PLAYER
+
+                    -- WARN PLAYER
                 elseif (status.warn) then
                     status.timer = status.timer + 0.030
                     cls(i, 25)
@@ -437,7 +439,7 @@ function OnTick()
                     -- Check player warnings
                     if (getWarnings(ip) <= 0) then
                         status.warn, status.enabled = false, false
-                        execute_command("s " .. tonumber(i) .. " " .. tonumber(vanish.default_running_speed ))
+                        execute_command("s " .. tonumber(i) .. " " .. tonumber(vanish.default_running_speed))
                         killSilently(i) -- KILL PLAYER
                         rprint(i, "Your vanish mode was auto-revoked! [no warnings left]")
                         if (vanish.announce) then
@@ -459,12 +461,12 @@ function OnTick()
                         status.object = "" -- just in case
                     end
                 end
-                
+
                 local score = tonumber(get_var(i, "$score"))
                 if (score < 0) then
                     execute_command("score " .. tonumber(i) .. " " .. status.score)
                 end
-                
+
                 -- BOOST HANDLER
                 if (vanish.boost) then
                     local player = get_dynamic_player(i)
@@ -581,7 +583,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 if (args[1] ~= nil) then
                     params.option = args[1]
                 end
-                
+
                 if (args[3] ~= nil) then
                     params.flag = args[3]
                 end
@@ -660,15 +662,15 @@ function vanish:set(params)
     local status = vanish[tip]
     status.warnings = (status.warnings) or getWarnings(tip)
     local warnings = status.warnings
-    
+
     local function Enable()
         status.enabled, status.teleport, status.warn = true, false, false
         status.score, status.timer = get_var(tid, "$score"), 0
-        
+
         local p = { }
         p.ip, p.save = tip, true
         vanish:savetofile(p)
-        
+
         if (vanish.invincibility) then
             execute_command("god " .. tid)
         end
@@ -691,26 +693,29 @@ function vanish:set(params)
         remove_data_log(tid)
         killSilently(tid)
     end
-    
+
     local cmd_flags, is_error, on_off = vanish.cmd_flags
-    local function flag_check()    
+    local function flag_check()
         local disabled_error, _error_
         if (flag ~= nil) then
-            if (flag == cmd_flags[1]) then -- camo only
+            if (flag == cmd_flags[1]) then
+                -- camo only
                 if (vanish.camouflage) then
                     status.mode = "camouflage"
                     on_off = "Enabled (with Camouflage)"
                 else
                     disabled_error, _error_ = true, "vanish.camouflage is disabled internally"
                 end
-            elseif (flag == cmd_flags[2]) then -- hidden only
+            elseif (flag == cmd_flags[2]) then
+                -- hidden only
                 if (vanish.hide) then
                     status.mode = "hide"
                     on_off = "Enabled (hidden only)"
                 else
                     disabled_error, _error_ = true, "vanish.hide is disabled internally"
                 end
-            elseif (flag == cmd_flags[3]) then -- camouflage + hidden
+            elseif (flag == cmd_flags[3]) then
+                -- camouflage + hidden
                 if (vanish.camouflage) and (vanish.hide) then
                     status.mode = "camouflage_and_hide"
                     on_off = "Enabled (Hidden with Camouflage)"
@@ -725,7 +730,7 @@ function vanish:set(params)
                 return true
             elseif not (is_error) then
                 is_error = true
-                respond(eid, "Command failed! (" .. _error_ .. ")", "rcon", 4+8)
+                respond(eid, "Command failed! (" .. _error_ .. ")", "rcon", 4 + 8)
                 return false
             end
         else
@@ -739,7 +744,7 @@ function vanish:set(params)
     if (executeOnOthers(eid, is_self, isConsole(eid), eLvl)) then
         if (tonumber(warnings) > 0) then
             local already_set
-            if (option == "on") or (option == "1") or (option == "true") then     
+            if (option == "on") or (option == "1") or (option == "true") then
                 if (status.enabled ~= true) then
                     if flag_check() then
                         already_set, is_error = false, false
@@ -819,11 +824,11 @@ function hasObjective(PlayerIndex, WeaponIndex)
     if (weaponId ~= 0) then
         local ip = getip(PlayerIndex)
         local status = vanish[ip]
-        
+
         local weapon_object = get_object_memory(read_dword(player_object + 0x2F8 + (tonumber(WeaponIndex) - 1) * 4))
         local tag_name = read_string(read_dword(read_word(weapon_object) * 32 + 0x40440038))
-        
-        for j = 0, 3 do    
+
+        for j = 0, 3 do
             local weapon = read_dword(player_object + 0x2F8 + 4 * j)
             if (weapon == red_flag) or (weapon == blue_flag) then
                 status.objective = "flag"
@@ -843,7 +848,7 @@ function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
     if (status ~= nil and status.enabled) then
         if (tonumber(Type) == 1) then
             if hasObjective(PlayerIndex, WeaponIndex) then
-            
+
                 -- Every time you pick up the flag, you will lose one warning point.
                 status.warnings = (status.warnings - 1)
                 status.warn = true
@@ -860,7 +865,7 @@ end
 function OnWeaponDrop(PlayerIndex)
     local ip = getip(PlayerIndex)
     local status = vanish[ip]
-    
+
     if (status ~= nil and status.enabled) and (status.warn) then
         status.warn, status.timer = false, 0
         -- APPLY SPEED - player was frozen when `OnWeaponPickup()` was called.
@@ -1095,6 +1100,6 @@ function OnPlayerKill(PlayerIndex)
     local ip = getip(PlayerIndex)
     local status = vanish[ip]
     if (status ~= nil) then
-        status.scores, status.timer, status.warn, status.has_objective = 0,0, false, false
+        status.scores, status.timer, status.warn, status.has_objective = 0, 0, false, false
     end
 end

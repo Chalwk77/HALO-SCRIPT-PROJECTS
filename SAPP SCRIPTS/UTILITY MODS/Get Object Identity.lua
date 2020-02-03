@@ -101,12 +101,12 @@ function SendToPlayer(player, type, ObjectName, ObjectMeta, x, y, z)
     rprint(player, "Name: |r" .. tostring(ObjectName))
     rprint(player, "Meta: |r" .. tonumber(ObjectMeta))
     rprint(player, "X,Y,Z: |r" .. x .. ", " .. y .. ", " .. z)
-    
+
     cprint("Type: " .. tostring(type))
     cprint("Name: " .. tostring(ObjectName))
     cprint("Meta: " .. tonumber(ObjectMeta))
     cprint("X,Y,Z: " .. x .. ", " .. y .. ", " .. z)
-   
+
 end
 
 function OnServerCommand(PlayerIndex, Command)

@@ -50,6 +50,8 @@ end
 
 function OnPlayerDeath(PlayerIndex, KillerIndex)
     players[KillerIndex].kills = players[KillerIndex].kills + 1
-    for i = 1, 20 do rprint(KillerIndex, " ") end
+    for i = 1, 20 do
+        rprint(KillerIndex, " ")
+    end
     rprint(KillerIndex, "|" .. alignment .. " " .. string.gsub(message, "%%kills%%", players[KillerIndex].kills))
 end

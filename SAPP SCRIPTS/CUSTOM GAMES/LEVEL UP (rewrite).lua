@@ -40,8 +40,8 @@ function game:init()
 
         -- Custom Command (Use this command to level up/down players):
         -- Command Syntax: /levelup [player id] [level]
-        
-        commands = {            
+
+        commands = {
             [1] = {
                 command = "setlevel", -- Custom Command (Use this command to level UP|DOWN yourself or others)
                 permission = 1, -- Minimum level required to execute this command
@@ -205,17 +205,17 @@ function game:init()
             },
 
         },
-        
+
         -- If true, this script will simulate CTF game play on Slayer game types:
         ctf_mode = true,
-        
+
         flag = {
-                
+
             on_capture = "%name% captured a flag!",
             on_respawn_trigger = "The flag was dropped and will respawn in %time% seconds",
             on_respawn = "The flag respawned!",
             item = "weapons\\flag\\flag",
-            
+
             ["bloodgulch"] = {
                 -- Blue Base X,Y,Z:
                 { 95.687797546387, -159.44900512695, -0.10000000149012 },
@@ -334,8 +334,8 @@ function game:init()
                 { -5.035900592804, -5.0643291473389, -2.7504394054413 },
                 { 1.5 }
             },
-            
-            
+
+
             ["FLAG"] = {},
         },
         --# Do Not Touch #--
@@ -378,12 +378,12 @@ function OnScriptLoad()
 
     kill_message_addresss = sig_scan("8B42348A8C28D500000084C9") + 3
     originl_kill_message = read_dword(kill_message_addresss)
-    
+
     if (get_var(0, '$gt') ~= "n/a") then
 
         game:init()
-        
-        if (game.settings.ctf_mode) then            
+
+        if (game.settings.ctf_mode) then
             game:SpawnFlag(true)
         end
 
@@ -395,7 +395,7 @@ function OnScriptLoad()
         game:disableKillMessages()
     end
     -- ======== from Giraffe's auto-vehicle-flip script ======== --
-    if(halo_type == "CE") then
+    if (halo_type == "CE") then
         rider_ejection = read_byte(0x59A34C)
         write_byte(0x59A34C, 0)
     else
@@ -407,9 +407,9 @@ end
 
 function OnScriptUnload()
     game:enableKillMessages()
-    
+
     -- ======== from Giraffe's auto-vehicle-flip script ======== --
-    if(halo_type == "CE") then
+    if (halo_type == "CE") then
         write_byte(0x59A34C, rider_ejection)
     else
         write_byte(0x6163EC, rider_ejection)
@@ -449,18 +449,18 @@ function OnTick()
     if (gamestarted) then
 
         local flag_table = game.settings.flag["FLAG"]
-        for _,flag in pairs(flag_table) do
+        for _, flag in pairs(flag_table) do
             if (flag.object) and (not flag.held) then
                 if (flag.respawn_trigger) then
                     flag.timer = flag.timer + delta_time
-                   
+
                     local time = ((flag.respawn_time) - (flag.timer))
                     local seconds = select(2, game:secondsToTime(time))
-                    
-                    if (tonumber(seconds) == floor(flag.respawn_time/2)) then
+
+                    if (tonumber(seconds) == floor(flag.respawn_time / 2)) then
                         if (flag.warnbool) then
-                            flag.warnbool = false                            
-                            local msg = gsub(set.flag.on_respawn_trigger, "%%time%%", flag.respawn_time/2)
+                            flag.warnbool = false
+                            local msg = gsub(set.flag.on_respawn_trigger, "%%time%%", flag.respawn_time / 2)
                             game:broadcast(msg, false)
                         end
                     elseif (tonumber(seconds) <= 0) then
@@ -475,15 +475,15 @@ function OnTick()
             if (player and player.id) then
                 if player_alive(player.id) then
                     local player_object = get_dynamic_player(player.id)
-                
+
                     -- ======== from Giraffe's auto-vehicle-flip script ======== --
                     local VehicleID = read_dword(player_object + 0x11C)
-                    if(VehicleID ~= 0xFFFFFFFF) then
+                    if (VehicleID ~= 0xFFFFFFFF) then
                         local vehicle = get_object_memory(VehicleID)
                         flip_vehicle(vehicle)
                     end
                     -- ============================================================== --
-                
+
                     if (set.ctf_mode) then
                         game:MonitorFlag(player)
                     end
@@ -520,11 +520,11 @@ function OnTick()
                             player.assign = false
                             execute_command("wdel " .. player.id)
                             assign_weapon(spawn_object("weap", player.weapon, coords.x, coords.y, coords.z), player.id)
-                            
+
                             -- Set player Grenades:
                             write_word(player_object + 0x31E, player.grenades[1])
                             write_word(player_object + 0x31F, player.grenades[2])
-                            
+
                             execute_command_sequence("w8 1;mag " .. player.id .. " " .. tonumber(player.ammo[1]))
                             execute_command_sequence("w8 1;ammo " .. player.id .. " " .. tonumber(player.ammo[2]))
                             execute_command_sequence("w8 1;battery " .. player.id .. " " .. tonumber(player.ammo[1]))
@@ -554,8 +554,8 @@ function OnTick()
 
             gamestarted = true
             game:StopTimer()
-            
-            if (set.ctf_mode) then            
+
+            if (set.ctf_mode) then
                 game:SpawnFlag(true)
             end
 
@@ -588,7 +588,7 @@ function OnTick()
             execute_command("scorelimit " .. scorelimit)
 
             game:disableKillMessages()
-            
+
             if (#players > 0) then
                 execute_command("sv_map_reset")
             end
@@ -651,7 +651,7 @@ function OnPlayerDisconnect(PlayerIndex)
 
         for index, player in pairs(players) do
             if (player.id == p) then
-                if (player.vehicle_object ~= nil) then                    
+                if (player.vehicle_object ~= nil) then
                     destroy_object(player.vehicle_object)
                 end
                 players[index] = nil
@@ -686,16 +686,16 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
         if (killer > 0) then
 
             local params = { }
-                        
+
             if (killer ~= victim) then
-            
+
                 params.kname = get_var(killer, "$name")
                 params.vname = get_var(victim, "$name")
-                
+
                 if game:holdingFlag(killer) then
                     drop_weapon(killer)
                 end
-                
+
                 for _, player in pairs(set.players) do
                     if (player.id == killer) then
                         player.kills = player.kills + 1
@@ -722,7 +722,7 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
                             params.target, params.levelup = killer, true
                             game:CycleLevel(params)
                         end
-                        
+
                         game:DestroyVehicle(victim, false)
                     end
                 end
@@ -902,7 +902,7 @@ function game:InitPlayer(PlayerIndex)
             next_item = _next_,
             kills_required = Level.kills_required,
             damage_applied = nil,
-            
+
             hud_timer = 0,
             hud_paused = false,
             hud_pause_duration = 5,
@@ -916,7 +916,7 @@ function game:CycleLevel(params)
     local players = set.players
     for _, player in pairs(players) do
         if (player.id == params.target) then
-                    
+
             if (params.cmd) then
                 player.level = tonumber(params.level)
             elseif (params.levelup) then
@@ -924,7 +924,7 @@ function game:CycleLevel(params)
             else
                 player.level = player.level - 1
             end
-        
+
             if (player.level <= 0) then
                 player.level = set.levels.start
             end
@@ -939,8 +939,8 @@ function game:CycleLevel(params)
                 player.kills_required = Level.kills_required
                 player.vehicle = Level.vehicle
                 player.grenades = Level.grenades
-                player.ammo = Level.ammo                
-                
+                player.ammo = Level.ammo
+
                 player.hud_pause_duration = 5
                 player.hud_timer = 0
                 player.hud_paused = false
@@ -955,21 +955,21 @@ function game:CycleLevel(params)
                 if (player.vehicle == nil) then
                     player.assign = true
                 else
-                    
+
                     local old_vehicle = player.vehicle_object
-                    
+
                     -- Enter player into relevant vehicle:
                     local player_object = get_dynamic_player(player.id)
                     local coords = game:getXYZ(player.id, player_object)
-                    
+
                     local Vehicle = spawn_object("vehi", player.vehicle, coords.x, coords.y, coords.z + 0.5)
                     player.vehicle_object = Vehicle
-                    
+
                     enter_vehicle(Vehicle, player.id, 0)
                     if (player.level == 8) then
                         timer(0, "DelayGunnerSeat", player.id, Vehicle)
                     end
-                    
+
                     if (old_vehicle) then
                         destroy_object(old_vehicle)
                     end
@@ -978,11 +978,11 @@ function game:CycleLevel(params)
                 if (params.levelup) then
                     if (params.cmd) then
                         game:broadcast(player.name .. " now level " .. player.level, false)
-                        
+
                     elseif (not params.flagcap) then
-                        local msg = gsub(gsub(gsub(set.on_levelup, 
-                        "%%killer%%", player.name), "%%victim%%", params.vname), 
-                        "%%level%%", player.level)
+                        local msg = gsub(gsub(gsub(set.on_levelup,
+                                "%%killer%%", player.name), "%%victim%%", params.vname),
+                                "%%level%%", player.level)
                         game:broadcast(msg, false)
                     else
                         local msg = gsub(game.settings.flag.on_capture, "%%name%%", player.name)
@@ -997,9 +997,8 @@ function game:CycleLevel(params)
                     end
                 elseif (params.meleee) then
                     if (player.level > 1) then
-                        local msg = gsub(gsub(gsub(set.on_melee, 
-                        "%%victim%%", player.name), "%%killer%%", params.kname)
-                        "%%level%%", player.level), 
+                        local msg = gsub(gsub(gsub(set.on_melee,
+                                "%%victim%%", player.name), "%%killer%%", params.kname) "%%level%%", player.level),
                         game:broadcast(msg, false, false, player.id)
                     else
                         game:broadcast(player.name .. " was killed by " .. params.kname, false)
@@ -1025,9 +1024,9 @@ end
 
 function game:PauseHUD(Player, Pause, time)
     local players = game.settings.players
-    
+
     time = time or 5
-        
+
     for _, player in pairs(players) do
         if (player.id == Player) then
             if (Pause) then
@@ -1061,7 +1060,7 @@ end
 
 function game:holdingFlag(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
-    if player_alive(PlayerIndex) then    
+    if player_alive(PlayerIndex) then
         for i = 0, 3 do
             local weapon_id = read_dword(player_object + 0x2F8 + 0x4 * i)
             if (weapon_id ~= 0xFFFFFFFF) then
@@ -1087,21 +1086,21 @@ function game:SpawnFlag(DestroyOldFlag)
     local coords = flag[map]
 
     if (coords ~= nil) then
-    
+
         local flag_table = flag["FLAG"]
-        
+
         if (DestroyOldFlag) then
-            for i,f in pairs(flag_table) do
+            for i, f in pairs(flag_table) do
                 if (i) then
                     destroy_object(f.object)
                     flag_table[i] = nil
                 end
             end
         end
-        
+
         local object = spawn_object("weap", flag.item, coords[3][1], coords[3][2], coords[3][3])
         local FlagObject = get_object_memory(object)
-        
+
         flag_table[FlagObject] = {
             held_by = nil,
             object = object,
@@ -1117,16 +1116,16 @@ function game:SpawnFlag(DestroyOldFlag)
 end
 
 function game:MonitorFlag(player)
-    
+
     local flag_table = game.settings.flag["FLAG"]
-    for _,flag in pairs(flag_table) do
-        
+    for _, flag in pairs(flag_table) do
+
         if game:holdingFlag(player.id) then
             flag.held_by = player.id
-            
+
             if (flag.broadcast) then
                 flag.broadcast = false
-                
+
                 local msg_table = {
                     "|cReturn the flag to a base to gain a level",
                     "|c- " .. tostring(flag.running_speed) .. "x speed",
@@ -1134,14 +1133,14 @@ function game:MonitorFlag(player)
                     " ",
                     " ",
                 }
-                
+
                 game:PauseHUD(player.id, true, 5)
-                for i = 1,#msg_table do
+                for i = 1, #msg_table do
                     rprint(player.id, msg_table[i])
                 end
                 game:broadcast(player.name .. " has the flag!", false, true, player.id)
             end
-            
+
             if (flag.respawn_trigger) then
                 flag.respawn_trigger = false
                 flag.timer = 0
@@ -1149,25 +1148,25 @@ function game:MonitorFlag(player)
 
             local player_object = get_dynamic_player(player.id)
             if (player_object ~= 0) then
-            
+
                 execute_command("s " .. player.id .. " " .. flag.running_speed)
-                
+
                 local coords = game:getXYZ(player.id, player_object)
                 if (coords) then
-                             
+
                     local CapReds = (game:GetDistance(coords.x, coords.y, coords.z, flag.bx, flag.by, flag.bz) <= 1.1)
                     local CapBlue = (game:GetDistance(coords.x, coords.y, coords.z, flag.rx, flag.ry, flag.rz) <= 1.1)
-                    
+
                     if (CapReds or CapBlue) then
-                        
+
                         flag.held_by = nil
-                        
+
                         local params = { }
                         params.levelup, params.flagcap = true, true
                         params.target = player.id
-                        
+
                         execute_command("s " .. player.id .. " 1")
-                        
+
                         game:CycleLevel(params)
                         game:SpawnFlag(true)
                         break
@@ -1186,7 +1185,7 @@ function OnWeaponDrop(PlayerIndex)
     local set = game.settings
     if (gamestarted and set.ctf_mode) then
         local flag_table = set.flag["FLAG"]
-        for _,flag in pairs(flag_table) do
+        for _, flag in pairs(flag_table) do
             if (flag.object and flag.held_by == PlayerIndex) then
                 flag.held_by, flag.timer = nil, 0
                 flag.warnbool, flag.respawn_trigger = true, true
@@ -1215,7 +1214,7 @@ function game:DestroyVehicle(Player, Delay)
         if (player.id == Player and player.vehicle_object ~= nil) then
             if (not Delay) then
                 destroy_object(player.vehicle_object)
-            else                
+            else
                 local delta_time = 1000 -- 1 second (in ms)
                 timer(delta_time * 2, "DelayDestroy", player.vehicle_object, player.id)
             end
@@ -1227,7 +1226,7 @@ end
 function DelayDestroy(Object, PlayerIndex)
     destroy_object(Object)
     local players = game.settings.players
-    for _,player in pairs(players) do
+    for _, player in pairs(players) do
         if (player.id == PlayerIndex) then
             player.vehicle_object = nil
             break
@@ -1250,25 +1249,25 @@ end
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local command, args = game:StringSplit(Command)
     local executor = tonumber(PlayerIndex)
-    
+
     if (command == nil) then
         return
     end
     command = lower(command) or upper(command)
-    
+
     if (command) then
         game:PauseHUD(PlayerIndex, true, 5)
     end
-    
+
     local set = game.settings
     local cmd_table = set.commands
 
-    for cmd_index = 1,#cmd_table do
+    for cmd_index = 1, #cmd_table do
         if (command == cmd_table[cmd_index].command) then
 
             if not game:isGameOver(executor) then
                 if game:checkAccess(executor, cmd_table[cmd_index]) then
-                
+
                     if (cmd_index == 1) then
                         if (args[1] ~= nil and args[2] ~= nil) then
                             local params = game:ValidateCommand(executor, args, cmd_table[cmd_index], cmd_index)
@@ -1279,15 +1278,15 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                 end
                             end
                         else
-                            local msg = gsub("Invalid Syntax: Usage: /%cmd% [me | id | */all] [level]","%%cmd%%", cmd_table[cmd_index].command)
-                            game:Respond(PlayerIndex, msg, 4+8)
+                            local msg = gsub("Invalid Syntax: Usage: /%cmd% [me | id | */all] [level]", "%%cmd%%", cmd_table[cmd_index].command)
+                            game:Respond(PlayerIndex, msg, 4 + 8)
                         end
-                        
+
                     elseif (cmd_index == 2) then
                         if (args[1] ~= nil and args[2] == nil) then
-                            
+
                             local params = game:ValidateCommand(executor, args, cmd_table[cmd_index], cmd_index)
-                            
+
                             if (params ~= nil) and (not params.target_all) and (not params.is_error) then
                                 local Target = tonumber(args[1]) or tonumber(executor)
                                 if game:isOnline(Target, executor) then
@@ -1295,8 +1294,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                 end
                             end
                         else
-                            local msg = gsub("Invalid Syntax: Usage: /%cmd% [me | id | */all]","%%cmd%%", cmd_table[cmd_index].command)
-                            game:Respond(PlayerIndex, msg, 4+8)
+                            local msg = gsub("Invalid Syntax: Usage: /%cmd% [me | id | */all]", "%%cmd%%", cmd_table[cmd_index].command)
+                            game:Respond(PlayerIndex, msg, 4 + 8)
                         end
                     end
                 end
@@ -1309,12 +1308,12 @@ end
 function game:ExecuteCore(params)
     local params = params or nil
     if (params ~= nil) then
-                    
+
         -- Target Parameters:
         local tid = params.tid
         local eid = params.eid
         -- 
-        
+
         local set = game.settings
         local is_console = game:isConsole(eid)
         if is_console then
@@ -1323,23 +1322,25 @@ function game:ExecuteCore(params)
 
         local is_self = (eid == tid)
         local admin_level = tonumber(get_var(eid, '$lvl'))
-           
+
         local cmd_table = params.cmd_table
         local proceed = game:executeOnOthers(eid, is_self, is_console, admin_level, cmd_table)
         local valid_state
-        
+
         if (proceed) then
             local players = set.players
-            for _,player in pairs(players) do
-                if (player.id == tid) then 
-                
-                    if game:holdingFlag(tid) then drop_weapon(tid) end
-                    
+            for _, player in pairs(players) do
+                if (player.id == tid) then
+
+                    if game:holdingFlag(tid) then
+                        drop_weapon(tid)
+                    end
+
                     -- FOR LEVELING UP
                     if (params.level) then
                         local level = params.level
                         if level:match('%d+') then
-                            if (player.level == tonumber(level))then
+                            if (player.level == tonumber(level)) then
                                 if (not is_self) then
                                     game:Respond(eid, get_var(tid, "$name") .. " is already level " .. level)
                                 else
@@ -1347,12 +1348,12 @@ function game:ExecuteCore(params)
                                 end
                             else
                                 local p = { }
-                                p.target, p.levelup, p.cmd = tid, true, true    
+                                p.target, p.levelup, p.cmd = tid, true, true
                                 p.level = level
                                 game:CycleLevel(p)
                             end
                         else
-                            game:Respond(eid, "Invalid Level! Please choose a number between 1-" .. #set.levels, 4+8)
+                            game:Respond(eid, "Invalid Level! Please choose a number between 1-" .. #set.levels, 4 + 8)
                         end
                     elseif (params.entervehicle) then
                         local coords = game:getXYZ(tid, get_dynamic_player(tid))
@@ -1361,12 +1362,12 @@ function game:ExecuteCore(params)
                             if (player.vehicle ~= nil) then
                                 local Vehicle = spawn_object("vehi", player.vehicle, coords.x, coords.y, coords.z + 0.5)
                                 player.vehicle_object = Vehicle
-                                
+
                                 enter_vehicle(Vehicle, player.id, 0)
                                 if (player.level == 8) then
                                     timer(0, "DelayGunnerSeat", player.id, Vehicle)
                                 end
-                        
+
                                 if (not is_self) then
                                     game:Respond(eid, "Entering " .. get_var(tid, "$name") .. " into " .. player.title)
                                 else
@@ -1395,10 +1396,10 @@ end
 
 function game:ValidateCommand(executor, args, cmd_table, cmd_index)
     local params = { }
-                
+
     local function getplayers(arg)
         local players = { }
-        
+
         if (arg == nil) or (arg == 'me') then
             table.insert(players, executor)
         elseif (arg:match('%d+')) then
@@ -1412,7 +1413,7 @@ function game:ValidateCommand(executor, args, cmd_table, cmd_index)
             end
         elseif (arg == 'rand' or arg == 'random') then
             local temp = { }
-            for i = 1,16 do
+            for i = 1, 16 do
                 if player_present(i) then
                     temp[#temp + 1] = i
                 end
@@ -1429,25 +1430,27 @@ function game:ValidateCommand(executor, args, cmd_table, cmd_index)
                 cmd_error[executor] = true
             end
         end
-        
-        if players[1] then return players end
+
+        if players[1] then
+            return players
+        end
         return false
     end
-    
+
     local pl = getplayers(args[1])
     if (pl) then
         for i = 1, #pl do
-        
+
             if (pl[i] == nil) then
                 break
             end
-        
+
             if (cmd_index == 1) then
                 params.level = args[2]
             elseif (cmd_index == 2) then
                 params.entervehicle = true
             end
-            
+
             params.eid, params.tid = executor, tonumber(pl[i])
             params.cmd_table = cmd_table
 
@@ -1520,7 +1523,7 @@ end
 
 function game:isGameOver(p)
     if (not gamestarted) then
-        game:Respond(p, "Please wait until the next game has started.", 4+8)
+        game:Respond(p, "Please wait until the next game has started.", 4 + 8)
         return true
     end
 end
@@ -1607,8 +1610,8 @@ end
 
 -- ======== from Giraffe's auto-vehicle-flip script ======== --
 function flip_vehicle(Object)
-    if(read_bit(Object + 0x8B, 7) == 1) then
-        if(read_bit(Object + 0x10, 1) == 0) then
+    if (read_bit(Object + 0x8B, 7) == 1) then
+        if (read_bit(Object + 0x10, 1) == 0) then
             return
         end
         write_vector3d(Object + 0x80, 0, 0, 1)

@@ -22,9 +22,9 @@ api_version = "1.11.0.0"
 local base_command = "crash"
 local privilege_level = 4 -- Minimum admin level require to execute /base_command
 local ip_table = {
-    
+
     -- Note: Do not insert the player's PORT.
-    
+
     "127.0.0.1",
     "000.000.000.000",
     "000.000.000.000",
@@ -59,7 +59,7 @@ function OnGameStart()
 end
 
 function OnGameEnd()
-    for k,_ in pairs(available_vehicles) do
+    for k, _ in pairs(available_vehicles) do
         available_vehicles[k] = nil
     end
 end
@@ -107,7 +107,7 @@ local function cmdself(t, e)
 end
 
 function OnTick()
-    for i = 1,16 do
+    for i = 1, 16 do
         if player_present(i) then
             if trigger[i] and player_alive(i) then
                 trigger[i] = false
@@ -120,9 +120,9 @@ end
 function OnServerCommand(PlayerIndex, Command)
     local command, args = cmdsplit(Command)
     local executor = tonumber(PlayerIndex)
-    
+
     local players = { }
-    
+
     if (command == lower(base_command)) then
         if (checkAccess(executor)) then
             if (args[1] ~= nil) and (args[1]:match("%d+")) then
@@ -155,23 +155,23 @@ function mod:CommandCrash(params)
         trigger[tid] = true
         rprint(eid, "You have crashed " .. tn .. "'s game client")
     end
-    
+
 end
 
 function Crash(target, name)
     local player_object = get_dynamic_player(target)
-    
+
     if (player_object ~= 0) then
-    
+
         local x, y, z = read_vector3d(player_object + 0x5C)
         local num = rand(1, #available_vehicles)
-        
-        for k,v in pairs(available_vehicles) do
+
+        for k, v in pairs(available_vehicles) do
             if k == num then
-            
+
                 local vehicle_id = spawn_object("vehi", v, x, y, z)
                 local veh_obj = get_object_memory(vehicle_id)
-                
+
                 if (veh_obj ~= 0) then
                     for j = 0, 20 do
                         enter_vehicle(vehicle_id, target, j)
@@ -179,7 +179,7 @@ function Crash(target, name)
                     end
                     destroy_object(vehicle_id)
                 end
-                cprint("Crashed " .. name .. "'s game client", 4+8)
+                cprint("Crashed " .. name .. "'s game client", 4 + 8)
                 break
             end
         end
@@ -189,7 +189,7 @@ end
 
 function OnPlayerPrejoin(PlayerIndex)
     trigger[PlayerIndex] = nil
-    
+
     local ip, found = get_var(PlayerIndex, "$ip"):match("(%d+.%d+.%d+.%d+)"), nil
     for _, v in pairs(ip_table) do
         if (ip == v) then
@@ -197,7 +197,7 @@ function OnPlayerPrejoin(PlayerIndex)
             break
         end
     end
-    
+
     if (found) then
         trigger[PlayerIndex] = true
     end
@@ -262,8 +262,8 @@ end
 
 function map_has_vehicles()
     local bool
-    
-    for k,v in pairs(vehicles) do
+
+    for k, v in pairs(vehicles) do
         if (lookup_tag("vehi", vehicles[k]) ~= 0) then
             table.insert(available_vehicles, v)
             bool = true
@@ -274,12 +274,12 @@ end
 
 -- Do not touch unless you know what you're doing.
 vehicles = {
-    "vehicles\\wraith\\wraith" ,
-    "vehicles\\pelican\\pelican" ,
-    "vehicles\\banshee\\banshee_mp" ,
-    "vehicles\\c gun turret\\c gun turret_mp" ,
-    "vehicles\\ghost\\ghost_mp" ,
-    "vehicles\\scorpion\\scorpion_mp" ,
-    "vehicles\\rwarthog\\rwarthog" ,
-    "vehicles\\warthog\\mp_warthog" ,
+    "vehicles\\wraith\\wraith",
+    "vehicles\\pelican\\pelican",
+    "vehicles\\banshee\\banshee_mp",
+    "vehicles\\c gun turret\\c gun turret_mp",
+    "vehicles\\ghost\\ghost_mp",
+    "vehicles\\scorpion\\scorpion_mp",
+    "vehicles\\rwarthog\\rwarthog",
+    "vehicles\\warthog\\mp_warthog",
 }

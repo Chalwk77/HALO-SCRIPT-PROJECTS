@@ -24,33 +24,33 @@ melee_object[1] = "weapons\\ball\\ball"
 local scorelimit = 10
 
 local objects = {
-    
+
     -- FALSE = prevent spawning | TRUE = allow spawning
-    { "eqip", "powerups\\active camouflage", true},
-    { "eqip", "powerups\\health pack", true},
-    { "eqip", "powerups\\over shield", true},
-    { "eqip", "weapons\\frag grenade\\frag grenade", false},
-    { "eqip", "weapons\\plasma grenade\\plasma grenade", false},
+    { "eqip", "powerups\\active camouflage", true },
+    { "eqip", "powerups\\health pack", true },
+    { "eqip", "powerups\\over shield", true },
+    { "eqip", "weapons\\frag grenade\\frag grenade", false },
+    { "eqip", "weapons\\plasma grenade\\plasma grenade", false },
 
-    { "vehi", "vehicles\\banshee\\banshee_mp", false},
-    { "vehi", "vehicles\\c gun turret\\c gun turret_mp", false},
-    { "vehi", "vehicles\\ghost\\ghost_mp", false},
-    { "vehi", "vehicles\\scorpion\\scorpion_mp", false},
-    { "vehi", "vehicles\\rwarthog\\rwarthog", false},
-    { "vehi", "vehicles\\warthog\\mp_warthog", false},
+    { "vehi", "vehicles\\banshee\\banshee_mp", false },
+    { "vehi", "vehicles\\c gun turret\\c gun turret_mp", false },
+    { "vehi", "vehicles\\ghost\\ghost_mp", false },
+    { "vehi", "vehicles\\scorpion\\scorpion_mp", false },
+    { "vehi", "vehicles\\rwarthog\\rwarthog", false },
+    { "vehi", "vehicles\\warthog\\mp_warthog", false },
 
-    { "weap", "weapons\\assault rifle\\assault rifle", false},
-    { "weap", "weapons\\ball\\ball", true}, -- DO NOT disable.
-    { "weap", "weapons\\flag\\flag", false},
-    { "weap", "weapons\\flamethrower\\flamethrower", false},
-    { "weap", "weapons\\needler\\mp_needler", false},
-    { "weap", "weapons\\pistol\\pistol", false},
-    { "weap", "weapons\\plasma pistol\\plasma pistol", false},
-    { "weap", "weapons\\plasma rifle\\plasma rifle", false},
-    { "weap", "weapons\\plasma_cannon\\plasma_cannon", false},
-    { "weap", "weapons\\rocket launcher\\rocket launcher", false},
-    { "weap", "weapons\\shotgun\\shotgun", false},
-    { "weap", "weapons\\sniper rifle\\sniper rifle", false}
+    { "weap", "weapons\\assault rifle\\assault rifle", false },
+    { "weap", "weapons\\ball\\ball", true }, -- DO NOT disable.
+    { "weap", "weapons\\flag\\flag", false },
+    { "weap", "weapons\\flamethrower\\flamethrower", false },
+    { "weap", "weapons\\needler\\mp_needler", false },
+    { "weap", "weapons\\pistol\\pistol", false },
+    { "weap", "weapons\\plasma pistol\\plasma pistol", false },
+    { "weap", "weapons\\plasma rifle\\plasma rifle", false },
+    { "weap", "weapons\\plasma_cannon\\plasma_cannon", false },
+    { "weap", "weapons\\rocket launcher\\rocket launcher", false },
+    { "weap", "weapons\\shotgun\\shotgun", false },
+    { "weap", "weapons\\sniper rifle\\sniper rifle", false }
 }
 
 -- Configuration [ends] << ----------
@@ -58,7 +58,9 @@ local objects = {
 local assign = {}
 local drones = {}
 local clean_up_dones = {}
-for i = 1, 16 do drones[i] = {} end
+for i = 1, 16 do
+    drones[i] = {}
+end
 local obj_in_memory = {}
 local gamestarted = nil
 
@@ -80,10 +82,10 @@ function OnNewGame()
         register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
         register_callback(cb['EVENT_WEAPON_DROP'], "OnWeaponDrop")
         register_callback(cb['EVENT_OBJECT_SPAWN'], "OnObjectSpawn")
-        
+
         -- Disable all vehicles
         execute_command("disable_all_vehicles 0 1")
-        
+
         -- Disable weapon pick ups
         execute_command("disable_object 'weapons\\assault rifle\\assault rifle'")
         execute_command("disable_object 'weapons\\flamethrower\\flamethrower'")
@@ -95,15 +97,15 @@ function OnNewGame()
         execute_command("disable_object 'weapons\\rocket launcher\\rocket launcher'")
         execute_command("disable_object 'weapons\\shotgun\\shotgun'")
         execute_command("disable_object 'weapons\\sniper rifle\\sniper rifle'")
-        
+
         -- disable grenade pick ups
         execute_command("disable_object 'weapons\\frag grenade\\frag grenade'")
         execute_command("disable_object 'weapons\\plasma grenade\\plasma grenade'")
-        
+
         execute_command("scorelimit " .. tonumber(scorelimit))
         gamestarted = true
     else
-        cprint("[!] Error (melee.lua) | This script doesn't support team play.", 4+8)
+        cprint("[!] Error (melee.lua) | This script doesn't support team play.", 4 + 8)
     end
 end
 
@@ -120,7 +122,7 @@ function OnTick()
                         execute_command("wdel " .. i)
                         local player = get_dynamic_player(i)
                         local x, y, z = read_vector3d(player + 0x5C)
-                        
+
                         local oddball = spawn_object("weap", melee_object[1], x, y, z)
                         local object_spawned = assign_weapon(oddball, i)
 
@@ -129,7 +131,7 @@ function OnTick()
                         table.insert(drones[i], oddball)
                         obj_in_memory[get_var(i, "$n")] = object
                         clean_up_dones[i] = true
-                        
+
                         assign[i] = false
                     end
                     assignWeapon(i)

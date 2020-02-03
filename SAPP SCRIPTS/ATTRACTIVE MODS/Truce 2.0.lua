@@ -627,7 +627,7 @@ function truce:list(params)
     end
 
     local pen_en_name, pen_tn_name, pen_en_index, pen_tn_index
-    
+
     if (next(pending) ~= nil) then
         for key, _ in ipairs(pending) do
 

@@ -29,29 +29,29 @@ local servername, message_board
 --
 
 -- How long should the message be displayed on screen for? (in seconds) --
-local duration = 10 
+local duration = 10
 
 -- Message Alignment:
 local alignment = "l" -- Left = l,    Right = r,    Center = c,    Tab: t
 local message_board = { }
 
 local function set(PlayerIndex)
-    
+
     -- ==== [ MESSAGE CONFIG ] ==== --
-    
+
     -- Message Board: 
     -- Use %server_name% variable to output the server name.
     -- Use %player_name% variable to output the joining player's name.
-    
+
     -- messages --
     message_board[PlayerIndex] = { }
     message_board[PlayerIndex] = {
-        "Welcome to %server_name%, %player_name%", 
+        "Welcome to %server_name%, %player_name%",
         "Message Board created by Chalwk (Jericho Crosby)",
         "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS"
     }
     -- ================ [ CONFIG ENDS ] ================ --
-    
+
     -- Do not touch.
     for _, v in pairs(message_board[PlayerIndex]) do
         for j = 1, #message_board[PlayerIndex] do

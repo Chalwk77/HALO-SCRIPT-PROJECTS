@@ -89,7 +89,7 @@ local upgrade_info = {
     "|c/cam1 | 1 Min Camo | 30            /mine | 2 Mines | 15",
     "|c/cam2 | 2 Min Camo | 40          /gren | 2 Grenades | 10",
     "|c/cam3 | 3 Min Camo | 50          /gold | Golden Gun | 150",
-    " ",  
+    " ",
     " ",
     "|c*Type /bal to view how many Upgrade Points you currently have*",
     " ",
@@ -133,7 +133,7 @@ local stats = {
         [6] = { "30", "15", "(x%assists%) Assists +%upgrade_points% Upgrade Points" },
         -- Repeat the structure to add more entries.
     },
-    
+
     kills = {
         -- Custom variables that can be used in (consecutive) KILL messages: %kills% (current kills) | %upgrade_points% (reward points)
         -- required kills [number] | reward [number] | message [string]
@@ -216,7 +216,7 @@ function OnScriptLoad()
         end
     end
     if not (save_money) then
-        money_table = {["money"] = {}}
+        money_table = { ["money"] = {} }
     end
 end
 
@@ -278,7 +278,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             return false
         end
     end
-    
+
     if (command == lower(upgrade_info_command)) then
         if (checkAccess(executor, upgrade_perm_lvl)) then
             if (args[1] == nil) then
@@ -321,8 +321,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             -- Balance Command
             if (bal ~= nil) and (command == bal[1]) then
                 -- TO DO: perm check needed here
-                
-                local balance = money:getbalance(getIP(executor))   
+
+                local balance = money:getbalance(getIP(executor))
                 rprint(executor, gsub(bal[2], "%%money%%", balance))
                 return false
             end
@@ -330,7 +330,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             -- Golden Gun
             if (gold ~= nil) and (command == gold[1]) then
                 -- TO DO: perm check needed here
-                
+
                 local params = { }
                 params.ip = getIP(executor)
                 params.money = gold[2]
@@ -350,14 +350,14 @@ function money:update(params)
 
     local ip = params.ip or nil
     local points = params.money or nil
-    
+
     print(ip .. "|" .. points)
-    
+
     local subtract = params.subtract or nil
     local balance = tonumber(money:getbalance(ip))
 
     print(balance)
-    
+
     local new_balance = balance
 
     if not (subtract) then
@@ -371,7 +371,7 @@ function money:update(params)
     if (new_balance <= 0) then
         new_balance = 0
     end
-    
+
     if (save_money) then
         local found
         local lines = lines_from(dir)
@@ -410,7 +410,7 @@ function money:Transfer(params)
 end
 
 function money:getbalance(player_ip)
-    
+
     if (save_money) then
         local function stringSplit(inputString, Separator)
             if (Separator == nil) then
@@ -433,7 +433,7 @@ function money:getbalance(player_ip)
                 data = stringSplit(balance, ",")
             end
         end
-        
+
         local t, result = { }
         for i = 1, 1 do
             if data[i] then
@@ -471,7 +471,7 @@ end
 function OnPlayerConnect(PlayerIndex)
     local hash = get_var(PlayerIndex, "$hash")
     local ip = get_var(PlayerIndex, "$ip")
-    
+
     if not ip_table[hash] then
         ip_table[hash] = {}
     end
@@ -483,7 +483,7 @@ function OnPlayerConnect(PlayerIndex)
     players[PlayerIndex].kills = 0
     players[PlayerIndex].streaks = 0
     players[PlayerIndex].assists = 0
-    
+
     if (save_money) then
         local found
         local lines = lines_from(dir)
@@ -560,12 +560,12 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
             if (players[victim].streaks > 0) then
                 players[victim].streaks = 0
             end
-            
+
             local p1 = { }
             players[killer].streaks = players[killer].streaks + 1
-            p1.type, p1.total, p1.id, p1.ip, p1.table, p1.subtract= "streaks", players[killer].streaks, killer, kip, stats.streaks, false
+            p1.type, p1.total, p1.id, p1.ip, p1.table, p1.subtract = "streaks", players[killer].streaks, killer, kip, stats.streaks, false
             mod:check(p1)
-            
+
             local p2 = { }
             players[killer].kills = players[killer].kills + 1
             p2.type, p2.total, p2.id, p2.ip, p2.table, p2.subtract = "kills", players[killer].kills, killer, kip, stats.kills, false
@@ -584,8 +584,8 @@ function OnPlayerKill(PlayerIndex, KillerIndex)
                     break
                 end
             end
-            
-        -- Suicide
+
+            -- Suicide
         elseif (victim == killer) then
             for key, _ in ipairs(stats) do
                 local event_suicide = stats[key]["event_suicide"]

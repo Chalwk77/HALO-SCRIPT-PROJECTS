@@ -45,34 +45,33 @@ local logs = 'sapp\\chat_history.data'
 function OnScriptLoad()
     register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
-    
+
     register_callback(cb['EVENT_JOIN'], "OnPlayerConnect")
     register_callback(cb['EVENT_LEAVE'], "OnPlayerDisconnect")
 end
 
 function OnScriptUnload()
-    
-end
 
+end
 
 function OnPlayerConnect(PlayerIndex)
     --
-    
+
 end
 
 function OnPlayerDisconnect(PlayerIndex)
     --
-    
+
 end
 
 function OnPlayerChat(PlayerIndex, Message, Type)
-   --
-   
+    --
+
 end
 
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
     --
-    
+
 end
 
 function tokenizeString(inputString, separator)

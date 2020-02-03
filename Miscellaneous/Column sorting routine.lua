@@ -3,14 +3,14 @@
 api_version = "1.12.0.0"
 
 -- Configuration [starts]
-local input = {"1", "2", "3", "4", "5", "6"} -- example input data
+local input = { "1", "2", "3", "4", "5", "6" } -- example input data
 local max_columns, max_results = 4, #input
 local startIndex = 1
 local endIndex = max_columns
 local spaces = 3
 -- Configuration [ends].
 
-local data, concat, gmatch  = { }, table.concat, string.gmatch
+local data, concat, gmatch = { }, table.concat, string.gmatch
 local weapons_table = { }
 local initialStartIndex
 function OnScriptLoad()
@@ -50,7 +50,7 @@ function data:align(table)
     local proceed, finished = true
     local function formatResults()
         local placeholder, row = { }
-        
+
         for i = tonumber(startIndex), tonumber(endIndex) do
             if table[i] then
                 placeholder[#placeholder + 1] = table[i]
@@ -66,17 +66,19 @@ function data:align(table)
             proceed, finished = false, true
         end
 
-        for b in pairs(placeholder) do placeholder[b] = nil end
+        for b in pairs(placeholder) do
+            placeholder[b] = nil
+        end
         startIndex = (endIndex + 1)
         endIndex = (endIndex + (max_columns))
     end
-    
+
     if (proceed) and not (finished) then
         while (endIndex < max_results + max_columns) do
             formatResults()
         end
     end
-    
+
     if (finished) and not (proceed) then
         startIndex = initialStartIndex
         endIndex = max_columns

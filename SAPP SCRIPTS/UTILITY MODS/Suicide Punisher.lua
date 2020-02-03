@@ -30,7 +30,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_DIE'], 'OnPlayerDeath')
     register_callback(cb['EVENT_JOIN'], 'OnPlayerConnect')
     register_callback(cb['EVENT_LEAVE'], 'OnPlayerDisconnect')
-    
+
     if (get_var(0, '$gt') ~= "n/a") then
         for i = 1, 16 do
             if player_present(i) then
@@ -60,7 +60,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
 
     local killer = tonumber(KillerIndex)
     local victim = tonumber(PlayerIndex)
-    
+
     if (killer > 0 and killer == victim) then
         suicide[victim].deaths = suicide[victim].deaths + 1
         if (suicide[victim].deaths >= suicide_threshold) then
@@ -70,7 +70,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
 end
 
 function OnTick()
-    for i = 1,16 do
+    for i = 1, 16 do
         if player_present(i) then
             if (suicide[i]) then
                 if (suicide[i].deaths > 0 and suicide[i].deaths < suicide_threshold) then

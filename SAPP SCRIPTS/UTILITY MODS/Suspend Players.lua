@@ -20,42 +20,42 @@ function mod:Init()
     -- Custom Command:
     -- Syntax: /suspend [id | */all] [on/off | 1/0 | true/false]
     mod.command = "suspend"
-    
+
     -- Minimum permission needed to execute the custom command:
     mod.permission = 1
 
     mod.messages = {
-    
+
         -- Message sent to (executor) - (example output: Chalwk was suspended | Chalwk was unsuspended):
         "%target_name% was %state%",
-        
+
         -- Message sent to target player (valid Variables: %executor_name%):
         "You have been %state% by an admin",
-        
+
         -- If you try to suspend/unsuspended a player who is already suspended or unsuspended, you will see this message:
         "%target_name% is already %state%",
-        
+
         -- Message sent to admins when a suspended player joins the server (requires mod.keep_suspended) to be true
         "%target_name% joined Suspended",
-        
+
         -- Message sent to suspended players when they text-chat (requires mod.mute) to be true
         "You cannot talk or use chat commands!",
     }
- 
+
     -- If true, suspended players will not be able to send chat messages.
     mod.mute = true
-    
+
     -- Should players remain suspended when they quit?
     mod.keep_suspended = true
-    
+
     -- Running speed players return to when unsuspended:
     mod.default_running_speed = 1
     -- ============= Configuration Ends ============= --
-    
+
     -- # Do Not Touch # --
     mod.players, mod.ip_table = {}, {}
 end
-    
+
 
 -- Variables for String Library:
 local sub, gsub = string.sub, string.gsub
@@ -74,11 +74,11 @@ function OnScriptLoad()
     register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
     register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
-    
+
     if (get_var(0, "$gt") ~= "n/a") then
         game_over = false
         mod:Init()
-        for i = 1,16 do
+        for i = 1, 16 do
             if player_present(i) then
                 mod.ip_table[i] = get_var(i, '$ip')
             end
@@ -103,14 +103,14 @@ end
 
 function OnPlayerConnect(p)
     mod.ip_table[p] = get_var(p, '$ip')
-    
+
     local ip = mod:GetIP(p)
     mod[ip] = mod[ip] or nil
-    
+
     local suspended = (mod[ip] == true)
     if (mod.keep_suspended) and (suspended) then
         mod:Respond(p, mod.messages[2])
-        for i = 1,16 do
+        for i = 1, 16 do
             if player_present(i) then
                 if mod:isAdmin(i) then
                     mod:Respond(p, gsub(mod.messages[4], "%%target_name%%"))
@@ -121,9 +121,9 @@ function OnPlayerConnect(p)
     end
 end
 
-function OnPlayerDisconnect(p)  
+function OnPlayerDisconnect(p)
     local ip = mod:GetIP(p)
-    
+
     local suspended = (mod[ip] == true)
     if (not mod.keep_suspended) or (not suspended) then
         mod[ip], mod.ip_table[p] = nil, nil
@@ -133,7 +133,7 @@ end
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local command, args = mod:StringSplit(Command)
     local executor = tonumber(PlayerIndex)
-    
+
     if (command == nil) then
         return
     end
@@ -143,10 +143,10 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         if mod:checkAccess(executor) then
             if not mod:isGameOver(executor) then
                 if (args[1] ~= nil) then
-                
+
                     local params = mod:ValidateCommand(executor, args)
                     if (params ~= nil) and (not params.target_all) and (not params.is_error) then
-                        local Target = tonumber(args[1]) or tonumber(executor)                        
+                        local Target = tonumber(args[1]) or tonumber(executor)
                         if mod:isOnline(Target, executor) then
                             mod:ExecuteCore(params)
                         end
@@ -174,13 +174,13 @@ end
 function mod:ExecuteCore(params)
     local params = params or nil
     if (params ~= nil) then
-                
+
         -- Target Parameters:
-        local tid, tip, tn  = params.tid, params.tip, params.tn
-        
+        local tid, tip, tn = params.tid, params.tip, params.tn
+
         -- Executor Parameters:
         local eid, eip, en = params.eid, params.eip, params.en
-    
+
         -- 
         local is_console = mod:isConsole(eid)
         if is_console then
@@ -190,15 +190,15 @@ function mod:ExecuteCore(params)
         local is_self = (eid == tid)
         local admin_level = tonumber(get_var(eid, '$lvl'))
         local state = mod:ActivationState(eid, params.state)
-        
+
         if (state) then
             if (not is_self) then
                 local valid_state
                 mod[tip] = mod[tip] or nil
-                            
-                local already_suspended = (mod[tip] == true)            
+
+                local already_suspended = (mod[tip] == true)
                 local already_set
-                
+
                 if (state == 1) then
                     state, valid_state = "suspended", true
                     if (mod[tip] == nil) then
@@ -214,21 +214,21 @@ function mod:ExecuteCore(params)
                         already_set = true
                     end
                 end
-                
-                if (valid_state) then               
+
+                if (valid_state) then
                     local messages = mod.messages
                     local Feedback = function(Message)
                         local words = {
                             ["%%state%%"] = state,
                             ["%%executor_name%%"] = en,
-                            ["%%target_name%%"]  = tn,
+                            ["%%target_name%%"] = tn,
                         }
-                        for k,v in pairs(words) do
+                        for k, v in pairs(words) do
                             Message = gsub(Message, k, v)
                         end
                         return Message
-                    end          
-                    
+                    end
+
                     if (not already_set) then
                         mod:Respond(eid, Feedback(messages[1]), 2 + 8)
                         mod:Respond(tid, Feedback(messages[2]), 2 + 8)
@@ -238,7 +238,7 @@ function mod:ExecuteCore(params)
                     end
                 end
             else
-                mod:Respond(tid, "You cannot Suspend yourself", 4 + 8)                
+                mod:Respond(tid, "You cannot Suspend yourself", 4 + 8)
             end
         end
     end
@@ -264,7 +264,7 @@ end
 function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
     local ip = mod:GetIP(PlayerIndex)
     mod[ip] = mod[ip] or nil
-    
+
     local suspended = (mod[ip] == true)
     if (suspended) then
         execute_command("wdel " .. PlayerIndex)
@@ -273,10 +273,10 @@ end
 
 function mod:ValidateCommand(executor, args)
     local params = { }
-                
+
     local function getplayers(arg)
         local players = { }
-        
+
         if (arg == nil) or (arg == 'me') then
             table.insert(players, executor)
         elseif (arg:match('%d+')) then
@@ -290,7 +290,7 @@ function mod:ValidateCommand(executor, args)
             end
         elseif (arg == 'rand' or arg == 'random') then
             local temp = { }
-            for i = 1,16 do
+            for i = 1, 16 do
                 if player_present(i) then
                     temp[#temp + 1] = i
                 end
@@ -301,16 +301,17 @@ function mod:ValidateCommand(executor, args)
             params.is_error = true
             return false
         end
-        
-        if players[1] then return players end
+
+        if players[1] then
+            return players
+        end
         return false
     end
-    
-    
+
     local pl = getplayers(args[1])
     if (pl) then
         for i = 1, #pl do
-        
+
             if (pl[i] == nil) then
                 break
             end
@@ -361,7 +362,7 @@ function mod:ActivationState(e, s)
     elseif (s == "off") or (s == "0") or (s == "false") then
         return 0
     else
-        mod:Respond(e, "Invalid Syntax: Usage: /"..mod.command.." [id | */all] on|off", 4 + 8)
+        mod:Respond(e, "Invalid Syntax: Usage: /" .. mod.command .. " [id | */all] on|off", 4 + 8)
         return false
     end
 end
@@ -378,13 +379,13 @@ end
 
 function mod:isGameOver(p)
     if (game_over) then
-        mod:Respond(p, "Please wait until the next game has started.", 4+8)
+        mod:Respond(p, "Please wait until the next game has started.", 4 + 8)
         return true
     end
 end
 
 function mod:GetIP(p)
-    
+
     if (halo_type == 'PC') then
         ip_address = mod.ip_table[p]
     else

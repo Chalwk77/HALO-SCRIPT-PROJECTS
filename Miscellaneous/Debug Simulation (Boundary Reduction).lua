@@ -19,7 +19,7 @@ local game_timer, reduction_timer = 0, 0
 local game_time, bR = 0, max_size
 
 local radius, expected_reductions = max_size, 0
-for i = 1,max_size do
+for i = 1, max_size do
     if (radius <= max_size) then
         radius = (radius - reduction_amount)
         if (radius < min_size) then
@@ -38,27 +38,27 @@ function OnTick()
     if (countdown >= 2) then
         if (game_timer ~= nil) then
             game_timer = game_timer + time_scale
-            
+
             local time = ((game_time + 1) - (game_timer))
             local minutes, seconds = select(1, secondsToTime(time)), select(2, secondsToTime(time))
             local time_remaining = ("G TIME: " .. minutes .. ":" .. seconds)
-            
+
             local until_next_shrink
             if (reduction_timer ~= nil) then
                 reduction_timer = reduction_timer + time_scale
-                
+
                 local time_left = ((reduction_rate + 1) - (reduction_timer))
                 local mins, secs = select(1, secondsToTime(time_left)), select(2, secondsToTime(time_left))
-                
+
                 local calculated_radius = (bR - reduction_amount)
-                if (calculated_radius <= 0) then 
+                if (calculated_radius <= 0) then
                     calculated_radius = calculated_radius + min_size
                 end
-                
+
                 until_next_shrink = ("REDUCTION T: " .. mins .. ":" .. secs .. " | bR: " .. bR .. " -> " .. calculated_radius .. "/" .. min_size .. " | Reductions Left: " .. expected_reductions)
-     
+
                 if (reduction_timer >= (reduction_rate)) then
-                    reduction_timer = 0                
+                    reduction_timer = 0
                     if (bR > min_size and bR <= max_size) then
                         bR = (bR - reduction_amount)
                         expected_reductions = expected_reductions - 1
@@ -68,11 +68,11 @@ function OnTick()
                             cprint(time_remaining .. " | " .. until_next_shrink .. " BR: " .. bR, 5 + 8)
                         else
                             cprint("[ BOUNDARY REDUCTION ] Radius now (" .. bR .. ") world units", 6 + 8)
-                        end       
+                        end
                     end
                 end
             end
-            
+
             if (expected_reductions > 0) then
                 local header
                 if (until_next_shrink == nil) then
@@ -81,7 +81,7 @@ function OnTick()
                     header = " | " .. until_next_shrink
                 end
 
-                cprint(time_remaining .. header, 2+8)
+                cprint(time_remaining .. header, 2 + 8)
             end
         end
     end

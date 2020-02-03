@@ -25,23 +25,23 @@ local privilege_level = 4 -- Minimum admin level require to execute /base_comman
 local users = {
     -- Make sure the player's name matches exactly as it does in game.
     -- NAME             HASH
-    {["username1"] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}},
-    {["username2"] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}},
-    {["username3"] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}},
-    
+    { ["username1"] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" } },
+    { ["username2"] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" } },
+    { ["username3"] = { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" } },
+
     -- repeat the structure to add more entries 
-    {["name"] = {"hash"}},
+    { ["name"] = { "hash" } },
 }
 -- Configuration [end] -------------
 
 local mod, trigger, lower, find = { }, { }, string.lower, string.find
 
 function OnScriptLoad()
-    
+
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
     register_callback(cb['EVENT_PREJOIN'], "OnPlayerPrejoin")
     register_callback(cb['EVENT_TICK'], "OnTick")
-    
+
     if halo_type == "PC" then
         ce = 0x0
     else
@@ -92,7 +92,7 @@ local function cmdself(t, e)
 end
 
 function OnTick()
-    for i = 1,16 do
+    for i = 1, 16 do
         if player_present(i) then
             if trigger[i] and player_alive(i) then
                 trigger[i] = false
@@ -105,9 +105,9 @@ end
 function OnServerCommand(PlayerIndex, Command)
     local command, args = cmdsplit(Command)
     local executor = tonumber(PlayerIndex)
-    
+
     local players = { }
-    
+
     if (command == lower(base_command)) then
         if (checkAccess(executor)) then
             if (args[1] ~= nil) and (args[1]:match("%d+")) then
@@ -134,7 +134,7 @@ function mod:CommandCrash(params)
     local eid = params.eid or nil
     local tid = params.tid or nil
     local tn = params.tn or nil
-    
+
     if (lookup_tag("vehi", "vehicles\\rwarthog\\rwarthog") ~= 0) then
         local player_object = get_dynamic_player(tid)
         if player_object ~= 0 then
@@ -159,7 +159,7 @@ function Crash(target, name)
             end
             destroy_object(vehicle_id)
         end
-        cprint("Crashed " .. name .. "'s game client", 4+8)
+        cprint("Crashed " .. name .. "'s game client", 4 + 8)
     end
     return false
 end
@@ -169,7 +169,7 @@ function OnPlayerPrejoin(PlayerIndex)
     if (lookup_tag("vehi", "vehicles\\rwarthog\\rwarthog") ~= 0) then
         local ns = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
         local cns = ns + 0x1AA + ce + to_real_index(PlayerIndex) * 0x20
-        
+
         local function read_widestring(address, length)
             local count = 0
             local byte_table = { }
@@ -181,13 +181,13 @@ function OnPlayerPrejoin(PlayerIndex)
             end
             return table.concat(byte_table)
         end
-        
+
         local name, hash = read_widestring(cns, 12), get_var(PlayerIndex, "$hash")
 
         for key, _ in ipairs(users) do
             local userdata = users[key][name]
             if (userdata ~= nil) then
-                for i = 1,#userdata do
+                for i = 1, #userdata do
                     if find(userdata[i], hash) then
                         trigger[PlayerIndex] = true
                         break

@@ -18,7 +18,9 @@ api_version = "1.12.0.0"
 players = { }
 
 coordiantes = { }
-for i = 1, 16 do coordiantes[i] = { } end
+for i = 1, 16 do
+    coordiantes[i] = { }
+end
 
 map_settings = {}
 
@@ -59,7 +61,7 @@ function OnPlayerLeave(PlayerIndex)
     players[get_var(PlayerIndex, "$name")].teleport_trigger = false
 end
 
-function OnVehicleEntry(PlayerIndex)    
+function OnVehicleEntry(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
     if (player_object ~= 0) then
         local VehicleObject = get_object_memory(read_dword(player_object + 0x11c))
@@ -126,7 +128,9 @@ function OnPlayerPrespawn(VictimIndex)
             end
         end
     end
-    for i = 1, 3 do coordiantes[victim][i] = nil end
+    for i = 1, 3 do
+        coordiantes[victim][i] = nil
+    end
 end
 
 --[[

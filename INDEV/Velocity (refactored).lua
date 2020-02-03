@@ -11,7 +11,7 @@ Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 
 api_version = "1.12.0.0"
 local velocity = {
-    
+
     features = {
         ["Admin Chat"] = {
             activated = {},
@@ -42,7 +42,7 @@ local velocity = {
             }
         },
     },
-    
+
     script_version = 1.0,
 }
 
@@ -72,13 +72,13 @@ function OnScriptLoad()
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
-    
+
     if (get_var(0, "$gt") ~= "n/a") then
         game_over = false
-        for i = 1,16 do
+        for i = 1, 16 do
             if player_present(i) then
                 ip_table[i] = get_var(i, '$ip')
-                for mod,params in pairs(velocity.features) do
+                for mod, params in pairs(velocity.features) do
                     if (params.enabled) then
                         if velocity:hasPermission(i, mod) then
                             local ip = velocity:GetIP(i)
@@ -97,12 +97,12 @@ end
 
 function OnGameStart()
     game_over = false
-    
+
     ---------------------------------------------
     local done, total = 2, 31
-    local progress = (done/total) * 100
-    cprint("Progress: " .. format("%0.1f", progress) .. "%", 2+8)
-    cprint("Script Version: " .. format("%0.1f", velocity.script_version), 2+8)
+    local progress = (done / total) * 100
+    cprint("Progress: " .. format("%0.1f", progress) .. "%", 2 + 8)
+    cprint("Script Version: " .. format("%0.1f", velocity.script_version), 2 + 8)
     ---------------------------------------------
 end
 
@@ -113,18 +113,17 @@ end
 function OnPlayerConnect(p)
 
     local name = get_var(p, "$name")
-    
 
-    for mod,params in pairs(velocity.features) do
-        if (params.enabled) then 
-        
+    for mod, params in pairs(velocity.features) do
+        if (params.enabled) then
+
             if velocity:hasPermission(p, mod) then
-                
+
                 ip_table[p] = get_var(p, '$ip')
-                
+
                 local ip = velocity:GetIP(p)
                 params.activated[ip] = params.activated[ip] or nil
-                
+
                 local already_activated = (params.activated[ip] == true)
                 if (params.restore) and (already_activated) then
                     local feedback = velocity:GetMessageTable("Admin Chat")
@@ -133,10 +132,10 @@ function OnPlayerConnect(p)
             else
                 if (mod == "Admin Join Messages") then
                     local level = tonumber(get_var(p, "$lvl"))
-                    
+
                     local tab = velocity.features[mod].messages
-                    for i = 1,#tab do 
-                        if (level == i) then                            
+                    for i = 1, #tab do
+                        if (level == i) then
                             local join_message = tab[i][1] .. name .. tab[i][2]
                             for player = 1, 16 do
                                 if player_present(player) then
@@ -153,12 +152,12 @@ function OnPlayerConnect(p)
     end
 end
 
-function OnPlayerDisconnect(p)  
-    for mod,params in pairs(velocity.features) do
+function OnPlayerDisconnect(p)
+    for mod, params in pairs(velocity.features) do
         if (params.enabled) then
             if velocity:hasPermission(p, mod) then
                 local ip = velocity:GetIP(p)
-                        
+
                 local already_activated = (params.activated[ip] == true)
                 if (not params.restore) or (not already_activated) then
                     ip_table[p] = nil
@@ -171,24 +170,24 @@ end
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local command, args = velocity:StringSplit(Command)
     local executor = tonumber(PlayerIndex)
-    
+
     if (command == nil) then
         return
     end
     command = lower(command) or upper(command)
 
-    for mod,params in pairs(velocity.features) do
+    for mod, params in pairs(velocity.features) do
         if (command == params.command) then
             if (params.enabled) then
-                        
+
                 if not velocity:isGameOver(executor) then
                     if velocity:checkAccess(executor, mod) then
                         if (args[1] ~= nil) then
-                        
+
                             local cmd = velocity:ValidateCommand(executor, args, mod)
-                            
+
                             if (cmd ~= nil) and (not cmd.target_all) and (not cmd.is_error) then
-                                local Target = tonumber(args[2]) or tonumber(executor)                        
+                                local Target = tonumber(args[2]) or tonumber(executor)
                                 if velocity:isOnline(Target, executor) then
                                     velocity:ExecuteCore(cmd)
                                 end
@@ -210,34 +209,34 @@ end
 
 function OnPlayerChat(PlayerIndex, Message, type)
     if (type ~= 6) then
-    
+
         local msg = velocity:StringSplit(Message)
         if (#msg == 0) then
             return nil
         end
-        
+
         local p = tonumber(PlayerIndex)
         local ip = velocity:GetIP(p)
         local name = get_var(p, "$name")
-        
-        for k,v in pairs(velocity.features) do
+
+        for k, v in pairs(velocity.features) do
             if (k == "Admin Chat") then
-            
-                local activated = (v.activated[ip] == true)            
+
+                local activated = (v.activated[ip] == true)
                 if (activated) then
 
                     local is_command = (sub(msg, 1, 1) == "/") or (sub(msg, 1, 1) == "\\")
-                
+
                     if (is_command) then
                         return true
                     else
-                        
+
                         local feedback = velocity:GetMessageTable(k)
-                        local msg = gsub(gsub(gsub(gsub(feedback[1], "%%name%%", name), 
-                        "%%id%%", p), 
-                        "%%message%%", Message), 
-                        "%%prefix%%", v.prefix)
-                    
+                        local msg = gsub(gsub(gsub(gsub(feedback[1], "%%name%%", name),
+                                "%%id%%", p),
+                                "%%message%%", Message),
+                                "%%prefix%%", v.prefix)
+
                         for i = 1, 16 do
                             if player_present(i) then
                                 if (tonumber(get_var(i, '$lvl')) >= velocity:GetPermission(k)) then
@@ -245,7 +244,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                                 end
                             end
                         end
-                        
+
                         return false
                     end
                 end
@@ -257,15 +256,15 @@ end
 function velocity:ExecuteCore(params)
     local params = params or nil
     if (params ~= nil) then
-                
+
         -- Target Parameters:
-        local tid, tip, tn  = params.tid, params.tip, params.tn
-        
+        local tid, tip, tn = params.tid, params.tip, params.tn
+
         -- Executor Parameters:
         local eid, eip, en = params.eid, params.eip, params.en
-    
+
         local mod = params.mod
-    
+
         -- 
         local is_console = velocity:isConsole(eid)
         if is_console then
@@ -274,25 +273,25 @@ function velocity:ExecuteCore(params)
 
         local is_self = (eid == tid)
         local admin_level = tonumber(get_var(eid, '$lvl'))
-                
+
         local proceed = velocity:executeOnOthers(eid, is_self, is_console, admin_level)
         local valid_state
-        
+
         if (proceed) then
-        
+
             local state = params.state
             local state = velocity:ActivationState(eid, state, mod)
-            
+
             if (state) then
-            
-                for k,v in pairs(velocity.features) do
+
+                for k, v in pairs(velocity.features) do
                     if (k == mod) then
 
                         v.activated[tip] = v.activated[tip] or nil
-                                    
+
                         local already_activated = (v.activated[tip] == true)
                         local already_set
-                        
+
                         if (state == 1) then
                             state, valid_state = "enabled", true
                             if (v.activated[tip] == nil) then
@@ -308,24 +307,24 @@ function velocity:ExecuteCore(params)
                                 already_set = true
                             end
                         end
-                        
-                        if (valid_state) then               
+
+                        if (valid_state) then
                             local messages = velocity:GetMessageTable(mod)
-                            
+
                             local Feedback = function(Message)
                                 local words = {
                                     ["%%state%%"] = state,
                                     ["%%executor_name%%"] = en,
-                                    ["%%target_name%%"]  = tn,
+                                    ["%%target_name%%"] = tn,
                                 }
-                                
-                                for k,v in pairs(words) do
+
+                                for k, v in pairs(words) do
                                     Message = gsub(Message, k, v)
                                 end
                                 return Message
-                            end          
-                                                
-                            if (not already_set) then 
+                            end
+
+                            if (not already_set) then
                                 if (is_self) then
                                     velocity:Respond(eid, Feedback(messages[2]), 2 + 8)
                                 else
@@ -350,10 +349,10 @@ end
 function velocity:ValidateCommand(executor, args, mod)
     local params = { }
     params.mod = mod
-                
+
     local function getplayers(arg)
         local players = { }
-        
+
         if (arg == nil) or (arg == 'me') then
             table.insert(players, executor)
         elseif (arg:match('%d+')) then
@@ -367,7 +366,7 @@ function velocity:ValidateCommand(executor, args, mod)
             end
         elseif (arg == 'rand' or arg == 'random') then
             local temp = { }
-            for i = 1,16 do
+            for i = 1, 16 do
                 if player_present(i) then
                     temp[#temp + 1] = i
                 end
@@ -385,23 +384,24 @@ function velocity:ValidateCommand(executor, args, mod)
                 others_cmd_error[executor] = true
             end
         end
-        
-        if players[1] then return players end
+
+        if players[1] then
+            return players
+        end
         return false
     end
-    
-    
+
     local pl = getplayers(args[2])
     if (pl) then
         for i = 1, #pl do
-        
+
             if (pl[i] == nil) then
                 break
             end
 
             params.state = args[1]
             params.eid, params.en, params.eip = executor, get_var(executor, '$name'), velocity:GetIP(executor)
-            params.tid, params.tn, params.tip  = tonumber(pl[i]), get_var(pl[i], '$name'), velocity:GetIP(pl[i])
+            params.tid, params.tn, params.tip = tonumber(pl[i]), get_var(pl[i], '$name'), velocity:GetIP(pl[i])
 
             if (params.target_all) then
                 velocity:ExecuteCore(params)
@@ -441,14 +441,14 @@ end
 
 function velocity:executeOnOthers(e, self, is_console, level, mod)
     if (not self) and (not is_console) then
-        
+
         local permission_needed
-        for k,v in pairs(velocity.features) do
+        for k, v in pairs(velocity.features) do
             if (k == mod) then
-                permission_needed = v.permission_extra 
+                permission_needed = v.permission_extra
             end
         end
-    
+
         if tonumber(level) >= permission_needed then
             return true
         elseif (others_cmd_error[e]) then
@@ -466,8 +466,9 @@ function velocity:ActivationState(e, s, mod)
         return 1
     elseif (s == "off") or (s == "0") or (s == "false") then
         return 0
-    else for k,v in pairs(velocity.features) do
-            if (k == mod) then                
+    else
+        for k, v in pairs(velocity.features) do
+            if (k == mod) then
                 local feedback = gsub(v.messages['invalid_syntax'], "%%command%%", v.command)
                 velocity:Respond(e, feedback, 4 + 8)
             end
@@ -488,19 +489,19 @@ end
 
 function velocity:isGameOver(p)
     if (game_over) then
-        velocity:Respond(p, "Please wait until the next game has started.", 4+8)
+        velocity:Respond(p, "Please wait until the next game has started.", 4 + 8)
         return true
     end
 end
 
 function velocity:GetIP(p)
-    
+
     if (halo_type == 'PC') then
         ip_address = ip_table[p]
     else
         ip_address = get_var(p, '$ip')
     end
-    
+
     if (ip_address ~= nil) then
         return ip_address:match('(%d+.%d+.%d+.%d+)')
     else
@@ -509,7 +510,7 @@ function velocity:GetIP(p)
 end
 
 function velocity:hasPermission(p, mod)
-    for k,v in pairs(velocity.features) do
+    for k, v in pairs(velocity.features) do
         if (k == mod) then
             if (v.permission) then
                 return tonumber(get_var(p, "$lvl")) >= v.permission
@@ -528,7 +529,7 @@ function velocity:Respond(p, msg, color)
 end
 
 function velocity:GetMessageTable(mod)
-    for k,v in pairs(velocity.features) do
+    for k, v in pairs(velocity.features) do
         if (k == mod) then
             if (v.messages) then
                 return v.messages
@@ -540,7 +541,7 @@ function velocity:GetMessageTable(mod)
 end
 
 function velocity:GetPermission(mod)
-    for k,v in pairs(velocity.features) do
+    for k, v in pairs(velocity.features) do
         if (k == mod) then
             if (v.permission) then
                 return tonumber(v.permission)

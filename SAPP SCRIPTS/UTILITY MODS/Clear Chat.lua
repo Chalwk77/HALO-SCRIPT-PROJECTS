@@ -40,7 +40,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     if PlayerIndex ~= -1 and PlayerIndex >= 1 and PlayerIndex < 16 then
         if t[1] == "cc" or t[1] == "clear" then
             if (tonumber(get_var(PlayerIndex, "$lvl"))) >= min_admin_level then
-                for i = 1,20 do
+                for i = 1, 20 do
                     execute_command("msg_prefix \"\"")
                     say_all(" ")
                     execute_command("msg_prefix \" " .. server_prefix .. " \"")

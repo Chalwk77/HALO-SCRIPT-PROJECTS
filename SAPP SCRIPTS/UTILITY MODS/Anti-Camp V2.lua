@@ -20,7 +20,7 @@ api_version = "1.11.0.0"
 
 -- config starts -- 
 -- Script will check if the player has moved beyond (max_distance) every (max_camp_time) seconds
-local max_camp_time = 30 
+local max_camp_time = 30
 
 -- Distance (in world units) the player must travel before (max_camp_time) seconds elapses
 local max_distance = 10
@@ -83,8 +83,8 @@ function OnPlayerDisconnect(p)
 end
 
 local function GetDistance(p)
-    local newX,newY,newZ = p.new[1],p.new[2],p.new[3]
-    local oldX,oldY,oldZ = p.old[1],p.old[2],p.old[3]
+    local newX, newY, newZ = p.new[1], p.new[2], p.new[3]
+    local oldX, oldY, oldZ = p.old[1], p.old[2], p.old[3]
     return sqrt((newX - oldX) ^ 2 + (newY - oldY) ^ 2 + (newZ - oldZ) ^ 2)
 end
 
@@ -92,22 +92,22 @@ function OnTick()
     if (#players > 0) and (gamestarted) then
         for i, player in pairs(players) do
             if player_alive(i) then
-                
+
                 local level = tonumber(get_var(i, "$lvl"))
                 if (ignore_admins and level < minimum_admin_level) or (not ignore_admins) then
-                    
+
                     local player_object = get_dynamic_player(i)
                     if (player_object ~= 0) then
-                        
+
                         if (player.getold) then
                             player.getold = false
                             local coords = getXYZ(i, player_object)
-                            player.old[1],player.old[2],player.old[3] = coords.x,coords.y,coords.z
+                            player.old[1], player.old[2], player.old[3] = coords.x, coords.y, coords.z
                         end
-      
+
                         local coords = getXYZ(i, player_object)
-                        player.new[1],player.new[2],player.new[3] = coords.x,coords.y,coords.z
-                        
+                        player.new[1], player.new[2], player.new[3] = coords.x, coords.y, coords.z
+
                         local distance = GetDistance(player)
                         if (distance < max_distance) then
                             player.camp_time = player.camp_time + delta_time
@@ -115,9 +115,9 @@ function OnTick()
                             player.camp_time = 0
                             player.warned, player.getold = false, true
                         end
-                        
+
                         local time_remaining = (max_camp_time - floor(player.camp_time % 60))
-                        if (time_remaining > 0 and time_remaining <= (max_camp_time/2)) then
+                        if (time_remaining > 0 and time_remaining <= (max_camp_time / 2)) then
                             player.warned = true
                             local char = getChar(time_remaining)
                             cls(i, 25)

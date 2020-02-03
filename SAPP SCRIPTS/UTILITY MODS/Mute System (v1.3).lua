@@ -41,7 +41,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_JOIN'], "OnPlayerConnect")
     register_callback(cb['EVENT_LEAVE'], "OnPlayerDisconnect")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
-    for i = 1,16 do
+    for i = 1, 16 do
         if player_present(i) then
             local p, ip, name = { }, getip(i), get_var(i, "$name")
             p.ip = ip
@@ -55,7 +55,7 @@ function OnScriptLoad()
 end
 
 function OnScriptUnload()
-    for i = 1,16 do
+    for i = 1, 16 do
         if player_present(i) then
             local ip, name = getip(i), get_var(i, "$name")
             if (mute_table[ip] ~= nil) and (mute_table[ip].muted) then
@@ -68,7 +68,7 @@ function OnScriptUnload()
 end
 
 function OnGameEnd()
-    for i = 1,16 do
+    for i = 1, 16 do
         if player_present(i) then
             local ip, name = getip(i), get_var(i, "$name")
             if (mute_table[ip] ~= nil) and (mute_table[ip].muted) then
@@ -106,7 +106,7 @@ local function checkAccess(e, console)
         if (tonumber(get_var(e, "$lvl")) >= privilege_level) then
             access = true
         else
-            respond(e, "Command failed. Insufficient Permission", "rcon", 2+8)
+            respond(e, "Command failed. Insufficient Permission", "rcon", 2 + 8)
             access = false
         end
     elseif (console) and (e < 1) then
@@ -133,7 +133,7 @@ end
 local function cmdself(t, e)
     if (t) then
         if tonumber(t) == tonumber(e) then
-            respond(e, "You cannot execute this command on yourself", "rcon", 2+8)
+            respond(e, "You cannot execute this command on yourself", "rcon", 2 + 8)
             return true
         end
     end
@@ -179,7 +179,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     end
                 end
             else
-                respond(executor, "Invalid player id. Usage: [number: 1-16] | */all | me", "rcon", 2+8)
+                respond(executor, "Invalid player id. Usage: [number: 1-16] | */all | me", "rcon", 2 + 8)
                 is_error = true
                 return false
             end
@@ -195,13 +195,13 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 if pl[i] == nil then
                     break
                 end
-                
+
                 params.eid = executor
                 params.en = get_var(executor, "$name")
                 params.tid = tonumber(pl[i])
                 params.ip = getip(pl[i])
                 params.name = get_var(pl[i], "$name")
-                
+
                 if (parameter == "mute") then
                     if (args[2] ~= nil) then
                         params.time = args[2]
@@ -228,7 +228,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 end
             end
         else
-            respond(executor, "Invalid syntax. Usage: /" .. mute_command.. " [id] <time diff>", "rcon", 2+8)
+            respond(executor, "Invalid syntax. Usage: /" .. mute_command .. " [id] <time diff>", "rcon", 2 + 8)
         end
         return false
     elseif (command == unmute_command) then
@@ -242,7 +242,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 end
             end
         else
-            respond(executor, "Invalid syntax. Usage: /" .. unmute_command.. " [id]", "rcon", 2+8)
+            respond(executor, "Invalid syntax. Usage: /" .. unmute_command .. " [id]", "rcon", 2 + 8)
         end
         return false
     elseif (command == mutelist_command) then
@@ -276,7 +276,7 @@ function OnPlayerDisconnect(PlayerIndex)
 end
 
 function OnTick()
-    for i = 1,16 do
+    for i = 1, 16 do
         if player_present(i) then
             local ip = getip(i)
             if (mute_table[ip] ~= nil) and (mute_table[ip].muted) then
@@ -295,7 +295,7 @@ end
 
 function mod:save(params, bool, showMessage)
     local params = params or { }
-    
+
     local ip = params.ip or nil
     local name = params.name or nil
     local eid = params.eid or nil
@@ -308,9 +308,9 @@ function mod:save(params, bool, showMessage)
     mute_table[ip].timer = 0
     mute_table[ip].remaining = time
     mute_table[ip].duration = time
-    
+
     local dir = mute_dir
-    
+
     local lines, found = lines_from(dir)
     for _, v in pairs(lines) do
         if (v:match(ip)) then
@@ -357,13 +357,13 @@ end
 
 function mod:unmute(params)
     local params = params or { }
-    
+
     local ip = params.ip or nil
     local name = params.name or nil
     local eid = params.eid or nil
     local tid = params.tid or nil
     local en = params.en or nil
-    
+
     local dir = mute_dir
     local lines = lines_from(dir)
     for _, v in pairs(lines) do
@@ -378,7 +378,7 @@ function mod:unmute(params)
             mute_table[ip] = { }
         end
     end
-    
+
     if (eid ~= nil and eid == 0) or (eid == nil) then
         en = 'SERVER'
         id = 0
@@ -386,8 +386,8 @@ function mod:unmute(params)
         en = en
         id = eid
     end
-    respond(tid, "You were unmuted by " .. en, "rcon", 2+8)
-    respond(id, name .. " was unmuted by " .. en, "rcon", 2+8)
+    respond(tid, "You were unmuted by " .. en, "rcon", 2 + 8)
+    respond(id, name .. " was unmuted by " .. en, "rcon", 2 + 8)
 end
 
 function mod:load(params)
@@ -395,7 +395,7 @@ function mod:load(params)
     local ip = params.ip or nil
     local dir = mute_dir
     local content, data
-    
+
     local lines = lines_from(dir)
     for _, v in pairs(lines) do
         if (v:match(ip)) then
@@ -418,23 +418,23 @@ function mod:load(params)
     end
 end
 
-function mod:mutelist(params) 
+function mod:mutelist(params)
     local params = params or { }
     local eid = params.eid or nil
     local flag = params.flag or nil
     local dir = mute_dir
-    
-    respond(eid, "----------- IP - NAME - TIME REMAINING (in minutes) ----------- ", "rcon", 7+8)
-    
+
+    respond(eid, "----------- IP - NAME - TIME REMAINING (in minutes) ----------- ", "rcon", 7 + 8)
+
     local lines = lines_from(dir)
     for k, v in pairs(lines) do
         if (k ~= nil) then
             if (flag == nil) then
-                respond(eid, v, "rcon", 2+8)
+                respond(eid, v, "rcon", 2 + 8)
             elseif (flag == "-o") then
                 local count = 0
                 for i = 1, 16 do
-                    if player_present(i) then 
+                    if player_present(i) then
                         cout = count + 1
                         local ip = getip(i)
                         local muted = mod:load(ip)
@@ -445,11 +445,11 @@ function mod:mutelist(params)
                     end
                 end
                 if (count == 0) then
-                    respond(eid, "Nobody online is currently muted.", "rcon", 4+8)
+                    respond(eid, "Nobody online is currently muted.", "rcon", 4 + 8)
                     break
                 end
             else
-                respond(eid, "Invalid syntax. Usage: /" .. mutelist_command.. " <flag>", "rcon", 2+8)
+                respond(eid, "Invalid syntax. Usage: /" .. mutelist_command .. " <flag>", "rcon", 2 + 8)
                 break
             end
         end

@@ -20,7 +20,7 @@ local path = "sapp\\multiclients.txt"
 -- Players with common ports are not considered to be using a MultiClient.
 -- MultiClient almost never generates a common port.
 -- Min Range, Max Range
-local common_ports = {{2300, 2400}}
+local common_ports = { { 2300, 2400 } }
 
 -- If the port is NOT common and is within a 4 digit range, what range should be considered as suspicious?
 local min_range = 2401
@@ -88,7 +88,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
     if (get_var(0, "$gt") ~= "n/a") then
         probability = {}
-        for i = 1,16 do
+        for i = 1, 16 do
             if player_present(i) then
                 SetProbability(i)
             end
@@ -109,7 +109,7 @@ end
 function OnPlayerConnect(PlayerIndex)
 
     probability[PlayerIndex] = 0
-    
+
     local params = GetClientData(PlayerIndex)
     SavePort(params)
     SetProbability(PlayerIndex)
@@ -121,50 +121,50 @@ end
 
 function SetProbability(PlayerIndex)
     local params = GetClientData(PlayerIndex)
-    
+
     -- Check if the players hash is on the list of known pirated hashes.
     -- If the player hash is not on this list it is a stronger indicator that they 
     -- are using a multiclient.
     local pirated = false
-    for i = 1,#known_pirated_hashes do
+    for i = 1, #known_pirated_hashes do
         if (params.hash == known_pirated_hashes[i]) then
             pirated = true
         end
     end
-    
+
     -- Players game client is NOT on list of known pirated hashes.
     -- Run some more checks:
     if (not pirated) then
-        
+
         probability[PlayerIndex] = probability[PlayerIndex] + 1
-        
+
         -- MultiClient generates a random port & hash every time you start halo.
         -- This checks if their current port & hash matches their last known port & hash.
         -- If no match is made then it's likely that they are using a MultiClient.
         -- Most people don't frequently change their port number.
-        
+
         local DataOnFile = LoadClientData(params)
         if (DataOnFile.port ~= params.port) then
-            probability[PlayerIndex] = probability[PlayerIndex] + 1 
+            probability[PlayerIndex] = probability[PlayerIndex] + 1
         end
         if (DataOnFile.hash ~= params.hash) then
-            probability[PlayerIndex] = probability[PlayerIndex] + 1 
+            probability[PlayerIndex] = probability[PlayerIndex] + 1
         end
         --
-        
-        
+
+
         -- Check if their port is in the list of common ports:
         -- MultiClient almost never generates a common port.
         local common_port = false
-        for i = 1,#common_ports do
+        for i = 1, #common_ports do
             local min, max = common_ports[i][1], common_ports[i][2]
             if (tonumber(params.port) >= min and tonumber(params.port) <= max) then
                 common_port = true
             end
         end
         --
-        
-        
+
+
         -- Port is not common:
         -- Run some more checks:
         if (not common_port) then
@@ -178,8 +178,8 @@ function SetProbability(PlayerIndex)
                 probability[PlayerIndex] = probability[PlayerIndex] + 1
             end
         end
-        
-        probability[PlayerIndex] = (probability[PlayerIndex]/5) * 100
+
+        probability[PlayerIndex] = (probability[PlayerIndex] / 5) * 100
         -- Debugging --
         local chance = probability[PlayerIndex]
         local name = get_var(PlayerIndex, "$name")
@@ -194,7 +194,7 @@ function SavePort(params)
         local data = LoadClientData(params)
         if (data == nil) then
             local contents = tostring(params.ip) .. "|" .. tostring(params.port) .. "-" .. tostring(params.hash)
-            file:write( contents .. "\n")
+            file:write(contents .. "\n")
         end
     end
     file:close()

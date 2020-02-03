@@ -378,7 +378,7 @@ function OnPlayerConnect(PlayerIndex)
             spectator[player].enabled = true
         end
     end
-    
+
     if (start_trigger) and (enough_players) then
         last_man_standing.count = last_man_standing.count + 1
         start_trigger = false

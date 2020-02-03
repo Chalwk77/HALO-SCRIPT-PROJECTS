@@ -128,22 +128,22 @@ function OnScriptLoad()
     register_callback(cb['EVENT_DIE'], 'OnManiacKill')
     register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
 
-    gametype_base = read_dword(sig_scan("B9360000008BF3BF78545F00") + 0x8)    
-    
+    gametype_base = read_dword(sig_scan("B9360000008BF3BF78545F00") + 0x8)
+
     if (get_var(0, '$gt') ~= "n/a") then
         write_byte(gametype_base + 0x7E, 1)
-        
+
         maniac:init()
-        
+
         for i = 1, 16 do
             if player_present(i) then
                 current_scorelimit = 0
                 maniac:gameStartCheck(i)
             end
         end
-        
+
         -- Credits to Kavawuvi for this:
-        if(read_dword(0x40440000) > 0x40440000 and read_dword(0x40440000) < 0xFFFFFFFF) then
+        if (read_dword(0x40440000) > 0x40440000 and read_dword(0x40440000) < 0xFFFFFFFF) then
             maniac:SaveMapWeapons()
         end
         --
@@ -186,7 +186,7 @@ function OnTick()
                         local minutes, seconds = select(1, maniac:secondsToTime(delta_time)), select(2, maniac:secondsToTime(delta_time))
 
                         if (set.use_timer) then
-                            local msg = gsub(gsub(gsub(gsub(gsub(set.on_timer, 
+                            local msg = gsub(gsub(gsub(gsub(gsub(set.on_timer,
                                     "%%minutes%%", minutes),
                                     "%%seconds%%", seconds),
                                     "%%name%%", shooter.name),
@@ -215,40 +215,44 @@ function OnTick()
 
                             -- Weapon Assignment logic:
                             local weapons = set.weapons
-                            if(#weapons > 0) then
+                            if (#weapons > 0) then
                                 if (shooter.assign) then
-                                
+
                                     local coords = maniac:getXYZ(shooter.id, player_object)
                                     if (not coords.invehicle) then
                                         shooter.assign = false
-                                    
+
                                         local chosen_weapons = { }
-                                        
+
                                         local loops = 0
-                                        while(true) do
+                                        while (true) do
                                             loops = loops + 1
-                                            math.random();math.random();math.random();
+                                            math.random();
+                                            math.random();
+                                            math.random();
                                             local weapon = weapons[math.random(1, #weapons)]
-                                            
-                                            for i=1,#chosen_weapons do
-                                                if(chosen_weapons[i] == weapon) then 
+
+                                            for i = 1, #chosen_weapons do
+                                                if (chosen_weapons[i] == weapon) then
                                                     weapon = nil
-                                                    break 
+                                                    break
                                                 end
                                             end
-                                            if(weapon ~= nil) then
+                                            if (weapon ~= nil) then
                                                 chosen_weapons[#chosen_weapons + 1] = weapon
                                             end
-                                            if(#chosen_weapons == 4 or loops > 500) then break end
+                                            if (#chosen_weapons == 4 or loops > 500) then
+                                                break
+                                            end
                                         end
 
                                         execute_command("god " .. shooter.id)
                                         execute_command("wdel " .. shooter.id)
-                                        
+
                                         for slot, Weapon in pairs(chosen_weapons) do
                                             if (slot == 1 or slot == 2) then
                                                 assign_weapon(spawn_object("null", "null", coords.x, coords.y, coords.z, 0, Weapon), shooter.id)
-                                                
+
                                                 -- To assign a 3rd and 4 weapon, we have to delay 
                                                 -- the tertiary and quaternary assignments by at least 250 ms:
                                             elseif (slot == 3 or slot == 4) then
@@ -257,7 +261,7 @@ function OnTick()
                                         end
                                     end
                                 end
-                                
+
                                 -- Set infinite ammo and grenades:
                                 write_word(player_object + 0x31F, 7)
                                 write_word(player_object + 0x31E, 0x7F7F)
@@ -323,19 +327,19 @@ end
 function OnGameStart()
     if (get_var(0, '$gt') ~= "n/a") then
         write_byte(gametype_base + 0x7E, 1)
-        
+
         maniac:init()
         current_scorelimit = 0
-        
+
         local scoreTable = maniac:GetScoreLimit()
         if (scoreTable.enabled) then
             maniac:SetScorelimit(scoreTable[1])
         else
             maniac:SetScorelimit(scoreTable.default_scorelimit)
         end
-        
+
         -- Credits to Kavawuvi for this:
-        if(read_dword(0x40440000) > 0x40440000 and read_dword(0x40440000) < 0xFFFFFFFF) then
+        if (read_dword(0x40440000) > 0x40440000 and read_dword(0x40440000) < 0xFFFFFFFF) then
             maniac:SaveMapWeapons()
         end
         --
@@ -357,16 +361,16 @@ function maniac:gameStartCheck(p)
     -- Start the timer:
     if (player_count >= required) and (not init_countdown) and (not gamestarted) then
         maniac:StartTimer()
-    
+
     elseif (player_count >= required) and (print_nep) then
         print_nep = false
-    
-    -- Not enough players to start the game. Set the "not enough players (print_nep)" flag to true.
-    -- This will invoke a continuous message that is broadcast server wide 
+
+        -- Not enough players to start the game. Set the "not enough players (print_nep)" flag to true.
+        -- This will invoke a continuous message that is broadcast server wide
     elseif (player_count > 0 and player_count < required) then
         print_nep = true
-        
-    -- Init table values for this player:
+
+        -- Init table values for this player:
     elseif (gamestarted) then
         maniac:modifyScorelimit()
         maniac:initManiac(p)
@@ -537,7 +541,7 @@ function maniac:endGameCheck(PlayerIndex, Kills)
 end
 
 function maniac:rprintAll(msg)
-    if type(msg) == "string" then    
+    if type(msg) == "string" then
         for i = 1, 16 do
             if player_present(i) then
                 maniac:cls(i, 25)
@@ -545,10 +549,10 @@ function maniac:rprintAll(msg)
             end
         end
     elseif type(msg) == "table" then
-        for i = 1,16 do
+        for i = 1, 16 do
             if player_present(i) then
                 maniac:cls(i, 25)
-                for j = 1,#msg do
+                for j = 1, #msg do
                     rprint(i, msg[j])
                 end
             end
@@ -584,7 +588,9 @@ function maniac:SelectManiac()
     if (#players > 0) then
 
         math.randomseed(os.time())
-        math.random();math.random();math.random();
+        math.random();
+        math.random();
+        math.random();
         local random_player = players[math.random(1, #players)]
 
         for _, shooter in pairs(active_shooter) do
@@ -601,14 +607,14 @@ end
 function maniac:GetHighScores()
     local set = maniac.settings
     local active_shooter = set.active_shooter
-    
-    local min, max = 0,0
+
+    local min, max = 0, 0
     local name
-    
+
     local tie = {}
     tie.players = { }
-    
-    for _,player in pairs(active_shooter) do
+
+    for _, player in pairs(active_shooter) do
         tie[player.id] = player.kills
         if (player.kills > min) then
             min = player.kills
@@ -617,33 +623,33 @@ function maniac:GetHighScores()
         end
     end
 
-    if ( max == 0 ) then
+    if (max == 0) then
         -- no one has any maniac kills
         maniac:broadcast("GAME OVER | No one has any maniac kills!", true)
-    else        
-        
+    else
+
         -- Save Player Tie information:
         local header = true
-        for i = 1,16 do
+        for i = 1, 16 do
             if tie[i] then
-                for j = 1,16 do
+                for j = 1, 16 do
                     if tie[j] then
                         if (i ~= j) then
                             if (tie[i] == tie[j]) then
-                                if (header) then 
-                                    header = false 
-                                    tie.players[#tie.players + 1] = "--- TIE BETWEEN THESE PLAYERS ---" 
+                                if (header) then
+                                    header = false
+                                    tie.players[#tie.players + 1] = "--- TIE BETWEEN THESE PLAYERS ---"
                                 end
-                                
+
                                 local i_name = get_var(i, "$name")
                                 local j_name = get_var(j, "$name")
-                                
+
                                 local i_kills = maniac:getManiacKills(i)
                                 local j_kills = maniac:getManiacKills(j)
-                                
+
                                 local i_deaths = get_var(i, "$deaths")
                                 local j_deaths = get_var(j, "$deaths")
-                                
+
                                 tie.players[#tie.players + 1] = i_name .. "   (K: " .. i_kills .. " )   (D: " .. i_deaths .. " )"
                                 tie.players[#tie.players + 1] = j_name .. "   (K: " .. j_kills .. " )   (D: " .. j_deaths .. " )"
                             end
@@ -652,25 +658,25 @@ function maniac:GetHighScores()
                 end
             end
         end
-        
-        if (#tie.players > 0) then        
+
+        if (#tie.players > 0) then
             local dupe, results = { }, { }
-            for _,v in ipairs(tie.players) do
-               if (not dupe[v]) then
-                   results[#results + 1] = v
-                   dupe[v] = true
-               end
+            for _, v in ipairs(tie.players) do
+                if (not dupe[v]) then
+                    results[#results + 1] = v
+                    dupe[v] = true
+                end
             end
-            
-            for i = 1,#results do
+
+            for i = 1, #results do
                 maniac:rprintAll(results)
             end
-            
+
         else
             local msg = gsub(gsub(set.end_of_game, "%%name%%", name), "%%kills%%", max)
             maniac:broadcast(msg, true)
         end
-        
+
     end
 end
 
@@ -705,10 +711,10 @@ end
 
 function maniac:initManiac(PlayerIndex)
     if (PlayerIndex) then
-    
+
         local set = maniac.settings
         local active_shooter = set.active_shooter
-        
+
         active_shooter[#active_shooter + 1] = {
             name = get_var(tonumber(PlayerIndex), "$name"),
             id = tonumber(PlayerIndex),
@@ -720,7 +726,6 @@ function maniac:initManiac(PlayerIndex)
         }
     end
 end
-
 
 function maniac:getChar(input)
     local char = ""
@@ -782,17 +787,17 @@ function maniac:SetScorelimit(score)
 end
 
 function maniac:getXYZ(PlayerIndex, PlayerObject)
-    local coords, x,y,z = { }
-    
+    local coords, x, y, z = { }
+
     local VehicleID = read_dword(PlayerObject + 0x11C)
     if (VehicleID == 0xFFFFFFFF) then
         coords.invehicle = false
         x, y, z = read_vector3d(PlayerObject + 0x5c)
     else
         coords.invehicle = true
-        x, y, z  = read_vector3d(get_object_memory(VehicleID) + 0x5c)
+        x, y, z = read_vector3d(get_object_memory(VehicleID) + 0x5c)
     end
-    
+
     coords.x, coords.y, coords.z = x, y, z + 1
     return coords
 end
@@ -805,28 +810,40 @@ function maniac:SaveMapWeapons()
     local weapons = maniac.settings.weapons
 
     local function RandomWeaponsContains(TagID)
-        for k,v in pairs(weapons) do
-            if(v == TagID) then return true end
+        for k, v in pairs(weapons) do
+            if (v == TagID) then
+                return true
+            end
         end
         return false
     end
 
     local function ValidWeapon(TagID)
-        if(RandomWeaponsContains(TagID)) then return false end
-        local tag_index = bit.band(TagID,0xFFFF)
+        if (RandomWeaponsContains(TagID)) then
+            return false
+        end
+        local tag_index = bit.band(TagID, 0xFFFF)
         local tag_count = read_dword(0x4044000C)
-        if(tag_index >= tag_count) then return false end
+        if (tag_index >= tag_count) then
+            return false
+        end
         local tag_array = read_dword(0x40440000)
         local tag_data = read_dword(tag_array + tag_index * 0x20 + 0x14)
-        if(read_word(tag_data) ~= 2) then return false end
+        if (read_word(tag_data) ~= 2) then
+            return false
+        end
         local weapon_flags = read_dword(tag_data + 0x308)
-        if(bit.band(weapon_flags,math.pow(2,31-28)) > 0) then return false end
-        if(read_word(tag_data + 0x45C) == 0xFFFF) then return false end
+        if (bit.band(weapon_flags, math.pow(2, 31 - 28)) > 0) then
+            return false
+        end
+        if (read_word(tag_data + 0x45C) == 0xFFFF) then
+            return false
+        end
         return true
     end
 
     local function AddWeaponToList(TagID)
-        if(ValidWeapon(TagID)) then
+        if (ValidWeapon(TagID)) then
             weapons[#weapons + 1] = TagID
         end
     end
@@ -834,12 +851,14 @@ function maniac:SaveMapWeapons()
     local function ScanNetgameEquipment(TagID)
         local tag_array = read_dword(0x40440000)
         local tag_count = read_dword(0x4044000C)
-        local tag_index = bit.band(TagID,0xFFFF)
-        if(tag_index >= tag_count) then return false end
+        local tag_index = bit.band(TagID, 0xFFFF)
+        if (tag_index >= tag_count) then
+            return false
+        end
         local tag_data = read_dword(tag_array + tag_index * 0x20 + 0x14)
         local permutations_count = read_dword(tag_data + 0)
         local permutations_data = read_dword(tag_data + 4)
-        for i=0,permutations_count-1 do
+        for i = 0, permutations_count - 1 do
             AddWeaponToList(read_dword(permutations_data + i * 84 + 0x24 + 0xC))
         end
     end
@@ -847,17 +866,17 @@ function maniac:SaveMapWeapons()
     local tag_array = read_dword(0x40440000)
     local tag_count = read_dword(0x4044000C)
 
-    for i=0,tag_count-1 do
+    for i = 0, tag_count - 1 do
         local tag = tag_array + i * 0x20
-        if(read_dword(tag) == 0x6D617467) then
+        if (read_dword(tag) == 0x6D617467) then
             local tag_name = read_dword(tag + 0x10)
-            if(read_string(tag_name) == "globals\\globals") then
+            if (read_string(tag_name) == "globals\\globals") then
                 local tag_data = read_dword(tag + 0x14)
                 local weapons_list_count = read_dword(tag_data + 0x14C)
                 local weapons_list_data = read_dword(tag_data + 0x14C + 4)
-                for i=0,weapons_list_count-1 do
+                for i = 0, weapons_list_count - 1 do
                     local weapon_id = read_dword(weapons_list_data + i * 0x10)
-                    if(ValidWeapon(weapon_id)) then
+                    if (ValidWeapon(weapon_id)) then
                         AddWeaponToList(weapon_id)
                     end
                 end
@@ -868,16 +887,16 @@ function maniac:SaveMapWeapons()
     local scnr_tag_data = read_dword(tag_array + 0x20 * read_word(0x40440004) + 0x14)
     local netgame_equipment_count = read_dword(scnr_tag_data + 0x384)
     local netgame_equipment_address = read_dword(scnr_tag_data + 0x384 + 4)
-    
-    for i=0,netgame_equipment_count-1 do
+
+    for i = 0, netgame_equipment_count - 1 do
         local netgame_equip = read_dword(netgame_equipment_address + i * 144 + 0x50 + 0xC)
         ScanNetgameEquipment(netgame_equip)
     end
-    
+
     local starting_equipment_count = read_dword(scnr_tag_data + 0x390)
     local starting_equipment_address = read_dword(scnr_tag_data + 0x390 + 4)
-    
-    for i=0,starting_equipment_count-1 do
+
+    for i = 0, starting_equipment_count - 1 do
         ScanNetgameEquipment(read_dword(starting_equipment_address + i * 204 + 0x3C + 0xC))
         ScanNetgameEquipment(read_dword(starting_equipment_address + i * 204 + 0x4C + 0xC))
         ScanNetgameEquipment(read_dword(starting_equipment_address + i * 204 + 0x5C + 0xC))

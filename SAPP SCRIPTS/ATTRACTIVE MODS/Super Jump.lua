@@ -42,14 +42,14 @@ players = { }
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
-    
+
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
     register_callback(cb['EVENT_JOIN'], "OnPlayerConnect")
     register_callback(cb['EVENT_LEAVE'], "OnPlayerDisconnect")
-    
+
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
-    
+
     for i = 1, 16 do
         if player_present(i) then
             jump_status[i] = false
@@ -92,18 +92,18 @@ function OnTick()
             if (player_object ~= 0) then
                 if (jump_status[i] == true) then
                     if not vehicleCheck(i) then
-                    
+
                         local jumping = read_bit(player_object + 0x208, 1)
                         if (jumping ~= jumping_state[i] and jumping == 1 and cooldown_bool[i] == false) then
                             cooldown_bool[i] = true
                             superJump(player_object)
                         end
                         jumping_state[i] = jumping
-                        
+
                         if (cooldown_bool[i] == true) then
                             players[get_var(i, "$n")].cooldown = players[get_var(i, "$n")].cooldown + 0.030
                             local minutes, seconds = secondsToTime(players[get_var(i, "$n")].cooldown, 2)
-                            if (jumping == 1) then 
+                            if (jumping == 1) then
                                 if (players[get_var(i, "$n")].cooldown < math.floor(cooldown_duration)) then
                                     cls(i)
                                     local time_remaining = cooldown_duration - math.floor(seconds)
@@ -112,7 +112,7 @@ function OnTick()
                                 end
                             end
                         end
-                        
+
                         if players[get_var(i, "$n")].cooldown >= math.floor(cooldown_duration) then
                             cooldown_bool[i] = false
                             players[get_var(i, "$n")].cooldown = 0
@@ -135,7 +135,7 @@ end
 function OnPlayerConnect(PlayerIndex)
     jump_status[PlayerIndex] = false
     cooldown_bool[PlayerIndex] = false
-    
+
     players[get_var(PlayerIndex, "$n")] = { }
     players[get_var(PlayerIndex, "$n")].cooldown = 0
 end
@@ -143,7 +143,7 @@ end
 function OnPlayerDisconnect(PlayerIndex)
     jump_status[PlayerIndex] = false
     cooldown_bool[PlayerIndex] = false
-    
+
     players[get_var(PlayerIndex, "$n")].cooldown = 0
 end
 
@@ -159,7 +159,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     if (Environment ~= 0) then
         if (t[1] == base_command) then
             if hasPermission(PlayerIndex) then
-                if t[2] ~= nil then 
+                if t[2] ~= nil then
                     if t[2] == "on" then
                         if jump_status[PlayerIndex] == false then
                             rprint(PlayerIndex, superjump_activated)
@@ -186,7 +186,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             return false
         end
     else
-        cprint(environment_error, 2+8)
+        cprint(environment_error, 2 + 8)
     end
 end
 

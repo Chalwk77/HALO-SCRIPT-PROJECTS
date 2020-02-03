@@ -20,11 +20,11 @@ function mod:init()
 
     -- Time (in seconds) that players will be invincible (after spawning):
     mod.protection_duration = 5
-    
+
     -- Should the player be able to inflict damage on others while under protection?
     mod.inflict_damage = true
     --------------------------
-    
+
     -- Do Not Touch --
     mod.players = {}
     mod.delta_time = 0.03333333333333333
@@ -39,7 +39,7 @@ function OnScriptLoad()
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
     register_callback(cb['EVENT_DAMAGE_APPLICATION'], "BlockReceivingDamage")
-    
+
     if (get_var(0, "$gt") ~= "n/a") then
         mod:init()
         for i = 1, 16 do
@@ -65,16 +65,16 @@ function OnPlayerDisconnect(PlayerIndex)
 end
 
 function OnPlayerSpawn(PlayerIndex)
-    for _,player in pairs(mod.players) do
-        if (player.id == PlayerIndex) then 
+    for _, player in pairs(mod.players) do
+        if (player.id == PlayerIndex) then
             player.timer, player.protect = 0, true
         end
     end
 end
 
 function OnTick()
-    for _,player in pairs(mod.players) do
-        if (player.id) then 
+    for _, player in pairs(mod.players) do
+        if (player.id) then
             if (player_alive(player.id) and player.protect) then
                 player.timer = player.timer + mod.delta_time
                 local timeRemaining = player.duration - math.floor(player.timer % 60)
@@ -89,14 +89,14 @@ end
 function BlockReceivingDamage(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
     -- Block all receiving Damage
     if (tonumber(CauserIndex) > 0) then
-        for _,player in pairs(mod.players) do
-        
+        for _, player in pairs(mod.players) do
+
             -- Prevent Victim from receiving damage
-            if (player.id == PlayerIndex and player.protect) then 
+            if (player.id == PlayerIndex and player.protect) then
                 return false
-                
-            -- Block or Allow the protected player from inflicting damage (see variable "inflict_damage")
-            elseif (player.id == CauserIndex and player.protect) then 
+
+                -- Block or Allow the protected player from inflicting damage (see variable "inflict_damage")
+            elseif (player.id == CauserIndex and player.protect) then
                 if (mod.inflict_damage) then
                     return true
                 else
@@ -118,7 +118,7 @@ function mod:initPlayer(PlayerIndex, Init)
                 duration = mod.protection_duration,
             }
         else
-            for index,player in pairs(players) do
+            for index, player in pairs(players) do
                 if (player.id == PlayerIndex) then
                     players[index] = nil
                 end

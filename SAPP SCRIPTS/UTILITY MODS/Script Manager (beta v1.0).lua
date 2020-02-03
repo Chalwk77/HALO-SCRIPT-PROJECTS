@@ -34,7 +34,7 @@ manager.settings = {
     },
     -- If the current gamemode in play is not specified in the list of available gamemodes for that map as seen above,
     -- the script will not be loaded.
-    
+
     --
     --==================================================================--
     -- Stock maps and stock gametypes:
@@ -42,126 +42,126 @@ manager.settings = {
     ["sidewinder"] = {
         use = true,
         { -- Scripts:
-        "",
+            "",
         }, -- Game Modes:
         "",
     },
     ["ratrace"] = {
         use = true,
         { -- Scripts:
-        "",
+            "",
         }, -- Game Modes:
         "",
     },
     ["bloodgulch"] = {
         use = true,
         { -- Scripts:
-        "",
+            "",
         }, -- Game Modes:
         "",
     },
     ["beavercreek"] = {
         use = true,
         { -- Scripts:
-        "",
+            "",
         }, -- Game Modes:
         "",
     },
     ["boardingaction"] = {
         use = true,
         { -- Scripts:
-        "",
+            "",
         }, -- Game Modes:
         "",
     },
     ["carousel"] = {
         use = true,
         { -- Scripts:
-        "",
+            "",
         }, -- Game Modes:
         "",
     },
     ["dangercanyon"] = {
         use = true,
         { -- Scripts:
-        "",
+            "",
         }, -- Game Modes:
         "",
     },
     ["deathisland"] = {
         use = true,
         { -- Scripts:
-        "",
+            "",
         }, -- Game Modes:
         "",
     },
     ["gephyrophobia"] = {
         use = true,
         { -- Scripts:
-        "",
+            "",
         }, -- Game Modes:
         "",
     },
     ["icefields"] = {
         use = true,
         { -- Scripts:
-        "",
+            "",
         }, -- Game Modes:
         "",
     },
     ["infinity"] = {
         use = true,
         { -- Scripts:
-        "",
+            "",
         }, -- Game Modes:
         "",
     },
     ["timberland"] = {
         use = true,
         { -- Scripts:
-        "",
+            "",
         }, -- Game Modes:
         "",
     },
     ["hangemhigh"] = {
         use = true,
         { -- Scripts:
-        "",
+            "",
         }, -- Game Modes:
         "",
     },
     ["damnation"] = {
         use = true,
         { -- Scripts:
-        "",
+            "",
         }, -- Game Modes:
         "",
     },
     ["putput"] = {
         use = true,
         { -- Scripts:
-        "",
+            "",
         }, -- Game Modes:
         "",
     },
     ["prisoner"] = {
         use = true,
         { -- Scripts:
-        "",
+            "",
         }, -- Game Modes:
         "",
     },
     ["wizard"] = {
         use = true,
         { -- Scripts:
-        "",
+            "",
         }, -- Game Modes:
         "",
     },
     ["longest"] = {
         use = true,
         { -- Scripts:
-        "",
+            "",
         }, -- Game Modes:
         "",
     },
@@ -221,12 +221,12 @@ end
 
 function manager:LoadScript(script)
     cprint("[Script Manager] Loading Script: " .. script, 2 + 8)
-    execute_command('lua_load ' .. ' "'.. script ..'"')
+    execute_command('lua_load ' .. ' "' .. script .. '"')
 end
 
 function manager:UnloadScript(script)
     cprint("[Script Manager] Unloading Script: " .. script, 2 + 8)
-    execute_command('lua_unload ' .. ' "'.. script ..'"')
+    execute_command('lua_unload ' .. ' "' .. script .. '"')
 end
 
 -- For a future update:

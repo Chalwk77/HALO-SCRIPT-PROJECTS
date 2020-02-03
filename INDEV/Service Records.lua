@@ -172,7 +172,7 @@ ranks = {
         [4] = 1180000, -- grade 3
     },
     [11] = {
-       title = "Brigadier",
+        title = "Brigadier",
         [1] = 1400000,
         [2] = 1520000, -- grade 1
         [3] = 1640000, -- grade 2
@@ -361,7 +361,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
 
         local k_player_object = get_dynamic_player(killer)
         local v_player_object = get_dynamic_player(victim)
-        
+
         local suicide = (killer == victim)
         local betrayal = ((kteam == vteam) and killer ~= victim)
         local pvp = ((killer > 0) and killer ~= victim)
@@ -369,9 +369,9 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         local guardians = (killer == nil)
         local server = (killer == -1)
         local fall_distance_damage = (v.last_damage == tags[1] or v.last_damage == tags[2])
-        
+
         v.stats.kills.deaths = v.stats.kills.deaths + 1
-        
+
         local coords = getXYZ(killer, k_player_object)
         -- Road Rage:
         if (coords.invehicle and coords.seat == 0) then
@@ -395,7 +395,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             ConsecutiveKills(killer)
             MultiKill(killer)
             KillingSpree(killer)
-            
+
             -- Killed from the grave
             if (not player_alive(killer)) then
                 k.stats.kills.total = k.stats.kills.total + 10
@@ -485,19 +485,19 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             k.stats.kills.melee = k.stats.kills.melee + 1
         end
         --
-        
+
         -- First Blood:
         if (first_blood == 0 and k) then
             first_blood = first_blood + 1
             k.credits = k.credits + 10
         end
-        
+
         -- Reload This
         local reloading = read_byte(v_player_object + 0x2A4)
         if (reloading == 5) then
             k.credits = k.credits + 5
         end
-        
+
         -- Avenger
         for i = 1, 16 do
             if player_present(i) then
@@ -515,7 +515,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
                 print("AVENGER")
             end
         end
-        
+
         SetRank(killer)
         UpdateStats(victim)
         UpdateStats(killer)
@@ -618,10 +618,10 @@ function SetRank(PlayerIndex)
     local t = players[PlayerIndex]
     if (t) then
         t = t.data
-        for i = 1,#ranks do
-            for j = 1,#ranks[i] do
+        for i = 1, #ranks do
+            for j = 1, #ranks[i] do
                 local CRC = ranks[i][j]
-                local NRC = ranks[i+1]
+                local NRC = ranks[i + 1]
                 if (NRC ~= nil) then
                     NRC = NRC[1]
                     if (t.credits > CRC and t.credits < NRC) then
@@ -781,7 +781,7 @@ end
 function getXYZ(PlayerIndex, PlayerObject)
     local coords, x, y, z = { }
     if player_alive(PlayerIndex) then
-        local VehicleID = read_dword(PlayerObject + 0x11C)        
+        local VehicleID = read_dword(PlayerObject + 0x11C)
         if (VehicleID == 0xFFFFFFFF) then
             coords.invehicle = false
             x, y, z = read_vector3d(PlayerObject + 0x5c)

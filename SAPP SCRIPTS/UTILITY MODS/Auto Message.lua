@@ -39,15 +39,15 @@ local privilege_level = 1
 -- #Messages
 local announcements = {
     "Like us on Facebook | facebook.com/page_id",
-    
+
     "Follow us on Twitter | twitter.com/twitter_id",
-    
+
     "We are recruiting. Sign up on our website | website url",
-    
+
     "Rules / Server Information",
-    
+
     "announcement 5",
-    
+
     "other information here",
     -- Repeat the structure to add more entries.
 }
@@ -62,10 +62,10 @@ local countdown = 0
 
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
-    
+
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
-    
+
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
 end
 
@@ -119,7 +119,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     if (t[1] == base_command) then
         if (Environment ~= 0) then
             if hasPermission(PlayerIndex) then
-                if t[2] ~= nil then 
+                if t[2] ~= nil then
                     if (t[2] == t[2]:match("list")) then
                         rprint(PlayerIndex, "-------- MESSAGES --------")
                         for i = 1, #announcements do
@@ -140,7 +140,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
             return false
         else
-            cprint("This command can only be executed by a player", 2+8)
+            cprint("This command can only be executed by a player", 2 + 8)
             return false
         end
     end

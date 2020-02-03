@@ -110,10 +110,10 @@ function OnTick()
 
             local Leader = squad:CalculateVotes()
             if (Leader ~= nil) then
-                
+
                 local params = { }
                 local R, B = Leader['red'], Leader['blue']
-                
+
                 params.R, params.B = R, B
                 squad:announceNewLeader(params)
             end
@@ -159,14 +159,14 @@ end
 function squad:announceNewLeader(params)
     local params = params or nil
     if (params ~= nil) then
-    
+
         local red_leader, blue_leader = params.R[1], params.B[1]
         local red_votes, blue_votes = params.R[2], params.B[2]
         local red_name, blue_name = get_var(red_leader, "$name"), get_var(blue_leader, "$name")
-        
+
         squad.redLeader, squad.blueLeader = red_leader, blue_leader
 
-        for i = 1,16 do
+        for i = 1, 16 do
             if player_present(i) then
                 local team = get_var(i, "$team")
                 if (team == "red") then
@@ -176,7 +176,7 @@ function squad:announceNewLeader(params)
                 end
             end
         end
-    
+
     end
 end
 
@@ -187,7 +187,7 @@ local function SendError(p, msg)
 end
 
 local function isCommand(p, msg)
-    if ( sub(msg[1], 1, 1) == "/" or sub(msg[1], 1, 1) == "\\" ) then
+    if (sub(msg[1], 1, 1) == "/" or sub(msg[1], 1, 1) == "\\") then
         if not votes.hasVoted[player] then
             squad:PauseConsole(p)
         end
@@ -219,7 +219,7 @@ function OnPlayerChat(PlayerIndex, Message, Type)
                         local team = get_var(voter, "$team")
                         votes.total[nominee] = votes.total[nominee] + 1
 
-                        votes.results[#votes.results + 1] = {nominee, team}
+                        votes.results[#votes.results + 1] = { nominee, team }
 
                         votes.hasVoted[voter] = true
                         response = false
@@ -249,15 +249,19 @@ function squad:UnpauseConsole(player)
 end
 
 function squad:GetPlayerCount()
-    local Check = function(a, b) return tonumber(a) >= tonumber(b) end
-    local R, B = get_var(0, "$reds"), get_var(0, "$blues")    
+    local Check = function(a, b)
+        return tonumber(a) >= tonumber(b)
+    end
+    local R, B = get_var(0, "$reds"), get_var(0, "$blues")
     if Check(R, squad.players_required) and Check(B, squad.players_required) then
         return true
     end
 end
 
 local function MinMax(t, fn, type)
-    if #t == 0 then return nil, nil end
+    if #t == 0 then
+        return nil, nil
+    end
     local x, y, z = 0, 0, 0
 
     local distance = 0
@@ -282,7 +286,7 @@ end
 
 local function Save(pX, pY, pZ, sX, sY, sZ)
     local distance = distanceFromPlayer(pX, pY, pZ, sX, sY, sZ)
-    spawn_coordinates[#spawn_coordinates + 1] = {distance, sX, sY, sZ}
+    spawn_coordinates[#spawn_coordinates + 1] = { distance, sX, sY, sZ }
 end
 
 function squad:GetNearestSpawn(params)
@@ -308,13 +312,17 @@ function squad:GetNearestSpawn(params)
             end
         end
 
-        local x, y, z, distance = MinMax(spawn_coordinates, function(a, b) return a > b end, "min")
-        return {x, y, z, distance}
+        local x, y, z, distance = MinMax(spawn_coordinates, function(a, b)
+            return a > b
+        end, "min")
+        return { x, y, z, distance }
     end
 end
 
 local function getHighestVote(t, fn)
-    if #t == 0 then return nil, nil end
+    if #t == 0 then
+        return nil, nil
+    end
 
     local highest_votes, new_leader = 0, 0
 
@@ -325,7 +333,7 @@ local function getHighestVote(t, fn)
         end
     end
 
-    return {newLeader = new_leader, totalVotes = highest_votes}
+    return { newLeader = new_leader, totalVotes = highest_votes }
 end
 
 function squad:CalculateVotes()
@@ -341,15 +349,19 @@ function squad:CalculateVotes()
             local total_votes = squad:GetVotes(nominee)
 
             if (nominee_team == "red") then
-                temp.red[#temp.red + 1] = {nominee, total_votes}
+                temp.red[#temp.red + 1] = { nominee, total_votes }
             elseif (nominee_team == "blue") then
-                temp.blue[#temp.blue + 1] = {nominee, total_votes}
+                temp.blue[#temp.blue + 1] = { nominee, total_votes }
             end
         end
     end
 
-    local red = getHighestVote(temp.red, function(a, b) return a < b end)
-    local blue = getHighestVote(temp.blue, function(a, b) return a < b end)
+    local red = getHighestVote(temp.red, function(a, b)
+        return a < b
+    end)
+    local blue = getHighestVote(temp.blue, function(a, b)
+        return a < b
+    end)
 
     if (red) and (blue) then
         return {
@@ -388,11 +400,11 @@ function squad:showHUD(i)
                 if (total_votes ~= nil) then
 
                     local msg = gsub(gsub(gsub(votes.msg, "%%name%%", get_var(j, '$name')),
-                    "%%id%%", j), "%%votes%%", total_votes)
+                            "%%id%%", j), "%%votes%%", total_votes)
 
                     if not votes.pauseConsole[i] then
                         cls(i, 25)
-                        
+
                         -- Print Header:
                         if not votes.hasVoted[i] then
                             rprint(i, "========= [ VOTE FOR YOUR LEADER ] =========")
@@ -408,7 +420,7 @@ function squad:showHUD(i)
                             rprint(i, "Type the Player ID you wish to vote for!")
                             rprint(i, "")
                         end
-                        
+
                         showTimeRemaining(i)
                     end
                 end
@@ -461,8 +473,8 @@ end
 
 function get_spawns()
     local spawns = { }
-    local tag_array = read_dword( 0x40440000 )
-    local scenario_tag_index = read_word( 0x40440004 )
+    local tag_array = read_dword(0x40440000)
+    local scenario_tag_index = read_word(0x40440004)
     local scenario_tag = tag_array + scenario_tag_index * 0x20
     local scenario_tag_data = read_dword(scenario_tag + 0x14)
 
@@ -475,8 +487,8 @@ function get_spawns()
         local x, y, z = read_vector3d(starting_location)
         local r = read_float(starting_location + 0xC)
         local team = read_word(starting_location + 0x10)
-        spawns[#spawns + 1] = {x, y, z, r, team}
+        spawns[#spawns + 1] = { x, y, z, r, team }
     end
-    
+
     return spawns
 end

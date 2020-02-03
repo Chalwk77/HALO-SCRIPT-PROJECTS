@@ -118,19 +118,23 @@ end
 function OnPlayerJoin(PlayerIndex)
     players[get_var(PlayerIndex, "$name")] = { }
     players[get_var(PlayerIndex, "$name")].timer = 0
-    
+
     init_timer[PlayerIndex] = true
     first_join[PlayerIndex] = true
 end
 
 function OnPlayerLeave(PlayerIndex)
-    if init_timer == true then init_timer[PlayerIndex] = false end
-    if first_join == true then first_join[PlayerIndex] = false end
+    if init_timer == true then
+        init_timer[PlayerIndex] = false
+    end
+    if first_join == true then
+        first_join[PlayerIndex] = false
+    end
     players[get_var(PlayerIndex, "$name")].timer = 0
 end
 
 function OnTick()
-    for i = 1,16 do 
+    for i = 1, 16 do
         if player_present(i) then
             if (init_timer[i] == true) then
                 timeUntilRestore(i)
@@ -151,22 +155,22 @@ end
 function OnPlayerPrespawn(PlayerIndex)
     if (first_join[PlayerIndex] == true) then
         first_join[PlayerIndex] = false
-        
+
         local team = get_var(PlayerIndex, "$team")
         if (team == "red") then
             Teleport(PlayerIndex, 1)
         elseif (team == "blue") then
             Teleport(PlayerIndex, 2)
         end
-        
+
     end
 end
 
 function Teleport(PlayerIndex, TableIndex)
     local map = get_var(0, "$map")
-    write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, 
-        base_loc[map][tonumber(TableIndex)][1], 
-        base_loc[map][tonumber(TableIndex)][2], 
-        base_loc[map][tonumber(TableIndex)][3] + math.floor(height_from_ground))
+    write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C,
+            base_loc[map][tonumber(TableIndex)][1],
+            base_loc[map][tonumber(TableIndex)][2],
+            base_loc[map][tonumber(TableIndex)][3] + math.floor(height_from_ground))
     execute_command("god " .. tonumber(PlayerIndex))
 end

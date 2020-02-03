@@ -44,23 +44,24 @@ function CheckIPs(Player, IP1)
     local ips = { }
 
     -- Loop through all players and check for duplicate IP address:
-    for i = 1,16 do
+    for i = 1, 16 do
         if player_present(i) then
             if (Player ~= i) then
                 local IP2 = get_var(i, "$ip"):match("(%d+.%d+.%d+.%d+)")
                 if (IP1 == IP2 and not isExcluded(IP1)) then
-                   ips[#ips+1] = i
+                    ips[#ips + 1] = i
                 end
             end
         end
     end
-    
+
     if (#ips > 0) then
         if (not remove_all) then
             takeAction(Player) -- Remove the player who just joined
-        else -- Remove all players with the same IP
-            ips[#ips+1] = Player
-            for i = 1,#ips do 
+        else
+            -- Remove all players with the same IP
+            ips[#ips + 1] = Player
+            for i = 1, #ips do
                 takeAction(ips[i])
             end
         end
@@ -69,7 +70,7 @@ end
 
 function isExcluded(IP)
     -- Check if IP is in the exclusion list.
-    for i = 1,#exclusion_list do
+    for i = 1, #exclusion_list do
         if (exclusion_list[i]) then
             if (IP == exclusion_list[i]) then
                 return true

@@ -293,7 +293,7 @@ function OnTick()
 
     for i, player in pairs(zombies.players) do
         if (player) and player_present(i) then
-        
+
             local isHteam = (player.team == parameters.human_team)
             local isZteam = (player.team == parameters.zombie_team)
             local isLastMan = (player.last_man ~= nil)
@@ -310,7 +310,7 @@ function OnTick()
                 rprint(i, zombies.pregame)
 
             elseif (gamestarted) then
-                      
+
                 -- Weapon Assignment and Attribute Logic:
                 if player_alive(i) then
                     local player_object = get_dynamic_player(i)
@@ -398,7 +398,7 @@ function OnTick()
             else
                 zombies:sortPlayers(nil, false)
             end
-            
+
             gamestarted = true
             zombies:LastManCheck()
             execute_command("sv_map_reset")
@@ -430,7 +430,7 @@ function OnTick()
             zombies:StopTimer(assist_index, false)
             zombies:SwitchToZombies()
         end
-        
+
     end
     if (gamestarted) then
         zombies:endGameCheck()
@@ -447,7 +447,9 @@ function OnGameStart()
         elseif (parameters.balance_teams) then
             local function oddOrEven(Min, Max)
                 math.randomseed(os.time())
-                math.random();math.random();math.random();
+                math.random();
+                math.random();
+                math.random();
                 local num = math.random(Min, Max)
                 if (num) then
                     return num
@@ -648,7 +650,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
 
                     local player = zombies:PlayerTable(killer)
                     player.kills = player.kills + 1
-                    
+
                     if (zombies.zombie_count <= parameters.assistance_zombie_count) then
                         player.assistance_score = player.assistance_score - 1
                         if (player.assistance_score <= 0) then
@@ -739,9 +741,9 @@ function zombies:killPlayer(PlayerIndex)
 end
 
 function zombies:SwitchTeam(PlayerIndex, team, bool, GameStartCheck, AutoSort)
-    
+
     local player = zombies:PlayerTable(PlayerIndex)
-    
+
     local function InitPlayer()
         if (not player) then
             if (GameStartCheck) then
@@ -752,19 +754,19 @@ function zombies:SwitchTeam(PlayerIndex, team, bool, GameStartCheck, AutoSort)
         end
     end
     InitPlayer()
-    
+
     player.team = team
-    
+
     local CurrentTeam = get_var(PlayerIndex, "$team")
     local sameteam = (CurrentTeam == team)
-    
+
     if (team == parameters.zombie_team) then
         local nozombie_index, nozombies = zombies:GetTimer("No Zombies")
         if (nozombies.init) then
             zombies:StopTimer(nozombie_index, false)
         end
     end
-    
+
     if (AutoSort) then
 
         -- Human -> Human
@@ -1072,7 +1074,7 @@ function zombies:LastManCheck(params)
             end
         end
     end
-    
+
     local msg = nil
     if (not params.last_man) then
         if (params.on_zombify) and (not params.zombie_cured) then
@@ -1286,7 +1288,7 @@ function zombies:SwitchToZombies()
                 local params = {}
                 params.vname = player.name
                 zombies:setTeam(index, parameters.zombie_team)
-                
+
                 zombies:broadcast(player.name .. " was switched to zombie team")
                 zombies:LastManCheck(params)
                 break

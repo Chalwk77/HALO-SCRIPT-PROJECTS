@@ -180,7 +180,7 @@ end
 
 function OnGameEnd()
     game_over = true
-    if (vanish.auto_off) and (tonumber(get_var(0, "$pn")) > 0)then
+    if (vanish.auto_off) and (tonumber(get_var(0, "$pn")) > 0) then
         reset()
     end
 end
@@ -266,10 +266,10 @@ function OnPlayerConnect(p)
             end
         end
     end
-    
+
     local status = vanish[ip]
     local was_vanished = isVanished(ip)
-    
+
     if (status ~= nil and status.enabled) then
         tell(p)
     elseif (status == nil) and (was_vanished) then
@@ -619,7 +619,6 @@ function getXYZ(p)
         return coords
     end
 end
-
 
 function cmdsplit(str)
     local subs = {}

@@ -16,10 +16,10 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = '1.12.0.0'
 
 -- Config [starts]
-local command_aliases = { 
-    "pl", "players", "playerlist", "playerslist" 
+local command_aliases = {
+    "pl", "players", "playerlist", "playerslist"
 }
-    
+
 -- Minimum privilege level required to execute (-1 for all players, 1-4 for admins):
 local permission_level = 1
 
@@ -40,13 +40,13 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local command, args = cmdsplit(Command)
     local executor = tonumber(PlayerIndex)
     local level = tonumber(get_var(executor, "$lvl"))
-    
+
     local function checkAccess(e, level)
         if (e ~= -1 and e >= 1 and e < 16) then
             if (level >= permission_level) then
                 return true
             else
-                respond(e, "Command failed. Insufficient Permission.", "rcon", 4+8)
+                respond(e, "Command failed. Insufficient Permission.", "rcon", 4 + 8)
                 return false
             end
         else
@@ -81,7 +81,7 @@ function showlist(e)
     local pl = {}
     for i = 1, 16 do
         if player_present(i) then
-            pl[#pl+1] = {
+            pl[#pl + 1] = {
                 id = i,
                 name = get_var(i, "$name"),
                 team = get_var(i, "$team"),
@@ -91,8 +91,8 @@ function showlist(e)
     end
     if (#pl > 0) then
         local header = "[ ID.    -    Name.    -    Team.    -    IP.    -    Total Players: %total%/16 ]"
-        respond(e, gsub(header, "%%total%%", #pl), "rcon", 2+8)
-        for i = 1,#pl do
+        respond(e, gsub(header, "%%total%%", #pl), "rcon", 2 + 8)
+        for i = 1, #pl do
             if (get_var(0, "$ffa") ~= "0") then
                 pl[i].team = "ffa"
             end
@@ -109,7 +109,7 @@ function showlist(e)
         respond(e, "There are no players online", 4 + 8)
         respond(e, "------------------------------------", "rcon", 5 + 8)
     end
-end 
+end
 
 function respond(executor, message, environment, color)
     if (executor) then

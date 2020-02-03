@@ -12,46 +12,46 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.12.0.0"
 local mod = {
-    
+
     -- ============= Configuration Starts ============= --
 
     -- Custom Command:
     command = "custom_command",
-    
+
     -- Minimum permission needed to execute the custom command:
     permission = 1,
-    
+
     -- Minimum permission needed to execute the custom command on others players:
     permission_extra = 4,
-    
+
     messages = {
-    
+
         -- EDIT_ME_FEATURE output format:
         [1] = "%name% [%id%]: %message%",
-    
+
         -- This message is sent to (you) when you enable/disable for yourself.
         [2] = "EDIT_ME_FEATURE %state%!",
-        
+
         -- This message is sent to (you) when you enable/disable for others.
         [3] = "EDIT_ME_FEATURE %state% for %target_name%",
-        
+
         -- This message is sent to (target player) when you enable/disable for them.
         [4] = "Your EDIT_ME_FEATURE was %state% by %executor_name%",
-        
+
         -- This message is sent to (you) when your EDIT_ME_FEATURE is already enabled/disabled.
         [5] = "Your EDIT_ME_FEATURE is already %state%!",
-        
+
         -- This message is sent to (target player) when their EDIT_ME_FEATURE is already enabled/disabled.
         [6] = "%target_name%%'s EDIT_ME_FEATURE is already %state%!",
-                
+
         -- This message is sent when a player connects to the server (if previously activated).
         -- This requires the 'restore' setting to be TRUE.
         [7] = "Your EDIT_ME_FEATURE is Enabled! (auto-restore)",
-        
+
         -- This message is sent to (you) when there is a command syntax error.
         [8] = "Invalid Syntax: Usage: /%command% on|off [me | id | */all]",
     },
-    
+
     -- Should EDIT_ME_FEATURE be restored for returning players? (if previously activated)
     restore = true,
 
@@ -83,14 +83,14 @@ function OnScriptLoad()
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
-    
+
     if (get_var(0, "$gt") ~= "n/a") then
         game_over = false
-        for i = 1,16 do
+        for i = 1, 16 do
             if player_present(i) then
                 if mod:isAdmin(i) then
                     ip_table[i] = get_var(i, '$ip')
-                    
+
                     local ip = mod:GetIP(i)
                     mod[ip] = nil
                 end
@@ -114,10 +114,10 @@ end
 function OnPlayerConnect(p)
     if mod:isAdmin(p) then
         ip_table[p] = get_var(p, '$ip')
-        
+
         local ip = mod:GetIP(p)
         mod[ip] = mod[ip] or nil
-        
+
         local already_activated = (mod[ip] == true)
         if (mod.restore) and (already_activated) then
             mod:Respond(p, mod.messages[7])
@@ -125,10 +125,10 @@ function OnPlayerConnect(p)
     end
 end
 
-function OnPlayerDisconnect(p)  
+function OnPlayerDisconnect(p)
     if mod:isAdmin(p) then
         local ip = mod:GetIP(p)
-        
+
         -- Disable Mod for this player:
         local already_activated = (mod[ip] == true)
         if (not mod.restore) or (not already_activated) then
@@ -140,7 +140,7 @@ end
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local command, args = mod:StringSplit(Command)
     local executor = tonumber(PlayerIndex)
-    
+
     if (command == nil) then
         return
     end
@@ -150,11 +150,11 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         if not mod:isGameOver(executor) then
             if mod:checkAccess(executor) then
                 if (args[1] ~= nil) then
-                
+
                     local params = mod:ValidateCommand(executor, args)
-                    
+
                     if (params ~= nil) and (not params.target_all) and (not params.is_error) then
-                        local Target = tonumber(args[2]) or tonumber(executor)                        
+                        local Target = tonumber(args[2]) or tonumber(executor)
                         if mod:isOnline(Target, executor) then
                             mod:ExecuteCore(params)
                         end
@@ -172,13 +172,13 @@ end
 function mod:ExecuteCore(params)
     local params = params or nil
     if (params ~= nil) then
-                
+
         -- Target Parameters:
-        local tid, tip, tn  = params.tid, params.tip, params.tn
-        
+        local tid, tip, tn = params.tid, params.tip, params.tn
+
         -- Executor Parameters:
         local eid, eip, en = params.eid, params.eip, params.en
-    
+
         -- 
         local is_console = mod:isConsole(eid)
         if is_console then
@@ -187,21 +187,21 @@ function mod:ExecuteCore(params)
 
         local is_self = (eid == tid)
         local admin_level = tonumber(get_var(eid, '$lvl'))
-                
+
         local proceed = mod:executeOnOthers(eid, is_self, is_console, admin_level)
         local valid_state
-        
+
         if (proceed) then
-        
+
             local state = params.state
             local state = mod:ActivationState(eid, state)
-            
+
             if (state) then
                 mod[tip] = mod[tip] or nil
-                            
-                local already_activated = (mod[tip] == true)            
+
+                local already_activated = (mod[tip] == true)
                 local already_set
-                
+
                 if (state == 1) then
                     state, valid_state = "enabled", true
                     if (mod[tip] == nil) then
@@ -217,24 +217,24 @@ function mod:ExecuteCore(params)
                         already_set = true
                     end
                 end
-                
-                if (valid_state) then               
+
+                if (valid_state) then
                     local messages = mod.messages
                     local Feedback = function(Message)
-                    
+
                         local words = {
                             ["%%state%%"] = state,
                             ["%%executor_name%%"] = en,
-                            ["%%target_name%%"]  = tn,
+                            ["%%target_name%%"] = tn,
                         }
-                        
-                        for k,v in pairs(words) do
+
+                        for k, v in pairs(words) do
                             Message = gsub(Message, k, v)
                         end
                         return Message
-                    end          
-                    
-                    if (not already_set) then 
+                    end
+
+                    if (not already_set) then
                         if (is_self) then
                             mod:Respond(eid, Feedback(messages[2]), 2 + 8)
                         else
@@ -256,10 +256,10 @@ end
 
 function mod:ValidateCommand(executor, args)
     local params = { }
-                
+
     local function getplayers(arg)
         local players = { }
-        
+
         if (arg == nil) or (arg == 'me') then
             table.insert(players, executor)
         elseif (arg:match('%d+')) then
@@ -273,7 +273,7 @@ function mod:ValidateCommand(executor, args)
             end
         elseif (arg == 'rand' or arg == 'random') then
             local temp = { }
-            for i = 1,16 do
+            for i = 1, 16 do
                 if player_present(i) then
                     temp[#temp + 1] = i
                 end
@@ -291,23 +291,24 @@ function mod:ValidateCommand(executor, args)
                 others_cmd_error[executor] = true
             end
         end
-        
-        if players[1] then return players end
+
+        if players[1] then
+            return players
+        end
         return false
     end
-    
-    
+
     local pl = getplayers(args[2])
     if (pl) then
         for i = 1, #pl do
-        
+
             if (pl[i] == nil) then
                 break
             end
 
             params.state = args[1]
             params.eid, params.en, params.eip = executor, get_var(executor, '$name'), mod:GetIP(executor)
-            params.tid, params.tn, params.tip  = tonumber(pl[i]), get_var(pl[i], '$name'), mod:GetIP(pl[i])
+            params.tid, params.tn, params.tip = tonumber(pl[i]), get_var(pl[i], '$name'), mod:GetIP(pl[i])
 
             if (params.target_all) then
                 mod:ExecuteCore(params)
@@ -383,13 +384,13 @@ end
 
 function mod:isGameOver(p)
     if (game_over) then
-        mod:Respond(p, "Please wait until the next game has started.", 4+8)
+        mod:Respond(p, "Please wait until the next game has started.", 4 + 8)
         return true
     end
 end
 
 function mod:GetIP(p)
-    
+
     if (halo_type == 'PC') then
         ip_address = ip_table[p]
     else

@@ -332,7 +332,7 @@ function OnServerCommand(PlayerIndex, Command, Environment)
                             rprint(PlayerIndex, "[" .. k .. "] " .. v)
                         end
                     end
-                    if not found then 
+                    if not found then
                         rprint(PlayerIndex, "There are no warps for the current map.")
                     end
                 else

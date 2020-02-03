@@ -46,10 +46,10 @@ function OnScriptLoad()
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
-    
+
     if (get_var(0, "$gt") ~= "n/a") then
         players, game_over = {}, false
-        for i = 1,16 do
+        for i = 1, 16 do
             if player_present(i) then
                 initPlayer(i, true)
             end
@@ -78,13 +78,13 @@ end
 function OnPlayerPrespawn(PlayerIndex)
     local insertion = players[PlayerIndex]
     insertion.expired = false
-    
+
     if (insertion.trigger) then
         local player_object = get_dynamic_player(PlayerIndex)
         if (player_object ~= 0) then
             insertion.trigger = false
-            local x,y,z,zOffset = insertion.x, insertion.y, insertion.z, 0.3
-            write_vector3d(player_object + 0x5C, x, y, z + zOffset)                
+            local x, y, z, zOffset = insertion.x, insertion.y, insertion.z, 0.3
+            write_vector3d(player_object + 0x5C, x, y, z + zOffset)
         end
     end
 end
@@ -92,7 +92,7 @@ end
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local args = StringSplit(Command)
     local executor = tonumber(PlayerIndex)
-    
+
     if (args[1] == nil) then
         return
     end
@@ -116,18 +116,18 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                     local x = format("%0.3f", coords.x)
                                     local y = format("%0.3f", coords.y)
                                     local z = format("%0.3f", coords.z)
-                                    Respond(executor, gsub(gsub(gsub(on_execute,"%%x%%", x),"%%y%%", y),"%%z%%", z), "rcon")
+                                    Respond(executor, gsub(gsub(gsub(on_execute, "%%x%%", x), "%%y%%", y), "%%z%%", z), "rcon")
                                     if (broadcast) then
-                                        for i = 1,16 do
+                                        for i = 1, 16 do
                                             if player_present(i) then
-                                                if (i ~= executor) then                                                
+                                                if (i ~= executor) then
                                                     Respond(i, gsub(broadcast_message, "%%name%%", insertion.name), "chat")
                                                 end
                                             end
                                         end
                                     end
-                                    insertion.trigger = true                         
-                                else                                    
+                                    insertion.trigger = true
+                                else
                                     Respond(executor, "You have already used Tac-Insert for this life.", "rcon")
                                 end
                             end
@@ -136,7 +136,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         Respond(executor, "You must be alive to execute this command", "rcon")
                     end
                 else
-                    Respond(executor, "Invalid Syntax. Usage: /"..command, "rcon")
+                    Respond(executor, "Invalid Syntax. Usage: /" .. command, "rcon")
                 end
             end
         end
@@ -154,14 +154,14 @@ end
 
 function Respond(p, msg, environment)
     if not isConsole(p) then
-        environment = environment or "rcon" 
-        if (environment == "rcon") then    
+        environment = environment or "rcon"
+        if (environment == "rcon") then
             rprint(p, msg)
         else
             say(p, msg)
         end
     else
-        cprint(msg, 4+8)
+        cprint(msg, 4 + 8)
     end
 end
 

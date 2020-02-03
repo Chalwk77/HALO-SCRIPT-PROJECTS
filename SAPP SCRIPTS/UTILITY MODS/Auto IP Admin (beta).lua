@@ -15,14 +15,14 @@ api_version = "1.12.0.0"
 -- configuration [starts]
 local users = {
     -- IP | PW | LVL
-    
-    {["127.0.0.1"] = {"test", 4}},
+
+    { ["127.0.0.1"] = { "test", 4 } },
     -- repeat the structure to add more entries 
-    {["000.000.000.000"] = {"password", 0}},
-    {["000.000.000.000"] = {"password", 0}},
-    {["000.000.000.000"] = {"password", 0}},
-    {["000.000.000.000"] = {"password", 0}},
-    {["000.000.000.000"] = {"password", 0}},
+    { ["000.000.000.000"] = { "password", 0 } },
+    { ["000.000.000.000"] = { "password", 0 } },
+    { ["000.000.000.000"] = { "password", 0 } },
+    { ["000.000.000.000"] = { "password", 0 } },
+    { ["000.000.000.000"] = { "password", 0 } },
 }
 
 -- configuration [ends]
@@ -45,14 +45,14 @@ function OnPlayerJoin(PlayerIndex)
         for key, _ in ipairs(users) do
             local userdata = users[key][ip]
             if (userdata ~= nil) then
-                for i = 1,#userdata do
-                   password = userdata[1] 
+                for i = 1, #userdata do
+                    password = userdata[1]
                 end
             end
         end
         say(PlayerIndex, 'You are now an IP Admin.')
         --say(PlayerIndex, 'Type /login ' .. password)
-        cprint(get_var(PlayerIndex, "$name") .. " is now an IP Admin.", 5+8)
+        cprint(get_var(PlayerIndex, "$name") .. " is now an IP Admin.", 5 + 8)
     end
 end
 
@@ -71,9 +71,9 @@ function OnPlayerPrejoin(PlayerIndex)
         for key, _ in ipairs(users) do
             local userdata = users[key][ip]
             if (userdata ~= nil) then
-                for i = 1,#userdata do
-                   password, level = userdata[1], userdata[2]
-                   found = true
+                for i = 1, #userdata do
+                    password, level = userdata[1], userdata[2]
+                    found = true
                 end
             end
         end

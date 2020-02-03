@@ -27,12 +27,12 @@ local settings = {
         -- They use Halo on multiple computers at different houses. Each computer has a unique public ip address. 
         -- We add each ip entry and hash to the respective table for that user. 
         -- If someone joins with the name 'example_name' and their ip address (or hash) does not match any of the ip addrees for that name entry, action will be taken.
-        { ["example_name"] = {"127.0.0.1", "128.0.0.2", "129.0.0.3", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"}},
-        
-        
+        { ["example_name"] = { "127.0.0.1", "128.0.0.2", "129.0.0.3", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" } },
+
+
         -- repeat the structure to add more entries
         { ["name_here"] = { "ip 1", "ip 2", "hash1", "hash2", "hash3", "etc..." } },
-        
+
         -- You do not need both ip and hash but it adds a bit more security.
     }
 }
@@ -63,7 +63,7 @@ function OnPlayerConnect(PlayerIndex)
     local name = get_var(PlayerIndex, "$name")
     local hash = get_var(PlayerIndex, "$hash")
     local index = get_var(PlayerIndex, "$n")
-    
+
     -- Port will change automatically if player is using Multi Client, so we only match the physical ip address itself.  
     local ip = get_var(PlayerIndex, "$ip"):match("(%d+.%d+.%d+.%d+)")
 

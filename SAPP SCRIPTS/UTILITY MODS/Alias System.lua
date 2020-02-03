@@ -60,7 +60,7 @@ end
 local function populateInfoTable(p)
     player_info[p] = { }
     local ip, level = getip(p), tonumber(get_var(p, "$lvl"))
-    table.insert(player_info[p], { ["ip"] = ip, ["level"] = level})
+    table.insert(player_info[p], { ["ip"] = ip, ["level"] = level })
 end
 
 local function getPlayerInfo(Player, ID)
@@ -148,7 +148,7 @@ end
 
 function OnScriptLoad()
     InitPlayers()
-    
+
     if (use_timer) then
         register_callback(cb['EVENT_TICK'], "OnTick")
     end
@@ -160,7 +160,6 @@ function OnScriptLoad()
 
     register_callback(cb['EVENT_GAME_START'], "OnGameStart")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
-    
 
     checkFile(dir)
     resetAliasParams()
@@ -187,7 +186,9 @@ function OnGameEnd()
 end
 
 local function stringSplit(inp, sep)
-    if (sep == nil) then sep = "%s" end
+    if (sep == nil) then
+        sep = "%s"
+    end
     local t, i = {}, 1
     for str in gmatch(inp, "([^" .. sep .. "]+)") do
         t[i] = str
@@ -215,12 +216,12 @@ function OnPlayerConnect(PlayerIndex)
     local p = tonumber(PlayerIndex)
     local ip = getip(p)
     local level = tonumber(get_var(p, "$lvl"))
-    
+
     local name, hash = get_var(p, "$name"), get_var(p, "$hash")
     alias:add(name, hash)
-    
+
     populateInfoTable(PlayerIndex)
-    
+
     if (level >= privilege_level) then
         alias:reset(ip)
     end
@@ -280,7 +281,7 @@ function OnServerCommand(PlayerIndex, Command)
 
     local TargetID, target_all_players, is_error
     local ip = getip(PlayerIndex)
-    
+
     local params = { }
     local function validate_params(executor)
         local function getplayer(arg, executor)
@@ -305,11 +306,11 @@ function OnServerCommand(PlayerIndex, Command)
         local pl = getplayer(args[1], executor)
         if pl then
             for i = 1, #pl do
-            
+
                 if pl[i] == nil then
                     break
                 end
-                
+
                 params.eid, params.eip = executor, ip
                 params.tid = tonumber(pl[i])
                 params.th, params.tn = get_var(pl[i], "$hash"), get_var(pl[i], "$name")
@@ -363,7 +364,7 @@ end
 
 function alias:cmdRoutine(params)
     local params = params or {}
-    
+
     local eid = params.eid or nil
     local eip = params.eip or nil
 
@@ -403,7 +404,7 @@ function alias:cmdRoutine(params)
         end
     end
 
-    if (current_page == nil) or (type(current_page) == "string")then
+    if (current_page == nil) or (type(current_page) == "string") then
         current_page = 1
     end
 
@@ -421,7 +422,7 @@ function alias:cmdRoutine(params)
     local pages = getPageCount(tab.total_count, max_results)
 
     if (#table > 0) then
-    
+
         alias_results[eip][1] = { }
 
         for k, v in pairs(table) do
@@ -562,7 +563,7 @@ end
 function alias:add(name, hash)
     local lines = lines_from(dir)
     local data, alias, name_found, index
-    
+
     for k, v in pairs(lines) do
         if (v:match(hash)) then
             data = stringSplit(gsub(v, hash .. ":", ""), ",")

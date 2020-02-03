@@ -23,14 +23,16 @@ local API = { }
 API.Messages, delta_time = { }, 0.03333333333333333
 
 function OnScriptLoad()
-    if (get_var(0, '$gt') ~= 'n/a') then API = { } end
+    if (get_var(0, '$gt') ~= 'n/a') then
+        API = { }
+    end
     register_callback(cb["EVENT_TICK"], "OnTick")
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
 end
 
 function API:NewMessage(Message, Duration, Player, Type)
-    
+
     API.Messages[Player] = API.Messages[Player] or { }
     local messages = API.Messages[Player]
 
@@ -46,10 +48,10 @@ function API:NewMessage(Message, Duration, Player, Type)
     end
 
     local function isDupe(msg)
-        for _,console in pairs(messages) do
+        for _, console in pairs(messages) do
             if (console.type == "table") then
-                for i = 1,#console.message do          
-                    for j = 1,#msg do
+                for i = 1, #console.message do
+                    for j = 1, #msg do
                         if (console.message[i] == msg[j]) then
                             return true
                         end
@@ -63,7 +65,7 @@ function API:NewMessage(Message, Duration, Player, Type)
         end
         return false
     end
-    
+
     if (#messages <= 0) then
         table.insert(messages, Add(Message, Duration, Player, Type, false))
     elseif API:isPaused(Player) then
@@ -78,7 +80,7 @@ end
 function API:Pause(PlayerIndex)
     local messages = API.Messages[PlayerIndex]
     if (messages) then
-        for _,console in pairs(messages) do
+        for _, console in pairs(messages) do
             if (console.player == PlayerIndex) then
                 console.time = console.duration
                 console.paused = true
@@ -89,7 +91,7 @@ end
 
 function API:ClearConsole(PlayerIndex, Buffer)
     local Buffer = Buffer or 25
-    for _ = 1,Buffer do
+    for _ = 1, Buffer do
         rprint(PlayerIndex, " ")
     end
 end
@@ -97,7 +99,7 @@ end
 function API:isPaused(PlayerIndex)
     local messages = API.Messages[PlayerIndex]
     if (messages ~= nil) then
-        for _,console in pairs(messages) do
+        for _, console in pairs(messages) do
             if (console.paused) then
                 return true
             end
@@ -106,26 +108,26 @@ function API:isPaused(PlayerIndex)
 end
 
 function OnTick()
-    for i = 1,16 do
+    for i = 1, 16 do
         if player_present(i) then
-        
+
             local messages = API.Messages[i]
             if (messages ~= nil) then
-                
+
                 if not API:isPaused(i) then
                     API:ClearConsole(i, 25)
                 end
-                
-                for index,console in pairs(messages) do
+
+                for index, console in pairs(messages) do
                     if (not console.paused) then
                         if (console.type == "table") then
-                            for j = 1,#console.message do                    
+                            for j = 1, #console.message do
                                 rprint(console.player, console.message[j])
                             end
-                        elseif (console.type == "string") then           
+                        elseif (console.type == "string") then
                             rprint(console.player, console.message)
                         end
-                        
+
                         console.time = console.time + delta_time
                         if (console.time >= console.duration) then
                             messages[index] = nil
@@ -146,13 +148,15 @@ function OnPlayerConnect(PlayerIndex)
     -- TEST:
     local message = "This seems to be working!"
     local duration = 10 -- in seconds
-    
+
     API:NewMessage(message, duration, PlayerIndex, "string")
 end
 
 function OnPlayerDisconnect(PlayerIndex)
     local messages = API.Messages[PlayerIndex]
-    if (messages) then messages = nil end
+    if (messages) then
+        messages = nil
+    end
 end
 
 return API

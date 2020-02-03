@@ -73,7 +73,7 @@ function OnServerCommand(PlayerIndex, Command)
     local executor = tonumber(PlayerIndex)
 
     local players, TargetID, target_all_players = { }, { }
-    
+
     local function validate_params()
 
         local function getplayers(arg, executor)
@@ -106,7 +106,9 @@ function OnServerCommand(PlayerIndex, Command)
         local pl = getplayers(args[1], executor)
         if pl then
             for i = 1, #pl do
-                if pl[i] == nil then break end
+                if pl[i] == nil then
+                    break
+                end
                 players.eid = tonumber(get_var(executor, "$n"))
                 players.tid = tonumber(get_var(pl[i], "$n"))
                 players.tn = get_var(pl[i], "$name")
@@ -133,7 +135,7 @@ function OnServerCommand(PlayerIndex, Command)
                     rprint(executor, "Invalid syntax. Usage: /" .. base_command .. " [player id] [color id]")
                 end
             else
-               rprint(executor, "This command doesn't work on Team-Based games.")
+                rprint(executor, "This command doesn't work on Team-Based games.")
             end
         end
         return false
@@ -142,13 +144,13 @@ end
 
 function color:change(params)
     local params = params or {}
-    
+
     local executor_id = params.eid or nil
     local target_id = params.tid or nil
     local target_name = params.tn or nil
 
     local color = params.color or nil
-    
+
     local function getplayer(PlayerIndex)
         if tonumber(PlayerIndex) then
             if tonumber(PlayerIndex) ~= 0 then
@@ -160,7 +162,7 @@ function color:change(params)
         end
         return nil
     end
-	
+
     if player_alive(target_id) then
         local player_object = get_dynamic_player(target_id)
         local player_obj_id = read_dword(get_player(target_id) + 0x34)
@@ -184,7 +186,7 @@ function color:change(params)
                 write_byte(m_player + 0x60, 6)
             elseif color == "pink" or color == "7" then
                 write_byte(m_player + 0x60, 7)
-            elseif color == "purple"or color == "8" then
+            elseif color == "purple" or color == "8" then
                 write_byte(m_player + 0x60, 8)
             elseif color == "cyan" or color == "9" then
                 write_byte(m_player + 0x60, 9)
@@ -212,9 +214,13 @@ function color:change(params)
                 if (player_obj_id ~= nil) then
                     rprint(executor_id, target_name .. " had their color changed to " .. color)
                     destroy_object(player_obj_id)
-                    if colorspawn == nil then colorspawn = { } end
-                    if colorspawn[target_id] == nil then colorspawn[target_id] = { } end
-                    colorspawn[target_id][1], colorspawn[target_id][2], colorspawn[target_id][3] = x,y,z
+                    if colorspawn == nil then
+                        colorspawn = { }
+                    end
+                    if colorspawn[target_id] == nil then
+                        colorspawn[target_id] = { }
+                    end
+                    colorspawn[target_id][1], colorspawn[target_id][2], colorspawn[target_id][3] = x, y, z
                 end
             end
         end
@@ -226,8 +232,12 @@ end
 function OnPlayerSpawn(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
     if player_object then
-        if colorspawn == nil then colorspawn = { } end
-        if colorspawn[PlayerIndex] == nil then colorspawn[PlayerIndex] = { } end
+        if colorspawn == nil then
+            colorspawn = { }
+        end
+        if colorspawn[PlayerIndex] == nil then
+            colorspawn[PlayerIndex] = { }
+        end
         if (player_object ~= 0) then
             if colorspawn[PlayerIndex][1] then
                 write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, colorspawn[PlayerIndex][1], colorspawn[PlayerIndex][2], colorspawn[PlayerIndex][3])

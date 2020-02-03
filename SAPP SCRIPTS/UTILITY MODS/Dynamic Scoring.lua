@@ -74,7 +74,7 @@ scorelimit.oddball = {
         [3] = 4, -- 8-12 players
         [4] = 5, -- 12-16 players
         txt = "Score limit changed to: %scorelimit% minute%s%"
-        
+
     },
     {   -- TEAM
         [1] = 3, -- 4 players or less
@@ -82,7 +82,7 @@ scorelimit.oddball = {
         [3] = 5, -- 8-12 players
         [4] = 6, -- 12-16 players
         txt = "Score limit changed to: %scorelimit% minute%s%"
-        
+
     }
 }
 
@@ -119,7 +119,7 @@ function OnScriptLoad()
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
 
     scorelimit.Reset()
-    
+
     if (get_var(0, "$gt") ~= "n/a") then
         for i = 1, 16 do
             if player_present(i) then
@@ -133,19 +133,19 @@ function OnScriptLoad()
 end
 
 function scorelimit.setScoreTable()
-    
+
     -- Returns TRUE if team based gamemode.
     local function isTeamPlay()
         if (get_var(0, "$ffa") == "0") then
             return true
         end
     end
-    
+
     -- Returns the current game type:
     local gametype = get_var(0, "$gt")
-    
+
     -- Determine what scorelimit table to use:
-    if (gametype == "ctf") then   
+    if (gametype == "ctf") then
         scoreTable = scorelimit.ctf
     elseif (gametype == "slayer") then
         if isTeamPlay() then
@@ -177,7 +177,7 @@ end
 
 function OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
-        if (scorelimit.setScoreTable()) then        
+        if (scorelimit.setScoreTable()) then
             scorelimit.Set(scoreTable[1])
         end
     end
@@ -215,25 +215,25 @@ function scorelimit.Modify()
     local gsub = string.gsub
     if (current_players <= 4 and current_scorelimit ~= scoreTable[1]) then
         scorelimit.Set(scoreTable[1])
-        
+
         local char = getChar(scoreTable[1])
         say_all(gsub(gsub(scoreTable.txt, "%%scorelimit%%", scoreTable[1]), "%%s%%", char))
 
     elseif (current_players > 4 and current_players <= 8 and current_scorelimit ~= scoreTable[2]) then
         scorelimit.Set(scoreTable[2])
-        
+
         local char = getChar(scoreTable[2])
         say_all(gsub(gsub(scoreTable.txt, "%%scorelimit%%", scoreTable[2]), "%%s%%", char))
 
     elseif (current_players > 9 and current_players <= 12 and current_scorelimit ~= scoreTable[3]) then
         scorelimit.Set(scoreTable[3])
-        
+
         local char = getChar(scoreTable[3])
         say_all(gsub(gsub(scoreTable.txt, "%%scorelimit%%", scoreTable[3]), "%%s%%", char))
 
     elseif (current_players > 12 and current_scorelimit ~= scoreTable[4]) then
         scorelimit.Set(scoreTable[4])
-        
+
         local char = getChar(scoreTable[4])
         say_all(gsub(gsub(scoreTable.txt, "%%scorelimit%%", scoreTable[4]), "%%s%%", char))
     end

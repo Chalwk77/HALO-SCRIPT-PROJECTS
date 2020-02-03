@@ -17,46 +17,46 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.12.0.0"
 local adminchat = {
-    
+
     -- ============= Configuration Starts ============= --
 
     -- Custom Command:
     command = "achat",
-    
+
     -- Minimum permission needed to execute the custom command:
     permission = 1,
-    
+
     -- Minimum permission needed to execute the custom command on others players:
     permission_extra = 4,
-    
+
     messages = {
-    
+
         -- Admin Chat output format:
         [1] = "%name% [%id%]: %message%",
-    
+
         -- This message is sent to (you) when you enable/disable for yourself.
         [2] = "Admin Chat %state%!",
-        
+
         -- This message is sent to (you) when you enable/disable for others.
         [3] = "Admin Chat %state% for %target_name%",
-        
+
         -- This message is sent to (target player) when you enable/disable for them.
         [4] = "Your Admin Chat was %state% by %executor_name%",
-        
+
         -- This message is sent to (you) when your Admin Chat is already enabled/disabled.
         [5] = "Your Admin Chat is already %state%!",
-        
+
         -- This message is sent to (target player) when their Admin Chat is already enabled/disabled.
         [6] = "%target_name%%'s Admin Chat is already %state%!",
-                
+
         -- This message is sent when a player connects to the server (if previously activated).
         -- This requires the 'restore' setting to be TRUE.
         [7] = "Your Admin Chat is Enabled! (auto-restore)",
-        
+
         -- This message is sent to (you) when there is a command syntax error.
         [8] = "Invalid Syntax: Usage: /%command% on|off [me | id | */all]",
     },
-    
+
     -- Should A-Chat be restored for returning players? (if previously activated)
     restore = true,
 
@@ -85,14 +85,14 @@ function OnScriptLoad()
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
-    
+
     if (get_var(0, "$gt") ~= "n/a") then
         game_over = false
-        for i = 1,16 do
+        for i = 1, 16 do
             if player_present(i) then
                 if adminchat:isAdmin(i) then
                     ip_table[i] = get_var(i, '$ip')
-                    
+
                     local ip = adminchat:GetIP(i)
                     adminchat[ip] = nil
                 end
@@ -116,10 +116,10 @@ end
 function OnPlayerConnect(p)
     if adminchat:isAdmin(p) then
         ip_table[p] = get_var(p, '$ip')
-        
+
         local ip = adminchat:GetIP(p)
         adminchat[ip] = adminchat[ip] or nil
-        
+
         -- Restore this players Admin Chat:
         local already_activated = (adminchat[ip] == true)
         if (adminchat.restore) and (already_activated) then
@@ -128,10 +128,10 @@ function OnPlayerConnect(p)
     end
 end
 
-function OnPlayerDisconnect(p)  
+function OnPlayerDisconnect(p)
     if adminchat:isAdmin(p) then
         local ip = adminchat:GetIP(p)
-        
+
         -- Disable Admin Chat:
         local already_activated = (adminchat[ip] == true)
         if (not adminchat.restore) or (not already_activated) then
@@ -143,7 +143,7 @@ end
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local command, args = adminchat:StringSplit(Command)
     local executor = tonumber(PlayerIndex)
-    
+
     if (command == nil) then
         return
     end
@@ -153,11 +153,11 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         if not adminchat:isGameOver(executor) then
             if adminchat:checkAccess(executor) then
                 if (args[1] ~= nil) then
-                
+
                     local params = adminchat:ValidateCommand(executor, args)
-                    
+
                     if (params ~= nil) and (not params.target_all) and (not params.is_error) then
-                        local Target = tonumber(args[2]) or tonumber(executor)                        
+                        local Target = tonumber(args[2]) or tonumber(executor)
                         if adminchat:isOnline(Target, executor) then
                             adminchat:ExecuteCore(params)
                         end
@@ -174,27 +174,27 @@ end
 
 function OnPlayerChat(PlayerIndex, Message, type)
     if (type ~= 6) then
-    
+
         local msg = adminchat:StringSplit(Message)
         if (#msg == 0) then
             return nil
         end
-        
+
         local p = tonumber(PlayerIndex)
         local ip = adminchat:GetIP(p)
         local name = get_var(p, "$name")
-        
-        local activated = (adminchat[ip] == true)            
+
+        local activated = (adminchat[ip] == true)
         if (activated) then
-        
+
             local is_command = (sub(msg, 1, 1) == "/") or (sub(msg, 1, 1) == "\\")
-        
+
             if (is_command) then
                 return true
             else
-                
+
                 local msg = gsub(gsub(gsub(adminchat.messages[1], "%%name%%", name), "%%id%%", p), "%%message%%", Message)
-            
+
                 for i = 1, 16 do
                     if player_present(i) then
                         if (tonumber(get_var(i, '$lvl')) >= adminchat.permission) then
@@ -202,7 +202,7 @@ function OnPlayerChat(PlayerIndex, Message, type)
                         end
                     end
                 end
-                
+
                 return false
             end
         end
@@ -212,13 +212,13 @@ end
 function adminchat:ExecuteCore(params)
     local params = params or nil
     if (params ~= nil) then
-                
+
         -- Target Parameters:
-        local tid, tip, tn  = params.tid, params.tip, params.tn
-        
+        local tid, tip, tn = params.tid, params.tip, params.tn
+
         -- Executor Parameters:
         local eid, eip, en = params.eid, params.eip, params.en
-    
+
         -- 
         local is_console = adminchat:isConsole(eid)
         if is_console then
@@ -227,21 +227,21 @@ function adminchat:ExecuteCore(params)
 
         local is_self = (eid == tid)
         local admin_level = tonumber(get_var(eid, '$lvl'))
-                
+
         local proceed = adminchat:executeOnOthers(eid, is_self, is_console, admin_level)
         local valid_state
-        
+
         if (proceed) then
-        
+
             local state = params.state
             local state = adminchat:ActivationState(eid, state)
-            
+
             if (state) then
                 adminchat[tip] = adminchat[tip] or nil
-                            
-                local already_activated = (adminchat[tip] == true)            
+
+                local already_activated = (adminchat[tip] == true)
                 local already_set
-                
+
                 if (state == 1) then
                     state, valid_state = "enabled", true
                     if (adminchat[tip] == nil) then
@@ -257,23 +257,23 @@ function adminchat:ExecuteCore(params)
                         already_set = true
                     end
                 end
-                
-                if (valid_state) then               
+
+                if (valid_state) then
                     local messages = adminchat.messages
                     local Feedback = function(Message)
                         local words = {
                             ["%%state%%"] = state,
                             ["%%executor_name%%"] = en,
-                            ["%%target_name%%"]  = tn,
+                            ["%%target_name%%"] = tn,
                         }
-                        
-                        for k,v in pairs(words) do
+
+                        for k, v in pairs(words) do
                             Message = gsub(Message, k, v)
                         end
                         return Message
-                    end          
-                    
-                    if (not already_set) then 
+                    end
+
+                    if (not already_set) then
                         if (is_self) then
                             adminchat:Respond(eid, Feedback(messages[2]), 2 + 8)
                         else
@@ -295,10 +295,10 @@ end
 
 function adminchat:ValidateCommand(executor, args)
     local params = { }
-                
+
     local function getplayers(arg)
         local players = { }
-        
+
         if (arg == nil) or (arg == 'me') then
             table.insert(players, executor)
         elseif (arg:match('%d+')) then
@@ -312,7 +312,7 @@ function adminchat:ValidateCommand(executor, args)
             end
         elseif (arg == 'rand' or arg == 'random') then
             local temp = { }
-            for i = 1,16 do
+            for i = 1, 16 do
                 if player_present(i) then
                     temp[#temp + 1] = i
                 end
@@ -330,23 +330,24 @@ function adminchat:ValidateCommand(executor, args)
                 others_cmd_error[executor] = true
             end
         end
-        
-        if players[1] then return players end
+
+        if players[1] then
+            return players
+        end
         return false
     end
-    
-    
+
     local pl = getplayers(args[2])
     if (pl) then
         for i = 1, #pl do
-        
+
             if (pl[i] == nil) then
                 break
             end
 
             params.state = args[1]
             params.eid, params.en, params.eip = executor, get_var(executor, '$name'), adminchat:GetIP(executor)
-            params.tid, params.tn, params.tip  = tonumber(pl[i]), get_var(pl[i], '$name'), adminchat:GetIP(pl[i])
+            params.tid, params.tn, params.tip = tonumber(pl[i]), get_var(pl[i], '$name'), adminchat:GetIP(pl[i])
 
             if (params.target_all) then
                 adminchat:ExecuteCore(params)
@@ -422,13 +423,13 @@ end
 
 function adminchat:isGameOver(p)
     if (game_over) then
-        adminchat:Respond(p, "Please wait until the next game has started.", 4+8)
+        adminchat:Respond(p, "Please wait until the next game has started.", 4 + 8)
         return true
     end
 end
 
 function adminchat:GetIP(p)
-    
+
     if (halo_type == 'PC') then
         ip_address = ip_table[p]
     else

@@ -51,7 +51,6 @@ function falldamage.Init()
     falldamage.distalce = GetTag("jpt!", "globals\\distance")
 end
 
-
 function OnScriptLoad()
 
     -- Register needed Event Callbacks:

@@ -42,7 +42,7 @@ local function checkAccess(e)
             return false
         end
     else
-         cprint("This command cannot be executed from console.")
+        cprint("This command cannot be executed from console.")
     end
 end
 
@@ -50,7 +50,7 @@ function OnServerCommand(PlayerIndex, Command)
     local command, args = cmdsplit(Command)
     local executor = tonumber(PlayerIndex)
     local response
-    for i = 1,#command_aliases do
+    for i = 1, #command_aliases do
         if (command == lower(command_aliases[i])) then
             if (checkAccess(executor)) then
                 if (args[2] == nil) then

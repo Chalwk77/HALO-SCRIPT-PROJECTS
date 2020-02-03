@@ -14,58 +14,58 @@ api_version = "1.12.0.0"
 
 local mod = {}
 function mod:init()
-    
+
     local weapon = mod:GetTag()
-    
-    mod.weapons = { 
-    
+
+    mod.weapons = {
+
         -- Set the weapon index to the corresponding tag number (see function mod:GetTag() on line 85)
         -- You can spawn with up to 4 weapons.
         -- Warning: The 4th slot is reserved for the objective (flag & oddball)
         -- If this slot is taken up, you wont be able to pick up the flag or oddball but you'll still spawn with 4 weapons.
-        
+
         -- To disable a slot, set it to nil:
         -- Example: ["mymap"] = {weapon[1], nil, nil, nil},
         -- In the above example, you will only spawn with the pistol on the map "mymap"
-        
+
         -- =========== [ STOCK MAPS ] =========== --
         -- PRIMARY | SECONDARY | TERTIARY | QUATERNARY
-        
-        
+
+
         -- weapon[1] = pistol
         -- weapon[2] = sniper
         -- etc...
-        ["beavercreek"] = { weapon[1], weapon[2], nil, nil},
-        ["bloodgulch"] = { weapon[2], weapon[1], weapon[9], weapon[5]},
-        ["boardingaction"] = { weapon[10], weapon[1], nil, nil},
-        ["carousel"] = { weapon[2], weapon[1], weapon[10], nil},
-        ["dangercanyon"] = { weapon[1], weapon[4], weapon[7], nil},
-        ["deathisland"] = { weapon[2], weapon[1], weapon[7], nil},
-        ["gephyrophobia"] = { weapon[2], weapon[1], weapon[4], nil},
-        ["icefields"] = { weapon[1], weapon[7], nil, nil},
-        ["infinity"] = { weapon[1], weapon[2], weapon[4], nil},
-        ["sidewinder"] = { weapon[1], weapon[4], weapon[3], weapon[2]},
-        ["timberland"] = { weapon[1], weapon[7], weapon[9], nil},
-        ["hangemhigh"] = { weapon[1], weapon[10], nil, nil},
-        ["ratrace"] = { weapon[7], weapon[1], weapon[9], nil},
-        ["damnation"] = { weapon[7], weapon[1], nil, nil},
-        ["putput"] = { weapon[5], weapon[6], weapon[3], weapon[8]},
-        ["prisoner"] = { weapon[1], weapon[4], nil, nil},
-        ["wizard"] = { weapon[1], weapon[2], nil, nil},
-       
+        ["beavercreek"] = { weapon[1], weapon[2], nil, nil },
+        ["bloodgulch"] = { weapon[2], weapon[1], weapon[9], weapon[5] },
+        ["boardingaction"] = { weapon[10], weapon[1], nil, nil },
+        ["carousel"] = { weapon[2], weapon[1], weapon[10], nil },
+        ["dangercanyon"] = { weapon[1], weapon[4], weapon[7], nil },
+        ["deathisland"] = { weapon[2], weapon[1], weapon[7], nil },
+        ["gephyrophobia"] = { weapon[2], weapon[1], weapon[4], nil },
+        ["icefields"] = { weapon[1], weapon[7], nil, nil },
+        ["infinity"] = { weapon[1], weapon[2], weapon[4], nil },
+        ["sidewinder"] = { weapon[1], weapon[4], weapon[3], weapon[2] },
+        ["timberland"] = { weapon[1], weapon[7], weapon[9], nil },
+        ["hangemhigh"] = { weapon[1], weapon[10], nil, nil },
+        ["ratrace"] = { weapon[7], weapon[1], weapon[9], nil },
+        ["damnation"] = { weapon[7], weapon[1], nil, nil },
+        ["putput"] = { weapon[5], weapon[6], weapon[3], weapon[8] },
+        ["prisoner"] = { weapon[1], weapon[4], nil, nil },
+        ["wizard"] = { weapon[1], weapon[2], nil, nil },
+
         -- =========== [ CUSTOM MAPS ] =========== --
-        ["bigassv2,104"] = {weapon[16], weapon[20], weapon[18], weapon[19]},
+        ["bigassv2,104"] = { weapon[16], weapon[20], weapon[18], weapon[19] },
         -- Repeat the structure to add more entries
-        ["mapname"] = {weapon[0], weapon[0], weapon[0], weapon[0]},
+        ["mapname"] = { weapon[0], weapon[0], weapon[0], weapon[0] },
     }
-    
-    
+
+
 
     --# Do Not Touch #--
     mod.players = { }
     mod.map = get_var(0, "$map")
     mod.weapons_table = nil
-    
+
     local weapons = mod.weapons
     local count = 0
     local map = weapons[mod.map]
@@ -84,7 +84,7 @@ end
 
 function mod:GetTag()
     return {
-    
+
         -- ============= [ STOCK WEAPONS ] ============= --
         [1] = "weapons\\pistol\\pistol",
         [2] = "weapons\\sniper rifle\\sniper rifle",
@@ -96,9 +96,9 @@ function mod:GetTag()
         [8] = "weapons\\flamethrower\\flamethrower",
         [9] = "weapons\\needler\\mp_needler",
         [10] = "weapons\\shotgun\\shotgun",
-        
+
         -- ============= [ CUSTOM WEAPONS ] ============= --
-        
+
         -- Weapon indexes 11-30 belong to bigassv2,104
         [11] = "altis\\weapons\\binoculars\\binoculars",
         [12] = "altis\\weapons\\binoculars\\gauss spawner\\create gauss",
@@ -120,7 +120,7 @@ function mod:GetTag()
         [28] = "weapons\\flag\\flag",
         [29] = "weapons\\gauss sniper\\gauss sniper",
         [30] = "weapons\\rocket launcher\\rocket launcher test",
-        
+
         -- repeat the structure to add more weapon tags:
         [31] = "tag_goes_here",
     }
@@ -160,13 +160,13 @@ function OnGameEnd()
 end
 
 function OnTick()
-    for i,player in pairs(mod.players) do
+    for i, player in pairs(mod.players) do
         if (i) and player_alive(i) then
             if (player.assign) then
-            
+
                 local player_object = get_dynamic_player(i)
                 local coords = mod:getXYZ(i, player_object)
-                
+
                 if (not coords.invehicle) then
                     player.assign = false
                     execute_command("wdel " .. i)
@@ -184,9 +184,9 @@ function OnTick()
 end
 
 function OnPlayerSpawn(PlayerIndex)
-    for index,player in pairs(mod.players) do
+    for index, player in pairs(mod.players) do
         if (index == PlayerIndex) then
-            player.assign = true 
+            player.assign = true
         end
     end
 end
@@ -205,13 +205,13 @@ end
 
 function mod:initPlayer(PlayerIndex, Init)
     local players = mod.players
-    
+
     if (Init) then
         players[PlayerIndex] = {
             assign = false
         }
     else
-        for index,_ in pairs(players) do
+        for index, _ in pairs(players) do
             if (index == PlayerIndex) then
                 players[index] = nil
             end
@@ -224,19 +224,21 @@ function DelaySecQuat(PlayerIndex, Weapon, x, y, z)
 end
 
 function mod:getXYZ(PlayerIndex, PlayerObject)
-    local coords, x,y,z = { }
-    
+    local coords, x, y, z = { }
+
     local VehicleID = read_dword(PlayerObject + 0x11C)
     if (VehicleID == 0xFFFFFFFF) then
         coords.invehicle = false
         x, y, z = read_vector3d(PlayerObject + 0x5c)
     else
         coords.invehicle = true
-        x, y, z  = read_vector3d(get_object_memory(VehicleID) + 0x5c)
+        x, y, z = read_vector3d(get_object_memory(VehicleID) + 0x5c)
     end
-    
-    if (coords.invehicle) then z = z + 1 end
-    
+
+    if (coords.invehicle) then
+        z = z + 1
+    end
+
     coords.x, coords.y, coords.z = x, y, z
     return coords
 end

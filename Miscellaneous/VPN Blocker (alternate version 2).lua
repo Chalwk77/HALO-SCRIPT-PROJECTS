@@ -15,23 +15,23 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.12.0.0"
 
-local vpn_blocker = { 
+local vpn_blocker = {
     -- Configuration [starts]
     database = {
-        
+
         'firehol_proxies.netset',
         'firehol_level1.netset',
         'firehol_level2.netset',
         'firehol_level3.netset',
-        
+
         'firehol_level4.netset',
         'firehol_abusers_1d.netset',
-        
+
         'proxylists.netset',
         'proxylists_1d.netset',
         'proxylists_7d.netset',
         'proxylists_30d.netset',
-        
+
         'bm_tor.netset',
         'vpn_ipv4.netset',
     },
@@ -49,39 +49,39 @@ function OnScriptLoad()
 end
 
 function OnPreJoin(p)
-    local player = vpn_blocker:GetCredentials(p)    
-    for _,v in pairs(vpn_blocker.ips) do
+    local player = vpn_blocker:GetCredentials(p)
+    for _, v in pairs(vpn_blocker.ips) do
         if (player.ip == v) then
             say(p, vpn_blocker.feedback1)
             execute_command(vpn_blocker.action .. " " .. p)
-            
+
             if (vpn_blocker.action == "k") then
                 action = "kicked"
             elseif (vpn_blocker.action == "b") then
                 action = "banned"
             end
-            
-            local msg = gsub(gsub(gsub(vpn_blocker.feedback2, "%%name%%", player.name),"%%action%%", action), "%%ip%%", player.ip)
-            cprint(msg, 4+8)
+
+            local msg = gsub(gsub(gsub(vpn_blocker.feedback2, "%%name%%", player.name), "%%action%%", action), "%%ip%%", player.ip)
+            cprint(msg, 4 + 8)
             vpn_blocker:WriteLog(msg)
         end
     end
 end
 
 function vpn_blocker:GetData()
-    cprint("VPN Blocker -> Retrieving vpn-ipv4 addresses. Please wait...", 2+8)
-    
+    cprint("VPN Blocker -> Retrieving vpn-ipv4 addresses. Please wait...", 2 + 8)
+
     local files = vpn_blocker.database
     vpn_blocker.ips = vpn_blocker.ips or { }
     vpn_blocker.ips = { }
-    
-    for i = 1,#files do
+
+    for i = 1, #files do
         for line in io.lines(files[i]) do
             local ip = line:match('(%d+.%d+.%d+.%d+)')
             vpn_blocker.ips[#vpn_blocker.ips + 1] = ip
         end
     end
-    cprint("VPN Blocker -> Successfully stored (" .. #vpn_blocker.ips .. ") vpn-ipv4 IPs.", 2+8)
+    cprint("VPN Blocker -> Successfully stored (" .. #vpn_blocker.ips .. ") vpn-ipv4 IPs.", 2 + 8)
 end
 
 function vpn_blocker:WriteLog(msg)
@@ -94,11 +94,10 @@ function vpn_blocker:WriteLog(msg)
     end
 end
 
-
 function vpn_blocker:GetCredentials(p)
     local ip = get_var(p, "$ip")
     local name = get_var(p, "$name")
-    return {ip = ip:match('(%d+.%d+.%d+.%d+)'), name = name}
+    return { ip = ip:match('(%d+.%d+.%d+.%d+)'), name = name }
 end
 
 function OnScriptUnload()

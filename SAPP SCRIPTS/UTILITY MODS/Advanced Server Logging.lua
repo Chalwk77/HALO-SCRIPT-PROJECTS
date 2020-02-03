@@ -149,10 +149,10 @@ function OnServerChat(PlayerIndex, Message, type)
 
             local t = players[PlayerIndex]
             if (t) then
-            
+
                 local log = on_chat[type]
                 if (log) then
-                
+
                     t["%%message%%"], t["%%total%%"] = Message, get_var(0, "$pn")
                     for k, v in pairs(t) do
                         log = gsub(log, k, v)
@@ -176,9 +176,9 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
 
         local t = players[PlayerIndex]
         if (t) then
-                    
+
             t["%%message%%"], t["%%total%%"] = Command, get_var(0, "$pn")
-            
+
             local content = CensoredContent(Command)
             if (content ~= nil) then
                 t["%%message%%"] = content
@@ -194,7 +194,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 Write(log, full_log_path)
                 Write(log, command_logs_path)
             end
-            
+
             t["%%message%%"] = ""
         end
     end
@@ -265,7 +265,7 @@ function SaveClientData(PlayerIndex)
     local name = get_var(p, "$name")
     local ip = get_var(p, "$ip")
     local hash = get_var(p, "$hash")
-    
+
     if (p == 0) then
         name = "SERVER"
         ip = "N/A"
@@ -300,8 +300,8 @@ end
 
 function Write(Content, Path)
 
-    local Date = os.date("[%d/%m/%Y]"):gsub('[:/]','-')
-    local path = gsub(Path, "%%date%%",Date)
+    local Date = os.date("[%d/%m/%Y]"):gsub('[:/]', '-')
+    local path = gsub(Path, "%%date%%", Date)
     local file = io.open(path, "a+")
 
     if (file) then
