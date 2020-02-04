@@ -199,7 +199,7 @@ function OnPlayerChat(PlayerIndex, Message, Type)
 						end
                     end
 				else
-					rprint(PlayerIndex, "Data Base Error:")
+					rprint(PlayerIndex, "Map Error:")
 					rprint(PlayerIndex, get_var(0, "$map") .. " is not in the vehicles.json database")
                 end
             else
