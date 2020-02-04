@@ -1,6 +1,6 @@
 --[[
 --======================================================================================================--
-Script Name: HLN Vehicle Spawner (v1.2), for SAPP (PC & CE)
+Script Name: HLN Vehicle Spawner (v1.3), for SAPP (PC & CE)
 Description: This script will force you into a vehicle of your choice by 
              means of a keyword typed in chat.
 
@@ -15,6 +15,7 @@ Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 * Written by Jericho Crosby (Chalwk)
+
 --======================================================================================================--
 ]]--
 
@@ -147,6 +148,7 @@ function OnPlayerChat(PlayerIndex, Message, Type)
                     if (msg[1] == command) then
 
                         if GetTag(Vehicle.vehicle) then
+							cprint(data)
                             local t = spawns[PlayerIndex]
                             if (t.uses > 0) then
                                 if (not t.cooldown_triggered) then
@@ -302,4 +304,24 @@ function CheckFile()
         end
     end
     game_started = true
+end
+
+function report(Error)
+	local error_path = "sapp//VSpawnerErrorLog.txt"
+    local file = io.open(error_path, "a")
+    if (file ~= nil) then
+        io.close(file)
+    end
+	
+	local file = assert(io.open(error_path, "a+"))
+	if (file) then
+		file:write(Error.."\n\n")
+		io.close(file)
+	end
+end
+
+function OnError()
+	local Error = debug.traceback()
+    cprint(Error, 4 + 8)
+    timer(50, "report", Error)
 end
