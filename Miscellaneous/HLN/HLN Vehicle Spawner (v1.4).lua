@@ -1,6 +1,6 @@
 --[[
 --======================================================================================================--
-Script Name: HLN Vehicle Spawner (v1.3), for SAPP (PC & CE)
+Script Name: HLN Vehicle Spawner (v1.4), for SAPP (PC & CE)
 Description: This script will force you into a vehicle of your choice by 
              means of a keyword typed in chat.
 
@@ -139,63 +139,68 @@ end
 function OnPlayerChat(PlayerIndex, Message, Type)
     local msg = stringSplit(Message)
 
-    if (Type ~= 6) and (map_data) then
+    if (Type ~= 6) then
         if (#msg == 0) then
             return false
         else
             if player_alive(PlayerIndex) then
-                for command, Vehicle in pairs(map_data) do
-                    if (msg[1] == command) then
+				if (#map_data > 0) then
+					for command, Vehicle in pairs(map_data) do
+						if (msg[1] == command) then
 
-                        if GetTag(Vehicle.vehicle) then
-							cprint(data)
-                            local t = spawns[PlayerIndex]
-                            if (t.uses > 0) then
-                                if (not t.cooldown_triggered) then
+							if GetTag(Vehicle.vehicle) then
+								cprint(data)
+								local t = spawns[PlayerIndex]
+								if (t.uses > 0) then
+									if (not t.cooldown_triggered) then
 
-                                    local player_object = get_dynamic_player(PlayerIndex)
-                                    local coords = getXYZ(PlayerIndex, player_object)
+										local player_object = get_dynamic_player(PlayerIndex)
+										local coords = getXYZ(PlayerIndex, player_object)
 
-                                    if not (coords.invehicle) then
-                                        t.cooldown_triggered = true
-                                        t.uses = t.uses - 1
+										if not (coords.invehicle) then
+											t.cooldown_triggered = true
+											t.uses = t.uses - 1
 
-                                        local vehicle = spawn_object("vehi", Vehicle.vehicle, coords.x, coords.y, coords.z)
-                                        local vehicle_object_memory = get_object_memory(vehicle)
+											local vehicle = spawn_object("vehi", Vehicle.vehicle, coords.x, coords.y, coords.z)
+											local vehicle_object_memory = get_object_memory(vehicle)
 
-                                        if (vehicle_object_memory ~= 0) then
-                                            vehicle_objects[vehicle] = {
-                                                timer_reset = false,
-                                                vehicle = vehicle_object_memory,
-                                                timer = settings.despawn_time,
-                                            }
-                                        end
+											if (vehicle_object_memory ~= 0) then
+												vehicle_objects[vehicle] = {
+													timer_reset = false,
+													vehicle = vehicle_object_memory,
+													timer = settings.despawn_time,
+												}
+											end
 
-                                        if (tonumber(Vehicle.seat) == 7) then
-                                            enter_vehicle(vehicle, PlayerIndex, 0)
-                                            enter_vehicle(vehicle, PlayerIndex, 2)
-                                        else
-                                            enter_vehicle(vehicle, PlayerIndex, 0)
-                                        end
+											if (tonumber(Vehicle.seat) == 7) then
+												enter_vehicle(vehicle, PlayerIndex, 0)
+												enter_vehicle(vehicle, PlayerIndex, 2)
+											else
+												enter_vehicle(vehicle, PlayerIndex, 0)
+											end
 
-                                        local msg = gsub(settings.on_spawn, "%%total%%", tostring(t.uses))
-                                        rprint(PlayerIndex, msg)
-                                    else
-                                        rprint(PlayerIndex, settings.already_occupied)
-                                    end
-                                else
-                                    local message = gsub(settings.please_wait, "%%seconds%%", tostring(floor(t.cooldown)))
-                                    rprint(PlayerIndex, message)
-                                end
-                            else
-                                rprint(PlayerIndex, settings.insufficient_spawns)
-                            end
-                        else
-                            rprint(PlayerIndex, "Invalid Vehicle Tag Address")
-                            rprint(PlayerIndex, "Please Contact an Administrator. Map Name: " .. get_var(0, "$map"))
-                        end
-                        return false
+											local msg = gsub(settings.on_spawn, "%%total%%", tostring(t.uses))
+											rprint(PlayerIndex, msg)
+										else
+											rprint(PlayerIndex, settings.already_occupied)
+										end
+									else
+										local message = gsub(settings.please_wait, "%%seconds%%", tostring(floor(t.cooldown)))
+										rprint(PlayerIndex, message)
+									end
+								else
+									rprint(PlayerIndex, settings.insufficient_spawns)
+								end
+							else
+								rprint(PlayerIndex, "Invalid Vehicle Tag Address")
+								rprint(PlayerIndex, "Please Contact an Administrator. Map Name: " .. get_var(0, "$map"))
+							end
+							return false
+						end
                     end
+				else
+					rprint(PlayerIndex, "Data Base Error:")
+					rprint(PlayerIndex, get_var(0, "$map") .. " is not in the vehicles.json database")
                 end
             else
                 rprint(PlayerIndex, "Please wait until you respawn!")
@@ -295,6 +300,7 @@ function CheckFile()
         io.close(file)
     end
 
+	map_data = {}
     local current_map = get_var(0, "$map")
     if (info) then
         for map, v in pairs(info) do
