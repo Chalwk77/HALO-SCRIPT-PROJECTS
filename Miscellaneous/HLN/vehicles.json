@@ -330,7 +330,7 @@
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "vvehicles\\missel_warthog\\mwarthog tags\\mwarthog\\mwarthog"
+      "vehicle": "vehicles\\missel_warthog\\mwarthog tags\\mwarthog\\mwarthog"
     },
     "rhog1": {
       "seat": 0,
@@ -596,199 +596,181 @@
   "autumn_slay_reborn": {
     "hog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "bacon": {
     "hog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "bacons_race_track_v2": {
     "hog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "bacons_race_track_v3": {
     "hog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
-    }
-  },
-  "badlander_beta": {
-    "hog1": {
-      "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
-    },
-    "hog2": {
-      "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "ballyhoo": {
     "hog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "barrel": {
     "hog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "basin": {
     "hog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "basis": {
     "hog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "battle": {
     "hog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\civihog\\civihog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\civihog\\civihog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\mongoose\\atv2"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\mongoose\\atv2"
     }
   },
   "battlecraft": {
     "hog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "battlecreek_anniversary": {
@@ -812,235 +794,181 @@
   "battlecreek_v2": {
     "hog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
-    }
-  },
-  "battlefield_final": {
-    "hog1": {
-      "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
-    },
-    "hog2": {
-      "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "battleforbloodgulch": {
     "hog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\mwarthog\\mwarthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\mwarthog\\mwarthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     }
   },
   "battleing_arena": {
     "hog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "battleon": {
     "hog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "battlepyramid": {
     "hog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
-    }
-  },
-  "battle_coast": {
-    "hog1": {
-      "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
-    },
-    "hog2": {
-      "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "baz_canyon": {
     "hog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
-    }
-  },
-  "bc_carousel_mp": {
-    "hog1": {
-      "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
-    },
-    "hog2": {
-      "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "bc_clearing_ground_mp": {
     "hog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "bc_distribution_mp": {
     "hog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "bc_matzors_temple_mp": {
     "hog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "bc_raceway_final_mp": {
     "hog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "levels\\test\\racetrack\\custom_hogs\\mp_warthog_blue"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "levels\\test\\racetrack\\custom_hogs\\mp_warthog_blue"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "levels\\test\\racetrack\\custom_hogs\\mp_warthog_green"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "levels\\test\\racetrack\\custom_hogs\\mp_warthog_green"
     }
   },
   "bc_raceway_mp": {
@@ -1064,361 +992,343 @@
   "bc_spooky_hollow_mp": {
     "hog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\ghost\\ghost_mp"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\ghost\\ghost_mp"
     }
   },
   "beach": {
     "hog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "beachrun": {
     "hog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "beach_assault": {
     "hog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "bear's_turf_final": {
     "hog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "beguiled-v1": {
     "hog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "bender_town": {
     "hog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "beryl_rescue": {
     "hog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\art_cwarthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\art_cwarthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\art_rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\art_rwarthog"
     }
   },
   "betterw": {
     "hog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "bfm_final": {
     "hog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "bg-sorrow": {
     "hog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "big": {
     "hog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "Bigass": {
     "hog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "bourrin\\halo reach\\vehicles\\warthog\\h2 mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "bourrin\\halo reach\\vehicles\\warthog\\h2 mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "bourrin\\halo reach\\vehicles\\warthog\\rocket warthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "bourrin\\halo reach\\vehicles\\warthog\\rocket warthog"
     }
   },
   "bigassv2,104": {
     "hog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "bourrin\\halo reach\\vehicles\\warthog\\h2 mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "bourrin\\halo reach\\vehicles\\warthog\\h2 mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "bourrin\\halo reach\\vehicles\\warthog\\rocket warthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "bourrin\\halo reach\\vehicles\\warthog\\rocket warthog"
     }
   },
   "big_sky_ranch": {
     "hog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog1"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog1"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog2"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog2"
     }
   },
   "bitch_slap": {
     "hog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\ghost reach\\ghost reach"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\ghost reach\\ghost reach"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\ghost reach\\ghost reach"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
-    }
-  },
-  "bitmaps": {
-    "hog1": {
-      "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
-    },
-    "hog2": {
-      "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\ghost reach\\ghost reach"
     }
   },
   "BlackIsland": {
     "hog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "blizzard": {
     "hog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
-  "block fort": {
+  "block fortd": {
     "hog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "TAG_ADDRESS_MISSING"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "blockfort__race": {
