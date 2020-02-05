@@ -5165,7 +5165,7 @@
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
-  "fox_island": {
+  "Battle_For_Victory": {
     "hog1": {
       "seat": 0,
       "vehicle": "vehicles\\warthog\\mp_warthog"
@@ -5183,7 +5183,7 @@
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
-  "Battle_For_Victory": {
+  "fox_island": {
     "hog1": {
       "seat": 0,
       "vehicle": "vehicles\\warthog\\mp_warthog"
