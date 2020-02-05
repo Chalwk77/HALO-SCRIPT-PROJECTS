@@ -1,6 +1,6 @@
 --[[
 --======================================================================================================--
-Script Name: HLN Vehicle Spawner (v1.5), for SAPP (PC & CE)
+Script Name: HLN Vehicle Spawner (v1.4), for SAPP (PC & CE)
 Description: This script will force you into a vehicle of your choice by
              means of a keyword typed in chat.
 
@@ -145,13 +145,10 @@ function OnPlayerChat(PlayerIndex, Message, Type)
         else
             if player_alive(PlayerIndex) then
                 if (#map_data > 0) then
-
-                    for _, Tab in pairs(map_data) do
-                        for command, Vehicle in pairs(Tab) do
+                    for _, Map in pairs(map_data) do
+                        for command, Vehicle in pairs(Map) do
                             if (msg[1] == command) then
-
                                 if GetTag(Vehicle.vehicle) then
-                                    cprint(data)
                                     local t = spawns[PlayerIndex]
                                     if (t.uses > 0) then
                                         if (not t.cooldown_triggered) then
