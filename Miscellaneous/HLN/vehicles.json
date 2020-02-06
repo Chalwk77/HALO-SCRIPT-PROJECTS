@@ -2334,11 +2334,11 @@
       "seat": 7,
       "vehicle": "vehicles\\g_warthog\\g_warthog"
     },
-    "rhog1": {
+    "bhog1": {
       "seat": 0,
       "vehicle": "vehicles\\rwarthog\\boogerhawg"
     },
-    "rhog2": {
+    "bhog2": {
       "seat": 7,
       "vehicle": "vehicles\\rwarthog\\boogerhawg"
     }
@@ -2676,11 +2676,11 @@
       "seat": 7,
       "vehicle": "vehicles\\g_warthog\\g_warthog"
     },
-    "rhog1": {
+    "ghog1": {
       "seat": 0,
       "vehicle": "vehicles\\gausshog\\gausshog"
     },
-    "rhog2": {
+    "ghog2": {
       "seat": 7,
       "vehicle": "vehicles\\gausshog\\gausshog"
     }
