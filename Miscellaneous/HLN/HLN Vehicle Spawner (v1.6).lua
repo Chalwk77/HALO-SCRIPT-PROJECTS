@@ -1,6 +1,6 @@
 --[[
 --======================================================================================================--
-Script Name: HLN Vehicle Spawner (v1.4), for SAPP (PC & CE)
+Script Name: HLN Vehicle Spawner (v1.6), for SAPP (PC & CE)
 Description: This script will force you into a vehicle of your choice by
              means of a keyword typed in chat.
 
@@ -33,16 +33,22 @@ local settings = {
     please_wait = "Please wait %seconds% seconds to entry-spawn another vehicle",
     already_occupied = "You are already in a vehicle!",
     insufficient_spawns = "You have exceeded your Vehicle Entry-Spawn Limit for this game.",
+
+    command_message_duration = 300,
+
 }
 -- Configuration [Ends] ---------------------------------------------
 
 -- Do not touch:
 local vehicle_objects, spawns = {}, {}
-local map_data = {}
+local map_data, command_results = {}, {}
 local time_scale, game_started = 0.03333333333333333, nil
 local gmatch, gsub, floor = string.gmatch, string.gsub, math.floor
 
 local json = (loadfile "sapp\\json.lua")()
+
+--
+local auto_message = {}
 
 function OnScriptLoad()
     register_callback(cb["EVENT_TICK"], "OnTick")
@@ -55,6 +61,8 @@ function OnScriptLoad()
 
     if (get_var(0, "$gt") ~= "n/a") then
         CheckFile()
+        auto_message.timer = 0
+        auto_message.init = true
         for i = 1, 16 do
             InitPlayer(i, false)
         end
@@ -73,25 +81,50 @@ end
 function OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
         CheckFile()
+        auto_message.timer = 0
+        auto_message.init = true
     end
 end
 
 function OnGameEnd()
     game_started = false
+    auto_message.init = false
+end
+
+local function GetAutoMessage(Tab)
+    if (#Tab > 1) then
+        return "Use these commands to spawn a vehicle: "
+    else
+        return "Use this command to spawn a vehicle: "
+    end
 end
 
 function OnTick()
     if (game_started) then
+
         for i = 1, 16 do
-            if player_present(i) and player_alive(i) then
-                DespawnHandler(i)
-                local t = spawns[i]
-                if (t.cooldown_triggered) then
-                    t.cooldown = t.cooldown - time_scale
-                    -- print("Cooldown ends in " .. floor(t.cooldown) .. " seconds")
-                    if (t.cooldown <= 1) then
-                        t.cooldown = settings.cooldown_duration
-                        t.cooldown_triggered = false
+            if player_present(i) then
+
+                auto_message.timer = auto_message.timer + time_scale
+                if (auto_message.timer >= settings.command_message_duration) then
+                    auto_message.timer = 0
+                    if (#command_results > 0 and command_results.msg ~= "") then
+
+                        local Message = GetAutoMessage(command_results)
+                        say(i, Message .. command_results.msg)
+                    end
+                end
+
+                if player_alive(i) then
+                    DespawnHandler(i)
+                    local t = spawns[i]
+                    if (t.cooldown_triggered) then
+                        t.cooldown = t.cooldown - time_scale
+                        -- print("Cooldown ends in " .. floor(t.cooldown) .. " seconds")
+                        if (t.cooldown <= 1) then
+                            t.cooldown = settings.cooldown_duration
+                            t.cooldown_triggered = false
+                        end
                     end
                 end
             end
@@ -309,6 +342,29 @@ function CheckFile()
             end
         end
     end
+	
+	command_results = {}
+
+	for _, Tab in pairs(map_data) do
+		for Command, _ in pairs(Tab) do
+			command_results[#command_results + 1] = Command
+		end
+	end
+
+	local count, separator = 0, ", "
+	command_results.msg = ""
+	
+	for _, Tab in pairs(map_data) do
+		for Command, _ in pairs(Tab) do
+			count = count + 1
+			if (count < #command_results) then
+				command_results.msg = command_results.msg .. Command .. separator
+			else
+				command_results.msg = command_results.msg .. Command
+			end
+		end
+	end
+	
     game_started = true
 end
 
