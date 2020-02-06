@@ -80,9 +80,13 @@
       "seat": 7,
       "vehicle": "h2\\objects\\vehicles\\warthog\\warthog"
     },
-    "ghost": {
+    "rhog1": {
       "seat": 0,
-      "vehicle": "vehicles\\yghost\\y-ghost"
+      "vehicle": "h2\\objects\\vehicles\\warthog\\warthog"
+    },
+    "rhog2": {
+      "seat": 7,
+      "vehicle": "h2\\objects\\vehicles\\warthog\\warthog"
     }
   },
   "[h3style]containment": {
@@ -402,6 +406,10 @@
     },
     "sult1": {
       "seat": 0,
+      "vehicle": "vehicles\\sultan\\sultan"
+    },
+    "sult2": {
+      "seat": 7,
       "vehicle": "vehicles\\sultan\\sultan"
     }
   },
@@ -2680,6 +2688,10 @@
     },
     "sult1": {
       "seat": 0,
+      "vehicle": "vehicles\\sultan\\sultan"
+    },
+    "sult2": {
+      "seat": 7,
       "vehicle": "vehicles\\sultan\\sultan"
     }
   },
@@ -7557,6 +7569,10 @@
     "sult1": {
       "seat": 0,
       "vehicle": "vehicles\\sultan\\sultan"
+    },
+    "sult2": {
+      "seat": 7,
+      "vehicle": "vehicles\\sultan\\sultan"
     }
   },
   "infinity_futur_weapon_mod": {
@@ -9686,19 +9702,19 @@
   "nightmare_arena": {
     "hog1": {
       "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
+      "vehicle": "halo3\\vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
+      "vehicle": "halo3\\vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
+      "vehicle": "halo3\\vehicles\\warthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
+      "vehicle": "halo3\\vehicles\\warthog\\rwarthog"
     }
   },
   "nightriders": {
@@ -13891,6 +13907,24 @@
       "vehicle": "UNKNOWN_TAG_ADDRESS"
     }
   },
+  "tusken_raid": {
+    "aat1": {
+      "seat": 0,
+      "vehicle": "vehicles\\aat\\aat"
+    },
+    "aat1": {
+      "seat": 7,
+      "vehicle": "vehicles\\aat\\aat"
+    },
+    "sf1": {
+      "seat": 0,
+      "vehicle": "vehicles\\starfighter\\starfighter_mp"
+    },
+    "sf1": {
+      "seat": 7,
+      "vehicle": "vehicles\\starfighter\\starfighter_mp"
+    }
+  },
   "twist_beta": {
     "hog1": {
       "seat": 0,
@@ -14526,11 +14560,11 @@
       "seat": 7,
       "vehicle": "vehicles\\g_warthog\\g_warthog"
     },
-    "tach1": {
+    "rhog1": {
       "seat": 0,
       "vehicle": "vehicles\\tachikoma\\tachikoma"
     },
-    "tach2": {
+    "rhog2": {
       "seat": 7,
       "vehicle": "vehicles\\tachikoma\\tachikoma"
     }
