@@ -7160,20 +7160,16 @@
     }
   },
   "hydrolysis": {
-    "hog1": {
+    "boat1": {
       "seat": 0,
       "vehicle": "vehicles\\newboathog\\newboathog"
     },
-    "hog2": {
+    "boat2": {
       "seat": 7,
       "vehicle": "vehicles\\newboathog\\newboathog"
     },
-    "rhog1": {
+    "shark": {
       "seat": 0,
-      "vehicle": "vehicles\\shark\\shark"
-    },
-    "rhog2": {
-      "seat": 7,
       "vehicle": "vehicles\\shark\\shark"
     }
   },
@@ -7204,11 +7200,11 @@
       "seat": 7,
       "vehicle": "vehicles\\g_warthog\\g_warthog"
     },
-    "rhog1": {
+    "civi1": {
       "seat": 0,
       "vehicle": "vehicles\\civvi\\civvi"
     },
-    "rhog2": {
+    "civi2": {
       "seat": 7,
       "vehicle": "vehicles\\civvi\\civvi"
     }
@@ -7236,11 +7232,11 @@
       "seat": 7,
       "vehicle": "vehicles\\g_warthog\\g_warthog"
     },
-    "rhog1": {
+    "civi1": {
       "seat": 0,
       "vehicle": "vehicles\\civvi\\civvi"
     },
-    "rhog2": {
+    "civi2": {
       "seat": 7,
       "vehicle": "vehicles\\civvi\\civvi"
     }
@@ -7254,11 +7250,11 @@
       "seat": 7,
       "vehicle": "vehicles\\g_warthog\\g_warthog"
     },
-    "rhog1": {
+    "civi1": {
       "seat": 0,
       "vehicle": "vehicles\\civvi\\civvi"
     },
-    "rhog2": {
+    "civi2": {
       "seat": 7,
       "vehicle": "vehicles\\civvi\\civvi"
     }
@@ -7566,11 +7562,11 @@
     }
   },
   "infinity_forever_beta_1": {
-    "rhog1": {
+    "glen1": {
       "seat": 0,
       "vehicle": "vehicles\\glendale\\glendale"
     },
-    "rhog2": {
+    "glen2": {
       "seat": 7,
       "vehicle": "vehicles\\glendale\\glendale"
     },
@@ -7682,11 +7678,11 @@
       "seat": 7,
       "vehicle": "vehicles\\warthog\\original mp_warthog"
     },
-    "rhog1": {
+    "ghog1": {
       "seat": 0,
       "vehicle": "vehicles\\warthog2\\guass_hog"
     },
-    "rhog2": {
+    "ghog2": {
       "seat": 7,
       "vehicle": "vehicles\\warthog2\\guass_hog"
     }
@@ -7912,11 +7908,11 @@
       "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
-    "rhog1": {
+    "jeep1": {
       "seat": 0,
       "vehicle": "vehicles\\jeep\\jeep"
     },
-    "rhog2": {
+    "jeep2": {
       "seat": 7,
       "vehicle": "vehicles\\jeep\\jeep"
     }
@@ -8454,11 +8450,11 @@
       "seat": 7,
       "vehicle": "vehicles\\mwarthog\\mwarthog"
     },
-    "rhog1": {
+    "lambo1": {
       "seat": 0,
       "vehicle": "vehicles\\lambo\\lambo"
     },
-    "rhog2": {
+    "lambo2": {
       "seat": 7,
       "vehicle": "vehicles\\lambo\\lambo"
     }
@@ -8802,21 +8798,13 @@
     }
   },
   "measure_me": {
-    "hog1": {
+    "puma1": {
       "seat": 0,
       "vehicle": "vehicles\\puma\\puma"
     },
-    "hog2": {
+    "puma2": {
       "seat": 7,
       "vehicle": "vehicles\\puma\\puma"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\puma\\rpuma"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\puma\\rpuma"
     }
   },
   "meatlocker_race": {
@@ -8986,11 +8974,11 @@
       "seat": 0,
       "vehicle": "vehicles\\ghost\\ghost_mp"
     },
-    "rhog1": {
+    "shog1": {
       "seat": 0,
       "vehicle": "vehicles\\sporthog\\sporthog"
     },
-    "rhog2": {
+    "shog2": {
       "seat": 7,
       "vehicle": "vehicles\\sporthog\\sporthog"
     }
@@ -9040,11 +9028,11 @@
       "seat": 7,
       "vehicle": "vehicles\\g_warthog\\g_warthog"
     },
-    "rhog1": {
+    "civi1": {
       "seat": 0,
       "vehicle": "vehicles\\civvi\\civvi"
     },
-    "rhog2": {
+    "civi2": {
       "seat": 7,
       "vehicle": "vehicles\\civvi\\civvi"
     }
@@ -9083,14 +9071,6 @@
       "vehicle": "vehicles\\hogfoot\\hogfoot"
     },
     "hog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\hogfoot\\hogfoot"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\hogfoot\\hogfoot"
-    },
-    "rhog2": {
       "seat": 7,
       "vehicle": "vehicles\\hogfoot\\hogfoot"
     }
@@ -9158,13 +9138,9 @@
       "seat": 7,
       "vehicle": "vehicles\\bm_warthog\\bm_warthog"
     },
-    "rhog1": {
+    "ghost": {
       "seat": 0,
-      "vehicle": "vehicles\\bm_warthog\\bm_warthog"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\bm_warthog\\bm_warthog"
+      "vehicle": "vehicles\\brute_ghost\\brute_ghost"
     }
   },
   "mountainisland": {
