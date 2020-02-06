@@ -4416,19 +4416,19 @@
     }
   },
   "doomsday": {
-    "hog1": {
+    "ghog1": {
       "seat": 0,
       "vehicle": "vehicles\\coldsnap_hogs\\g_warthog"
     },
-    "hog2": {
+    "ghog2": {
       "seat": 7,
       "vehicle": "vehicles\\coldsnap_hogs\\g_warthog"
     },
-    "rhog1": {
+    "mhog1": {
       "seat": 0,
       "vehicle": "vehicles\\coldsnap_hogs\\mwarthog"
     },
-    "rhog2": {
+    "mhog2": {
       "seat": 7,
       "vehicle": "vehicles\\coldsnap_hogs\\mwarthog"
     }
@@ -4914,19 +4914,19 @@
     }
   },
   "esther": {
-    "hog1": {
+    "ghog1": {
       "seat": 0,
       "vehicle": "vehicles\\g_warthog\\g_warthog"
     },
-    "hog2": {
+    "ghog2": {
       "seat": 7,
       "vehicle": "vehicles\\g_warthog\\g_warthog"
     },
-    "rhog1": {
+    "mhog1": {
       "seat": 0,
       "vehicle": "vehicles\\mwarthog\\mwarthog"
     },
-    "rhog2": {
+    "mhog2": {
       "seat": 7,
       "vehicle": "vehicles\\mwarthog\\mwarthog"
     }
@@ -5072,19 +5072,11 @@
     }
   },
   "facing_worldsrx": {
-    "hog1": {
+    "puma1": {
       "seat": 0,
       "vehicle": "vehicles\\puma\\puma"
     },
-    "hog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\puma\\puma"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\puma\\puma"
-    },
-    "rhog2": {
+    "puma2": {
       "seat": 7,
       "vehicle": "vehicles\\puma\\puma"
     }
@@ -5234,21 +5226,21 @@
     }
   },
   "first": {
-    "hog1": {
+    "civi1": {
       "seat": 0,
-      "vehicle": "vehicles\\warthog\\flamehog"
+      "vehicle": "vehicles\\snow_civ_hog\\snow_civ_hog"
     },
-    "hog2": {
+    "civi2": {
       "seat": 7,
-      "vehicle": "vehicles\\warthog\\flamehog"
+      "vehicle": "vehicles\\snow_civ_hog\\snow_civ_hog"
     },
-    "rhog1": {
+    "lambo1": {
       "seat": 0,
-      "vehicle": "vehicles\\warthog\\flamehog"
+      "vehicle": "vehicles\\lambo\\lambo"
     },
-    "rhog2": {
+    "lambo2": {
       "seat": 7,
-      "vehicle": "vehicles\\warthog\\flamehog"
+      "vehicle": "vehicles\\lambo\\lambo"
     }
   },
   "fission_point": {
@@ -5798,21 +5790,21 @@
     }
   },
   "gladiators_brawl": {
-    "hog1": {
+    "fhog1": {
       "seat": 0,
       "vehicle": "vehicles\\warthog\\flamehog"
     },
-    "hog2": {
+    "fhog2": {
       "seat": 7,
       "vehicle": "vehicles\\warthog\\flamehog"
     },
-    "rhog1": {
+    "puma1": {
       "seat": 0,
-      "vehicle": "vehicles\\warthog\\flamehog"
+      "vehicle": "vehicles\\puma\\puma"
     },
-    "rhog2": {
+    "puma2": {
       "seat": 7,
-      "vehicle": "vehicles\\warthog\\flamehog"
+      "vehicle": "vehicles\\puma\\puma"
     }
   },
   "glenns_castle": {
@@ -5820,21 +5812,21 @@
       "seat": 0,
       "vehicle": "vehicles\\ghost\\ghost_mp"
     },
-    "hog1": {
+    "civi1": {
       "seat": 0,
       "vehicle": "vehicles\\civvi\\civvi"
     },
-    "hog2": {
+    "civi2": {
       "seat": 7,
       "vehicle": "vehicles\\civvi\\civvi"
     }
   },
   "glenns_greenbay": {
-    "hog1": {
+    "san1": {
       "seat": 0,
       "vehicle": "vehicles\\sanchez\\sanchez"
     },
-    "hog2": {
+    "san2": {
       "seat": 7,
       "vehicle": "vehicles\\sanchez\\sanchez"
     },
@@ -5866,19 +5858,19 @@
     }
   },
   "glupo_aco": {
-    "hog1": {
+    "san1": {
       "seat": 0,
       "vehicle": "vehicles\\sanchez\\sanchez"
     },
-    "hog2": {
+    "san2": {
       "seat": 7,
       "vehicle": "vehicles\\sanchez\\sanchez"
     },
-    "rhog1": {
+    "sk1": {
       "seat": 0,
       "vehicle": "vehicles\\sandking\\sandking"
     },
-    "rhog2": {
+    "sk2": {
       "seat": 7,
       "vehicle": "vehicles\\sandking\\sandking"
     }
@@ -6302,11 +6294,11 @@
       "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
-    "rhog1": {
+    "nhog1": {
       "seat": 0,
       "vehicle": "vehicles\\g_warthog\\newrwarthog"
     },
-    "rhog2": {
+    "nhog2": {
       "seat": 7,
       "vehicle": "vehicles\\g_warthog\\newrwarthog"
     }
@@ -6330,20 +6322,8 @@
     }
   },
   "h3 foundry": {
-    "hog1": {
+    "fork1": {
       "seat": 0,
-      "vehicle": "halo3\\vehicles\\forklift\\forklift"
-    },
-    "hog2": {
-      "seat": 7,
-      "vehicle": "halo3\\vehicles\\forklift\\forklift"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "halo3\\vehicles\\forklift\\forklift"
-    },
-    "rhog2": {
-      "seat": 7,
       "vehicle": "halo3\\vehicles\\forklift\\forklift"
     }
   },
@@ -6784,11 +6764,11 @@
       "seat": 0,
       "vehicle": "vehicles\\jmongoose\\jmongoose"
     },
-    "rhog1": {
+    "pchog1": {
       "seat": 0,
       "vehicle": "vehicles\\rpchog\\rpchog"
     },
-    "rhog2": {
+    "pchog2": {
       "seat": 7,
       "vehicle": "vehicles\\rpchog\\rpchog"
     }
@@ -6888,11 +6868,11 @@
       "seat": 0,
       "vehicle": "vehicles\\mongoose\\mongoose bright"
     },
-    "rhog1": {
+    "puma1": {
       "seat": 0,
       "vehicle": "vehicles\\puma\\puma_xt"
     },
-    "rhog2": {
+    "puma2": {
       "seat": 7,
       "vehicle": "vehicles\\puma\\puma_xt"
     }
@@ -6902,11 +6882,11 @@
       "seat": 0,
       "vehicle": "vehicles\\mongoose\\mongoose bright"
     },
-    "rhog1": {
+    "puma1": {
       "seat": 0,
       "vehicle": "vehicles\\puma\\puma_xt"
     },
-    "rhog2": {
+    "puma2": {
       "seat": 7,
       "vehicle": "vehicles\\puma\\puma_xt"
     }
@@ -7046,11 +7026,11 @@
       "seat": 7,
       "vehicle": "vehicles\\sporthog\\smileyhog"
     },
-    "rhog1": {
+    "skim1": {
       "seat": 0,
       "vehicle": "vehicles\\skimmer\\skimmer"
     },
-    "rhog2": {
+    "skim2": {
       "seat": 7,
       "vehicle": "vehicles\\skimmer\\skimmer"
     }
@@ -7128,21 +7108,13 @@
     }
   },
   "huh-what_3": {
-    "hog1": {
+    "puma1": {
       "seat": 0,
       "vehicle": "vehicles\\puma\\puma"
     },
-    "hog2": {
+    "puma2": {
       "seat": 7,
       "vehicle": "vehicles\\puma\\puma"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\puma\\rpuma"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\puma\\rpuma"
     }
   },
   "Human_Landscape": {
@@ -10522,20 +10494,8 @@
     }
   },
   "pegasus": {
-    "hog1": {
+    "fork1": {
       "seat": 0,
-      "vehicle": "halo3\\vehicles\\forklift\\forklift"
-    },
-    "hog2": {
-      "seat": 7,
-      "vehicle": "halo3\\vehicles\\forklift\\forklift"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "halo3\\vehicles\\forklift\\forklift"
-    },
-    "rhog2": {
-      "seat": 7,
       "vehicle": "halo3\\vehicles\\forklift\\forklift"
     }
   },
@@ -12636,20 +12596,16 @@
     }
   },
   "slaughterhouse_5": {
-    "hog1": {
+    "jeep1": {
       "seat": 0,
       "vehicle": "vehicles\\jeep\\jeep"
     },
-    "hog2": {
+    "jeep2": {
       "seat": 7,
       "vehicle": "vehicles\\jeep\\jeep"
     },
-    "rhog1": {
+    "fork": {
       "seat": 0,
-      "vehicle": "altis\\vehicles\\forklift\\forklift"
-    },
-    "rhog2": {
-      "seat": 7,
       "vehicle": "altis\\vehicles\\forklift\\forklift"
     }
   },
