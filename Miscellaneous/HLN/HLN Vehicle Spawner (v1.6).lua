@@ -34,11 +34,11 @@ local settings = {
     already_occupied = "You are already in a vehicle!",
     insufficient_spawns = "You have exceeded your Vehicle Entry-Spawn Limit for this game.",
 
-	-- This script will periodically announce the valid vehicle-entry commands
-	-- How often should messages appear? (in seconds) 300 = 5 minutes
+    -- This script will periodically announce the valid vehicle-entry commands
+    -- How often should messages appear? (in seconds) 300 = 5 minutes
     command_message_duration = 180,
-	
-	-- Comma separated commands will be automatically be inserted at the end of the sentence...
+
+    -- Comma separated commands will be automatically be inserted at the end of the sentence...
     command_msg_variant_one = "Use this command to spawn a vehicle: ",
     command_msg_variant_two = "Use these commands to spawn a vehicle: ",
 }
@@ -94,16 +94,16 @@ function OnTick()
 
         for i = 1, 16 do
             if player_present(i) then
-			
-				if (valid_commands.timer) then
-					valid_commands.timer = valid_commands.timer + time_scale
-					if (valid_commands.timer >= settings.command_message_duration) then
-						valid_commands.timer = 0
-						if (#valid_commands > 0 and valid_commands.msg ~= "") then
+
+                if (valid_commands.timer) then
+                    valid_commands.timer = valid_commands.timer + time_scale
+                    if (valid_commands.timer >= settings.command_message_duration) then
+                        valid_commands.timer = 0
+                        if (#valid_commands > 0 and valid_commands.msg ~= "") then
                             say(i, valid_commands.msg)
-						end
-					end
-				end
+                        end
+                    end
+                end
 
                 if player_alive(i) then
                     DespawnHandler(i)
@@ -166,65 +166,68 @@ function OnPlayerChat(PlayerIndex, Message, Type)
         if (#msg == 0) then
             return false
         elseif player_alive(PlayerIndex) then
-			for _, Map in pairs(map_data) do
-				for command, Vehicle in pairs(Map) do
-					if (msg[1] == command) then
-						if GetTag(Vehicle.vehicle) then
-							local t = spawns[PlayerIndex]
-							if (t.uses > 0) then
-								if (not t.cooldown_triggered) then
+            for _, Map in pairs(map_data) do
+                for command, Vehicle in pairs(Map) do
+                    if (msg[1] == command) then
+                        if GetTag(Vehicle.vehicle) then
+                            local t = spawns[PlayerIndex]
+                            if (t.uses > 0) then
+                                if (not t.cooldown_triggered) then
 
-									local player_object = get_dynamic_player(PlayerIndex)
-									local coords = getXYZ(PlayerIndex, player_object)
+                                    local player_object = get_dynamic_player(PlayerIndex)
+                                    local coords = getXYZ(PlayerIndex, player_object)
 
-									if not (coords.invehicle) then
-										t.cooldown_triggered = true
-										t.uses = t.uses - 1
+                                    if not (coords.invehicle) then
+                                        t.cooldown_triggered = true
+                                        t.uses = t.uses - 1
 
-										local vehicle = spawn_object("vehi", Vehicle.vehicle, coords.x, coords.y, coords.z)
-										local vehicle_object_memory = get_object_memory(vehicle)
+                                        local vehicle = spawn_object("vehi", Vehicle.vehicle, coords.x, coords.y, coords.z)
+                                        local vehicle_object_memory = get_object_memory(vehicle)
 
-										if (vehicle_object_memory ~= 0) then
-											vehicle_objects[vehicle] = {
-												timer_reset = false,
-												vehicle = vehicle_object_memory,
-												timer = settings.despawn_time,
-											}
-										end
+                                        if (vehicle_object_memory ~= 0) then
+                                            vehicle_objects[vehicle] = {
+                                                timer_reset = false,
+                                                vehicle = vehicle_object_memory,
+                                                timer = settings.despawn_time,
+                                            }
+                                        end
 
-										if (tonumber(Vehicle.seat) == 7) then
-											enter_vehicle(vehicle, PlayerIndex, 0)
-											enter_vehicle(vehicle, PlayerIndex, 2)
-										else
-											enter_vehicle(vehicle, PlayerIndex, 0)
-										end
+                                        if (tonumber(Vehicle.seat) == 7) then
+                                            enter_vehicle(vehicle, PlayerIndex, 0)
+                                            enter_vehicle(vehicle, PlayerIndex, 2)
+                                        else
+                                            enter_vehicle(vehicle, PlayerIndex, 0)
+                                        end
 
-										local msg = gsub(settings.on_spawn, "%%total%%", tostring(t.uses))
-										rprint(PlayerIndex, msg)
-									else
-										rprint(PlayerIndex, settings.already_occupied)
-									end
-								else
-									local message = gsub(settings.please_wait, "%%seconds%%", tostring(floor(t.cooldown)))
-									rprint(PlayerIndex, message)
-								end
-							else
-								rprint(PlayerIndex, settings.insufficient_spawns)
-							end
-						else
-							rprint(PlayerIndex, "Invalid Vehicle Tag Address")
-							rprint(PlayerIndex, "Please Contact an Administrator. Map Name: " .. get_var(0, "$map"))
-						end
-						return false
-					end
-				end
-			end
-		end
-	end
+                                        local msg = gsub(settings.on_spawn, "%%total%%", tostring(t.uses))
+                                        rprint(PlayerIndex, msg)
+                                    else
+                                        rprint(PlayerIndex, settings.already_occupied)
+                                    end
+                                else
+                                    local message = gsub(settings.please_wait, "%%seconds%%", tostring(floor(t.cooldown)))
+                                    rprint(PlayerIndex, message)
+                                end
+                            else
+                                rprint(PlayerIndex, settings.insufficient_spawns)
+                            end
+                        else
+                            rprint(PlayerIndex, "Invalid Vehicle Tag Address")
+                            rprint(PlayerIndex, "Please Contact an Administrator. Map Name: " .. get_var(0, "$map"))
+                        end
+                        return false
+                    end
+                end
+            end
+        end
+    end
 end
 
 function OnPlayerConnect(PlayerIndex)
     InitPlayer(PlayerIndex, false)
+    if (#valid_commands > 0 and valid_commands.msg ~= "") then
+        say(PlayerIndex, valid_commands.msg)
+    end
 end
 
 function OnPlayerDisconnect(PlayerIndex)
@@ -322,36 +325,36 @@ function CheckFile()
                 map_data[#map_data + 1] = v
             end
         end
-		if (#map_data > 0) then	
+        if (#map_data > 0) then
 
-			valid_commands = {}
-			valid_commands.msg = ""
-			valid_commands.timer = 0
-			valid_commands.init = true
+            valid_commands = {}
+            valid_commands.msg = ""
+            valid_commands.timer = 0
+            valid_commands.init = true
 
-			for _, Tab in pairs(map_data) do
-				for Command, _ in pairs(Tab) do
-					valid_commands[#valid_commands + 1] = Command
-				end
-			end
+            for _, Tab in pairs(map_data) do
+                for Command, _ in pairs(Tab) do
+                    valid_commands[#valid_commands + 1] = Command
+                end
+            end
 
-			local count, separator = 0, ", "
-			for _, Tab in pairs(map_data) do
-				for Command, _ in pairs(Tab) do
-					count = count + 1
-					if (count < #valid_commands) then
-						valid_commands.msg = valid_commands.msg .. Command .. separator
-					else
-						valid_commands.msg = valid_commands.msg .. Command
-					end
-				end
-			end
+            local count, separator = 0, ", "
+            for _, Tab in pairs(map_data) do
+                for Command, _ in pairs(Tab) do
+                    count = count + 1
+                    if (count < #valid_commands) then
+                        valid_commands.msg = valid_commands.msg .. Command .. separator
+                    else
+                        valid_commands.msg = valid_commands.msg .. Command
+                    end
+                end
+            end
             if (#valid_commands == 1) then
                 valid_commands.msg = settings.command_msg_variant_one .. valid_commands.msg
             else
                 valid_commands.msg = settings.command_msg_variant_two .. valid_commands.msg
             end
-		end
+        end
     end
     game_started = true
 end
