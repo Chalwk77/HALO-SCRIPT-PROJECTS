@@ -13247,24 +13247,6 @@
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
-  "tactics": {
-    "hog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "hog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    }
-  },
   "tche": {
     "hog1": {
       "seat": 0,
@@ -13276,50 +13258,14 @@
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
+      "vehicle": "vehicles\\mongoose\\mongoose"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
+      "vehicle": "vehicles\\mongoose\\mongoose"
     }
   },
   "Teh_path_beta": {
-    "hog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "hog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    }
-  },
-  "teletubbies": {
-    "hog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "hog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    }
-  },
-  "teletubbies_v2": {
     "hog1": {
       "seat": 0,
       "vehicle": "vehicles\\warthog\\mp_warthog"
@@ -13358,19 +13304,19 @@
   "tempo": {
     "hog1": {
       "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
+      "vehicle": "vehicles\\warthog\\art_cwarthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
+      "vehicle": "vehicles\\warthog\\art_cwarthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
+      "vehicle": "vehicles\\rwarthog\\art_rwarthog_shiny"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
+      "vehicle": "vehicles\\rwarthog\\art_rwarthog_shiny"
     }
   },
   "tension": {
@@ -13410,24 +13356,6 @@
     }
   },
   "terralan": {
-    "hog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "hog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    }
-  },
-  "test": {
     "hog1": {
       "seat": 0,
       "vehicle": "vehicles\\warthog\\mp_warthog"
@@ -13520,11 +13448,11 @@
   "the-quick-the-dead": {
     "hog1": {
       "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
+      "vehicle": "vehicles\\bm_warthog\\bm_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
+      "vehicle": "vehicles\\bm_warthog\\bm_warthog"
     },
     "rhog1": {
       "seat": 0,
@@ -13607,43 +13535,7 @@
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
-  "the_cage_un": {
-    "hog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "hog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    }
-  },
   "the_devil_fight": {
-    "hog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "hog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    }
-  },
-  "the_forgotten_market": {
     "hog1": {
       "seat": 0,
       "vehicle": "vehicles\\warthog\\mp_warthog"
@@ -13679,40 +13571,22 @@
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
-  "the_land_of_hyrule_v0.2.1": {
-    "hog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "hog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    }
-  },
   "the_land_of_hyrule_v0.2": {
     "hog1": {
       "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
+      "vehicle": "vehicles\\epona\\epona"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
+      "vehicle": "vehicles\\epona\\epona"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
+      "vehicle": "vehicles\\zeldas_horse\\zeldas horse"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
+      "vehicle": "vehicles\\zeldas_horse\\zeldas horse"
     }
   },
   "the_mummy_7": {
