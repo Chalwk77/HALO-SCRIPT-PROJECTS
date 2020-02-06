@@ -403,10 +403,6 @@
     "sult1": {
       "seat": 0,
       "vehicle": "vehicles\\sultan\\sultan"
-    },
-    "sult2": {
-      "seat": 7,
-      "vehicle": "vehicles\\sultan\\sultan"
     }
   },
   "amaranth": {
@@ -2684,10 +2680,6 @@
     },
     "sult1": {
       "seat": 0,
-      "vehicle": "vehicles\\sultan\\sultan"
-    },
-    "sult2": {
-      "seat": 7,
       "vehicle": "vehicles\\sultan\\sultan"
     }
   },
@@ -7564,10 +7556,6 @@
     },
     "sult1": {
       "seat": 0,
-      "vehicle": "vehicles\\sultan\\sultan"
-    },
-    "sult2": {
-      "seat": 7,
       "vehicle": "vehicles\\sultan\\sultan"
     }
   },
