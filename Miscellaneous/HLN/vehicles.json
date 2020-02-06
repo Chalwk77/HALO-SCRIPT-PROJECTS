@@ -332,11 +332,11 @@
       "seat": 7,
       "vehicle": "vehicles\\missel_warthog\\mwarthog tags\\mwarthog\\mwarthog"
     },
-    "rhog1": {
+    "sult1": {
       "seat": 0,
       "vehicle": "vehicles\\sultan\\sultan"
     },
-    "rhog2": {
+    "sult2": {
       "seat": 7,
       "vehicle": "vehicles\\sultan\\sultan"
     }
@@ -422,11 +422,11 @@
       "seat": 7,
       "vehicle": "vehicles\\coldsnap_hogs\\mp_warthog"
     },
-    "rhog1": {
+    "fhog1": {
       "seat": 0,
       "vehicle": "vehicles\\flamehog\\rwarthog"
     },
-    "rhog2": {
+    "fhog2": {
       "seat": 7,
       "vehicle": "vehicles\\flamehog\\rwarthog"
     }
@@ -475,14 +475,6 @@
     "hog2": {
       "seat": 7,
       "vehicle": "vehicles\\mwarthog\\mwarthog"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\mwarthog\\mwarthog"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\mwarthog\\mwarthog"
     }
   },
   "asis": {
@@ -522,21 +514,21 @@
     }
   },
   "atomic": {
-    "dbuggy": {
+    "dbuggy1": {
       "seat": 0,
       "vehicle": "vehicles\\doombuggy\\doombuggy"
     },
-    "dbuggy": {
+    "dbuggy2": {
       "seat": 7,
       "vehicle": "vehicles\\doombuggy\\doombuggy"
     },
-    "dbuggy": {
+    "dmob1": {
       "seat": 0,
-      "vehicle": "vehicles\\doombuggy\\doombuggy"
+      "vehicle": "vehicles\\dangermobile\\dangermobile"
     },
-    "dbuggy": {
+    "dmob2": {
       "seat": 7,
-      "vehicle": "vehicles\\doombuggy\\doombuggy"
+      "vehicle": "vehicles\\dangermobile\\dangermobile"
     }
   },
   "atvstadium": {
@@ -1433,32 +1425,24 @@
     "hog2": {
       "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
     }
   },
   "bob_omb_battlefield": {
     "hog1": {
       "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
+      "vehicle": "vehicles\\g_warthog\\g_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
+      "vehicle": "vehicles\\g_warthog\\g_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "bounce_arena": {
@@ -1472,11 +1456,11 @@
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "boxx": {
@@ -1490,11 +1474,11 @@
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "bravo_base": {
@@ -1638,21 +1622,21 @@
     }
   },
   "bumper_cars_v2": {
-    "civi": {
+    "hog1": {
       "seat": 0,
-      "vehicle": "vehicles\\civvi\\civilian warthog"
+      "vehicle": "vehicles\\warthog\\mp_warthogc"
     },
     "hog2": {
       "seat": 7,
+      "vehicle": "vehicles\\warthog\\mp_warthogc"
+    },
+    "civi1": {
+      "seat": 0,
       "vehicle": "vehicles\\civvi\\civilian warthog"
     },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthogc"
-    },
-    "rhog2": {
+    "civi2": {
       "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthogc"
+      "vehicle": "vehicles\\civvi\\civilian warthog"
     }
   },
   "bumpyhills": {
@@ -2540,19 +2524,19 @@
     }
   },
   "cnr_island": {
-    "hog1": {
+    "ran1": {
       "seat": 0,
       "vehicle": "vehicles\\rancher\\rancher"
     },
-    "hog2": {
+    "ran2": {
       "seat": 7,
       "vehicle": "vehicles\\rancher\\rancher"
     },
-    "rhog1": {
+    "sult1": {
       "seat": 0,
       "vehicle": "vehicles\\sultan\\sultan"
     },
-    "rhog2": {
+    "sult2": {
       "seat": 7,
       "vehicle": "vehicles\\sultan\\sultan"
     }
@@ -3582,11 +3566,11 @@
     }
   },
   "deathrace": {
-    "civi": {
+    "civi1": {
       "seat": 0,
       "vehicle": "vehicles\\civihog\\mp_civihog"
     },
-    "hog2": {
+    "civi2": {
       "seat": 7,
       "vehicle": "vehicles\\civihog\\mp_civihog"
     },
@@ -3764,19 +3748,19 @@
     }
   },
   "desertdunestwo": {
-    "hog1": {
+    "ran1": {
       "seat": 0,
       "vehicle": "vehicles\\rancher\\rancher"
     },
-    "hog2": {
+    "ran2": {
       "seat": 7,
       "vehicle": "vehicles\\rancher\\rancher"
     },
-    "rhog1": {
+    "walt1": {
       "seat": 0,
       "vehicle": "vehicles\\walton\\walton"
     },
-    "rhog2": {
+    "walt2": {
       "seat": 7,
       "vehicle": "vehicles\\walton\\walton"
     }
@@ -3844,11 +3828,11 @@
       "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
-    "rhog1": {
+    "tran1": {
       "seat": 0,
       "vehicle": "vehicles\\trans_hog\\trans_hog"
     },
-    "rhog2": {
+    "tran2": {
       "seat": 7,
       "vehicle": "vehicles\\trans_hog\\trans_hog"
     }
@@ -7330,11 +7314,11 @@
     }
   },
   "infinity_forever_beta_1": {
-    "hog1": {
+    "sult1": {
       "seat": 0,
       "vehicle": "vehicles\\sultan\\sultan"
     },
-    "hog2": {
+    "sult2": {
       "seat": 7,
       "vehicle": "vehicles\\sultan\\sultan"
     },
