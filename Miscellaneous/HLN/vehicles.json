@@ -80,13 +80,9 @@
       "seat": 7,
       "vehicle": "h2\\objects\\vehicles\\warthog\\warthog"
     },
-    "rhog1": {
+    "ghost": {
       "seat": 0,
-      "vehicle": "h2\\objects\\vehicles\\warthog\\warthog"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "h2\\objects\\vehicles\\warthog\\warthog"
+      "vehicle": "vehicles\\yghost\\y-ghost"
     }
   },
   "[h3style]containment": {
