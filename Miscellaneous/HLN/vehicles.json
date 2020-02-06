@@ -5237,10 +5237,6 @@
     "lambo1": {
       "seat": 0,
       "vehicle": "vehicles\\lambo\\lambo"
-    },
-    "lambo2": {
-      "seat": 7,
-      "vehicle": "vehicles\\lambo\\lambo"
     }
   },
   "fission_point": {
@@ -6322,7 +6318,7 @@
     }
   },
   "h3 foundry": {
-    "fork1": {
+    "fork": {
       "seat": 0,
       "vehicle": "halo3\\vehicles\\forklift\\forklift"
     }
@@ -8453,10 +8449,6 @@
     "lambo1": {
       "seat": 0,
       "vehicle": "vehicles\\lambo\\lambo"
-    },
-    "lambo2": {
-      "seat": 7,
-      "vehicle": "vehicles\\lambo\\lambo"
     }
   },
   "lost": {
@@ -9316,37 +9308,37 @@
     }
   },
   "mute_city": {
-    "hog1": {
+    "pan1": {
       "seat": 0,
       "vehicle": "vehicles\\gp\\green_panther"
     },
-    "hog2": {
+    "pan2": {
       "seat": 7,
       "vehicle": "vehicles\\gp\\green_panther"
     },
-    "rhog1": {
+    "gaz1": {
       "seat": 0,
       "vehicle": "vehicles\\red_gazelle\\red_gazelle"
     },
-    "rhog2": {
+    "gaz2": {
       "seat": 7,
       "vehicle": "vehicles\\red_gazelle\\red_gazelle"
     }
   },
   "mute_city_beta_2": {
-    "hog1": {
+    "pan1": {
       "seat": 0,
       "vehicle": "vehicles\\gp\\green_panther"
     },
-    "hog2": {
+    "pan2": {
       "seat": 7,
       "vehicle": "vehicles\\gp\\green_panther"
     },
-    "rhog1": {
+    "gaz1": {
       "seat": 0,
       "vehicle": "vehicles\\red_gazelle\\red_gazelle"
     },
-    "rhog2": {
+    "gaz2": {
       "seat": 7,
       "vehicle": "vehicles\\red_gazelle\\red_gazelle"
     }
@@ -9388,29 +9380,29 @@
     }
   },
   "mystic_mod": {
-    "hog1": {
+    "puma1": {
       "seat": 0,
       "vehicle": "vehicles\\puma\\puma_lt"
     },
-    "hog2": {
+    "puma2": {
       "seat": 7,
       "vehicle": "vehicles\\puma\\puma_lt"
     },
-    "rhog1": {
+    "puma3": {
       "seat": 0,
       "vehicle": "vehicles\\puma\\rpuma_lt"
     },
-    "rhog2": {
+    "puma4": {
       "seat": 7,
       "vehicle": "vehicles\\puma\\rpuma_lt"
     }
   },
   "naval": {
-    "hog1": {
+    "boat1": {
       "seat": 0,
       "vehicle": "vehicles\\boat\\boat"
     },
-    "hog2": {
+    "boat2": {
       "seat": 7,
       "vehicle": "vehicles\\boat\\boat"
     },
@@ -9853,10 +9845,10 @@
   },
   "null": {
     "hog1": {
-      "seat": 0,
+      "san1": 0,
       "vehicle": "vehicles\\warthog\\sandhog"
     },
-    "hog2": {
+    "san2": {
       "seat": 7,
       "vehicle": "vehicles\\warthog\\sandhog"
     },
@@ -9956,19 +9948,19 @@
     }
   },
   "obsolete": {
-    "hog1": {
+    "civi1": {
       "seat": 0,
       "vehicle": "vehicles\\civihog\\mp_civihog"
     },
-    "hog2": {
+    "civi2": {
       "seat": 7,
       "vehicle": "vehicles\\civihog\\mp_civihog"
     },
-    "rhog1": {
+    "mhog1": {
       "seat": 0,
       "vehicle": "vehicles\\misslehog\\misslehog"
     },
-    "rhog2": {
+    "mhog2": {
       "seat": 7,
       "vehicle": "vehicles\\misslehog\\misslehog"
     }
@@ -10150,20 +10142,8 @@
     }
   },
   "ooe_big_chees": {
-    "hog1": {
+    "spec": {
       "seat": 0,
-      "vehicle": "vehicles\\spectre\\spectre"
-    },
-    "hog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\spectre\\spectre"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\spectre\\spectre"
-    },
-    "rhog2": {
-      "seat": 7,
       "vehicle": "vehicles\\spectre\\spectre"
     }
   },
@@ -10176,11 +10156,11 @@
       "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
-    "rhog1": {
+    "dpv1": {
       "seat": 0,
       "vehicle": "vehicles\\dpv\\dpv"
     },
-    "rhog2": {
+    "dpv2": {
       "seat": 7,
       "vehicle": "vehicles\\dpv\\dpv"
     }
@@ -10374,11 +10354,11 @@
       "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
-    "rhog1": {
+    "rboat1": {
       "seat": 0,
       "vehicle": "vehicles\\boathog\\rboathog"
     },
-    "rhog2": {
+    "rboat2": {
       "seat": 7,
       "vehicle": "vehicles\\boathog\\rboathog"
     }
@@ -10470,7 +10450,7 @@
     }
   },
   "pegasus": {
-    "fork1": {
+    "fork": {
       "seat": 0,
       "vehicle": "halo3\\vehicles\\forklift\\forklift"
     }
@@ -10588,11 +10568,11 @@
       "seat": 0,
       "vehicle": "vehicles\\h2_ghost\\h2_ghost"
     },
-    "hog1": {
+    "lhog1": {
       "seat": 0,
       "vehicle": "vehicles\\warthog2\\laag_hog"
     },
-    "hog2": {
+    "lhog2": {
       "seat": 7,
       "vehicle": "vehicles\\warthog2\\laag_hog"
     }
@@ -10766,19 +10746,19 @@
     }
   },
   "porter_creek": {
-    "hog1": {
+    "lav1": {
       "seat": 0,
       "vehicle": "vehicles\\lav_25\\lav 25 apc"
     },
-    "hog2": {
+    "lav2": {
       "seat": 7,
       "vehicle": "vehicles\\lav_25\\lav 25 apc"
     },
-    "rhog1": {
+    "mesa1": {
       "seat": 0,
       "vehicle": "vehicles\\mesa\\mesa"
     },
-    "rhog2": {
+    "mesa2": {
       "seat": 7,
       "vehicle": "vehicles\\mesa\\mesa"
     }
@@ -11194,19 +11174,19 @@
     }
   },
   "rampin": {
-    "hog1": {
+    "jeep1": {
       "seat": 0,
       "vehicle": "vehicles\\jeep\\jeep"
     },
-    "hog2": {
+    "jeep2": {
       "seat": 7,
       "vehicle": "vehicles\\jeep\\jeep"
     },
-    "rhog1": {
+    "lav1": {
       "seat": 0,
       "vehicle": "vehicles\\lav_25\\lav 25 apc"
     },
-    "rhog2": {
+    "lav2": {
       "seat": 7,
       "vehicle": "vehicles\\lav_25\\lav 25 apc"
     }
@@ -11274,11 +11254,11 @@
       "seat": 7,
       "vehicle": "vehicles\\g_warthog\\g_warthog"
     },
-    "rhog1": {
+    "civi1": {
       "seat": 0,
       "vehicle": "vehicles\\civvi\\civvi"
     },
-    "rhog2": {
+    "civi2": {
       "seat": 7,
       "vehicle": "vehicles\\civvi\\civvi"
     }
@@ -11360,11 +11340,11 @@
       "seat": 7,
       "vehicle": "vehicles\\bm_warthog\\bm_warthog"
     },
-    "rhog1": {
+    "civi1": {
       "seat": 0,
       "vehicle": "vehicles\\civvi\\civvi"
     },
-    "rhog2": {
+    "civi2": {
       "seat": 7,
       "vehicle": "vehicles\\civvi\\civvi"
     }
@@ -11832,10 +11812,6 @@
       "seat": 0,
       "vehicle": "vehicles\\yohog\\yohog"
     },
-    "hog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\yohog\\yohog"
-    },
     "rhog1": {
       "seat": 0,
       "vehicle": "haloceripper.webs.com\\zteam\\vehicles\\hogs\\warthog\\warthog"
@@ -11882,12 +11858,8 @@
     }
   },
   "rg_double_gulch2": {
-    "hog1": {
+    "mon": {
       "seat": 0,
-      "vehicle": "altis\\vehicles\\mortargoose\\mortargoose"
-    },
-    "hog2": {
-      "seat": 7,
       "vehicle": "altis\\vehicles\\mortargoose\\mortargoose"
     },
     "rhog1": {
@@ -12368,11 +12340,11 @@
       "seat": 0,
       "vehicle": "vehicles\\h2_ghost\\h2_ghost"
     },
-    "hog1": {
+    "shog1": {
       "seat": 0,
       "vehicle": "vehicles\\snow hog\\snow hog"
     },
-    "hog2": {
+    "shog2": {
       "seat": 7,
       "vehicle": "vehicles\\snow hog\\snow hog"
     }
@@ -12414,20 +12386,16 @@
     }
   },
   "sidewinder_v2": {
-    "hog1": {
+    "fhog1": {
       "seat": 0,
       "vehicle": "vehicles\\fwarthog\\mp_fwarthog"
     },
-    "hog2": {
+    "fhog2": {
       "seat": 7,
       "vehicle": "vehicles\\fwarthog\\mp_fwarthog"
     },
-    "rhog1": {
+    "lambo1": {
       "seat": 0,
-      "vehicle": "vehicles\\lambo\\lambo"
-    },
-    "rhog2": {
-      "seat": 7,
       "vehicle": "vehicles\\lambo\\lambo"
     }
   },
@@ -12618,11 +12586,11 @@
     }
   },
   "smallprawn": {
-    "hog1": {
+    "cart1": {
       "seat": 0,
       "vehicle": "vehicles\\cart\\cart"
     },
-    "hog2": {
+    "cart2": {
       "seat": 7,
       "vehicle": "vehicles\\cart\\cart"
     },
@@ -12712,11 +12680,11 @@
       "seat": 0,
       "vehicle": "vehicles\\h2_ghost\\h2_ghost"
     },
-    "hog1": {
+    "shog1": {
       "seat": 0,
       "vehicle": "vehicles\\snow hog\\snow hog"
     },
-    "hog2": {
+    "shog2": {
       "seat": 7,
       "vehicle": "vehicles\\snow hog\\snow hog"
     }
@@ -12744,16 +12712,8 @@
       "seat": 0,
       "vehicle": "vehicles\\newhog\\newhog mp_warthog"
     },
-    "hog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\newhog\\newhog mp_warthog"
-    },
     "rhog1": {
       "seat": 0,
-      "vehicle": "h3r\\vehicles\\mogoose\\c gun turret_mp"
-    },
-    "rhog2": {
-      "seat": 7,
       "vehicle": "h3r\\vehicles\\mogoose\\c gun turret_mp"
     }
   },
@@ -13470,20 +13430,12 @@
     }
   },
   "the_land_of_hyrule_v0.2": {
-    "hog1": {
+    "epo1": {
       "seat": 0,
       "vehicle": "vehicles\\epona\\epona"
     },
-    "hog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\epona\\epona"
-    },
-    "rhog1": {
+    "horse1": {
       "seat": 0,
-      "vehicle": "vehicles\\zeldas_horse\\zeldas horse"
-    },
-    "rhog2": {
-      "seat": 7,
       "vehicle": "vehicles\\zeldas_horse\\zeldas horse"
     }
   },
@@ -13953,24 +13905,6 @@
     "rhog2": {
       "seat": 7,
       "vehicle": "UNKNOWN_TAG_ADDRESS"
-    }
-  },
-  "tusken_raid": {
-    "hog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\aat\\aat"
-    },
-    "hog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\aat\\aat"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\starfighter\\starfighter_mp"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\starfighter\\starfighter_mp"
     }
   },
   "twist_beta": {
@@ -14608,11 +14542,11 @@
       "seat": 7,
       "vehicle": "vehicles\\g_warthog\\g_warthog"
     },
-    "rhog1": {
+    "tach1": {
       "seat": 0,
       "vehicle": "vehicles\\tachikoma\\tachikoma"
     },
-    "rhog2": {
+    "tach2": {
       "seat": 7,
       "vehicle": "vehicles\\tachikoma\\tachikoma"
     }
