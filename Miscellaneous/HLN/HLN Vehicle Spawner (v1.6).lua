@@ -34,6 +34,12 @@ local settings = {
     already_occupied = "You are already in a vehicle!",
     insufficient_spawns = "You have exceeded your Vehicle Entry-Spawn Limit for this game.",
 
+	-- If enabled, this script will send a welcome message to the newly joined player
+	-- This message appears in the RCON area.
+	enable_welcome_message = true,
+	-- Duration the welcome message stays on screen:
+	welcome_message_duration = 10,
+
     -- This script will periodically announce the valid vehicle-entry commands
     -- How often should messages appear? (in seconds) 300 = 5 minutes
     command_message_duration = 180,
@@ -45,7 +51,8 @@ local settings = {
 -- Configuration [Ends] ---------------------------------------------
 
 -- Do not touch:
-local vehicle_objects, spawns = {}, {}
+local welcome_message = {}
+local vehicle_objects, cooldown = {}, {}
 local map_data, valid_commands = {}, {}
 local time_scale, game_started = 0.03333333333333333, nil
 local gmatch, gsub, floor = string.gmatch, string.gsub, math.floor
@@ -87,6 +94,7 @@ end
 function OnGameEnd()
     game_started = false
     valid_commands.init = false
+    InitPlayer(PlayerIndex, true)
 end
 
 function OnTick()
@@ -94,6 +102,17 @@ function OnTick()
 
         for i = 1, 16 do
             if player_present(i) then
+
+                if (welcome_message[i]) then
+                    if (welcome_message[i].init) then
+                        welcome_message[i].timer = welcome_message[i].timer + time_scale
+                        for _ = 1,25 do rprint(i, " ") end
+                        rprint(i, valid_commands.msg)
+                        if (welcome_message[i].timer >= welcome_message[i].duration) then
+                            welcome_message[i].timer, welcome_message[i].init = 0, false
+                        end
+                    end
+                end
 
                 if (valid_commands.timer) then
                     valid_commands.timer = valid_commands.timer + time_scale
@@ -107,13 +126,13 @@ function OnTick()
 
                 if player_alive(i) then
                     DespawnHandler(i)
-                    local t = spawns[i]
-                    if (t.cooldown_triggered) then
+                    local t = cooldown[i]
+                    if (t.init) then
                         t.cooldown = t.cooldown - time_scale
                         -- print("Cooldown ends in " .. floor(t.cooldown) .. " seconds")
                         if (t.cooldown <= 1) then
                             t.cooldown = settings.cooldown_duration
-                            t.cooldown_triggered = false
+                            t.init = false
                         end
                     end
                 end
@@ -171,15 +190,15 @@ function OnPlayerChat(PlayerIndex, Message, Type)
                     if (msg[1] == command) then
                         if player_alive(PlayerIndex) then
                             if GetTag(Vehicle.vehicle) then
-                                local t = spawns[PlayerIndex]
+                                local t = cooldown[PlayerIndex]
                                 if (t.uses > 0) then
-                                    if (not t.cooldown_triggered) then
+                                    if (not t.init) then
 
                                         local player_object = get_dynamic_player(PlayerIndex)
                                         local coords = getXYZ(PlayerIndex, player_object)
 
                                         if not (coords.invehicle) then
-                                            t.cooldown_triggered = true
+                                            t.init = true
                                             t.uses = t.uses - 1
 
                                             local vehicle = spawn_object("vehi", Vehicle.vehicle, coords.x, coords.y, coords.z)
@@ -229,9 +248,6 @@ end
 
 function OnPlayerConnect(PlayerIndex)
     InitPlayer(PlayerIndex, false)
-    if (#valid_commands > 0 and valid_commands.msg ~= "") then
-        say(PlayerIndex, valid_commands.msg)
-    end
 end
 
 function OnPlayerDisconnect(PlayerIndex)
@@ -239,8 +255,8 @@ function OnPlayerDisconnect(PlayerIndex)
 end
 
 function OnPlayerDeath(PlayerIndex)
-    spawns[PlayerIndex].cooldown_triggered = false
-    spawns[PlayerIndex].cooldown = settings.cooldown_duration
+    cooldown[PlayerIndex].init = false
+    cooldown[PlayerIndex].cooldown = settings.cooldown_duration
 end
 
 function stringSplit(Command)
@@ -254,13 +270,20 @@ end
 
 function InitPlayer(PlayerIndex, Reset)
     if not (Reset) then
-        spawns[PlayerIndex] = {
+		if (settings.enable_welcome_message) then
+			welcome_message[PlayerIndex] = {}
+			welcome_message[PlayerIndex].timer = 0
+			welcome_message[PlayerIndex].init = true
+			welcome_message[PlayerIndex].duration = settings.welcome_message_duration
+		end
+        cooldown[PlayerIndex] = {
             cooldown = settings.cooldown_duration,
-            cooldown_triggered = false,
+            init = false,
             uses = settings.spawns_per_game,
         }
     else
-        spawns[PlayerIndex] = {}
+        welcome_message[PlayerIndex] = {}
+        cooldown[PlayerIndex] = {}
     end
 end
 
