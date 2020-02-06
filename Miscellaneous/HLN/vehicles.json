@@ -1457,24 +1457,6 @@
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
-  "bmt_new_mombasa": {
-    "hog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "hog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    }
-  },
   "boat_test4": {
     "hog1": {
       "seat": 0,
@@ -1545,24 +1527,6 @@
     "rhog2": {
       "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
-    }
-  },
-  "brace": {
-    "hog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "hog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "bravo_base": {
@@ -2249,24 +2213,6 @@
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
-  "chris - haloball": {
-    "hog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "hog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    }
-  },
   "christmas_halo": {
     "hog1": {
       "seat": 0,
@@ -2447,24 +2393,6 @@
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
-  "city2001": {
-    "hog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "hog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    }
-  },
   "cityscape-adrenaline": {
     "hog1": {
       "seat": 0,
@@ -2484,24 +2412,6 @@
     }
   },
   "cityscape-classic": {
-    "hog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "hog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    }
-  },
-  "city_17": {
     "hog1": {
       "seat": 0,
       "vehicle": "vehicles\\warthog\\mp_warthog"
@@ -5453,24 +5363,6 @@
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
-  "forsaken": {
-    "hog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "hog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    }
-  },
   "fox_abandonedepsilon": {
     "hog1": {
       "seat": 0,
@@ -6407,24 +6299,6 @@
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
-  "h2_warlock": {
-    "hog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "hog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    }
-  },
   "h3 foundry": {
     "hog1": {
       "seat": 0,
@@ -6588,24 +6462,6 @@
     }
   },
   "hcel_tensity": {
-    "hog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "hog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    }
-  },
-  "headlong_pb2": {
     "hog1": {
       "seat": 0,
       "vehicle": "vehicles\\warthog\\mp_warthog"
@@ -6966,24 +6822,6 @@
     }
   },
   "hogjuitsu": {
-    "hog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "hog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    }
-  },
-  "hogracev3beta": {
     "hog1": {
       "seat": 0,
       "vehicle": "vehicles\\warthog\\mp_warthog"
@@ -8261,24 +8099,6 @@
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
-  "lake forest": {
-    "hog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "hog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    }
-  },
   "lake-natalie": {
     "hog1": {
       "seat": 0,
@@ -9431,24 +9251,6 @@
       "vehicle": "vehicles\\ghost\\ghost"
     }
   },
-  "mtm_mario_bros": {
-    "hog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "hog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    }
-  },
   "mt_cereal_bowl": {
     "hog1": {
       "seat": 0,
@@ -9882,24 +9684,6 @@
     }
   },
   "new_mombasa_race_v2": {
-    "hog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "hog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    }
-  },
-  "new_swamps": {
     "hog1": {
       "seat": 0,
       "vehicle": "vehicles\\warthog\\mp_warthog"
@@ -13031,24 +12815,6 @@
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
-  "snowstorm_classic": {
-    "hog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "hog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    }
-  },
   "snowtorn_cove": {
     "hog1": {
       "seat": 0,
@@ -13446,24 +13212,6 @@
     }
   },
   "supremacy": {
-    "hog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "hog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    }
-  },
-  "swampgrounds": {
     "hog1": {
       "seat": 0,
       "vehicle": "vehicles\\warthog\\mp_warthog"
@@ -16758,3 +16506,26 @@
     }
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
