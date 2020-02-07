@@ -1,4 +1,22 @@
 {
+  "Cheer_cold": {
+    "hog1": {
+      "seat": 0,
+      "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "hog2": {
+      "seat": 7,
+      "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "rhog1": {
+      "seat": 0,
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
+    },
+    "rhog2": {
+      "seat": 7,
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
+    }
+  },
   "10khalothemebeta": {
     "hog1": {
       "seat": 0,
@@ -3088,19 +3106,19 @@
   "covercanyon2": {
     "hog1": {
       "seat": 0,
-      "vehicle": "UNKNOWN_TAG_ADDRESS"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "UNKNOWN_TAG_ADDRESS"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "UNKNOWN_TAG_ADDRESS"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "UNKNOWN_TAG_ADDRESS"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "craterpit_final": {
@@ -6896,19 +6914,19 @@
   "hogwars": {
     "hog1": {
       "seat": 0,
-      "vehicle": "UNKNOWN_TAG_ADDRESS"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "UNKNOWN_TAG_ADDRESS"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "UNKNOWN_TAG_ADDRESS"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "UNKNOWN_TAG_ADDRESS"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "hollowhilljetroom": {
@@ -10517,7 +10535,7 @@
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
-  "phantom": {
+  "Phantom": {
     "hog1": {
       "seat": 0,
       "vehicle": "vehicles\\warthog\\mp_warthog"
@@ -10606,19 +10624,19 @@
   "pipedream": {
     "hog1": {
       "seat": 0,
-      "vehicle": "UNKNOWN_TAG_ADDRESS"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "UNKNOWN_TAG_ADDRESS"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "UNKNOWN_TAG_ADDRESS"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "UNKNOWN_TAG_ADDRESS"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "pipeline": {
@@ -11094,19 +11112,19 @@
   "racetime": {
     "hog1": {
       "seat": 0,
-      "vehicle": "UNKNOWN_TAG_ADDRESS"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "UNKNOWN_TAG_ADDRESS"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "UNKNOWN_TAG_ADDRESS"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "UNKNOWN_TAG_ADDRESS"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "racist": {
@@ -11129,20 +11147,34 @@
   },
   "rainbow-road-v2": {
     "hog1": {
+      "seat": 7,
+      "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "hog2": {
       "seat": 0,
-      "vehicle": "UNKNOWN_TAG_ADDRESS"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "ghost": {
+      "seat": 0,
+      "vehicle": "vehicles\\h2_ghost\\h2_ghost"
+    }
+  },
+  "3tiers": {
+    "hog1": {
+      "seat": 0,
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "UNKNOWN_TAG_ADDRESS"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "UNKNOWN_TAG_ADDRESS"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "UNKNOWN_TAG_ADDRESS"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "rainbow-road-v5": {
@@ -11917,20 +11949,20 @@
   },
   "rmt_hog_run_beta": {
     "hog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
+      "civi1": 0,
+      "vehicle": "vehicles\\snow_civ_hog\\snow_civ_hog"
     },
-    "hog2": {
+    "civi2": {
       "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
+      "vehicle": "vehicles\\snow_civ_hog\\snow_civ_hog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
+      "vehicle": "halo3\\vehicles\\warthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
+      "vehicle": "halo3\\vehicles\\warthog\\rwarthog"
     }
   },
   "rndm_lockdown": {
@@ -12292,19 +12324,19 @@
   "sheer_cold": {
     "hog1": {
       "seat": 0,
-      "vehicle": "UNKNOWN_TAG_ADDRESS"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "UNKNOWN_TAG_ADDRESS"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "UNKNOWN_TAG_ADDRESS"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "UNKNOWN_TAG_ADDRESS"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "shellshock_alpha": {
@@ -14428,19 +14460,19 @@
   "vxa30_mp": {
     "hog1": {
       "seat": 0,
-      "vehicle": "UNKNOWN_TAG_ADDRESS"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "UNKNOWN_TAG_ADDRESS"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "UNKNOWN_TAG_ADDRESS"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "UNKNOWN_TAG_ADDRESS"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "w4rtorn_cove": {
@@ -15236,19 +15268,19 @@
   "zanzibarhalo3": {
     "hog1": {
       "seat": 0,
-      "vehicle": "UNKNOWN_TAG_ADDRESS"
+      "vehicle": "vehicles\\bm_warthog\\bm_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "UNKNOWN_TAG_ADDRESS"
+      "vehicle": "vehicles\\bm_warthog\\bm_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "UNKNOWN_TAG_ADDRESS"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "UNKNOWN_TAG_ADDRESS"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "zerohour_h1.5": {
