@@ -1736,20 +1736,12 @@
     }
   },
   "bumper_cars_v2": {
-    "civi1": {
+    "civi": {
       "seat": 0,
-      "vehicle": "vehicles\\civvi\\civilian warthog"
-    },
-    "civi2": {
-      "seat": 7,
       "vehicle": "vehicles\\civvi\\civilian warthog"
     },
     "hog1": {
       "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthogc"
-    },
-    "hog2": {
-      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthogc"
     }
   },
