@@ -103,7 +103,7 @@ function OnTick()
         for i = 1, 16 do
             if player_present(i) then
 
-                if (welcome_message[i]) then
+                if (welcome_message[i]) and (valid_commands.msg) then
                     if (welcome_message[i].init) then
                         welcome_message[i].timer = welcome_message[i].timer + time_scale
                         for _ = 1,25 do rprint(i, " ") end
