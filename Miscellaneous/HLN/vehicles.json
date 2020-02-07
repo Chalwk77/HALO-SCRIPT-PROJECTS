@@ -12046,7 +12046,7 @@
     }
   },
   "rmt_hog_run_beta": {
-    "civi2": {
+    "civi1": {
       "seat": 7,
       "vehicle": "vehicles\\snow_civ_hog\\snow_civ_hog"
     },
@@ -12411,7 +12411,7 @@
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
-  "sheer_cold": {
+  "Sheer_Cold": {
     "hog1": {
       "seat": 0,
       "vehicle": "vehicles\\warthog\\mp_warthog"
