@@ -9700,21 +9700,31 @@
     }
   },
   "nightmare_arena": {
+    "ghost": {
+      "seat": 0,
+      "vehicle": "vehicles\\newghost\\newghost"
+    },
+    "bull": {
+      "seat": 0,
+      "vehicle": "vehicles\\bulldog\\bulldog"
+    }
+  },
+  "The-Right-of-Passage_a30": {
     "hog1": {
       "seat": 0,
-      "vehicle": "halo3\\vehicles\\warthog\\mp_warthog"
+      "vehicle": "vehicles\\bm_warthog\\bm_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "halo3\\vehicles\\warthog\\mp_warthog"
+      "vehicle": "vehicles\\bm_warthog\\bm_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "halo3\\vehicles\\warthog\\rwarthog"
+      "vehicle": "vehicles\\rwarthog\\hellrwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "halo3\\vehicles\\warthog\\rwarthog"
+      "vehicle": "vehicles\\rwarthog\\hellrwarthog"
     }
   },
   "nightriders": {
@@ -13494,6 +13504,24 @@
     }
   },
   "theisland": {
+    "hog1": {
+      "seat": 0,
+      "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "hog2": {
+      "seat": 7,
+      "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "rhog1": {
+      "seat": 0,
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
+    },
+    "rhog2": {
+      "seat": 7,
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
+    }
+  },
+  "lake forest": {
     "hog1": {
       "seat": 0,
       "vehicle": "vehicles\\warthog\\mp_warthog"
