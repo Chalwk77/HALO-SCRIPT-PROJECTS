@@ -1,22 +1,4 @@
 {
-  "Cheer_cold": {
-    "hog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "hog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    }
-  },
   "10khalothemebeta": {
     "hog1": {
       "seat": 0,
@@ -36,6 +18,24 @@
     }
   },
   "10ktrbeta1": {
+    "hog1": {
+      "seat": 0,
+      "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "hog2": {
+      "seat": 7,
+      "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "rhog1": {
+      "seat": 0,
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
+    },
+    "rhog2": {
+      "seat": 7,
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
+    }
+  },
+  "3tiers": {
     "hog1": {
       "seat": 0,
       "vehicle": "vehicles\\warthog\\mp_warthog"
@@ -2251,6 +2251,24 @@
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
+  "Cheer_cold": {
+    "hog1": {
+      "seat": 0,
+      "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "hog2": {
+      "seat": 7,
+      "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "rhog1": {
+      "seat": 0,
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
+    },
+    "rhog2": {
+      "seat": 7,
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
+    }
+  },
   "chiller": {
     "hog1": {
       "seat": 0,
@@ -4191,61 +4209,7 @@
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
-  "kasheek_(starwars)": {
-    "hog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "hog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\g_warthog\\g_warthog"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\g_warthog\\g_warthog"
-    }
-  },
   "devils_drop_race": {
-    "hog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "hog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    }
-  },
-  "Mezmoriced": {
-    "hog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "hog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    }
-  },
-  "shakuras": {
     "hog1": {
       "seat": 0,
       "vehicle": "vehicles\\warthog\\mp_warthog"
@@ -7991,6 +7955,24 @@
       "vehicle": "vehicles\\jeep\\jeep"
     }
   },
+  "kasheek_(starwars)": {
+    "hog1": {
+      "seat": 0,
+      "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "hog2": {
+      "seat": 7,
+      "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "rhog1": {
+      "seat": 0,
+      "vehicle": "vehicles\\g_warthog\\g_warthog"
+    },
+    "rhog2": {
+      "seat": 7,
+      "vehicle": "vehicles\\g_warthog\\g_warthog"
+    }
+  },
   "kensworld2": {
     "hog1": {
       "seat": 0,
@@ -8986,6 +8968,24 @@
     }
   },
   "metalicarena": {
+    "hog1": {
+      "seat": 0,
+      "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "hog2": {
+      "seat": 7,
+      "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "rhog1": {
+      "seat": 0,
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
+    },
+    "rhog2": {
+      "seat": 7,
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
+    }
+  },
+  "Mezmoriced": {
     "hog1": {
       "seat": 0,
       "vehicle": "vehicles\\warthog\\mp_warthog"
@@ -11200,35 +11200,17 @@
     }
   },
   "rainbow-road-v2": {
-    "hog1": {
-      "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "hog2": {
-      "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
     "ghost": {
       "seat": 0,
       "vehicle": "vehicles\\h2_ghost\\h2_ghost"
-    }
-  },
-  "3tiers": {
+    },
     "hog1": {
-      "seat": 0,
+      "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "rhog1": {
       "seat": 0,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     }
   },
   "rainbow-road-v5": {
@@ -12002,12 +11984,12 @@
     }
   },
   "rmt_hog_run_beta": {
-    "hog1": {
-      "civi1": 0,
-      "vehicle": "vehicles\\snow_civ_hog\\snow_civ_hog"
-    },
     "civi2": {
       "seat": 7,
+      "vehicle": "vehicles\\snow_civ_hog\\snow_civ_hog"
+    },
+    "hog1": {
+      "civi1": 0,
       "vehicle": "vehicles\\snow_civ_hog\\snow_civ_hog"
     },
     "rhog1": {
