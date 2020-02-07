@@ -90,21 +90,17 @@
     }
   },
   "[h3style]containment": {
+    "ghost": {
+      "seat": 0,
+      "vehicle": "vehicles\\ghost\\ghost_mp"
+    },
     "hog1": {
       "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
+      "vehicle": "vehicles\\cwarthog\\mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
+      "vehicle": "vehicles\\cwarthog\\mp_warthog"
     }
   },
   "a-small-race-track": {
@@ -2804,6 +2800,24 @@
     }
   },
   "collide_beta_1": {
+    "hog1": {
+      "seat": 0,
+      "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "hog2": {
+      "seat": 7,
+      "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "rhog1": {
+      "seat": 0,
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
+    },
+    "rhog2": {
+      "seat": 7,
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
+    }
+  },
+  "columbia_gorge_beta": {
     "hog1": {
       "seat": 0,
       "vehicle": "vehicles\\warthog\\mp_warthog"
@@ -13755,6 +13769,24 @@
     "hog2": {
       "seat": 7,
       "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "rhog1": {
+      "seat": 0,
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
+    },
+    "rhog2": {
+      "seat": 7,
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
+    }
+  },
+  "trapsion": {
+    "hog1": {
+      "seat": 0,
+      "vehicle": "vehicles\\mwarthog\\mwarthog"
+    },
+    "hog2": {
+      "seat": 7,
+      "vehicle": "vehicles\\mwarthog\\mwarthog"
     },
     "rhog1": {
       "seat": 0,
