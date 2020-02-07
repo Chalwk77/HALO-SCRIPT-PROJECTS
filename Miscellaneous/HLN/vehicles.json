@@ -9272,21 +9272,13 @@
     }
   },
   "mudwinder": {
-    "hog1": {
+    "mon1": {
       "seat": 0,
-      "vehicle": "vehicles\\hogfoot\\hogfoot"
+      "vehicle": "vehicles\\m257_multvp\\m257_multvp"
     },
-    "hog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\hogfoot\\hogfoot"
-    },
-    "rhog1": {
+    "mon2": {
       "seat": 0,
-      "vehicle": "vehicles\\hogfoot\\hogfoot2"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\hogfoot\\hogfoot2"
+      "vehicle": "vehicles\\m257_multvp\\m257_multvp2"
     }
   },
   "municipality": {
