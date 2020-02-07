@@ -463,6 +463,24 @@
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
+  "ancient_forest": {
+    "hog1": {
+      "seat": 0,
+      "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "hog2": {
+      "seat": 7,
+      "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "rhog1": {
+      "seat": 0,
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
+    },
+    "rhog2": {
+      "seat": 7,
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
+    }
+  },
   "ancient_sanctuary_beta": {
     "hog1": {
       "seat": 0,
