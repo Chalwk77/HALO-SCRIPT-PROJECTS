@@ -80,9 +80,13 @@
       "seat": 7,
       "vehicle": "h2\\objects\\vehicles\\warthog\\warthog"
     },
-    "ghost": {
+    "rhog1": {
       "seat": 0,
-      "vehicle": "vehicles\\yghost\\y-ghost"
+      "vehicle": "h2\\objects\\vehicles\\warthog\\warthog"
+    },
+    "rhog2": {
+      "seat": 7,
+      "vehicle": "h2\\objects\\vehicles\\warthog\\warthog"
     }
   },
   "[h3style]containment": {
@@ -402,6 +406,10 @@
     },
     "sult1": {
       "seat": 0,
+      "vehicle": "vehicles\\sultan\\sultan"
+    },
+    "sult2": {
+      "seat": 7,
       "vehicle": "vehicles\\sultan\\sultan"
     }
   },
@@ -2680,6 +2688,10 @@
     },
     "sult1": {
       "seat": 0,
+      "vehicle": "vehicles\\sultan\\sultan"
+    },
+    "sult2": {
+      "seat": 7,
       "vehicle": "vehicles\\sultan\\sultan"
     }
   },
@@ -7557,6 +7569,10 @@
     "sult1": {
       "seat": 0,
       "vehicle": "vehicles\\sultan\\sultan"
+    },
+    "sult2": {
+      "seat": 7,
+      "vehicle": "vehicles\\sultan\\sultan"
     }
   },
   "infinity_futur_weapon_mod": {
@@ -9684,21 +9700,31 @@
     }
   },
   "nightmare_arena": {
+    "ghost": {
+      "seat": 0,
+      "vehicle": "vehicles\\newghost\\newghost"
+    },
+    "bull": {
+      "seat": 0,
+      "vehicle": "vehicles\\bulldog\\bulldog"
+    }
+  },
+  "The-Right-of-Passage_a30": {
     "hog1": {
       "seat": 0,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
+      "vehicle": "vehicles\\bm_warthog\\bm_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
+      "vehicle": "vehicles\\bm_warthog\\bm_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
+      "vehicle": "vehicles\\rwarthog\\hellrwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
+      "vehicle": "vehicles\\rwarthog\\hellrwarthog"
     }
   },
   "nightriders": {
@@ -13495,6 +13521,24 @@
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
+  "lake forest": {
+    "hog1": {
+      "seat": 0,
+      "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "hog2": {
+      "seat": 7,
+      "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "rhog1": {
+      "seat": 0,
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
+    },
+    "rhog2": {
+      "seat": 7,
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
+    }
+  },
   "thevalley": {
     "hog1": {
       "seat": 0,
@@ -13889,6 +13933,24 @@
     "rhog2": {
       "seat": 7,
       "vehicle": "UNKNOWN_TAG_ADDRESS"
+    }
+  },
+  "tusken_raid": {
+    "aat1": {
+      "seat": 0,
+      "vehicle": "vehicles\\aat\\aat"
+    },
+    "aat1": {
+      "seat": 7,
+      "vehicle": "vehicles\\aat\\aat"
+    },
+    "sf1": {
+      "seat": 0,
+      "vehicle": "vehicles\\starfighter\\starfighter_mp"
+    },
+    "sf1": {
+      "seat": 7,
+      "vehicle": "vehicles\\starfighter\\starfighter_mp"
     }
   },
   "twist_beta": {
@@ -14526,11 +14588,11 @@
       "seat": 7,
       "vehicle": "vehicles\\g_warthog\\g_warthog"
     },
-    "tach1": {
+    "rhog1": {
       "seat": 0,
       "vehicle": "vehicles\\tachikoma\\tachikoma"
     },
-    "tach2": {
+    "rhog2": {
       "seat": 7,
       "vehicle": "vehicles\\tachikoma\\tachikoma"
     }

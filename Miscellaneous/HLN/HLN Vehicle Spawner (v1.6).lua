@@ -1,6 +1,6 @@
 --[[
 --======================================================================================================--
-Script Name: HLN Vehicle Spawner (v1.6), for SAPP (PC & CE)
+Script Name: HLN Vehicle Spawner (v1.7), for SAPP (PC & CE)
 Description: This script will force you into a vehicle of your choice by
              means of a keyword typed in chat.
 
@@ -103,7 +103,7 @@ function OnTick()
         for i = 1, 16 do
             if player_present(i) then
 
-                if (welcome_message[i]) then
+                if (welcome_message[i]) and (valid_commands.msg) then
                     if (welcome_message[i].init) then
                         welcome_message[i].timer = welcome_message[i].timer + time_scale
                         for _ = 1,25 do rprint(i, " ") end
