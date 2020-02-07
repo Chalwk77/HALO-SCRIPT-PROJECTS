@@ -835,6 +835,24 @@
       "vehicle": "vehicles\\mongoose\\atv2"
     }
   },
+  "Battle_For_Victory": {
+    "hog1": {
+      "seat": 0,
+      "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "hog2": {
+      "seat": 7,
+      "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "rhog1": {
+      "seat": 0,
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
+    },
+    "rhog2": {
+      "seat": 7,
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
+    }
+  },
   "battlecraft": {
     "hog1": {
       "seat": 0,
@@ -3121,6 +3139,24 @@
       "vehicle": "vehicles\\ghost\\ghost_mp"
     }
   },
+  "covenant_battle_menu": {
+    "hog1": {
+      "seat": 0,
+      "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "hog2": {
+      "seat": 7,
+      "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "rhog1": {
+      "seat": 0,
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
+    },
+    "rhog2": {
+      "seat": 7,
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
+    }
+  },
   "covenant_desert": {
     "hog1": {
       "seat": 0,
@@ -3600,6 +3636,24 @@
     }
   },
   "dangerfloodcanyon": {
+    "hog1": {
+      "seat": 0,
+      "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "hog2": {
+      "seat": 7,
+      "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "rhog1": {
+      "seat": 0,
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
+    },
+    "rhog2": {
+      "seat": 7,
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
+    }
+  },
+  "dangervalley": {
     "hog1": {
       "seat": 0,
       "vehicle": "vehicles\\warthog\\mp_warthog"
@@ -5353,6 +5407,24 @@
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
+  "floodgulch": {
+    "hog1": {
+      "seat": 0,
+      "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "hog2": {
+      "seat": 7,
+      "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "rhog1": {
+      "seat": 0,
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
+    },
+    "rhog2": {
+      "seat": 7,
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
+    }
+  },
   "fojaxfield": {
     "hog1": {
       "seat": 0,
@@ -6901,7 +6973,7 @@
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
-  "hogjuitsu": {
+  "Hogjuitsu": {
     "hog1": {
       "seat": 0,
       "vehicle": "vehicles\\warthog\\mp_warthog"
@@ -7055,6 +7127,24 @@
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
+  "horror_canyon": {
+    "hog1": {
+      "seat": 0,
+      "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "hog2": {
+      "seat": 7,
+      "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "rhog1": {
+      "seat": 0,
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
+    },
+    "rhog2": {
+      "seat": 7,
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
+    }
+  },
   "house2v2": {
     "hog1": {
       "seat": 0,
@@ -7109,7 +7199,7 @@
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
-  "ht_creek": {
+  "Ht_Creek": {
     "hog1": {
       "seat": 0,
       "vehicle": "vehicles\\warthog\\mp_warthog"
@@ -7847,7 +7937,7 @@
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
-  "jeep_cliffs": {
+  "Jeep_Cliffs": {
     "civi1": {
       "seat": 0,
       "vehicle": "vehicles\\civihog\\mp_civihog"
@@ -9151,6 +9241,10 @@
     "hog2": {
       "seat": 7,
       "vehicle": "vehicles\\fwarthog\\mp_fwarthog"
+    },
+    "mon": {
+      "seat": 0,
+      "vehicle": "vehicles\\m257_multvp\\m257_multvp"
     }
   },
   "monkeyrap": {
@@ -12249,7 +12343,7 @@
       "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
-  "separated": {
+  "Separated": {
     "hog1": {
       "seat": 0,
       "vehicle": "vehicles\\warthog\\mp_warthog"
@@ -12322,21 +12416,13 @@
     }
   },
   "sewage-facility": {
+    "ghost": {
+      "seat": 7,
+      "vehicle": "vehicles\\ghost\\ghost_mp"
+    },
     "hog1": {
       "seat": 0,
       "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "hog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\warthog\\mp_warthog"
-    },
-    "rhog1": {
-      "seat": 0,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
-    },
-    "rhog2": {
-      "seat": 7,
-      "vehicle": "vehicles\\rwarthog\\rwarthog"
     }
   },
   "sh_bh_danger_canyon_mod": {
@@ -14915,6 +15001,24 @@
     "rhog2": {
       "seat": 7,
       "vehicle": "vehicles\\rwarthog\\rwarthog"
+    }
+  },
+  "winter_hills": {
+    "hog1": {
+      "seat": 0,
+      "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "hog2": {
+      "seat": 7,
+      "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "vulc1": {
+      "seat": 0,
+      "vehicle": "vehicles\\vulcan\\vulcan"
+    },
+    "vulc2": {
+      "seat": 7,
+      "vehicle": "vehicles\\vulcan\\vulcan"
     }
   },
   "wintercanyon": {
