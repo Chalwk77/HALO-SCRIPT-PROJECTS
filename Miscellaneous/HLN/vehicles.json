@@ -12409,7 +12409,7 @@
   },
   "sewage-facility": {
     "ghost": {
-      "seat": 7,
+      "seat": 0,
       "vehicle": "vehicles\\ghost\\ghost_mp"
     },
     "hog1": {
