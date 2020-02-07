@@ -4176,22 +4176,76 @@
   "devils_delight": {
     "hog1": {
       "seat": 0,
-      "vehicle": "UNKNOWN_TAG_ADDRESS"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "hog2": {
       "seat": 7,
-      "vehicle": "UNKNOWN_TAG_ADDRESS"
+      "vehicle": "vehicles\\warthog\\mp_warthog"
     },
     "rhog1": {
       "seat": 0,
-      "vehicle": "UNKNOWN_TAG_ADDRESS"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
     },
     "rhog2": {
       "seat": 7,
-      "vehicle": "UNKNOWN_TAG_ADDRESS"
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
+    }
+  },
+  "kasheek_(starwars)": {
+    "hog1": {
+      "seat": 0,
+      "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "hog2": {
+      "seat": 7,
+      "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "rhog1": {
+      "seat": 0,
+      "vehicle": "vehicles\\g_warthog\\g_warthog"
+    },
+    "rhog2": {
+      "seat": 7,
+      "vehicle": "vehicles\\g_warthog\\g_warthog"
     }
   },
   "devils_drop_race": {
+    "hog1": {
+      "seat": 0,
+      "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "hog2": {
+      "seat": 7,
+      "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "rhog1": {
+      "seat": 0,
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
+    },
+    "rhog2": {
+      "seat": 7,
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
+    }
+  },
+  "Mezmoriced": {
+    "hog1": {
+      "seat": 0,
+      "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "hog2": {
+      "seat": 7,
+      "vehicle": "vehicles\\warthog\\mp_warthog"
+    },
+    "rhog1": {
+      "seat": 0,
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
+    },
+    "rhog2": {
+      "seat": 7,
+      "vehicle": "vehicles\\rwarthog\\rwarthog"
+    }
+  },
+  "shakuras": {
     "hog1": {
       "seat": 0,
       "vehicle": "vehicles\\warthog\\mp_warthog"
