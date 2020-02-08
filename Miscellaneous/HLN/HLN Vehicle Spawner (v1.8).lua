@@ -1,6 +1,6 @@
 --[[
 --======================================================================================================--
-Script Name: HLN Vehicle Spawner (v1.7), for SAPP (PC & CE)
+Script Name: HLN Vehicle Spawner (v1.8), for SAPP (PC & CE)
 Description: This script will force you into a vehicle of your choice by
              means of a keyword typed in chat.
 
@@ -71,7 +71,9 @@ function OnScriptLoad()
     if (get_var(0, "$gt") ~= "n/a") then
         CheckFile()
         for i = 1, 16 do
-            InitPlayer(i, false)
+			if player_present(i) then
+				InitPlayer(i, false)
+			end
         end
     end
 end
@@ -79,6 +81,7 @@ end
 function OnScriptUnload()
     for k, _ in pairs(vehicle_objects) do
         if (vehicle_objects[k] ~= nil) then
+			execute_command("sv_map_reset")
             destroy_object(k)
             vehicle_objects[k] = nil
         end
@@ -94,7 +97,11 @@ end
 function OnGameEnd()
     game_started = false
     valid_commands.init = false
-    InitPlayer(PlayerIndex, true)
+	for i = 1, 16 do
+		if player_present(i) then
+			InitPlayer(i, false)
+		end
+	end
 end
 
 function OnTick()
