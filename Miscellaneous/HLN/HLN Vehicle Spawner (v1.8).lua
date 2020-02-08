@@ -186,15 +186,15 @@ function DespawnHandler(PlayerIndex)
 end
 
 function OnPlayerChat(PlayerIndex, Message, Type)
-    local msg = stringSplit(Message)
+    local Str = stringSplit(Message)
 
     if (Type ~= 6) then
-        if (#msg == 0) then
+        if (#Str == 0) then
             return false
         else
             for _, Map in pairs(map_data) do
                 for command, Vehicle in pairs(Map) do
-                    if (msg[1] == command) then
+                    if (Str[1] == command) then
                         if player_alive(PlayerIndex) then
                             if GetTag(Vehicle.vehicle) then
                                 local t = cooldown[PlayerIndex]
@@ -232,8 +232,8 @@ function OnPlayerChat(PlayerIndex, Message, Type)
                                             rprint(PlayerIndex, settings.already_occupied)
                                         end
                                     else
-                                        local message = gsub(settings.please_wait, "%%seconds%%", tostring(floor(t.cooldown)))
-                                        rprint(PlayerIndex, message)
+                                        local msg = gsub(settings.please_wait, "%%seconds%%", tostring(floor(t.cooldown)))
+                                        rprint(PlayerIndex, msg)
                                     end
                                 else
                                     rprint(PlayerIndex, settings.insufficient_spawns)
