@@ -5,7 +5,7 @@ api_version = "1.12.0.0"
 local hot_commands = {
     ["sayrules"] = {
         "No portal camping or blocking, no any kind of cheating",
-        "No vehicles in the tunnels or on the flags"
+        "No vehicles in the tunnels or on the flags",
         "No Cursing or bad names",
         "No harassing an AG member or anyone in the AG Server",
         "AFK kick time is 150 secs, then you will be kicked",
