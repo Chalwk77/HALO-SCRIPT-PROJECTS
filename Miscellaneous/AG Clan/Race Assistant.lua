@@ -1,7 +1,14 @@
 --[[
 --======================================================================================================--
 Script Name: Race Assistant (v1.0), for SAPP (PC & CE)
-Description: N/A ...
+Description: This script will monitor all players and ensure they are all racing.
+             Players who are not in a vehicle will be warned after "time_until_warn" seconds.
+             After "time_until_kill" seconds the player will be killed.
+
+             Players get a maximum of 5 warnings by default.
+             If their warnings are depleted the player will be punished (kicked by default)
+
+             Note: "time_until_warn" and "time_until_kill" can be edited in the config section.
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -16,12 +23,11 @@ api_version = "1.12.0.0"
 -- Configuration [Starts] -----------
 local warning_message = "[Not in Vehicle] - Warning, you will be killed in %seconds% seconds. Warnings Left: %current%/%total%"
 local on_kill = "You were killed because you were not racing in a vehicle"
-local warnings = 2 -- Consecutive Warnings
+local warnings = 5 -- Consecutive Warnings
 local punishment = "k" -- Valid Actions: "k" = kick, "b" = ban, "crash"
 local time_until_warn = 90 -- In seconds
 local time_until_kill = 120 -- In seconds
 -- Configuration [Ends] -----------
-
 
 -- Do Not Touch --
 local players = {}
