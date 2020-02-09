@@ -27,6 +27,12 @@ local warnings = 5 -- Consecutive Warnings
 local punishment = "k" -- Valid Actions: "k" = kick, "b" = ban
 local time_until_warn = 90 -- In seconds
 local time_until_kill = 120 -- In seconds
+
+-- If true admins will be exempt from being warned and kicked.
+local ignore_admins = true
+-- Admins who are this level (or above) will be exempt.
+local min_level = 1
+
 -- Configuration [Ends] -----------
 
 -- Do Not Touch --
@@ -40,7 +46,10 @@ function OnScriptLoad()
         if RegisterSAPPEvents() then
             for i = 1, 16 do
                 if player_present(i) then
-                    InitPlayer(i, false)
+                    local ignore = (tonumber(get_var(i, "$lvl")) >= min_level and ignore_admins)
+                    if (not ignore) then
+                        InitPlayer(i, false)
+                    end
                 end
             end
         end
@@ -55,10 +64,6 @@ end
 
 function OnGameEnd()
     game_started = false
-end
-
-function OnPlayerSpawn(PlayerIndex)
-    players[PlayerIndex].seconds, players[PlayerIndex].warn = 0, true
 end
 
 function OnTick()
@@ -99,11 +104,22 @@ function OnTick()
 end
 
 function OnPlayerConnect(PlayerIndex)
-    InitPlayer(PlayerIndex, false)
+    local ignore = (tonumber(get_var(PlayerIndex, "$lvl")) >= min_level and ignore_admins)
+    if (not ignore) then
+        InitPlayer(PlayerIndex, false)
+    end
+end
+
+function OnPlayerSpawn(PlayerIndex)
+    if players[PlayerIndex] then
+        players[PlayerIndex].seconds, players[PlayerIndex].warn = 0, true
+    end
 end
 
 function OnPlayerDisconnect(PlayerIndex)
-    InitPlayer(PlayerIndex, true)
+    if players[PlayerIndex] then
+        InitPlayer(PlayerIndex, true)
+    end
 end
 
 function InitPlayer(PlayerIndex, reset)
