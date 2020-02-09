@@ -24,7 +24,7 @@ api_version = "1.12.0.0"
 local warning_message = "[Not in Vehicle] - Warning, you will be killed in %seconds% seconds. Warnings Left: %current%/%total%"
 local on_kill = "You were killed because you were not racing in a vehicle"
 local warnings = 5 -- Consecutive Warnings
-local punishment = "k" -- Valid Actions: "k" = kick, "b" = ban, "crash"
+local punishment = "k" -- Valid Actions: "k" = kick, "b" = ban
 local time_until_warn = 90 -- In seconds
 local time_until_kill = 120 -- In seconds
 -- Configuration [Ends] -----------
