@@ -37,9 +37,10 @@ end
 
 function OnServerCommand(Admin, Command, _, _)
     local Cmd = CmdSplit(Command)
+	local lvl = tonumber(get_var(Admin, "$lvl"))
     if (#Cmd == 0) then
         return false
-    elseif (tonumber(Admin, "$lvl") >= 1) then
+    elseif (lvl >= 1) then
         Cmd[1] = lower(Cmd[1]) or upper(Cmd[1])
         for command, content in pairs(hot_commands) do
             if (Cmd[1] == command) then
