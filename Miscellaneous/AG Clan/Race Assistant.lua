@@ -35,23 +35,22 @@ local time_scale, game_started = 0.03333333333333333
 local floor, gsub = math.floor, string.gsub
 
 function OnScriptLoad()
-    register_callback(cb["EVENT_TICK"], "OnTick")
-    register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
-    register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
-    register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
-    register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
     if (get_var(0, "$gt") ~= "n/a") then
-        for i = 1, 16 do
-            if player_present(i) then
-                InitPlayer(i, false)
+        if RegisterSAPPEvents() then
+            for i = 1, 16 do
+                if player_present(i) then
+                    InitPlayer(i, false)
+                end
             end
         end
     end
 end
 
 function OnGameStart()
-    game_started = true
+    if (get_var(0, "$gt") ~= "n/a") then
+        RegisterSAPPEvents()
+    end
 end
 
 function OnGameEnd()
@@ -128,6 +127,26 @@ function InVehicle(PlayerIndex, DynamicPlayer)
         end
     end
     return false
+end
+
+function RegisterSAPPEvents()
+    if (get_var(0, "$gt") == "race") then
+        game_started = true
+        register_callback(cb["EVENT_TICK"], "OnTick")
+        register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
+        register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
+        register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
+        register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
+        return true
+    else
+        game_started = false
+        unregister_callback(cb['EVENT_TICK'])
+        unregister_callback(cb['EVENT_JOIN'])
+        unregister_callback(cb['EVENT_SPAWN'])
+        unregister_callback(cb['EVENT_LEAVE'])
+        unregister_callback(cb['EVENT_GAME_END'])
+        return false
+    end
 end
 
 function OnScriptUnload()
