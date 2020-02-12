@@ -1,6 +1,6 @@
 --[[
 --======================================================================================================--
-Script Name: HLN Vehicle Spawner (v1.8), for SAPP (PC & CE)
+Script Name: HLN Vehicle Spawner (v1.9), for SAPP (PC & CE)
 Description: This script will force you into a vehicle of your choice by
              means of a keyword typed in chat.
 
@@ -34,11 +34,11 @@ local settings = {
     already_occupied = "You are already in a vehicle!",
     insufficient_spawns = "You have exceeded your Vehicle Entry-Spawn Limit for this game.",
 
-	-- If enabled, this script will send a welcome message to the newly joined player
-	-- This message appears in the RCON area.
-	enable_welcome_message = true,
-	-- Duration the welcome message stays on screen:
-	welcome_message_duration = 10,
+    -- If enabled, this script will send a welcome message to the newly joined player
+    -- This message appears in the RCON area.
+    enable_welcome_message = true,
+    -- Duration the welcome message stays on screen:
+    welcome_message_duration = 10,
 
     -- This script will periodically announce the valid vehicle-entry commands
     -- How often should messages appear? (in seconds) 300 = 5 minutes
@@ -71,9 +71,9 @@ function OnScriptLoad()
     if (get_var(0, "$gt") ~= "n/a") then
         CheckFile()
         for i = 1, 16 do
-			if player_present(i) then
-				InitPlayer(i, false)
-			end
+            if player_present(i) then
+                InitPlayer(i, false)
+            end
         end
     end
 end
@@ -81,7 +81,7 @@ end
 function OnScriptUnload()
     for k, _ in pairs(vehicle_objects) do
         if (vehicle_objects[k] ~= nil) then
-			execute_command("sv_map_reset")
+            execute_command("sv_map_reset")
             destroy_object(k)
             vehicle_objects[k] = nil
         end
@@ -96,12 +96,13 @@ end
 
 function OnGameEnd()
     game_started = false
-    valid_commands.init = false
-	for i = 1, 16 do
-		if player_present(i) then
-			InitPlayer(i, false)
-		end
-	end
+    valid_commands = {}
+
+    for i = 1, 16 do
+        if player_present(i) then
+            InitPlayer(i, false)
+        end
+    end
 end
 
 function OnTick()
@@ -277,12 +278,12 @@ end
 
 function InitPlayer(PlayerIndex, Reset)
     if not (Reset) then
-		if (settings.enable_welcome_message) then
-			welcome_message[PlayerIndex] = {}
-			welcome_message[PlayerIndex].timer = 0
-			welcome_message[PlayerIndex].init = true
-			welcome_message[PlayerIndex].duration = settings.welcome_message_duration
-		end
+        if (settings.enable_welcome_message) then
+            welcome_message[PlayerIndex] = {}
+            welcome_message[PlayerIndex].timer = 0
+            welcome_message[PlayerIndex].init = true
+            welcome_message[PlayerIndex].duration = settings.welcome_message_duration
+        end
         cooldown[PlayerIndex] = {
             cooldown = settings.cooldown_duration,
             init = false,
