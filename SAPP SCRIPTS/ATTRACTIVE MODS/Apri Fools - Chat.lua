@@ -44,17 +44,21 @@ end
 function OnPlayerChat(PlayerIndex, Message, Type)
     if (Type ~= 6) then
         local Str = stringSplit(Message)
-        if not (modify_chat) then
-            for i = 1, #Str do
-                for j = 1, #trigger_words do
-                    if (Str[i] == trigger_words[j]) then
+
+        for i = 1, #Str do
+            for j = 1, #trigger_words do
+                if (Str[i] == trigger_words[j]) then
+                    if (not modify_chat) then
                         modify_chat = true
+                    else
+                        modify_chat = false
                     end
                 end
             end
-        else
+        end
+
+        if (modify_chat) then
             local new_player = GetPlayers(PlayerIndex)
-            print(new_player)
             if (new_player) then
                 local name = get_var(new_player, "$name")
                 execute_command("msg_prefix \"\"")
