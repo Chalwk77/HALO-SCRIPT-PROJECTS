@@ -14144,12 +14144,8 @@
         }
     },
     "tusken_raid": {
-        "aat1": {
-            "seat": 7,
-            "vehicle": "vehicles\\aat\\aat"
-        },
         "sf1": {
-            "seat": 7,
+            "seat": 0,
             "vehicle": "vehicles\\starfighter\\starfighter_mp"
         }
     },
