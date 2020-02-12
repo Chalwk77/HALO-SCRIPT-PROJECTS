@@ -1,7 +1,7 @@
 --[[
 --======================================================================================================--
 Script Name: April Fools - Chat, for SAPP (PC & CE)
-Description: Other players will say speak for you...
+Description: Other players will start speaking for you....
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -13,12 +13,28 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.12.0.0"
 
--- Config: Insert your server prefix here:
+-- Config [starts]--------------------------------
+
+-- Insert your server prefix here:
 local server_prefix = "** LNZ ** "
--- Config Ends
+local trigger_words = { "that", "que" }
+-- Config [ends]----------------------------------
+
+local modify_chat
+local gmatch = string.gmatch
 
 function OnScriptLoad()
     register_callback(cb["EVENT_CHAT"], "OnPlayerChat")
+    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
+    if (get_var(0, "$gt") ~= nil) then
+        modify_chat = false
+    end
+end
+
+function OnGameStart()
+    if (get_var(0, "$gt") ~= nil) then
+        modify_chat = false
+    end
 end
 
 function OnScriptUnload()
@@ -27,18 +43,29 @@ end
 
 function OnPlayerChat(PlayerIndex, Message, Type)
     if (Type ~= 6) then
-        local new_player = GetPlayers(PlayerIndex)
-        print(new_player)
-        if (new_player) then
-            local name = get_var(new_player, "$name")
-            execute_command("msg_prefix \"\"")
-            if (Type == 0) then
-                say_all(name .. ": " .. Message)
-            elseif (Type == 1 or Type == 2) then
-                say_all("[" .. name .. "]: " .. Message)
+        local Str = stringSplit(Message)
+        if not (modify_chat) then
+            for i = 1, #Str do
+                for j = 1, #trigger_words do
+                    if (Str[i] == trigger_words[j]) then
+                        modify_chat = true
+                    end
+                end
             end
-            execute_command("msg_prefix \" " .. server_prefix .. "\"")
-            return false
+        else
+            local new_player = GetPlayers(PlayerIndex)
+            print(new_player)
+            if (new_player) then
+                local name = get_var(new_player, "$name")
+                execute_command("msg_prefix \"\"")
+                if (Type == 0) then
+                    say_all(name .. ": " .. Message)
+                elseif (Type == 1 or Type == 2) then
+                    say_all("[" .. name .. "]: " .. Message)
+                end
+                execute_command("msg_prefix \" " .. server_prefix .. "\"")
+                return false
+            end
         end
     end
 end
@@ -53,4 +80,13 @@ function GetPlayers(ExcludeIndex)
         end
     end
     return players[rand(1, #players)]
+end
+
+function stringSplit(Str)
+    local t, i = {}, 1
+    for Words in gmatch(Str, "([^%s]+)") do
+        t[i] = Words
+        i = i + 1
+    end
+    return t
 end
