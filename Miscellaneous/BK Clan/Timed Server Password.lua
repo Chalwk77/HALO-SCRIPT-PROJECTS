@@ -50,16 +50,16 @@ function OnTick()
         server.time = server.time + time_scale
         local delta_time = ((duration) - (server.time))
         local minutes, seconds = select(1, secondsToTime(delta_time)), select(2, secondsToTime(delta_time))
-        
-		-- Debugging:
-		-- print("Server Password will be removed in: " .. minutes .. ":" .. seconds)
-		--
-		
+
+        -- Debugging:
+        -- print("Server Password will be removed in: " .. minutes .. ":" .. seconds)
+        --
+
         local time_up = ((tonumber(minutes) <= 0) and (tonumber(seconds) <= 0))
         if (time_up) then
             execute_command('sv_password ""')
             StopTimer()
-			say_all("Server password has been automatically removed.")
+            say_all("Server password has been automatically removed.")
         end
     end
 end
