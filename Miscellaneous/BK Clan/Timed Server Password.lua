@@ -5,7 +5,7 @@ Description: This script will automatically remove the server password after a g
 
 Planned feature:
       There will be a future update for this script.
-      Version 1.1 will have an option to init the countdown timer immediately after new server is set.
+      Version 1.1 will have an option to init the countdown timer immediately after new server password is set.
       Currently, the timer begins as soon as a new game starts.
 
 For @Rev - BK Clan.
