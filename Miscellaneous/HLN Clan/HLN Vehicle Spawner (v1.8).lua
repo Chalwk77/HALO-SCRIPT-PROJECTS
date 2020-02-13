@@ -1,8 +1,33 @@
 --[[
 --======================================================================================================--
-Script Name: HLN Vehicle Spawner (v1.9), for SAPP (PC & CE)
+Script Name: HLN Vehicle Spawner (v1.10), for SAPP (PC & CE)
 Description: This script will force you into a vehicle of your choice by
              means of a keyword typed in chat.
+
+             Vehicle spawn settings are determined on a per-map basis.
+             These settings are found in the "vehicles.json" file (needed to run this script).
+             Download link: https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/Miscellaneous/HLN%20Clan/vehicles.json
+	         Place this file in "cg/sapp" directory.
+
+	         Example Map Entry:
+            "bloodgulch": {
+                "hog1": { <<<<<<<<<<<<<<<--------------------- Type "hog1" in chat to enter into Seat Position 0 of the Chain Gun Hog.
+                    "seat": 0,
+                    "vehicle": "vehicles\\warthog\\mp_warthog"
+                },
+                "hog2": { <<<<<<<<<<<<<<<--------------------- Type "hog2" in chat to enter into Seat Position 0 & 2 of the Chain Gun Hog (drive as gunner).
+                    "seat": 7,
+                    "vehicle": "vehicles\\warthog\\mp_warthog"
+                },
+                "rhog1": { <<<<<<<<<<<<<<<--------------------- Type "rhog1" in chat to enter into Seat Position 0 of the Rocket Hog.
+                    "seat": 0,
+                    "vehicle": "vehicles\\rwarthog\\rwarthog"
+                },
+                "rhog2": { <<<<<<<<<<<<<<<--------------------- Type "rhog2" in chat to enter into Seat Position 0 & 2 of the Rocket Hog (drive as gunner).
+                    "seat": 7,
+                    "vehicle": "vehicles\\rwarthog\\rwarthog"
+                }
+            },
 
 FEATURES:
 	* Command cooldowns
@@ -34,7 +59,7 @@ local settings = {
     already_occupied = "You are already in a vehicle!",
     insufficient_spawns = "You have exceeded your Vehicle Entry-Spawn Limit for this game.",
 
-    -- If enabled, this script will send a welcome message to the newly joined player
+    -- If enabled, this script will send a welcome message (containing command info) to the newly joined player
     -- This message appears in the RCON area.
     enable_welcome_message = true,
     -- Duration the welcome message stays on screen:
@@ -47,16 +72,14 @@ local settings = {
     -- Comma separated commands will be automatically be inserted at the end of the sentence...
     command_msg_variant_one = "Use this command to spawn a vehicle: ",
     command_msg_variant_two = "Use these commands to spawn a vehicle: ",
+    server_prefix = "HLN | CE» "
 }
 -- Configuration [Ends] ---------------------------------------------
 
 -- Do not touch:
-local welcome_message = {}
-local vehicle_objects, cooldown = {}, {}
-local map_data, valid_commands = {}, {}
+local map_data, valid_commands, vehicle_objects, players = {}, {}, {}, {}
 local time_scale, game_started = 0.03333333333333333, nil
 local gmatch, gsub, floor = string.gmatch, string.gsub, math.floor
-
 local json = (loadfile "sapp\\json.lua")()
 
 function OnScriptLoad()
@@ -72,7 +95,7 @@ function OnScriptLoad()
         CheckFile()
         for i = 1, 16 do
             if player_present(i) then
-                InitPlayer(i, false)
+                InitPlayer(i, true)
             end
         end
     end
@@ -95,9 +118,7 @@ function OnGameStart()
 end
 
 function OnGameEnd()
-    game_started = false
-    valid_commands = {}
-
+    game_started, valid_commands = false, {}
     for i = 1, 16 do
         if player_present(i) then
             InitPlayer(i, false)
@@ -108,41 +129,43 @@ end
 function OnTick()
     if (game_started) then
 
-        for i = 1, 16 do
-            if player_present(i) then
+        for i, player in pairs(players) do
+            if (i) and player_present(i) then
 
-                if (welcome_message[i]) and (valid_commands.msg) then
-                    if (welcome_message[i].init) then
-                        welcome_message[i].timer = welcome_message[i].timer + time_scale
-                        for _ = 1,25 do rprint(i, " ") end
-                        rprint(i, valid_commands.msg)
-                        if (welcome_message[i].timer >= welcome_message[i].duration) then
-                            welcome_message[i].timer, welcome_message[i].init = 0, false
-                        end
-                    end
-                end
-
-                if (valid_commands.timer) then
-                    valid_commands.timer = valid_commands.timer + time_scale
-                    if (valid_commands.timer >= settings.command_message_duration) then
-                        valid_commands.timer = 0
-                        if (#valid_commands > 0 and valid_commands.msg ~= "") then
-                            say(i, valid_commands.msg)
+                if (settings.enable_welcome_message) then
+                    local init_welcome_messages = (player.welcome and player.welcome.init)
+                    if (init_welcome_messages) then
+                        player.welcome.timer = player.welcome.timer + time_scale
+                        cls(i, 25)
+                        rprint(i, player.welcome.msg)
+                        if (player.welcome.timer >= settings.welcome_message_duration) then
+                            player.welcome.timer, player.welcome.init = 0, false
                         end
                     end
                 end
 
                 if player_alive(i) then
                     DespawnHandler(i)
-                    local t = cooldown[i]
-                    if (t.init) then
-                        t.cooldown = t.cooldown - time_scale
-                        -- print("Cooldown ends in " .. floor(t.cooldown) .. " seconds")
-                        if (t.cooldown <= 1) then
-                            t.cooldown = settings.cooldown_duration
-                            t.init = false
+                    local init_cooldown = (player.cooldown and player.cooldown.init)
+                    if (init_cooldown) then
+                        player.cooldown.timer = player.cooldown.timer - time_scale
+                        -- print("Cooldown ends in " .. floor(player.cooldown.timer) .. " seconds")
+                        if (player.cooldown.timer <= 1) then
+                            player.cooldown.timer = settings.cooldown_duration
+                            player.cooldown.init = false
                         end
                     end
+                end
+            end
+        end
+
+        -- Periodically announce available vehicle commands:
+        if (valid_commands.timer) then
+            valid_commands.timer = valid_commands.timer + time_scale
+            if (valid_commands.timer >= settings.command_message_duration) then
+                valid_commands.timer = 0
+                if (#valid_commands > 0 and valid_commands.msg ~= "") then
+                    SayAll(valid_commands.msg)
                 end
             end
         end
@@ -196,55 +219,59 @@ function OnPlayerChat(PlayerIndex, Message, Type)
             for _, Map in pairs(map_data) do
                 for command, Vehicle in pairs(Map) do
                     if (Str[1] == command) then
-                        if player_alive(PlayerIndex) then
-                            if GetTag(Vehicle.vehicle) then
-                                local t = cooldown[PlayerIndex]
-                                if (t.uses > 0) then
-                                    if (not t.init) then
+                        if (game_started) then
+                            if player_alive(PlayerIndex) then
+                                if GetTag(Vehicle.vehicle) then
+                                    local t = players[PlayerIndex].cooldown
+                                    if (t.uses > 0) then
+                                        if (not t.init) then
 
-                                        local player_object = get_dynamic_player(PlayerIndex)
-                                        local coords = getXYZ(PlayerIndex, player_object)
+                                            local player_object = get_dynamic_player(PlayerIndex)
+                                            local coords = getXYZ(PlayerIndex, player_object)
 
-                                        if not (coords.invehicle) then
-                                            t.init = true
-                                            t.uses = t.uses - 1
+                                            if not (coords.invehicle) then
+                                                t.init = true
+                                                t.uses = t.uses - 1
 
-                                            local vehicle = spawn_object("vehi", Vehicle.vehicle, coords.x, coords.y, coords.z)
-                                            local vehicle_object_memory = get_object_memory(vehicle)
+                                                local vehicle = spawn_object("vehi", Vehicle.vehicle, coords.x, coords.y, coords.z)
+                                                local vehicle_object_memory = get_object_memory(vehicle)
 
-                                            if (vehicle_object_memory ~= 0) then
-                                                vehicle_objects[vehicle] = {
-                                                    timer_reset = false,
-                                                    vehicle = vehicle_object_memory,
-                                                    timer = settings.despawn_time,
-                                                }
-                                            end
+                                                if (vehicle_object_memory ~= 0) then
+                                                    vehicle_objects[vehicle] = {
+                                                        timer_reset = false,
+                                                        vehicle = vehicle_object_memory,
+                                                        timer = settings.despawn_time,
+                                                    }
+                                                end
 
-                                            if (tonumber(Vehicle.seat) == 7) then
-                                                enter_vehicle(vehicle, PlayerIndex, 0)
-                                                enter_vehicle(vehicle, PlayerIndex, 2)
+                                                if (tonumber(Vehicle.seat) == 7) then
+                                                    enter_vehicle(vehicle, PlayerIndex, 0)
+                                                    enter_vehicle(vehicle, PlayerIndex, 2)
+                                                else
+                                                    enter_vehicle(vehicle, PlayerIndex, 0)
+                                                end
+
+                                                local msg = gsub(settings.on_spawn, "%%total%%", tostring(t.uses))
+                                                rprint(PlayerIndex, msg)
                                             else
-                                                enter_vehicle(vehicle, PlayerIndex, 0)
+                                                rprint(PlayerIndex, settings.already_occupied)
                                             end
-
-                                            local msg = gsub(settings.on_spawn, "%%total%%", tostring(t.uses))
-                                            rprint(PlayerIndex, msg)
                                         else
-                                            rprint(PlayerIndex, settings.already_occupied)
+                                            local msg = gsub(settings.please_wait, "%%seconds%%", tostring(floor(t.timer)))
+                                            rprint(PlayerIndex, msg)
                                         end
                                     else
-                                        local msg = gsub(settings.please_wait, "%%seconds%%", tostring(floor(t.cooldown)))
-                                        rprint(PlayerIndex, msg)
+                                        rprint(PlayerIndex, settings.insufficient_spawns)
                                     end
                                 else
-                                    rprint(PlayerIndex, settings.insufficient_spawns)
+                                    rprint(PlayerIndex, "Invalid Vehicle Tag Address")
+                                    rprint(PlayerIndex, "Please Contact an Administrator. Map Name: " .. get_var(0, "$map"))
                                 end
                             else
-                                rprint(PlayerIndex, "Invalid Vehicle Tag Address")
-                                rprint(PlayerIndex, "Please Contact an Administrator. Map Name: " .. get_var(0, "$map"))
+                                rprint(PlayerIndex, "Please wait until you respawn")
                             end
                         else
-                            rprint(PlayerIndex, "Please wait until you respawn")
+                            rprint(PlayerIndex, "Please wait until the next game begins.")
                         end
                         return false
                     end
@@ -255,16 +282,16 @@ function OnPlayerChat(PlayerIndex, Message, Type)
 end
 
 function OnPlayerConnect(PlayerIndex)
-    InitPlayer(PlayerIndex, false)
-end
-
-function OnPlayerDisconnect(PlayerIndex)
     InitPlayer(PlayerIndex, true)
 end
 
+function OnPlayerDisconnect(PlayerIndex)
+    InitPlayer(PlayerIndex, false)
+end
+
 function OnPlayerDeath(PlayerIndex)
-    cooldown[PlayerIndex].init = false
-    cooldown[PlayerIndex].cooldown = settings.cooldown_duration
+    players[PlayerIndex].cooldown.init = false
+    players[PlayerIndex].cooldown.duration = settings.cooldown_duration
 end
 
 function stringSplit(Command)
@@ -276,23 +303,31 @@ function stringSplit(Command)
     return t
 end
 
-function InitPlayer(PlayerIndex, Reset)
-    if not (Reset) then
-        if (settings.enable_welcome_message) then
-            welcome_message[PlayerIndex] = {}
-            welcome_message[PlayerIndex].timer = 0
-            welcome_message[PlayerIndex].init = true
-            welcome_message[PlayerIndex].duration = settings.welcome_message_duration
-        end
-        cooldown[PlayerIndex] = {
-            cooldown = settings.cooldown_duration,
-            init = false,
-            uses = settings.spawns_per_game,
+function InitPlayer(PlayerIndex, Init)
+    if (Init) then
+        players[PlayerIndex] = {
+            welcome = {
+                timer = 0,
+                init = true,
+                msg = valid_commands.msg,
+            },
+            cooldown = {
+                init = false,
+                timer = settings.cooldown_duration,
+                uses = settings.spawns_per_game
+            }
         }
     else
-        welcome_message[PlayerIndex] = {}
-        cooldown[PlayerIndex] = {}
+        players[PlayerIndex] = {}
     end
+end
+
+-- Receives a string and executes SAPP function 'say_all' without the **HLN | CE** prefix.
+-- Restores the prefix when relay is done.
+function SayAll(Message)
+    execute_command("msg_prefix \"\"")
+    say_all(Message)
+    execute_command("msg_prefix \" " .. settings.server_prefix .. "\"")
 end
 
 function getXYZ(PlayerIndex, PlayerObject)
@@ -320,28 +355,18 @@ function GetTag(Object)
     return tag ~= 0 and read_dword(tag + 0xC) or nil
 end
 
+function cls(PlayerIndex, Count)
+    for _ = 1, Count do
+        rprint(PlayerIndex, " ")
+    end
+end
+
 function CheckFile()
 
     local path = settings.path
     local file = io.open(path, "a")
     if (file ~= nil) then
         io.close(file)
-    end
-
-    local info = nil
-    local file = io.open(path, "r")
-    if (file ~= nil) then
-        local data = file:read("*all")
-        info = json:decode(data)
-        io.close(file)
-    end
-
-    if (info == nil) then
-        local file = assert(io.open(path, "w"))
-        if (file) then
-            file:write("{\n}")
-            io.close(file)
-        end
     end
 
     local info
@@ -352,7 +377,7 @@ function CheckFile()
         io.close(file)
     end
 
-    map_data = {}
+    map_data, players = {}, {}
     local current_map = get_var(0, "$map")
     if (info) then
         for map, v in pairs(info) do
@@ -392,24 +417,4 @@ function CheckFile()
         end
     end
     game_started = true
-end
-
-function report(Error)
-    local error_path = "sapp//VSpawnerErrorLog.txt"
-    local file = io.open(error_path, "a")
-    if (file ~= nil) then
-        io.close(file)
-    end
-
-    local file = assert(io.open(error_path, "a+"))
-    if (file) then
-        file:write(Error .. "\n\n")
-        io.close(file)
-    end
-end
-
-function OnError()
-    local Error = debug.traceback()
-    cprint(Error, 4 + 8)
-    timer(50, "report", Error)
 end
