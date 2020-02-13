@@ -8,6 +8,8 @@ Planned feature:
       Version 1.1 will have an option to init the countdown timer immediately after new server is set.
       Currently, the timer begins as soon as a new game starts.
 
+For @Rev - BK Clan.
+
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
