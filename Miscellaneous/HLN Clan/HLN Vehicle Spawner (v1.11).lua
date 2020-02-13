@@ -1,6 +1,6 @@
 --[[
 --======================================================================================================--
-Script Name: HLN Vehicle Spawner (v1.10), for SAPP (PC & CE)
+Script Name: HLN Vehicle Spawner (v1.11), for SAPP (PC & CE)
 Description: This script will force you into a vehicle of your choice by
              means of a keyword typed in chat.
 
@@ -72,7 +72,8 @@ local settings = {
     -- Comma separated commands will be automatically be inserted at the end of the sentence...
     command_msg_variant_one = "Use this command to spawn a vehicle: ",
     command_msg_variant_two = "Use these commands to spawn a vehicle: ",
-    server_prefix = "HLN | CE» "
+    server_prefix = "HLN | CE» ",
+	script_version = 1.11
 }
 -- Configuration [Ends] ---------------------------------------------
 
@@ -92,7 +93,8 @@ function OnScriptLoad()
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
 
     if (get_var(0, "$gt") ~= "n/a") then
-        CheckFile()
+		say_all("HLN Vehicle Spawner (version " .. settings.script_version .. ") loaded.")
+        CheckFile(true)
         for i = 1, 16 do
             if player_present(i) then
                 InitPlayer(i, true)
@@ -133,7 +135,7 @@ function OnTick()
             if (i) and player_present(i) then
 
                 if (settings.enable_welcome_message) then
-                    local init_welcome_messages = (player.welcome and player.welcome.init)
+                    local init_welcome_messages = (player.welcome and player.welcome.init and valid_commands.msg ~= "")
                     if (init_welcome_messages) then
                         player.welcome.timer = player.welcome.timer + time_scale
                         cls(i, 25)
@@ -361,8 +363,7 @@ function cls(PlayerIndex, Count)
     end
 end
 
-function CheckFile()
-
+function CheckFile(broadcast)
     local path = settings.path
     local file = io.open(path, "a")
     if (file ~= nil) then
@@ -377,7 +378,9 @@ function CheckFile()
         io.close(file)
     end
 
-    map_data, players = {}, {}
+    map_data, players, valid_commands = {}, {}, {}
+	valid_commands.msg = ""
+	valid_commands.timer = 0
     local current_map = get_var(0, "$map")
     if (info) then
         for map, v in pairs(info) do
@@ -386,12 +389,6 @@ function CheckFile()
             end
         end
         if (#map_data > 0) then
-
-            valid_commands = {}
-            valid_commands.msg = ""
-            valid_commands.timer = 0
-            valid_commands.init = true
-
             for _, Tab in pairs(map_data) do
                 for Command, _ in pairs(Tab) do
                     valid_commands[#valid_commands + 1] = Command
@@ -409,11 +406,15 @@ function CheckFile()
                     end
                 end
             end
+			
             if (#valid_commands == 1) then
                 valid_commands.msg = settings.command_msg_variant_one .. valid_commands.msg
             else
                 valid_commands.msg = settings.command_msg_variant_two .. valid_commands.msg
             end
+			if (broadcast) then
+				say_all("HLN Vehicle Spawner successfully loaded vehicle data from database.")
+			end
         end
     end
     game_started = true
