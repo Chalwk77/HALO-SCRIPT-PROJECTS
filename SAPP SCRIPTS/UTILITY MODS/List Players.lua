@@ -17,7 +17,10 @@ api_version = '1.12.0.0'
 
 -- Config [starts]
 local command_aliases = {
-    "pl", "players", "playerlist", "playerslist"
+    "pl",
+    "players",
+    "playerlist",
+    "playerslist",
 }
 
 -- Minimum privilege level required to execute (-1 for all players, 1-4 for admins):
@@ -25,8 +28,7 @@ local permission_level = 1
 
 -- Config [ends]
 
-local gsub = string.gsub
-local len = string.len
+local gsub, len = string.gsub, string.len
 
 function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
