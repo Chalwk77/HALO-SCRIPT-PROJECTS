@@ -63,10 +63,10 @@ function OnServerCommand(Executor, Command, _, _)
                             math.randomseed(os.time())
                             if (#gunner_seats_available > 0) then
                                 local vehicle = gunner_seats_available[math.random(1, #gunner_seats_available)]
-                                uber:InsertPlayer(vehicle.vehicle, Executor, 2)
+                                uber:InsertPlayer(vehicle.vehicle, Executor, 2, vehicle.names)
                             elseif (#passenger_seats_available > 0) then
                                 local vehicle = passenger_seats_available[math.random(1, #passenger_seats_available)]
-                                uber:InsertPlayer(vehicle.vehicle, Executor, 1)
+                                uber:InsertPlayer(vehicle.vehicle, Executor, 1, vehicle.names)
                             else
                                 rprint(Executor, uber.messages[1])
                             end
@@ -87,6 +87,8 @@ end
 
 function uber:isavailable(PlayerIndex)
     local vehicles, names = {}, {}
+    local name = { PlayerIndex, get_var(PlayerIndex, "$name") }
+    names[#names + 1] = name
     for i = 1, 16 do
         if player_present(i) and player_alive(i) and (i ~= PlayerIndex) then
             local same_team = (get_var(i, "$team") == get_var(PlayerIndex, "$team"))
@@ -94,9 +96,10 @@ function uber:isavailable(PlayerIndex)
                 local CurrentVehicle, VehicleObjectMemory = uber:isInVehicle(i)
                 if (VehicleObjectMemory ~= 0 and VehicleObjectMemory ~= nil) then
 
+                    names[#names + 1] = { i, get_var(i, "$name") }
+
                     local driver = read_dword(VehicleObjectMemory + 0x324)
                     if (driver ~= 0xFFFFFFFF) then
-                        print(get_var(i, "$name"))
                         local gunner = read_dword(VehicleObjectMemory + 0x328)
                         local passenger = read_dword(VehicleObjectMemory + 0x32C)
 
@@ -104,6 +107,7 @@ function uber:isavailable(PlayerIndex)
                             gunner = (gunner == 0xFFFFFFFF or gunner == 0),
                             passenger = (passenger == 0xFFFFFFFF or passenger == 0),
                             vehicle = CurrentVehicle,
+                            names = names
                         }
                     end
                 end
@@ -113,8 +117,8 @@ function uber:isavailable(PlayerIndex)
     return vehicles
 end
 
-function uber:InsertPlayer(Player, Vehicle, Seat)
-    enter_vehicle(Player, Vehicle, Seat)
+function uber:InsertPlayer(Vehicle, Player, Seat, names)
+    enter_vehicle(Vehicle, Player, Seat)
 end
 
 function uber:isInVehicle(PlayerIndex)
