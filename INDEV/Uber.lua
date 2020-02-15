@@ -20,6 +20,9 @@ local uber = {
     -- Maximum number of uber calls per game:
     calls_per_game = 100,
 
+    -- If true, players holding the flag or oddball will not be able to call an uber.
+    block_objective = true,
+
     -- If true, players will be able to call an uber by crouching
     crouch_to_uber = true,
 
@@ -36,33 +39,43 @@ local uber = {
         [4] = "Please wait until you respawn.",
         [5] = "[No Driver] You will be ejected in %seconds% seconds.",
         [6] = { --< on vehicle entry
+            "--- UBER ---",
             "Driver: %dname%",
             "Gunner: %gname%",
-            "Passenger: %pname%"
+            "Passenger: %pname%",
+            "Uber Calls remaining: %remaining%"
         },
     }
     -- Configuration Ends --
 }
 
 local time_scale = 0.03333333333333333
-local lower, upper, gsub = string.lower, string.upper, string.gsub
+local lower, upper, gsub, find = string.lower, string.upper, string.gsub, string.find
 local players, vehicles = {}
 
 function OnScriptLoad()
+    register_callback(cb["EVENT_TICK"], "OnTick")
     register_callback(cb["EVENT_CHAT"], "OnServerChat")
+    register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
+    register_callback(cb['EVENT_GAME_START'], "OnGameStart")
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
     register_callback(cb['EVENT_VEHICLE_EXIT'], "OnVehicleExit")
     register_callback(cb['EVENT_VEHICLE_ENTER'], "OnVehicleEntry")
-    register_callback(cb["EVENT_TICK"], "OnTick")
-    register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
 
     if (get_var(0, "$gt") ~= "n/a") then
+        vehicles = {}
         for i = 1, 16 do
             if player_present(i) then
                 InitPlayer(i, true)
             end
         end
+    end
+end
+
+function OnGameStart()
+    if (get_var(0, "$gt") ~= "n/a") then
+        vehicles = {}
     end
 end
 
@@ -82,12 +95,16 @@ function OnTick()
             if (dynamic_player ~= 0) then
                 local CurrentVehicle, VehicleObjectMemory = uber:isInVehicle(i)
                 if (uber.crouch_to_uber) then
-                    if not (CurrentVehicle) then
-                        local crouching = read_float(dynamic_player + 0x50C)
-                        if (crouching ~= players.crouch_state and crouching == 0) then
-                            uber:CheckVehicles(i)
+                    if (players[i].calls > 0) then
+                        if not (CurrentVehicle) then
+                            local crouching = read_float(dynamic_player + 0x50C)
+                            if (crouching ~= players.crouch_state and crouching > 0) then
+                                uber:CheckVehicles(i)
+                            end
+                            players.crouch_state = crouching
                         end
-                        players.crouch_state = crouching
+                    else
+                        rprint(Executor, uber.messages[3])
                     end
                 end
                 if (uber.eject_players_without_driver) then
@@ -135,7 +152,6 @@ function OnServerChat(Executor, Message, Type)
                 if (Executor ~= 0) then
                     if player_alive(Executor) then
                         if (players[Executor].calls > 0) then
-                            players[Executor].calls = players[Executor].calls - 1
                             if (not uber:isInVehicle(Executor)) then
                                 uber:CheckVehicles(Executor)
                             else
@@ -159,45 +175,40 @@ end
 function uber:CheckVehicles(Executor)
     local Error
     local g_seats, p_seats = {}, {}
-    if (vehicles ~= nil) then
-        for k, v in pairs(vehicles) do
-            if (k) then
-                local team = get_var(Executor, "$team")
-
-                if (team == v.team and v.driver) then
-
-                    if (v.gunner) then
-                        g_seats[#g_seats + 1] = { vehicle = v.vehicle }
-                    end
-                    if (v.passenger) then
-                        p_seats[#p_seats + 1] = { vehicle = v.vehicle }
-                    end
-                end
-
-                math.randomseed(os.time())
-                if (#g_seats > 0) then
-                    local Vehicle = g_seats[math.random(1, #g_seats)]
-                    v.g_name = get_var(Executor, "$name")
-                    uber:InsertPlayer(Vehicle, Executor, 2, v)
-                elseif (#p_seats > 0) then
-                    local Vehicle = p_seats[math.random(1, #p_seats)]
-                    v.p_name = get_var(Executor, "$name")
-                    uber:InsertPlayer(Vehicle, Executor, 1, v)
-                else
-                    Error = true
-                end
+    local count = 0
+    for _, v in pairs(vehicles) do
+        count = count + 1
+        local team = get_var(Executor, "$team")
+        if (team == v.team and v.driver) then
+            if (v.gunner) then
+                g_seats[#g_seats + 1] = { vehicle = v.vehicle }
+            end
+            if (v.passenger) then
+                p_seats[#p_seats + 1] = { vehicle = v.vehicle }
             end
         end
-    else
-        Error = true
+        math.randomseed(os.time())
+        if (#g_seats > 0) then
+            local Vehicle = g_seats[math.random(1, #g_seats)]
+            v.g_name = get_var(Executor, "$name")
+            uber:InsertPlayer(Vehicle, Executor, 2)
+        elseif (#p_seats > 0) then
+            local Vehicle = p_seats[math.random(1, #p_seats)]
+            v.p_name = get_var(Executor, "$name")
+            uber:InsertPlayer(Vehicle, Executor, 1)
+        else
+            Error = true
+        end
     end
-    if (Error) then
+
+    if (Error or count == 0) then
         cls(Executor, 25)
         rprint(Executor, uber.messages[1])
     end
 end
 
-function uber:InsertPlayer(Vehicle, PlayerIndex, Seat, Tab)
+function uber:InsertPlayer(Vehicle, PlayerIndex, Seat)
+    players[PlayerIndex].calls = players[PlayerIndex].calls - 1
     enter_vehicle(Vehicle.vehicle, PlayerIndex, Seat)
 end
 
@@ -215,7 +226,6 @@ function CheckSeats(PlayerIndex, Type)
     local func = Type
     local dynamic_player = get_dynamic_player(PlayerIndex)
     if (dynamic_player ~= 0) then
-        vehicles = vehicles or {}
         local CurrentVehicle = read_dword(dynamic_player + 0x11C)
         local VehicleObjectMemory = get_object_memory(CurrentVehicle)
         if (VehicleObjectMemory ~= 0) then
@@ -224,80 +234,85 @@ function CheckSeats(PlayerIndex, Type)
                 local team = get_var(PlayerIndex, "$team")
                 local previous_state = vehicles[VehicleObjectMemory]
 
-                previous_state = previous_state or { -- table index is nil, create new:
-                    driver = false, gunner = true, passenger = true,
-                    d_name = "N/A", g_name = "N/A", p_name = "N/A",
-                }
-                if (seat == 0) then
+                local valid = ValidateVehicle(VehicleObjectMemory)
+                if (valid) then
+                    previous_state = previous_state or { -- table index is nil, create new:
+                        driver = false, gunner = true, passenger = true,
+                        d_name = "N/A", g_name = "N/A", p_name = "N/A",
+                    }
 
-                    if (Type == "OnVehicleExit") then
-                        Type = false
-                    else
-                        Type = true
+                    if (seat == 0) then
+
+                        if (Type == "OnVehicleExit") then
+                            Type = false
+                        else
+                            Type = true
+                        end
+
+                        -- driver
+                        vehicles[VehicleObjectMemory] = {
+                            team = team,
+                            d_name = get_var(PlayerIndex, "$name"),
+                            g_name = previous_state.g_name,
+                            p_name = previous_state.p_name,
+
+                            driver = Type,
+                            vehicle = CurrentVehicle,
+                            gunner = previous_state.gunner,
+                            passenger = previous_state.passenger
+                        }
+                    elseif (seat == 1) then
+
+                        if (Type == "OnVehicleExit") then
+                            Type = true
+                        else
+                            Type = false
+                        end
+
+                        -- passenger
+                        vehicles[VehicleObjectMemory] = {
+                            team = team,
+                            d_name = previous_state.d_name,
+                            g_name = previous_state.g_name,
+                            p_name = get_var(PlayerIndex, "$name"),
+
+                            passenger = Type,
+                            vehicle = CurrentVehicle,
+                            gunner = previous_state.gunner,
+                            driver = previous_state.driver
+                        }
+                    elseif (seat == 2) then
+
+                        if (Type == "OnVehicleExit") then
+                            Type = true
+                        else
+                            Type = false
+                        end
+
+                        -- gunner
+                        vehicles[VehicleObjectMemory] = {
+                            team = team,
+                            d_name = previous_state.d_name,
+                            g_name = get_var(PlayerIndex, "$name"),
+                            p_name = previous_state.p_name,
+
+                            gunner = Type,
+                            vehicle = CurrentVehicle,
+                            driver = previous_state.driver,
+                            passenger = previous_state.passenger
+                        }
                     end
 
-                    -- driver
-                    vehicles[VehicleObjectMemory] = {
-                        team = team,
-                        d_name = get_var(PlayerIndex, "$name"),
-                        g_name = previous_state.g_name,
-                        p_name = previous_state.p_name,
-
-                        driver = Type,
-                        vehicle = CurrentVehicle,
-                        gunner = previous_state.gunner,
-                        passenger = previous_state.passenger
-                    }
-                elseif (seat == 1) then
-
-                    if (Type == "OnVehicleExit") then
-                        Type = true
-                    else
-                        Type = false
-                    end
-
-                    -- passenger
-                    vehicles[VehicleObjectMemory] = {
-                        team = team,
-                        d_name = previous_state.d_name,
-                        g_name = previous_state.g_name,
-                        p_name = get_var(PlayerIndex, "$name"),
-
-                        passenger = Type,
-                        vehicle = CurrentVehicle,
-                        gunner = previous_state.gunner,
-                        driver = previous_state.driver
-                    }
-                elseif (seat == 2) then
-
-                    if (Type == "OnVehicleExit") then
-                        Type = true
-                    else
-                        Type = false
-                    end
-
-                    -- gunner
-                    vehicles[VehicleObjectMemory] = {
-                        team = team,
-                        d_name = previous_state.d_name,
-                        g_name = get_var(PlayerIndex, "$name"),
-                        p_name = previous_state.p_name,
-
-                        gunner = Type,
-                        vehicle = CurrentVehicle,
-                        driver = previous_state.driver,
-                        passenger = previous_state.passenger
-                    }
-                end
-
-                if (func ~= "OnVehicleExit") then
-                    local t, msg = vehicles[VehicleObjectMemory], ""
-                    for i = 1, #uber.messages[6] do
-                        msg = gsub(gsub(gsub(uber.messages[6][i],
-                                "%%dname%%", t.d_name),
-                                "%%gname%%", t.g_name),
-                                "%%pname%%", t.p_name)
-                        rprint(PlayerIndex, msg)
+                    if (func ~= "OnVehicleExit") then
+                        local t, msg = vehicles[VehicleObjectMemory], ""
+                        for i = 1, #uber.messages[6] do
+                            msg = gsub(gsub(gsub(gsub(uber.messages[6][i],
+                                    "%%dname%%", t.d_name),
+                                    "%%gname%%", t.g_name),
+                                    "%%pname%%", t.p_name),
+                                    "%%remaining%%", players[PlayerIndex].calls)
+                            rprint(PlayerIndex, msg)
+                        end
                     end
                 end
             end
@@ -361,7 +376,7 @@ function InitPlayer(PlayerIndex, Init)
             crouch_state = 0,
             calls = uber.calls_per_game,
             eject = false,
-            eject_timer = 0,
+            eject_timer = 0
         }
     else
         players[PlayerIndex] = {}
@@ -372,6 +387,24 @@ function cls(PlayerIndex, Count)
     for _ = 1, Count do
         rprint(PlayerIndex, " ")
     end
+end
+
+function ValidateVehicle(VehicleObjectMemory)
+    if (VehicleObjectMemory ~= 0) then
+        local vehicle = read_string(read_dword(read_word(VehicleObjectMemory) * 32 + 0x40440038))
+        local keywords = { "hog", "hawg", "civi", "vulcan", "puma", "scorpion", "lav" }
+        for _, word in pairs(keywords) do
+            if (vehicle:find(word)) then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+function GetTag(Vehicle)
+    local tag = lookup_tag("vehi", Vehicle)
+    return tag ~= 0 and read_dword(tag + 0xC) or nil
 end
 
 function OnScriptUnload()
