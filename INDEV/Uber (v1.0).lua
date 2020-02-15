@@ -201,8 +201,6 @@ function uber:CheckVehicles(Executor)
         count = count + 1
         local team = get_var(Executor, "$team")
 
-        print(v.driver)
-
         if (team == v.team and v.driver) then
 
             if (v.gunner) then
