@@ -11,22 +11,31 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 --======================================================================================================--
 ]]--
 
--- TODO: Auto Eject passengers and gunners if no driver
--- TODO: ... other stuff
-
 api_version = "1.12.0.0"
 local uber = {
 
     -- Configuration Starts --
-    command = "uber",
+    command = { "uber", "taxi", "cab" },
+
+    -- Maximum number of uber calls per game:
     calls_per_game = 100,
-    crouch_to_uber = false,
+
+    -- If true, players will be able to call an uber by crouching
+    crouch_to_uber = true,
+
+    -- If true, Vehicle Occupants without a driver will be ejected
+    eject_players_without_driver = true,
+    -- Vehicle Occupants without a driver will be ejected after this amount of time (in seconds)
+    ejection_period = 10,
+
+    -- Custom Message
     messages = {
         [1] = "There are no Ubers available right now",
         [2] = "You are already in a vehicle!",
         [3] = "You have used up your Uber Calls for this game!",
         [4] = "Please wait until you respawn.",
-        [5] = { -- on vehicle entry
+        [5] = "[No Driver] You will be ejected in %seconds% seconds.",
+        [6] = { --< on vehicle entry
             "Driver: %dname%",
             "Gunner: %gname%",
             "Passenger: %pname%"
@@ -35,6 +44,7 @@ local uber = {
     -- Configuration Ends --
 }
 
+local time_scale = 0.03333333333333333
 local lower, upper, gsub = string.lower, string.upper, string.gsub
 local players, vehicles = {}
 
@@ -44,11 +54,8 @@ function OnScriptLoad()
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
     register_callback(cb['EVENT_VEHICLE_EXIT'], "OnVehicleExit")
     register_callback(cb['EVENT_VEHICLE_ENTER'], "OnVehicleEntry")
-
-    if (uber.crouch_to_uber) then
-        register_callback(cb["EVENT_TICK"], "OnTick")
-        register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
-    end
+    register_callback(cb["EVENT_TICK"], "OnTick")
+    register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
 
     if (get_var(0, "$gt") ~= "n/a") then
         for i = 1, 16 do
@@ -73,12 +80,40 @@ function OnTick()
         if player_present(i) and player_alive(i) then
             local dynamic_player = get_dynamic_player(i)
             if (dynamic_player ~= 0) then
-                if not uber:isInVehicle(i) then
-                    local crouching = read_float(dynamic_player + 0x50C)
-                    if (crouching ~= players.crouch_state and crouching > 0) then
-                        uber:CheckVehicles(i)
+                local CurrentVehicle, VehicleObjectMemory = uber:isInVehicle(i)
+                if (uber.crouch_to_uber) then
+                    if not (CurrentVehicle) then
+                        local crouching = read_float(dynamic_player + 0x50C)
+                        if (crouching ~= players.crouch_state and crouching == 0) then
+                            uber:CheckVehicles(i)
+                        end
+                        players.crouch_state = crouching
                     end
-                    players.crouch_state = crouching
+                end
+                if (uber.eject_players_without_driver) then
+                    if (CurrentVehicle) then
+                        local driver = read_dword(VehicleObjectMemory + 0x324)
+                        if (not players[i].eject) then
+                            if (driver == 0xFFFFFFFF or driver == 0) then
+                                players[i].eject = true
+                                local ejection_warning_message = gsub(uber.messages[5], "%%seconds%%", uber.ejection_period)
+                                rprint(i, ejection_warning_message)
+                            end
+                        elseif (players[i].eject) and (driver ~= 0xFFFFFFFF) then
+                            players[i].eject = false
+                            players[i].eject_timer = 0
+                        else
+                            players[i].eject_timer = players[i].eject_timer + time_scale
+                            if (players[i].eject_timer >= uber.ejection_period) then
+                                exit_vehicle(i)
+                                players[i].eject = false
+                                players[i].eject_timer = 0
+                            end
+                        end
+                    elseif (players[i].eject) then
+                        players[i].eject = false
+                        players[i].eject_timer = 0
+                    end
                 end
             end
         end
@@ -95,26 +130,28 @@ function OnServerChat(Executor, Message, Type)
         return
     elseif (Type ~= 6) then
         Str[1] = lower(Str[1]) or upper(Str[1])
-        if (Str[1] == uber.command) then
-            if (Executor ~= 0) then
-                if player_alive(Executor) then
-                    if (players[Executor].calls > 0) then
-                        players[Executor].calls = players[Executor].calls - 1
-                        if (not uber:isInVehicle(Executor)) then
-                            uber:CheckVehicles(Executor)
+        for i = 1, #uber.command do
+            if (Str[1] == uber.command[i]) then
+                if (Executor ~= 0) then
+                    if player_alive(Executor) then
+                        if (players[Executor].calls > 0) then
+                            players[Executor].calls = players[Executor].calls - 1
+                            if (not uber:isInVehicle(Executor)) then
+                                uber:CheckVehicles(Executor)
+                            else
+                                rprint(Executor, uber.messages[2])
+                            end
                         else
-                            rprint(Executor, uber.messages[2])
+                            rprint(Executor, uber.messages[3])
                         end
                     else
-                        rprint(Executor, uber.messages[3])
+                        rprint(Executor, uber.messages[4])
                     end
                 else
-                    rprint(Executor, uber.messages[4])
+                    cprint("This command can only be executed by a player", 4 + 8)
                 end
-            else
-                cprint("This command can only be executed by a player", 4 + 8)
+                return false
             end
-            return false
         end
     end
 end
@@ -165,14 +202,17 @@ function uber:InsertPlayer(Vehicle, PlayerIndex, Seat, Tab)
 end
 
 function OnVehicleEntry(PlayerIndex)
-    CheckSeats(PlayerIndex, "enter")
+    CheckSeats(PlayerIndex, "OnVehicleEntry")
 end
 
 function OnVehicleExit(PlayerIndex)
-    CheckSeats(PlayerIndex, "exit")
+    CheckSeats(PlayerIndex, "OnVehicleExit")
+    players[PlayerIndex].eject = false
+    players[PlayerIndex].eject_timer = 0
 end
 
 function CheckSeats(PlayerIndex, Type)
+    local func = Type
     local dynamic_player = get_dynamic_player(PlayerIndex)
     if (dynamic_player ~= 0) then
         vehicles = vehicles or {}
@@ -190,7 +230,7 @@ function CheckSeats(PlayerIndex, Type)
                 }
                 if (seat == 0) then
 
-                    if (Type == "exit") then
+                    if (Type == "OnVehicleExit") then
                         Type = false
                     else
                         Type = true
@@ -210,7 +250,7 @@ function CheckSeats(PlayerIndex, Type)
                     }
                 elseif (seat == 1) then
 
-                    if (Type == "exit") then
+                    if (Type == "OnVehicleExit") then
                         Type = true
                     else
                         Type = false
@@ -230,7 +270,7 @@ function CheckSeats(PlayerIndex, Type)
                     }
                 elseif (seat == 2) then
 
-                    if (Type == "exit") then
+                    if (Type == "OnVehicleExit") then
                         Type = true
                     else
                         Type = false
@@ -249,13 +289,16 @@ function CheckSeats(PlayerIndex, Type)
                         passenger = previous_state.passenger
                     }
                 end
-                local t, msg = vehicles[VehicleObjectMemory], ""
-                for i = 1, #uber.messages[5] do
-                    msg = gsub(gsub(gsub(uber.messages[5][i],
-                            "%%dname%%", t.d_name),
-                            "%%gname%%", t.g_name),
-                            "%%pname%%", t.p_name)
-                    rprint(PlayerIndex, msg)
+
+                if (func ~= "OnVehicleExit") then
+                    local t, msg = vehicles[VehicleObjectMemory], ""
+                    for i = 1, #uber.messages[6] do
+                        msg = gsub(gsub(gsub(uber.messages[6][i],
+                                "%%dname%%", t.d_name),
+                                "%%gname%%", t.g_name),
+                                "%%pname%%", t.p_name)
+                        rprint(PlayerIndex, msg)
+                    end
                 end
             end
         end
@@ -316,7 +359,9 @@ function InitPlayer(PlayerIndex, Init)
     if (Init) then
         players[PlayerIndex] = {
             crouch_state = 0,
-            calls = uber.calls_per_game
+            calls = uber.calls_per_game,
+            eject = false,
+            eject_timer = 0,
         }
     else
         players[PlayerIndex] = {}
