@@ -32,7 +32,7 @@ local uber = {
     command = { "uber", "taxi", "cab" },
 
     -- Maximum number of uber calls per game:
-    calls_per_game = 10,
+    calls_per_game = 2,
 
     -- If true, players holding the flag or oddball will not be able to call an uber.
     block_objective = true,
@@ -109,16 +109,17 @@ function OnTick()
             if (dynamic_player ~= 0) then
                 local CurrentVehicle, VehicleObjectMemory = uber:isInVehicle(i)
                 if (uber.crouch_to_uber) then
-                    if (players[i].calls > 0) then
-                        if not (CurrentVehicle) then
-                            local crouching = read_float(dynamic_player + 0x50C)
-                            if (crouching ~= players.crouch_state and crouching > 0) then
+                    if not (CurrentVehicle) then
+                        local crouching = read_float(dynamic_player + 0x50C)
+                        if (crouching ~= players.crouch_state and crouching > 0) then
+                            if (players[i].calls > 0) then
                                 uber:CheckVehicles(i)
+                            else
+                                cls(i, 25)
+                                rprint(i, uber.messages[3])
                             end
                             players.crouch_state = crouching
                         end
-                    else
-                        rprint(Executor, uber.messages[3])
                     end
                 end
                 if (uber.eject_players_without_driver) then
