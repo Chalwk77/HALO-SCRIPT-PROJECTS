@@ -65,6 +65,7 @@ end
 
 function OnPlayerDisconnect(PlayerIndex)
     InitPlayer(PlayerIndex, false)
+    CheckForReset(true)
 end
 
 function OnTick()
@@ -139,9 +140,11 @@ function uber:CheckVehicles(Executor)
                 math.randomseed(os.time())
                 if (#g_seats > 0) then
                     local Vehicle = g_seats[math.random(1, #g_seats)]
+                    v.g_name = get_var(Executor, "$name")
                     uber:InsertPlayer(Vehicle, Executor, 2, v)
                 elseif (#p_seats > 0) then
                     local Vehicle = p_seats[math.random(1, #p_seats)]
+                    v.p_name = get_var(Executor, "$name")
                     uber:InsertPlayer(Vehicle, Executor, 1, v)
                 else
                     Error = true
@@ -159,14 +162,6 @@ end
 
 function uber:InsertPlayer(Vehicle, PlayerIndex, Seat, Tab)
     enter_vehicle(Vehicle.vehicle, PlayerIndex, Seat)
-    local msg = ""
-    for i = 1, #uber.messages[5] do
-        msg = gsub(gsub(gsub(uber.messages[5][i],
-                "%%dname%%", Tab.d_name),
-                "%%gname%%", Tab.g_name),
-                "%%pname%%", Tab.p_name)
-        rprint(PlayerIndex, msg)
-    end
 end
 
 function OnVehicleEntry(PlayerIndex)
@@ -191,7 +186,7 @@ function CheckSeats(PlayerIndex, Type)
 
                 previous_state = previous_state or { -- table index is nil, create new:
                     driver = false, gunner = true, passenger = true,
-                    d_name = "Empty", g_name = "Empty", p_name = "Empty",
+                    d_name = "N/A", g_name = "N/A", p_name = "N/A",
                 }
                 if (seat == 0) then
 
@@ -228,7 +223,7 @@ function CheckSeats(PlayerIndex, Type)
                         g_name = previous_state.g_name,
                         p_name = get_var(PlayerIndex, "$name"),
 
-                        passenger = Type, -- enter = false, exit = true
+                        passenger = Type,
                         vehicle = CurrentVehicle,
                         gunner = previous_state.gunner,
                         driver = previous_state.driver
@@ -254,7 +249,14 @@ function CheckSeats(PlayerIndex, Type)
                         passenger = previous_state.passenger
                     }
                 end
-                CheckForReset()
+                local t, msg = vehicles[VehicleObjectMemory], ""
+                for i = 1, #uber.messages[5] do
+                    msg = gsub(gsub(gsub(uber.messages[5][i],
+                            "%%dname%%", t.d_name),
+                            "%%gname%%", t.g_name),
+                            "%%pname%%", t.p_name)
+                    rprint(PlayerIndex, msg)
+                end
             end
         end
     end
@@ -270,26 +272,31 @@ function uber:isInVehicle(PlayerIndex)
     return false
 end
 
-function CheckForReset()
+function CheckForReset(exit)
     if (vehicles ~= nil) then
         for k, v in pairs(vehicles) do
             if (k) then
-                local Object = get_object_memory(k)
-                if (Object ~= 0) then
+                local count = 0
 
-                    local driver = read_dword(k + 0x324)
-                    local gunner = read_dword(k + 0x328)
-                    local passenger = read_dword(k + 0x32C)
+                local driver = read_dword(k + 0x324)
+                local gunner = read_dword(k + 0x328)
+                local passenger = read_dword(k + 0x32C)
 
-                    if (driver == 0xFFFFFFFF) then
-                        v.team, v.driver, v.d_name = "", false, "Empty"
-                    end
-                    if (gunner == 0xFFFFFFFF) then
-                        v.team, v.gunner, v.g_name = "", true, "Empty"
-                    end
-                    if (passenger == 0xFFFFFFFF) then
-                        v.team, v.passenger, v.p_name = "", true, "Empty"
-                    end
+                if (driver == 0xFFFFFFFF or driver == 0) then
+                    count = count + 1
+                    v.team, v.driver, v.d_name = "", false, "N/A"
+                end
+                if (gunner == 0xFFFFFFFF or passenger == 0) then
+                    count = count + 1
+                    v.team, v.gunner, v.g_name = "", true, "N/A"
+                end
+                if (passenger == 0xFFFFFFFF or passenger == 0) then
+                    count = count + 1
+                    v.team, v.passenger, v.p_name = "", true, "N/A"
+                end
+
+                if (exit and count == 3) then
+                    k = nil
                 end
             end
         end
