@@ -32,7 +32,7 @@ local uber = {
     command = { "uber", "taxi", "cab" },
 
     -- Maximum number of uber calls per game:
-    calls_per_game = 1000,
+    calls_per_game = 20,
 
     -- If true, players holding the flag or oddball will not be able to call an uber.
     block_objective = false,
@@ -43,7 +43,7 @@ local uber = {
     -- If true, Vehicle Occupants without a driver will be ejected
     eject_players_without_driver = true,
     -- Vehicle Occupants without a driver will be ejected after this amount of time (in seconds)
-    ejection_period = 10,
+    ejection_period = 5,
 
     -- Custom Message
     messages = {
