@@ -1,7 +1,21 @@
 --[[
 --======================================================================================================--
-Script Name: Uber, for SAPP (PC & CE)
-Description: N/A
+Script Name: Uber (v1.0), for SAPP (PC & CE)
+Description: Inject yourself into a teammates vehicle by typing "uber".
+
+             This script will scan all available vehicles that are occupied by teammates.
+             The first scan checks available gunner seats. If one is available, you will enter into it.
+             If no gunner seats are available, the script will then scan for available passenger seats and insert you into one.
+             If neither gunner or passenger seats are vacant the script will send you an error.
+
+            Features:
+            (all features are configurable)
+            * Custom "keywords", i.e, "uber", "taxi"
+            * Limit uber calls per game (10 by default)
+            * Crouch to call an uber (on by default)
+            * Auto Ejector: Vehicle occupants without a driver will be ejected after X seconds (on by default)
+            * Customizable messages
+            * Works on most custom maps
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -18,7 +32,7 @@ local uber = {
     command = { "uber", "taxi", "cab" },
 
     -- Maximum number of uber calls per game:
-    calls_per_game = 100,
+    calls_per_game = 10,
 
     -- If true, players holding the flag or oddball will not be able to call an uber.
     block_objective = true,
@@ -50,7 +64,7 @@ local uber = {
 }
 
 local time_scale = 0.03333333333333333
-local lower, upper, gsub, find = string.lower, string.upper, string.gsub, string.find
+local lower, upper, gsub = string.lower, string.upper, string.gsub
 local players, vehicles = {}
 
 function OnScriptLoad()
