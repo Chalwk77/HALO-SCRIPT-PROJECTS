@@ -140,6 +140,7 @@ function OnTick()
                                 exit_vehicle(i)
                                 players[i].eject = false
                                 players[i].eject_timer = 0
+                                CheckSeats(i, "OnVehicleExit")
                             end
                         end
                     elseif (players[i].eject) then
@@ -238,6 +239,7 @@ function OnVehicleExit(PlayerIndex)
 end
 
 function CheckSeats(PlayerIndex, Type)
+    print('auto-eject - called')
     local func = Type
     local dynamic_player = get_dynamic_player(PlayerIndex)
     if (dynamic_player ~= 0) then
@@ -407,7 +409,7 @@ end
 function ValidateVehicle(VehicleObjectMemory)
     if (VehicleObjectMemory ~= 0) then
         local vehicle = read_string(read_dword(read_word(VehicleObjectMemory) * 32 + 0x40440038))
-        local keywords = { "hog", "hawg", "civi", "vulcan", "puma", "scorpion", "lav" }
+        local keywords = { "hog", "hawg", "civi", "vulcan", "puma", "scorpion", "lav", "turret", "mon" }
         for _, word in pairs(keywords) do
             if (vehicle:find(word)) then
                 return true
