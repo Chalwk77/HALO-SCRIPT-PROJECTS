@@ -32,10 +32,10 @@ local uber = {
     command = { "uber", "taxi", "cab" },
 
     -- Maximum number of uber calls per game:
-    calls_per_game = 2,
+    calls_per_game = 1000,
 
     -- If true, players holding the flag or oddball will not be able to call an uber.
-    block_objective = true,
+    block_objective = false,
 
     -- If true, players will be able to call an uber by crouching
     crouch_to_uber = true,
@@ -69,6 +69,7 @@ local players, vehicles = {}
 
 function OnScriptLoad()
     register_callback(cb["EVENT_TICK"], "OnTick")
+    register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
     register_callback(cb["EVENT_CHAT"], "OnServerChat")
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
     register_callback(cb['EVENT_GAME_START'], "OnGameStart")
@@ -76,7 +77,6 @@ function OnScriptLoad()
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
     register_callback(cb['EVENT_VEHICLE_EXIT'], "OnVehicleExit")
     register_callback(cb['EVENT_VEHICLE_ENTER'], "OnVehicleEntry")
-
     if (get_var(0, "$gt") ~= "n/a") then
         vehicles = {}
         for i = 1, 16 do
@@ -102,14 +102,19 @@ function OnPlayerDisconnect(PlayerIndex)
     CheckForReset(true)
 end
 
+function OnPlayerDeath(PlayerIndex)
+    CheckForReset(false)
+end
+
 function OnTick()
     for i = 1, 16 do
         if player_present(i) and player_alive(i) then
             local dynamic_player = get_dynamic_player(i)
             if (dynamic_player ~= 0) then
-                local CurrentVehicle, VehicleObjectMemory = uber:isInVehicle(i)
+
                 if (uber.crouch_to_uber) then
                     if not (CurrentVehicle) then
+
                         local crouching = read_float(dynamic_player + 0x50C)
                         if (crouching ~= players.crouch_state and crouching > 0) then
                             if (players[i].calls > 0) then
@@ -140,7 +145,7 @@ function OnTick()
                                 exit_vehicle(i)
                                 players[i].eject = false
                                 players[i].eject_timer = 0
-                                CheckSeats(i, "OnVehicleExit")
+                                CheckForReset(false)
                             end
                         end
                     elseif (players[i].eject) then
@@ -195,7 +200,11 @@ function uber:CheckVehicles(Executor)
     for _, v in pairs(vehicles) do
         count = count + 1
         local team = get_var(Executor, "$team")
+
+        print(v.driver)
+
         if (team == v.team and v.driver) then
+
             if (v.gunner) then
                 g_seats[#g_seats + 1] = { vehicle = v.vehicle }
             end
@@ -233,13 +242,12 @@ function OnVehicleEntry(PlayerIndex)
 end
 
 function OnVehicleExit(PlayerIndex)
-    CheckSeats(PlayerIndex, "OnVehicleExit")
+    timer(0, "CheckForReset") -- delay this by 1/30th second
     players[PlayerIndex].eject = false
     players[PlayerIndex].eject_timer = 0
 end
 
 function CheckSeats(PlayerIndex, Type)
-    print('auto-eject - called')
     local func = Type
     local dynamic_player = get_dynamic_player(PlayerIndex)
     if (dynamic_player ~= 0) then
@@ -321,6 +329,7 @@ function CheckSeats(PlayerIndex, Type)
                     end
 
                     if (func ~= "OnVehicleExit") then
+                        cls(PlayerIndex, 25)
                         local t, msg = vehicles[VehicleObjectMemory], ""
                         for i = 1, #uber.messages[6] do
                             msg = gsub(gsub(gsub(gsub(uber.messages[6][i],
@@ -359,15 +368,15 @@ function CheckForReset(exit)
 
                 if (driver == 0xFFFFFFFF or driver == 0) then
                     count = count + 1
-                    v.team, v.driver, v.d_name = "", false, "N/A"
+                    v.driver, v.d_name = false, "N/A"
                 end
                 if (gunner == 0xFFFFFFFF or passenger == 0) then
                     count = count + 1
-                    v.team, v.gunner, v.g_name = "", true, "N/A"
+                    v.gunner, v.g_name = true, "N/A"
                 end
                 if (passenger == 0xFFFFFFFF or passenger == 0) then
                     count = count + 1
-                    v.team, v.passenger, v.p_name = "", true, "N/A"
+                    v.passenger, v.p_name = true, "N/A"
                 end
 
                 if (exit and count == 3) then
