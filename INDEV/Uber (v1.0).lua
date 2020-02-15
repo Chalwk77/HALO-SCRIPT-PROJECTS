@@ -409,7 +409,7 @@ end
 function ValidateVehicle(VehicleObjectMemory)
     if (VehicleObjectMemory ~= 0) then
         local vehicle = read_string(read_dword(read_word(VehicleObjectMemory) * 32 + 0x40440038))
-        local keywords = { "hog", "hawg", "civi", "vulcan", "puma", "scorpion", "lav", "turret", "mon" }
+        local keywords = { "hog", "hawg", "civi", "vulcan", "puma", "scorpion", "lav" }
         for _, word in pairs(keywords) do
             if (vehicle:find(word)) then
                 return true
