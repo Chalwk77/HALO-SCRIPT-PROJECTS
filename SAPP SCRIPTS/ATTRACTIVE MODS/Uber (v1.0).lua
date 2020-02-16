@@ -237,16 +237,12 @@ function OnVehicleExit(PlayerIndex)
 end
 
 local SetTeam = function(State, Vehicle)
-    if (State) then
-        if (Vehicle.driver) then
-            return Vehicle.team
-        else
-            return "N/A"
-        end
-    elseif (Vehicle.driver) then
-        return Vehicle.team
-    else
+    local reset = (State and not Vehicle.driver) or (not State and not Vehicle.driver)
+    local previous_team = (State and Vehicle.driver) or (not State and Vehicle.driver)
+    if (reset) then
         return "N/A"
+    elseif (previous_team) then
+        return Vehicle.team
     end
 end
 
@@ -320,7 +316,6 @@ function CheckSeats(PlayerIndex, State, Enter)
                             passenger = previous_state.passenger
                         }
                     end
-
                     if (Enter) then
                         cls(PlayerIndex, 25)
                         local t, msg = vehicles[VehicleObjectMemory], ""
