@@ -47,9 +47,9 @@ local uber = {
 
     -- Custom Message
     messages = {
-        [1] = "There are no Ubers available right now",
+        [1] = "There are no ubers available right now",
         [2] = "You are already in a vehicle!",
-        [3] = "You have used up your Uber calls for this game!",
+        [3] = "You have used up your uber calls for this game!",
         [4] = "Please wait until you respawn.",
         [5] = "[No Driver] You will be ejected in %seconds% seconds.",
         [6] = "You cannot call an uber while holding the objective",
@@ -69,28 +69,25 @@ local lower, upper, gsub = string.lower, string.upper, string.gsub
 local players, vehicles = {}
 
 function OnScriptLoad()
-    register_callback(cb["EVENT_TICK"], "OnTick")
-    register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
-    register_callback(cb["EVENT_CHAT"], "OnServerChat")
-    register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
-    register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb['EVENT_GAME_START'], "OnGameStart")
-    register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
-    register_callback(cb['EVENT_VEHICLE_EXIT'], "OnVehicleExit")
-    register_callback(cb['EVENT_VEHICLE_ENTER'], "OnVehicleEntry")
     if (get_var(0, "$gt") ~= "n/a") then
-        players, vehicles = {}, {}
-        for i = 1, 16 do
-            if player_present(i) then
-                uber:InitPlayer(i, true)
+        if RegisterSAPPEvents() then
+            for i = 1, 16 do
+                if player_present(i) then
+                    uber:InitPlayer(i, true)
+                end
             end
         end
     end
 end
 
+function OnScriptUnload()
+    -- N/A
+end
+
 function OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
-        players, vehicles = {}, {}
+        RegisterSAPPEvents()
     end
 end
 
@@ -411,6 +408,32 @@ function uber:ValidateVehicle(VehicleObjectMemory)
     return false
 end
 
+function RegisterSAPPEvents()
+    if (get_var(0, "$ffa") == "0") then
+        players, vehicles = {}, {}
+        register_callback(cb["EVENT_TICK"], "OnTick")
+        register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
+        register_callback(cb["EVENT_CHAT"], "OnServerChat")
+        register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
+        register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
+        register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
+        register_callback(cb['EVENT_VEHICLE_EXIT'], "OnVehicleExit")
+        register_callback(cb['EVENT_VEHICLE_ENTER'], "OnVehicleEntry")
+        return true
+    else
+        register_callback(cb['EVENT_DIE'])
+        register_callback(cb["EVENT_CHAT"])
+        register_callback(cb["EVENT_JOIN"])
+        register_callback(cb['EVENT_SPAWN'])
+        register_callback(cb["EVENT_LEAVE"])
+        unregister_callback(cb["EVENT_TICK"])
+        register_callback(cb['EVENT_VEHICLE_EXIT'])
+        register_callback(cb['EVENT_VEHICLE_ENTER'])
+    end
+    return false
+end
+
+-- Credits to Kavawuvi for this function:
 function uber:HasObjective(PlayerIndex)
     local has_objective
     if (get_var(0, "$gt") == "ctf") or (get_var(0, "$gt") == "oddball") then
@@ -437,8 +460,4 @@ function uber:HasObjective(PlayerIndex)
         rprint(PlayerIndex, uber.messages[6])
     end
     return has_objective
-end
-
-function OnScriptUnload()
-    -- N/A
 end
