@@ -433,8 +433,8 @@ function RegisterSAPPEvents()
     return false
 end
 
--- Credits to Kavawuvi for this function:
 function uber:HasObjective(PlayerIndex)
+    -- Credits to Kavawuvi for this block of code:
     local has_objective
     if (get_var(0, "$gt") == "ctf") or (get_var(0, "$gt") == "oddball") then
         local player_object = get_dynamic_player(PlayerIndex)
@@ -456,7 +456,10 @@ function uber:HasObjective(PlayerIndex)
     else
         has_objective = false
     end
+    --
+    --
     if (has_objective) then
+        cls(PlayerIndex, 25)
         rprint(PlayerIndex, uber.messages[6])
     end
     return has_objective
