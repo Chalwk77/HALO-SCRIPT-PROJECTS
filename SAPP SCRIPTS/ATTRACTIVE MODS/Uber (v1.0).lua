@@ -1,7 +1,7 @@
 --[[
 --======================================================================================================--
 Script Name: Uber (v1.0), for SAPP (PC & CE)
-Description: Inject yourself into a teammates vehicle by typing "uber".
+Description: Inject yourself into a teammate's vehicle by typing "uber".
 
              This script will scan all available vehicles that are occupied by teammates.
              The first scan checks available gunner seats. If one is available, you will enter into it.
