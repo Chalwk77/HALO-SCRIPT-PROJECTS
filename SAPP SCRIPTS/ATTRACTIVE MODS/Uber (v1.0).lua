@@ -69,28 +69,15 @@ local lower, upper, gsub = string.lower, string.upper, string.gsub
 local players, vehicles = {}
 
 function OnScriptLoad()
-    register_callback(cb["EVENT_TICK"], "OnTick")
-    register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
-    register_callback(cb["EVENT_CHAT"], "OnServerChat")
-    register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
     register_callback(cb['EVENT_GAME_START'], "OnGameStart")
-    register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
-    register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
-    register_callback(cb['EVENT_VEHICLE_EXIT'], "OnVehicleExit")
-    register_callback(cb['EVENT_VEHICLE_ENTER'], "OnVehicleEntry")
     if (get_var(0, "$gt") ~= "n/a") then
-        vehicles = {}
-        for i = 1, 16 do
-            if player_present(i) then
-                InitPlayer(i, true)
-            end
-        end
+        RegisterSAPPEvents()
     end
 end
 
 function OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
-        vehicles = {}
+        RegisterSAPPEvents()
     end
 end
 
@@ -423,6 +410,34 @@ function uber:HasObjective(PlayerIndex)
         rprint(PlayerIndex, uber.messages[6])
     end
     return has_objective
+end
+
+function RegisterSAPPEvents()
+    if (get_var(0, "$gt") == "race") then
+        players, vehicles = {}, {}
+        for i = 1, 16 do
+            if player_present(i) then
+                InitPlayer(i, true)
+            end
+        end
+        register_callback(cb["EVENT_TICK"], "OnTick")
+        register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
+        register_callback(cb["EVENT_CHAT"], "OnServerChat")
+        register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
+        register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
+        register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
+        register_callback(cb['EVENT_VEHICLE_EXIT'], "OnVehicleExit")
+        register_callback(cb['EVENT_VEHICLE_ENTER'], "OnVehicleEntry")
+    else
+        unregister_callback(cb['EVENT_DIE'])
+        unregister_callback(cb['EVENT_TICK'])
+        unregister_callback(cb['EVENT_CHAT'])
+        unregister_callback(cb['EVENT_JOIN'])
+        unregister_callback(cb['EVENT_SPAWN'])
+        unregister_callback(cb['EVENT_LEAVE'])
+        unregister_callback(cb['EVENT_VEHICLE_EXIT'])
+        unregister_callback(cb['EVENT_VEHICLE_ENTER'])
+    end
 end
 
 function OnScriptUnload()
