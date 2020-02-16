@@ -32,10 +32,10 @@ local uber = {
     command = { "uber", "taxi", "cab" },
 
     -- Maximum number of uber calls per game:
-    calls_per_game = 1000,
+    calls_per_game = 20,
 
     -- If true, players holding the flag or oddball will not be able to call an uber.
-    block_objective = false,
+    block_objective = true,
 
     -- If true, players will be able to call an uber by crouching
     crouch_to_uber = true,
@@ -69,24 +69,37 @@ local lower, upper, gsub = string.lower, string.upper, string.gsub
 local players, vehicles = {}
 
 function OnScriptLoad()
+    register_callback(cb["EVENT_TICK"], "OnTick")
+    register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
+    register_callback(cb["EVENT_CHAT"], "OnServerChat")
+    register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
+    register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb['EVENT_GAME_START'], "OnGameStart")
+    register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
+    register_callback(cb['EVENT_VEHICLE_EXIT'], "OnVehicleExit")
+    register_callback(cb['EVENT_VEHICLE_ENTER'], "OnVehicleEntry")
     if (get_var(0, "$gt") ~= "n/a") then
-        RegisterSAPPEvents()
+        players, vehicles = {}, {}
+        for i = 1, 16 do
+            if player_present(i) then
+                uber:InitPlayer(i, true)
+            end
+        end
     end
 end
 
 function OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
-        RegisterSAPPEvents()
+        players, vehicles = {}, {}
     end
 end
 
 function OnPlayerConnect(PlayerIndex)
-    InitPlayer(PlayerIndex, true)
+    uber:InitPlayer(PlayerIndex, true)
 end
 
 function OnPlayerDisconnect(PlayerIndex)
-    InitPlayer(PlayerIndex, false)
+    uber:InitPlayer(PlayerIndex, false)
     CheckSeats(PlayerIndex, true)
 end
 
@@ -223,7 +236,22 @@ function OnVehicleExit(PlayerIndex)
     players[PlayerIndex].eject_timer = 0
 end
 
+local SetTeam = function(State, Vehicle)
+    if (State) then
+        if (Vehicle.driver) then
+            return Vehicle.team
+        else
+            return "N/A"
+        end
+    elseif (Vehicle.driver) then
+        return Vehicle.team
+    else
+        return "N/A"
+    end
+end
+
 function CheckSeats(PlayerIndex, State, Enter)
+
     local dynamic_player = get_dynamic_player(PlayerIndex)
     if (dynamic_player ~= 0) then
         local CurrentVehicle = read_dword(dynamic_player + 0x11C)
@@ -237,7 +265,7 @@ function CheckSeats(PlayerIndex, State, Enter)
                 local seat = read_word(dynamic_player + 0x2F0)
                 local previous_state = vehicles[VehicleObjectMemory]
 
-                local valid = ValidateVehicle(VehicleObjectMemory)
+                local valid = uber:ValidateVehicle(VehicleObjectMemory)
                 if (valid) then
                     previous_state = previous_state or { -- table index is nil, create new:
                         driver = false, gunner = true, passenger = true,
@@ -249,6 +277,7 @@ function CheckSeats(PlayerIndex, State, Enter)
                         if (not State) then
                             State = true
                         else
+                            team = "N/A"
                             State = false
                         end
                         -- driver
@@ -264,8 +293,10 @@ function CheckSeats(PlayerIndex, State, Enter)
                             passenger = previous_state.passenger
                         }
                     elseif (seat == 1) then
+
                         -- passenger
                         vehicles[VehicleObjectMemory] = {
+                            team = SetTeam(State, previous_state),
                             d_name = previous_state.d_name,
                             g_name = previous_state.g_name,
                             p_name = name,
@@ -278,6 +309,7 @@ function CheckSeats(PlayerIndex, State, Enter)
                     elseif (seat == 2) then
                         -- gunner
                         vehicles[VehicleObjectMemory] = {
+                            team = SetTeam(State, previous_state),
                             d_name = previous_state.d_name,
                             g_name = name,
                             p_name = previous_state.p_name,
@@ -305,7 +337,7 @@ function CheckSeats(PlayerIndex, State, Enter)
             end
         end
     end
-    CheckForReset()
+    uber:CheckForReset()
 end
 
 function uber:isInVehicle(PlayerIndex)
@@ -318,7 +350,7 @@ function uber:isInVehicle(PlayerIndex)
     return false
 end
 
-function CheckForReset()
+function uber:CheckForReset()
     if (vehicles ~= nil) then
         for k, v in pairs(vehicles) do
             if (k) then
@@ -352,7 +384,7 @@ function StrSplit(Str)
     return t
 end
 
-function InitPlayer(PlayerIndex, Init)
+function uber:InitPlayer(PlayerIndex, Init)
     if (Init) then
         players[PlayerIndex] = {
             crouch_state = 0,
@@ -371,7 +403,7 @@ function cls(PlayerIndex, Count)
     end
 end
 
-function ValidateVehicle(VehicleObjectMemory)
+function uber:ValidateVehicle(VehicleObjectMemory)
     if (VehicleObjectMemory ~= 0) then
         local vehicle = read_string(read_dword(read_word(VehicleObjectMemory) * 32 + 0x40440038))
         local keywords = { "hog", "hawg", "civi", "vulcan", "puma", "scorpion", "lav" }
@@ -410,34 +442,6 @@ function uber:HasObjective(PlayerIndex)
         rprint(PlayerIndex, uber.messages[6])
     end
     return has_objective
-end
-
-function RegisterSAPPEvents()
-    if (get_var(0, "$gt") == "race") then
-        players, vehicles = {}, {}
-        for i = 1, 16 do
-            if player_present(i) then
-                InitPlayer(i, true)
-            end
-        end
-        register_callback(cb["EVENT_TICK"], "OnTick")
-        register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
-        register_callback(cb["EVENT_CHAT"], "OnServerChat")
-        register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
-        register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
-        register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
-        register_callback(cb['EVENT_VEHICLE_EXIT'], "OnVehicleExit")
-        register_callback(cb['EVENT_VEHICLE_ENTER'], "OnVehicleEntry")
-    else
-        unregister_callback(cb['EVENT_DIE'])
-        unregister_callback(cb['EVENT_TICK'])
-        unregister_callback(cb['EVENT_CHAT'])
-        unregister_callback(cb['EVENT_JOIN'])
-        unregister_callback(cb['EVENT_SPAWN'])
-        unregister_callback(cb['EVENT_LEAVE'])
-        unregister_callback(cb['EVENT_VEHICLE_EXIT'])
-        unregister_callback(cb['EVENT_VEHICLE_ENTER'])
-    end
 end
 
 function OnScriptUnload()
