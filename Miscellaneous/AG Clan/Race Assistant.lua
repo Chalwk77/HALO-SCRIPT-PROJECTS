@@ -10,8 +10,6 @@ Description: This script will monitor all players and ensure they are all racing
 
              Note: "time_until_warn" and "time_until_kill" can be edited in the config section.
 
-             Change Log: Added
-
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -25,12 +23,12 @@ api_version = "1.12.0.0"
 -- Configuration [Starts] ----------------------------------------------------------------------------------------
 local actions = { -- Only one action can be enabled at a time.
     ["take_weapons"] = {
-        enabled = true,
+        enabled = false,
         warning = "[Not in Vehicle] - Warning, your weapons will be taken in %seconds% seconds. Warnings Left: %current%/%total%",
         on_action = "Your weapons have been taken away because you were not racing"
     },
     ["kill"] = {
-        enabled = false,
+        enabled = true,
         warning = "[Not in Vehicle] - Warning, you will be killed in %seconds% seconds. Warnings Left: %current%/%total%",
         on_action = "You were killed because you were not racing in a vehicle"
     }
@@ -38,12 +36,12 @@ local actions = { -- Only one action can be enabled at a time.
 
 local warnings = 5 -- Warnings per game
 
--- If true players will be kicked or banned after 5 repeat warnings.
+-- If true players will be kicked or banned after 3 repeat warnings.
 local severe_punishment = true
 local punishment = "k" -- Valid Actions: "k" = kick, "b" = ban (severe_punishment must be enabled)
 
 local time_until_warn = 90 -- In seconds
-local time_until_kill = 120 -- In seconds
+local time_until_kill = 150 -- In seconds
 
 -- If true admins will be exempt from action taken against them (including warnings)
 local ignore_admins = true
@@ -110,10 +108,9 @@ function OnTick()
                                     if (Type == "kill") then
                                         execute_command("kill " .. player)
                                     elseif (Type == "take_weapons") then
-                                        params.init = false
                                         execute_command("wdel " .. player)
                                     end
-
+                                    params.init = false
                                     if (params.warnings <= 0 and severe_punishment) then
                                         execute_command(tostring(punishment) .. " " .. player)
                                     else
