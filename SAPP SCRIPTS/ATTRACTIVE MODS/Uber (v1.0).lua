@@ -40,6 +40,10 @@ local uber = {
     -- If true, players will be able to call an uber by crouching
     crouch_to_uber = true,
 
+    -- If true, you will have to wait X seconds before attempting to call an uber
+    use_cooldown = true,
+    cooldown_period = 10,
+
     -- If true, Vehicle Occupants without a driver will be ejected
     eject_players_without_driver = true,
     -- Vehicle Occupants without a driver will be ejected after this amount of time (in seconds)
@@ -53,7 +57,8 @@ local uber = {
         [4] = "Please wait until you respawn.",
         [5] = "[No Driver] You will be ejected in %seconds% seconds.",
         [6] = "You cannot call an uber while holding the objective",
-        [7] = { --< on vehicle entry
+        [7] = "Please wait another %seconds% seconds to call an uber",
+        [8] = { --< on vehicle entry
             "--- UBER ---",
             "Driver: %dname%",
             "Gunner: %gname%",
@@ -64,8 +69,9 @@ local uber = {
     -- Configuration Ends --
 }
 
-local time_scale = 0.03333333333333333
+local floor = math.floor
 local lower, upper, gsub = string.lower, string.upper, string.gsub
+local time_scale = 0.03333333333333333
 local players, vehicles = {}
 
 function OnScriptLoad()
@@ -105,50 +111,62 @@ function OnPlayerDeath(PlayerIndex)
 end
 
 function OnTick()
-    for i = 1, 16 do
+    for i, player in pairs(players) do
         if player_present(i) and player_alive(i) then
             local dynamic_player = get_dynamic_player(i)
             if (dynamic_player ~= 0) then
                 local CurrentVehicle, VehicleObjectMemory = uber:isInVehicle(i)
                 if (uber.crouch_to_uber) then
                     if not (CurrentVehicle) then
-
                         local crouching = read_float(dynamic_player + 0x50C)
-                        if (crouching ~= players[i].crouch_state and crouching > 0) then
-                            if (players[i].calls > 0) then
-                                uber:CheckVehicles(i)
+                        if (crouching ~= player.crouch_state and crouching == 1) then
+                            if (player.calls > 0) then
+                                if (not player.cooldown) then
+                                    uber:CheckVehicles(i)
+                                else
+                                    cls(i, 25)
+                                    local delta_time = floor(uber.cooldown_period - player.cooldown_timer)
+                                    local msg = gsub(uber.messages[7], "%%seconds%%", delta_time)
+                                    rprint(i, msg)
+                                end
                             else
                                 cls(i, 25)
                                 rprint(i, uber.messages[3])
                             end
-                            players[i].crouch_state = crouching
                         end
+                        if (player.cooldown) then
+                            player.cooldown_timer = player.cooldown_timer + time_scale
+                            if (player.cooldown_timer >= uber.cooldown_period) then
+                                player.cooldown, player.cooldown_timer = false, 0
+                            end
+                        end
+                        player.crouch_state = crouching
                     end
                 end
                 if (uber.eject_players_without_driver) then
                     if (CurrentVehicle) then
                         local driver = read_dword(VehicleObjectMemory + 0x324)
-                        if (not players[i].eject) then
+                        if (not player.eject) then
                             if (driver == 0xFFFFFFFF or driver == 0) then
-                                players[i].eject = true
+                                player.eject = true
                                 local ejection_warning_message = gsub(uber.messages[5], "%%seconds%%", uber.ejection_period)
                                 rprint(i, ejection_warning_message)
                             end
-                        elseif (players[i].eject) and (driver ~= 0xFFFFFFFF) then
-                            players[i].eject = false
-                            players[i].eject_timer = 0
+                        elseif (player.eject) and (driver ~= 0xFFFFFFFF) then
+                            player.eject = false
+                            player.eject_timer = 0
                         else
-                            players[i].eject_timer = players[i].eject_timer + time_scale
-                            if (players[i].eject_timer >= uber.ejection_period) then
+                            player.eject_timer = player.eject_timer + time_scale
+                            if (player.eject_timer >= uber.ejection_period) then
                                 exit_vehicle(i)
-                                players[i].eject = false
-                                players[i].eject_timer = 0
+                                player.eject = false
+                                player.eject_timer = 0
                                 CheckSeats(i, true)
                             end
                         end
-                    elseif (players[i].eject) then
-                        players[i].eject = false
-                        players[i].eject_timer = 0
+                    elseif (player.eject) then
+                        player.eject = false
+                        player.eject_timer = 0
                     end
                 end
             end
@@ -158,6 +176,8 @@ end
 
 function OnPlayerSpawn(PlayerIndex)
     players[PlayerIndex].crouch_state = 0
+    players[PlayerIndex].cooldown = false
+    players[PlayerIndex].cooldown_timer = 0
 end
 
 function OnServerChat(Executor, Message, Type)
@@ -195,6 +215,13 @@ function uber:CheckVehicles(Executor)
     if (not uber.block_objective) or (uber.block_objective and not uber:HasObjective(Executor)) then
         local count = 0
         local team = get_var(Executor, "$team")
+
+        if (uber.use_cooldown) then
+            players[Executor].cooldown, players[Executor].cooldown_timer = true, 0
+        else
+            players[Executor].cooldown = false
+        end
+
         for _, v in pairs(vehicles) do
             if (v.driver and v.team == team) then
                 count = count + 1
@@ -316,8 +343,8 @@ function CheckSeats(PlayerIndex, State, Enter)
                     if (Enter) then
                         cls(PlayerIndex, 25)
                         local t, msg = vehicles[VehicleObjectMemory], ""
-                        for i = 1, #uber.messages[7] do
-                            msg = gsub(gsub(gsub(gsub(uber.messages[7][i],
+                        for i = 1, #uber.messages[8] do
+                            msg = gsub(gsub(gsub(gsub(uber.messages[8][i],
                                     "%%dname%%", t.d_name),
                                     "%%gname%%", t.g_name),
                                     "%%pname%%", t.p_name),
@@ -379,6 +406,8 @@ end
 function uber:InitPlayer(PlayerIndex, Init)
     if (Init) then
         players[PlayerIndex] = {
+            cooldown = false,
+            cooldown_timer = 0,
             crouch_state = 0,
             calls = uber.calls_per_game,
             eject = false,
@@ -460,7 +489,7 @@ function uber:HasObjective(PlayerIndex)
     --
     if (has_objective) then
         cls(PlayerIndex, 25)
-        rprint(PlayerIndex, uber.messages[6])
+        rprint(PlayerIndex, uber.messages[7])
     end
     return has_objective
 end
