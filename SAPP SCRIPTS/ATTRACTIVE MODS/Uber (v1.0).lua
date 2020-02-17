@@ -1,21 +1,23 @@
 --[[
 --======================================================================================================--
 Script Name: Uber (v1.0), for SAPP (PC & CE)
-Description: Inject yourself into a teammate's vehicle by typing "uber".
+Description: Inject yourself into a teammate's vehicle by typing "uber" or crouching.
 
              This script will scan all available vehicles that are occupied by teammates.
              The first scan checks available gunner seats. If one is available, you will enter into it.
-             If no gunner seats are available, the script will then scan for available passenger seats and insert you into one.
-             If neither gunner or passenger seats are vacant the script will send you an error.
+             If no gunner seats are available, the script will then scan for available passenger seats and 
+			 insert you into one. If neither gunner or passenger seats are vacant the script will send you an error.
 
             Features:
-            (all features are configurable)
-            * Custom "keywords", i.e, "uber", "taxi"
-            * Limit uber calls per game (10 by default)
-            * Crouch to call an uber (on by default)
-            * Auto Ejector: Vehicle occupants without a driver will be ejected after X seconds (on by default)
-            * Customizable messages
-            * Works on most custom maps
+			* Customizable activation keywords: i,e "uber", "taxi", "cab"
+			* Limit uber calls per game (20 by default)
+			* Crouch to call an uber (on by default)
+			* Auto Ejector: Vehicle occupants without a driver will be ejected after X seconds (on by default)
+			* Cooldowns (you have to wait 10 seconds before attempting to call an uber) - on by default
+			* Works on most custom maps
+			* Compatible with any team based gametype (incl ctf, oddball)
+			* Customizable messages
+			* Option to prevent players holding the objective from calling an uber (applies to ctf and oddball)
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
