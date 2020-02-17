@@ -452,14 +452,14 @@ function RegisterSAPPEvents()
         register_callback(cb['EVENT_VEHICLE_ENTER'], "OnVehicleEntry")
         return true
     else
-        register_callback(cb['EVENT_DIE'])
-        register_callback(cb["EVENT_CHAT"])
-        register_callback(cb["EVENT_JOIN"])
-        register_callback(cb['EVENT_SPAWN'])
-        register_callback(cb["EVENT_LEAVE"])
+        unregister_callback(cb['EVENT_DIE'])
+        unregister_callback(cb["EVENT_CHAT"])
+        unregister_callback(cb["EVENT_JOIN"])
+        unregister_callback(cb['EVENT_SPAWN'])
+        unregister_callback(cb["EVENT_LEAVE"])
         unregister_callback(cb["EVENT_TICK"])
-        register_callback(cb['EVENT_VEHICLE_EXIT'])
-        register_callback(cb['EVENT_VEHICLE_ENTER'])
+        unregister_callback(cb['EVENT_VEHICLE_EXIT'])
+        unregister_callback(cb['EVENT_VEHICLE_ENTER'])
     end
     return false
 end
