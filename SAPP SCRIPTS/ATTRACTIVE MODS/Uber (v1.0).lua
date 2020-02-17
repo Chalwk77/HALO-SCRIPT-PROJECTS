@@ -174,6 +174,7 @@ function OnTick()
             end
         end
     end
+    uber:CheckForReset()
 end
 
 function OnPlayerSpawn(PlayerIndex)
@@ -217,13 +218,11 @@ function uber:CheckVehicles(Executor)
     if (not uber.block_objective) or (uber.block_objective and not uber:HasObjective(Executor)) then
         local count = 0
         local team = get_var(Executor, "$team")
-
         if (uber.use_cooldown) then
             players[Executor].cooldown, players[Executor].cooldown_timer = true, 0
         else
             players[Executor].cooldown = false
         end
-
         for _, v in pairs(vehicles) do
             if (v.driver and v.team == team) then
                 count = count + 1
@@ -289,6 +288,7 @@ function CheckSeats(PlayerIndex, State, Enter)
 
                 local valid = uber:ValidateVehicle(VehicleObjectMemory)
                 if (valid) then
+
                     previous_state = previous_state or { -- table index is nil, create new:
                         driver = false, gunner = true, passenger = true,
                         d_name = "N/A", g_name = "N/A", p_name = "N/A",
@@ -299,7 +299,6 @@ function CheckSeats(PlayerIndex, State, Enter)
                         if (not State) then
                             State = true
                         else
-                            team = "N/A"
                             State = false
                         end
                         -- driver
@@ -315,7 +314,6 @@ function CheckSeats(PlayerIndex, State, Enter)
                             passenger = previous_state.passenger
                         }
                     elseif (seat == 1) then
-
                         -- passenger
                         vehicles[VehicleObjectMemory] = {
                             team = SetTeam(State, previous_state),
@@ -358,7 +356,6 @@ function CheckSeats(PlayerIndex, State, Enter)
             end
         end
     end
-    uber:CheckForReset()
 end
 
 function uber:isInVehicle(PlayerIndex)
