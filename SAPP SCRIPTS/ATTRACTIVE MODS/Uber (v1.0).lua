@@ -31,7 +31,7 @@ api_version = "1.12.0.0"
 local uber = {
 
     -- Configuration Starts --
-    command = { "uber", "taxi", "cab" },
+    command = { "uber", "taxi", "cab", "taxo", "taxii", "taxci", "taci", "takse" },
 
     -- Maximum number of uber calls per game:
     calls_per_game = 20,
@@ -277,80 +277,78 @@ function CheckSeats(PlayerIndex, State, Enter)
     if (dynamic_player ~= 0) then
         local CurrentVehicle = read_dword(dynamic_player + 0x11C)
         local VehicleObjectMemory = get_object_memory(CurrentVehicle)
-        if (VehicleObjectMemory ~= 0) then
-            if (CurrentVehicle ~= 0xFFFFFFFF) then
+        if (VehicleObjectMemory ~= 0 and CurrentVehicle ~= 0xFFFFFFFF) then
 
-                local team = get_var(PlayerIndex, "$team")
-                local name = get_var(PlayerIndex, "$name")
+            local team = get_var(PlayerIndex, "$team")
+            local name = get_var(PlayerIndex, "$name")
 
-                local seat = read_word(dynamic_player + 0x2F0)
-                local previous_state = vehicles[VehicleObjectMemory]
+            local seat = read_word(dynamic_player + 0x2F0)
+            local previous_state = vehicles[VehicleObjectMemory]
 
-                local valid = uber:ValidateVehicle(VehicleObjectMemory)
-                if (valid) then
+            local valid = uber:ValidateVehicle(VehicleObjectMemory)
+            if (valid) then
 
-                    previous_state = previous_state or { -- table index is nil, create new:
-                        driver = false, gunner = true, passenger = true,
-                        d_name = "N/A", g_name = "N/A", p_name = "N/A",
-                        team = "N/A"
-                    }
+                previous_state = previous_state or { -- table index is nil, create new:
+                    driver = false, gunner = true, passenger = true,
+                    d_name = "N/A", g_name = "N/A", p_name = "N/A",
+                    team = "N/A"
+                }
 
-                    if (seat == 0) then
-                        if (not State) then
-                            State = true
-                        else
-                            State = false
-                        end
-                        -- driver
-                        vehicles[VehicleObjectMemory] = {
-                            d_name = name,
-                            g_name = previous_state.g_name,
-                            p_name = previous_state.p_name,
-                            team = team,
-
-                            driver = State, -- true if occupied
-                            vehicle = CurrentVehicle,
-                            gunner = previous_state.gunner,
-                            passenger = previous_state.passenger
-                        }
-                    elseif (seat == 1) then
-                        -- passenger
-                        vehicles[VehicleObjectMemory] = {
-                            team = SetTeam(State, previous_state),
-                            d_name = previous_state.d_name,
-                            g_name = previous_state.g_name,
-                            p_name = name,
-
-                            passenger = State, -- false if occupied
-                            vehicle = CurrentVehicle,
-                            gunner = previous_state.gunner,
-                            driver = previous_state.driver
-                        }
-                    elseif (seat == 2) then
-                        -- gunner
-                        vehicles[VehicleObjectMemory] = {
-                            team = SetTeam(State, previous_state),
-                            d_name = previous_state.d_name,
-                            g_name = name,
-                            p_name = previous_state.p_name,
-
-                            gunner = State, -- false if occupied
-                            vehicle = CurrentVehicle,
-                            driver = previous_state.driver,
-                            passenger = previous_state.passenger
-                        }
+                if (seat == 0) then
+                    if (not State) then
+                        State = true
+                    else
+                        State = false
                     end
-                    if (Enter) then
-                        cls(PlayerIndex, 25)
-                        local t, msg = vehicles[VehicleObjectMemory], ""
-                        for i = 1, #uber.messages[8] do
-                            msg = gsub(gsub(gsub(gsub(uber.messages[8][i],
-                                    "%%dname%%", t.d_name),
-                                    "%%gname%%", t.g_name),
-                                    "%%pname%%", t.p_name),
-                                    "%%remaining%%", players[PlayerIndex].calls)
-                            rprint(PlayerIndex, msg)
-                        end
+                    -- driver
+                    vehicles[VehicleObjectMemory] = {
+                        d_name = name,
+                        team = team,
+                        g_name = previous_state.g_name,
+                        p_name = previous_state.p_name,
+
+                        driver = State, -- true if occupied
+                        vehicle = CurrentVehicle,
+                        gunner = previous_state.gunner,
+                        passenger = previous_state.passenger
+                    }
+                elseif (seat == 1) then
+                    -- passenger
+                    vehicles[VehicleObjectMemory] = {
+                        team = SetTeam(State, previous_state),
+                        d_name = previous_state.d_name,
+                        g_name = previous_state.g_name,
+                        p_name = name,
+
+                        passenger = State, -- false if occupied
+                        vehicle = CurrentVehicle,
+                        gunner = previous_state.gunner,
+                        driver = previous_state.driver
+                    }
+                elseif (seat == 2) then
+                    -- gunner
+                    vehicles[VehicleObjectMemory] = {
+                        team = SetTeam(State, previous_state),
+                        d_name = previous_state.d_name,
+                        g_name = name,
+                        p_name = previous_state.p_name,
+
+                        gunner = State, -- false if occupied
+                        vehicle = CurrentVehicle,
+                        driver = previous_state.driver,
+                        passenger = previous_state.passenger
+                    }
+                end
+                if (Enter) then
+                    cls(PlayerIndex, 25)
+                    local t, msg = vehicles[VehicleObjectMemory], ""
+                    for i = 1, #uber.messages[8] do
+                        msg = gsub(gsub(gsub(gsub(uber.messages[8][i],
+                                "%%dname%%", t.d_name),
+                                "%%gname%%", t.g_name),
+                                "%%pname%%", t.p_name),
+                                "%%remaining%%", players[PlayerIndex].calls)
+                        rprint(PlayerIndex, msg)
                     end
                 end
             end
@@ -426,7 +424,13 @@ end
 function uber:ValidateVehicle(VehicleObjectMemory)
     if (VehicleObjectMemory ~= 0) then
         local vehicle = read_string(read_dword(read_word(VehicleObjectMemory) * 32 + 0x40440038))
-        local keywords = { "hog", "hawg", "civi", "vulcan", "puma", "scorpion", "lav" }
+        local keywords = {
+            "hog", "hawg", "civi", "civvi",
+            "vulcan", "puma", "scorpion",
+            "lav", "sult", "rancher", "walton",
+            "snow_civ", "glendale", "jeep", "mesa",
+            "spectre",
+        }
         for _, word in pairs(keywords) do
             if (vehicle:find(word)) then
                 return true
