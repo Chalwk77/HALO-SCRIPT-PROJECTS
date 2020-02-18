@@ -1,6 +1,6 @@
 --[[
 --======================================================================================================--
-Script Name: Uber (v1.0), for SAPP (PC & CE)
+Script Name: Uber (v1.1), for SAPP (PC & CE)
 Description: Inject yourself into a teammate's vehicle by typing "uber" or crouching.
 
              This script will scan all available vehicles that are occupied by teammates.
