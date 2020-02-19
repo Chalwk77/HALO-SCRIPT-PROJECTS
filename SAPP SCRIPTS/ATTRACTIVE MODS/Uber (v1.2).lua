@@ -9,15 +9,15 @@ Description: Inject yourself into a teammate's vehicle by typing "uber" or crouc
 			 insert you into one. If neither gunner or passenger seats are vacant the script will send you an error.
 
             Features:
-			* Customizable activation keywords: i,e "uber", "taxi", "cab"
-			* Limit uber calls per game (20 by default)
-			* Crouch to call an uber (on by default)
-			* Auto Ejector: Vehicle occupants without a driver will be ejected after X seconds (on by default)
-			* Cooldowns (you have to wait 10 seconds before attempting to call an uber) - on by default
-			* Works on most custom maps
-			* Compatible with any team based gametype (incl ctf, oddball)
-			* Customizable messages
-			* Option to prevent players holding the objective from calling an uber (applies to ctf and oddball)
+            * Customizable activation keywords: i,e "uber", "taxi", "cab"
+            * Limit uber calls per game (20 by default)
+            * Crouch to call an uber (on by default)
+            * Auto Ejector: Vehicle occupants without a driver will be ejected after X seconds (on by default)
+            * Cooldowns (you have to wait 10 seconds before attempting to call an uber) - on by default
+            * Works on most custom maps
+            * Compatible with any team-based game type (incl CTF, Oddball)
+            * Customizable messages
+            * Option to prevent players holding the objective from calling an uber (applies to CTF and Oddball)
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
