@@ -123,26 +123,26 @@ function OnTick()
                     if not (CurrentVehicle) then
                         local crouching = read_float(dynamic_player + 0x50C)
                         if (crouching ~= player.crouch_state and crouching == 1) then
-                            if (player.calls > 0) then
-                                if (not player.cooldown) then
-                                    if (not uber.protected) then
+                            if (not uber.protected) then
+                                if (player.calls > 0) then
+                                    if (not player.cooldown) then
                                         uber:CheckVehicles(i)
                                     else
                                         cls(i, 25)
-                                        rprint(i, uber.messages[8])
+                                        local delta_time = floor(uber.cooldown_period - player.cooldown_timer)
+                                        local msg = gsub(uber.messages[7], "%%seconds%%", delta_time)
+                                        rprint(i, msg)
                                     end
                                 else
                                     cls(i, 25)
-                                    local delta_time = floor(uber.cooldown_period - player.cooldown_timer)
-                                    local msg = gsub(uber.messages[8], "%%seconds%%", delta_time)
-                                    rprint(i, msg)
+                                    rprint(i, uber.messages[3])
                                 end
                             else
                                 cls(i, 25)
-                                rprint(i, uber.messages[3])
+                                rprint(i, uber.messages[8])
                             end
                         end
-                        if (player.cooldown) then
+                        if (player.cooldown) and (not uber.protected) then
                             player.cooldown_timer = player.cooldown_timer + time_scale
                             if (player.cooldown_timer >= uber.cooldown_period) then
                                 player.cooldown, player.cooldown_timer = false, 0
@@ -151,7 +151,7 @@ function OnTick()
                         player.crouch_state = crouching
                     end
                 end
-                if (uber.eject_players_without_driver) then
+                if (uber.eject_players_without_driver) and (not uber.protected) then
                     if (CurrentVehicle) then
                         local driver = read_dword(VehicleObjectMemory + 0x324)
                         if (not player.eject) then
@@ -199,22 +199,22 @@ function OnServerChat(Executor, Message, Type)
             if (Str[1] == uber.command[i]) then
                 if (Executor ~= 0) then
                     cls(Executor, 25)
-                    if player_alive(Executor) then
-                        if (players[Executor].calls > 0) then
-                            if (not uber:isInVehicle(Executor)) then
-                                if (not uber.protected) then
+                    if (not uber.protected) then
+                        if player_alive(Executor) then
+                            if (players[Executor].calls > 0) then
+                                if (not uber:isInVehicle(Executor)) then
                                     uber:CheckVehicles(Executor)
                                 else
-                                    rprint(Executor, uber.messages[8])
+                                    rprint(Executor, uber.messages[2])
                                 end
                             else
-                                rprint(Executor, uber.messages[2])
+                                rprint(Executor, uber.messages[3])
                             end
                         else
-                            rprint(Executor, uber.messages[3])
+                            rprint(Executor, uber.messages[4])
                         end
                     else
-                        rprint(Executor, uber.messages[4])
+                        rprint(Executor, uber.messages[8])
                     end
                 else
                     cprint("This command can only be executed by a player", 4 + 8)
@@ -512,7 +512,7 @@ function uber:HasObjective(PlayerIndex)
     --
     if (has_objective) then
         cls(PlayerIndex, 25)
-        rprint(PlayerIndex, uber.messages[8])
+        rprint(PlayerIndex, uber.messages[6])
     end
     return has_objective
 end
