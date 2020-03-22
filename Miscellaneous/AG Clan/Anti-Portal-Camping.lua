@@ -24,7 +24,9 @@ local portals = {
     },
     ["bloodgulch"] = {
         { 82.828, -114.527, 0.702 },
-        { 43.795, -126.231, 0.241 }
+        { 43.795, -126.231, 0.241 },
+        { 95.584, -155.452, 1.807 },
+        { 40.057, -82.916, 1.815 },
     },
     ["boardingaction"] = {
         { -2.576, 8.905, 5.219 },
@@ -172,7 +174,7 @@ function OnTick()
                                         player.timer = player.timer + delta_time
                                         if (player.timer >= time_until_kill / 2) and (player.timer < time_until_kill) then
                                             cls(i, 25)
-                                            local time_remaining = floor((time_until_kill - player.timer))
+                                            local time_remaining = floor((time_until_kill - player.timer) + 1)
                                             local msg = gsub(warning_message, "%%seconds%%", time_remaining)
                                             rprint(i, msg)
                                         elseif (player.timer > time_until_kill) then
