@@ -17,15 +17,6 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 local time_until_kill = 10 -- in seconds
 local warning_message = "Warning. You will be killed in %seconds% seconds for portal-camping. Move away!"
 local on_kill_message = "You were killed for Portal Camping."
--- Configuration Ends --
-
-local players = {}
-local game_over, mapname
-local delta_time = 1 / 30
-local trigger_distance = 3.5 -- world units
-local floor = math.floor
-local gsub = string.gsub
-
 local portals = {
     ["ratrace"] = {
         { -4.878, -16.255, -2.118 },
@@ -34,6 +25,14 @@ local portals = {
         { 8.383, -8.004, 0.223 }
     },
 }
+-- Configuration Ends --
+
+local players = {}
+local game_over, loc
+local delta_time = 1 / 30
+local trigger_distance = 3.5 -- world units
+local floor = math.floor
+local gsub = string.gsub
 
 api_version = "1.12.0.0"
 
@@ -46,7 +45,7 @@ function OnScriptLoad()
     register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
 
     if get_var(0, "$gt") ~= "n/a" then
-        game_over, mapname = false, get_var(0, "$map")
+        game_over, loc = false, portals[get_var(0, "$map")]
         for i = 1, 16 do
             if player_present(i) then
                 InitPlayer(i, false)
@@ -60,7 +59,7 @@ function OnScriptUnload()
 end
 
 function OnGameStart()
-    game_over, mapname = false, get_var(0, "$map")
+    game_over, loc = false, portals[get_var(0, "$map")]
 end
 
 function OnGameEnd()
@@ -82,7 +81,7 @@ end
 
 -- This function called every 1/30th second
 function OnTick()
-    if (not game_over) then
+    if (not game_over) and (loc) then
         for i, player in pairs(players) do
             if (i) then
                 if player_present(i) and player_alive(i) then
@@ -92,37 +91,32 @@ function OnTick()
 
                         local coords = getXYZ(dynamic_player)
                         if (coords) then
-                            local x1, y1, z1, t = coords.x, coords.y, coords.z, portals[mapname]
-                            if (t) then -- map array
-                                local count = 0
-                                for j = 1, #t do
-                                    local x2, y2, z2 = t[j][1], t[j][2], t[j][3]
-                                    if CheckCoordinates(x1, y1, z1, x2, y2, z2) then
-                                        count = count - 1 or 0
-                                        if (player.init) then
-                                            player.timer = player.timer + delta_time
-                                            local time_remaining = (time_until_kill - player.timer)
-                                            if (floor(player.timer) == floor(time_until_kill / 2)) then
-                                                cls(i, 25)
-                                                local msg = gsub(warning_message, "%%seconds%%", time_remaining)
-                                                rprint(i, msg)
-                                            elseif (floor(player.timer) > floor(time_until_kill)) then
-                                                player.init = false
-                                                rprint(i, on_kill_message)
-                                            end
-                                        end
-                                        
-                                        -- playerX was previously within X world units of X Portal
-                                        -- init = true (reset?)
-                                    else 
-                                        count = count + 1
-                                    end
-                                end
-                                if (count == 0) then
-                                    player.timer = 0
-                                end
-                            end
-                        end
+                            local x1, y1, z1 = coords.x, coords.y, coords.z
+							local count = 0
+							for j = 1, #loc do
+								local x2, y2, z2 = loc[j][1], loc[j][2], loc[j][3]
+								if CheckCoordinates(x1, y1, z1, x2, y2, z2) then
+									count = count + 1
+									if (player.init) then
+										player.timer = player.timer + delta_time
+										if (player.timer >= time_until_kill / 2) and (player.timer < time_until_kill) then
+											cls(i, 25)
+											local time_remaining = floor((time_until_kill - player.timer))
+											local msg = gsub(warning_message, "%%seconds%%", time_remaining)
+											rprint(i, msg)
+										elseif (player.timer > time_until_kill) then
+											cls(i, 25)
+											player.init = false
+											rprint(i, on_kill_message)
+											execute_command("kill " .. i)
+										end
+									end
+								end
+							end
+							if (count == 0) then
+								player.timer = 0
+							end
+						end
                     end
                 end
             end
