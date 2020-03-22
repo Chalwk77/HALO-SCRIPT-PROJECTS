@@ -15,8 +15,10 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 -- Configuration Starts --
 local time_until_kill = 10 -- in seconds
+-- Players will be warned (time_until_kill/2) seconds after entering (trigger_distance)
 local warning_message = "Warning. You will be killed in %seconds% seconds for portal-camping. Move away!"
 local on_kill_message = "You were killed for Portal Camping."
+local trigger_distance = 3.5 -- world units
 local portals = {
     ["beavercreek"] = {
         { 31.526, 13.809, -0.216 },
@@ -100,15 +102,12 @@ local portals = {
 }
 -- Configuration Ends --
 
-local players = {}
-local game_over, loc
+-- Do not touch below this point (unless you know what you are doing)
+local players, game_over, loc = {}
 local delta_time = 1 / 30
-local trigger_distance = 3.5 -- world units
-local floor = math.floor
-local gsub = string.gsub
+local floor, gsub = math.floor, string.gsub
 
 api_version = "1.12.0.0"
-
 function OnScriptLoad()
     register_callback(cb["EVENT_TICK"], "OnTick")
     register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
@@ -128,7 +127,7 @@ function OnScriptLoad()
 end
 
 function OnScriptUnload()
-
+    -- N/A
 end
 
 function OnGameStart()
