@@ -240,7 +240,6 @@ end
 -- This function called every 1/30th second
 function OnTick()
     if (not game_over) and (loc) then
-        print(loc.enabled)
         if (loc.enabled) then
             for i, player in pairs(players) do
                 if (i) then
