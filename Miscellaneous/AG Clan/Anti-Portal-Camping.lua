@@ -24,6 +24,7 @@ local game_over, mapname
 local delta_time = 1 / 30
 local trigger_distance = 3.5 -- world units
 local floor = math.floor
+local gsub = string.gsub
 
 local portals = {
     ["ratrace"] = {
@@ -93,19 +94,32 @@ function OnTick()
                         if (coords) then
                             local x1, y1, z1, t = coords.x, coords.y, coords.z, portals[mapname]
                             if (t) then -- map array
+                                local count = 0
                                 for j = 1, #t do
                                     local x2, y2, z2 = t[j][1], t[j][2], t[j][3]
                                     if CheckCoordinates(x1, y1, z1, x2, y2, z2) then
+                                        count = count - 1 or 0
                                         if (player.init) then
                                             player.timer = player.timer + delta_time
+                                            local time_remaining = (time_until_kill - player.timer)
                                             if (floor(player.timer) == floor(time_until_kill / 2)) then
-                                                -- todo: warn player
+                                                cls(i, 25)
+                                                local msg = gsub(warning_message, "%%seconds%%", time_remaining)
+                                                rprint(i, msg)
                                             elseif (floor(player.timer) > floor(time_until_kill)) then
                                                 player.init = false
-                                                -- todo: kill logic
+                                                rprint(i, on_kill_message)
                                             end
                                         end
+                                        
+                                        -- playerX was previously within X world units of X Portal
+                                        -- init = true (reset?)
+                                    else 
+                                        count = count + 1
                                     end
+                                end
+                                if (count == 0) then
+                                    player.timer = 0
                                 end
                             end
                         end
@@ -142,5 +156,12 @@ function CheckCoordinates(x1, y1, z1, x2, y2, z2)
     local distance = math.sqrt((x1 - x2) ^ 2 + (y1 - y2) ^ 2 + (z1 - z2) ^ 2)
     if (distance <= trigger_distance) then
         return distance
+    end
+end
+
+function cls(PlayerIndex, count)
+    count = count or 25
+    for _ = 1,count do
+        rprint(PlayerIndex, " ")
     end
 end
