@@ -21,16 +21,19 @@ local on_kill_message = "You were killed for Portal Camping."
 local trigger_distance = 3.5 -- world units
 local portals = {
     ["beavercreek"] = {
+        enabled = true,
         { 31.526, 13.809, -0.216 },
         { -3.347, 13.679, -0.216 }
     },
     ["bloodgulch"] = {
+        enabled = true,
         { 82.828, -114.527, 0.702 },
         { 43.795, -126.231, 0.241 },
         { 95.584, -155.452, 1.807 },
         { 40.057, -82.916, 1.815 }
     },
     ["boardingaction"] = {
+        enabled = true,
         { -2.576, 8.905, 5.219 },
         { -1.042, -8.182, 5.219 },
         { 1.952, -8.453, -4.778 },
@@ -41,12 +44,14 @@ local portals = {
         { 21.156, 8.195, 5.219 }
     },
     ["carousel"] = {
+        enabled = true,
         { -0.016, 10.579, -0.855 },
         { -0.003, -11.537, -0.856 },
         { 8.031, 7.995, -3.349 },
         { -8.136, -8.111, -3.349 }
     },
     ["chillout"] = {
+        enabled = true,
         { 11.173, 8.019, 0.001 },
         { 1.461, -4.204, 0.001 },
         { -4.811, 7.962, 0.502 },
@@ -55,13 +60,16 @@ local portals = {
         { 12.152, 2.636, 3.536 }
     },
     ["longest"] = { -- there are no portals on this map by default
+        enabled = false,
         {}
     },
     ["dangercanyon"] = {
+        enabled = true,
         { -0.473, 57.500, 0.500 },
         { -0.043, 45.401, -8.365 }
     },
     ["deathisland"] = {
+        enabled = true,
         { 24.375, 13.309, 8.295 },
         { 24.407, 18.669, 8.295 },
         { 25.656, 16.048, 21.191 },
@@ -72,6 +80,7 @@ local portals = {
         { 46.747, -35.916, 13.993 }
     },
     ["gephyrophobia"] = {
+        enabled = true,
         { 24.885, 7.990, -16.628 },
         { 28.589, 7.984, -16.628 },
         { 28.682, -152.535, -16.611 },
@@ -82,6 +91,7 @@ local portals = {
         { 75.810, -112.774, -1.061 }
     },
     ["icefields"] = {
+        enabled = true,
         { 24.850, -36.958, 2.500 },
         { -77.864, 101.300, 2.500 },
         { -26.023, 40.575, 4.200 },
@@ -92,6 +102,7 @@ local portals = {
         { -43.600, 47.621, 8.663 }
     },
     ["infinity"] = {
+        enabled = true,
         { 13.596, 6.135, 16.580 },
         { -13.921, 6.056, 18.380 },
         { -15.351, -46.685, 21.871 },
@@ -102,31 +113,77 @@ local portals = {
         { -13.242, -122.783, 18.953 }
     },
     ["sidewinder"] = {
-        { "COORDINATES" }
+        enabled = true,
+        { 32.012, -38.224, 0.559 },
+        { 51.926, 22.868, 0.159 },
+        { 41.180, 46.002, 0.159 },
+        { -41.281, 46.157, 0.159 },
+        { -52.284, 22.646, 0.159 },
+        { -33.670, -34.183, 0.559 }
     },
-    ["timberland"] = {
-        { "COORDINATES" }
+    ["timberland"] = { -- there are no portals on this map by default
+        enabled = false,
+        {}
     },
-    ["hangemhigh"] = {
-        { "COORDINATES" }
+    ["hangemhigh"] = { -- there are no portals on this map by default
+        enabled = false,
+        {}
     },
     ["ratrace"] = {
+        enabled = true,
         { -4.878, -16.255, -2.118 },
         { 8.945, -26.794, -3.611 },
         { 22.394, -5.786, -2.115 },
         { 8.383, -8.004, 0.223 }
     },
     ["damnation"] = {
-        { "COORDINATES" }
+        enabled = true,
+        { -0.608, 8.530, 8.201 },
+        { -1.899, 9.001, 1.201 }
     },
     ["putput"] = {
-        { "COORDINATES" }
+        enabled = true,
+        { 33.898, -14.268, 0.903 },
+        { 28.561, -9.237, 0.903 },
+        { 28.653, -32.667, 1.001 },
+        { 31.761, -22.771, 1.001 },
+        { 26.232, -28.212, 0.001 },
+        { 19.735, -4.618, 1.703 },
+        { 12.761, -4.540, 0.103 },
+        { 12.739, -8.262, 0.904 },
+        { 10.968, -20.362, 0.001 },
+        { 16.204, -17.400, 0.001 },
+        { 13.504, -24.423, 0.001 },
+        { 18.962, -20.393, 0.501 },
+        { 17.784, -34.447, 0.904 },
+        { 9.402, -34.357, 0.903 },
+        { 13.600, -30.380, 2.829 },
+        { 1.376, -2.851, 0.904 },
+        { -3.115, -9.125, 0.903 },
+        { -7.488, -2.784, 0.903 },
+        { -8.403, -2.806, 2.203 },
+        { -3.084, -15.752, 0.904 },
+        { -7.533, -20.202, 0.903 },
+        { -3.117, -24.660, 0.903 },
+        { 1.359, -20.244, 0.904 },
+        { -7.206, -34.540, 3.403 },
+        { -2.362, -30.562, 2.303 },
+        { 1.014, -34.616, 0.903 },
+        { -14.380, -18.413, 2.303 },
+        { -14.353, -22.101, 2.303 },
+        { -15.750, -16.776, 0.903 },
+        { -15.718, -23.706, 0.903 },
     },
-    ["prisoner"] = {
-        { "COORDINATES" }
+    ["prisoner"] = { -- there are no portals on this map by default
+        enabled = false,
+        {}
     },
     ["wizard"] = {
-        { "COORDINATES" }
+        enabled = true,
+        { -0.003, -11.497, -4.499 },
+        { -12.057, 0.006, -4.416 },
+        { 0.010, 11.439, -4.499 },
+        { 012.020, -0.051, -4.416 },
     },
 }
 -- Configuration Ends --
@@ -183,39 +240,42 @@ end
 -- This function called every 1/30th second
 function OnTick()
     if (not game_over) and (loc) then
-        for i, player in pairs(players) do
-            if (i) then
-                if player_present(i) and player_alive(i) then
+        print(loc.enabled)
+        if (loc.enabled) then
+            for i, player in pairs(players) do
+                if (i) then
+                    if player_present(i) and player_alive(i) then
 
-                    local dynamic_player = get_dynamic_player(i)
-                    if (dynamic_player ~= 0) then
+                        local dynamic_player = get_dynamic_player(i)
+                        if (dynamic_player ~= 0) then
 
-                        local coords = getXYZ(dynamic_player)
-                        if (coords) then
-                            local x1, y1, z1 = coords.x, coords.y, coords.z
-                            local count = 0
-                            for j = 1, #loc do
-                                local x2, y2, z2 = loc[j][1], loc[j][2], loc[j][3]
-                                if CheckCoordinates(x1, y1, z1, x2, y2, z2) then
-                                    count = count + 1
-                                    if (player.init) then
-                                        player.timer = player.timer + delta_time
-                                        if (player.timer >= time_until_kill / 2) and (player.timer < time_until_kill) then
-                                            cls(i, 25)
-                                            local time_remaining = floor((time_until_kill - player.timer) + 1)
-                                            local msg = gsub(warning_message, "%%seconds%%", time_remaining)
-                                            rprint(i, msg)
-                                        elseif (player.timer > time_until_kill) then
-                                            cls(i, 25)
-                                            player.init = false
-                                            rprint(i, on_kill_message)
-                                            execute_command("kill " .. i)
+                            local coords = getXYZ(dynamic_player)
+                            if (coords) then
+                                local x1, y1, z1 = coords.x, coords.y, coords.z
+                                local count = 0
+                                for j = 1, #loc do
+                                    local x2, y2, z2 = loc[j][1], loc[j][2], loc[j][3]
+                                    if CheckCoordinates(x1, y1, z1, x2, y2, z2) then
+                                        count = count + 1
+                                        if (player.init) then
+                                            player.timer = player.timer + delta_time
+                                            if (player.timer >= time_until_kill / 2) and (player.timer < time_until_kill) then
+                                                cls(i, 25)
+                                                local time_remaining = floor((time_until_kill - player.timer) + 1)
+                                                local msg = gsub(warning_message, "%%seconds%%", time_remaining)
+                                                rprint(i, msg)
+                                            elseif (player.timer > time_until_kill) then
+                                                cls(i, 25)
+                                                player.init = false
+                                                rprint(i, on_kill_message)
+                                                execute_command("kill " .. i)
+                                            end
                                         end
                                     end
                                 end
-                            end
-                            if (count == 0) then
-                                player.timer = 0
+                                if (count == 0) then
+                                    player.timer = 0
+                                end
                             end
                         end
                     end
