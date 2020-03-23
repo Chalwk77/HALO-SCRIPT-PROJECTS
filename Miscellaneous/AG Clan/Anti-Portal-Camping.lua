@@ -2,6 +2,7 @@
 --======================================================================================================--
 Script Name: Anti-Portal-Camping (v1.0), for SAPP (PC & CE)
 Description: Prevent players from camping portals.
+
 Players will be considered portal camping if they are within 3.5 world units
 of any portal. They will be warned to move away after 5 seconds and killed after 10.
 
