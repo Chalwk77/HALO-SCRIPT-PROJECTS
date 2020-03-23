@@ -1,7 +1,9 @@
 --[[
 --======================================================================================================--
 Script Name: Anti-Portal-Camping (v1.0), for SAPP (PC & CE)
-Description: Prevent players from camping portals
+Description: Prevent players from camping portals.
+Players will be considered portal camping if they are within 3.5 world units
+of any portal. They will be warned to move away after 5 seconds and killed after 10.
 
 * Made specifically for AG Clan (http://agclan1.proboards.com/)
 
@@ -17,12 +19,16 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 local time_until_kill = 10 -- in seconds
 -- Players will be warned (time_until_kill/2) seconds after entering (trigger_distance)
 local warning_message = "Warning. You will be killed in %seconds% seconds for portal-camping. Move away!"
-local on_kill_message = "You were killed for Portal Camping."
+-- To output the players name, use the custom variable: "%name%
+local on_kill_message = "%name%, You were killed for Portal Camping."
 local trigger_distance = 3.5 -- world units
 local portals = {
+    -- Set "enabled" to false to disable individual maps.
     ["beavercreek"] = {
         enabled = true,
+        -- Portal 1 Coordinates: X,Y,Z
         { 31.526, 13.809, -0.216 },
+        -- Portal 2 Coordinates: X,Y,Z
         { -3.347, 13.679, -0.216 }
     },
     ["bloodgulch"] = {
@@ -172,7 +178,7 @@ local portals = {
         { -14.380, -18.413, 2.303 },
         { -14.353, -22.101, 2.303 },
         { -15.750, -16.776, 0.903 },
-        { -15.718, -23.706, 0.903 },
+        { -15.718, -23.706, 0.903 }
     },
     ["prisoner"] = { -- there are no portals on this map by default
         enabled = false,
@@ -183,7 +189,7 @@ local portals = {
         { -0.003, -11.497, -4.499 },
         { -12.057, 0.006, -4.416 },
         { 0.010, 11.439, -4.499 },
-        { 012.020, -0.051, -4.416 },
+        { 012.020, -0.051, -4.416 }
     },
 }
 -- Configuration Ends --
@@ -266,7 +272,9 @@ function OnTick()
                                             elseif (player.timer > time_until_kill) then
                                                 cls(i, 25)
                                                 player.init = false
-                                                rprint(i, on_kill_message)
+                                                local name = get_var(i, "$name")
+                                                local msg = gsub(on_kill_message, "%%name%%", name)
+                                                rprint(i, msg)
                                                 execute_command("kill " .. i)
                                             end
                                         end
