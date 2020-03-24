@@ -17,7 +17,7 @@ function mod:LoadSettings()
     mod.settings = {
 
         -- Default colors for each team: (color id or name)
-        default_red_team_color = 3,
+        default_red_team_color = 1,
         default_blue_team_color = 4,
 
         -- Command Syntax: /votecolor <color id (or name)>
@@ -68,11 +68,20 @@ function mod:LoadSettings()
         t.colors[i].votes = { ["red"] = 0, ["blue"] = 0 }
     end
     local function GetColor(team)
+
         for k, _ in pairs(t.colors) do
             if (t.default_red_team_color == t.colors[k][1] or t.default_red_team_color == k) and (team == "red") then
-                return { 0, k, t.colors[k][1] }
+                return {
+                    highest_votes = 0,
+                    color_id = k,
+                    color_name = t.colors[k][1]
+                }
             elseif (t.default_blue_team_color == t.colors[k][1] or t.default_blue_team_color == k) and (team == "blue") then
-                return { 0, k, t.colors[k][1] }
+                return {
+                    highest_votes = 0,
+                    color_id = k,
+                    color_name = t.colors[k][1]
+                }
             end
         end
     end
@@ -220,7 +229,7 @@ local function getHighestVote(t, fn, team)
         end
     end
 
-    local highest_votes, color_id, color_name = 0, 0
+    local highest_votes, color_id, color_name = 0, 0, ""
     for i = 1, #t do
         if fn(highest_votes, t[i].votes) then
             highest_votes, color_id, color_name = t[i].votes, t[i].id, t[i].name
@@ -263,9 +272,9 @@ function mod:SetColor(PlayerIndex)
     if (player ~= 0) then
         local team = get_var(PlayerIndex, "$team")
         if (team == "red") then
-            write_byte(player + 0x60, mod.settings.red_team[2])
+            write_byte(player + 0x60, mod.settings.red_team.color_id)
         elseif (team == "blue") then
-            write_byte(player + 0x60, mod.settings.blue_team[2])
+            write_byte(player + 0x60, mod.settings.blue_team.color_id)
         end
     end
 end
