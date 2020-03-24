@@ -168,11 +168,11 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     end
 
     if (command == t.vote_command) then
+        cls(executor, 25)
         if has_permission() then
             if (not players[executor].voted) then
                 players[executor].voted = true
 
-                cls(executor, 25)
                 local vote = args[1]
                 local team, valid = get_var(executor, "$team")
 
