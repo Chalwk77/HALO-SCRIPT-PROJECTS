@@ -32,6 +32,7 @@ function mod:LoadSettings()
 
         -- Command Syntax: /votecolor <color id (or name)>
         vote_command = "votecolor",
+        vote_list_command = "votelist",
 
         -- Permission level needed to execute "/vote_command" (all players by default)
         permission_level = -1, -- negative 1 (-1) = all players | 1-4 = admins
@@ -40,7 +41,8 @@ function mod:LoadSettings()
         messages = {
             on_vote = "You voted for %color_name%", -- e.g: "You voted for Teal"
             on_vote_win = "[Team Color Vote] %color_name% won the vote for your team",
-            invalid_syntax = "Incorrect Vote Option. Usage: /%cmd% (color name [string] or ID [number])"
+            invalid_syntax = "Incorrect Vote Option. Usage: /%cmd% (color name [string] or ID [number])",
+            vote_list_hud = "%id% - %name%"
         },
 
         -- Color Table:
@@ -99,8 +101,7 @@ function OnGameStart()
 end
 
 function OnGameEnd()
-    -- This function will call mod:CalculateVotes()
-    -- and sets the team colors for the next game
+    mod:CalculateVotes()
 end
 
 function OnPlayerConnect(PlayerIndex)
@@ -118,15 +119,14 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local t = mod.settings
 
     if (command == t.vote_command) then
-
+        cls(executor, 25)
         local vote = args[1]
-
-        for i = 1, #t.colors do
-            if (tostring(vote) == t.colors[i][1] or tonumber(vote) == i) then
-                local msg = gsub(t.messages.on_vote, "%%color_name%%", t.colors[i][1])
+        for k,v in pairs(t.colors) do
+            if (tostring(vote) == v[1] or tonumber(vote) == k) then
+                local msg = gsub(t.messages.on_vote, "%%color_name%%", v[1])
                 rprint(executor, msg)
-                -- todo: add color to vote results
-                t.colors[i].votes = t.colors[i].votes + 1
+                -- Increment votes for this color by 1
+                v.votes = v.votes + 1
                 break -- Break out of the loop
             else
                 local error = gsub(t.messages.invalid_syntax, "%%cmd%%", t.vote_command)
@@ -135,15 +135,33 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             end
         end
         return false
+    elseif (command == t.vote_list_command) then
+        cls(executor, 25)
+        for i = 1,#t.colors do
+            local msg = gsub(gsub(t.messages.vote_list_hud, "%%id%%", i), "%%name%%", t.colors[i][1])
+            rprint(executor, msg)
+        end
+        rprint(executor, "Color ID | Color Name (Vote Command Syntax: /votecolor <id> or <name>")
+        return false
     end
 end
 
 function mod:CalculateVotes()
+    local colors = mod.settings.colors
+    for i = 1,#colors do
 
+    end
 end
 
 function mod:SetColor(PlayerIndex)
 
+end
+
+function cls(PlayerIndex, count)
+    count = count or 25
+    for _ = 1,count do
+        rprint(PlayerIndex, " ")
+    end
 end
 
 function mod:CMDSplit(CMD)
