@@ -3,6 +3,8 @@
 Script Name: Custom Team Colors (v1.0), for SAPP (PC & CE)
 Description: Players can vote for the color their team will use in the next game.
 
+IN DEV (90% complete)
+
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -17,7 +19,7 @@ function mod:LoadSettings()
     mod.settings = {
 
         -- Default colors for each team: (color id or name)
-        default_red_team_color = 1,
+        default_red_team_color = 3,
         default_blue_team_color = 4,
 
         -- Command Syntax: /votecolor <color id (or name)>
@@ -25,7 +27,7 @@ function mod:LoadSettings()
         vote_list_command = "votelist",
 
         -- Permission level needed to execute "/vote_command" (all players by default)
-        permission_level = 1, -- negative 1 (-1) = all players | 1-4 = admins
+        permission_level = -1, -- negative 1 (-1) = all players | 1-4 = admins
 
         -- All custom output messages:
         messages = {
