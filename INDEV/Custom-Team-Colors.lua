@@ -1,17 +1,7 @@
 --[[
 --======================================================================================================--
 Script Name: Custom Team Colors (v1.0), for SAPP (PC & CE)
-Description: This mod enables you to have custom team colors.
-Additionally, players can vote for the color their team will use in the next game.
-
-PLANNED FEATURES:
-    * Players can vote for their team's color for the next game.
-    * Ability to re-vote
-    * If 0 votes (OnGameEnd) - choose random team colors automatically.
-    ^ Ensure both teams have separate colors.
-
-    * Periodic message announced in chat informing players that
-    they can vote with /votecolor <id>
+Description: Players can vote for the color their team will use in the next game.
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -21,9 +11,9 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 --======================================================================================================--
 ]]--
 
--- Configuration [starts] ----------------------------
 local mod = {}
 function mod:LoadSettings()
+    -- Configuration [starts] ---------------------------------------------------------------------------
     mod.settings = {
 
         -- Default colors for each team: (color id or name)
@@ -43,6 +33,7 @@ function mod:LoadSettings()
             on_vote_win = "[Team Color Vote] %color_name% won the vote for your team",
             invalid_syntax = "Incorrect Vote Option. Usage: /%cmd% (color name [string] or ID [number])",
             vote_list_hud = "%id% - %name%",
+            vote_list_hud_header = "Color ID | Color Name (Vote Command Syntax: /%cmd% <id> or <name>",
             already_voted = "You have already voted!",
             insufficient_permission = "You do not have permission to execute that command!"
         },
@@ -69,8 +60,26 @@ function mod:LoadSettings()
             [18] = { "salmon" }
         }
     }
+    -- Configuration [ends] ---------------------------------------------------------------------------
+
+    -- Do Not Touch --
+    local t = mod.settings
+    for i = 1, #t.colors do
+        t.colors[i].votes = { ["red"] = 0, ["blue"] = 0 }
+    end
+    local function GetColor(team)
+        for k, _ in pairs(t.colors) do
+            if (t.default_red_team_color == t.colors[k][1] or t.default_red_team_color == k) and (team == "red") then
+                return { 0, k, t.colors[k][1] }
+            elseif (t.default_blue_team_color == t.colors[k][1] or t.default_blue_team_color == k) and (team == "blue") then
+                return { 0, k, t.colors[k][1] }
+            end
+        end
+    end
+
+    t.red_team = t.red_team or GetColor("red")
+    t.blue_team = t.blue_team or GetColor("blue")
 end
--- Configuration [ends] ------------------------------
 
 api_version = "1.12.0.0"
 local gsub, lower, upper = string.gsub, string.lower, string.upper
@@ -87,13 +96,12 @@ function OnScriptLoad()
     register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPreSpawn")
 
     if (get_var(0, "$gt") ~= "n/a") then
+        mod:LoadSettings()
         for i = 1, 16 do
             if player_present(i) then
                 mod:InitPlayer(i, false)
             end
         end
-
-        -- todo: Write logic that resets all parameters + kill players and set color
     end
 end
 
@@ -104,25 +112,6 @@ end
 function OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
         mod:LoadSettings()
-
-        local t = mod.settings
-
-        for i = 1, #t.colors do
-            t.colors[i].votes = { ["red"] = 0, ["blue"] = 0 }
-        end
-
-        local function GetColor(team)
-            for k, _ in pairs(t.colors) do
-                if (t.default_red_team_color == t.colors[k][1] or t.default_red_team_color == k) and (team == "red") then
-                    return { 0, k, t.colors[k][1] }
-                elseif (t.default_blue_team_color == t.colors[k][1] or t.default_blue_team_color == k) and (team == "blue") then
-                    return { 0, k, t.colors[k][1] }
-                end
-            end
-        end
-
-        t.red_team = t.red_team or GetColor("red")
-        t.blue_team = t.blue_team or GetColor("blue")
     end
 end
 
@@ -214,7 +203,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 local msg = gsub(gsub(t.messages.vote_list_hud, "%%id%%", i), "%%name%%", t.colors[i][1])
                 rprint(executor, msg)
             end
-            rprint(executor, "Color ID | Color Name (Vote Command Syntax: /votecolor <id> or <name>")
+            local msg = gsub(t.messages.vote_list_hud_header, "%%cmd%%", t.vote_command)
+            rprint(executor, msg)
         end
         return false
     end
@@ -342,4 +332,3 @@ function mod:CMDSplit(CMD)
 
     return cmd, args
 end
---
