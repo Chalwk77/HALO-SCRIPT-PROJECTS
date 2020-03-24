@@ -26,7 +26,7 @@ local mod = {}
 function mod:LoadSettings()
     mod.settings = {
 
-        -- Default colors for each team:
+        -- Default colors for each team: (color id or name)
         default_red_team_color = 3,
         default_blue_team_color = 4,
 
@@ -35,14 +35,16 @@ function mod:LoadSettings()
         vote_list_command = "votelist",
 
         -- Permission level needed to execute "/vote_command" (all players by default)
-        permission_level = -1, -- negative 1 (-1) = all players | 1-4 = admins
+        permission_level = 1, -- negative 1 (-1) = all players | 1-4 = admins
 
         -- All custom output messages:
         messages = {
             on_vote = "You voted for %color_name%", -- e.g: "You voted for Teal"
             on_vote_win = "[Team Color Vote] %color_name% won the vote for your team",
             invalid_syntax = "Incorrect Vote Option. Usage: /%cmd% (color name [string] or ID [number])",
-            vote_list_hud = "%id% - %name%"
+            vote_list_hud = "%id% - %name%",
+            already_voted = "You have already voted!",
+            insufficient_permission = "You do not have permission to execute that command!"
         },
 
         -- Color Table:
@@ -72,6 +74,7 @@ end
 
 api_version = "1.12.0.0"
 local gsub, lower, upper = string.gsub, string.lower, string.upper
+local players = {}
 
 function OnScriptLoad()
 
@@ -81,9 +84,16 @@ function OnScriptLoad()
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
     register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
+    register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPreSpawn")
 
     if (get_var(0, "$gt") ~= "n/a") then
-        -- todo: Write logic that resets all parameters
+        for i = 1, 16 do
+            if player_present(i) then
+                mod:InitPlayer(i, false)
+            end
+        end
+
+        -- todo: Write logic that resets all parameters + kill players and set color
     end
 end
 
@@ -101,26 +111,54 @@ function OnGameStart()
             t.colors[i].votes = { ["red"] = 0, ["blue"] = 0 }
         end
 
-        t.red_team = t.red_team or {3, 0, "red"}
-        t.blue_team = t.blue_team or {4, 0, "blue"}
+        local function GetColor(team)
+            for k, _ in pairs(t.colors) do
+                if (t.default_red_team_color == t.colors[k][1] or t.default_red_team_color == k) and (team == "red") then
+                    return { 0, k, t.colors[k][1] }
+                elseif (t.default_blue_team_color == t.colors[k][1] or t.default_blue_team_color == k) and (team == "blue") then
+                    return { 0, k, t.colors[k][1] }
+                end
+            end
+        end
+
+        t.red_team = t.red_team or GetColor("red")
+        t.blue_team = t.blue_team or GetColor("blue")
     end
 end
 
 function OnGameEnd()
     local results = mod:CalculateVotes()
+    local t = mod.settings
     for team, v in pairs(results) do
-        print(team)
         if (team == "red") then
-            print(v.highest_votes, v.color_id, v.color_name)
-            mod.settings.red_team = { v.highest_votes, v.color_id, v.color_name }
+            t.red_team = { v.highest_votes, v.color_id, v.color_name }
         elseif (team == "blue") then
-            mod.settings.blue_team = { v.highest_votes, v.color_id, v.color_name }
+            t.blue_team = { v.highest_votes, v.color_id, v.color_name }
         end
     end
 end
 
 function OnPlayerConnect(PlayerIndex)
-    mod:SetColor(PlayerIndex)
+    mod:InitPlayer(PlayerIndex, false)
+end
+
+function OnPlayerDisconnect(PlayerIndex)
+    mod:InitPlayer(PlayerIndex, true)
+end
+
+function OnPlayerPreSpawn(PlayerIndex)
+    if (players[PlayerIndex].setcolor) then
+        players[PlayerIndex].setcolor = false
+        mod:SetColor(PlayerIndex)
+    end
+end
+
+function mod:InitPlayer(PlayerIndex, Reset)
+    if (not Reset) then
+        players[PlayerIndex] = { voted = false, setcolor = true }
+    else
+        players[PlayerIndex] = {}
+    end
 end
 
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
@@ -132,46 +170,67 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     end
     command = lower(command) or upper(command)
     local t = mod.settings
+    local has_permission = function()
+        local access = (tonumber(get_var(executor, "$lvl")) >= t.permission_level)
+        if (not access) then
+            return rprint(executor, t.messages.insufficient_permission)
+        end
+        return true
+    end
 
     if (command == t.vote_command) then
-        cls(executor, 25)
-        local vote = args[1]
-        local team = get_var(executor, "$team")
-        local valid
-        for k, v in pairs(t.colors) do
-            if (tostring(vote) == v[1] or tonumber(vote) == k) then
-                valid = true
-                local msg = gsub(t.messages.on_vote, "%%color_name%%", v[1])
-                rprint(executor, msg)
-                v.votes[team] = v.votes[team] + 1
-                break
-            end
-        end
+        if has_permission() then
+            if (not players[executor].voted) then
+                players[executor].voted = true
 
-        if (not valid) then
-            local error = gsub(t.messages.invalid_syntax, "%%cmd%%", t.vote_command)
-            rprint(executor, error)
+                cls(executor, 25)
+                local vote = args[1]
+                local team, valid = get_var(executor, "$team")
+
+                for k, v in pairs(t.colors) do
+                    if (tostring(vote) == v[1] or tonumber(vote) == k) then
+                        valid = true
+                        local msg = gsub(t.messages.on_vote, "%%color_name%%", v[1])
+                        rprint(executor, msg)
+                        v.votes[team] = v.votes[team] + 1
+                        break
+                    end
+                end
+
+                if (not valid) then
+                    local error = gsub(t.messages.invalid_syntax, "%%cmd%%", t.vote_command)
+                    rprint(executor, error)
+                end
+            else
+                rprint(executor, t.messages.already_voted)
+            end
         end
 
         return false
     elseif (command == t.vote_list_command) then
-        cls(executor, 25)
-        for i = 1, #t.colors do
-            local msg = gsub(gsub(t.messages.vote_list_hud, "%%id%%", i), "%%name%%", t.colors[i][1])
-            rprint(executor, msg)
+        if has_permission() then
+            cls(executor, 25)
+            for i = 1, #t.colors do
+                local msg = gsub(gsub(t.messages.vote_list_hud, "%%id%%", i), "%%name%%", t.colors[i][1])
+                rprint(executor, msg)
+            end
+            rprint(executor, "Color ID | Color Name (Vote Command Syntax: /votecolor <id> or <name>")
         end
-        rprint(executor, "Color ID | Color Name (Vote Command Syntax: /votecolor <id> or <name>")
         return false
     end
 end
 
-local function getHighestVote(t, fn)
+local function getHighestVote(t, fn, team)
+
     if #t == 0 then
-        return { 0, 0, "null" }
+        if (team == "red") then
+            return mod.settings.red_team
+        else
+            return mod.settings.blue_team
+        end
     end
 
     local highest_votes, color_id, color_name = 0, 0
-
     for i = 1, #t do
         if fn(highest_votes, t[i].votes) then
             highest_votes, color_id, color_name = t[i].votes, t[i].id, t[i].name
@@ -197,15 +256,15 @@ function mod:CalculateVotes()
 
     local red = getHighestVote(temp.red, function(a, b)
         return a < b
-    end)
+    end, "red")
 
     local blue = getHighestVote(temp.blue, function(a, b)
         return a < b
-    end)
+    end, "blue")
 
     return {
-        ['red'] = { red.highest_votes, red.color_id, red.color_name },
-        ['blue'] = { blue.highest_votes, blue.color_id, blue.color_name }
+        ['red'] = red,
+        ['blue'] = blue
     }
 end
 
