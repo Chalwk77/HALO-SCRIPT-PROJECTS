@@ -94,18 +94,33 @@ end
 function OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
         mod:LoadSettings()
-        for i = 1,#mod.settings.colors do
-            mod.settings.colors[i].votes = 0
+
+        local t = mod.settings
+
+        for i = 1, #t.colors do
+            t.colors[i].votes = { ["red"] = 0, ["blue"] = 0 }
         end
+
+        t.red_team = t.red_team or {3, 0, "red"}
+        t.blue_team = t.blue_team or {4, 0, "blue"}
     end
 end
 
 function OnGameEnd()
-    mod:CalculateVotes()
+    local results = mod:CalculateVotes()
+    for team, v in pairs(results) do
+        print(team)
+        if (team == "red") then
+            print(v.highest_votes, v.color_id, v.color_name)
+            mod.settings.red_team = { v.highest_votes, v.color_id, v.color_name }
+        elseif (team == "blue") then
+            mod.settings.blue_team = { v.highest_votes, v.color_id, v.color_name }
+        end
+    end
 end
 
 function OnPlayerConnect(PlayerIndex)
-    -- todo: set player color - shouldn't this be done OnPlayerSpawn()?
+    mod:SetColor(PlayerIndex)
 end
 
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
@@ -121,23 +136,27 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     if (command == t.vote_command) then
         cls(executor, 25)
         local vote = args[1]
-        for k,v in pairs(t.colors) do
+        local team = get_var(executor, "$team")
+        local valid
+        for k, v in pairs(t.colors) do
             if (tostring(vote) == v[1] or tonumber(vote) == k) then
+                valid = true
                 local msg = gsub(t.messages.on_vote, "%%color_name%%", v[1])
                 rprint(executor, msg)
-                -- Increment votes for this color by 1
-                v.votes = v.votes + 1
-                break -- Break out of the loop
-            else
-                local error = gsub(t.messages.invalid_syntax, "%%cmd%%", t.vote_command)
-                rprint(executor, error)
+                v.votes[team] = v.votes[team] + 1
                 break
             end
         end
+
+        if (not valid) then
+            local error = gsub(t.messages.invalid_syntax, "%%cmd%%", t.vote_command)
+            rprint(executor, error)
+        end
+
         return false
     elseif (command == t.vote_list_command) then
         cls(executor, 25)
-        for i = 1,#t.colors do
+        for i = 1, #t.colors do
             local msg = gsub(gsub(t.messages.vote_list_hud, "%%id%%", i), "%%name%%", t.colors[i][1])
             rprint(executor, msg)
         end
@@ -146,20 +165,65 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     end
 end
 
-function mod:CalculateVotes()
-    local colors = mod.settings.colors
-    for i = 1,#colors do
-
+local function getHighestVote(t, fn)
+    if #t == 0 then
+        return { 0, 0, "null" }
     end
+
+    local highest_votes, color_id, color_name = 0, 0
+
+    for i = 1, #t do
+        if fn(highest_votes, t[i].votes) then
+            highest_votes, color_id, color_name = t[i].votes, t[i].id, t[i].name
+        end
+    end
+
+    return { highest_votes = highest_votes, color_id = color_id, color_name = color_name }
+end
+
+function mod:CalculateVotes()
+
+    local temp = { }
+    temp.red, temp.blue = { }, { }
+
+    for k, v in pairs(mod.settings.colors) do
+        if (v.votes["red"] > 0) then
+            temp.red[#temp.red + 1] = { id = k, name = v, votes = v.votes["red"] }
+        end
+        if (v.votes["blue"] > 0) then
+            temp.blue[#temp.blue + 1] = { id = k, name = v, votes = v.votes["blue"] }
+        end
+    end
+
+    local red = getHighestVote(temp.red, function(a, b)
+        return a < b
+    end)
+
+    local blue = getHighestVote(temp.blue, function(a, b)
+        return a < b
+    end)
+
+    return {
+        ['red'] = { red.highest_votes, red.color_id, red.color_name },
+        ['blue'] = { blue.highest_votes, blue.color_id, blue.color_name }
+    }
 end
 
 function mod:SetColor(PlayerIndex)
-
+    local player = get_player(PlayerIndex)
+    if (player ~= 0) then
+        local team = get_var(PlayerIndex, "$team")
+        if (team == "red") then
+            write_byte(player + 0x60, mod.settings.red_team[2])
+        elseif (team == "blue") then
+            write_byte(player + 0x60, mod.settings.blue_team[2])
+        end
+    end
 end
 
 function cls(PlayerIndex, count)
     count = count or 25
-    for _ = 1,count do
+    for _ = 1, count do
         rprint(PlayerIndex, " ")
     end
 end
