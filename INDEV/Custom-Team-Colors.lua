@@ -19,7 +19,7 @@ function mod:LoadSettings()
     mod.settings = {
 
         -- Default colors for each team: (color id or name)
-        default_red_team_color = 7,
+        default_red_team_color = 2,
         default_blue_team_color = 3,
 
         -- Command Syntax: /votecolor <color id (or name)>
@@ -276,15 +276,11 @@ function mod:CalculateVotes()
         end
     end
 
-    local red = getHighestVote(temp.red, function(a, b)
+    return { getHighestVote(temp.red, function(a, b)
         return a < b
-    end, "red")
-
-    local blue = getHighestVote(temp.blue, function(a, b)
+    end, "red"), getHighestVote(temp.blue, function(a, b)
         return a < b
-    end, "blue")
-
-    return { red, blue }
+    end, "blue") }
 end
 
 function mod:SetColor(PlayerIndex)
