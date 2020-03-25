@@ -33,46 +33,50 @@ function mod:LoadSettings()
         messages = {
             on_vote = "You voted for %color_name%", -- e.g: "You voted for Teal"
             broadcast_vote = "[Team Color Vote] %name% voted for %color%",
-            on_vote_win = "[Team Color Vote] %color_name% won the vote for your team",
+            on_vote_win = {
+                "Red Team will be %red_color%, Blue Team will be %blue_color%",
+                "Vote Stalemate - Red Team will be %red_color%, Blue Team will be %blue_color%",
+                "No one voted to change their team color. Colors will remain the same."
+            },
             invalid_syntax = "Incorrect Vote Option. Usage: /%cmd% (color name [string] or ID [number])",
             vote_list_hud = "%id% - %name%",
-            vote_list_hud_header = "Color ID | Color Name (Vote Command Syntax: /%cmd% <id> or <name>",
+            vote_list_hud_header = "Vote Command Syntax: /%cmd% <id> or <name>",
             already_voted = "You have already voted! (You voted for %color%)",
             insufficient_permission = "You do not have permission to execute that command!"
         },
 
         -- Color Table:
         colors = {
-            ["white"] = {0},
-            ["black"] = {1},
-            ["red"] = {2},
-            ["blue"] = {3},
-            ["gray"] = {4},
-            ["yellow"] = {5},
-            ["green"] = {6},
-            ["pink"] = {7},
-            ["purple"] = {8},
-            ["cyan"] = {9},
-            ["cobalt"] = {10},
-            ["orange"] = {11},
-            ["teal"] = {12},
-            ["sage"] = {13},
-            ["brown"] = {14},
-            ["tan"] = {15},
-            ["maroon"] = {16},
-            ["salmon"] = {17}
+            ["white"] = { 0 },
+            ["black"] = { 1 },
+            ["red"] = { 2 },
+            ["blue"] = { 3 },
+            ["gray"] = { 4 },
+            ["yellow"] = { 5 },
+            ["green"] = { 6 },
+            ["pink"] = { 7 },
+            ["purple"] = { 8 },
+            ["cyan"] = { 9 },
+            ["cobalt"] = { 10 },
+            ["orange"] = { 11 },
+            ["teal"] = { 12 },
+            ["sage"] = { 13 },
+            ["brown"] = { 14 },
+            ["tan"] = { 15 },
+            ["maroon"] = { 16 },
+            ["salmon"] = { 17 }
         }
     }
     -- Configuration [ends] ---------------------------------------------------------------------------
 
     -- Do Not Touch --
     local t = mod.settings
-    for _,color in pairs(t.colors) do
+    for _, color in pairs(t.colors) do
         color.votes = { ["red"] = 0, ["blue"] = 0 }
     end
 
     local function GetColor(TeamColor)
-        for name,id in pairs(t.colors) do
+        for name, id in pairs(t.colors) do
             if (TeamColor == id[1] or TeamColor == name) then
                 return { highest_votes = 0, color_id = id[1], color_name = name }
             end
@@ -94,6 +98,7 @@ function OnScriptLoad()
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
     register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
+    register_callback(cb["EVENT_TEAM_SWITCH"], "OnTeamSwitch")
 
     if (get_var(0, "$gt") ~= "n/a") then
         mod:LoadSettings()
@@ -119,12 +124,22 @@ end
 
 function OnGameEnd()
     local results = mod:CalculateVotes()
-    local t = mod.settings
-    for team, v in pairs(results) do
-        if (team == "red") then
-            red_team = { highest_votes = v.highest_votes, color_id = v.color_id, color_name = v.color_name }
-        elseif (team == "blue") then
-            blue_team = { highest_votes = v.highest_votes, color_id = v.color_id, color_name = v.color_name }
+    red_team = results[1]
+    blue_team = results[2]
+
+    local msg = mod.settings.messages.on_vote_win
+    for i = 1, 16 do
+        if player_present(i) then
+            if (red_team.highest_votes == 0 and blue_team.highest_votes == 0) then
+                -- no one voted
+                say(i, msg[3])
+            elseif (red_team.highest_votes > 0 and blue_team.highest_votes == 0) then
+                -- red team voted (blue did not)
+            elseif (red_team.highest_votes == 0 and blue_team.highest_votes > 0) then
+                -- blue team voted (red did not)
+            elseif (red_team.highest_votes == red_team.highest_votes) then
+                -- stalemate
+            end
         end
     end
 end
@@ -135,6 +150,10 @@ function OnPlayerConnect(PlayerIndex)
         players[PlayerIndex].setcolor = false
         mod:SetColor(PlayerIndex)
     end
+end
+
+function OnTeamSwitch(PlayerIndex)
+    mod:SetColor(PlayerIndex)
 end
 
 function OnPlayerDisconnect(PlayerIndex)
@@ -180,14 +199,12 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 local vote = args[1]
                 local team, valid = get_var(executor, "$team")
 
-                for k,color in pairs(t.colors) do
+                for k, color in pairs(t.colors) do
                     if (tostring(vote) == k or tonumber(vote) == color[1]) then
-                        players[executor].voted = true
-                        players[executor].voted_for = k
-                        valid = true
+                        players[executor].voted, players[executor].voted_for = true, k
+                        color.votes[team] = color.votes[team] + 1
                         local msg = gsub(t.messages.on_vote, "%%color_name%%", k)
                         rprint(executor, msg)
-                        color.votes[team] = color.votes[team] + 1
                         local broadcast = gsub(gsub(t.messages.broadcast_vote, "%%name%%", players[executor].name), "%%color%%", k)
                         for i = 1, 16 do
                             if player_present(i) and (i ~= executor) then
@@ -196,11 +213,10 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                                 end
                             end
                         end
-
+                        valid = true
                         break
                     end
                 end
-
                 if (not valid) then
                     local error = gsub(t.messages.invalid_syntax, "%%cmd%%", t.vote_command)
                     rprint(executor, error)
@@ -215,7 +231,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     elseif (command == t.vote_list_command) then
         if has_permission() then
             mod:cls(executor, 25)
-            for k,color in pairs(t.colors) do
+            for k, color in pairs(t.colors) do
                 local msg = gsub(gsub(t.messages.vote_list_hud, "%%id%%", color[1]), "%%name%%", k)
                 rprint(executor, msg)
             end
@@ -251,7 +267,7 @@ function mod:CalculateVotes()
     local temp = { }
     temp.red, temp.blue = { }, { }
 
-    for k,color in pairs(t) do
+    for k, color in pairs(t) do
         if (color.votes["red"] > 0) then
             temp.red[#temp.red + 1] = { id = color[1], name = k, votes = color.votes["red"] }
         end
@@ -268,17 +284,13 @@ function mod:CalculateVotes()
         return a < b
     end, "blue")
 
-    return {
-        ['red'] = red,
-        ['blue'] = blue
-    }
+    return { red, blue }
 end
 
 function mod:SetColor(PlayerIndex)
     local player = get_player(PlayerIndex)
     if (player ~= 0) then
         local team = get_var(PlayerIndex, "$team")
-
         if (team == "red") then
             write_byte(player + 0x60, tonumber(red_team.color_id))
         elseif (team == "blue") then
@@ -354,18 +366,18 @@ end
 function mod:LSS(state)
     if (state) then
         ls = sig_scan("741F8B482085C9750C")
-        if(ls == 0) then
+        if (ls == 0) then
             ls = sig_scan("EB1F8B482085C9750C")
         end
         safe_write(true)
-        write_char(ls,235)
+        write_char(ls, 235)
         safe_write(false)
     else
         if (ls == 0) then
             return
         end
         safe_write(true)
-        write_char(ls,116)
+        write_char(ls, 116)
         safe_write(false)
     end
 end
