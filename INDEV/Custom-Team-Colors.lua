@@ -32,11 +32,12 @@ function mod:LoadSettings()
         -- All custom output messages:
         messages = {
             on_vote = "You voted for %color_name%", -- e.g: "You voted for Teal"
+            broadcast_vote = "[Team Color Vote] %name% voted for %color%",
             on_vote_win = "[Team Color Vote] %color_name% won the vote for your team",
             invalid_syntax = "Incorrect Vote Option. Usage: /%cmd% (color name [string] or ID [number])",
             vote_list_hud = "%id% - %name%",
             vote_list_hud_header = "Color ID | Color Name (Vote Command Syntax: /%cmd% <id> or <name>",
-            already_voted = "You have already voted!",
+            already_voted = "You have already voted! (You voted for %color%)",
             insufficient_permission = "You do not have permission to execute that command!"
         },
 
@@ -95,16 +96,15 @@ end
 api_version = "1.12.0.0"
 local gsub, lower, upper = string.gsub, string.lower, string.upper
 local players = {}
+local ls
 
 function OnScriptLoad()
-
     -- Register needed event callbacks:
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
     register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
-    register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPreSpawn")
 
     if (get_var(0, "$gt") ~= "n/a") then
         mod:LoadSettings()
@@ -114,10 +114,12 @@ function OnScriptLoad()
             end
         end
     end
+
+    LSS(true)
 end
 
 function OnScriptUnload()
-
+    LSS(false)
 end
 
 function OnGameStart()
@@ -140,22 +142,24 @@ end
 
 function OnPlayerConnect(PlayerIndex)
     mod:InitPlayer(PlayerIndex, false)
-end
-
-function OnPlayerDisconnect(PlayerIndex)
-    mod:InitPlayer(PlayerIndex, true)
-end
-
-function OnPlayerPreSpawn(PlayerIndex)
     if (players[PlayerIndex].setcolor) then
         players[PlayerIndex].setcolor = false
         mod:SetColor(PlayerIndex)
     end
 end
 
+function OnPlayerDisconnect(PlayerIndex)
+    mod:InitPlayer(PlayerIndex, true)
+end
+
 function mod:InitPlayer(PlayerIndex, Reset)
     if (not Reset) then
-        players[PlayerIndex] = { voted = false, setcolor = true }
+        players[PlayerIndex] = {
+            name = get_var(PlayerIndex, "$name"),
+            voted = false,
+            setcolor = true,
+            voted_for = ""
+        }
     else
         players[PlayerIndex] = {}
     end
@@ -182,17 +186,27 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         cls(executor, 25)
         if has_permission() then
             if (not players[executor].voted) then
-                players[executor].voted = true
 
                 local vote = args[1]
                 local team, valid = get_var(executor, "$team")
 
                 for k, v in pairs(t.colors) do
                     if (tostring(vote) == v[1] or tonumber(vote) == k) then
+                        players[executor].voted = true
+                        players[executor].voted_for = v[1]
                         valid = true
                         local msg = gsub(t.messages.on_vote, "%%color_name%%", v[1])
                         rprint(executor, msg)
                         v.votes[team] = v.votes[team] + 1
+                        local broadcast = gsub(gsub(t.messages.broadcast_vote, "%%name%%", players[executor].name), "%%color%%", v[1])
+                        for i = 1, 16 do
+                            if player_present(i) and (i ~= executor) then
+                                if (get_var(i, "$team") == get_var(executor, "$team")) then
+                                    say(i, broadcast)
+                                end
+                            end
+                        end
+
                         break
                     end
                 end
@@ -202,7 +216,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     rprint(executor, error)
                 end
             else
-                rprint(executor, t.messages.already_voted)
+                local error = gsub(t.messages.already_voted, "%%color%%", players[executor].voted_for)
+                rprint(executor, error)
             end
         end
 
@@ -343,3 +358,24 @@ function mod:CMDSplit(CMD)
 
     return cmd, args
 end
+
+--Credits to Kavawuvi for this chunk of code:
+function LSS(state)
+    if (state) then
+        ls = sig_scan("741F8B482085C9750C")
+        if(ls == 0) then
+            ls = sig_scan("EB1F8B482085C9750C")
+        end
+        safe_write(true)
+        write_char(ls,235)
+        safe_write(false)
+    else
+        if (ls == 0) then
+            return
+        end
+        safe_write(true)
+        write_char(ls,116)
+        safe_write(false)
+    end
+end
+--------------------------------------------
