@@ -13,14 +13,14 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 --======================================================================================================--
 ]]--
 
-local mod = {}
+local mod, red_team, blue_team = {}
 function mod:LoadSettings()
     -- Configuration [starts] ---------------------------------------------------------------------------
     mod.settings = {
 
         -- Default colors for each team: (color id or name)
-        default_red_team_color = 3,
-        default_blue_team_color = 4,
+        default_red_team_color = 7,
+        default_blue_team_color = 3,
 
         -- Command Syntax: /votecolor <color id (or name)>
         vote_command = "votecolor",
@@ -43,60 +43,49 @@ function mod:LoadSettings()
 
         -- Color Table:
         colors = {
-            [1] = { "white" },
-            [2] = { "black" },
-            [3] = { "red" },
-            [4] = { "blue" },
-            [5] = { "gray" },
-            [6] = { "yellow" },
-            [7] = { "green" },
-            [8] = { "pink" },
-            [9] = { "purple" },
-            [10] = { "cyan" },
-            [11] = { "cobalt" },
-            [12] = { "orange" },
-            [13] = { "teal" },
-            [14] = { "sage" },
-            [15] = { "brown" },
-            [16] = { "tan" },
-            [17] = { "maroon" },
-            [18] = { "salmon" }
+            ["white"] = {0},
+            ["black"] = {1},
+            ["red"] = {2},
+            ["blue"] = {3},
+            ["gray"] = {4},
+            ["yellow"] = {5},
+            ["green"] = {6},
+            ["pink"] = {7},
+            ["purple"] = {8},
+            ["cyan"] = {9},
+            ["cobalt"] = {10},
+            ["orange"] = {11},
+            ["teal"] = {12},
+            ["sage"] = {13},
+            ["brown"] = {14},
+            ["tan"] = {15},
+            ["maroon"] = {16},
+            ["salmon"] = {17}
         }
     }
     -- Configuration [ends] ---------------------------------------------------------------------------
 
     -- Do Not Touch --
     local t = mod.settings
-    for i = 1, #t.colors do
-        t.colors[i].votes = { ["red"] = 0, ["blue"] = 0 }
+    for _,color in pairs(t.colors) do
+        color.votes = { ["red"] = 0, ["blue"] = 0 }
     end
-    local function GetColor(team)
 
-        for k, _ in pairs(t.colors) do
-            if (t.default_red_team_color == t.colors[k][1] or t.default_red_team_color == k) and (team == "red") then
-                return {
-                    highest_votes = 0,
-                    color_id = k,
-                    color_name = t.colors[k][1]
-                }
-            elseif (t.default_blue_team_color == t.colors[k][1] or t.default_blue_team_color == k) and (team == "blue") then
-                return {
-                    highest_votes = 0,
-                    color_id = k,
-                    color_name = t.colors[k][1]
-                }
+    local function GetColor(TeamColor)
+        for name,id in pairs(t.colors) do
+            if (TeamColor == id[1] or TeamColor == name) then
+                return { highest_votes = 0, color_id = id[1], color_name = name }
             end
         end
     end
 
-    t.red_team = t.red_team or GetColor("red")
-    t.blue_team = t.blue_team or GetColor("blue")
+    red_team = red_team or GetColor(t.default_red_team_color)
+    blue_team = blue_team or GetColor(t.default_blue_team_color)
 end
 
 api_version = "1.12.0.0"
 local gsub, lower, upper = string.gsub, string.lower, string.upper
-local players = {}
-local ls
+local players, ls = {}
 
 function OnScriptLoad()
     -- Register needed event callbacks:
@@ -115,11 +104,11 @@ function OnScriptLoad()
         end
     end
 
-    LSS(true)
+    mod:LSS(true)
 end
 
 function OnScriptUnload()
-    LSS(false)
+    mod:LSS(false)
 end
 
 function OnGameStart()
@@ -133,9 +122,9 @@ function OnGameEnd()
     local t = mod.settings
     for team, v in pairs(results) do
         if (team == "red") then
-            t.red_team = { v.highest_votes, v.color_id, v.color_name }
+            red_team = { highest_votes = v.highest_votes, color_id = v.color_id, color_name = v.color_name }
         elseif (team == "blue") then
-            t.blue_team = { v.highest_votes, v.color_id, v.color_name }
+            blue_team = { highest_votes = v.highest_votes, color_id = v.color_id, color_name = v.color_name }
         end
     end
 end
@@ -173,6 +162,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         return
     end
     command = lower(command) or upper(command)
+
     local t = mod.settings
     local has_permission = function()
         local access = (tonumber(get_var(executor, "$lvl")) >= t.permission_level)
@@ -183,22 +173,22 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     end
 
     if (command == t.vote_command) then
-        cls(executor, 25)
+        mod:cls(executor, 25)
         if has_permission() then
             if (not players[executor].voted) then
 
                 local vote = args[1]
                 local team, valid = get_var(executor, "$team")
 
-                for k, v in pairs(t.colors) do
-                    if (tostring(vote) == v[1] or tonumber(vote) == k) then
+                for k,color in pairs(t.colors) do
+                    if (tostring(vote) == k or tonumber(vote) == color[1]) then
                         players[executor].voted = true
-                        players[executor].voted_for = v[1]
+                        players[executor].voted_for = k
                         valid = true
-                        local msg = gsub(t.messages.on_vote, "%%color_name%%", v[1])
+                        local msg = gsub(t.messages.on_vote, "%%color_name%%", k)
                         rprint(executor, msg)
-                        v.votes[team] = v.votes[team] + 1
-                        local broadcast = gsub(gsub(t.messages.broadcast_vote, "%%name%%", players[executor].name), "%%color%%", v[1])
+                        color.votes[team] = color.votes[team] + 1
+                        local broadcast = gsub(gsub(t.messages.broadcast_vote, "%%name%%", players[executor].name), "%%color%%", k)
                         for i = 1, 16 do
                             if player_present(i) and (i ~= executor) then
                                 if (get_var(i, "$team") == get_var(executor, "$team")) then
@@ -224,9 +214,9 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         return false
     elseif (command == t.vote_list_command) then
         if has_permission() then
-            cls(executor, 25)
-            for i = 1, #t.colors do
-                local msg = gsub(gsub(t.messages.vote_list_hud, "%%id%%", i), "%%name%%", t.colors[i][1])
+            mod:cls(executor, 25)
+            for k,color in pairs(t.colors) do
+                local msg = gsub(gsub(t.messages.vote_list_hud, "%%id%%", color[1]), "%%name%%", k)
                 rprint(executor, msg)
             end
             local msg = gsub(t.messages.vote_list_hud_header, "%%cmd%%", t.vote_command)
@@ -237,12 +227,11 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
 end
 
 local function getHighestVote(t, fn, team)
-
-    if #t == 0 then
+    if (#t == 0) then
         if (team == "red") then
-            return mod.settings.red_team
+            return red_team
         else
-            return mod.settings.blue_team
+            return blue_team
         end
     end
 
@@ -258,15 +247,16 @@ end
 
 function mod:CalculateVotes()
 
+    local t = mod.settings.colors
     local temp = { }
     temp.red, temp.blue = { }, { }
 
-    for k, v in pairs(mod.settings.colors) do
-        if (v.votes["red"] > 0) then
-            temp.red[#temp.red + 1] = { id = k, name = v, votes = v.votes["red"] }
+    for k,color in pairs(t) do
+        if (color.votes["red"] > 0) then
+            temp.red[#temp.red + 1] = { id = color[1], name = k, votes = color.votes["red"] }
         end
-        if (v.votes["blue"] > 0) then
-            temp.blue[#temp.blue + 1] = { id = k, name = v, votes = v.votes["blue"] }
+        if (color.votes["blue"] > 0) then
+            temp.blue[#temp.blue + 1] = { id = color[1], name = k, votes = color.votes["red"] }
         end
     end
 
@@ -288,15 +278,16 @@ function mod:SetColor(PlayerIndex)
     local player = get_player(PlayerIndex)
     if (player ~= 0) then
         local team = get_var(PlayerIndex, "$team")
+
         if (team == "red") then
-            write_byte(player + 0x60, mod.settings.red_team.color_id)
+            write_byte(player + 0x60, tonumber(red_team.color_id))
         elseif (team == "blue") then
-            write_byte(player + 0x60, mod.settings.blue_team.color_id)
+            write_byte(player + 0x60, tonumber(blue_team.color_id))
         end
     end
 end
 
-function cls(PlayerIndex, count)
+function mod:cls(PlayerIndex, count)
     count = count or 25
     for _ = 1, count do
         rprint(PlayerIndex, " ")
@@ -360,7 +351,7 @@ function mod:CMDSplit(CMD)
 end
 
 --Credits to Kavawuvi for this chunk of code:
-function LSS(state)
+function mod:LSS(state)
     if (state) then
         ls = sig_scan("741F8B482085C9750C")
         if(ls == 0) then
@@ -379,3 +370,5 @@ function LSS(state)
     end
 end
 --------------------------------------------
+
+return mod
