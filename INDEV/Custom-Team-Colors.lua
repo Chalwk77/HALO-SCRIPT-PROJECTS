@@ -45,6 +45,46 @@ function mod:LoadSettings()
             insufficient_permission = "You do not have permission to execute that command!"
         },
 
+
+        choices = {
+            {
+                ["white"] = { 0 },
+                ["black"] = { 1 }
+            },
+            {
+                ["red"] = { 2 },
+                ["blue"] = { 3 }
+            },
+            {
+                ["gray"] = { 4 },
+                ["yellow"] = { 5 }
+            },
+            {
+                ["green"] = { 6 },
+                ["pink"] = { 7 }
+            },
+            {
+                ["purple"] = { 8 },
+                ["cyan"] = { 9 },
+            },
+            {
+                ["cobalt"] = { 10 },
+                ["orange"] = { 11 },
+            },
+            {
+                ["teal"] = { 12 },
+                ["sage"] = { 13 },
+            },
+            {
+                ["brown"] = { 14 },
+                ["tan"] = { 15 },
+            },
+            {
+                ["maroon"] = { 16 },
+                ["salmon"] = { 17 }
+            }
+        },
+
         -- Color Table:
         colors = {
             ["white"] = { 0 },
@@ -192,6 +232,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     end
 
     if (command == t.vote_command) then
+        print('got')
         mod:cls(executor, 25)
         if has_permission() then
             if (not players[executor].voted) then
