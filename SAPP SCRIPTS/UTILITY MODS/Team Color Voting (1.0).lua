@@ -1,6 +1,6 @@
 --[[
 --======================================================================================================--
-Script Name: Custom Team Colors (v1.0), for SAPP (PC & CE)
+Script Name: Team Color Voting (v1.0), for SAPP (PC & CE)
 Description: Players vote for the color set in the next game.
 
 Commands: 
