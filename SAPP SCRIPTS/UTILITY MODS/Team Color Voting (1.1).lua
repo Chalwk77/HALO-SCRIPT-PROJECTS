@@ -1,6 +1,6 @@
 --[[
 --======================================================================================================--
-Script Name: Team Color Voting (v1.0), for SAPP (PC & CE)
+Script Name: Team Color Voting (v1.1), for SAPP (PC & CE)
 Description: Players vote for the color set in the next game.
 
 Commands:
@@ -28,12 +28,16 @@ function mod:LoadSettings()
         -- Default color set: (see color table below)
         default_color_set = 2, -- set two (red, blue)
 
-        -- Command Syntax: /votecolor <set id>
+        -- CMD 1 Syntax: /votecolor <set id>
         vote_command = "votecolor",
+		
+		-- CMD 2 Syntax: /votelist
         vote_list_command = "votelist",
 
-        -- Permission level needed to execute "/vote_command" (all players by default)!@
+        -- Permission level needed to execute "/vote_command" (all players by default)
         permission_level = -1, -- negative 1 (-1) = all players | 1-4 = admins
+		
+		server_prefix = "** SAPP ** ",
 
         -- All custom output messages:
         messages = {
@@ -157,25 +161,21 @@ end
 function OnGameEnd()
     local results = mod:CalculateVotes()
     local t = mod.settings.messages
-    for PlayerIndex = 1, 16 do
-        if player_present(PlayerIndex) then
-            if (results ~= nil) then
-                color_table = results
-                local R = results.red[1]
-                local B = results.blue[1]
-                local m = t.on_game_over[1]
-                for i = 1, #m do
-                    local msg = gsub(gsub(gsub(gsub(m[i],
-                            "%%red_color%%", R),
-                            "%%blue_color%%", B),
-                            "%%id%%", results.setid),
-                            "%%votes%%", results.votes)
-                    say(PlayerIndex, msg)
-                end
-            else
-                say(PlayerIndex, t.on_game_over[2])
-            end
-        end
+	if (results ~= nil) then
+		color_table = results
+		local R = results.red[1]
+		local B = results.blue[1]
+		local m1 = t.on_game_over[1]
+		for i = 1, #m1 do
+			local msg = gsub(gsub(gsub(gsub(m[i],
+					"%%red_color%%", R),
+					"%%blue_color%%", B),
+					"%%id%%", results.setid),
+					"%%votes%%", results.votes)
+			mod:broadcast(nil, msg, true, "chat")
+		end
+	else
+		mod:broadcast(nil, t.on_game_over[2], true, "chat")
     end
 end
 
@@ -196,15 +196,15 @@ function OnPlayerDisconnect(PlayerIndex)
 end
 
 function mod:InitPlayer(PlayerIndex, Reset)
-    if (not Reset) then
+    if (Reset) then
+        players[PlayerIndex] = {}
+    else
         players[PlayerIndex] = {
             name = get_var(PlayerIndex, "$name"),
             voted = false,
             setcolor = true,
             voted_for = ""
         }
-    else
-        players[PlayerIndex] = {}
     end
 end
 
@@ -221,7 +221,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local has_permission = function()
         local access = (tonumber(get_var(executor, "$lvl")) >= t.permission_level)
         if (not access) then
-            return rprint(executor, t.messages.insufficient_permission)
+            return mod:broadcast(executor, t.messages.insufficient_permission, false, "rcon")		
         end
         return true
     end
@@ -237,20 +237,22 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 for SetID, Choice in pairs(t.choices) do
                     if (tonumber(vote) == SetID) then
 
-
+						-- Increment vote count by 1 for this color set:
+                        Choice.votes = Choice.votes + 1
+						
                         players[executor].voted, players[executor].voted_for = true, gsub(gsub(gsub(t.messages.already_voted,
                                 "%%id%%", SetID),
                                 "%%R%%", Choice.red[1]),
                                 "%%B%%", Choice.blue[1])
 
-                        Choice.votes = Choice.votes + 1
                         valid = true
 
                         local msg = gsub(gsub(gsub(t.messages.on_vote,
                                 "%%id%%", SetID),
                                 "%%R%%", Choice.red[1]),
                                 "%%B%%", Choice.blue[1])
-                        rprint(executor, msg)
+						mod:broadcast(executor, msg, false, "rcon")
+						
 
                         local broadcast = gsub(gsub(gsub(gsub(t.messages.broadcast_vote,
                                 "%%name%%", players[executor].name),
@@ -261,7 +263,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         for i = 1, 16 do
                             if player_present(i) and (i ~= executor) then
                                 if (get_var(i, "$team") == get_var(executor, "$team")) then
-                                    say(i, broadcast)
+                                    mod:broadcast(i, broadcast, false, "Chat")
                                 end
                             end
                         end
@@ -270,10 +272,10 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
 
                 if (not valid) then
                     local error = gsub(t.messages.invalid_syntax, "%%cmd%%", t.vote_command)
-                    rprint(executor, error)
+					mod:broadcast(executor, error, false, "rcon")
                 end
             else
-                rprint(executor, players[executor].voted_for)
+				mod:broadcast(executor, players[executor].voted_for, false, "rcon")
             end
         end
 
@@ -288,12 +290,12 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         "%%id%%", i),
                         "%%R%%", t.choices[i].red[1]),
                         "%%B%%", t.choices[i].blue[1])
-                rprint(executor, msg)
+				mod:broadcast(executor, msg, false, "rcon")
             end
 
             -- footer:
             local msg = gsub(t.messages.vote_list_hud_header, "%%cmd%%", t.vote_command)
-            rprint(executor, msg)
+			mod:broadcast(executor, msg, false, "rcon")
         end
         return false
     end
@@ -322,6 +324,26 @@ function mod:SetColor(PlayerIndex)
             write_byte(player + 0x60, tonumber(color_table.blue[2]))
         end
     end
+end
+
+function mod:broadcast(PlayerIndex, Message, SendToAll, Type)
+
+	local func = say
+	if (Type == "rcon") then
+		func = rprint
+	end
+
+	execute_command("msg_prefix \"\"")
+	if (not SendToAll) then
+		func(PlayerIndex, Message)
+	else
+		for i = 1,16 do
+			if player_present(i) then
+				func(i, Message)
+			end
+		end
+	end
+	execute_command("msg_prefix \" " .. mod.settings.server_prefix .. "\"")
 end
 
 function mod:cls(PlayerIndex, count)
