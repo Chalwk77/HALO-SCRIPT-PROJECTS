@@ -32,7 +32,7 @@ function mod:LoadSettings()
         vote_command = "votecolor",
         vote_list_command = "votelist",
 
-        -- Permission level needed to execute "/vote_command" (all players by default)
+        -- Permission level needed to execute "/vote_command" (all players by default)!@
         permission_level = -1, -- negative 1 (-1) = all players | 1-4 = admins
 
         -- All custom output messages:
@@ -114,8 +114,8 @@ function mod:LoadSettings()
     local t = mod.settings
     color_table = color_table or t.choices[t.default_color_set]
 	for i = 1,#t.choices do
-		t.choices[i].votes = 0
-	end	
+		t.choices[i].setid, t.choices[i].votes = i, 0
+	end
 end
 
 api_version = "1.12.0.0"
@@ -302,14 +302,12 @@ end
 function mod:CalculateVotes()
 	local Choices = mod.settings.choices
 	
-    local highest_votes, tab, setid = 0, nil, 0
+    local highest_votes, tab = 0
     for i = 1, #Choices do
         if (highest_votes < Choices[i].votes) then
-            tab, setid = Choices[i], i
+            tab = Choices[i]
         end
     end
-	
-	tab.setid = setid
 
     return tab
 end
