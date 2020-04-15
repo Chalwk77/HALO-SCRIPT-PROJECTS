@@ -303,9 +303,9 @@ end
 function mod:CalculateVotes()
     local Choices = mod.settings.choices
 
-    local highest_votes, tab = 0
+    local highest_vote, tab = 0
     for i = 1, #Choices do
-        if (highest_votes < Choices[i].votes) then
+        if (highest_vote < Choices[i].votes) then
             tab = Choices[i]
         end
     end
@@ -325,20 +325,20 @@ function mod:SetColor(PlayerIndex)
     end
 end
 
-function mod:broadcast(PlayerIndex, Message, SendToAll, Type)
+function mod:broadcast(PlayerIndex, Message, SendToAll, Enviro)
 
-    local func = say
-    if (Type == "rcon") then
-        func = rprint
+    local responseFunc = say
+    if (Enviro == "rcon") then
+        responseFunc = rprint
     end
 
     execute_command("msg_prefix \"\"")
     if (not SendToAll) then
-        func(PlayerIndex, Message)
+        responseFunc(PlayerIndex, Message)
     else
         for i = 1, 16 do
             if player_present(i) then
-                func(i, Message)
+                responseFunc(i, Message)
             end
         end
     end
