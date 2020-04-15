@@ -38,10 +38,16 @@ function mod:LoadSettings()
         -- All custom output messages:
         messages = {
             on_vote = "You voted for SetID [%id%] (%R% - VS - %B%)", -- e.g: "You voted for Teal"
-            broadcast_vote = "[Team Color Vote] %name% voted for SetID [%id%] (%R% - VS - %B%)",
+            broadcast_vote = "[Color Voting] %name% voted for SetID [%id%] (%R% - VS - %B%)",
             on_game_over = {
-                "Red Team will be %red_color%, Blue Team will be %blue_color%",
-                "No one voted to change their team color. Colors will remain the same."
+				[1] = {
+					" ",
+					"--- [Color Voting] ---",
+					"Set #%id% won the vote with %votes% vote(s).",
+					"Red Team will be %red_color% and Blue Team will be %blue_color%",
+					" "
+				},
+                [2] = "No one voted to change their team color. Colors will remain the same."
             },
             invalid_syntax = "Incorrect Vote Option. Usage: /%cmd% <set id>",
             vote_list_hud = "[%id%] %R% - VS - %B%",
@@ -51,53 +57,55 @@ function mod:LoadSettings()
         },
 
 
-		-- 9 sets of choices to vote for
+		-- 9 sets of choices to vote for (you can add more sets)
         choices = {
 		
             [1] = { -- set 1
-				red = {"white", 0},
-				blue = {"black", 1},
+				red = {"white", 0}, -- COLOR NAME, COLOR ID
+				blue = {"black", 1}
             },
 						
 			[2] = { -- set 2
 				red = {"red", 2},
-				blue = {"blue", 3},
+				blue = {"blue", 3}
             },
 			
             [3] = { -- set 3
 				red = {"gray", 4},
-				blue = {"yellow", 5},
+				blue = {"yellow", 5}
             },
 			
             [4] = { -- set 4
 				red = {"green", 6},
-				blue = {"pink", 7},
+				blue = {"pink", 7}
             },
 			
             [5] = { -- set 5
 				red = {"purple", 8},
-				blue = {"cyan", 9},
+				blue = {"cyan", 9}
             },
 			
             [6] = { -- set 6
 				red = {"cobalt", 10},
-				blue = {"orange", 11},
+				blue = {"orange", 11}
             },
 			
             [7] = { -- set 7
 				red = {"teal", 12},
-				blue = {"sage", 13},
+				blue = {"sage", 13}
             },
 			
             [8] = { -- set 8
 				red = {"brown", 14},
-				blue = {"tan", 15},
+				blue = {"tan", 15}
             },
 			
             [9] = { -- set 9
 				red = {"maroon", 16},
-				blue = {"salmon", 17},
-            }
+				blue = {"salmon", 17}
+            },
+			
+			-- repeat the structure to add more set entries
         }
     }
     -- Configuration [ends] ---------------------------------------------------------------------------
@@ -149,18 +157,23 @@ end
 function OnGameEnd()
     local results = mod:CalculateVotes()
 	local t = mod.settings.messages
-	for i = 1,16 do
-		if player_present(i) then
+	for PlayerIndex = 1,16 do
+		if player_present(PlayerIndex) then
 			if (results ~= nil) then
 				color_table = results
 				local R = results.red[1]
 				local B = results.blue[1]
 				local m = t.on_game_over[1]
-				local msg = gsub(gsub(m, "%%red_color%%", R), "%%blue_color%%", B)
-				say(i, msg)
+				for i = 1,#m do
+					local msg = gsub(gsub(gsub(gsub(m[i], 
+					"%%red_color%%", R), 
+					"%%blue_color%%", B), 
+					"%%id%%", results.setid),
+					"%%votes%%", results.votes)
+					say(PlayerIndex, msg)
+				end
 			else
-				local msg = t.on_game_over[2]
-				say(i, msg)
+				say(PlayerIndex, t.on_game_over[2])
 			end
 		end
 	end
@@ -271,7 +284,10 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
 			
 			-- header (contents):
 			for i = 1,#t.choices do
-                local msg = gsub(gsub(gsub(t.messages.vote_list_hud, "%%id%%", i), "%%R%%", t.choices[i].red[1]), "%%B%%", t.choices[i].blue[1])
+                local msg = gsub(gsub(gsub(t.messages.vote_list_hud, 
+				"%%id%%", i), 
+				"%%R%%", t.choices[i].red[1]), 
+				"%%B%%", t.choices[i].blue[1])
                 rprint(executor, msg)		
 			end
 			
@@ -286,12 +302,14 @@ end
 function mod:CalculateVotes()
 	local Choices = mod.settings.choices
 	
-    local highest_votes, tab = 0
+    local highest_votes, tab, setid = 0, nil, 0
     for i = 1, #Choices do
         if (highest_votes < Choices[i].votes) then
-            tab = Choices[i]
+            tab, setid = Choices[i], i
         end
     end
+	
+	tab.setid = setid
 
     return tab
 end
