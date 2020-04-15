@@ -3,11 +3,11 @@
 Script Name: Team Color Voting (v1.0), for SAPP (PC & CE)
 Description: Players vote for the color set in the next game.
 
-Commands: 
+Commands:
 
-	* /votelist 
-	This command shows a list of all available color sets. 
-	
+	* /votelist
+	This command shows a list of all available color sets.
+
 	* /votecolor <set id>
 	Use this command to vote for your choice of color set
 
@@ -40,14 +40,14 @@ function mod:LoadSettings()
             on_vote = "You voted for SetID [%id%] (%R% - VS - %B%)", -- e.g: "You voted for Teal"
             broadcast_vote = "[Color Voting] %name% voted for SetID [%id%] (%R% - VS - %B%)",
             on_game_over = {
-				[1] = {
-					" ",
-					"--- [Team Color Voting] ---",
-					"Color Set #%id% won with %votes% vote(s).",
-					"Red Team will be %red_color% and Blue Team will be %blue_color%",
-					" "
-				},
-				[2] = "No one voted to change their team color. Colors will remain the same."
+                [1] = {
+                    " ",
+                    "--- [Team Color Voting] ---",
+                    "Color Set #%id% won with %votes% vote(s).",
+                    "Red Team will be %red_color% and Blue Team will be %blue_color%",
+                    " "
+                },
+                [2] = "No one voted to change their team color. Colors will remain the same."
             },
             invalid_syntax = "Incorrect Vote Option. Usage: /%cmd% <set id>",
             vote_list_hud = "[%id%] %R% - VS - %B%",
@@ -57,55 +57,55 @@ function mod:LoadSettings()
         },
 
 
-		-- 9 sets of choices to vote for (you can add more sets)
+        -- 9 sets of choices to vote for (you can add more sets)
         choices = {
-		
+
             [1] = { -- set 1
-				red = {"white", 0}, -- COLOR NAME, COLOR ID
-				blue = {"black", 1}
+                red = { "white", 0 }, -- COLOR NAME, COLOR ID
+                blue = { "black", 1 }
             },
-						
-			[2] = { -- set 2
-				red = {"red", 2},
-				blue = {"blue", 3}
+
+            [2] = { -- set 2
+                red = { "red", 2 },
+                blue = { "blue", 3 }
             },
-			
+
             [3] = { -- set 3
-				red = {"gray", 4},
-				blue = {"yellow", 5}
+                red = { "gray", 4 },
+                blue = { "yellow", 5 }
             },
-			
+
             [4] = { -- set 4
-				red = {"green", 6},
-				blue = {"pink", 7}
+                red = { "green", 6 },
+                blue = { "pink", 7 }
             },
-			
+
             [5] = { -- set 5
-				red = {"purple", 8},
-				blue = {"cyan", 9}
+                red = { "purple", 8 },
+                blue = { "cyan", 9 }
             },
-			
+
             [6] = { -- set 6
-				red = {"cobalt", 10},
-				blue = {"orange", 11}
+                red = { "cobalt", 10 },
+                blue = { "orange", 11 }
             },
-			
+
             [7] = { -- set 7
-				red = {"teal", 12},
-				blue = {"sage", 13}
+                red = { "teal", 12 },
+                blue = { "sage", 13 }
             },
-			
+
             [8] = { -- set 8
-				red = {"brown", 14},
-				blue = {"tan", 15}
+                red = { "brown", 14 },
+                blue = { "tan", 15 }
             },
-			
+
             [9] = { -- set 9
-				red = {"maroon", 16},
-				blue = {"salmon", 17}
+                red = { "maroon", 16 },
+                blue = { "salmon", 17 }
             },
-			
-			-- repeat the structure to add more set entries
+
+            -- repeat the structure to add more set entries
         }
     }
     -- Configuration [ends] ---------------------------------------------------------------------------
@@ -113,9 +113,9 @@ function mod:LoadSettings()
     -- Do Not Touch --
     local t = mod.settings
     color_table = color_table or t.choices[t.default_color_set]
-	for i = 1,#t.choices do
-		t.choices[i].setid, t.choices[i].votes = i, 0
-	end
+    for i = 1, #t.choices do
+        t.choices[i].setid, t.choices[i].votes = i, 0
+    end
 end
 
 api_version = "1.12.0.0"
@@ -150,33 +150,33 @@ end
 
 function OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
-        mod:LoadSettings()	
-	end
+        mod:LoadSettings()
+    end
 end
 
 function OnGameEnd()
     local results = mod:CalculateVotes()
-	local t = mod.settings.messages
-	for PlayerIndex = 1,16 do
-		if player_present(PlayerIndex) then
-			if (results ~= nil) then
-				color_table = results
-				local R = results.red[1]
-				local B = results.blue[1]
-				local m = t.on_game_over[1]
-				for i = 1,#m do
-					local msg = gsub(gsub(gsub(gsub(m[i], 
-					"%%red_color%%", R), 
-					"%%blue_color%%", B), 
-					"%%id%%", results.setid),
-					"%%votes%%", results.votes)
-					say(PlayerIndex, msg)
-				end
-			else
-				say(PlayerIndex, t.on_game_over[2])
-			end
-		end
-	end
+    local t = mod.settings.messages
+    for PlayerIndex = 1, 16 do
+        if player_present(PlayerIndex) then
+            if (results ~= nil) then
+                color_table = results
+                local R = results.red[1]
+                local B = results.blue[1]
+                local m = t.on_game_over[1]
+                for i = 1, #m do
+                    local msg = gsub(gsub(gsub(gsub(m[i],
+                            "%%red_color%%", R),
+                            "%%blue_color%%", B),
+                            "%%id%%", results.setid),
+                            "%%votes%%", results.votes)
+                    say(PlayerIndex, msg)
+                end
+            else
+                say(PlayerIndex, t.on_game_over[2])
+            end
+        end
+    end
 end
 
 function OnPlayerConnect(PlayerIndex)
@@ -236,29 +236,29 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
 
                 for SetID, Choice in pairs(t.choices) do
                     if (tonumber(vote) == SetID) then
-											
-					
-                        players[executor].voted, players[executor].voted_for = true, gsub(gsub(gsub(t.messages.already_voted, 
-						"%%id%%", SetID), 
-						"%%R%%", Choice.red[1]), 
-						"%%B%%", Choice.blue[1])
-						
+
+
+                        players[executor].voted, players[executor].voted_for = true, gsub(gsub(gsub(t.messages.already_voted,
+                                "%%id%%", SetID),
+                                "%%R%%", Choice.red[1]),
+                                "%%B%%", Choice.blue[1])
+
                         Choice.votes = Choice.votes + 1
-						valid = true
-						
-						local msg = gsub(gsub(gsub(t.messages.on_vote, 
-						"%%id%%", SetID), 
-						"%%R%%", Choice.red[1]), 
-						"%%B%%", Choice.blue[1])
+                        valid = true
+
+                        local msg = gsub(gsub(gsub(t.messages.on_vote,
+                                "%%id%%", SetID),
+                                "%%R%%", Choice.red[1]),
+                                "%%B%%", Choice.blue[1])
                         rprint(executor, msg)
-						
-						local broadcast = gsub(gsub(gsub(gsub(t.messages.broadcast_vote, 
-						"%%name%%", players[executor].name),
-						"%%id%%", vote),
-						"%%R%%", Choice.red[1]), 
-						"%%B%%", Choice.blue[1])
-						
-						for i = 1, 16 do
+
+                        local broadcast = gsub(gsub(gsub(gsub(t.messages.broadcast_vote,
+                                "%%name%%", players[executor].name),
+                                "%%id%%", vote),
+                                "%%R%%", Choice.red[1]),
+                                "%%B%%", Choice.blue[1])
+
+                        for i = 1, 16 do
                             if player_present(i) and (i ~= executor) then
                                 if (get_var(i, "$team") == get_var(executor, "$team")) then
                                     say(i, broadcast)
@@ -267,7 +267,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                         end
                     end
                 end
-				
+
                 if (not valid) then
                     local error = gsub(t.messages.invalid_syntax, "%%cmd%%", t.vote_command)
                     rprint(executor, error)
@@ -281,17 +281,17 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     elseif (command == t.vote_list_command) then
         if has_permission() then
             mod:cls(executor, 25)
-			
-			-- header (contents):
-			for i = 1,#t.choices do
-                local msg = gsub(gsub(gsub(t.messages.vote_list_hud, 
-				"%%id%%", i), 
-				"%%R%%", t.choices[i].red[1]), 
-				"%%B%%", t.choices[i].blue[1])
-                rprint(executor, msg)		
-			end
-			
-			-- footer:
+
+            -- header (contents):
+            for i = 1, #t.choices do
+                local msg = gsub(gsub(gsub(t.messages.vote_list_hud,
+                        "%%id%%", i),
+                        "%%R%%", t.choices[i].red[1]),
+                        "%%B%%", t.choices[i].blue[1])
+                rprint(executor, msg)
+            end
+
+            -- footer:
             local msg = gsub(t.messages.vote_list_hud_header, "%%cmd%%", t.vote_command)
             rprint(executor, msg)
         end
@@ -300,8 +300,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
 end
 
 function mod:CalculateVotes()
-	local Choices = mod.settings.choices
-	
+    local Choices = mod.settings.choices
+
     local highest_votes, tab = 0
     for i = 1, #Choices do
         if (highest_votes < Choices[i].votes) then
