@@ -42,12 +42,12 @@ function mod:LoadSettings()
             on_game_over = {
 				[1] = {
 					" ",
-					"--- [Color Voting] ---",
-					"Set #%id% won the vote with %votes% vote(s).",
+					"--- [Team Color Voting] ---",
+					"Color Set #%id% won with %votes% vote(s).",
 					"Red Team will be %red_color% and Blue Team will be %blue_color%",
 					" "
 				},
-                [2] = "No one voted to change their team color. Colors will remain the same."
+				[2] = "No one voted to change their team color. Colors will remain the same."
             },
             invalid_syntax = "Incorrect Vote Option. Usage: /%cmd% <set id>",
             vote_list_hud = "[%id%] %R% - VS - %B%",
