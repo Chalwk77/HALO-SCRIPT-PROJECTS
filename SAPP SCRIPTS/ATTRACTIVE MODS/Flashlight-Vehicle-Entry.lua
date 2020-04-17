@@ -4,8 +4,10 @@ Script Name: Flashlight-Vehicle-Entry (v1.0), for SAPP (PC & CE)
 Description: Aim your crosshair at a vehicle and press your flashlight button to enter it!
 
              If setting "must_have_driver" is enabled, you can only enter vehicles
-             occupied by an ally. However, if this setting is false, you can enter
-             any unoccupied vehicle - You will always enter into the Driver Seat first.
+             with a driver. However, if this setting is false, you can enter
+             any unoccupied vehicle; The latter of which will cause you to always enter into the driver seat.
+
+             Occupied vehicles must be occupied by an ally.
 
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
@@ -31,7 +33,7 @@ local vehicles = {
 local must_have_driver = false
 
 -- Players must be within this many world units to enter a vehicle.
-local trigger_distance = 30 -- in world units
+local trigger_distance = 20 -- in world units
 -- [CONFIG ENDS] ----------------------------------------------------------------------------
 
 api_version = "1.12.0.0"
@@ -39,8 +41,8 @@ local game_over
 
 function OnScriptLoad()
     register_callback(cb["EVENT_TICK"], "OnTick")
+    register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
-    register_callback(cb["EVENT_GAME_START"], "OnGameEnd")
 end
 
 function OnScriptUnload()
