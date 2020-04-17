@@ -1,6 +1,6 @@
 --[[
 --======================================================================================================--
-Script Name: Team Color Voting (v1.2), for SAPP (PC & CE)
+Script Name: Team Color Voting (v1.3), for SAPP (PC & CE)
 Description: Players vote for the color set in the next game.
 
 Commands:
@@ -26,7 +26,7 @@ function mod:LoadSettings()
     mod.settings = {
 
         -- Default color set: (see color table below)
-        default_color_set = 10, -- set two (red, blue)
+        default_color_set = 10, -- set two (yellow, purple)
 
         -- CMD 1 Syntax: /votecolor <set id>
         vote_command = "votecolor",
@@ -61,7 +61,7 @@ function mod:LoadSettings()
         },
 
 		--[[ 
-			There are 9 sets of choices to vote for (you can add more sets)
+			There are 10 sets of choices to vote for (you can add more sets)
 			
 			Color Name			Color ID
 			white        		0
@@ -131,6 +131,12 @@ function mod:LoadSettings()
                 blue = { "salmon", 17 }
             },
 
+			-- CUSTOM SETS EXAMPLE:
+            [10] = { -- set 10
+                red = { "yellow", 5 },
+                blue = { "purple", 8 }
+            },
+
             -- repeat the structure to add more set entries
         }
     }
@@ -189,7 +195,7 @@ function OnGameEnd()
         local B = results.blue[1]
         local m1 = t.on_game_over[1]
         for i = 1, #m1 do
-            local msg = gsub(gsub(gsub(gsub(m[i],
+            local msg = gsub(gsub(gsub(gsub(m1[i],
                     "%%red_color%%", R),
                     "%%blue_color%%", B),
                     "%%id%%", results.setid),
