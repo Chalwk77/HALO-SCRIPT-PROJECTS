@@ -96,49 +96,16 @@ function OnTick()
                                         if vehicles[j].enabled then
                                             if VehicleTag == TagInfo(vehicles[j][1], vehicles[j][2]) then
 
-                                                -- Check flashlight button state:
-                                                local flashlight = read_bit(dynamic_player + 0x208, 4)
-                                                if (flashlight == 1) then
+                                                local v = isOccupied(VehicleObject, i)
+                                                local flashlight, team = read_bit(dynamic_player + 0x208, 4), get_var(i, "$team")
 
-                                                    local v = isOccupied(VehicleObject, i)
-                                                    local team = get_var(i, "$team")
-
-                                                    if (team == v.team) then
-                                                        local case_scenarios = {
-                                                            [1] = { -- HAS DRIVER, NO GUNNER, NO PASSENGER
-                                                                case = (v.driver and not v.gunner and not v.passenger and must_have_driver),
-                                                                seat = 2
-                                                            },
-                                                            [2] = { -- HAS DRIVER, NO GUNNER, HAS PASSENGER
-                                                                case = (v.driver and not v.gunner and v.passenger and must_have_driver),
-                                                                seat = 2
-                                                            },
-                                                            [3] = { -- HAS DRIVER, HAS GUNNER, NO PASSENGER
-                                                                case = (v.driver and v.gunner and not v.passenger and must_have_driver),
-                                                                seat = 1
-                                                            },
-                                                            [4] = { -- NO DRIVER
-                                                                case = (not v.driver and not must_have_driver),
-                                                                seat = 0
-                                                            },
-                                                            [5] = { -- HAS DRIVER, NO GUNNER, NO PASSENGER
-                                                                case = (v.driver and not v.gunner and not v.passenger and not must_have_driver),
-                                                                seat = 2
-                                                            },
-                                                            [6] = { -- HAS DRIVER, HAS GUNNER, NO PASSENGER
-                                                                case = (v.driver and v.gunner and not v.passenger and not must_have_driver),
-                                                                seat = 1
-                                                            },
-                                                            [7] = { -- HAS DRIVER, NO GUNNER, HAS PASSENGER
-                                                                case = (v.driver and not v.gunner and v.passenger and not must_have_driver),
-                                                                seat = 2
-                                                            }
-                                                        }
-                                                        for index = 1, #case_scenarios do
-                                                            if (case_scenarios[index].case) then
-                                                                EnterVehicle(object, i, case_scenarios[index].seat)
-                                                            end
-                                                        end
+                                                if (team == v.team) and (flashlight == 1) then
+                                                    if (not v.driver and not must_have_driver) then
+                                                        EnterVehicle(object, i, 0)
+                                                    elseif (v.driver and v.gunner and not v.passenger) then
+                                                        EnterVehicle(object, i, 1)
+                                                    elseif (v.driver and not v.gunner) then
+                                                        EnterVehicle(object, i, 2)
                                                     end
                                                 end
                                             end
