@@ -1,6 +1,6 @@
 --[[
 --======================================================================================================--
-Script Name: Team Color Voting (v1.3), for SAPP (PC & CE)
+Script Name: Team Color Voting (v1.4), for SAPP (PC & CE)
 Description: Players vote for the color set in the next game.
 
 Commands:
@@ -10,7 +10,6 @@ Commands:
 
 	* /votecolor <set id>
 	Use this command to vote for your choice of color set
-
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -35,7 +34,7 @@ function mod:LoadSettings()
         vote_list_command = "votelist",
 
         -- Permission level needed to execute "/vote_command" (all players by default)
-        permission_level = -1, -- negative 1 (-1) = all players | 1-4 = admins
+        permission_level = -1, -- negative 1 (-1) = all players | 1 to 4 = admins
 
         server_prefix = "** SAPP ** ",
 
@@ -53,6 +52,8 @@ function mod:LoadSettings()
                 },
                 [2] = "No one voted to change their team color. Colors will remain the same."
             },
+			
+			on_quit = "%name%'s vote for Color Set ID #%id% has been excluded from the tally",
             invalid_syntax = "Incorrect Vote Option. Usage: /%cmd% <set id>",
             vote_list_hud = "[%id%] %R% - VS - %B%",
             vote_list_hud_header = "Vote Command Syntax: /%cmd% <set id>",
@@ -190,7 +191,10 @@ function OnGameEnd()
     local results = mod:CalculateVotes()
     local t = mod.settings.messages
     if (results ~= nil) then
-        color_table = results
+        
+		-- Set the new color table to be used next game:
+		color_table = results
+		
         local R = results.red[1]
         local B = results.blue[1]
         local m1 = t.on_game_over[1]
@@ -225,13 +229,39 @@ end
 
 function mod:InitPlayer(PlayerIndex, Reset)
     if (Reset) then
+		local t = mod.settings
+		
+		-- Store the SET this player voted for as a variable called "id"
+		local id = players[PlayerIndex].setid
+		if (id ~= nil) then
+			
+			-- Deduct x1 vote from the tally:
+			t.choices[id].votes = t.choices[id].votes - 1
+					
+			-- Set negative votes to zero (just in case)
+			if (t.choices[id].votes < 0) then
+				t.choices[id].votes = 0
+			end
+			
+			-- Announce vote exclusion: 
+			local msg = gsub(gsub(t.messages.on_quit, "%%name%%", players[PlayerIndex].name), "%%id%%", id)
+			
+			-- Call function function broadcast() and announce the above message:
+			mod:broadcast(nil, msg, true, "chat")
+		end
+		
+		-- Clear the array for this player:
         players[PlayerIndex] = {}
+
     else
+	
+		-- Create new array for this player:
         players[PlayerIndex] = {
             name = get_var(PlayerIndex, "$name"),
             voted = false,
             setcolor = true,
-            voted_for = ""
+            voted_for = "",
+            setid = nil
         }
     end
 end
@@ -269,6 +299,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
 							-- Increment vote count by 1 for this color set:
 							Choice.votes = Choice.votes + 1
 
+							players[executor].setid = tonumber(vote)
 							players[executor].voted, players[executor].voted_for = true, gsub(gsub(gsub(t.messages.already_voted,
 									"%%id%%", SetID),
 									"%%R%%", Choice.red[1]),
