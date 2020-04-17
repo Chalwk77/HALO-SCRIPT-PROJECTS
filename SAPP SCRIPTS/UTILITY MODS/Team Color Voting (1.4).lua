@@ -228,36 +228,27 @@ function OnPlayerDisconnect(PlayerIndex)
 end
 
 function mod:InitPlayer(PlayerIndex, Reset)
+	local name = get_var(PlayerIndex, "$name")
     if (Reset) then
 		local t = mod.settings
 		
-		-- Store the SET this player voted for as a variable called "id"
 		local id = players[PlayerIndex].setid
 		if (id ~= nil) then
-			
-			-- Deduct x1 vote from the tally:
 			t.choices[id].votes = t.choices[id].votes - 1
 					
-			-- Set negative votes to zero (just in case)
 			if (t.choices[id].votes < 0) then
 				t.choices[id].votes = 0
 			end
 			
-			-- Announce vote exclusion: 
-			local msg = gsub(gsub(t.messages.on_quit, "%%name%%", players[PlayerIndex].name), "%%id%%", id)
-			
-			-- Call function function broadcast() and announce the above message:
+			local msg = gsub(gsub(t.messages.on_quit, "%%name%%", name), "%%id%%", id)
 			mod:broadcast(nil, msg, true, "chat")
 		end
 		
-		-- Clear the array for this player:
         players[PlayerIndex] = {}
 
     else
-	
-		-- Create new array for this player:
         players[PlayerIndex] = {
-            name = get_var(PlayerIndex, "$name"),
+            name = name,
             voted = false,
             setcolor = true,
             voted_for = "",
