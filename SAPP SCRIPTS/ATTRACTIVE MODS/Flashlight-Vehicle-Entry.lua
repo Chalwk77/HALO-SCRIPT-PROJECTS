@@ -63,6 +63,7 @@ function OnTick()
             if player_present(i) and player_alive(i) then
                 local dynamic_player = get_dynamic_player(i)
                 if (dynamic_player ~= 0) then
+
                     -- Camera Aim + Player Coordinates
                     local CamX, CamY, CamZ = read_float(dynamic_player + 0x230), read_float(dynamic_player + 0x234), read_float(dynamic_player + 0x238)
                     local x, y, z = read_vector3d(dynamic_player + 0x5c)
@@ -94,67 +95,48 @@ function OnTick()
                                     for j = 1, #vehicles do
                                         if vehicles[j].enabled then
                                             if VehicleTag == TagInfo(vehicles[j][1], vehicles[j][2]) then
+
                                                 -- Check flashlight button state:
                                                 local flashlight = read_bit(dynamic_player + 0x208, 4)
                                                 if (flashlight == 1) then
+
                                                     local v = isOccupied(VehicleObject, i)
                                                     local team = get_var(i, "$team")
 
                                                     if (team == v.team) then
                                                         local case_scenarios = {
                                                             [1] = { -- HAS DRIVER, NO GUNNER, NO PASSENGER
-                                                                case = (v.driver == true and not v.gunner and not v.passenger and must_have_driver),
-                                                                func = function()
-                                                                    -- Enter Gunner Seat
-                                                                    EnterVehicle(object, i, 2)
-                                                                end
+                                                                case = (v.driver and not v.gunner and not v.passenger and must_have_driver),
+                                                                seat = 2
                                                             },
                                                             [2] = { -- HAS DRIVER, NO GUNNER, HAS PASSENGER
-                                                                case = (v.driver == true and not v.gunner and v.passenger == true and must_have_driver),
-                                                                func = function()
-                                                                    -- Enter Gunner Seat
-                                                                    EnterVehicle(object, i, 2)
-                                                                end
+                                                                case = (v.driver and not v.gunner and v.passenger and must_have_driver),
+                                                                seat = 2
                                                             },
                                                             [3] = { -- HAS DRIVER, HAS GUNNER, NO PASSENGER
-                                                                case = (v.driver == true and v.gunner == true and not v.passenger and must_have_driver),
-                                                                func = function()
-                                                                    -- Enter Passenger Seat
-                                                                    EnterVehicle(object, i, 1)
-                                                                end
+                                                                case = (v.driver and v.gunner and not v.passenger and must_have_driver),
+                                                                seat = 1
                                                             },
                                                             [4] = { -- NO DRIVER
                                                                 case = (not v.driver and not must_have_driver),
-                                                                func = function()
-                                                                    -- Enter Driver Seat
-                                                                    EnterVehicle(object, i, 0)
-                                                                end
+                                                                seat = 0
                                                             },
                                                             [5] = { -- HAS DRIVER, NO GUNNER, NO PASSENGER
-                                                                case = (v.driver == true and not v.gunner and not v.passenger and not must_have_driver),
-                                                                func = function()
-                                                                    -- Enter Gunner Seat
-                                                                    EnterVehicle(object, i, 2)
-                                                                end
+                                                                case = (v.driver and not v.gunner and not v.passenger and not must_have_driver),
+                                                                seat = 2
                                                             },
                                                             [6] = { -- HAS DRIVER, HAS GUNNER, NO PASSENGER
-                                                                case = (v.driver == true and v.gunner == true and not v.passenger and not must_have_driver),
-                                                                func = function()
-                                                                    -- Enter Passenger Seat
-                                                                    EnterVehicle(object, i, 1)
-                                                                end
+                                                                case = (v.driver and v.gunner and not v.passenger and not must_have_driver),
+                                                                seat = 1
                                                             },
                                                             [7] = { -- HAS DRIVER, NO GUNNER, HAS PASSENGER
-                                                                case = (v.driver == true and not v.gunner and v.passenger == true and not must_have_driver),
-                                                                func = function()
-                                                                    -- Enter Gunner Seat
-                                                                    EnterVehicle(object, i, 2)
-                                                                end
+                                                                case = (v.driver and not v.gunner and v.passenger and not must_have_driver),
+                                                                seat = 2
                                                             }
                                                         }
                                                         for index = 1, #case_scenarios do
                                                             if (case_scenarios[index].case) then
-                                                                case_scenarios[index].func()
+                                                                EnterVehicle(object, i, case_scenarios[index].seat)
                                                             end
                                                         end
                                                     end
