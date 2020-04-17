@@ -1,6 +1,6 @@
 --[[
 --======================================================================================================--
-Script Name: Team Color Voting (v1.0), for SAPP (PC & CE)
+Script Name: Team Color Voting (v1.2), for SAPP (PC & CE)
 Description: Players vote for the color set in the next game.
 
 Commands:
@@ -26,7 +26,7 @@ function mod:LoadSettings()
     mod.settings = {
 
         -- Default color set: (see color table below)
-        default_color_set = 2, -- set two (red, blue)
+        default_color_set = 10, -- set two (red, blue)
 
         -- CMD 1 Syntax: /votecolor <set id>
         vote_command = "votecolor",
@@ -60,8 +60,30 @@ function mod:LoadSettings()
             insufficient_permission = "You do not have permission to execute that command!"
         },
 
-
-        -- 9 sets of choices to vote for (you can add more sets)
+		--[[ 
+			There are 9 sets of choices to vote for (you can add more sets)
+			
+			Color Name			Color ID
+			white        		0
+			black 				1
+			red 				2
+			blue 				3
+			gray 				4
+			yellow 				5
+			green 				6
+			pink 				7
+			purple 				8
+			cyan 				9
+			cobalt 				10
+			orange 				11
+			teal 				12
+			sage 				13
+			brown 				14
+			tan 				15
+			maroon 				16
+			salmon 				17
+		]]
+		
         choices = {
 
             [1] = { -- set 1
@@ -209,95 +231,97 @@ function mod:InitPlayer(PlayerIndex, Reset)
 end
 
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
-    local command, args = mod:CMDSplit(Command)
-    local executor = tonumber(PlayerIndex)
+	if (PlayerIndex ~= 0) then
+		local command, args = mod:CMDSplit(Command)
+		local executor = tonumber(PlayerIndex)
 
-    if (command == nil) then
-        return
-    end
-    command = lower(command) or upper(command)
+		if (command == nil) then
+			return
+		end
+		command = lower(command) or upper(command)
 
-    local t = mod.settings
-    local has_permission = function()
-        local access = (tonumber(get_var(executor, "$lvl")) >= t.permission_level)
-        if (not access) then
-            return mod:broadcast(executor, t.messages.insufficient_permission, false, "rcon")
-        end
-        return true
-    end
+		local t = mod.settings
+		local has_permission = function()
+			local access = (tonumber(get_var(executor, "$lvl")) >= t.permission_level)
+			if (not access) then
+				return mod:broadcast(executor, t.messages.insufficient_permission, false, "rcon")
+			end
+			return true
+		end
 
-    if (command == t.vote_command) then
-        mod:cls(executor, 25)
-        if has_permission() then
-            if (not players[executor].voted) then
+		if (command == t.vote_command) then
+			mod:cls(executor, 25)
+			if has_permission() then
+				if (not players[executor].voted) then
 
-                local vote = args[1]
-                local team, valid = get_var(executor, "$team")
+					local vote = args[1]
+					local team, valid = get_var(executor, "$team")
 
-                for SetID, Choice in pairs(t.choices) do
-                    if (tonumber(vote) == SetID) then
+					for SetID, Choice in pairs(t.choices) do
+						if (tonumber(vote) == SetID) then
 
-                        -- Increment vote count by 1 for this color set:
-                        Choice.votes = Choice.votes + 1
+							-- Increment vote count by 1 for this color set:
+							Choice.votes = Choice.votes + 1
 
-                        players[executor].voted, players[executor].voted_for = true, gsub(gsub(gsub(t.messages.already_voted,
-                                "%%id%%", SetID),
-                                "%%R%%", Choice.red[1]),
-                                "%%B%%", Choice.blue[1])
+							players[executor].voted, players[executor].voted_for = true, gsub(gsub(gsub(t.messages.already_voted,
+									"%%id%%", SetID),
+									"%%R%%", Choice.red[1]),
+									"%%B%%", Choice.blue[1])
 
-                        valid = true
+							valid = true
 
-                        local msg = gsub(gsub(gsub(t.messages.on_vote,
-                                "%%id%%", SetID),
-                                "%%R%%", Choice.red[1]),
-                                "%%B%%", Choice.blue[1])
-                        mod:broadcast(executor, msg, false, "rcon")
+							local msg = gsub(gsub(gsub(t.messages.on_vote,
+									"%%id%%", SetID),
+									"%%R%%", Choice.red[1]),
+									"%%B%%", Choice.blue[1])
+							mod:broadcast(executor, msg, false, "rcon")
 
-                        local broadcast = gsub(gsub(gsub(gsub(t.messages.broadcast_vote,
-                                "%%name%%", players[executor].name),
-                                "%%id%%", vote),
-                                "%%R%%", Choice.red[1]),
-                                "%%B%%", Choice.blue[1])
+							local broadcast = gsub(gsub(gsub(gsub(t.messages.broadcast_vote,
+									"%%name%%", players[executor].name),
+									"%%id%%", vote),
+									"%%R%%", Choice.red[1]),
+									"%%B%%", Choice.blue[1])
 
-                        for i = 1, 16 do
-                            if player_present(i) and (i ~= executor) then
-                                if (get_var(i, "$team") == get_var(executor, "$team")) then
-                                    mod:broadcast(i, broadcast, false, "Chat")
-                                end
-                            end
-                        end
-                    end
-                end
+							for i = 1, 16 do
+								if player_present(i) and (i ~= executor) then
+									if (get_var(i, "$team") == get_var(executor, "$team")) then
+										mod:broadcast(i, broadcast, false, "Chat")
+									end
+								end
+							end
+						end
+					end
 
-                if (not valid) then
-                    local error = gsub(t.messages.invalid_syntax, "%%cmd%%", t.vote_command)
-                    mod:broadcast(executor, error, false, "rcon")
-                end
-            else
-                mod:broadcast(executor, players[executor].voted_for, false, "rcon")
-            end
-        end
+					if (not valid) then
+						local error = gsub(t.messages.invalid_syntax, "%%cmd%%", t.vote_command)
+						mod:broadcast(executor, error, false, "rcon")
+					end
+				else
+					mod:broadcast(executor, players[executor].voted_for, false, "rcon")
+				end
+			end
 
-        return false
-    elseif (command == t.vote_list_command) then
-        if has_permission() then
-            mod:cls(executor, 25)
+			return false
+		elseif (command == t.vote_list_command) then
+			if has_permission() then
+				mod:cls(executor, 25)
 
-            -- header (contents):
-            for i = 1, #t.choices do
-                local msg = gsub(gsub(gsub(t.messages.vote_list_hud,
-                        "%%id%%", i),
-                        "%%R%%", t.choices[i].red[1]),
-                        "%%B%%", t.choices[i].blue[1])
-                mod:broadcast(executor, msg, false, "rcon")
-            end
+				-- header (contents):
+				for i = 1, #t.choices do
+					local msg = gsub(gsub(gsub(t.messages.vote_list_hud,
+							"%%id%%", i),
+							"%%R%%", t.choices[i].red[1]),
+							"%%B%%", t.choices[i].blue[1])
+					mod:broadcast(executor, msg, false, "rcon")
+				end
 
-            -- footer:
-            local msg = gsub(t.messages.vote_list_hud_header, "%%cmd%%", t.vote_command)
-            mod:broadcast(executor, msg, false, "rcon")
-        end
-        return false
-    end
+				-- footer:
+				local msg = gsub(t.messages.vote_list_hud_header, "%%cmd%%", t.vote_command)
+				mod:broadcast(executor, msg, false, "rcon")
+			end
+			return false
+		end
+	end
 end
 
 function mod:CalculateVotes()
