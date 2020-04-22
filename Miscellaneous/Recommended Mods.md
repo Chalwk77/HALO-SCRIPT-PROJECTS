@@ -1,0 +1,11 @@
+# Chalwk's Recommended Mods:
+* > [Admin Chat](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/SAPP%20SCRIPTS/UTILITY%20MODS/Admin%20Chat%20(v2).lua)
+* > [Alias System](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/SAPP%20SCRIPTS/UTILITY%20MODS/Alias%20System.lua)
+* > [Auto Message](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/SAPP%20SCRIPTS/UTILITY%20MODS/Auto%20Message.lua)
+* > [Command Spy](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/SAPP%20SCRIPTS/UTILITY%20MODS/Command-Spy%20(utility).lua)
+* > [Custom Player List](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/SAPP%20SCRIPTS/UTILITY%20MODS/List%20Players.lua)
+* > [Message Board](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/SAPP%20SCRIPTS/UTILITY%20MODS/Message%20Board.lua)
+* > [Multi-Client Detector](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/SAPP%20SCRIPTS/UTILITY%20MODS/MultiClient%20Detector.lua)
+* > [Team Color Voting](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/SAPP%20SCRIPTS/UTILITY%20MODS/Team%20Color%20Voting%20(1.4).lua)
+* > [VPN Blocker](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/SAPP%20SCRIPTS/UTILITY%20MODS/VPN%20Blocker%20(v%201.1).lua)
+* > [Weapon Assigner](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/SAPP%20SCRIPTS/UTILITY%20MODS/Weapon%20Assigner.lua)
