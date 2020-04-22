@@ -8,6 +8,7 @@ Type "!anger" to express anger
 Type "!taunt" to taunt the enemy!
 
 * Updated 17/09/19
+* Updated 22/04/20 (refactored with improvements to main logic)
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -28,9 +29,15 @@ local anger_expression = "!anger"
 local taunt_expression = "!taunt"
 
 -- A function in this script temporarily removes the server prefix while it announces a message.
--- The prefix is restored to "server_prefix" when the relay has finished. 
+-- The prefix is restored to "server_prefix" when the relay has finished.
 -- Type your server's default prefix here:
-local server_prefix = "** SERVER ** " -- Ensure this is suffixed with a space 
+local server_prefix = "** SERVER ** " -- Ensure this is suffixed with a space
+
+local output_format = {
+    global = "%name%: %msg%",
+    team = "[%name%]: %msg%",
+    vehicle = "[%name%]: %msg%"
+}
 
 local expressions = {
     anger = {
@@ -94,6 +101,9 @@ local expressions = {
 }
 -- Configuration [ends] -----------------------------------------------------------------
 
+-- Do Not Touch:
+local gsub = string.gsub
+
 function OnScriptLoad()
     register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
 end
@@ -102,30 +112,48 @@ function OnScriptUnload()
     -- Not Used
 end
 
-function Broadcast(p, m)
-    local name = get_var(p, "$name")
-    execute_command("msg_prefix \"\"")
-    say_all(name, m)
-    execute_command("msg_prefix \"" .. server_prefix .. "\"")
+function Broadcast(PlayerIndex, Message, Type)
+    local name = get_var(PlayerIndex, "$name")
+    local msg
+
+    -- Global:
+    if (Type == 0) then
+        msg = gsub(gsub(output_format.global, "%%name%%", name), "%%msg%%", Message)
+        -- Team:
+    elseif (Type == 1) then
+        msg = gsub(gsub(output_format.team, "%%name%%", name), "%%msg%%", Message)
+        -- Vehicle:
+    elseif (Type == 2) then
+        msg = gsub(gsub(output_format.vehicle, "%%name%%", name), "%%msg%%", Message)
+    end
+
+    if (msg) then
+        execute_command("msg_prefix \"\"")
+        say_all(msg)
+        execute_command("msg_prefix \"" .. server_prefix .. "\"")
+    end
 end
 
 function OnPlayerChat(PlayerIndex, Message, Type)
     local msg = string.lower(Message)
+    local p = tonumber(PlayerIndex)
+
+    math.randomseed(os.time())
     if (msg == anger_expression) then
 
-        local msg = expressions.anger[math.random(#expressions.anger)]
-        broadcast(PlayerIndex, msg)
+        local Msg = expressions.anger[math.random(#expressions.anger)]
+        Broadcast(p, Msg, Type)
         return false
 
     elseif (msg == cuss_expression) then
-        local msg = expressions.cuss[math.random(#expressions.cuss)]
-        broadcast(PlayerIndex, msg)
+        local Msg = expressions.cuss[math.random(#expressions.cuss)]
+        Broadcast(p, Msg, Type)
         return false
 
     elseif (msg == taunt_expression) then
 
-        local msg = expressions.taunt[math.random(#expressions.taunt)]
-        broadcast(PlayerIndex, msg)
+        local Msg = expressions.taunt[math.random(#expressions.taunt)]
+        Broadcast(p, Msg, Type)
         return false
     end
 end
