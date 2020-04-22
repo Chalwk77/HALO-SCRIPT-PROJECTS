@@ -18,7 +18,6 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.12.0.0"
 local melee_object = { }
 
-
 -- Configuration [starts]
 melee_object[1] = "weapons\\ball\\ball"
 local scorelimit = 10
