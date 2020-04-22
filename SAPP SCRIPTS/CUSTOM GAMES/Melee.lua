@@ -39,7 +39,7 @@ local objects = {
     { "vehi", "vehicles\\warthog\\mp_warthog", false },
 
     { "weap", "weapons\\assault rifle\\assault rifle", false },
-    { "weap", "weapons\\ball\\ball", true }, -- DO NOT disable (in fact, do not touch this at all lol)
+    { "weap", "weapons\\ball\\ball", true }, -- DO NOT disable (if this is the melee object)
     { "weap", "weapons\\flag\\flag", false },
     { "weap", "weapons\\flamethrower\\flamethrower", false },
     { "weap", "weapons\\needler\\mp_needler", false },
