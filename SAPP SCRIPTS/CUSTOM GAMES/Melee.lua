@@ -40,7 +40,7 @@ local objects = {
     { "vehi", "vehicles\\warthog\\mp_warthog", false },
 
     { "weap", "weapons\\assault rifle\\assault rifle", false },
-    { "weap", "weapons\\ball\\ball", true }, -- DO NOT disable.
+    { "weap", "weapons\\ball\\ball", true }, -- DO NOT disable (in fact, do not touch this at all lol)
     { "weap", "weapons\\flag\\flag", false },
     { "weap", "weapons\\flamethrower\\flamethrower", false },
     { "weap", "weapons\\needler\\mp_needler", false },
@@ -55,14 +55,11 @@ local objects = {
 
 -- Configuration [ends] << ----------
 
-local assign = {}
-local drones = {}
-local clean_up_dones = {}
+local assign, drones, clean_up_dones = {}, {}, {}
 for i = 1, 16 do
     drones[i] = {}
 end
-local obj_in_memory = {}
-local gamestarted = nil
+local obj_in_memory, gamestarted = {}
 
 function OnScriptLoad()
     gamestarted = false
