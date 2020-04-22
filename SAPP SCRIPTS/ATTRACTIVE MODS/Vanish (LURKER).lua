@@ -1088,12 +1088,15 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
     if (vanish.block_damage) then
         if (tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex) then
             local vip, kip = getip(PlayerIndex), getip(CauserIndex)
+
+            -- 22/04/20 [Fixed nil check error]:
             local v, k = vanish[vip] or nil, vanish[kip] or nil
             if (v ~= nil or k ~= nil) then
                 if (v.enabled or k.enabled) then
                     return false
                 end
             end
+            --
         end
     end
 end
