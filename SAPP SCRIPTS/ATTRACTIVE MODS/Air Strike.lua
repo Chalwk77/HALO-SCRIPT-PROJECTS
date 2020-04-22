@@ -38,6 +38,7 @@ local min_z_vel = -10
 local max_z_vel = -0.5
 
 strike_locations = {}
+
 -- projectile x,y,z initial spawn coordinates
 strike_locations["bloodgulch"] = {
     { 64, -112.09, 2.21 },

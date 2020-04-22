@@ -29,7 +29,7 @@ function falldamage.Init()
         ["infinity"] = false,
         ["chillout"] = false,
         ["prisoner"] = false,
-        ["damnation"] = false,
+        ["damnation"] = true,
         ["icefields"] = false,
         ["bloodgulch"] = false,
         ["hangemhigh"] = false,

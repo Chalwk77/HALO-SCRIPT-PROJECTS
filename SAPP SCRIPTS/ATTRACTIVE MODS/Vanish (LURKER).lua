@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Vanish (v 1.0), for SAPP (PC & CE)
+Script Name: Vanish (v 1.06), for SAPP (PC & CE)
 Description: Vanish yourself (or others) on demand!
 
 Command syntax: /vanish.command on|off [me | id | */all] <flag>
@@ -142,7 +142,7 @@ vanish.join_others_msg = "%name% joined vanished!"
 
 -- Vanish Configuration [ends] --
 
-local script_version, weapon_status = 1.5, { }
+local weapon_status = { }
 
 -- Store Player IP to an array...
 -- Because SAPP cannot retrieve the player IP on 'event_leave' if playing on PC.
@@ -1088,9 +1088,11 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
     if (vanish.block_damage) then
         if (tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex) then
             local vip, kip = getip(PlayerIndex), getip(CauserIndex)
-            local v, k = vanish[vip], vanish[kip]
-            if (v ~= nil or k ~= nil) and (v.enabled or k.enabled) then
-                return false
+            local v, k = vanish[vip] or nil, vanish[kip] or nil
+            if (v ~= nil or k ~= nil) then
+                if (v.enabled or k.enabled) then
+                    return false
+                end
             end
         end
     end
