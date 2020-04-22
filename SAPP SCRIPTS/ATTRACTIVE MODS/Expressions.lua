@@ -20,10 +20,9 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.11.0.0"
 
--- Configuration [starts]
+-- Configuration [starts] ------------------------------------------------------------------------
 
 -- Type any of the following "expressions" into chat:
-
 local cuss_expression = "!cuss"
 local anger_expression = "!anger"
 local taunt_expression = "!taunt"
