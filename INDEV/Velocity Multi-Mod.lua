@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Velocity Multi-Mod (v 1.68), for SAPP (PC & CE)
+Script Name: Velocity Multi-Mod (v 1.69), for SAPP (PC & CE)
 Description: Velocity is an all-in-one package that combines a multitude of my scripts.
              ALL combined scripts have been heavily refactored, refined and improved for Velocity,
              with the addition of many new features not found in the standalone versions,
@@ -154,20 +154,22 @@ local function GameSettings()
                     [5] = { "clit", "cl[%p]t" },
                     [6] = { "^cum$" },
                     [7] = { "cunt" },
-                    [8] = { "cock", "c0ck", "cOck", "cocksucker" },
-                    [9] = { "dick", "dickhead", "d[%p]ckhead" },
+                    [8] = { "cock", "c0ck", "cOck", "cocksucker"},
+                    [9] = { "dick", "dickhead", "d[%p]ckhead"},
                     [10] = { "^fag$", "faggot", "^fagg$" },
                     [11] = { "fatass" },
-                    [12] = { "fuck", "fcuk", "fucker", "fucck", "fucccckkk", "fcucking", "fuccckcckkk" },
+                    [12] = { "fuck", "fcuk", "fucker", "fucck", "fucccckkk", "fcucking", "fuccckcckkk"},
                     [13] = { "nigga", "nigger", "n[%p]gga", "n[%p]gger" },
                     [14] = { "prick" },
-                    [15] = { "pussy", "p[%s]ussy" },
+                    [15] = { "pussy", "p[%s]ussy"},
                     [16] = { "slut" },
                     [17] = { "sh[%p]t", "shit", "sh[%p]+", "sh1t", "5h1t", "5hit" },
                     [18] = { "bitch", "bitches", "b[%p]tch", "b[%p]tches" },
                     [19] = { "wank", "wanker" },
                     [20] = { "whore", "wh0re", "wh0reface" },
                     [21] = { ":v", ">:v", ":'v", ">:'v", ": v", ":  v", ":    v" },
+                    [22] = { "death" },
+					
                 }
             },
             ["Chat IDs"] = {
@@ -474,7 +476,7 @@ local function GameSettings()
                 enabled = true,
                 dir = 'sapp\\lurker.tmp',
                 base_command = "lurker", -- /command on|off [me | id | */all] <cmd_flag>
-                cmd_flags = { "-c", "-h", "-ch" }, -- Command flag parameters.
+                cmd_flags = {"-c", "-h", "-ch"}, -- Command flag parameters.
                 -- If '-c' (short for camouflage) command parameter is specified, you will only have camo!
                 -- If '-h' (short for hidden) command parameter is specified, you will only be hidden!
                 -- If '-ch' (short for camouflage + hidden) command parameter is specified, you will be both hidden and camouflaged!
@@ -550,6 +552,7 @@ local function GameSettings()
                 -- Use %player_name% variable to output the joining player's name.
                 messages = {
                     "Welcome to %server_name%",
+                    "CTF-Hardcore | RACE-Hardcore SLAYER-Hardcore"
                     -- repeat the structure to add more entries
                 }
             },
@@ -576,11 +579,13 @@ local function GameSettings()
                 }
             },
             ["Portal Gun"] = {
+			
                 enabled = true,
                 base_command = "portalgun", -- /base_command [me | id | */all] [on|off|0|1|true|false)
                 announcer = true, -- If this is enabled then all players will be alerted when someone goes into Portal Gun mode.
                 permission_level = 1,
                 execute_on_others = 4,
+				
             },
             -- # Private Messaging System
             -- Send private messages to players both online and offline
@@ -612,7 +617,7 @@ local function GameSettings()
                 base_command = "respawn",
             },
             ["Respawn Time"] = {
-                enabled = false,
+                enabled = true,
                 permission_level = 1,
                 execute_on_others = 4,
                 base_command = "setrespawn",
@@ -706,6 +711,7 @@ local function GameSettings()
                     ["destiny"] = { 3.0, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5, 2.5 }
                 }
             },
+						
             ["Suggestions Box"] = {
                 -- Players can suggest features or maps using /suggest {message}. Suggestions are saved to suggestions.txt
                 enabled = false,
@@ -738,11 +744,13 @@ local function GameSettings()
             },
         },
         global = {
-            script_version = 1.68, -- << --- do not touch
+            script_version = 1.69, -- << --- do not touch
             beepOnLoad = false,
             beepOnJoin = true,
             check_for_updates = false,
             server_prefix = "**SERVER** ",
+            rcon_password = "buzz",
+            rcon_admin_level = 4,
             max_results_per_page = 10,
             special_commands = {
                 velocity = { "velocity", -1 }, -- /velocity
@@ -774,8 +782,8 @@ local function GameSettings()
                             "nothing to show",
                         },
                         [3] = { -- page 3
-                            "[ STAFF ]",
-                            "nothing to show",
+                            "[ STAFF ON THIS SERVER]",
+                            "Se7en & Chalwk are the owners of this server",
                         },
                         [4] = { -- page 4 (repeat the structure to add more pages)
                             "[ MISC ]",
@@ -1230,7 +1238,7 @@ function reset()
         if player_present(i) then
             local ip = getip(i, true)
             local is_in_lurker = isInLurker(ip)
-            local mod = settings.mod["Lurker"]
+            local mod = settings.mod["Lurker"]            
             if ((Lurker[ip] ~= nil) or is_in_lurker) then
                 Lurker[ip] = nil
                 if (mod.speed_boost) then
@@ -1343,7 +1351,7 @@ function OnScriptLoad()
     end
 
     -- #Lurker
-    if modEnabled("Lurker") then
+    if modEnabled("Lurker") then 
         checkFile(settings.mod["Lurker"].dir)
         if (tonumber(get_var(0, "$pn")) > 0) then
             reset()
@@ -1619,9 +1627,9 @@ function OnGameEnd()
             end
 
             -- #Lurker
-            if modEnabled("Lurker") then
+            if modEnabled("Lurker") then 
                 local mod = settings.mod["Lurker"]
-                if (mod.auto_off) and (tonumber(get_var(0, "$pn")) > 0) then
+                if (mod.auto_off) and (tonumber(get_var(0, "$pn")) > 0)then
                     reset()
                 end
             end
@@ -1753,17 +1761,17 @@ function OnTick()
             -- #Lurker
             if modEnabled("Lurker") then
                 local mod = settings.mod["Lurker"]
-
+                
                 local status = Lurker[ip]
                 if (status ~= nil) and (status.enabled) then
 
                     if (mod.screen_notifications) then
-
+                    
                         local proceed
                         if (status.mode == "default" and not mod.hide) or (status.mode == "camouflaged") then
                             proceed = true
                         end
-
+                    
                         if (proceed) then
                             for j = 1, 16 do
                                 if (i ~= j) then
@@ -1813,7 +1821,7 @@ function OnTick()
                     if (mod.camouflage) and (status.mode == "camouflaged" or status.mode == "camouflaged_and_hidden" or status.mode == "default") then
                         execute_command("camo " .. i .. " 1")
                     end
-
+                    
                     -- APPLY OVERSHIELD
                     if (mod.apply_shield) then
                         execute_command("sh " .. tonumber(i) .. " " .. tonumber(mod.shield_amount))
@@ -1822,8 +1830,8 @@ function OnTick()
                     -- APPLY SPEED
                     if not (status.warn) and (mod.speed_boost) then
                         execute_command("s " .. tonumber(i) .. " " .. tonumber(mod.running_speed))
-
-                        -- WARN PLAYER
+                    
+                    -- WARN PLAYER
                     elseif (status.warn) then
                         status.timer = status.timer + 0.030
                         cls(i, 25)
@@ -1840,7 +1848,7 @@ function OnTick()
                         -- Check player warnings
                         if (getLurkerWarnings(ip) <= 0) then
                             status.warn, status.enabled = false, false
-                            execute_command("s " .. tonumber(i) .. " " .. tonumber(mod.default_running_speed))
+                            execute_command("s " .. tonumber(i) .. " " .. tonumber(mod.default_running_speed ))
                             killSilently(i) -- KILL PLAYER
                             rprint(i, "Your Lurker mode was auto-revoked! [no warnings left]")
                             if (mod.announce) then
@@ -1862,7 +1870,7 @@ function OnTick()
                             status.object = "" -- just in case
                         end
                     end
-
+                    
                     local score = tonumber(get_var(i, "$score"))
                     if (score < 0) then
                         execute_command("score " .. tonumber(i) .. " " .. status.score)
@@ -1891,16 +1899,16 @@ function OnTick()
                 end
             end
 
-            -- #Alias System
-            if modEnabled("Alias System") then
-                if (players["Alias System"][ip] and players["Alias System"][ip].trigger) then
-                    players["Alias System"][ip].timer = players["Alias System"][ip].timer + 0.030
-                    alias:show(players["Alias System"][ip])
-                    if players["Alias System"][ip].timer >= floor(settings.mod["Alias System"].duration) then
-                        alias:reset(ip)
-                    end
-                end
-            end
+            -- -- #Alias System
+            -- if modEnabled("Alias System") then
+                -- if (players["Alias System"][ip] and players["Alias System"][ip].trigger) then
+                    -- players["Alias System"][ip].timer = players["Alias System"][ip].timer + 0.030
+                    -- alias:show(players["Alias System"][ip])
+                    -- if players["Alias System"][ip].timer >= floor(settings.mod["Alias System"].duration) then
+                        -- alias:reset(ip)
+                    -- end
+                -- end
+            -- end
 
             -- #Welcome Messages
             if modEnabled("Welcome Messages") then
@@ -2122,24 +2130,24 @@ function OnPlayerConnect(PlayerIndex)
             local status = Lurker[ip]
             local score = get_var(id, "$score")
             local mod = settings.mod["Lurker"]
-
+            
             local function tell(id, bool)
                 if (bool) then
                     Lurker[ip] = { } -- Initialize an array for this player.
                     status = Lurker[ip]
-
+                    
                     -- ENABLE LURKER
                     status.enabled = true
                     status.warnings = status.warnings or mod.warnings
                 end
-
+                
                 -- JOIN MESSAGES:
                 if (mod.join_tell) then
                     local join_message_1 = gsub(mod.join_msg, "%%name%%", name)
                     respond(id, join_message_1, "rcon", 2 + 8)
                     if (mod.announce_warnings) then
                         local join_message_2 = gsub(mod.join_warnings_left_msg, "%%warnings%%", status.warnings)
-                        respond(id, join_message_2, "rcon", 2 + 8)
+                        respond(id, join_message_2, "rcon", 2+8)
                     end
                 end
 
@@ -2156,19 +2164,17 @@ function OnPlayerConnect(PlayerIndex)
                     announceExclude(id, msg, "rcon", 2 + 8)
                 end
             end
-
+            
             local is_in_lurker = isInLurker(ip)
-            if (status ~= nil and status.enabled) then
-                -- no need to declare `Lurker[ip].enable`
+            if (status ~= nil and status.enabled) then -- no need to declare `Lurker[ip].enable`
                 tell(id)
-            elseif (status == nil) and (is_in_lurker) then
-                -- must declare `Lurker[ip] = {}` and `Lurker[ip].enable`
+            elseif (status == nil) and (is_in_lurker) then -- must declare `Lurker[ip] = {}` and `Lurker[ip].enable`
                 tell(id, true)
             elseif (status == nil) and not (is_in_lurker) then
                 Lurker[ip] = { } -- Initialize an array for this player.
                 status = Lurker[ip]
             end
-
+            
             status.teleport, status.warn, status.timer, status.score, status.warnings, status.mode = false, false, 0, score, getLurkerWarnings(ip), "default"
         end
     end
@@ -2468,7 +2474,7 @@ function OnPlayerDisconnect(PlayerIndex)
             end
         end
     end
-
+    
     -- #Infinity Ammo
     if (modEnabled("Lurker") and infammo[id]) then
         DisableInfAmmo(id)
@@ -2514,14 +2520,14 @@ end
 function OnPlayerPrespawn(PlayerIndex)
     -- #Lurker
     -- if modEnabled("Lurker") then
-    -- local ip = getip(PlayerIndex, true)
-    -- local status = Lurker[ip]
-    -- if (status ~= nil) and (status.teleport ~= nil) and (status.teleport) then
-    -- status.teleport = false
-    -- local XYZ = status.spawn_coords
-    -- local x, y, z, height = XYZ[1], XYZ[2], XYZ[3], XYZ[4]
-    -- Teleport(PlayerIndex, x, y, z, height)
-    -- end
+        -- local ip = getip(PlayerIndex, true)
+        -- local status = Lurker[ip]
+        -- if (status ~= nil) and (status.teleport ~= nil) and (status.teleport) then
+            -- status.teleport = false
+            -- local XYZ = status.spawn_coords
+            -- local x, y, z, height = XYZ[1], XYZ[2], XYZ[3], XYZ[4]
+            -- Teleport(PlayerIndex, x, y, z, height)
+        -- end
     -- end
 end
 
@@ -2573,7 +2579,7 @@ function OnPlayerSpawn(PlayerIndex)
         frag_check[PlayerIndex] = true
         adjust_ammo(PlayerIndex)
     end
-
+    
     -- #Lurker
     if modEnabled("Lurker") then
         local mod = settings.mod["Lurker"]
@@ -2636,12 +2642,12 @@ function OnPlayerKill(PlayerIndex)
             write_dword(player + 0x2C, respawn_time[ip] * 33)
         end
     end
-
+    
     -- #Lurker
     if modEnabled("Lurker") then
         local status = Lurker[ip]
         if (status ~= nil) and (status.enabled) then
-            status.scores, status.timer, status.warn, status.has_objective = 0, 0, false, false
+            status.scores, status.timer, status.warn, status.has_objective = 0,0, false, false
         end
     end
 
@@ -2662,396 +2668,398 @@ function OnPlayerKill(PlayerIndex)
 end
 
 function OnPlayerChat(PlayerIndex, Message, type)
-    local id = tonumber(PlayerIndex)
-    local name = get_var(PlayerIndex, "$name")
-    local ip = getip(PlayerIndex, true)
-    local response
+	if (type ~= 6) then
+		local id = tonumber(PlayerIndex)
+		local name = get_var(PlayerIndex, "$name")
+		local ip = getip(PlayerIndex, true)
+		local response
 
-    local level = function(p)
-        return tonumber(get_var(p, "$lvl"))
-    end
+		local level = function(p)
+			return tonumber(get_var(p, "$lvl"))
+		end
 
-    -- #Mute System
-    if modEnabled("Mute System") then
-        if (mute_table[ip] ~= nil) and (mute_table[ip].muted) then
-            cprint('[MUTED] ' .. name .. ": " .. Message)
-            if (mute_table[ip].duration == default_mute_time) then
-                rprint(PlayerIndex, "[muted] You are muted permanently.")
-            else
-                local char = getChar(mute_table[ip].duration)
-                rprint(PlayerIndex, "[muted] Time remaining: " .. mute_table[ip].duration .. " minute" .. char)
-            end
-            return false
-        end
-    end
+		-- #Mute System
+		if modEnabled("Mute System") then
+			if (mute_table[ip] ~= nil) and (mute_table[ip].muted) then
+				cprint('[MUTED] ' .. name .. ": " .. Message)
+				if (mute_table[ip].duration == default_mute_time) then
+					rprint(PlayerIndex, "[muted] You are muted permanently.")
+				else
+					local char = getChar(mute_table[ip].duration)
+					rprint(PlayerIndex, "[muted] Time remaining: " .. mute_table[ip].duration .. " minute" .. char)
+				end
+				return false
+			end
+		end
 
-    -- Used throughout OnPlayerChat()
-    local message = stringSplit(Message)
-    if (#message == 0) then
-        return false
-    end
+		-- Used throughout OnPlayerChat()
+		local message = stringSplit(Message)
+		if (#message == 0) then
+			return false
+		end
+		
+		-- #Chat Censor
+		if modEnabled("Chat Censor") then
+			local tab = settings.mod["Chat Censor"]
+			local table = tab.words
+			local function checkForChar(word)
+				local chars = { -- wip
+					"^",
+					"$",
+				}
+				for i = 1, #chars do
+					if find(word, chars[i]) then
+						word = gsub(word, "%" .. chars[i], "")
+					end
+				end
+				return word
+			end
+			local start, content = 1, ""
+			for i = 0, #message do
+				if (message[i]) then 
+					for j = 1, #table do
+						for k = 1, #table[j] do
+							local swear_word = table[j][k]
+							if find(message[i]:lower(), swear_word) then
+							
+								swear_word = checkForChar(swear_word)
+								local len = string.len(swear_word)
+								local replaced_word = sub(swear_word, 1, 1)
+								for w = 1, len - 1 do
+									replaced_word = replaced_word .. tab.censor
+								end
+								
+								local start, text, len = 1, "", string.len(message[i])
+								
+								for w = 1, len - 1 do
+									start = start + 1
+									text = sub(message[i], 1, start)
+									if (lower(text) == swear_word) then
+										break
+									end
+								end
+								
+								local first_letter = sub(text, 1, 1)
+								if (first_letter == upper(first_letter)) then
+									replaced_word = gsub(replaced_word, sub(replaced_word, 1, 1), upper(first_letter))
+								end 
+								
+								-- Message = gsub(Message, swear_word, replaced_word)
+								if (text ~= nil) then
+									Message = gsub(Message, text, replaced_word)
+								end
+								break
+							end
+						end
+					end
+				end
+			end
+		end
 
-    -- #Chat Censor
-    if modEnabled("Chat Censor") then
-        local tab = settings.mod["Chat Censor"]
-        local table = tab.words
-        local function checkForChar(word)
-            local chars = { -- wip
-                "^",
-                "$",
-            }
-            for i = 1, #chars do
-                if find(word, chars[i]) then
-                    word = gsub(word, "%" .. chars[i], "")
-                end
-            end
-            return word
-        end
-        local start, content = 1, ""
-        for i = 0, #message do
-            if (message[i]) then
-                for j = 1, #table do
-                    for k = 1, #table[j] do
-                        local swear_word = table[j][k]
-                        if find(message[i]:lower(), swear_word) then
+		-- #Chat IDs & Admin Chat
+		local keyword
+		if modEnabled("Chat IDs") or modEnabled("Admin Chat") then
+			local ignore = settings.mod["Chat IDs"].ignore_list
+			local word = lower(message[1]) or upper(message[1])
+			if (table.match(ignore, word)) then
+				keyword = true
+			else
+				keyword = false
+			end
+		end
 
-                            swear_word = checkForChar(swear_word)
-                            local len = string.len(swear_word)
-                            local replaced_word = sub(swear_word, 1, 1)
-                            for w = 1, len - 1 do
-                                replaced_word = replaced_word .. tab.censor
-                            end
+		-- #Command Spy & Chat Logging
+		local command
+		local iscommand
+		local cmd_prefix
+		if modEnabled("Command Spy") or modEnabled("Chat Logging") then
+			local cSpy = settings.mod["Command Spy"]
+			if sub(message[1], 1, 1) == "/" or sub(message[1], 1, 1) == "\\" then
+				command = message[1]:gsub("\\", "/")
+				iscommand = true
+				cmd_prefix = "[COMMAND] "
+			else
+				iscommand = false
+			end
 
-                            local start, text, len = 1, "", string.len(message[i])
+			if (tonumber(get_var(PlayerIndex, "$lvl")) == -1) and (iscommand) then
+				local hidden_messages, hidden = cSpy.commands_to_hide
+				for _, v in pairs(hidden_messages) do
+					if (command == v) then
+						hidden = true
+					end
+				end
+				local hide_commands = cSpy.hide_commands
+				if (hide_commands and hidden) then
+					response = false
+				elseif (hide_commands and not hidden) or (hide_commands == false) then
+					velocity:CommandSpy(cSpy.prefix .. " " .. name .. ":    \"" .. Message .. "\"")
+					response = true
+				end
+			end
+			
+			local chat_type
+			if type == 0 then
+				chat_type = "[GLOBAL]  "
+			elseif type == 1 then
+				chat_type = "[TEAM]    "
+			elseif type == 2 then
+				chat_type = "[VEHICLE] "
+			else
+				chat_type = "[UNKNOWN CHAT TYPE]"
+			end
+			
+			if modEnabled("Admin Chat") then
+				local achat = players["Admin Chat"][ip]
+				if (achat ~= nil and achat.adminchat) then
+					chat_type = "[ADMIN CHAT]"
+				end
+			end     
+			
+			local dir = settings.mod["Chat Logging"].dir
+			local function LogChat(dir, msg)
+				local timestamp = os.date("[%d/%m/%Y - %H:%M:%S]")
+				local file = io.open(dir, "a+")
+				if file ~= nil then
+					local str = format("%s\t%s\n", timestamp, tostring(msg))
+					file:write(str)
+					file:close()
+				end
+			end
+			if iscommand then
+				LogChat(dir, "   " .. cmd_prefix .. "     " .. name .. " [" .. id .. "]: " .. Message)
+				cprint(cmd_prefix .. " " .. name .. " [" .. id .. "]: " .. Message, 3 + 8)
+			else
+				LogChat(dir, "   " .. chat_type .. "     " .. name .. " [" .. id .. "]: " .. Message)
+				cprint(chat_type .. " " .. name .. " [" .. id .. "]: " .. Message, 3 + 8)
+			end
+		end
 
-                            for w = 1, len - 1 do
-                                start = start + 1
-                                text = sub(message[i], 1, start)
-                                if (lower(text) == swear_word) then
-                                    break
-                                end
-                            end
+		-- #Admin Chat
+		if modEnabled("Admin Chat") then
+			local mod = players["Admin Chat"][ip]
+			if (mod ~= nil) then
+				local environment = settings.mod["Admin Chat"].environment
+				local function AdminChat(table)
+					for i = 1, 16 do
+						if player_present(i) then
+							if (level(i) >= getPermLevel("Admin Chat", false)) then
+								if (environment == "rcon") then
+									for j = 1, #table do
+										respond(i, "|l" .. table[j], "rcon")
+									end
+								elseif (environment == "chat") then
+									for j = 1, #table do
+										respond(i, table[j], "chat")
+									end
+								end
+								response = false
+							end
+						end
+					end
+				end
+				if (mod.adminchat) then
+					-- attempt to index local 'mod' (a nil value) - when script is reloaded
+					if (level(id) >= getPermLevel("Admin Chat", false)) then
+						for c = 0, #message do
+							if message[c] then
+								if not (keyword) or (keyword == nil) then
+									if sub(message[1], 1, 1) == "/" or sub(message[1], 1, 1) == "\\" then
+										response = true
+									else
+										local tab = settings.mod["Admin Chat"]
+										local strFormat = tab.message_format
+										local prefix = tab.prefix
+										local temp = { }
+										for i = 1, #strFormat do
+											if (strFormat[i]) then
+												temp[#temp + 1] = strFormat[i]
+											end
+										end
+										for j = 1, #temp do
+											temp[j] = gsub(gsub(gsub(gsub(temp[j], "%%prefix%%", prefix), "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message)
+										end
+										AdminChat(temp)
+										response = false
+									end
+								end
+								break
+							end
+						end
+					end
+				end
+			end
+		end
+		-- #Chat IDs
+		if modEnabled("Chat IDs") then
+			if not (game_over) then
+				local c_tab = settings.mod["Chat IDs"]
 
-                            local first_letter = sub(text, 1, 1)
-                            if (first_letter == upper(first_letter)) then
-                                replaced_word = gsub(replaced_word, sub(replaced_word, 1, 1), upper(first_letter))
-                            end
+				-- GLOBAL FORMAT
+				local GlobalDefault = c_tab.global_format[1]
+				local Global_TModFormat = c_tab.trial_moderator[1]
+				local Global_ModFormat = c_tab.moderator[1]
+				local Global_AdminFormat = c_tab.admin[1]
+				local Global_SAdminFormat = c_tab.senior_admin[1]
 
-                            -- Message = gsub(Message, swear_word, replaced_word)
-                            if (text ~= nil) then
-                                Message = gsub(Message, text, replaced_word)
-                            end
-                            break
-                        end
-                    end
-                end
-            end
-        end
-    end
+				--TEAM FORMAT
+				local TeamDefault = c_tab.team_format[1]
+				local Team_TModFormat = c_tab.trial_moderator[2]
+				local Team_ModFormat = c_tab.moderator[2]
+				local Team_AdminFormat = c_tab.admin[2]
+				local Team_SAdminFormat = c_tab.senior_admin[2]
 
-    -- #Chat IDs & Admin Chat
-    local keyword
-    if modEnabled("Chat IDs") or modEnabled("Admin Chat") then
-        local ignore = settings.mod["Chat IDs"].ignore_list
-        local word = lower(message[1]) or upper(message[1])
-        if (table.match(ignore, word)) then
-            keyword = true
-        else
-            keyword = false
-        end
-    end
+				-- Permission Levels
+				local tmod_perm = c_tab.trial_moderator.lvl
+				local mod_perm = c_tab.moderator.lvl
+				local admin_perm = c_tab.admin.lvl
+				local sadmin_perm = c_tab.senior_admin.lvl
 
-    -- #Command Spy & Chat Logging
-    local command
-    local iscommand
-    local cmd_prefix
-    if modEnabled("Command Spy") or modEnabled("Chat Logging") then
-        local cSpy = settings.mod["Command Spy"]
-        if sub(message[1], 1, 1) == "/" or sub(message[1], 1, 1) == "\\" then
-            command = message[1]:gsub("\\", "/")
-            iscommand = true
-            cmd_prefix = "[COMMAND] "
-        else
-            iscommand = false
-        end
+				if not (keyword) or (keyword == nil) then
+					local function ChatHandler(PlayerIndex, Message)
+						local function SendToTeam(Message, PlayerIndex, Global, Tmod, Mod, Admin, sAdmin)
+							for i = 1, 16 do
+								if player_present(i) and (get_var(i, "$team") == get_var(PlayerIndex, "$team")) then
+									local formattedString = ""
+									if (Global == true) then
+										formattedString = (gsub(gsub(gsub(TeamDefault, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
+									elseif (Tmod == true) then
+										formattedString = (gsub(gsub(gsub(Team_TModFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
+									elseif (Mod == true) then
+										formattedString = (gsub(gsub(gsub(Team_ModFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
+									elseif (Admin == true) then
+										formattedString = (gsub(gsub(gsub(Team_AdminFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
+									elseif (sAdmin == true) then
+										formattedString = (gsub(gsub(gsub(Team_SAdminFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
+									end
+									Say(i, formattedString)
+									response = false
+								end
+							end
+						end
 
-        if (tonumber(get_var(PlayerIndex, "$lvl")) == -1) and (iscommand) then
-            local hidden_messages, hidden = cSpy.commands_to_hide
-            for _, v in pairs(hidden_messages) do
-                if (command == v) then
-                    hidden = true
-                end
-            end
-            local hide_commands = cSpy.hide_commands
-            if (hide_commands and hidden) then
-                response = false
-            elseif (hide_commands and not hidden) or (hide_commands == false) then
-                velocity:CommandSpy(cSpy.prefix .. " " .. name .. ":    \"" .. Message .. "\"")
-                response = true
-            end
-        end
+						local function SendToAll(Message, Global, Tmod, Mod, Admin, sAdmin)
+							local formattedString = ""
+							if (Global == true) then
+								formattedString = (gsub(gsub(gsub(GlobalDefault, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
+							elseif (Tmod == true) then
+								formattedString = (gsub(gsub(gsub(Global_TModFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
+							elseif (Mod == true) then
+								formattedString = (gsub(gsub(gsub(Global_ModFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
+							elseif (Admin == true) then
+								formattedString = (gsub(gsub(gsub(Global_AdminFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
+							elseif (sAdmin == true) then
+								formattedString = (gsub(gsub(gsub(Global_SAdminFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
+							end
+							SayAll(formattedString)
+							response = false
+						end
 
-        local chat_type
-        if type == 0 then
-            chat_type = "[GLOBAL]  "
-        elseif type == 1 then
-            chat_type = "[TEAM]    "
-        elseif type == 2 then
-            chat_type = "[VEHICLE] "
-        else
-            chat_type = "[UNKNOWN CHAT TYPE]"
-        end
-
-        if modEnabled("Admin Chat") then
-            local achat = players["Admin Chat"][ip]
-            if (achat ~= nil and achat.adminchat) then
-                chat_type = "[ADMIN CHAT]"
-            end
-        end
-
-        local dir = settings.mod["Chat Logging"].dir
-        local function LogChat(dir, msg)
-            local timestamp = os.date("[%d/%m/%Y - %H:%M:%S]")
-            local file = io.open(dir, "a+")
-            if file ~= nil then
-                local str = format("%s\t%s\n", timestamp, tostring(msg))
-                file:write(str)
-                file:close()
-            end
-        end
-        if iscommand then
-            LogChat(dir, "   " .. cmd_prefix .. "     " .. name .. " [" .. id .. "]: " .. Message)
-            cprint(cmd_prefix .. " " .. name .. " [" .. id .. "]: " .. Message, 3 + 8)
-        else
-            LogChat(dir, "   " .. chat_type .. "     " .. name .. " [" .. id .. "]: " .. Message)
-            cprint(chat_type .. " " .. name .. " [" .. id .. "]: " .. Message, 3 + 8)
-        end
-    end
-
-    -- #Admin Chat
-    if modEnabled("Admin Chat") then
-        local mod = players["Admin Chat"][ip]
-        if (mod ~= nil) then
-            local environment = settings.mod["Admin Chat"].environment
-            local function AdminChat(table)
-                for i = 1, 16 do
-                    if player_present(i) then
-                        if (level(i) >= getPermLevel("Admin Chat", false)) then
-                            if (environment == "rcon") then
-                                for j = 1, #table do
-                                    respond(i, "|l" .. table[j], "rcon")
-                                end
-                            elseif (environment == "chat") then
-                                for j = 1, #table do
-                                    respond(i, table[j], "chat")
-                                end
-                            end
-                            response = false
-                        end
-                    end
-                end
-            end
-            if (mod.adminchat) then
-                -- attempt to index local 'mod' (a nil value) - when script is reloaded
-                if (level(id) >= getPermLevel("Admin Chat", false)) then
-                    for c = 0, #message do
-                        if message[c] then
-                            if not (keyword) or (keyword == nil) then
-                                if sub(message[1], 1, 1) == "/" or sub(message[1], 1, 1) == "\\" then
-                                    response = true
-                                else
-                                    local tab = settings.mod["Admin Chat"]
-                                    local strFormat = tab.message_format
-                                    local prefix = tab.prefix
-                                    local temp = { }
-                                    for i = 1, #strFormat do
-                                        if (strFormat[i]) then
-                                            temp[#temp + 1] = strFormat[i]
-                                        end
-                                    end
-                                    for j = 1, #temp do
-                                        temp[j] = gsub(gsub(gsub(gsub(temp[j], "%%prefix%%", prefix), "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message)
-                                    end
-                                    AdminChat(temp)
-                                    response = false
-                                end
-                            end
-                            break
-                        end
-                    end
-                end
-            end
-        end
-    end
-    -- #Chat IDs
-    if modEnabled("Chat IDs") then
-        if not (game_over) then
-            local c_tab = settings.mod["Chat IDs"]
-
-            -- GLOBAL FORMAT
-            local GlobalDefault = c_tab.global_format[1]
-            local Global_TModFormat = c_tab.trial_moderator[1]
-            local Global_ModFormat = c_tab.moderator[1]
-            local Global_AdminFormat = c_tab.admin[1]
-            local Global_SAdminFormat = c_tab.senior_admin[1]
-
-            --TEAM FORMAT
-            local TeamDefault = c_tab.team_format[1]
-            local Team_TModFormat = c_tab.trial_moderator[2]
-            local Team_ModFormat = c_tab.moderator[2]
-            local Team_AdminFormat = c_tab.admin[2]
-            local Team_SAdminFormat = c_tab.senior_admin[2]
-
-            -- Permission Levels
-            local tmod_perm = c_tab.trial_moderator.lvl
-            local mod_perm = c_tab.moderator.lvl
-            local admin_perm = c_tab.admin.lvl
-            local sadmin_perm = c_tab.senior_admin.lvl
-
-            if not (keyword) or (keyword == nil) then
-                local function ChatHandler(PlayerIndex, Message)
-                    local function SendToTeam(Message, PlayerIndex, Global, Tmod, Mod, Admin, sAdmin)
-                        for i = 1, 16 do
-                            if player_present(i) and (get_var(i, "$team") == get_var(PlayerIndex, "$team")) then
-                                local formattedString = ""
-                                if (Global == true) then
-                                    formattedString = (gsub(gsub(gsub(TeamDefault, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
-                                elseif (Tmod == true) then
-                                    formattedString = (gsub(gsub(gsub(Team_TModFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
-                                elseif (Mod == true) then
-                                    formattedString = (gsub(gsub(gsub(Team_ModFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
-                                elseif (Admin == true) then
-                                    formattedString = (gsub(gsub(gsub(Team_AdminFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
-                                elseif (sAdmin == true) then
-                                    formattedString = (gsub(gsub(gsub(Team_SAdminFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
-                                end
-                                Say(i, formattedString)
-                                response = false
-                            end
-                        end
-                    end
-
-                    local function SendToAll(Message, Global, Tmod, Mod, Admin, sAdmin)
-                        local formattedString = ""
-                        if (Global == true) then
-                            formattedString = (gsub(gsub(gsub(GlobalDefault, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
-                        elseif (Tmod == true) then
-                            formattedString = (gsub(gsub(gsub(Global_TModFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
-                        elseif (Mod == true) then
-                            formattedString = (gsub(gsub(gsub(Global_ModFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
-                        elseif (Admin == true) then
-                            formattedString = (gsub(gsub(gsub(Global_AdminFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
-                        elseif (sAdmin == true) then
-                            formattedString = (gsub(gsub(gsub(Global_SAdminFormat, "%%sender_name%%", name), "%%index%%", id), "%%message%%", Message))
-                        end
-                        SayAll(formattedString)
-                        response = false
-                    end
-
-                    for b = 0, #message do
-                        if message[b] then
-                            if not (sub(message[1], 1, 1) == "/" or sub(message[1], 1, 1) == "\\") then
-                                if (getTeamPlay()) then
-                                    if (type == 0 or type == 2) then
-                                        if (c_tab.use_admin_prefixes == true) then
-                                            if (level(id) == tmod_perm) then
-                                                SendToAll(Message, nil, true, nil, nil, nil)
-                                            elseif (level(id) == mod_perm) then
-                                                SendToAll(Message, nil, nil, true, nil, nil)
-                                            elseif (level(id) == admin_perm) then
-                                                SendToAll(Message, nil, nil, nil, true, nil)
-                                            elseif (level(id) == sadmin_perm) then
-                                                SendToAll(Message, nil, nil, nil, nil, true)
-                                            else
-                                                SendToAll(Message, true, nil, nil, nil, nil)
-                                            end
-                                        else
-                                            SendToAll(Message, true, nil, nil, nil, nil)
-                                        end
-                                    elseif (type == 1) then
-                                        if (c_tab.use_admin_prefixes == true) then
-                                            if (level(id) == tmod_perm) then
-                                                SendToTeam(Message, PlayerIndex, nil, true, nil, nil, nil)
-                                            elseif (level(id) == mod_perm) then
-                                                SendToTeam(Message, PlayerIndex, nil, nil, true, nil, nil)
-                                            elseif (level(id) == admin_perm) then
-                                                SendToTeam(Message, PlayerIndex, nil, nil, nil, true, nil)
-                                            elseif (level(id) == sadmin_perm) then
-                                                SendToTeam(Message, PlayerIndex, nil, nil, nil, nil, true)
-                                            else
-                                                SendToTeam(Message, PlayerIndex, true, nil, nil, nil, nil)
-                                            end
-                                        else
-                                            SendToTeam(Message, PlayerIndex, true, nil, nil, nil, nil)
-                                        end
-                                    end
-                                elseif (c_tab.use_admin_prefixes) then
-                                    if (level(id) == tmod_perm) then
-                                        SendToAll(Message, nil, true, nil, nil, nil)
-                                    elseif (level(id) == mod_perm) then
-                                        SendToAll(Message, nil, nil, true, nil, nil)
-                                    elseif (level(id) == admin_perm) then
-                                        SendToAll(Message, nil, nil, nil, true, nil)
-                                    elseif (level(id) == sadmin_perm) then
-                                        SendToAll(Message, nil, nil, nil, nil, true)
-                                    else
-                                        SendToAll(Message, true, nil, nil, nil, nil)
-                                    end
-                                else
-                                    SendToAll(Message, true, nil, nil, nil, nil)
-                                end
-                            else
-                                response = true
-                            end
-                            break
-                        end
-                    end
-                end
-                if modEnabled("Admin Chat") then
-                    local achat = players["Admin Chat"][ip]
-                    if (achat ~= nil) and (achat.adminchat ~= true) then
-                        ChatHandler(PlayerIndex, Message)
-                    end
-                else
-                    ChatHandler(PlayerIndex, Message)
-                end
-            end
-        end
-    end
-    -- #Teleport Manager
-    if modEnabled("Teleport Manager") then
-        if wait_for_response[PlayerIndex] then
-            if Message == ("yes") then
-                local dir = settings.mod["Teleport Manager"].dir
-                local warp_num = tonumber(getWarp())
-                delete_from_file(dir, warp_num, 1)
-                rprint(PlayerIndex, "Successfully deleted teleport id #" .. warp_num)
-                wait_for_response[PlayerIndex] = false
-            elseif Message == ("no") then
-                rprint(PlayerIndex, "Process Cancelled")
-                wait_for_response[PlayerIndex] = false
-            end
-            if Message ~= "yes" or Message ~= "no" then
-                rprint(PlayerIndex, "That is not a valid response, please try again. Type yes|no")
-            end
-            response = false
-        end
-    end
-    return response
+						for b = 0, #message do
+							if message[b] then
+								if not (sub(message[1], 1, 1) == "/" or sub(message[1], 1, 1) == "\\") then
+									if (getTeamPlay()) then
+										if (type == 0 or type == 2) then
+											if (c_tab.use_admin_prefixes == true) then
+												if (level(id) == tmod_perm) then
+													SendToAll(Message, nil, true, nil, nil, nil)
+												elseif (level(id) == mod_perm) then
+													SendToAll(Message, nil, nil, true, nil, nil)
+												elseif (level(id) == admin_perm) then
+													SendToAll(Message, nil, nil, nil, true, nil)
+												elseif (level(id) == sadmin_perm) then
+													SendToAll(Message, nil, nil, nil, nil, true)
+												else
+													SendToAll(Message, true, nil, nil, nil, nil)
+												end
+											else
+												SendToAll(Message, true, nil, nil, nil, nil)
+											end
+										elseif (type == 1) then
+											if (c_tab.use_admin_prefixes == true) then
+												if (level(id) == tmod_perm) then
+													SendToTeam(Message, PlayerIndex, nil, true, nil, nil, nil)
+												elseif (level(id) == mod_perm) then
+													SendToTeam(Message, PlayerIndex, nil, nil, true, nil, nil)
+												elseif (level(id) == admin_perm) then
+													SendToTeam(Message, PlayerIndex, nil, nil, nil, true, nil)
+												elseif (level(id) == sadmin_perm) then
+													SendToTeam(Message, PlayerIndex, nil, nil, nil, nil, true)
+												else
+													SendToTeam(Message, PlayerIndex, true, nil, nil, nil, nil)
+												end
+											else
+												SendToTeam(Message, PlayerIndex, true, nil, nil, nil, nil)
+											end
+										end
+									elseif (c_tab.use_admin_prefixes) then
+										if (level(id) == tmod_perm) then
+											SendToAll(Message, nil, true, nil, nil, nil)
+										elseif (level(id) == mod_perm) then
+											SendToAll(Message, nil, nil, true, nil, nil)
+										elseif (level(id) == admin_perm) then
+											SendToAll(Message, nil, nil, nil, true, nil)
+										elseif (level(id) == sadmin_perm) then
+											SendToAll(Message, nil, nil, nil, nil, true)
+										else
+											SendToAll(Message, true, nil, nil, nil, nil)
+										end
+									else
+										SendToAll(Message, true, nil, nil, nil, nil)
+									end
+								else
+									response = true
+								end
+								break
+							end
+						end
+					end
+					if modEnabled("Admin Chat") then
+						local achat = players["Admin Chat"][ip]
+						if (achat ~= nil) and (achat.adminchat ~= true) then
+							ChatHandler(PlayerIndex, Message)
+						end
+					else
+						ChatHandler(PlayerIndex, Message)
+					end
+				end
+			end
+		end
+		-- #Teleport Manager
+		if modEnabled("Teleport Manager") then
+			if wait_for_response[PlayerIndex] then
+				if Message == ("yes") then
+					local dir = settings.mod["Teleport Manager"].dir
+					local warp_num = tonumber(getWarp())
+					delete_from_file(dir, warp_num, 1)
+					rprint(PlayerIndex, "Successfully deleted teleport id #" .. warp_num)
+					wait_for_response[PlayerIndex] = false
+				elseif Message == ("no") then
+					rprint(PlayerIndex, "Process Cancelled")
+					wait_for_response[PlayerIndex] = false
+				end
+				if Message ~= "yes" or Message ~= "no" then
+					rprint(PlayerIndex, "That is not a valid response, please try again. Type yes|no")
+				end
+				response = false
+			end
+		end
+		return response
+	end
 end
 
-local function checkAccess(e, console_allowed, script, others, alt, params)
+local function checkAccess(e, console_allowed, script, others, alt, params, level)
     local access
     if (e ~= -1 and e >= 1 and e < 16) then
         if not (alt) then
-            if (tonumber(get_var(e, "$lvl")) >= getPermLevel(script, others)) then
+            if (level >= getPermLevel(script, others)) then
                 access = true
             else
                 rprint(e, "Command failed. Insufficient Permission.")
                 access = false
             end
         else
-            if (tonumber(get_var(e, "$lvl")) >= getPermLevel(script, others, params)) then
+            if (level >= getPermLevel(script, others, params)) then
                 access = true
             else
                 rprint(e, "Command failed. Insufficient Permission.")
@@ -3099,7 +3107,7 @@ end
 
 function OnServerCommand(PlayerIndex, Command, Environment, Password)
     local command, args = cmdsplit(Command)
-
+    
     if (command == nil) then
         return
     end
@@ -3107,12 +3115,15 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
 
     local executor = tonumber(PlayerIndex)
     local level = tonumber(get_var(executor, "$lvl"))
-
+	if (tostring(Password) == settings.global.rcon_password) then
+		level = tonumber(settings.global.rcon_admin_level)
+	end
+    
     local ip = getip(PlayerIndex, true)
     if (ip == nil) then
         ip = server_ip
     end
-
+    
     local TargetID, target_all_players, is_error
     local name, hash = get_var(executor, "$name"), get_var(executor, "$hash")
 
@@ -3297,7 +3308,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                     if (args[1] ~= nil) then
                         params.option = args[1]
                     end
-
+                    
                     if (args[3] ~= nil) then
                         params.flag = args[3]
                     end
@@ -3377,7 +3388,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     for i = 1, #cmd_list do
         if (command == cmd_list[i]) then
             if modEnabled("Player List", executor) then
-                if (checkAccess(executor, true, "Player List")) then
+                if (checkAccess(executor, true, "Player List", _, _, _, level)) then
                     if (args[1] == nil) then
                         velocity:listplayers(executor)
                     else
@@ -3393,7 +3404,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     if (command == settings.mod["Admin Chat"].base_command) then
         if not gameover(executor) then
             if modEnabled("Admin Chat", executor) then
-                if (checkAccess(executor, true, "Admin Chat")) then
+                if (checkAccess(executor, true, "Admin Chat", _, _, _, level)) then
                     local tab = settings.mod["Admin Chat"]
                     if (args[1] ~= nil) then
                         validate_params("achat", 2) --/base_command <args> [id]
@@ -3412,7 +3423,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         -- #Alias System
     elseif (command == settings.mod["Alias System"].base_command) then
         if modEnabled("Alias System", executor) then
-            if (checkAccess(executor, true, "Alias System")) then
+            if (checkAccess(executor, true, "Alias System", _, _, _, level)) then
                 local tab = settings.mod["Alias System"]
                 if (args[1] ~= nil) then
                     validate_params("alias", 1) --/base_command [id] <args>
@@ -3433,7 +3444,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     elseif (command == settings.mod["Auto Message"].base_command) then
         if not gameover(executor) then
             if modEnabled("Auto Message", executor) then
-                if (checkAccess(executor, true, "Auto Message")) then
+                if (checkAccess(executor, true, "Auto Message", _, _, _, level)) then
                     local tab = settings.mod["Auto Message"]
                     if (args[1] ~= nil) and (args[2] == nil) then
                         local p = { }
@@ -3450,7 +3461,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     elseif (command == settings.mod["Block Object Pickups"].block_command) then
         if not gameover(executor) then
             if modEnabled("Block Object Pickups", executor) then
-                if (checkAccess(executor, true, "Block Object Pickups")) then
+                if (checkAccess(executor, true, "Block Object Pickups", _, _, _, level)) then
                     local tab = settings.mod["Block Object Pickups"]
                     if (args[1] ~= nil) and (args[2] == nil) then
                         validate_params("blockpickup", 1) --/block_command [me | id | */all]
@@ -3471,7 +3482,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     elseif (command == settings.mod["Block Object Pickups"].unblock_command) then
         if not gameover(executor) then
             if modEnabled("Block Object Pickups", executor) then
-                if (checkAccess(executor, true, "Block Object Pickups")) then
+                if (checkAccess(executor, true, "Block Object Pickups", _, _, _, level)) then
                     local tab = settings.mod["Block Object Pickups"]
                     if (args[1] ~= nil) and (args[2] == nil) then
                         validate_params("blockpickup", 1) --/unblock_command [me | id | */all]
@@ -3492,7 +3503,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         if not getTeamPlay() then
             if not gameover(executor) then
                 if modEnabled("Color Changer", executor) then
-                    if (checkAccess(executor, true, "Color Changer")) then
+                    if (checkAccess(executor, true, "Color Changer", _, _, _, level)) then
                         local tab = settings.mod["Color Changer"]
                         if (args[1] ~= nil) then
                             validate_params("colorchanger", 2) --/base_command <args> [me | id | */all]
@@ -3514,7 +3525,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         -- #Cute
     elseif (command == settings.mod["Cute"].base_command) then
         if modEnabled("Cute", executor) then
-            if (checkAccess(executor, true, "Cute")) then
+            if (checkAccess(executor, true, "Cute", _, _, _, level)) then
                 local tab = settings.mod["Cute"]
                 if (args[1] ~= nil) then
                     validate_params("cute", 1) --/base_command [id]
@@ -3534,7 +3545,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         if not gameover(executor) then
             if modEnabled("Enter Vehicle", executor) then
                 if modEnabled("Item Spawner", executor) then
-                    if (checkAccess(executor, true, "Enter Vehicle")) then
+                    if (checkAccess(executor, true, "Enter Vehicle", _, _, _, level)) then
                         local tab = settings.mod["Enter Vehicle"]
                         if (args[1] ~= nil) then
                             validate_params("entervehicle", 2) --/base_command <args> [id]
@@ -3558,7 +3569,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     elseif (command == settings.mod["Garbage Collection"].base_command) then
         if not gameover(executor) then
             if modEnabled("Garbage Collection", executor) or modEnabled("Garbage Collection", executor) then
-                if (checkAccess(executor, true, "Garbage Collection")) then
+                if (checkAccess(executor, true, "Garbage Collection", _, _, _, level)) then
                     local tab = settings.mod["Garbage Collection"]
                     if (args[1] ~= nil) and (args[2] ~= nil) then
                         validate_params("garbagecollection", 1) --/base_command [id] <args>
@@ -3578,7 +3589,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     elseif (command == settings.mod["Get Coords"].base_command) then
         if not gameover(executor) then
             if modEnabled("Get Coords", executor) then
-                if (checkAccess(executor, true, "Get Coords")) then
+                if (checkAccess(executor, true, "Get Coords", _, _, _, level)) then
                     local tab = settings.mod["Get Coords"]
                     if (args[1] ~= nil) and (args[2] == nil) then
                         validate_params("getcoords", 1) --/base_command [me | id | */all]
@@ -3598,7 +3609,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     elseif (command == settings.mod["Give"].base_command) then
         if not gameover(executor) then
             if modEnabled("Give", executor) then
-                if (checkAccess(executor, true, "Give")) then
+                if (checkAccess(executor, true, "Give", _, _, _, level)) then
                     local tab = settings.mod["Give"]
                     if (args[1] ~= nil) then
                         validate_params("give", 2) --/base_command <item> [me | id | */all]
@@ -3618,7 +3629,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     elseif (command == settings.mod["Infinity Ammo"].base_command) then
         if not gameover(executor) then
             if modEnabled("Infinity Ammo", executor) then
-                if (checkAccess(executor, true, "Infinity Ammo")) then
+                if (checkAccess(executor, true, "Infinity Ammo", _, _, _, level)) then
                     local tab = settings.mod["Infinity Ammo"]
                     if (args[1] ~= nil) then
                         validate_params("infinityammo", 1) --/base_command [id] <args>
@@ -3638,7 +3649,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     elseif (command == settings.mod["Item Spawner"].base_command) then
         if not gameover(executor) then
             if modEnabled("Item Spawner", executor) then
-                if (checkAccess(executor, true, "Item Spawner")) then
+                if (checkAccess(executor, true, "Item Spawner", _, _, _, level)) then
                     local tab = settings.mod["Item Spawner"]
                     if (args[1] ~= nil) then
                         validate_params("itemspawner", 2) --/base_command <args> [id]
@@ -3658,7 +3669,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     elseif (command == settings.mod["Item Spawner"].list) then
         if not gameover(executor) then
             if modEnabled("Item Spawner", executor) then
-                if (checkAccess(executor, true, "Item Spawner")) then
+                if (checkAccess(executor, true, "Item Spawner", _, _, _, level)) then
                     local tab = settings.mod["Item Spawner"]
                     if (args[1] == nil) then
                         local p = { }
@@ -3675,7 +3686,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     elseif (command == settings.mod["Lurker"].base_command) then
         if not gameover(executor) then
             if modEnabled("Lurker", executor) then
-                if (checkAccess(executor, true, "Lurker")) then
+                if (checkAccess(executor, true, "Lurker", _, _, _, level)) then
                     local tab = settings.mod["Lurker"]
                     if (args[1] ~= nil) then
                         validate_params("lurker", 2) --/base_command <args> [id]
@@ -3694,7 +3705,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         -- #Mute System
     elseif (command == settings.mod["Mute System"].mute_command) then
         if modEnabled("Mute System", executor) then
-            if (checkAccess(executor, true, "Mute System")) then
+            if (checkAccess(executor, true, "Mute System", _, _, _, level)) then
                 local tab = settings.mod["Mute System"]
                 if (args[1] ~= nil) and (args[2] ~= nil) then
                     validate_params("mute", 1) --/mute_command [id] <args>
@@ -3714,7 +3725,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         -- #Mute System
     elseif (command == settings.mod["Mute System"].unmute_command) then
         if modEnabled("Mute System", executor) then
-            if (checkAccess(executor, true, "Mute System")) then
+            if (checkAccess(executor, true, "Mute System", _, _, _, level)) then
                 local tab = settings.mod["Mute System"]
                 if (args[1] ~= nil) then
                     validate_params("unmute", 1) --/unmute_command [id] <args>
@@ -3734,7 +3745,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         -- #Mute System
     elseif (command == settings.mod["Mute System"].mutelist_command) then
         if modEnabled("Mute System", executor) then
-            if (checkAccess(executor, true, "Mute System")) then
+            if (checkAccess(executor, true, "Mute System", _, _, _, level)) then
                 local p = { }
                 p.eid = executor
                 p.flag = args[1]
@@ -3746,7 +3757,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     elseif (command == settings.mod["Portal Gun"].base_command) then
         if not gameover(executor) then
             if modEnabled("Portal Gun", executor) then
-                if (checkAccess(executor, true, "Portal Gun")) then
+                if (checkAccess(executor, true, "Portal Gun", _, _, _, level)) then
                     local tab = settings.mod["Portal Gun"]
                     if (args[1] ~= nil) then
                         validate_params("portalgun", 2) --/base_command <args> [id]
@@ -3766,7 +3777,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     elseif (command == settings.mod["Private Messaging System"].send_command) then
         if not gameover(executor) then
             if modEnabled("Private Messaging System", executor) then
-                if (checkAccess(executor, true, "Private Messaging System")) then
+                if (checkAccess(executor, true, "Private Messaging System", _, _, _, level)) then
                     local tab = settings.mod["Private Messaging System"]
                     if (args[1] ~= nil) and (args[2] ~= nil) then
                         local p = { }
@@ -3788,7 +3799,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     elseif (command == settings.mod["Private Messaging System"].read_command) then
         if not gameover(executor) then
             if modEnabled("Private Messaging System", executor) then
-                if (checkAccess(executor, false, "Private Messaging System")) then
+                if (checkAccess(executor, false, "Private Messaging System", _, _, _, level)) then
                     local tab = settings.mod["Private Messaging System"]
                     if (args[1] ~= nil) then
                         local p = { }
@@ -3806,7 +3817,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     elseif (command == settings.mod["Private Messaging System"].delete_command) then
         if not gameover(executor) then
             if modEnabled("Private Messaging System", executor) then
-                if (checkAccess(executor, false, "Private Messaging System")) then
+                if (checkAccess(executor, false, "Private Messaging System", _, _, _, level)) then
                     local tab = settings.mod["Private Messaging System"]
                     if (args[1] ~= nil) then
                         local p = { }
@@ -3824,7 +3835,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     elseif (command == settings.mod["Respawn Time"].base_command) then
         if not gameover(executor) then
             if modEnabled("Respawn Time", executor) then
-                if (checkAccess(executor, true, "Respawn Time")) then
+                if (checkAccess(executor, true, "Respawn Time", _, _, _, level)) then
                     local tab = settings.mod["Respawn Time"]
                     if (args[1] ~= nil) then
                         validate_params("setrespawn", 1) --/base_command [id] <args>
@@ -3844,7 +3855,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     elseif (command == settings.mod["Respawn On Demand"].base_command) then
         if not gameover(executor) then
             if modEnabled("Respawn On Demand", executor) then
-                if (checkAccess(executor, true, "Respawn On Demand")) then
+                if (checkAccess(executor, true, "Respawn On Demand", _, _, _, level)) then
                     local tab = settings.mod["Respawn On Demand"]
                     if (args[1] ~= nil) and (args[2] == nil) then
                         validate_params("respawn", 1) --/base_command [me | id | */all]
@@ -3864,7 +3875,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     elseif (command == settings.mod["Suggestions Box"].base_command) then
         if not gameover(executor) then
             if modEnabled("Suggestions Box", executor) then
-                if (checkAccess(executor, true, "Suggestions Box")) then
+                if (checkAccess(executor, true, "Suggestions Box", _, _, _, level)) then
                     local tab = settings.mod["Suggestions Box"]
                     if (args[1] ~= nil) then
                         local p = { }
@@ -3885,7 +3896,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
             if modEnabled("Teleport Manager", executor) then
                 local p = { }
                 p.eid, p.level, p.cmd = executor, level, "setwarp"
-                if (checkAccess(executor, false, "Teleport Manager", false, true, p)) then
+                if (checkAccess(executor, false, "Teleport Manager", false, true, p, level)) then
                     if (args[1] ~= nil) then
                         p.warpname = args[1]
                         velocity:setwarp(p)
@@ -3901,7 +3912,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     elseif (command == settings.mod["Teleport Manager"].commands[2]) then
         if not gameover(executor) then
             if modEnabled("Teleport Manager", executor) then
-                if (checkAccess(executor, true, "Teleport Manager", true, false, p)) then
+                if (checkAccess(executor, true, "Teleport Manager", true, false, p, level)) then
                     local tab = settings.mod["Teleport Manager"]
                     if (args[1] ~= nil) then
                         validate_params("warp", 2) --/commands[2] <args> [id]
@@ -3921,7 +3932,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     elseif (command == settings.mod["Teleport Manager"].commands[3]) then
         if not gameover(executor) then
             if modEnabled("Teleport Manager", executor) then
-                if (checkAccess(executor, true, "Teleport Manager", true, false, p)) then
+                if (checkAccess(executor, true, "Teleport Manager", true, false, p, level)) then
                     local tab = settings.mod["Teleport Manager"]
                     if (args[1] ~= nil and args[2] == nil) then
                         validate_params("warpback", 1) --/commands[3] <args>
@@ -3941,7 +3952,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     elseif (command == settings.mod["Teleport Manager"].commands[4]) then
         if not gameover(executor) then
             if modEnabled("Teleport Manager", executor) then
-                if (checkAccess(executor, true, "Teleport Manager", true, false, p)) then
+                if (checkAccess(executor, true, "Teleport Manager", true, false, p, level)) then
                     local tab = settings.mod["Teleport Manager"]
                     if (args[1] == nil) then
                         local p = {}
@@ -3958,7 +3969,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     elseif (command == settings.mod["Teleport Manager"].commands[5]) then
         if not gameover(executor) then
             if modEnabled("Teleport Manager", executor) then
-                if (checkAccess(executor, true, "Teleport Manager", true, false, p)) then
+                if (checkAccess(executor, true, "Teleport Manager", true, false, p, level)) then
                     local tab = settings.mod["Teleport Manager"]
                     if (args[1] == nil) then
                         local p = {}
@@ -3975,7 +3986,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
     elseif (command == settings.mod["Teleport Manager"].commands[6]) then
         if not gameover(executor) then
             if modEnabled("Teleport Manager", executor) then
-                if (checkAccess(executor, true, "Teleport Manager", true, false, p)) then
+                if (checkAccess(executor, true, "Teleport Manager", true, false, p, level)) then
                     local tab = settings.mod["Teleport Manager"]
                     if (args[1] ~= nil) then
                         local p = { }
@@ -4359,7 +4370,7 @@ function velocity:setcolor(params)
         if player_alive(tid) then
             local player_object = get_dynamic_player(tid)
             if (player_object ~= 0) then
-                local player, color_name, _error_ = getPlayer(tid)
+                local player, color_name, _error_= getPlayer(tid)
                 if (color == "white" or color == "0") then
                     color, color_name = 0, "white"
                 elseif (color == "black" or color == "1") then
@@ -4568,7 +4579,7 @@ function velocity:getcoords(params)
         if (coords) then
             local x, y, z, invehicle = coords.x, coords.y, coords.z, coords.invehicle
             respond(eid, tn .. "'s Coords: x: " .. x .. ", y: " .. y .. ", z: " .. z, "rcon", 2 + 8)
-            if (eid > 0) then
+            if (eid > 0) then 
                 cprint(x .. ", " .. y .. ", " .. z)
             end
             if (coords.invehicle) then
@@ -4612,7 +4623,7 @@ function velocity:listplayers(e)
             else
                 in_lurker = false
             end
-
+            
             local in_portalgun = portalgun_mode[ip]
             local prefix
             if (in_lurker) and not (in_portalgun) then
@@ -5200,13 +5211,13 @@ function velocity:infinityAmmo(params)
             adjust_ammo(TargetID)
             if specified then
                 --if not (lurker[TargetID]) then
-                local mult = tonumber(multiplier)
-                modify_damage[TargetID] = true
-                damage_multiplier[TargetID] = mult
-                respond(TargetID, "[cheat] Infinity Ammo enabled", "rcon", 4 + 8)
-                respond(TargetID, damage_multiplier[TargetID] .. "% damage multiplier applied", "rcon", 4 + 8)
+                    local mult = tonumber(multiplier)
+                    modify_damage[TargetID] = true
+                    damage_multiplier[TargetID] = mult
+                    respond(TargetID, "[cheat] Infinity Ammo enabled", "rcon", 4 + 8)
+                    respond(TargetID, damage_multiplier[TargetID] .. "% damage multiplier applied", "rcon", 4 + 8)
                 --else
-                --respond(eid, "Unable to set damage multipliers while in Lurker Mode", "rcon", 4 + 8)
+                    --respond(eid, "Unable to set damage multipliers while in Lurker Mode", "rcon", 4 + 8)
                 --end
             else
                 respond(TargetID, "[cheat] Infinity Ammo enabled", "rcon", 4 + 8)
@@ -5336,8 +5347,8 @@ function velocity:setwarp(params)
         else
             x, y, z = read_vector3d(get_dynamic_player(eid) + 0x5C)
         end
-
-        x, y, z = format("%0.3f", x), format("%0.3f", y), format("%0.3f", z)
+        
+        x,y,z = format("%0.3f", x), format("%0.3f", y), format("%0.3f", z)
 
         local file = io.open(dir, "a+")
         local str = warpname .. " [Map: " .. mapname .. "] X " .. x .. ", Y " .. y .. ", Z " .. z
@@ -5653,22 +5664,22 @@ function Lurker:set(params)
     local status = Lurker[tip]
     status.warnings = (status.warnings) or getLurkerWarnings(tip)
     local warnings = status.warnings
-
+    
     local eLvl = tonumber(get_var(eid, "$lvl"))
     local tLvl = tonumber(get_var(tid, "$lvl"))
-
+    
     local function Enable()
         status.enabled, status.teleport, status.warn = true, false, false
         status.score, status.timer = get_var(tid, "$score"), 0
-
+        
         local p = { }
         p.ip, p.save = tip, true
         Lurker:savetofile(p)
-
+        
         if (mod.invincibility) then
             execute_command("god " .. tid)
         end
-
+        
         if (mod.announce) then
             local mode = "UNKNOWN"
             if (status.mode == "default") then
@@ -5701,50 +5712,46 @@ function Lurker:set(params)
             execute_command("s " .. tonumber(tid) .. " " .. tonumber(mod.default_running_speed))
         end
         remove_data_log(tid)
-
-        if (tLvl >= 1) then
-            -- Only admins can TP back to where they were (exploit prevention)
+        
+        if (tLvl >= 1) then -- Only admins can TP back to where they were (exploit prevention)
             --local coords = getXYZ(eid, tid)
             -- if (coords) then
-            -- local x, y, z = coords.x, coords.y, coords.z
-            -- killSilently(tid)
-            -- if not (coords.invehicle) then
-            -- status.spawn_coords = { }
-            -- status.spawn_coords[1], status.spawn_coords[2], status.spawn_coords[3], status.spawn_coords[4] = x, y, z, 0.5
-            -- status.teleport = true
-            -- elseif (coords.invehicle) then
-            -- entervehicle[tid].enter = true
-            -- end
+                -- local x, y, z = coords.x, coords.y, coords.z
+                -- killSilently(tid)
+                -- if not (coords.invehicle) then
+                    -- status.spawn_coords = { }
+                    -- status.spawn_coords[1], status.spawn_coords[2], status.spawn_coords[3], status.spawn_coords[4] = x, y, z, 0.5
+                    -- status.teleport = true
+                -- elseif (coords.invehicle) then
+                    -- entervehicle[tid].enter = true
+                -- end
             -- else
-            -- killSilently(tid)
+                -- killSilently(tid)
             -- end
         else
-            killSilently(tid)
+            killSilently(tid)            
         end
     end
-
+    
     local cmd_flags, is_error, on_off = mod.cmd_flags
-    local function flag_check()
+    local function flag_check()    
         local disabled_error, _error_
         if (flag ~= nil) then
-            if (flag == cmd_flags[1]) then
-                -- camo only
+            if (flag == cmd_flags[1]) then -- camo only
                 if (mod.camouflage) then
                     status.mode = "camouflaged"
                     on_off = "Enabled (with Camouflage)"
                 else
                     disabled_error, _error_ = true, "Lurker.camouflage is disabled internally"
                 end
-            elseif (flag == cmd_flags[2]) then
-                -- hidden only
+            elseif (flag == cmd_flags[2]) then -- hidden only
                 if (mod.hide) then
                     status.mode = "hidden"
                     on_off = "Enabled (hidden only)"
                 else
                     disabled_error, _error_ = true, "Lurker.hide is disabled internally"
                 end
-            elseif (flag == cmd_flags[3]) then
-                -- camouflage + hidden
+            elseif (flag == cmd_flags[3]) then -- camouflage + hidden
                 if (mod.camouflage) and (mod.hide) then
                     status.mode = "camouflaged_and_hidden"
                     on_off = "Enabled (Hidden with Camouflage)"
@@ -5759,7 +5766,7 @@ function Lurker:set(params)
                 return true
             elseif not (is_error) then
                 is_error = true
-                respond(eid, "Command failed! (" .. _error_ .. ")", "rcon", 4 + 8)
+                respond(eid, "Command failed! (" .. _error_ .. ")", "rcon", 4+8)
                 return false
             end
         else
@@ -5768,11 +5775,11 @@ function Lurker:set(params)
             return true
         end
     end
-
+    
     if (executeOnOthers(eid, is_self, isConsole(eid), eLvl, "Lurker")) then
         if (tonumber(warnings) > 0) then
             local already_set
-            if (option == "on") or (option == "1") or (option == "true") then
+            if (option == "on") or (option == "1") or (option == "true") then     
                 if (status.enabled ~= true) then
                     if flag_check() then
                         already_set, is_error = false, false
@@ -6228,6 +6235,7 @@ function velocity:cmdRoutine(params)
         if (use_timer) then
             tab.trigger = true
             tab.bool = true
+			alias:show(players["Alias System"][eip])
         else
             alias:show(tab)
         end
@@ -6610,7 +6618,7 @@ function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
         if (status ~= nil and status.enabled) then
             if (tonumber(Type) == 1) then
                 if hasObjective(PlayerIndex, WeaponIndex) then
-
+                
                     -- Every time you pick up the flag, you will lose one warning point.
                     status.warnings = (status.warnings - 1)
                     status.warn = true
@@ -6631,10 +6639,10 @@ end
 
 function OnWeaponDrop(PlayerIndex)
     if modEnabled("Lurker") then
-
+    
         local ip = getip(PlayerIndex, true)
         local status = Lurker[ip]
-
+        
         if (status ~= nil and status.enabled) and (status.warn) then
             local mod = settings.mod["Lurker"]
             status.warn, status.timer = false, 0
@@ -6657,11 +6665,11 @@ function hasObjective(PlayerIndex, WeaponIndex)
     if (weaponId ~= 0) then
         local ip = getip(PlayerIndex, true)
         local status = Lurker[ip]
-
+        
         local weapon_object = get_object_memory(read_dword(player_object + 0x2F8 + (tonumber(WeaponIndex) - 1) * 4))
         local tag_name = read_string(read_dword(read_word(weapon_object) * 32 + 0x40440038))
-
-        for j = 0, 3 do
+        
+        for j = 0, 3 do    
             local weapon = read_dword(player_object + 0x2F8 + 4 * j)
             if (weapon == red_flag) or (weapon == blue_flag) then
                 status.objective = "flag"
@@ -6821,9 +6829,9 @@ function Lurker:savetofile(params)
     local ip = params.ip or nil
     local save = params.save
     local dir = settings.mod["Lurker"].dir
-
+    
     local p = isInLurker(ip)
-
+    
     if (p) then
         if not (save) then
             delete_from_file(dir, p.k, 1)
