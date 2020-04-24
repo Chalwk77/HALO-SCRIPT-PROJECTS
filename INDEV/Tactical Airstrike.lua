@@ -4,33 +4,13 @@ Script Name: Tactical Airstrike, for SAPP (PC & CE)
 Description: Players who achieve a five-kill streak (killing five enemy players consecutively without dying) 
              are given the ability to call in an airstrike.
 
-             Players will have the opportunity to select from 1 of 3 "strike" modes.game_over
+             Players will have the opportunity to select from 1 of 3 "strike" modes.
 
-
-todo================================================================
-NEW IDEA:
--- Gives players the option to choose what "MODE" the use:
--- Will require several commands.
-
-
--- CMD Syntax to select strike mode: "/mode 1|2|3"
--- CMD Syntax for MODE 1: /nuke <player id>
--- CMD Syntax for MODE 2 & 3: /nuke
--- /pl <custom player list command for MODE 1)
-
-New IDEA:
-if the player has enough kills -> remind them every 10 seconds that
-they can select their strike "mode" until the command /mode <mode>
-is successfully executed.
-
-Example Reminder Message:
-"-- ============ AIRSTRIKE AVAILABLE ============ --"
-"To select your Airstrike Mode type /mode <mode id>"
-"Modes: 1|2|3"
-"For information on each mode, type /airstrike info"
-
-TODO: Implement PERIODIC REMINDER MESSAGE (to change modes)
-TODO: Custom player list command
+        Command Syntax:
+        * /nuke <player id [number]>
+        * /nuke mode <mode id [number]>
+        * /nuke info
+        * /nuke pl|players|playerlist
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -46,13 +26,6 @@ api_version = "1.12.0.0"
 -- Configuration [starts] ===================================================
 local airstrike = {
 
-
-    -- Command Syntax:
-    -- /nuke <player id [number]>
-    -- /nuke mode <mode id [number]>
-    -- /nuke info
-    -- /nuke pl|players|playerlist
-
     -- This is the main command a player will type to activate an airstrike.
     base_command = "nuke",
     info_command = "info",
@@ -61,21 +34,37 @@ local airstrike = {
     -- Players can view the ID's of all players currently online with this command.
     player_list_command = "pl",
 
+    server_prefix = "**SAPPZ**",
+
     -- All output messages:
     messages = {
         mode_select = "STRIKE MODE %mode% SELECTED",
         not_enough_kills = "You do not have enough kills to call an airstrike",
+        player_offline_or_dead = "Player is offline or dead!",
+        invalid_player_id = "Invalid Player ID!",
         console_error = "You cannot execute this command from the console!",
         mode_invalid_syntax = "Invalid Syntax. Usage: /%cmd% %mode_cmd% <mode id>",
         team_play_incompatible = "This mode is incompatible with team play!",
+        strike_failed = "Unable to initiate Airstrike. Please contact an Administrator.",
+
+
         player_list_cmd_feedback = {
             header = "[ID - NAME]",
             player_info = "%id%  -  %name%",
             offline = "No other players online",
         },
         on_airstrike_call = {
-            "-- AIRSTRIKE CALLED --",
-            "======================"
+            broadcast = {
+                ["Mode A"] = { "%killer% called an airstrike on %victim%" },
+                ["Mode B"] = { "%killer% called an airstrike on %opposing_team% team's base!" },
+                ["Mode C"] = { "%name% called an airstrike!" },
+            },
+            killer_feedback = {
+                "==========================",
+                "  -- AIRSTRIKE CALLED --",
+                "        B O O M !!",
+                "=========================="
+            }
         },
         reminder_message = {
             "To select your Airstrike Mode type /%base_command% %mode_cmd% <mode id>",
@@ -121,7 +110,7 @@ local airstrike = {
             default_mode = "Mode A",
 
             -- Airstrike projectile object:
-            projectile = "weapons\\rocket launcher\\rocket",
+            projectile = { "proj", "weapons\\rocket launcher\\rocket" },
             dmg = { "jpt!", "weapons\\rocket launcher\\explosion" },
 
             -- Quantity of projectiles spawned:
@@ -164,7 +153,7 @@ local airstrike = {
             default_mode = "Mode A",
 
             -- Airstrike projectile object:
-            projectile = "weapons\\rocket launcher\\rocket",
+            projectile = { "proj", "weapons\\rocket launcher\\rocket" },
             dmg = { "jpt!", "weapons\\rocket launcher\\explosion" },
 
             -- Quantity of projectiles spawned:
@@ -206,7 +195,7 @@ local airstrike = {
             default_mode = "Mode A",
 
             -- Airstrike projectile object:
-            projectile = "weapons\\rocket launcher\\rocket",
+            projectile = { "proj", "weapons\\rocket launcher\\rocket" },
             dmg = { "jpt!", "weapons\\rocket launcher\\explosion" },
 
             -- Quantity of projectiles spawned:
@@ -248,7 +237,7 @@ local airstrike = {
             default_mode = "Mode A",
 
             -- Airstrike projectile object:
-            projectile = "weapons\\rocket launcher\\rocket",
+            projectile = { "proj", "weapons\\rocket launcher\\rocket" },
             dmg = { "jpt!", "weapons\\rocket launcher\\explosion" },
 
             -- Quantity of projectiles spawned:
@@ -290,7 +279,7 @@ local airstrike = {
             default_mode = "Mode A",
 
             -- Airstrike projectile object:
-            projectile = "weapons\\rocket launcher\\rocket",
+            projectile = { "proj", "weapons\\rocket launcher\\rocket" },
             dmg = { "jpt!", "weapons\\rocket launcher\\explosion" },
 
             -- Quantity of projectiles spawned:
@@ -332,7 +321,7 @@ local airstrike = {
             default_mode = "Mode A",
 
             -- Airstrike projectile object:
-            projectile = "weapons\\rocket launcher\\rocket",
+            projectile = { "proj", "weapons\\rocket launcher\\rocket" },
             dmg = { "jpt!", "weapons\\rocket launcher\\explosion" },
 
             -- Quantity of projectiles spawned:
@@ -374,7 +363,7 @@ local airstrike = {
             default_mode = "Mode A",
 
             -- Airstrike projectile object:
-            projectile = "weapons\\rocket launcher\\rocket",
+            projectile = { "proj", "weapons\\rocket launcher\\rocket" },
             dmg = { "jpt!", "weapons\\rocket launcher\\explosion" },
 
             -- Quantity of projectiles spawned:
@@ -416,7 +405,7 @@ local airstrike = {
             default_mode = "Mode A",
 
             -- Airstrike projectile object:
-            projectile = "weapons\\rocket launcher\\rocket",
+            projectile = { "proj", "weapons\\rocket launcher\\rocket" },
             dmg = { "jpt!", "weapons\\rocket launcher\\explosion" },
 
             -- Quantity of projectiles spawned:
@@ -458,7 +447,7 @@ local airstrike = {
             default_mode = "Mode A",
 
             -- Airstrike projectile object:
-            projectile = "weapons\\rocket launcher\\rocket",
+            projectile = { "proj", "weapons\\rocket launcher\\rocket" },
             dmg = { "jpt!", "weapons\\rocket launcher\\explosion" },
 
             -- Quantity of projectiles spawned:
@@ -500,7 +489,7 @@ local airstrike = {
             default_mode = "Mode A",
 
             -- Airstrike projectile object:
-            projectile = "weapons\\rocket launcher\\rocket",
+            projectile = { "proj", "weapons\\rocket launcher\\rocket" },
             dmg = { "jpt!", "weapons\\rocket launcher\\explosion" },
 
             -- Quantity of projectiles spawned:
@@ -542,7 +531,7 @@ local airstrike = {
             default_mode = "Mode A",
 
             -- Airstrike projectile object:
-            projectile = "weapons\\rocket launcher\\rocket",
+            projectile = { "proj", "weapons\\rocket launcher\\rocket" },
             dmg = { "jpt!", "weapons\\rocket launcher\\explosion" },
 
             -- Quantity of projectiles spawned:
@@ -584,7 +573,7 @@ local airstrike = {
             default_mode = "Mode A",
 
             -- Airstrike projectile object:
-            projectile = "weapons\\rocket launcher\\rocket",
+            projectile = { "proj", "weapons\\rocket launcher\\rocket" },
             dmg = { "jpt!", "weapons\\rocket launcher\\explosion" },
 
             -- Quantity of projectiles spawned:
@@ -626,7 +615,7 @@ local airstrike = {
             default_mode = "Mode A",
 
             -- Airstrike projectile object:
-            projectile = "weapons\\rocket launcher\\rocket",
+            projectile = { "proj", "weapons\\rocket launcher\\rocket" },
             dmg = { "jpt!", "weapons\\rocket launcher\\explosion" },
 
             -- Quantity of projectiles spawned:
@@ -668,7 +657,7 @@ local airstrike = {
             default_mode = "Mode A",
 
             -- Airstrike projectile object:
-            projectile = "weapons\\rocket launcher\\rocket",
+            projectile = { "proj", "weapons\\rocket launcher\\rocket" },
             dmg = { "jpt!", "weapons\\rocket launcher\\explosion" },
 
             -- Quantity of projectiles spawned:
@@ -710,7 +699,7 @@ local airstrike = {
             default_mode = "Mode A",
 
             -- Airstrike projectile object:
-            projectile = "weapons\\rocket launcher\\rocket",
+            projectile = { "proj", "weapons\\rocket launcher\\rocket" },
             dmg = { "jpt!", "weapons\\rocket launcher\\explosion" },
 
             -- Quantity of projectiles spawned:
@@ -752,7 +741,7 @@ local airstrike = {
             default_mode = "Mode A",
 
             -- Airstrike projectile object:
-            projectile = "weapons\\rocket launcher\\rocket",
+            projectile = { "proj", "weapons\\rocket launcher\\rocket" },
             dmg = { "jpt!", "weapons\\rocket launcher\\explosion" },
 
             -- Quantity of projectiles spawned:
@@ -794,7 +783,7 @@ local airstrike = {
             default_mode = "Mode A",
 
             -- Airstrike projectile object:
-            projectile = "weapons\\rocket launcher\\rocket",
+            projectile = { "proj", "weapons\\rocket launcher\\rocket" },
             dmg = { "jpt!", "weapons\\rocket launcher\\explosion" },
 
             -- Quantity of projectiles spawned:
@@ -836,7 +825,7 @@ local airstrike = {
             default_mode = "Mode A",
 
             -- Airstrike projectile object:
-            projectile = "weapons\\rocket launcher\\rocket",
+            projectile = { "proj", "weapons\\rocket launcher\\rocket" },
             dmg = { "jpt!", "weapons\\rocket launcher\\explosion" },
 
             -- Quantity of projectiles spawned:
@@ -878,7 +867,7 @@ local airstrike = {
             default_mode = "Mode A",
 
             -- Airstrike projectile object:
-            projectile = "weapons\\rocket launcher\\rocket",
+            projectile = { "proj", "weapons\\rocket launcher\\rocket" },
             dmg = { "jpt!", "weapons\\rocket launcher\\explosion" },
 
             -- Quantity of projectiles spawned:
@@ -925,7 +914,7 @@ local players = { }
 
 -- Variables
 local delta_time = 1 / 30
-local game_over, mode, map_name
+local game_over, map_name
 local gmatch, lower, upper, gsub = string.gmatch, string.lower, string.upper, string.gsub
 
 function OnScriptLoad()
@@ -1018,19 +1007,19 @@ end
 
 function OnPlayerDeath(VictimIndex, KillerIndex)
 
-    local killer, victim = tonumber(KillerIndex), tonumber(VictimIndex)
+    if (not game_over) then
+        local killer, victim = tonumber(KillerIndex), tonumber(VictimIndex)
+        if (killer > 0) and (killer ~= victim) then
 
-    -- Check if Killer has enough kills to enabled airstrike:
-    if (killer > 0) and (killer ~= victim) then
+            players[killer].kills = players[killer].kills + 1
 
-        players[killer].kills = players[killer].kills + 1
-
-        if HasRequiredKills(killer) then
-            cls(killer, 25)
-            local m = airstrike.messages.on_kill[players[killer].mode]
-            for i = 1, #m do
-                local msg = gsub(gsub(m[i], "%%cmd%%", airstrike.base_command), "%%pl_cmd%%", airstrike.player_list_command)
-                rprint(killer, msg)
+            if HasRequiredKills(killer) then
+                cls(killer, 25)
+                local m = airstrike.messages.on_kill[players[killer].mode]
+                for i = 1, #m do
+                    local msg = gsub(gsub(m[i], "%%cmd%%", airstrike.base_command), "%%pl_cmd%%", airstrike.player_list_command)
+                    Send(killer, msg, "rcon")
+                end
             end
         end
     end
@@ -1060,7 +1049,7 @@ function InitPlayer(PlayerIndex, Reset)
     end
 end
 
-function InitiateStrike(Killer, x, y, z)
+function InitiateStrike(Killer, Victim, x, y, z)
 
     local params = airstrike.maps[map_name]
 
@@ -1077,23 +1066,43 @@ function InitiateStrike(Killer, x, y, z)
     local projectile_y_vel = math.random(min_y_vel, max_y_vel)
     local projectile_z_vel = math.random(min_z_vel, max_z_vel)
 
-    for _ = params.min_projectiles, params.max_projectiles do
-        local payload = spawn_object("proj", params.projectile, x, y, z + params.height_from_ground)
-        local projectile = get_object_memory(payload)
-        if (projectile ~= 0) then
+    local projectile_object = params.projectile
+    local object = TagInfo(projectile_object[1], projectile_object[2])
+    if (object) then
 
-            write_float(projectile + 0x68, projectile_x_vel)
-            write_float(projectile + 0x6C, projectile_y_vel)
-            write_float(projectile + 0x70, projectile_z_vel)
+        for _ = params.min_projectiles, params.max_projectiles do
 
-            airstrike.objects = airstrike.objects or {}
-            airstrike.objects[#airstrike.objects + 1] = payload
+            local payload = spawn_object(projectile_object[1], projectile_object[2], x, y, z + params.height_from_ground)
+            local projectile = get_object_memory(payload)
+            if (projectile ~= 0) then
+
+                write_float(projectile + 0x68, projectile_x_vel)
+                write_float(projectile + 0x6C, projectile_y_vel)
+                write_float(projectile + 0x70, projectile_z_vel)
+
+                airstrike.objects = airstrike.objects or {}
+                airstrike.objects[#airstrike.objects + 1] = payload
+            end
         end
-    end
 
-    local m = airstrike.messages.on_airstrike_call
-    for i = 1,#m do
-        rprint(Killer, m[i])
+        local msg = airstrike.messages.on_airstrike_call
+        local Feedback = msg.killer_feedback
+        for i = 1, #Feedback do
+            Send(Killer, Feedback[i], "rcon")
+        end
+
+        local mode = players[Killer].mode
+        for i = 1, 16 do
+            if player_present(i) and (tonumber(i) ~= Killer) then
+                local victim_name = get_var(Victim, "$name")
+                for j = 1, #msg.broadcast[mode] do
+                    local Msg = gsub(gsub(msg.broadcast[mode][j], "%%killer%%", players[Killer].name), "%%victim%%", victim_name)
+                    Send(i, Msg, "chat")
+                end
+            end
+        end
+    else
+        Send(Killer, airstrike.messages.strike_failed, "rcon")
     end
 end
 
@@ -1116,8 +1125,9 @@ function OnServerCommand(Killer, Command, _, _)
                         -- MODE INFO COMMAND:
                         if (args1 ~= nil) then
                             if (tostring(args1) == airstrike.info_command) then
+
                                 for i = 1, #airstrike.messages.info do
-                                    rprint(Killer, airstrike.messages.info[i])
+                                    Send(Killer, airstrike.messages.info[i], "rcon")
                                 end
 
                                 -- MODE SELECT COMMAND:
@@ -1135,13 +1145,13 @@ function OnServerCommand(Killer, Command, _, _)
                                     end
                                     if (mode) then
                                         local msg = gsub(airstrike.messages.mode_select, "%%mode%%", mode)
-                                        rprint(Killer, msg)
+                                        Send(Killer, msg, "rcon")
                                     end
                                 end
                                 if (mode == nil) then
                                     local t = airstrike.messages.mode_invalid_syntax
                                     local msg = gsub(gsub(t, "%%cmd%%", airstrike.base_command), "%%mode_cmd%%", airstrike.mode_command)
-                                    rprint(Killer, msg)
+                                    Send(Killer, msg, "rcon")
                                 end
                                 -- CUSTOM PLAYER LIST COMMAND
                             elseif (tostring(args1) == airstrike.player_list_command) then
@@ -1149,13 +1159,13 @@ function OnServerCommand(Killer, Command, _, _)
                                 local pl = GetPlayers(Killer)
                                 if (#pl > 0) then
                                     local t = airstrike.messages.player_list_cmd_feedback
-                                    rprint(Killer, t.header)
+                                    Send(Killer, t.header, "rcon")
                                     for i = 1, #pl do
                                         local msg = gsub(gsub(t.player_info, "%%id%%", pl[i].id), "%%name%%", pl[i].name)
-                                        rprint(Killer, msg)
+                                        Send(Killer, msg, "rcon")
                                     end
                                 else
-                                    rprint(Killer, t.offline)
+                                    Send(Killer, t.offline, "rcon")
                                 end
                                 -- AIRSTRIKE COMMAND MODE A
                             elseif (v.mode == "Mode A") then
@@ -1169,58 +1179,61 @@ function OnServerCommand(Killer, Command, _, _)
                                             if (DynamicPlayer ~= 0) then
                                                 local player = GetXYZ(DynamicPlayer)
                                                 if (player) then
-                                                    InitiateStrike(Killer, player.x, player.y, player.z)
+                                                    InitiateStrike(Killer, args1, player.x, player.y, player.z)
                                                 end
                                             end
                                         else
-                                            rprint(Killer, airstrike.messages.not_enough_kills)
+                                            Send(Killer, airstrike.messages.not_enough_kills, "rcon")
                                         end
                                     else
-                                        -- todo: NOT ONLINE OR DEAD
+                                        Send(Killer, airstrike.messages.player_offline_or_dead, "rcon")
                                     end
                                 else
-                                    -- todo: INVALID PLAYER ID
+                                    Send(Killer, airstrike.messages.invalid_player_id, "rcon")
                                 end
                             end
-                        else
                             -- AIRSTRIKE COMMAND MODE B
-                            if (v.mode == "Mode B") and (args1 == nil) then
-
-                                if IsTeamGame(PlayerIndex) then
-                                    if HasRequiredKills(Killer) then
-
-                                        local team = ""
-                                        if (v.team == "red") then
-                                            team = "blue"
-                                        elseif (v.team == "blue") then
-                                            team = "red"
-                                        end
-
-                                        local t = airstrike.maps[map_name].modes[v.mode].strike_locations[team]
-                                        local random_coord = math.random(#t)
-                                        local coords = t[random_coord]
-
-                                        local x, y, z = coords[1], coords[2], coords[3]
-                                        InitiateStrike(Killer, x, y, z)
-                                    else
-                                        rprint(Killer, airstrike.messages.not_enough_kills)
-                                    end
-                                else
-                                    rprint(Killer, airstrike.messages.team_play_incompatible)
-                                end
-                                -- AIRSTRIKE COMMAND MODE C
-                            elseif (v.mode == "Mode C") and (args1 == nil) then
+                        elseif (v.mode == "Mode B") then
+                            if IsTeamGame(PlayerIndex) then
                                 if HasRequiredKills(Killer) then
 
-                                else
+                                    local team = ""
+                                    if (v.team == "red") then
+                                        team = "blue"
+                                    elseif (v.team == "blue") then
+                                        team = "red"
+                                    end
 
+                                    local t = airstrike.maps[map_name].modes[v.mode].strike_locations[team]
+                                    math.randomseed(os.clock())
+                                    local coordinates = math.random(#t)
+                                    local C = t[coordinates]
+
+                                    local x, y, z = C[1], C[2], C[3]
+                                    InitiateStrike(Killer, _, x, y, z)
+                                else
+                                    Send(Killer, airstrike.messages.not_enough_kills, "rcon")
                                 end
                             else
-                                local t = airstrike.messages.incorrect_mode
-                                for i = 1,#t do
-                                    local msg = gsub(gsub(t[i], "%%cmd%%", airstrike.base_command), "%%mode_cmd%%", airstrike.mode_command)
-                                    rprint(Killer, msg)
-                                end
+                                Send(Killer, airstrike.messages.team_play_incompatible, "rcon")
+                            end
+                            -- AIRSTRIKE COMMAND MODE C
+                        elseif (v.mode == "Mode C") then
+                            if HasRequiredKills(Killer) then
+                                local t = airstrike.maps[map_name].modes[v.mode].strike_locations
+                                math.randomseed(os.clock())
+                                local coordinates = math.random(#t)
+                                local C = t[coordinates]
+                                local x, y, z = C[1], C[2], C[3]
+                                InitiateStrike(Killer, _, x, y, z)
+                            else
+                                Send(Killer, airstrike.messages.not_enough_kills, "rcon")
+                            end
+                        else
+                            local t = airstrike.messages.incorrect_mode
+                            for i = 1, #t do
+                                local msg = gsub(gsub(t[i], "%%cmd%%", airstrike.base_command), "%%mode_cmd%%", airstrike.mode_command)
+                                Send(Killer, msg, "rcon")
                             end
                         end
                     end
@@ -1268,6 +1281,24 @@ function GetPlayers(ExcludePlayer)
     return pl
 end
 
+function Send(PlayerIndex, Message, Environment)
+    
+    local responseFunction = say
+    if (Environment == "rcon") then
+        responseFunction = rprint
+    end
+
+    execute_command("msg_prefix \"\"")
+    if (type(Message) ~= "table") then
+        responseFunction(PlayerIndex, Message)
+    else
+        for j = 1, #Message do
+            responseFunction(PlayerIndex, Message[j])
+        end
+    end
+    execute_command("msg_prefix \" " .. airstrike.server_prefix .. "\"")
+end
+
 function TagInfo(Type, Name)
     local tag_id = lookup_tag(Type, Name)
     return tag_id ~= 0 and read_dword(tag_id + 0xC) or nil
@@ -1275,7 +1306,7 @@ end
 
 function cls(PlayerIndex, Count)
     for _ = 1, Count do
-        rprint(PlayerIndex, " ")
+        Send(PlayerIndex, " ", "rcon")
     end
 end
 
