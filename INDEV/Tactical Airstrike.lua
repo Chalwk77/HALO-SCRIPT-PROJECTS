@@ -34,7 +34,7 @@ local airstrike = {
     -- Players can view the ID's of all players currently online with this command.
     player_list_command = "pl",
 
-    server_prefix = "**SAPPZ**",
+    server_prefix = "** SAPP ** ",
 
     -- All output messages:
     messages = {
@@ -47,18 +47,20 @@ local airstrike = {
         team_play_incompatible = "This mode is incompatible with team play!",
         strike_failed = "Unable to initiate Airstrike. Please contact an Administrator.",
 
-
         player_list_cmd_feedback = {
             header = "[ID - NAME]",
             player_info = "%id%  -  %name%",
             offline = "No other players online",
         },
+
+        -- TODO: complete logic for this block of code:
         on_airstrike_call = {
             broadcast = {
                 ["Mode A"] = { "%killer% called an airstrike on %victim%" },
                 ["Mode B"] = { "%killer% called an airstrike on %opposing_team% team's base!" },
                 ["Mode C"] = { "%name% called an airstrike!" },
             },
+        --todo------------------------------------------------------------------------------------------
             killer_feedback = {
                 "==========================",
                 "  -- AIRSTRIKE CALLED --",
@@ -1043,7 +1045,6 @@ function InitPlayer(PlayerIndex, Reset)
     else
         players[PlayerIndex] = {
             name = get_var(PlayerIndex, "$name"),
-            team = get_var(PlayerIndex, "$team"),
             mode = airstrike.maps[map_name].default_mode
         }
     end
@@ -1095,8 +1096,12 @@ function InitiateStrike(Killer, Victim, x, y, z)
         for i = 1, 16 do
             if player_present(i) and (tonumber(i) ~= Killer) then
                 local victim_name = get_var(Victim, "$name")
+                local team = GetOpposingTeam(Killer)
                 for j = 1, #msg.broadcast[mode] do
-                    local Msg = gsub(gsub(msg.broadcast[mode][j], "%%killer%%", players[Killer].name), "%%victim%%", victim_name)
+                    local Msg = gsub(gsub(gsub(msg.broadcast[mode][j],
+                            "%%killer%%", players[Killer].name),
+                            "%%victim%%", victim_name),
+                            "%%opposing_team%%", team)
                     Send(i, Msg, "chat")
                 end
             end
@@ -1197,20 +1202,14 @@ function OnServerCommand(Killer, Command, _, _)
                             if IsTeamGame(PlayerIndex) then
                                 if HasRequiredKills(Killer) then
 
-                                    local team = ""
-                                    if (v.team == "red") then
-                                        team = "blue"
-                                    elseif (v.team == "blue") then
-                                        team = "red"
-                                    end
-
+                                    local team = GetOpposingTeam(Killer)
                                     local t = airstrike.maps[map_name].modes[v.mode].strike_locations[team]
                                     math.randomseed(os.clock())
                                     local coordinates = math.random(#t)
                                     local C = t[coordinates]
-
                                     local x, y, z = C[1], C[2], C[3]
                                     InitiateStrike(Killer, _, x, y, z)
+
                                 else
                                     Send(Killer, airstrike.messages.not_enough_kills, "rcon")
                                 end
@@ -1220,12 +1219,14 @@ function OnServerCommand(Killer, Command, _, _)
                             -- AIRSTRIKE COMMAND MODE C
                         elseif (v.mode == "Mode C") then
                             if HasRequiredKills(Killer) then
+
                                 local t = airstrike.maps[map_name].modes[v.mode].strike_locations
                                 math.randomseed(os.clock())
                                 local coordinates = math.random(#t)
                                 local C = t[coordinates]
                                 local x, y, z = C[1], C[2], C[3]
                                 InitiateStrike(Killer, _, x, y, z)
+                                
                             else
                                 Send(Killer, airstrike.messages.not_enough_kills, "rcon")
                             end
@@ -1282,7 +1283,7 @@ function GetPlayers(ExcludePlayer)
 end
 
 function Send(PlayerIndex, Message, Environment)
-    
+
     local responseFunction = say
     if (Environment == "rcon") then
         responseFunction = rprint
@@ -1302,6 +1303,15 @@ end
 function TagInfo(Type, Name)
     local tag_id = lookup_tag(Type, Name)
     return tag_id ~= 0 and read_dword(tag_id + 0xC) or nil
+end
+
+function GetOpposingTeam(PlayerIndex)
+    local team = get_var(PlayerIndex, "$team")
+    if (team == "red") then
+        return "blue"
+    elseif (team == "blue") then
+        return "red"
+    end
 end
 
 function cls(PlayerIndex, Count)
