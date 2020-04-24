@@ -50,7 +50,8 @@ local airstrike = {
     -- Command Syntax:
     -- /nuke <player id [number]>
     -- /nuke mode <mode id [number]>
-    -- nuke info
+    -- /nuke info
+    -- /nuke pl|players|playerlist
 
     -- This is the main command a player will type to activate an airstrike.
     base_command = "nuke",
@@ -63,8 +64,15 @@ local airstrike = {
     -- All output messages:
     messages = {
 
-        not_enough_kills = "You do not have enough kills to call an airstrike",
         mode_select = "STRIKE MODE %mode% SELECTED",
+        not_enough_kills = "You do not have enough kills to call an airstrike",
+        console_error = "You cannot execute this command from the console!",
+        mode_invalid_syntax = "Invalid Syntax. Usage: /%cmd% %mode_cmd% <mode id>",
+        player_list_cmd_feedback = {
+            header = "[ID - NAME]",
+            player_info = "%id%  -  %name%",
+            offline = "No other players online",
+        },
 
         reminder_message = {
             "To select your Airstrike Mode type /%base_command% %mode_cmd% <mode id>",
@@ -82,19 +90,22 @@ local airstrike = {
             "--=============================================================================--"
         },
 
+        on_kill = {
+            ["Mode A"] = {
+                "-- ============ AIRSTRIKE AVAILABLE ============ --",
+                "Type /%cmd% <player id> to call an airstrike on a player!",
+                "Type /%cmd% %pl_cmd% to view a list of Player IDs"
+            },
 
-        ["Mode A"] = {
-            "-- ============ AIRSTRIKE AVAILABLE ============ --",
-            "Type /%cmd% <player id> to call an airstrike on a player!",
-            "Type /%pl_list_cmd% to view a list of Player IDs"
-        },
-        ["Mode B"] = {
-            "-- ============ AIRSTRIKE AVAILABLE ============ --",
-            "Type /%cmd% to call an airstrike on the enemy base!"
-        },
-        ["Mode C"] = {
-            "-- ============ AIRSTRIKE AVAILABLE ============ --",
-            "Type /%cmd% to call an airstrike at a random location on the map!"
+            ["Mode B"] = {
+                "-- ============ AIRSTRIKE AVAILABLE ============ --",
+                "Type /%cmd% to call an airstrike on the enemy base!"
+            },
+
+            ["Mode C"] = {
+                "-- ============ AIRSTRIKE AVAILABLE ============ --",
+                "Type /%cmd% to call an airstrike at a random location on the map!"
+            },
         },
     },
 
@@ -1011,9 +1022,9 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
 
         if HasRequiredKills(killer) then
             cls(killer, 25)
-            local m = airstrike.messages[players[killer].mode]
+            local m = airstrike.messages.on_kill[players[killer].mode]
             for i = 1, #m do
-                local msg = gsub(gsub(m[i], "%%cmd%%", airstrike.base_command), "%%pl_list_cmd%%", airstrike.player_list_command)
+                local msg = gsub(gsub(m[i], "%%cmd%%", airstrike.base_command), "%%pl_cmd%%", airstrike.player_list_command)
                 rprint(killer, msg)
             end
         end
@@ -1109,9 +1120,26 @@ function OnServerCommand(Killer, Command, _, _)
                                 local msg = gsub(airstrike.messages.mode_select, "%%mode%%", mode)
                                 rprint(Killer, msg)
                             end
-                        else
-                            rprint(Killer, "Invalid Syntax. Usage: /" .. airstrike.mode_command .. " <mode id>")
                         end
+                        if (mode == nil) then
+                            local t = airstrike.messages.mode_invalid_syntax
+                            local msg = gsub(gsub(t, "%%cmd%%",airstrike.base_command), "%%mode_cmd%%", airstrike.mode_command)
+                            rprint(Killer, msg)
+                        end
+                    elseif (tostring(args1) == airstrike.player_list_command) then
+
+                        local players = GetPlayers(Killer)
+                        local t = airstrike.messages.player_list_cmd_feedback
+                        if (#players > 0) then
+                            rprint(Killer, t.header)
+                            for i = 1, #players do
+                                local msg = gsub(gsub(t.player_info, "%%id%%", players[i].id), "%%name%%", players[i].name)
+                                rprint(Killer, msg)
+                            end
+                        else
+                            rprint(Killer, t.offline)
+                        end
+
                     elseif (players[Killer].mode == "Mode A") then
                         args1 = tonumber(args1)
                         if (args1 ~= nil) and (args1 > 0 and args1 < 17 and args1 ~= Killer) then
@@ -1145,7 +1173,7 @@ function OnServerCommand(Killer, Command, _, _)
                     -- todo: NO ARGS SPECIFIED
                 end
             else
-                cprint("You cannot execute this command from the console!", 4 + 8)
+                cprint(airstrike.messages.console_error, 4 + 8)
             end
             return false
         end
@@ -1173,6 +1201,18 @@ function CmdSplit(Command)
         i = i + 1
     end
     return t
+end
+
+function GetPlayers(ExcludePlayer)
+    local pl = {}
+    for i = 1, 16 do
+        if player_present(i) then
+            if (i ~= ExcludePlayer) then
+                pl[#pl + 1] = { id = i, name = players[i].name }
+            end
+        end
+    end
+    return pl
 end
 
 function TagInfo(Type, Name)
