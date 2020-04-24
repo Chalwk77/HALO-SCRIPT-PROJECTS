@@ -63,23 +63,29 @@ local airstrike = {
 
     -- All output messages:
     messages = {
-
         mode_select = "STRIKE MODE %mode% SELECTED",
         not_enough_kills = "You do not have enough kills to call an airstrike",
         console_error = "You cannot execute this command from the console!",
         mode_invalid_syntax = "Invalid Syntax. Usage: /%cmd% %mode_cmd% <mode id>",
+        team_play_incompatible = "This mode is incompatible with team play!",
         player_list_cmd_feedback = {
             header = "[ID - NAME]",
             player_info = "%id%  -  %name%",
             offline = "No other players online",
         },
-
+        on_airstrike_call = {
+            "-- AIRSTRIKE CALLED --",
+            "======================"
+        },
         reminder_message = {
             "To select your Airstrike Mode type /%base_command% %mode_cmd% <mode id>",
             "Modes: 1|2|3",
             "For information on each mode, type /%base_command% info",
         },
-
+        incorrect_mode = {
+            "You are not in the correct mode!",
+            "Use: /%cmd% %mode_cmd% <mode id>"
+        },
         info = {
             "-- ============== MODE INFORMATION ============== --",
             "Mode 1). Strike at a specific player's X,Y,Z map coordinates.",
@@ -89,7 +95,6 @@ local airstrike = {
             "Mode 3). Strike called to a random (pre defined) x,y,z coordinate on the map.",
             "--=============================================================================--"
         },
-
         on_kill = {
             ["Mode A"] = {
                 "-- ============ AIRSTRIKE AVAILABLE ============ --",
@@ -1013,10 +1018,10 @@ end
 
 function OnPlayerDeath(VictimIndex, KillerIndex)
 
-    local killer = tonumber(KillerIndex)
+    local killer, victim = tonumber(KillerIndex), tonumber(VictimIndex)
 
     -- Check if Killer has enough kills to enabled airstrike:
-    if (killer > 0) and (VictimIndex ~= KillerIndex) then
+    if (killer > 0) and (killer ~= victim) then
 
         players[killer].kills = players[killer].kills + 1
 
@@ -1038,7 +1043,7 @@ function HasRequiredKills(PlayerIndex)
 end
 
 function IsTeamGame()
-    if (get_var(0, "$ffa") == "0") then
+    if (get_var(0, "$ffa") ~= "0") then
         return true
     end
 end
@@ -1049,12 +1054,14 @@ function InitPlayer(PlayerIndex, Reset)
     else
         players[PlayerIndex] = {
             name = get_var(PlayerIndex, "$name"),
+            team = get_var(PlayerIndex, "$team"),
             mode = airstrike.maps[map_name].default_mode
         }
     end
 end
 
-function InitiateStrike(x, y, z)
+function InitiateStrike(Killer, x, y, z)
+
     local params = airstrike.maps[map_name]
 
     local min_x_vel = 0
@@ -1083,6 +1090,11 @@ function InitiateStrike(x, y, z)
             airstrike.objects[#airstrike.objects + 1] = payload
         end
     end
+
+    local m = airstrike.messages.on_airstrike_call
+    for i = 1,#m do
+        rprint(Killer, m[i])
+    end
 end
 
 function OnServerCommand(Killer, Command, _, _)
@@ -1093,84 +1105,125 @@ function OnServerCommand(Killer, Command, _, _)
     else
         Cmd[1] = lower(Cmd[1]) or upper(Cmd[1])
         if (Cmd[1] == airstrike.base_command) then
-            cls(Killer, 25)
             if (Killer ~= 0) then
-                local args1, args2 = Cmd[2], Cmd[3]
+                for player, v in pairs(players) do
 
-                -- MODE INFO COMMAND:
-                if (args1 ~= nil) then
-                    if (tostring(args1) == airstrike.info_command) then
-                        for i = 1, #airstrike.messages.info do
-                            rprint(Killer, airstrike.messages.info[i])
-                        end
-                        -- MODE SELECT COMMAND:
-                    elseif (tostring(args1) == airstrike.mode_command) then
-                        local mode = tonumber(args2)
-                        if (mode ~= nil) then
-                            if (mode == 1) then
-                                players[Killer].mode = "Mode A"
-                            elseif (mode == 2) then
-                                players[Killer].mode = "Mode B"
-                            elseif (mode == 3) then
-                                players[Killer].mode = "Mode C"
-                            else
-                                mode = nil
-                            end
-                            if (mode) then
-                                local msg = gsub(airstrike.messages.mode_select, "%%mode%%", mode)
-                                rprint(Killer, msg)
-                            end
-                        end
-                        if (mode == nil) then
-                            local t = airstrike.messages.mode_invalid_syntax
-                            local msg = gsub(gsub(t, "%%cmd%%",airstrike.base_command), "%%mode_cmd%%", airstrike.mode_command)
-                            rprint(Killer, msg)
-                        end
-                    elseif (tostring(args1) == airstrike.player_list_command) then
+                    if (player == Killer) then
 
-                        local players = GetPlayers(Killer)
-                        local t = airstrike.messages.player_list_cmd_feedback
-                        if (#players > 0) then
-                            rprint(Killer, t.header)
-                            for i = 1, #players do
-                                local msg = gsub(gsub(t.player_info, "%%id%%", players[i].id), "%%name%%", players[i].name)
-                                rprint(Killer, msg)
-                            end
-                        else
-                            rprint(Killer, t.offline)
-                        end
+                        cls(Killer, 25)
+                        local args1, args2 = Cmd[2], Cmd[3]
 
-                    elseif (players[Killer].mode == "Mode A") then
-                        args1 = tonumber(args1)
-                        if (args1 ~= nil) and (args1 > 0 and args1 < 17 and args1 ~= Killer) then
-                            local valid_player = player_present(args1) and player_alive(args1)
-                            if (valid_player) then
-                                if HasRequiredKills(Killer) then
-                                    players[Killer].kills = 0
+                        -- MODE INFO COMMAND:
+                        if (args1 ~= nil) then
+                            if (tostring(args1) == airstrike.info_command) then
+                                for i = 1, #airstrike.messages.info do
+                                    rprint(Killer, airstrike.messages.info[i])
+                                end
 
-                                    local DynamicPlayer = get_dynamic_player(args1)
-                                    if (DynamicPlayer ~= 0) then
-                                        local player = GetXYZ(DynamicPlayer)
-                                        if (player) then
-                                            InitiateStrike(player.x, player.y, player.z)
-                                        end
+                                -- MODE SELECT COMMAND:
+                            elseif (tostring(args1) == airstrike.mode_command) then
+                                local mode = tonumber(args2)
+                                if (mode ~= nil) then
+                                    if (mode == 1) then
+                                        v.mode = "Mode A"
+                                    elseif (mode == 2) then
+                                        v.mode = "Mode B"
+                                    elseif (mode == 3) then
+                                        v.mode = "Mode C"
+                                    else
+                                        mode = nil
+                                    end
+                                    if (mode) then
+                                        local msg = gsub(airstrike.messages.mode_select, "%%mode%%", mode)
+                                        rprint(Killer, msg)
+                                    end
+                                end
+                                if (mode == nil) then
+                                    local t = airstrike.messages.mode_invalid_syntax
+                                    local msg = gsub(gsub(t, "%%cmd%%", airstrike.base_command), "%%mode_cmd%%", airstrike.mode_command)
+                                    rprint(Killer, msg)
+                                end
+                                -- CUSTOM PLAYER LIST COMMAND
+                            elseif (tostring(args1) == airstrike.player_list_command) then
+
+                                local pl = GetPlayers(Killer)
+                                if (#pl > 0) then
+                                    local t = airstrike.messages.player_list_cmd_feedback
+                                    rprint(Killer, t.header)
+                                    for i = 1, #pl do
+                                        local msg = gsub(gsub(t.player_info, "%%id%%", pl[i].id), "%%name%%", pl[i].name)
+                                        rprint(Killer, msg)
                                     end
                                 else
-                                    -- todo: NOT ENOUGH KILLS
+                                    rprint(Killer, t.offline)
                                 end
-                            else
-                                -- todo: NOT ONLINE OR DEAD
+                                -- AIRSTRIKE COMMAND MODE A
+                            elseif (v.mode == "Mode A") then
+                                args1 = tonumber(args1)
+                                if (args1 ~= nil) and (args1 > 0 and args1 < 17 and args1 ~= Killer) then
+                                    local valid_player = player_present(args1) and player_alive(args1)
+                                    if (valid_player) then
+                                        if HasRequiredKills(Killer) then
+                                            v.kills = 0
+                                            local DynamicPlayer = get_dynamic_player(args1)
+                                            if (DynamicPlayer ~= 0) then
+                                                local player = GetXYZ(DynamicPlayer)
+                                                if (player) then
+                                                    InitiateStrike(Killer, player.x, player.y, player.z)
+                                                end
+                                            end
+                                        else
+                                            rprint(Killer, airstrike.messages.not_enough_kills)
+                                        end
+                                    else
+                                        -- todo: NOT ONLINE OR DEAD
+                                    end
+                                else
+                                    -- todo: INVALID PLAYER ID
+                                end
                             end
                         else
-                            -- todo: INVALID PLAYER ID
+                            -- AIRSTRIKE COMMAND MODE B
+                            if (v.mode == "Mode B") and (args1 == nil) then
+
+                                if IsTeamGame(PlayerIndex) then
+                                    if HasRequiredKills(Killer) then
+
+                                        local team = ""
+                                        if (v.team == "red") then
+                                            team = "blue"
+                                        elseif (v.team == "blue") then
+                                            team = "red"
+                                        end
+
+                                        local t = airstrike.maps[map_name].modes[v.mode].strike_locations[team]
+                                        local random_coord = math.random(#t)
+                                        local coords = t[random_coord]
+
+                                        local x, y, z = coords[1], coords[2], coords[3]
+                                        InitiateStrike(Killer, x, y, z)
+                                    else
+                                        rprint(Killer, airstrike.messages.not_enough_kills)
+                                    end
+                                else
+                                    rprint(Killer, airstrike.messages.team_play_incompatible)
+                                end
+                                -- AIRSTRIKE COMMAND MODE C
+                            elseif (v.mode == "Mode C") and (args1 == nil) then
+                                if HasRequiredKills(Killer) then
+
+                                else
+
+                                end
+                            else
+                                local t = airstrike.messages.incorrect_mode
+                                for i = 1,#t do
+                                    local msg = gsub(gsub(t[i], "%%cmd%%", airstrike.base_command), "%%mode_cmd%%", airstrike.mode_command)
+                                    rprint(Killer, msg)
+                                end
+                            end
                         end
-                    elseif (players[Killer].mode == "Mode B") and (args1 == nil) then
-
-                    elseif (players[Killer].mode == "Mode C") and (args1 == nil) then
-
                     end
-                else
-                    -- todo: NO ARGS SPECIFIED
                 end
             else
                 cprint(airstrike.messages.console_error, 4 + 8)
