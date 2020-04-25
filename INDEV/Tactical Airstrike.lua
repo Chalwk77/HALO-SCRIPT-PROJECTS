@@ -1541,10 +1541,9 @@ function OnServerCommand(Killer, Command, _, _)
                                 else
                                     Send(Killer, t.offline, "rcon")
                                 end
-                                -- AIRSTRIKE COMMAND MODE A
 
-                                -- todo: fix NaN error
-                            elseif (tonumber(args1) > 0 and tonumber(args1) < 17) then
+                                -- AIRSTRIKE COMMAND MODE A
+                            elseif (tonumber(args1) ~= nil) and (tonumber(args1) > 0 and tonumber(args1) < 17) then
                                 if IsCorrectMode(Killer, "Mode A") then
                                     args1 = tonumber(args1)
                                     if (args1 ~= Killer) then
