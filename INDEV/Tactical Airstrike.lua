@@ -45,7 +45,7 @@ local airstrike = {
         player_offline_or_dead = "Player is offline or dead!",
         invalid_player_id = "Invalid Player ID!",
         console_error = "You cannot execute this command from the console!",
-        mode_invalid_syntax = "Invalid Syntax. Usage: /%cmd% %mode_cmd% <mode id>",
+        mode_invalid_syntax = "Invalid Syntax or Invalid Mode. Usage: /%cmd% %mode_cmd% <mode id>",
         team_play_incompatible = "This mode is incompatible with team play!",
         strike_failed = "Unable to initiate Airstrike. Please contact an Administrator.",
 
@@ -177,7 +177,7 @@ local airstrike = {
 
             -- Quantity of projectiles spawned:
             min_projectiles = 1,
-            max_projectiles = 20,
+            max_projectiles = 100,
 
             -- Height from ground the object will spawn:
             height_from_ground = 20,
@@ -192,18 +192,72 @@ local airstrike = {
                     kills_required = 5,
                     strike_locations = {
                         ["red"] = {
-                            { 0, 0, 0 },
+                            { 95.738, -159.466, -0.287 },
+                            { 102.924, -159.576, 0.187 },
+                            { 95.482, -166.738, 0.116 },
+                            { 88.513, -159.604, 0.116 },
+                            { 95.500, -152.701, 0.100 },
+                            { 95.436, -162.429, 1.783 },
+                            { 95.577, -156.274, 1.703 },
+                            { 84.881, -155.846, -0.075 },
+                            { 89.931, -172.344, 0.209 },
+                            { 100.009, -170.296, 0.227 },
+                            { 119.462, -182.986, 6.781 },
+                            { 112.651, -142.841, 0.239 },
+                            { 113.154, -128.205, 1.390 },
+                            { 63.167, -169.477, 3.651 },
+                            { 63.591, -176.145, 3.999 },
                         },
                         ["blue"] = {
-                            { 0, 0, 0 },
+                            { 40.238, -79.124, -0.287 },
+                            { 40.314, -72.410, 0.186 },
+                            { 47.047, -79.165, 0.125 },
+                            { 40.016, -85.736, 0.131 },
+                            { 33.317, -79.109, 0.071 },
+                            { 40.276, -76.249, 1.783 },
+                            { 40.114, -81.944, 1.703 },
+                            { 28.655, -70.226, 0.460 },
+                            { 28.014, -112.472, 6.247 },
+                            { 44.626, -93.932, 0.810 },
+                            { 68.350, -73.734, 1.531 },
+                            { 77.544, -65.869, 4.725 },
+                            { 49.942, -81.076, 0.108 },
+                            { 59.401, -92.119, 0.174 },
+                            { 35.852, -65.083, 0.496 },
                         }
                     }
                 },
                 ["Mode C"] = {
                     enabled = true,
-                    kills_required = 5,
+                    kills_required = 1,
                     strike_locations = {
-                        { 0, 0, 0 },
+                        {95.696, -158.750, 1.703},
+                        {98.109, -151.062, 0.044},
+                        {82.585, -151.451, 0.121},
+                        {62.700, -168.103, 3.969},
+                        {60.492, -149.435, 6.265},
+                        {41.995, -126.763, 0.163},
+                        {63.247, -124.611, 0.813},
+                        {71.909, -125.715, 1.074},
+                        {64.594, -136.829, 1.977},
+                        {81.375, -117.107, 0.407},
+                        {82.755, -100.448, 1.984},
+                        {65.480, -104.017, 1.792},
+                        {53.695, -100.258, -0.077},
+                        {58.931, -96.066, 0.293},
+                        {44.190, -94.972, 0.879},
+                        {24.251, -105.223, 3.002},
+                        {40.899, -85.687, 0.132},
+                        {29.091, -73.504, 1.097},
+                        {58.638, -66.808, 1.266},
+                        {40.045, -80.791, 1.703},
+                        {97.752, -132.690, 0.549},
+                        {75.352, -136.137, 0.518},
+                        {57.396, -140.704, 1.015},
+                        {71.486, -138.073, 0.977},
+                        {95.902, -96.726, 4.048},
+                        {90.307, -91.818, 5.083},
+                        {68.473, -95.509, 1.551},
                     }
                 }
             }
@@ -954,9 +1008,10 @@ function OnScriptLoad()
     end
 end
 
--- for projectile debugging (bloodgulch)--
--- local TIMER = 0
--- local MiddleX, MiddleY, MiddleZ = 65.749893188477, -120.40949249268, 0.11860413849354
+-- for projectile debugging --
+local projectile_debug_mode = false
+local TIMER = 0
+local MiddleX, MiddleY, MiddleZ = 65.749893188477, -120.40949249268, 0.11860413849354
 --
 
 function OnTick()
@@ -976,17 +1031,19 @@ function OnTick()
     --end
 
     -- PROJECTILE DEBUGGING:
-    --TIMER = TIMER + 1 / 30
-    --if (TIMER >= 5) then
-    --    TIMER = 0
-    --    InitiateStrike(_, _, MiddleX, MiddleY, MiddleZ)
-    --end
+    if (projectile_debug_mode) then
+        TIMER = TIMER + 1 / 30
+        if (TIMER >= 5) then
+            TIMER = 0
+            InitiateStrike(_, _, MiddleX, MiddleY, MiddleZ)
+        end
+    end
 
     local t = airstrike.objects
     if (not game_over) and (t) then
 
-        if (#t>0) then
-            for i = 1,#t do
+        if (#t > 0) then
+            for i = 1, #t do
                 local projectile_memory = get_object_memory(t[i])
                 if (projectile_memory == 0) then
                     t[i] = nil
@@ -1082,8 +1139,8 @@ function InitiateStrike(Killer, Victim, x, y, z)
     local min_y_vel = 0
     local max_y_vel = 0
 
-    local min_z_vel = -1.3
-    local max_z_vel = -3
+    local min_z_vel = -1
+    local max_z_vel = -1
 
     local projectile_x_vel = math.random(min_x_vel, max_x_vel)
     local projectile_y_vel = math.random(min_y_vel, max_y_vel)
@@ -1163,33 +1220,36 @@ function OnServerCommand(Killer, Command, _, _)
                                 -- MODE SELECT COMMAND:
                             elseif (tostring(args1) == airstrike.mode_command) then
                                 local mode = tonumber(args2)
-                                local enabled = airstrike.maps[map_name].modes[mode]
-                                if (enabled) then
-                                    if (mode ~= nil) then
-                                        if (mode == 1) then
-                                            v.mode = "Mode A"
-                                        elseif (mode == 2) then
-                                            v.mode = "Mode B"
-                                        elseif (mode == 3) then
-                                            v.mode = "Mode C"
-                                        else
-                                            mode = nil
-                                        end
+                                if (mode ~= nil) then
 
-                                        if (mode) then
-                                            local msg = gsub(airstrike.messages.mode_select, "%%mode%%", mode)
-                                            Send(Killer, msg, "rcon")
-                                        end
+                                    local old_mode = v.mode
+
+                                    if (mode == 1) then
+                                        v.mode = "Mode A"
+                                    elseif (mode == 2) then
+                                        v.mode = "Mode B"
+                                    elseif (mode == 3) then
+                                        v.mode = "Mode C"
+                                    else
+                                        mode = nil
                                     end
-                                    if (mode == nil) then
-                                        local t = airstrike.messages.mode_invalid_syntax
-                                        local msg = gsub(gsub(t, "%%cmd%%", airstrike.base_command), "%%mode_cmd%%", airstrike.mode_command)
-                                        Send(Killer, msg, "rcon")
+
+                                    local enabled, msg = airstrike.maps[map_name].modes[v.mode].enabled, ""
+                                    if (mode) and (not enabled) then
+                                        v.mode = old_mode
+                                        msg = gsub(airstrike.messages.mode_not_enabled, "%%mode%%", mode)
+                                    elseif (mode) and (enabled) then
+                                        msg = gsub(airstrike.messages.mode_select, "%%mode%%", mode)
                                     end
-                                else
-                                    local msg = gsub(airstrike.messages.mode_not_enabled, "%%mode%%", mode)
                                     Send(Killer, msg, "rcon")
                                 end
+
+                                if (mode == nil) then
+                                    local t = airstrike.messages.mode_invalid_syntax
+                                    local msg = gsub(gsub(t, "%%cmd%%", airstrike.base_command), "%%mode_cmd%%", airstrike.mode_command)
+                                    Send(Killer, msg, "rcon")
+                                end
+
                                 -- CUSTOM PLAYER LIST COMMAND
                             elseif (tostring(args1) == airstrike.player_list_command) then
 
@@ -1205,6 +1265,8 @@ function OnServerCommand(Killer, Command, _, _)
                                     Send(Killer, t.offline, "rcon")
                                 end
                                 -- AIRSTRIKE COMMAND MODE A
+
+                                -- todo: fix NaN error
                             elseif (tonumber(args1) > 0 and tonumber(args1) < 17) then
                                 if IsCorrectMode(Killer, "Mode A") then
                                     args1 = tonumber(args1)
@@ -1254,14 +1316,12 @@ function OnServerCommand(Killer, Command, _, _)
                             -- AIRSTRIKE COMMAND MODE C
                         elseif (v.mode == "Mode C") then
                             if HasRequiredKills(Killer) then
-
                                 local t = airstrike.maps[map_name].modes[v.mode].strike_locations
                                 math.randomseed(os.clock())
                                 local coordinates = math.random(#t)
                                 local C = t[coordinates]
                                 local x, y, z = C[1], C[2], C[3]
                                 InitiateStrike(Killer, _, x, y, z)
-
                             else
                                 Send(Killer, airstrike.messages.not_enough_kills, "rcon")
                             end
