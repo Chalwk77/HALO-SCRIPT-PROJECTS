@@ -84,7 +84,7 @@ local airstrike = {
             broadcast = {
                 ["Mode A"] = { "%killer% called an airstrike on %victim%" },
                 ["Mode B"] = { "%killer% called an airstrike on %opposing_team% team's base!" },
-                ["Mode C"] = { "%name% called an airstrike!" },
+                ["Mode C"] = { "%killer% called an airstrike!" },
             },
             killer_feedback = {
                 "==========================",
