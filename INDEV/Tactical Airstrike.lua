@@ -39,6 +39,7 @@ local airstrike = {
     -- All output messages:
     messages = {
         mode_select = "STRIKE MODE %mode% SELECTED",
+        mode_not_enabled = "Mode #%mode% is not enabled for this map.",
         not_enough_kills = "You do not have enough kills to call an airstrike",
         cannot_strike_self = "You cannot call an airstrike on yourself!",
         player_offline_or_dead = "Player is offline or dead!",
@@ -54,14 +55,12 @@ local airstrike = {
             offline = "No other players online",
         },
 
-        -- TODO: complete logic for this block of code:
         on_airstrike_call = {
             broadcast = {
                 ["Mode A"] = { "%killer% called an airstrike on %victim%" },
                 ["Mode B"] = { "%killer% called an airstrike on %opposing_team% team's base!" },
                 ["Mode C"] = { "%name% called an airstrike!" },
             },
-            --todo------------------------------------------------------------------------------------------
             killer_feedback = {
                 "==========================",
                 "  -- AIRSTRIKE CALLED --",
@@ -130,7 +129,7 @@ local airstrike = {
                     kills_required = 5, -- Number of kills required to enable airstrike mode
                 },
                 ["Mode B"] = {
-                    enabled = false,
+                    enabled = true,
                     kills_required = 5, -- Number of kills required to enable airstrike mode
                     strike_locations = {
                         ["red"] = {
@@ -150,7 +149,7 @@ local airstrike = {
                     }
                 },
                 ["Mode C"] = {
-                    enabled = false,
+                    enabled = true,
                     kills_required = 5, -- Number of kills required to enable airstrike mode
                     strike_locations = {
                         { 11.362, 18.538, -0.217 },
@@ -189,7 +188,7 @@ local airstrike = {
                     kills_required = 5,
                 },
                 ["Mode B"] = {
-                    enabled = false,
+                    enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         ["red"] = {
@@ -201,7 +200,7 @@ local airstrike = {
                     }
                 },
                 ["Mode C"] = {
-                    enabled = false,
+                    enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         { 0, 0, 0 },
@@ -231,7 +230,7 @@ local airstrike = {
                     kills_required = 5,
                 },
                 ["Mode B"] = {
-                    enabled = false,
+                    enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         ["red"] = {
@@ -243,7 +242,7 @@ local airstrike = {
                     }
                 },
                 ["Mode C"] = {
-                    enabled = false,
+                    enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         { 0, 0, 0 },
@@ -273,7 +272,7 @@ local airstrike = {
                     kills_required = 5,
                 },
                 ["Mode B"] = {
-                    enabled = false,
+                    enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         ["red"] = {
@@ -285,7 +284,7 @@ local airstrike = {
                     }
                 },
                 ["Mode C"] = {
-                    enabled = false,
+                    enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         { 0, 0, 0 },
@@ -315,7 +314,7 @@ local airstrike = {
                     kills_required = 5,
                 },
                 ["Mode B"] = {
-                    enabled = false,
+                    enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         ["red"] = {
@@ -327,7 +326,7 @@ local airstrike = {
                     }
                 },
                 ["Mode C"] = {
-                    enabled = false,
+                    enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         { 0, 0, 0 },
@@ -357,7 +356,7 @@ local airstrike = {
                     kills_required = 5,
                 },
                 ["Mode B"] = {
-                    enabled = false,
+                    enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         ["red"] = {
@@ -369,7 +368,7 @@ local airstrike = {
                     }
                 },
                 ["Mode C"] = {
-                    enabled = false,
+                    enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         { 0, 0, 0 },
@@ -399,7 +398,7 @@ local airstrike = {
                     kills_required = 5,
                 },
                 ["Mode B"] = {
-                    enabled = false,
+                    enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         ["red"] = {
@@ -411,7 +410,7 @@ local airstrike = {
                     }
                 },
                 ["Mode C"] = {
-                    enabled = false,
+                    enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         { 0, 0, 0 },
@@ -441,7 +440,7 @@ local airstrike = {
                     kills_required = 5,
                 },
                 ["Mode B"] = {
-                    enabled = false,
+                    enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         ["red"] = {
@@ -453,7 +452,7 @@ local airstrike = {
                     }
                 },
                 ["Mode C"] = {
-                    enabled = false,
+                    enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         { 0, 0, 0 },
@@ -483,7 +482,7 @@ local airstrike = {
                     kills_required = 5,
                 },
                 ["Mode B"] = {
-                    enabled = false,
+                    enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         ["red"] = {
@@ -495,7 +494,7 @@ local airstrike = {
                     }
                 },
                 ["Mode C"] = {
-                    enabled = false,
+                    enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         { 0, 0, 0 },
@@ -525,7 +524,7 @@ local airstrike = {
                     kills_required = 5,
                 },
                 ["Mode B"] = {
-                    enabled = false,
+                    enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         ["red"] = {
@@ -537,7 +536,7 @@ local airstrike = {
                     }
                 },
                 ["Mode C"] = {
-                    enabled = false,
+                    enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         { 0, 0, 0 },
@@ -567,7 +566,7 @@ local airstrike = {
                     kills_required = 5,
                 },
                 ["Mode B"] = {
-                    enabled = false,
+                    enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         ["red"] = {
@@ -579,7 +578,7 @@ local airstrike = {
                     }
                 },
                 ["Mode C"] = {
-                    enabled = false,
+                    enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         { 0, 0, 0 },
@@ -609,7 +608,7 @@ local airstrike = {
                     kills_required = 5,
                 },
                 ["Mode B"] = {
-                    enabled = false,
+                    enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         ["red"] = {
@@ -621,7 +620,7 @@ local airstrike = {
                     }
                 },
                 ["Mode C"] = {
-                    enabled = false,
+                    enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         { 0, 0, 0 },
@@ -651,7 +650,7 @@ local airstrike = {
                     kills_required = 5,
                 },
                 ["Mode B"] = {
-                    enabled = false,
+                    enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         ["red"] = {
@@ -663,7 +662,7 @@ local airstrike = {
                     }
                 },
                 ["Mode C"] = {
-                    enabled = false,
+                    enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         { 0, 0, 0 },
@@ -693,7 +692,7 @@ local airstrike = {
                     kills_required = 5,
                 },
                 ["Mode B"] = {
-                    enabled = false,
+                    enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         ["red"] = {
@@ -705,7 +704,7 @@ local airstrike = {
                     }
                 },
                 ["Mode C"] = {
-                    enabled = false,
+                    enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         { 0, 0, 0 },
@@ -735,7 +734,7 @@ local airstrike = {
                     kills_required = 5,
                 },
                 ["Mode B"] = {
-                    enabled = false,
+                    enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         ["red"] = {
@@ -747,7 +746,7 @@ local airstrike = {
                     }
                 },
                 ["Mode C"] = {
-                    enabled = false,
+                    enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         { 0, 0, 0 },
@@ -777,7 +776,7 @@ local airstrike = {
                     kills_required = 5,
                 },
                 ["Mode B"] = {
-                    enabled = false,
+                    enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         ["red"] = {
@@ -789,7 +788,7 @@ local airstrike = {
                     }
                 },
                 ["Mode C"] = {
-                    enabled = false,
+                    enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         { 0, 0, 0 },
@@ -819,7 +818,7 @@ local airstrike = {
                     kills_required = 5,
                 },
                 ["Mode B"] = {
-                    enabled = false,
+                    enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         ["red"] = {
@@ -831,7 +830,7 @@ local airstrike = {
                     }
                 },
                 ["Mode C"] = {
-                    enabled = false,
+                    enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         { 0, 0, 0 },
@@ -861,7 +860,7 @@ local airstrike = {
                     kills_required = 5,
                 },
                 ["Mode B"] = {
-                    enabled = false,
+                    enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         ["red"] = {
@@ -873,7 +872,7 @@ local airstrike = {
                     }
                 },
                 ["Mode C"] = {
-                    enabled = false,
+                    enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         { 0, 0, 0 },
@@ -903,7 +902,7 @@ local airstrike = {
                     kills_required = 5,
                 },
                 ["Mode B"] = {
-                    enabled = false,
+                    enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         ["red"] = {
@@ -915,7 +914,7 @@ local airstrike = {
                     }
                 },
                 ["Mode C"] = {
-                    enabled = false,
+                    enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         { 0, 0, 0 },
@@ -1161,24 +1160,31 @@ function OnServerCommand(Killer, Command, _, _)
                                 -- MODE SELECT COMMAND:
                             elseif (tostring(args1) == airstrike.mode_command) then
                                 local mode = tonumber(args2)
-                                if (mode ~= nil) then
-                                    if (mode == 1) then
-                                        v.mode = "Mode A"
-                                    elseif (mode == 2) then
-                                        v.mode = "Mode B"
-                                    elseif (mode == 3) then
-                                        v.mode = "Mode C"
-                                    else
-                                        mode = nil
+                                local enabled = airstrike.maps[map_name].modes[mode]
+                                if (enabled) then
+                                    if (mode ~= nil) then
+                                        if (mode == 1) then
+                                            v.mode = "Mode A"
+                                        elseif (mode == 2) then
+                                            v.mode = "Mode B"
+                                        elseif (mode == 3) then
+                                            v.mode = "Mode C"
+                                        else
+                                            mode = nil
+                                        end
+
+                                        if (mode) then
+                                            local msg = gsub(airstrike.messages.mode_select, "%%mode%%", mode)
+                                            Send(Killer, msg, "rcon")
+                                        end
                                     end
-                                    if (mode) then
-                                        local msg = gsub(airstrike.messages.mode_select, "%%mode%%", mode)
+                                    if (mode == nil) then
+                                        local t = airstrike.messages.mode_invalid_syntax
+                                        local msg = gsub(gsub(t, "%%cmd%%", airstrike.base_command), "%%mode_cmd%%", airstrike.mode_command)
                                         Send(Killer, msg, "rcon")
                                     end
-                                end
-                                if (mode == nil) then
-                                    local t = airstrike.messages.mode_invalid_syntax
-                                    local msg = gsub(gsub(t, "%%cmd%%", airstrike.base_command), "%%mode_cmd%%", airstrike.mode_command)
+                                else
+                                    local msg = gsub(airstrike.messages.mode_not_enabled, "%%mode%%", mode)
                                     Send(Killer, msg, "rcon")
                                 end
                                 -- CUSTOM PLAYER LIST COMMAND
