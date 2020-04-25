@@ -4,13 +4,29 @@ Script Name: Tactical Airstrike, for SAPP (PC & CE)
 Description: Players who achieve a five-kill streak (killing five enemy players consecutively without dying) 
              are given the ability to call in an airstrike.
 
-             Players will have the opportunity to select from 1 of 3 "strike" modes.
+        Players will have the opportunity to select from 1 of 3 "strike" modes.
+        To view a list of Strike Modes, type "/nuke info" - you will see the list of modes and their respective IDs.
+        To select a mode, type "/nuke mode <mode id>".
+
+        MODE 1). Call an airstrike at a specific player's X, Y, Z map coordinates.
+            - To view a list of player IDs, type "/nuke pl".
+            - To call an airstrike on a specific player, type "/nuke <player id>".
+
+        MODE 2). Call an airstrike to (1 of X) locations surrounding the enemy base.
+            - To call a Mode 2 Airstrike, type "/nuke".
+
+        MODE 3). Call an airstrike to a random (pre-defined) x,y,z coordinate on the map.
+            - To call a Mode 3 Airstrike, type "/nuke".
+
+        Note: Make sure you're in the right mode before sending an airstrike!
+
+        Players will be in Mode 1 by default when they join the server.
 
         Command Syntax:
-        * /nuke <player id [number]>
-        * /nuke mode <mode id [number]>
+        * /nuke <player id >
+        * /nuke mode <mode id>
         * /nuke info
-        * /nuke pl|players|playerlist
+        * /nuke pl
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -33,15 +49,19 @@ local airstrike = {
     -- and lists each mode's ID (used for mode selection)
     info_command = "info",
 
+    -- Use this command to select your Strike Mode (see description at top of script)
     mode_command = "mode",
 
     -- Players can view the ID's of all players currently online with this command.
     player_list_command = "pl",
 
+    -- One function temporarily removes the server prefix white it relays specific messages then restores it.
+    -- The prefix will be restored to this:
     server_prefix = "** SAPP ** ",
 
     -- All output messages:
     messages = {
+
         mode_select = "STRIKE MODE %mode% SELECTED",
         mode_not_enabled = "Mode #%mode% is not enabled for this map.",
         not_enough_kills = "You do not have enough kills to call an airstrike",
@@ -72,22 +92,17 @@ local airstrike = {
                 "=========================="
             }
         },
-        reminder_message = {
-            "To select your Airstrike Mode type /%base_command% %mode_cmd% <mode id>",
-            "Modes: 1|2|3",
-            "For information on each mode, type /%base_command% info",
-        },
         incorrect_mode = {
             "You are not in the correct mode!",
             "Use: /%cmd% %mode_cmd% <mode id>"
         },
         info = {
             "-- ============== MODE INFORMATION ============== --",
-            "Mode 1). Strike at a specific player's X,Y,Z map coordinates.",
+            "Mode 1). Call an airstrike at a specific player's X, Y, Z map coordinates.",
             " ",
-            "Mode 2). Strike called to (1 of X) locations surrounding the enemy base.",
+            "Mode 2). Call an airstrike to (1 of X) locations surrounding the enemy base.",
             " ",
-            "Mode 3). Strike called to a random (pre defined) x,y,z coordinate on the map.",
+            "Mode 3). Call an airstrike to a random (pre-defined) x,y,z coordinate on the map.",
             "--=============================================================================--"
         },
         on_kill = {
