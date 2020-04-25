@@ -119,32 +119,31 @@ local airstrike = {
             min_projectiles = 1,
             max_projectiles = 10,
 
-            -- Height from ground the object will spawn:
-            height_from_ground = 20,
-
             -- NOTE: Two of the three modes MUST be FALSE (only ONE must be TRUE)
             modes = {
                 ["Mode A"] = {
                     enabled = true,
                     kills_required = 5, -- Number of kills required to enable airstrike mode
+                    height_from_ground = 20
                 },
                 ["Mode B"] = {
                     enabled = true,
                     kills_required = 5, -- Number of kills required to enable airstrike mode
                     strike_locations = {
+                        -- X,Y,Z, Height From Ground
                         ["red"] = {
-                            { 28.937, 13.523, 0.836 },
-                            { 25.841, 19.198, -0.217 },
-                            { 32.852, 13.935, -0.217 },
-                            { 26.323, 6.408, -0.217 },
-                            { 19.510, 13.729, -0.217 },
+                            { 28.937, 13.523, 0.836, 20 },
+                            { 25.841, 19.198, -0.217, 20 },
+                            { 32.852, 13.935, -0.217, 20 },
+                            { 26.323, 6.408, -0.217, 20 },
+                            { 19.510, 13.729, -0.217, 20 },
                         },
                         ["blue"] = {
-                            { 7.934, 13.743, -0.217 },
-                            { -0.964, 13.743, 0.836 },
-                            { 2.418, 8.010, -0.217 },
-                            { -4.459, 13.678, -0.217 },
-                            { 0.848, 20.180, -0.217 },
+                            { 7.934, 13.743, -0.217, 20 },
+                            { -0.964, 13.743, 0.836, 20 },
+                            { 2.418, 8.010, -0.217, 20 },
+                            { -4.459, 13.678, -0.217, 20 },
+                            { 0.848, 20.180, -0.217, 20 },
                         }
                     }
                 },
@@ -152,16 +151,16 @@ local airstrike = {
                     enabled = true,
                     kills_required = 5, -- Number of kills required to enable airstrike mode
                     strike_locations = {
-                        { 11.362, 18.538, -0.217 },
-                        { 17.996, 8.274, -0.217 },
-                        { 18.001, 5.870, 3.548 },
-                        { 16.268, 17.293, 5.135 },
-                        { 24.902, 14.849, 2.061 },
-                        { 28.474, 15.185, 2.495 },
-                        { 28.804, 11.453, 2.494 },
-                        { 3.639, 11.435, 1.800 },
-                        { -0.687, 16.919, 2.259 },
-                        { 14.016, 8.132, -0.843 },
+                        { 11.362, 18.538, -0.217, 20 },
+                        { 17.996, 8.274, -0.217, 20 },
+                        { 18.001, 5.870, 3.548, 20 },
+                        { 16.268, 17.293, 5.135, 20 },
+                        { 24.902, 14.849, 2.061, 20 },
+                        { 28.474, 15.185, 2.495, 20 },
+                        { 28.804, 11.453, 2.494, 20 },
+                        { 3.639, 11.435, 1.800, 20 },
+                        { -0.687, 16.919, 2.259, 20 },
+                        { 14.016, 8.132, -0.843, 20 },
                     }
                 }
             }
@@ -179,51 +178,49 @@ local airstrike = {
             min_projectiles = 1,
             max_projectiles = 100,
 
-            -- Height from ground the object will spawn:
-            height_from_ground = 20,
-
             modes = {
                 ["Mode A"] = {
                     enabled = true,
                     kills_required = 5,
+                    height_from_ground = 20
                 },
                 ["Mode B"] = {
                     enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         ["red"] = {
-                            { 95.738, -159.466, -0.287 },
-                            { 102.924, -159.576, 0.187 },
-                            { 95.482, -166.738, 0.116 },
-                            { 88.513, -159.604, 0.116 },
-                            { 95.500, -152.701, 0.100 },
-                            { 95.436, -162.429, 1.783 },
-                            { 95.577, -156.274, 1.703 },
-                            { 84.881, -155.846, -0.075 },
-                            { 89.931, -172.344, 0.209 },
-                            { 100.009, -170.296, 0.227 },
-                            { 119.462, -182.986, 6.781 },
-                            { 112.651, -142.841, 0.239 },
-                            { 113.154, -128.205, 1.390 },
-                            { 63.167, -169.477, 3.651 },
-                            { 63.591, -176.145, 3.999 },
+                            { 95.738, -159.466, -0.287, 20 },
+                            { 102.924, -159.576, 0.187, 20 },
+                            { 95.482, -166.738, 0.116, 20 },
+                            { 88.513, -159.604, 0.116, 20 },
+                            { 95.500, -152.701, 0.100, 20 },
+                            { 95.436, -162.429, 1.783, 20 },
+                            { 95.577, -156.274, 1.703, 20 },
+                            { 84.881, -155.846, -0.075, 20 },
+                            { 89.931, -172.344, 0.209, 20 },
+                            { 100.009, -170.296, 0.227, 20 },
+                            { 119.462, -182.986, 6.781, 20 },
+                            { 112.651, -142.841, 0.239, 20 },
+                            { 113.154, -128.205, 1.390, 20 },
+                            { 63.167, -169.477, 3.651, 20 },
+                            { 63.591, -176.145, 3.999, 20 },
                         },
                         ["blue"] = {
-                            { 40.238, -79.124, -0.287 },
-                            { 40.314, -72.410, 0.186 },
-                            { 47.047, -79.165, 0.125 },
-                            { 40.016, -85.736, 0.131 },
-                            { 33.317, -79.109, 0.071 },
-                            { 40.276, -76.249, 1.783 },
-                            { 40.114, -81.944, 1.703 },
-                            { 28.655, -70.226, 0.460 },
-                            { 28.014, -112.472, 6.247 },
-                            { 44.626, -93.932, 0.810 },
-                            { 68.350, -73.734, 1.531 },
-                            { 77.544, -65.869, 4.725 },
-                            { 49.942, -81.076, 0.108 },
-                            { 59.401, -92.119, 0.174 },
-                            { 35.852, -65.083, 0.496 },
+                            { 40.238, -79.124, -0.287, 20 },
+                            { 40.314, -72.410, 0.186, 20 },
+                            { 47.047, -79.165, 0.125, 20 },
+                            { 40.016, -85.736, 0.131, 20 },
+                            { 33.317, -79.109, 0.071, 20 },
+                            { 40.276, -76.249, 1.783, 20 },
+                            { 40.114, -81.944, 1.703, 20 },
+                            { 28.655, -70.226, 0.460, 20 },
+                            { 28.014, -112.472, 6.247, 20 },
+                            { 44.626, -93.932, 0.810, 20 },
+                            { 68.350, -73.734, 1.531, 20 },
+                            { 77.544, -65.869, 4.725, 20 },
+                            { 49.942, -81.076, 0.108, 20 },
+                            { 59.401, -92.119, 0.174, 20 },
+                            { 35.852, -65.083, 0.496, 20 },
                         }
                     }
                 },
@@ -231,33 +228,33 @@ local airstrike = {
                     enabled = true,
                     kills_required = 1,
                     strike_locations = {
-                        {95.696, -158.750, 1.703},
-                        {98.109, -151.062, 0.044},
-                        {82.585, -151.451, 0.121},
-                        {62.700, -168.103, 3.969},
-                        {60.492, -149.435, 6.265},
-                        {41.995, -126.763, 0.163},
-                        {63.247, -124.611, 0.813},
-                        {71.909, -125.715, 1.074},
-                        {64.594, -136.829, 1.977},
-                        {81.375, -117.107, 0.407},
-                        {82.755, -100.448, 1.984},
-                        {65.480, -104.017, 1.792},
-                        {53.695, -100.258, -0.077},
-                        {58.931, -96.066, 0.293},
-                        {44.190, -94.972, 0.879},
-                        {24.251, -105.223, 3.002},
-                        {40.899, -85.687, 0.132},
-                        {29.091, -73.504, 1.097},
-                        {58.638, -66.808, 1.266},
-                        {40.045, -80.791, 1.703},
-                        {97.752, -132.690, 0.549},
-                        {75.352, -136.137, 0.518},
-                        {57.396, -140.704, 1.015},
-                        {71.486, -138.073, 0.977},
-                        {95.902, -96.726, 4.048},
-                        {90.307, -91.818, 5.083},
-                        {68.473, -95.509, 1.551},
+                        { 95.696, -158.750, 1.703, 20 },
+                        { 98.109, -151.062, 0.044, 20 },
+                        { 82.585, -151.451, 0.121, 20 },
+                        { 62.700, -168.103, 3.969, 20 },
+                        { 60.492, -149.435, 6.265, 20 },
+                        { 41.995, -126.763, 0.163, 20 },
+                        { 63.247, -124.611, 0.813, 20 },
+                        { 71.909, -125.715, 1.074, 20 },
+                        { 64.594, -136.829, 1.977, 20 },
+                        { 81.375, -117.107, 0.407, 20 },
+                        { 82.755, -100.448, 1.984, 20 },
+                        { 65.480, -104.017, 1.792, 20 },
+                        { 53.695, -100.258, -0.077, 20 },
+                        { 58.931, -96.066, 0.293, 20 },
+                        { 44.190, -94.972, 0.879, 20 },
+                        { 24.251, -105.223, 3.002, 20 },
+                        { 40.899, -85.687, 0.132, 20 },
+                        { 29.091, -73.504, 1.097, 20 },
+                        { 58.638, -66.808, 1.266, 20 },
+                        { 40.045, -80.791, 1.703, 20 },
+                        { 97.752, -132.690, 0.549, 20 },
+                        { 75.352, -136.137, 0.518, 20 },
+                        { 57.396, -140.704, 1.015, 20 },
+                        { 71.486, -138.073, 0.977, 20 },
+                        { 95.902, -96.726, 4.048, 20 },
+                        { 90.307, -91.818, 5.083, 20 },
+                        { 68.473, -95.509, 1.551, 20 },
                     }
                 }
             }
@@ -275,23 +272,39 @@ local airstrike = {
             min_projectiles = 1,
             max_projectiles = 10,
 
-            -- Height from ground the object will spawn:
-            height_from_ground = 20,
-
             modes = {
                 ["Mode A"] = {
                     enabled = true,
                     kills_required = 5,
+                    height_from_ground = 20
                 },
                 ["Mode B"] = {
                     enabled = true,
-                    kills_required = 5,
+                    kills_required = 1,
                     strike_locations = {
                         ["red"] = {
-                            { 0, 0, 0 },
+                            {3.463, -1.260, 0.220, 3},
+                            {-0.360, -1.590, 0.220, 3},
+                            {-0.340, 2.618, 0.220, 3},
+                            {2.861, 3.821, 0.220, 3},
+                            {3.180, -6.274, 0.220, 3},
+                            {-0.568, 5.113, 0.220, 3},
+                            {-0.631, 9.367, 0.220, 3},
+                            {-0.556, 12.966, 0.220, 3},
+                            {0.266, 16.793, 0.220, 3},
+                            {0.581, 21.682, 0.220, 3},
                         },
                         ["blue"] = {
-                            { 0, 0, 0 },
+                            {16.669, 1.473, 0.220, 3},
+                            {16.901, -3.694, 0.220, 3},
+                            {20.371, -2.470, 0.220, 3},
+                            {20.534, -4.379, 0.220, 3},
+                            {20.193, 1.394, 0.220, 3},
+                            {16.951, 6.297, 0.220, 3},
+                            {20.675, -9.011, 0.220, 3},
+                            {20.538, -13.429, 0.220, 3},
+                            {19.988, -16.314, 0.220, 3},
+                            {19.689, -21.496, 0.220, 3},
                         }
                     }
                 },
@@ -299,7 +312,95 @@ local airstrike = {
                     enabled = true,
                     kills_required = 5,
                     strike_locations = {
-                        { 0, 0, 0 },
+                        {3.077, -19.802, 5.218, 3},
+                        {0.984, -10.769, 5.218, 3},
+                        {2.452, -12.817, 7.220, 3},
+                        {-0.437, -8.173, 5.218, 3},
+                        {0.605, -2.045, 5.218, 3},
+                        {0.605, 7.874, 5.218, 3},
+                        {0.169, 17.625, 5.218, 3},
+                        {1.161, 20.476, 5.218, 3},
+                        {3.722, -17.002, 2.720, 3},
+                        {0.773, -11.982, 2.720, 3},
+                        {-3.373, -6.386, 2.720, 3},
+                        {-2.464, -4.736, 2.720, 3},
+                        {-0.587, 0.425, 2.720, 3},
+                        {2.933, 6.219, 2.520, 3},
+                        {3.175, 11.235, 2.520, 3},
+                        {-0.221, 6.376, 2.720, 3},
+                        {0.936, 9.583, 2.720, 3},
+                        {0.424, 16.640, 2.720, 3},
+                        {0.534, 20.834, 2.720, 3},
+                        {1.252, -9.785, 0.220, 3},
+                        {2.682, -4.743, 0.220, 3},
+                        {3.027, -1.318, 0.220, 3},
+                        {0.093, -1.566, 0.220, 3},
+                        {0.064, 0.499, 0.220, 3},
+                        {-0.068, 2.741, 0.220, 3},
+                        {2.939, 3.666, 0.220, 3},
+                        {-0.364, 6.721, 0.220, 3},
+                        {-1.933, 9.015, 0.220, 3},
+                        {-0.500, 11.837, 0.220, 3},
+                        {0.169, 16.688, 0.220, 3},
+                        {1.122, 14.675, 0.220, 3},
+                        {0.549, 21.332, 0.220, 3},
+                        {3.414, -20.539, -2.281, 3},
+                        {0.785, -14.204, -2.281, 3},
+                        {1.256, -7.433, -2.281, 3},
+                        {3.787, -4.985, -2.281, 3},
+                        {3.827, -0.389, -2.281, 3},
+                        {3.714, 4.433, -2.281, 3},
+                        {1.418, 14.699, -2.281, 3},
+                        {1.207, 20.461, -2.281, 3},
+                        {3.910, 21.232, -4.779, 3},
+                        {3.581, 14.737, -4.779, 3},
+                        {3.249, 9.184, -4.779, 3},
+                        {3.303, 3.921, -2.281, 3},
+                        {4.072, -1.063, -2.281, 3},
+                        {3.241, -4.216, -4.779, 3},
+                        {3.252, -8.563, -4.779, 3},
+                        {3.748, -19.211, -4.779, 3},
+                        {16.179, 19.253, 5.218, 3},
+                        {19.072, 10.567, 5.218, 3},
+                        {19.560, 1.670, 5.218, 3},
+                        {22.249, -2.532, 5.218, 3},
+                        {16.859, -7.295, 2.520, 3},
+                        {16.634, -11.985, 2.520, 3},
+                        {19.253, -19.703, 2.720, 3},
+                        {18.956, -9.204, 2.720, 3},
+                        {16.936, 12.785, 7.220, 3},
+                        {15.872, 16.997, 2.720, 3},
+                        {19.661, 9.673, 2.720, 3},
+                        {23.144, 6.892, 2.720, 3},
+                        {23.462, 4.388, 2.720, 3},
+                        {21.052, 0.656, 2.720, 3},
+                        {16.962, -7.248, 2.520, 3},
+                        {16.918, -12.293, 2.520, 3},
+                        {19.779, -20.488, 2.720, 3},
+                        {18.998, -9.041, 2.720, 3},
+                        {19.202, -21.364, 0.220, 3},
+                        {20.199, -16.405, 0.220, 3},
+                        {21.461, -8.917, 0.220, 3},
+                        {20.569, -5.726, 0.220, 3},
+                        {20.059, -2.793, 0.220, 3},
+                        {16.681, -3.013, 0.220, 3},
+                        {19.081, 1.040, 0.220, 3},
+                        {16.570, 1.429, 0.220, 3},
+                        {16.976, 6.121, 0.220, 3},
+                        {20.305, 5.341, 0.220, 3},
+                        {18.754, 19.191, 0.220, 3},
+                        {16.572, 20.458, -2.281, 3},
+                        {20.045, 16.693, -2.281, 3},
+                        {15.920, 14.677, -2.281, 3},
+                        {19.088, 7.286, -2.281, 3},
+                        {17.089, 3.745, -2.281, 3},
+                        {16.828, -4.406, -2.281, 3},
+                        {19.634, -20.184, -2.281, 3},
+                        {16.289, -21.026, -4.779, 3},
+                        {16.893, -9.813, -4.779, 3},
+                        {16.850, 4.735, -4.779, 3},
+                        {16.760, 13.942, -4.779, 3},
+                        {15.860, 20.192, -4.779, 3},
                     }
                 }
             }
@@ -317,23 +418,21 @@ local airstrike = {
             min_projectiles = 1,
             max_projectiles = 10,
 
-            -- Height from ground the object will spawn:
-            height_from_ground = 20,
-
             modes = {
                 ["Mode A"] = {
                     enabled = true,
                     kills_required = 5,
+                    height_from_ground = 20
                 },
                 ["Mode B"] = {
                     enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         ["red"] = {
-                            { 0, 0, 0 },
+                            { 0, 0, 0, 20 },
                         },
                         ["blue"] = {
-                            { 0, 0, 0 },
+                            { 0, 0, 0, 20 },
                         }
                     }
                 },
@@ -341,7 +440,7 @@ local airstrike = {
                     enabled = true,
                     kills_required = 5,
                     strike_locations = {
-                        { 0, 0, 0 },
+                        { 0, 0, 0, 20 },
                     }
                 }
             }
@@ -359,23 +458,21 @@ local airstrike = {
             min_projectiles = 1,
             max_projectiles = 10,
 
-            -- Height from ground the object will spawn:
-            height_from_ground = 20,
-
             modes = {
                 ["Mode A"] = {
                     enabled = true,
                     kills_required = 5,
+                    height_from_ground = 20
                 },
                 ["Mode B"] = {
                     enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         ["red"] = {
-                            { 0, 0, 0 },
+                            { 0, 0, 0, 20 },
                         },
                         ["blue"] = {
-                            { 0, 0, 0 },
+                            { 0, 0, 0, 20 },
                         }
                     }
                 },
@@ -383,7 +480,7 @@ local airstrike = {
                     enabled = true,
                     kills_required = 5,
                     strike_locations = {
-                        { 0, 0, 0 },
+                        { 0, 0, 0, 20 },
                     }
                 }
             }
@@ -401,23 +498,21 @@ local airstrike = {
             min_projectiles = 1,
             max_projectiles = 10,
 
-            -- Height from ground the object will spawn:
-            height_from_ground = 20,
-
             modes = {
                 ["Mode A"] = {
                     enabled = true,
                     kills_required = 5,
+                    height_from_ground = 20
                 },
                 ["Mode B"] = {
                     enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         ["red"] = {
-                            { 0, 0, 0 },
+                            { 0, 0, 0, 20 },
                         },
                         ["blue"] = {
-                            { 0, 0, 0 },
+                            { 0, 0, 0, 20 },
                         }
                     }
                 },
@@ -425,7 +520,7 @@ local airstrike = {
                     enabled = true,
                     kills_required = 5,
                     strike_locations = {
-                        { 0, 0, 0 },
+                        { 0, 0, 0, 20 },
                     }
                 }
             }
@@ -443,23 +538,21 @@ local airstrike = {
             min_projectiles = 1,
             max_projectiles = 10,
 
-            -- Height from ground the object will spawn:
-            height_from_ground = 20,
-
             modes = {
                 ["Mode A"] = {
                     enabled = true,
                     kills_required = 5,
+                    height_from_ground = 20
                 },
                 ["Mode B"] = {
                     enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         ["red"] = {
-                            { 0, 0, 0 },
+                            { 0, 0, 0, 20 },
                         },
                         ["blue"] = {
-                            { 0, 0, 0 },
+                            { 0, 0, 0, 20 },
                         }
                     }
                 },
@@ -467,7 +560,7 @@ local airstrike = {
                     enabled = true,
                     kills_required = 5,
                     strike_locations = {
-                        { 0, 0, 0 },
+                        { 0, 0, 0, 20 },
                     }
                 }
             }
@@ -485,23 +578,21 @@ local airstrike = {
             min_projectiles = 1,
             max_projectiles = 10,
 
-            -- Height from ground the object will spawn:
-            height_from_ground = 20,
-
             modes = {
                 ["Mode A"] = {
                     enabled = true,
                     kills_required = 5,
+                    height_from_ground = 20
                 },
                 ["Mode B"] = {
                     enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         ["red"] = {
-                            { 0, 0, 0 },
+                            { 0, 0, 0, 20 },
                         },
                         ["blue"] = {
-                            { 0, 0, 0 },
+                            { 0, 0, 0, 20 },
                         }
                     }
                 },
@@ -509,7 +600,7 @@ local airstrike = {
                     enabled = true,
                     kills_required = 5,
                     strike_locations = {
-                        { 0, 0, 0 },
+                        { 0, 0, 0, 20 },
                     }
                 }
             }
@@ -527,23 +618,21 @@ local airstrike = {
             min_projectiles = 1,
             max_projectiles = 10,
 
-            -- Height from ground the object will spawn:
-            height_from_ground = 20,
-
             modes = {
                 ["Mode A"] = {
                     enabled = true,
                     kills_required = 5,
+                    height_from_ground = 20
                 },
                 ["Mode B"] = {
                     enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         ["red"] = {
-                            { 0, 0, 0 },
+                            { 0, 0, 0, 20 },
                         },
                         ["blue"] = {
-                            { 0, 0, 0 },
+                            { 0, 0, 0, 20 },
                         }
                     }
                 },
@@ -551,7 +640,7 @@ local airstrike = {
                     enabled = true,
                     kills_required = 5,
                     strike_locations = {
-                        { 0, 0, 0 },
+                        { 0, 0, 0, 20 },
                     }
                 }
             }
@@ -569,23 +658,21 @@ local airstrike = {
             min_projectiles = 1,
             max_projectiles = 10,
 
-            -- Height from ground the object will spawn:
-            height_from_ground = 20,
-
             modes = {
                 ["Mode A"] = {
                     enabled = true,
                     kills_required = 5,
+                    height_from_ground = 20
                 },
                 ["Mode B"] = {
                     enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         ["red"] = {
-                            { 0, 0, 0 },
+                            { 0, 0, 0, 20 },
                         },
                         ["blue"] = {
-                            { 0, 0, 0 },
+                            { 0, 0, 0, 20 },
                         }
                     }
                 },
@@ -593,7 +680,7 @@ local airstrike = {
                     enabled = true,
                     kills_required = 5,
                     strike_locations = {
-                        { 0, 0, 0 },
+                        { 0, 0, 0, 20 },
                     }
                 }
             }
@@ -611,23 +698,21 @@ local airstrike = {
             min_projectiles = 1,
             max_projectiles = 10,
 
-            -- Height from ground the object will spawn:
-            height_from_ground = 20,
-
             modes = {
                 ["Mode A"] = {
                     enabled = true,
                     kills_required = 5,
+                    height_from_ground = 20
                 },
                 ["Mode B"] = {
                     enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         ["red"] = {
-                            { 0, 0, 0 },
+                            { 0, 0, 0, 20 },
                         },
                         ["blue"] = {
-                            { 0, 0, 0 },
+                            { 0, 0, 0, 20 },
                         }
                     }
                 },
@@ -635,7 +720,7 @@ local airstrike = {
                     enabled = true,
                     kills_required = 5,
                     strike_locations = {
-                        { 0, 0, 0 },
+                        { 0, 0, 0, 20 },
                     }
                 }
             }
@@ -653,23 +738,21 @@ local airstrike = {
             min_projectiles = 1,
             max_projectiles = 10,
 
-            -- Height from ground the object will spawn:
-            height_from_ground = 20,
-
             modes = {
                 ["Mode A"] = {
                     enabled = true,
                     kills_required = 5,
+                    height_from_ground = 20
                 },
                 ["Mode B"] = {
                     enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         ["red"] = {
-                            { 0, 0, 0 },
+                            { 0, 0, 0, 20 },
                         },
                         ["blue"] = {
-                            { 0, 0, 0 },
+                            { 0, 0, 0, 20 },
                         }
                     }
                 },
@@ -677,7 +760,7 @@ local airstrike = {
                     enabled = true,
                     kills_required = 5,
                     strike_locations = {
-                        { 0, 0, 0 },
+                        { 0, 0, 0, 20 },
                     }
                 }
             }
@@ -695,23 +778,21 @@ local airstrike = {
             min_projectiles = 1,
             max_projectiles = 10,
 
-            -- Height from ground the object will spawn:
-            height_from_ground = 20,
-
             modes = {
                 ["Mode A"] = {
                     enabled = true,
                     kills_required = 5,
+                    height_from_ground = 20
                 },
                 ["Mode B"] = {
                     enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         ["red"] = {
-                            { 0, 0, 0 },
+                            { 0, 0, 0, 20 },
                         },
                         ["blue"] = {
-                            { 0, 0, 0 },
+                            { 0, 0, 0, 20 },
                         }
                     }
                 },
@@ -719,7 +800,7 @@ local airstrike = {
                     enabled = true,
                     kills_required = 5,
                     strike_locations = {
-                        { 0, 0, 0 },
+                        { 0, 0, 0, 20 },
                     }
                 }
             }
@@ -737,23 +818,21 @@ local airstrike = {
             min_projectiles = 1,
             max_projectiles = 10,
 
-            -- Height from ground the object will spawn:
-            height_from_ground = 20,
-
             modes = {
                 ["Mode A"] = {
                     enabled = true,
                     kills_required = 5,
+                    height_from_ground = 20
                 },
                 ["Mode B"] = {
                     enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         ["red"] = {
-                            { 0, 0, 0 },
+                            { 0, 0, 0, 20 },
                         },
                         ["blue"] = {
-                            { 0, 0, 0 },
+                            { 0, 0, 0, 20 },
                         }
                     }
                 },
@@ -761,7 +840,7 @@ local airstrike = {
                     enabled = true,
                     kills_required = 5,
                     strike_locations = {
-                        { 0, 0, 0 },
+                        { 0, 0, 0, 20 },
                     }
                 }
             }
@@ -779,23 +858,21 @@ local airstrike = {
             min_projectiles = 1,
             max_projectiles = 10,
 
-            -- Height from ground the object will spawn:
-            height_from_ground = 20,
-
             modes = {
                 ["Mode A"] = {
                     enabled = true,
                     kills_required = 5,
+                    height_from_ground = 20
                 },
                 ["Mode B"] = {
                     enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         ["red"] = {
-                            { 0, 0, 0 },
+                            { 0, 0, 0, 20 },
                         },
                         ["blue"] = {
-                            { 0, 0, 0 },
+                            { 0, 0, 0, 20 },
                         }
                     }
                 },
@@ -803,7 +880,7 @@ local airstrike = {
                     enabled = true,
                     kills_required = 5,
                     strike_locations = {
-                        { 0, 0, 0 },
+                        { 0, 0, 0, 20 },
                     }
                 }
             }
@@ -821,23 +898,21 @@ local airstrike = {
             min_projectiles = 1,
             max_projectiles = 10,
 
-            -- Height from ground the object will spawn:
-            height_from_ground = 20,
-
             modes = {
                 ["Mode A"] = {
                     enabled = true,
                     kills_required = 5,
+                    height_from_ground = 20
                 },
                 ["Mode B"] = {
                     enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         ["red"] = {
-                            { 0, 0, 0 },
+                            { 0, 0, 0, 20 },
                         },
                         ["blue"] = {
-                            { 0, 0, 0 },
+                            { 0, 0, 0, 20 },
                         }
                     }
                 },
@@ -845,7 +920,7 @@ local airstrike = {
                     enabled = true,
                     kills_required = 5,
                     strike_locations = {
-                        { 0, 0, 0 },
+                        { 0, 0, 0, 20 },
                     }
                 }
             }
@@ -863,23 +938,21 @@ local airstrike = {
             min_projectiles = 1,
             max_projectiles = 10,
 
-            -- Height from ground the object will spawn:
-            height_from_ground = 20,
-
             modes = {
                 ["Mode A"] = {
                     enabled = true,
                     kills_required = 5,
+                    height_from_ground = 20
                 },
                 ["Mode B"] = {
                     enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         ["red"] = {
-                            { 0, 0, 0 },
+                            { 0, 0, 0, 20 },
                         },
                         ["blue"] = {
-                            { 0, 0, 0 },
+                            { 0, 0, 0, 20 },
                         }
                     }
                 },
@@ -887,7 +960,7 @@ local airstrike = {
                     enabled = true,
                     kills_required = 5,
                     strike_locations = {
-                        { 0, 0, 0 },
+                        { 0, 0, 0, 20 },
                     }
                 }
             }
@@ -905,23 +978,21 @@ local airstrike = {
             min_projectiles = 1,
             max_projectiles = 10,
 
-            -- Height from ground the object will spawn:
-            height_from_ground = 20,
-
             modes = {
                 ["Mode A"] = {
                     enabled = true,
                     kills_required = 5,
+                    height_from_ground = 20
                 },
                 ["Mode B"] = {
                     enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         ["red"] = {
-                            { 0, 0, 0 },
+                            { 0, 0, 0, 20 },
                         },
                         ["blue"] = {
-                            { 0, 0, 0 },
+                            { 0, 0, 0, 20 },
                         }
                     }
                 },
@@ -929,7 +1000,7 @@ local airstrike = {
                     enabled = true,
                     kills_required = 5,
                     strike_locations = {
-                        { 0, 0, 0 },
+                        { 0, 0, 0, 20 },
                     }
                 }
             }
@@ -947,23 +1018,21 @@ local airstrike = {
             min_projectiles = 1,
             max_projectiles = 10,
 
-            -- Height from ground the object will spawn:
-            height_from_ground = 20,
-
             modes = {
                 ["Mode A"] = {
                     enabled = true,
                     kills_required = 5,
+                    height_from_ground = 20
                 },
                 ["Mode B"] = {
                     enabled = true,
                     kills_required = 5,
                     strike_locations = {
                         ["red"] = {
-                            { 0, 0, 0 },
+                            { 0, 0, 0, 20 },
                         },
                         ["blue"] = {
-                            { 0, 0, 0 },
+                            { 0, 0, 0, 20 },
                         }
                     }
                 },
@@ -971,7 +1040,7 @@ local airstrike = {
                     enabled = true,
                     kills_required = 5,
                     strike_locations = {
-                        { 0, 0, 0 },
+                        { 0, 0, 0, 20 },
                     }
                 }
             }
@@ -1011,7 +1080,7 @@ end
 -- for projectile debugging --
 local projectile_debug_mode = false
 local TIMER = 0
-local MiddleX, MiddleY, MiddleZ = 65.749893188477, -120.40949249268, 0.11860413849354
+local MiddleX, MiddleY, MiddleZ, MiddleHeight = 65.749893188477, -120.40949249268, 0.11860413849354, 20
 --
 
 function OnTick()
@@ -1035,7 +1104,7 @@ function OnTick()
         TIMER = TIMER + 1 / 30
         if (TIMER >= 5) then
             TIMER = 0
-            InitiateStrike(_, _, MiddleX, MiddleY, MiddleZ)
+            InitiateStrike(_, _, MiddleX, MiddleY, MiddleZ, MiddleHeight)
         end
     end
 
@@ -1129,7 +1198,7 @@ function InitPlayer(PlayerIndex, Reset)
     end
 end
 
-function InitiateStrike(Killer, Victim, x, y, z)
+function InitiateStrike(Killer, Victim, x, y, z, height)
 
     local params = airstrike.maps[map_name]
 
@@ -1154,7 +1223,7 @@ function InitiateStrike(Killer, Victim, x, y, z)
 
         for _ = params.min_projectiles, params.max_projectiles do
 
-            local payload = spawn_object(projectile_object[1], projectile_object[2], x, y, z + params.height_from_ground)
+            local payload = spawn_object(projectile_object[1], projectile_object[2], x, y, z + height)
             local projectile = get_object_memory(payload)
             if (projectile ~= 0) then
 
@@ -1278,7 +1347,8 @@ function OnServerCommand(Killer, Command, _, _)
                                                 if (DynamicPlayer ~= 0) then
                                                     local player = GetXYZ(DynamicPlayer)
                                                     if (player) then
-                                                        InitiateStrike(Killer, args1, player.x, player.y, player.z)
+                                                        local height = airstrike.maps[map_name].modes["Mode A"].height_from_ground
+                                                        InitiateStrike(Killer, args1, player.x, player.y, player.z, height)
                                                     end
                                                 end
                                             else
@@ -1304,8 +1374,8 @@ function OnServerCommand(Killer, Command, _, _)
                                     math.randomseed(os.clock())
                                     local coordinates = math.random(#t)
                                     local C = t[coordinates]
-                                    local x, y, z = C[1], C[2], C[3]
-                                    InitiateStrike(Killer, _, x, y, z)
+                                    local x, y, z, height = C[1], C[2], C[3], C[4]
+                                    InitiateStrike(Killer, _, x, y, z, height)
 
                                 else
                                     Send(Killer, airstrike.messages.not_enough_kills, "rcon")
@@ -1320,8 +1390,8 @@ function OnServerCommand(Killer, Command, _, _)
                                 math.randomseed(os.clock())
                                 local coordinates = math.random(#t)
                                 local C = t[coordinates]
-                                local x, y, z = C[1], C[2], C[3]
-                                InitiateStrike(Killer, _, x, y, z)
+                                local x, y, z, height = C[1], C[2], C[3], C[4]
+                                InitiateStrike(Killer, _, x, y, z, height)
                             else
                                 Send(Killer, airstrike.messages.not_enough_kills, "rcon")
                             end
