@@ -955,8 +955,8 @@ function OnScriptLoad()
 end
 
 -- for projectile debugging (bloodgulch)--
-local TIMER = 0
-local MiddleX, MiddleY, MiddleZ = 65.749893188477, -120.40949249268, 0.11860413849354
+-- local TIMER = 0
+-- local MiddleX, MiddleY, MiddleZ = 65.749893188477, -120.40949249268, 0.11860413849354
 --
 
 function OnTick()
@@ -976,11 +976,11 @@ function OnTick()
     --end
 
     -- PROJECTILE DEBUGGING:
-    TIMER = TIMER + 1 / 30
-    if (TIMER >= 5) then
-        TIMER = 0
-        InitiateStrike(_, _, MiddleX, MiddleY, MiddleZ)
-    end
+    --TIMER = TIMER + 1 / 30
+    --if (TIMER >= 5) then
+    --    TIMER = 0
+    --    InitiateStrike(_, _, MiddleX, MiddleY, MiddleZ)
+    --end
 
     local t = airstrike.objects
     if (not game_over) and (t) then
@@ -1093,7 +1093,7 @@ function InitiateStrike(Killer, Victim, x, y, z)
     local object = TagInfo(projectile_object[1], projectile_object[2])
     if (object) then
 
-        --players[Killer].kills = 0
+        players[Killer].kills = 0
 
         for _ = params.min_projectiles, params.max_projectiles do
 
@@ -1110,29 +1110,29 @@ function InitiateStrike(Killer, Victim, x, y, z)
             end
         end
 
-        --local msg = airstrike.messages.on_airstrike_call
-        --local Feedback = msg.killer_feedback
-        --for i = 1, #Feedback do
-        --    Send(Killer, Feedback[i], "rcon")
-        --end
-        --
-        --local mode = players[Killer].mode
-        --for i = 1, 16 do
-        --    if player_present(i) and (tonumber(i) ~= Killer) then
-        --        Victim = Victim or 0
-        --        local victim_name = get_var(Victim, "$name")
-        --        local team = GetOpposingTeam(Killer)
-        --        for j = 1, #msg.broadcast[mode] do
-        --            local Msg = gsub(gsub(gsub(msg.broadcast[mode][j],
-        --                    "%%killer%%", players[Killer].name),
-        --                    "%%victim%%", victim_name),
-        --                    "%%opposing_team%%", team)
-        --            Send(i, Msg, "chat")
-        --        end
-        --    end
-        --end
+        local msg = airstrike.messages.on_airstrike_call
+        local Feedback = msg.killer_feedback
+        for i = 1, #Feedback do
+            Send(Killer, Feedback[i], "rcon")
+        end
+
+        local mode = players[Killer].mode
+        for i = 1, 16 do
+            if player_present(i) and (tonumber(i) ~= Killer) then
+                Victim = Victim or 0
+                local victim_name = get_var(Victim, "$name")
+                local team = GetOpposingTeam(Killer)
+                for j = 1, #msg.broadcast[mode] do
+                    local Msg = gsub(gsub(gsub(msg.broadcast[mode][j],
+                            "%%killer%%", players[Killer].name),
+                            "%%victim%%", victim_name),
+                            "%%opposing_team%%", team)
+                    Send(i, Msg, "chat")
+                end
+            end
+        end
     else
-        --Send(Killer, airstrike.messages.strike_failed, "rcon")
+        Send(Killer, airstrike.messages.strike_failed, "rcon")
     end
 end
 
