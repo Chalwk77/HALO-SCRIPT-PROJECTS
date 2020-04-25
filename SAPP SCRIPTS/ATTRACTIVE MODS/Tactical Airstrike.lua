@@ -6,11 +6,11 @@ Description: Players who achieve a five-kill streak (killing five enemy players 
 
         Players will have the opportunity to select from 1 of 3 "strike" modes.
         To view a list of Strike Modes, type "/nuke info" - you will see the list of modes and their respective IDs.
-        To select a mode, type "/nuke mode <mode id>".
+        To select a mode, type "/nuke mode [mode id]".
 
         MODE 1). Call an airstrike at a specific player's X, Y, Z map coordinates.
             - To view a list of player IDs, type "/nuke pl".
-            - To call an airstrike on a specific player, type "/nuke <player id>".
+            - To call an airstrike on a specific player, type "/nuke [player id]".
 
         MODE 2). Call an airstrike to (1 of X) locations surrounding the enemy base.
             - To call a Mode 2 Airstrike, type "/nuke".
@@ -23,8 +23,8 @@ Description: Players who achieve a five-kill streak (killing five enemy players 
         Players will be in Mode 1 by default when they join the server.
 
         Command Syntax:
-        * /nuke <player id >
-        * /nuke mode <mode id>
+        * /nuke [player id]
+        * /nuke mode [mode id]
         * /nuke info
         * /nuke pl
 
@@ -70,7 +70,7 @@ local airstrike = {
         player_offline_or_dead = "Player is offline or dead!",
         invalid_player_id = "Invalid Player ID!",
         console_error = "You cannot execute this command from the console!",
-        mode_invalid_syntax = "Invalid Syntax or Invalid Mode. Usage: /%cmd% %mode_cmd% <mode id>",
+        mode_invalid_syntax = "Invalid Syntax or Invalid Mode. Usage: /%cmd% %mode_cmd% [mode id]",
         team_play_incompatible = "This mode is incompatible with team play!",
         strike_failed = "Unable to initiate Airstrike. Please contact an Administrator.",
 
@@ -95,7 +95,7 @@ local airstrike = {
         },
         incorrect_mode = {
             "You are not in the correct mode!",
-            "Use: /%cmd% %mode_cmd% <mode id>"
+            "Use: /%cmd% %mode_cmd% [mode id]"
         },
         info = {
             "-- ============== MODE INFORMATION ============== --",
@@ -109,7 +109,7 @@ local airstrike = {
         on_kill = {
             ["Mode A"] = {
                 "-- ============ AIRSTRIKE AVAILABLE ============ --",
-                "Type /%cmd% <player id> to call an airstrike on a player!",
+                "Type /%cmd% [player id] to call an airstrike on a player!",
                 "Type /%cmd% %pl_cmd% to view a list of Player IDs"
             },
 
