@@ -76,11 +76,11 @@ local airstrike = {
         strike_failed = "Unable to initiate Airstrike. Please contact an Administrator.",
 
         -- When enabled, the server will periodically broadcast information about this mod.
-        -- Messages are displayed in RCON CONSOLE.
+        -- Messages are displayed in RCON or CHAT.
         periodic_broadcast = {
             enabled = true,
             interval = 120, -- timer (in seconds) between each announcement
-            environment = "chat", -- Valid envoronment = "rcon" or "chat"
+            environment = "chat", -- Valid environment = "rcon" or "chat"
             lines = {
                 "This server has an Airstrike Feature.",
                 " ",
