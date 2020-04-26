@@ -20,7 +20,7 @@
 
 #### Recommended Communities:
 > Open Carnage: [weblink](https://opencarnage.net/)
-> * Discord: https://discord.gg/zXuTAC
+> * Discord: https://discord.gg/9HMDFa
 
 ##### Contributors: [weblink](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/CONTRIBUTING.md)
 > Contributors are those whom have directly contributed code or allowed me to use portions of their code from existing projects. 
