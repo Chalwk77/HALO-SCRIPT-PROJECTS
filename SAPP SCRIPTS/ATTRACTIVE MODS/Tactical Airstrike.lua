@@ -1,7 +1,7 @@
 --[[
 --=====================================================================================================--
 Script Name: Tactical Airstrike, for SAPP (PC & CE)
-Description: Players who achieve a five-kill streak (killing five enemy players consecutively without dying) 
+Description: Players who achieve a five-kill streak (killing five enemy players consecutively without dying)
              are given the ability to call in an airstrike.
 
 Players will have the opportunity to select from 1 of 3 "strike" modes.
@@ -37,7 +37,6 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 * Written by Jericho Crosby (Chalwk)
 --=====================================================================================================--
 ]]--
-
 
 api_version = "1.12.0.0"
 
@@ -76,6 +75,21 @@ local airstrike = {
         team_play_incompatible = "This mode is incompatible with team play!",
         strike_failed = "Unable to initiate Airstrike. Please contact an Administrator.",
 
+        -- When enabled, the server will periodically broadcast information about this mod.
+        -- Messages are displayed in RCON CONSOLE.
+        periodic_broadcast = {
+            enabled = true,
+            interval = 120, -- timer (in seconds) between each announcement
+            environment = "chat", -- Valid envoronment = "rcon" or "chat"
+            lines = {
+                "This server has an Airstrike Feature.",
+                " ",
+                "Get a five-kill streak (5 consecutive kills) without dying and gain",
+                "the ability to call in an airstrike using 1 of 3 special Strike Modes.",
+                "Type /%cmd% %info_cmd% for information about these Strike Modes."
+            }
+        },
+
         player_list_cmd_feedback = {
             header = "[ID - NAME]",
             player_info = "%id%  -  %name%",
@@ -102,10 +116,20 @@ local airstrike = {
         info = {
             "-- ============== MODE INFORMATION ============== --",
             "Mode 1). Call an airstrike at a specific player's X, Y, Z map coordinates.",
+            "Type /%cmd% [player id] to call an airstrike on a player!",
+            "Type /%cmd% %pl_cmd% to view a list of Player IDs",
+            " ",
             " ",
             "Mode 2). Call an airstrike to (1 of X) locations surrounding the enemy base.",
+            "Type /%cmd% to call an airstrike on the enemy base!",
+            " ",
             " ",
             "Mode 3). Call an airstrike to a random (pre-defined) x,y,z coordinate on the map.",
+            "Type /%cmd% to call an airstrike at a random location on the map!",
+            " ",
+            " ",
+            " ",
+            "COMMAND SYNTAX TO SELECT A MODE: /%cmd% %mode_cmd% [mode id]",
             "--=============================================================================--"
         },
         on_kill = {
@@ -2410,8 +2434,10 @@ local airstrike = {
 local players = { }
 
 -- Variables
+local delta_time = 1 / 30 -- 1-30th seconds (0.03333333333333333 seconds)
 local game_over, map_name
 local gmatch, lower, upper, gsub = string.gmatch, string.lower, string.upper, string.gsub
+local floor = math.floor
 
 function OnScriptLoad()
 
@@ -2428,6 +2454,7 @@ function OnScriptLoad()
 
     if (get_var(0, "$gt") ~= "n/a") then
         map_name = get_var(0, "$map")
+        airstrike.messages.periodic_broadcast.timer = 0
     end
 end
 
@@ -2439,6 +2466,28 @@ local MiddleX, MiddleY, MiddleZ, MiddleHeight = 65.749893188477, -120.4094924926
 --
 
 function OnTick()
+
+    if (not game_over) and mapIsEnabled() then
+        local t = airstrike.messages.periodic_broadcast
+        t.timer = t.timer + delta_time
+
+        local time_remaining = floor(t.interval - t.timer)
+
+        if (time_remaining <= 0) then
+            t.timer = 0
+            for i = 1, 16 do
+                if player_present(i) then
+                    for j = 1, #t.lines do
+                        local msg = gsub(gsub(gsub(t.lines[j],
+                    "%%cmd%%", airstrike.base_command),
+                    "%%mode_cmd%%", airstrike.mode_command),
+                    "%%info_cmd%%", airstrike.info_command)
+                        Send(i, msg, t.environment)
+                    end
+                end
+            end
+        end
+    end
 
     -- PROJECTILE DEBUGGING:
     if (projectile_debug_mode) then
@@ -2491,6 +2540,7 @@ function OnGameStart()
     game_over = false
     if (get_var(0, "$gt") ~= "n/a") then
         map_name = get_var(0, "$map")
+        airstrike.messages.periodic_broadcast.timer = 0
     end
 end
 
@@ -2629,8 +2679,13 @@ function OnServerCommand(Killer, Command, _, _)
                             if (args1 ~= nil) then
                                 if (tostring(args1) == airstrike.info_command) then
 
-                                    for i = 1, #airstrike.messages.info do
-                                        Send(Killer, airstrike.messages.info[i], "rcon")
+                                    local t = airstrike.messages.info
+                                    for i = 1, #t do
+                                        local msg = gsub(gsub(gsub(t[i],
+                                                "%%cmd%%", airstrike.base_command),
+                                                "%%mode_cmd%%", airstrike.mode_command),
+                                                "%%pl_cmd%%", airstrike.player_list_command)
+                                        Send(Killer, msg, "rcon")
                                     end
 
                                     -- MODE SELECT COMMAND:
@@ -2834,6 +2889,14 @@ function IsCorrectMode(Killer, Mode)
             Send(Killer, msg, "rcon")
         end
     end
+end
+
+function mapIsEnabled()
+    local map = airstrike.maps["bloodgulch"]
+    if (map ~= nil) and (map.enabled) then
+        return true
+    end
+    return false
 end
 
 function cls(PlayerIndex, Count)
