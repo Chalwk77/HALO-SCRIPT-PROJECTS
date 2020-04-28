@@ -3,12 +3,12 @@
 Script Name: Notify Me (UTILITY), for SAPP (PC & CE)
 Description: A simple addon that notifies (via server terminal) of certain events.
 
-             -- Event Triggers:
-             - Pre Join Event
-             - Successful Join Event
-             - Disconnect Event
-             - Death Event (server, unknown, vehicle, PvP, Team Kill etc)
-             - Spawn Event
+             ====== Event Triggers ======
+             - Pre Join
+             - Join
+             - Disconnect
+             - Death
+             - Spawn
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -22,7 +22,7 @@ api_version = "1.12.0.0"
 
 -- Config Starts ------------------------------------------------------------------------
 
-local actions = {
+local events = {
     ["OnPreJoin"] = {
         func = function(params)
             cprint("________________________________________________________________________________", 2 + 8)
@@ -137,9 +137,9 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
     DoAction(VictimIndex, "OnPlayerDeath")
 end
 
-function DoAction(PlayerIndex, Event)
-    for Action, v in pairs(actions) do
-        if (Action == Event) then
+function DoAction(PlayerIndex, Callback)
+    for Event, v in pairs(events) do
+        if (Callback == Event) then
             v.func(players[PlayerIndex])
         end
     end
