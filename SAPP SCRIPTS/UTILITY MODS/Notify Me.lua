@@ -25,36 +25,36 @@ api_version = "1.12.0.0"
 local events = {
     ["OnPreJoin"] = {
         func = function(params)
-            cprint("________________________________________________________________________________", 2 + 8)
-            cprint(params.name .. " is attempting to connect to the server...", 5 + 8)
-            cprint("Player: " .. params.name, 2 + 8)
-            cprint("CD Hash: " .. params.hash, 2 + 8)
-            cprint("IP Address: " .. params.ip, 2 + 8)
-            cprint("Index ID: " .. params.id, 2 + 8)
-            cprint("Privilege Level: " .. params.level, 2 + 8)
+            cprint("________________________________________________________________________________", 10)
+            cprint(params.name .. " is attempting to connect to the server...", 13)
+            cprint("Player: " .. params.name, 10)
+            cprint("CD Hash: " .. params.hash, 10)
+            cprint("IP Address: " .. params.ip, 10)
+            cprint("Index ID: " .. params.id, 10)
+            cprint("Privilege Level: " .. params.level, 10)
         end
     },
     ["OnPlayerConnect"] = {
         func = function(params)
-            cprint("Join Time: " .. os.date("%A %d %B %Y - %X"), 2 + 8)
-            cprint("Status: " .. params.name .. " connected successfully.", 5 + 8)
-            cprint("________________________________________________________________________________", 2 + 8)
+            cprint("Join Time: " .. os.date("%A %d %B %Y - %X"), 10)
+            cprint("Status: " .. params.name .. " connected successfully.", 13)
+            cprint("________________________________________________________________________________", 10)
         end
     },
     ["OnPlayerDisconnect"] = {
         func = function(params)
-            cprint("________________________________________________________________________________", 4 + 8)
-            cprint("Player: " .. params.name, 4 + 8)
-            cprint("CD Hash: " .. params.hash, 4 + 8)
-            cprint("IP Address: " .. params.ip, 4 + 8)
-            cprint("Index ID: " .. params.id, 4 + 8)
-            cprint("Privilege Level: " .. params.level, 4 + 8)
-            cprint("________________________________________________________________________________", 4 + 8)
+            cprint("________________________________________________________________________________", 12)
+            cprint("Player: " .. params.name, 12)
+            cprint("CD Hash: " .. params.hash, 12)
+            cprint("IP Address: " .. params.ip, 12)
+            cprint("Index ID: " .. params.id, 12)
+            cprint("Privilege Level: " .. params.level, 12)
+            cprint("________________________________________________________________________________", 12)
         end
     },
     ["OnPlayerSpawn"] = {
         func = function(params)
-            cprint(params.name .. " spawned", 6 + 8)
+            cprint(params.name .. " spawned", 14)
         end
     },
     ["OnPlayerDeath"] = {
