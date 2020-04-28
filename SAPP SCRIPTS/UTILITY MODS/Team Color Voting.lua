@@ -1,6 +1,6 @@
 --[[
 --======================================================================================================--
-Script Name: Team Color Voting (v1.5), for SAPP (PC & CE)
+Script Name: Team Color Voting (v1.4), for SAPP (PC & CE)
 Description: Players vote for the color set in the next game.
 
 Commands:
@@ -57,7 +57,7 @@ function mod:LoadSettings()
             invalid_syntax = "Incorrect Vote Option. Usage: /%cmd% <set id>",
             vote_list_hud = "[%id%] %R% - VS - %B%",
             vote_list_hud_header = "Vote Command Syntax: /%cmd% <set id>",
-			game_over_error = "You can only vote during an active game!",
+            game_over_error = "You can only vote during an active game!",
             already_voted = "You have already voted! (You voted for %R% - vs - %B%)",
             insufficient_permission = "You do not have permission to execute that command!"
         },
@@ -185,13 +185,13 @@ end
 
 function OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
-		game_over = false
+        game_over = false
         mod:LoadSettings()
     end
 end
 
 function OnGameEnd()
-	game_over = true
+    game_over = true
     local results = mod:CalculateVotes()
     local t = mod.settings.messages
     if (results ~= nil) then
@@ -217,7 +217,7 @@ end
 
 function OnPlayerConnect(PlayerIndex)
     mod:InitPlayer(PlayerIndex, false)
-	mod:SetColor(PlayerIndex)
+    mod:SetColor(PlayerIndex)
 end
 
 function OnTeamSwitch(PlayerIndex)
@@ -230,9 +230,9 @@ end
 
 function mod:InitPlayer(PlayerIndex, Reset)
     local name = get_var(PlayerIndex, "$name")
-		
+
     if (Reset) then
-	
+
         local t = mod.settings
         local id = players[PlayerIndex].setid
         if (id ~= nil) then
@@ -278,60 +278,60 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
         end
 
         if (command == t.vote_command) then
-			if (not game_over) then
-				mod:cls(executor, 25)
-				if has_permission() then
-					if (not players[executor].voted) then
+            if (not game_over) then
+                mod:cls(executor, 25)
+                if has_permission() then
+                    if (not players[executor].voted) then
 
-						local vote = args[1]
-						local team, valid = get_var(executor, "$team")
+                        local vote = args[1]
+                        local team, valid = get_var(executor, "$team")
 
-						for SetID, Choice in pairs(t.choices) do
-							if (tonumber(vote) == SetID) then
+                        for SetID, Choice in pairs(t.choices) do
+                            if (tonumber(vote) == SetID) then
 
-								-- Increment vote count by 1 for this color set:
-								Choice.votes = Choice.votes + 1
+                                -- Increment vote count by 1 for this color set:
+                                Choice.votes = Choice.votes + 1
 
-								players[executor].setid = tonumber(vote)
-								players[executor].voted, players[executor].voted_for = true, gsub(gsub(gsub(t.messages.already_voted,
-										"%%id%%", SetID),
-										"%%R%%", Choice.red[1]),
-										"%%B%%", Choice.blue[1])
+                                players[executor].setid = tonumber(vote)
+                                players[executor].voted, players[executor].voted_for = true, gsub(gsub(gsub(t.messages.already_voted,
+                                        "%%id%%", SetID),
+                                        "%%R%%", Choice.red[1]),
+                                        "%%B%%", Choice.blue[1])
 
-								valid = true
+                                valid = true
 
-								local msg = gsub(gsub(gsub(t.messages.on_vote,
-										"%%id%%", SetID),
-										"%%R%%", Choice.red[1]),
-										"%%B%%", Choice.blue[1])
-								mod:broadcast(executor, msg, false, "rcon")
+                                local msg = gsub(gsub(gsub(t.messages.on_vote,
+                                        "%%id%%", SetID),
+                                        "%%R%%", Choice.red[1]),
+                                        "%%B%%", Choice.blue[1])
+                                mod:broadcast(executor, msg, false, "rcon")
 
-								local broadcast = gsub(gsub(gsub(gsub(t.messages.broadcast_vote,
-										"%%name%%", players[executor].name),
-										"%%id%%", vote),
-										"%%R%%", Choice.red[1]),
-										"%%B%%", Choice.blue[1])
+                                local broadcast = gsub(gsub(gsub(gsub(t.messages.broadcast_vote,
+                                        "%%name%%", players[executor].name),
+                                        "%%id%%", vote),
+                                        "%%R%%", Choice.red[1]),
+                                        "%%B%%", Choice.blue[1])
 
-								for i = 1, 16 do
-									if player_present(i) and (i ~= executor) then
-										if (get_var(i, "$team") == get_var(executor, "$team")) then
-											mod:broadcast(i, broadcast, false, "Chat")
-										end
-									end
-								end
-							end
-						end
+                                for i = 1, 16 do
+                                    if player_present(i) and (i ~= executor) then
+                                        if (get_var(i, "$team") == get_var(executor, "$team")) then
+                                            mod:broadcast(i, broadcast, false, "Chat")
+                                        end
+                                    end
+                                end
+                            end
+                        end
 
-						if (not valid) then
-							local error = gsub(t.messages.invalid_syntax, "%%cmd%%", t.vote_command)
-							mod:broadcast(executor, error, false, "rcon")
-						end
-					else
-						mod:broadcast(executor, players[executor].voted_for, false, "rcon")
-					end
-				end
-			else
-				mod:broadcast(executor, t.messages.game_over_error, false, "rcon")
+                        if (not valid) then
+                            local error = gsub(t.messages.invalid_syntax, "%%cmd%%", t.vote_command)
+                            mod:broadcast(executor, error, false, "rcon")
+                        end
+                    else
+                        mod:broadcast(executor, players[executor].voted_for, false, "rcon")
+                    end
+                end
+            else
+                mod:broadcast(executor, t.messages.game_over_error, false, "rcon")
             end
 
             return false
