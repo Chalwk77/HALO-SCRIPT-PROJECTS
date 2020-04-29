@@ -22,9 +22,9 @@ local WeaponProjectileTag = { "proj", "weapons\\rocket launcher\\rocket" }
 -- Set higher values for a greater effect!
 local projectile_count = 10
 
--- Minimum time until rocket launcher explodes:
+-- The time (interval) until a players rocket launcher explodes is a random number between "min_time" and "max_time".
+-- The interval is randomized every time the player spawns or switches weapons.
 local min_time = 1 -- in seconds
--- Maximum time until rocket launcher explodes:
 local max_time = 300 -- in seconds
 -- Config [ENDS] ---------------------------------------------------------------------
 
@@ -77,7 +77,9 @@ function OnTick()
 
                 local weapon = read_dword(DynamicPlayer + 0x118)
                 local Object = get_object_memory(weapon)
+
                 if (Object ~= 0) then
+
                     local tag_name = read_string(read_dword(read_word(Object) * 32 + 0x40440038))
                     if (tag_name == WeaponTagName) then
 
