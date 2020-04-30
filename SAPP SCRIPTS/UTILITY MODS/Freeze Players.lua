@@ -306,22 +306,6 @@ function TakeWeapons(TargetID, DynamicPlayer)
     DelInventory(TargetID)
 end
 
-function DelInventory(TargetID)
-
-    local DynamicPlayer = get_dynamic_player(TargetID)
-
-    write_word(DynamicPlayer + 0x31E, 0)
-    write_word(DynamicPlayer + 0x31F, 0)
-
-    local WeaponID = read_dword(DynamicPlayer + 0x118)
-    if (WeaponID ~= 0) then
-        for j = 0, 3 do
-            local WeapObject = read_dword(DynamicPlayer + 0x2F8 + j * 4)
-            destroy_object(WeapObject)
-        end
-    end
-end
-
 function RestoreWeapons(TargetID, DynamicPlayer)
     local x, y, z = read_vector3d(DynamicPlayer + 0x5C)
     local inventory = players[TargetID].inventory
@@ -344,4 +328,20 @@ function RestoreWeapons(TargetID, DynamicPlayer)
     write_byte(DynamicPlayer + 0x31F, inventory.plasma_grenades)
 
     players[TargetID].inventory = {}
+end
+
+function DelInventory(TargetID)
+
+    local DynamicPlayer = get_dynamic_player(TargetID)
+
+    write_word(DynamicPlayer + 0x31E, 0)
+    write_word(DynamicPlayer + 0x31F, 0)
+
+    local WeaponID = read_dword(DynamicPlayer + 0x118)
+    if (WeaponID ~= 0) then
+        for j = 0, 3 do
+            local WeapObject = read_dword(DynamicPlayer + 0x2F8 + j * 4)
+            destroy_object(WeapObject)
+        end
+    end
 end
