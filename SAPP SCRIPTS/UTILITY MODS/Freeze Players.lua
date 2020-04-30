@@ -36,6 +36,9 @@ local god_mode = true
 local take_weapons = true
 local restore_weapons = true
 
+-- If false, frozen players will not be able to chat!
+local chat = false
+
 -- Minimum permission level required to execute /freeze_command or /unfreeze_command
 local permission_level = 1
 
@@ -49,7 +52,8 @@ local messages = {
     [3] = "%target_name% is already unfrozen!",
     [4] = "Invalid Player ID. Usage: /%cmd% [number: 1-16] | */all | me",
     [5] = "You do not have permission to execute this command!",
-    [6] = "You cannot %state% yourself!"
+    [6] = "You cannot %state% yourself!",
+    [7] = "Your message was not sent. You are frozen!"
 }
 -- Config [Ends] ----------------------------------------------------------------
 
@@ -59,6 +63,7 @@ local players = {}
 local gsub, lower, upper, gmatch = string.gsub, string.lower, string.upper, string.gmatch
 
 function OnScriptLoad()
+    register_callback(cb["EVENT_CHAT"], "OnPlayerChat")
     register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
@@ -66,7 +71,7 @@ function OnScriptLoad()
 
     if get_var(0, "$gt") ~= "n/a" then
         players = {}
-        for i = 1, 16 do
+        for i = 1,16 do
             if player_present(i) then
                 InitPlayer(i, false)
             end
@@ -123,6 +128,16 @@ function OnServerCommand(Executor, Command, _, _)
             return false
         end
     end
+end
+
+function OnPlayerChat(PlayerIndex, Message, Type)
+	if (Type ~= 6) then
+		local PreventChat = (players[PlayerIndex].frozen) and (not chat)
+		if (PreventChat) then
+			rprint(PlayerIndex, messages[7])
+			return false
+		end
+	end
 end
 
 function ValidateCMD(Executor, Args, Type)
