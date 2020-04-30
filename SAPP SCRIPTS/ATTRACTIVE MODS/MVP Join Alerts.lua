@@ -20,12 +20,12 @@ local server_prefix = "**SAPP**"
 
 local MVPS = {
 
-	-- {IP or HASH, MESSAGE},
+    -- {IP or HASH, MESSAGE},
 
-	-- Example 1 (IP): 
-	{"127.0.0.1", "YO! MVP %name% has joined the server!"},
-	-- Example 2 (hash): 
-	{"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", "YO! MVP %name% has joined the server!"},
+    -- Example 1 (IP):
+    { "127.0.0.1", "YO! MVP %name% has joined the server!" },
+    -- Example 2 (hash):
+    { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", "YO! MVP %name% has joined the server!" },
 }
 
 -- Config Ends ------------
@@ -33,23 +33,23 @@ local MVPS = {
 api_version = "1.12.0.0"
 
 function OnScriptLoad()
-	register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
+    register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
 end
 
 function OnPlayerConnect(PlayerIndex)
-	local ip = get_var(PlayerIndex, "$ip"):match("%d+.%d+.%d+.%d+")
-	local hash = get_var(PlayerIndex, "hash")
-	for k,v in pairs(MVPS) do
-		if (k) and (v[1] == ip or v[1] == hash) then
-			local name = get_var(PlayerIndex, "$name")
-			local message = string.gsub(v[2], "%%name%%", name)
-			execute_command("msg_prefix \"\"")
-			say_all(message)
-			execute_command("msg_prefix \" " .. server_prefix .. "\" ")
-		end
-	end 
+    local ip = get_var(PlayerIndex, "$ip"):match("%d+.%d+.%d+.%d+")
+    local hash = get_var(PlayerIndex, "hash")
+    for k, v in pairs(MVPS) do
+        if (k) and (v[1] == ip or v[1] == hash) then
+            local name = get_var(PlayerIndex, "$name")
+            local message = string.gsub(v[2], "%%name%%", name)
+            execute_command("msg_prefix \"\"")
+            say_all(message)
+            execute_command("msg_prefix \" " .. server_prefix .. "\" ")
+        end
+    end
 end
 
 function OnScriptUnload()
-	
+
 end

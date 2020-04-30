@@ -23,29 +23,29 @@ api_version = "1.12.0.0"
 local gmatch, gsub = string.gmatch, string.gsub
 
 function OnScriptLoad()
-	register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
+    register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
 end
 
 local hasAccess = function(PlayerIndex)
-	return (tonumber(get_var(PlayerIndex, "$lvl")) >= permission_level)
+    return (tonumber(get_var(PlayerIndex, "$lvl")) >= permission_level)
 end
 
 function OnServerCommand(Executor, Command, _, _)
-	local Args = CmdSplit(Command)
-	if (Args[1] == nil or Args[1] == "") then
-		return
-	elseif (Args[1] == flip_command and Args[2] == nil) and hasAccess(Executor) then		
-		math.randomseed(os.clock())
-		local coin = math.random(1,2)
-		if (coin == 1) then
-			coin = gsub(output, "%%side%%", "heads")
-		else
-			coin = gsub(output, "%%side%%", "tails")
-		end
-		cprint(coin, 2+8)
-		rprint(Executor, coin)
-		return false
-	end
+    local Args = CmdSplit(Command)
+    if (Args[1] == nil or Args[1] == "") then
+        return
+    elseif (Args[1] == flip_command and Args[2] == nil) and hasAccess(Executor) then
+        math.randomseed(os.clock())
+        local coin = math.random(1, 2)
+        if (coin == 1) then
+            coin = gsub(output, "%%side%%", "heads")
+        else
+            coin = gsub(output, "%%side%%", "tails")
+        end
+        cprint(coin, 2 + 8)
+        rprint(Executor, coin)
+        return false
+    end
 end
 
 function OnScriptUnload()

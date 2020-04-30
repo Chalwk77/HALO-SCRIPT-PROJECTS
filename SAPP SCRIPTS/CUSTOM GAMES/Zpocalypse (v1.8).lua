@@ -440,10 +440,10 @@ end
 function OnGameStart()
     if (get_var(0, '$gt') ~= "n/a") then
         zombies:init()
-		
-		-- Enable Weapons:
-		EnableDisableWeapons(true)
-		
+
+        -- Enable Weapons:
+        EnableDisableWeapons(true)
+
         if not zombies:isTeamPlay() then
             zombies:unregisterSAPPEvents('Only supports team play!')
         elseif (parameters.required_players < 2) then
@@ -885,36 +885,36 @@ function zombies:StopTimer(TableIndex, StopALL)
 
     --
     if (gamestarted) then
-		EnableDisableWeapons(false)
+        EnableDisableWeapons(false)
     end
 end
 
 function EnableDisableWeapons(State)
-	
-	if (State) then		
-		-- Enable vehicles for both teams:
-		State = "enable_object"
-		execute_command("disable_all_vehicles 0 0")
-	else
-		-- Disable vehicles for both teams:
-		State = "disable_object"
-		execute_command("disable_all_vehicles 0 1")
-	end
 
-	execute_command(State .. " 'weapons\\assault rifle\\assault rifle' 2")
-	execute_command(State .. " 'weapons\\flamethrower\\flamethrower' 2")
-	execute_command(State .. " 'weapons\\needler\\mp_needler' 2")
-	execute_command(State .. " 'weapons\\pistol\\pistol' 2")
-	execute_command(State .. " 'weapons\\plasma pistol\\plasma pistol' 2")
-	execute_command(State .. " 'weapons\\plasma rifle\\plasma rifle' 2")
-	execute_command(State .. " 'weapons\\plasma_cannon\\plasma_cannon' 2")
-	execute_command(State .. " 'weapons\\rocket launcher\\rocket launcher' 2")
-	execute_command(State .. " 'weapons\\shotgun\\shotgun' 2")
-	execute_command(State .. " 'weapons\\sniper rifle\\sniper rifle' 2")
+    if (State) then
+        -- Enable vehicles for both teams:
+        State = "enable_object"
+        execute_command("disable_all_vehicles 0 0")
+    else
+        -- Disable vehicles for both teams:
+        State = "disable_object"
+        execute_command("disable_all_vehicles 0 1")
+    end
 
-	-- Disable Grenades for Zombies:
-	execute_command(State .. " 'weapons\\frag grenade\\frag grenade' 2")
-	execute_command(State .. " 'weapons\\plasma grenade\\plasma grenade' 2")
+    execute_command(State .. " 'weapons\\assault rifle\\assault rifle' 2")
+    execute_command(State .. " 'weapons\\flamethrower\\flamethrower' 2")
+    execute_command(State .. " 'weapons\\needler\\mp_needler' 2")
+    execute_command(State .. " 'weapons\\pistol\\pistol' 2")
+    execute_command(State .. " 'weapons\\plasma pistol\\plasma pistol' 2")
+    execute_command(State .. " 'weapons\\plasma rifle\\plasma rifle' 2")
+    execute_command(State .. " 'weapons\\plasma_cannon\\plasma_cannon' 2")
+    execute_command(State .. " 'weapons\\rocket launcher\\rocket launcher' 2")
+    execute_command(State .. " 'weapons\\shotgun\\shotgun' 2")
+    execute_command(State .. " 'weapons\\sniper rifle\\sniper rifle' 2")
+
+    -- Disable Grenades for Zombies:
+    execute_command(State .. " 'weapons\\frag grenade\\frag grenade' 2")
+    execute_command(State .. " 'weapons\\plasma grenade\\plasma grenade' 2")
 end
 
 function zombies:endGameCheck()

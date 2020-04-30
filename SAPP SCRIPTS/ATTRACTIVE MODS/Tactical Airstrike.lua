@@ -2479,9 +2479,9 @@ function OnTick()
                 if player_present(i) then
                     for j = 1, #t.lines do
                         local msg = gsub(gsub(gsub(t.lines[j],
-                    "%%cmd%%", airstrike.base_command),
-                    "%%mode_cmd%%", airstrike.mode_command),
-                    "%%info_cmd%%", airstrike.info_command)
+                                "%%cmd%%", airstrike.base_command),
+                                "%%mode_cmd%%", airstrike.mode_command),
+                                "%%info_cmd%%", airstrike.info_command)
                         Send(i, msg, t.environment)
                     end
                 end
