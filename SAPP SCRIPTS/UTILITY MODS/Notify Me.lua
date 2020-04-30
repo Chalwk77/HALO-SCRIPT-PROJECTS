@@ -33,7 +33,6 @@ local events = {
             cprint("IP Address: " .. params.ip, 10)
             cprint("Index ID: " .. params.id, 10)
             cprint("Privilege Level: " .. params.level, 10)
-            cprint("Ping on JOIN: " .. params.ping, 10)
         end
     },
     ["OnPlayerConnect"] = {
