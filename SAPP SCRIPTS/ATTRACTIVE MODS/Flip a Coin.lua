@@ -1,7 +1,7 @@
 --[[
 --=====================================================================================================--
 Script Name: Flip a Coin, for SAPP (PC & CE)
-Description: A simple addon that lets you flip a text based virtual coin!
+Description: A simple addon that lets you flip a text-based virtual coin!
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
