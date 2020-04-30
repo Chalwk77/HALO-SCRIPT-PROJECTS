@@ -37,7 +37,7 @@ end
 
 function OnServerCommand(Admin, Command, _, _)
     local Cmd = CmdSplit(Command)
-	local lvl = tonumber(get_var(Admin, "$lvl"))
+    local lvl = tonumber(get_var(Admin, "$lvl"))
     if (#Cmd == 0) then
         return false
     elseif (lvl >= 1) then

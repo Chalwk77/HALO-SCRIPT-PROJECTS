@@ -73,7 +73,7 @@ local settings = {
     command_msg_variant_one = "Use this command to spawn a vehicle: ",
     command_msg_variant_two = "Use these commands to spawn a vehicle: ",
     server_prefix = "HLN | CE» ",
-	script_version = 1.11
+    script_version = 1.11
 }
 -- Configuration [Ends] ---------------------------------------------
 
@@ -93,7 +93,7 @@ function OnScriptLoad()
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
 
     if (get_var(0, "$gt") ~= "n/a") then
-		say_all("HLN Vehicle Spawner (version " .. settings.script_version .. ") loaded.")
+        say_all("HLN Vehicle Spawner (version " .. settings.script_version .. ") loaded.")
         CheckFile(true)
         for i = 1, 16 do
             if player_present(i) then
@@ -379,8 +379,8 @@ function CheckFile(broadcast)
     end
 
     map_data, players, valid_commands = {}, {}, {}
-	valid_commands.msg = ""
-	valid_commands.timer = 0
+    valid_commands.msg = ""
+    valid_commands.timer = 0
     local current_map = get_var(0, "$map")
     if (info) then
         for map, v in pairs(info) do
@@ -406,15 +406,15 @@ function CheckFile(broadcast)
                     end
                 end
             end
-			
+
             if (#valid_commands == 1) then
                 valid_commands.msg = settings.command_msg_variant_one .. valid_commands.msg
             else
                 valid_commands.msg = settings.command_msg_variant_two .. valid_commands.msg
             end
-			if (broadcast) then
-				say_all("HLN Vehicle Spawner successfully loaded vehicle data from database.")
-			end
+            if (broadcast) then
+                say_all("HLN Vehicle Spawner successfully loaded vehicle data from database.")
+            end
         end
     end
     game_started = true
