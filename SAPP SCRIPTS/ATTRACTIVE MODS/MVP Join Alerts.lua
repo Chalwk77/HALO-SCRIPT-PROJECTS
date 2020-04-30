@@ -1,7 +1,7 @@
 --[[
 --=====================================================================================================--
 Script Name: MVP Join Alerts, for SAPP (PC & CE)
-Description: Broadcast a special message when an MVP joins!
+Description: This mod will automatically broadcast a special message when an MVP joins! 
              Each MVP can have a unique message!
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
