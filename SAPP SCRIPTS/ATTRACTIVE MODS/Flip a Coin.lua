@@ -14,10 +14,20 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 -- Config Starts
 
 local flip_command = "flip"
-local output = "You flipped %side%"
 local permission_level = -1
+local output = {
+	"Flipping %flips% times...",
+	"Heads: %headcount%/%flips% - %percent%%",
+	"Tails: %tailcount%/%flips% - %percent%%",
+	"This took %time% seconds"
+}
+
+local flips = 100000000
 
 -- Config Ends
+
+local heads, tails = 1, 2
+local headcount, tailcount = 0, 0
 
 api_version = "1.12.0.0"
 local gmatch, gsub = string.gmatch, string.gsub
@@ -35,21 +45,54 @@ function OnServerCommand(Executor, Command, _, _)
     if (Args[1] == nil or Args[1] == "") then
         return
     elseif (Args[1] == flip_command and Args[2] == nil) and hasAccess(Executor) then
-        math.randomseed(os.clock())
-        local coin = math.random(1, 2)
-        if (coin == 1) then
-            coin = gsub(output, "%%side%%", "heads")
-        else
-            coin = gsub(output, "%%side%%", "tails")
-        end
-        cprint(coin, 2 + 8)
-        rprint(Executor, coin)
+	
+		local starttime = os.time()
+		
+		local Flipping = gsub(output[1], "%%flips%%", flips)
+		Send(Executor, Flipping)
+		
+		math.randomseed(os.time())
+		local x
+		for i = 1, flips do
+			x = math.random(2)
+			if (x == heads) then
+				headcount = headcount + 1
+			else
+				tailcount = tailcount + 1
+			end
+		end
+
+		local endtime = os.time()
+
+		local Heads = gsub(gsub(gsub(output[2], 
+		"%%headcount%%", headcount), 
+		"%%flips%%", flips), 
+		"%%percent%%", (headcount/flips*100))
+		Send(Executor, Heads)
+		
+		local Tails = gsub(gsub(gsub(output[3], 
+		"%%tailcount%%", tailcount), 
+		"%%flips%%", flips), 
+		"%%percent%%", (tailcount/flips*100))
+		Send(Executor, Tails)
+		
+		local TimeLapsed = gsub(output[4], "%%time%%", (endtime-starttime))
+		Send(Executor, TimeLapsed)
+		
         return false
     end
 end
 
 function OnScriptUnload()
 
+end
+
+function Send(PlayerIndex, Message)
+	if (PlayerIndex == 0) then
+		cprint(Message, 2+8)
+	else
+		rprint(PlayerIndex, Message)
+	end
 end
 
 function CmdSplit(CMD)
@@ -60,4 +103,3 @@ function CmdSplit(CMD)
     end
     return t
 end
-
