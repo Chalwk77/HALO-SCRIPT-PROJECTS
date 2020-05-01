@@ -1,16 +1,13 @@
 --[[
 --=====================================================================================================--
 Script Name: Play Time, for SAPP (PC & CE)
-Description: Display your play time.
-
-Command Syntax: /playtime [number: 1-16] | */all | me
+Description: Display your play-time with a simple command: /playtime [number: 1-16] | */all | me
 
 -----[!] IMPORTANT [!] -----
 1): This mod requires that the following plugins are installed to your server:
     http://regex.info/blog/lua/json
 
 2): Place "json.lua" in your servers root directory.
-
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
