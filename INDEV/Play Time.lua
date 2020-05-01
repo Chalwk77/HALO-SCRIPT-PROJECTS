@@ -1,11 +1,11 @@
 -- Config Starts --
 local path = "sapp\\playtime.json"
 local playtime_command = "playtime"
-local permission_level = 1
+local permission_level = -1
 
 local messages = {
-    [1] = "Your playtime is Days: %d%, Hours: %h%, Minutes: %m%, Seconds: %s%",
-    [2] = "%name%'s playtime is Days: %d%, Hours: %h%, Minutes: %m%, Seconds: %s%",
+    [1] = "Your playtime is Years: %Y%, Weeks: %W%, Days: %D%, Hours: %H%, Minutes: %M%, Seconds: %S%",
+    [2] = "%name%'s playtime is Years: %Y%, Weeks: %W%, Days: %D%, Hours: %H%, Minutes: %M%, Seconds: %S%",
     [3] = "Invalid Player ID. Usage: /%cmd% [number: 1-16] | */all | me",
     [4] = "You do not have permission to execute this command!",
 }
@@ -16,12 +16,15 @@ api_version = "1.12.0.0"
 
 local players = { }
 local json = (loadfile "json.lua")()
+local delta_time = 1 / 30
+local floor = math.floor
 local gsub, gmatch, lower, upper = string.gsub, string.gmatch, string.lower, string.upper
-local floor, format = string.floor, string.format
 
 function OnScriptLoad()
+
     -- Register needed event callbacks:
     register_callback(cb["EVENT_TICK"], "OnTick")
+    register_callback(cb['EVENT_GAME_END'], 'OnGameEnd')
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb['EVENT_GAME_START'], 'OnGameStart')
     register_callback(cb['EVENT_LEAVE'], 'OnPlayerDisconnect')
@@ -33,10 +36,10 @@ function OnScriptLoad()
 end
 
 function OnTick()
-    for i = 1,16 do
+    for i = 1, 16 do
         if player_present(i) then
-            if (players[i]) then
-                players[i].time = os.clock()
+            if (players[i] ~= nil and players[i].time ~= nil) then
+                players[i].time = players[i].time + delta_time
             end
         end
     end
@@ -48,6 +51,16 @@ function OnGameStart()
     end
 end
 
+function OnGameEnd()
+    if (get_var(0, "$gt") ~= "n/a") then
+        for i = 1, 16 do
+            if player_present(i) then
+                UpdateTime(i)
+            end
+        end
+    end
+end
+
 function OnServerCommand(Executor, Command, _, _)
     local Args = CmdSplit(Command)
     if (Args == nil) then
@@ -55,22 +68,37 @@ function OnServerCommand(Executor, Command, _, _)
     else
         Args[1] = (lower(Args[1]) or upper(Args[1]))
         if (Args[1] == playtime_command) then
+
             if HasAccess(Executor) then
                 local pl = GetPlayers(Executor, Args)
                 if (#pl > 0) then
                     for i = 1, #pl do
 
                         local msg
-                        local TargetID = pl[i]
-                        local name = get_var(TargetID, "$name")
-
+                        local TargetID = tonumber(pl[i])
                         local time = players[TargetID].time
-                        local days, hours, minutes, seconds = secondsToTime(time, 4)
+                        local years, weeks, days, hours, minutes, seconds = secondsToTime(time)
+
                         if (Executor == TargetID) then
-                            msg = gsub(gsub(gsub(gsub(messages[1], "%%d%%", days), "%%h%%", hours), "%%m%%", minutes), "%%s%%", seconds)
+                            msg = gsub(gsub(gsub(gsub(gsub(gsub(messages[1],
+                                    "%%Y%%", years),
+                                    "%%W%%", weeks),
+                                    "%%D%%", days),
+                                    "%%H%%", hours),
+                                    "%%M%%", minutes),
+                                    "%%S%%", seconds)
                         else
-                            msg = gsub(gsub(gsub(gsub(gsub(messages[2], "%%d%%", days), "%%h%%", hours), "%%m%%", minutes), "%%s%%", seconds), "%%name%%", name)
+                            local name = get_var(TargetID, "$name")
+                            msg = gsub(gsub(gsub(gsub(gsub(gsub(gsub(messages[2],
+                                    "%%Y%%", years),
+                                    "%%W%%", weeks),
+                                    "%%D%%", days),
+                                    "%%H%%", hours),
+                                    "%%M%%", minutes),
+                                    "%%S%%", seconds),
+                                    "%%name%%", name)
                         end
+
                         rprint(Executor, msg)
                     end
                 end
@@ -130,10 +158,10 @@ function GetPlayTime(IP)
     if (file ~= nil) then
         local data = file:read("*all")
         local stats = json:decode(data)
+        io.close(file)
         if (stats[IP]) then
             return stats[IP]
         end
-        io.close(file)
     end
     return nil
 end
@@ -145,6 +173,7 @@ function InitPlayer(PlayerIndex, Reset)
 
         local ip = get_var(PlayerIndex, "$ip"):match('(%d+.%d+.%d+.%d+)')
         local playtime, record = GetPlayTime(ip)
+
         if (playtime) then
             playtime, record = playtime.time, true
         else
@@ -159,12 +188,12 @@ function InitPlayer(PlayerIndex, Reset)
             if (file ~= nil) then
                 local data = file:read("*all")
                 stats = json:decode(data)
+                stats[ip] = players[PlayerIndex]
                 io.close(file)
             end
 
             local file = assert(io.open(path, "w"))
             if (file) then
-                stats[ip] = players[PlayerIndex]
                 file:write(json:encode_pretty(stats))
                 io.close(file)
             end
@@ -174,21 +203,26 @@ end
 
 function UpdateTime(PlayerIndex)
 
-    -- todo: fix table index pointer:
+    local file, stats = io.open(path, "r")
+    local temp = players[PlayerIndex]
 
-    local stats = players[PlayerIndex]
-    local records = GetPlayTime(stats.ip)
-
-    records[stats.ip] = stats
-
-    local file = assert(io.open(path, "w"))
-    if (file) then
-        file:write(json:encode_pretty(records))
+    if (file ~= nil) then
+        local data = file:read("*all")
+        stats = json:decode(data)
+        stats[temp.ip].time = temp.time
         io.close(file)
+    end
+
+    if (stats) then
+        local file = assert(io.open(path, "w"))
+        if (file) then
+            file:write(json:encode_pretty(stats))
+            io.close(file)
+        end
     end
 end
 
-function secondsToTime(seconds, places)
+function secondsToTime(seconds)
     local years = floor(seconds / (60 * 60 * 24 * 365))
     seconds = seconds % (60 * 60 * 24 * 365)
     local weeks = floor(seconds / (60 * 60 * 24 * 7))
@@ -200,19 +234,7 @@ function secondsToTime(seconds, places)
     local minutes = floor(seconds / 60)
     seconds = seconds % 60
 
-    if (places == 6) then
-        return format("%02d:%02d:%02d:%02d:%02d:%02d", years, weeks, days, hours, minutes, seconds)
-    elseif (places == 5) then
-        return format("%02d:%02d:%02d:%02d:%02d", weeks, days, hours, minutes, seconds)
-    elseif (not places or places == 4) then
-        return days, hours, minutes, seconds
-    elseif (places == 3) then
-        return format("%02d:%02d:%02d", hours, minutes, seconds)
-    elseif (places == 2) then
-        return format("%02d:%02d", minutes, seconds)
-    elseif (places == 1) then
-        return format("%02", seconds)
-    end
+    return years, weeks, days, hours, minutes, seconds
 end
 
 function CheckFile()
