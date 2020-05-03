@@ -55,9 +55,7 @@ end
 
 function OnTick()
     if (settings.timer and not gameover) and (tonumber(get_var(0, "$pn")) > 0) then
-        print("WORKING")
         settings.timer = settings.timer + 1 / 30
-        print(settings.timer)
         if (math.floor(settings.timer) == settings.interval) then
             say_all(settings.messages[settings.message_index])
             ResetTimer(false)
