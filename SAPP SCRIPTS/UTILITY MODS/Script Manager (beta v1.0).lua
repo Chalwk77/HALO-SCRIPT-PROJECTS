@@ -39,6 +39,13 @@ manager.settings = {
     --==================================================================--
     -- Stock maps and stock gametypes:
     --==================================================================--
+    ["chillout"] = {
+        use = true,
+        { -- Scripts:
+            "",
+        }, -- Game Modes:
+        "",
+    },
     ["sidewinder"] = {
         use = true,
         { -- Scripts:
