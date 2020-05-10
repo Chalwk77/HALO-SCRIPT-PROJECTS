@@ -119,14 +119,14 @@ function OnTick()
                     if (v.timer >= checkInterval) then
                         v.timer = 0
 
-                        local params = { }
                         local limit = GetPingLimit()
                         local ping = GetPing(player)
 
-                        params.ping = ping
-                        params.limit = limit
-
                         if (ping >= limit) then
+
+                            local params = { }
+                            params.ping = ping
+                            params.limit = limit
                             v.strikes = v.strikes + 1
 
                             if (v.strikes < maxWarnings) then
