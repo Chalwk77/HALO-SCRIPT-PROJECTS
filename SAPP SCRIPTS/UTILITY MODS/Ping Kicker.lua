@@ -1,9 +1,11 @@
 --[[
 --=====================================================================================================--
 Script Name: Ping Kicker, for SAPP (PC & CE)
-Description: An advanced mod that kicks players for high Ping.
-             Players will be warned 5 times before they are kicked.
-			 Ping Limits are set dynamically (see config).
+
+Description:
+An advanced mod that kicks players for high Ping.
+Players will be warned 5 times before they are kicked.
+Ping Limits are set dynamically (see config).
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
