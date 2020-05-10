@@ -57,6 +57,9 @@ local adminchat = {
         [8] = "Invalid Syntax: Usage: /%command% on|off [me | id | */all]",
     },
 
+
+    -- THIS IS MY AWESOME CUSTOM MESSAGE!
+
     -- Should A-Chat be restored for returning players? (if previously activated)
     restore = true,
 

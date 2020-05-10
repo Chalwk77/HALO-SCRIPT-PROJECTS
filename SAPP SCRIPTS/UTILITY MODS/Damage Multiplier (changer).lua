@@ -75,7 +75,6 @@ local multipliers = {
 
 function OnScriptLoad()
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
-
 end
 
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)

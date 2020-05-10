@@ -881,6 +881,7 @@ function OnTick()
                 local z = read_float(m_player + 0x100)
                 local obj_forward = read_float(player_object + 0x278)
                 local obj_left = read_float(player_object + 0x27C)
+                local obj_crouch = read_byte(player_object + 0x2A0)
                 local player_id = get_var(i, "$n")
                 if players_alive[player_id] ~= nil then
                     if (i == players_alive[player_id].pl_afk) then

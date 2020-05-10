@@ -25,7 +25,6 @@ local ip_table = {
 
     -- Note: Do not insert the player's PORT.
 
-    "127.0.0.1",
     "000.000.000.000",
     "000.000.000.000",
     -- repeat the structure to add more entries 
