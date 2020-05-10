@@ -14,15 +14,53 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 -- Config [STARTS] ----------------------------------------------
 
-local limit = 300 -- Strike a player after going over this ping.
-local maxStrikes = 5
-local checkInterval = 5 -- (ms) Every five seconds.
-local warning = "[PING KICK WARNING] Your ping is too high (%ping%) - Strikes Left: %remaining_strikes%/%total_strikes%"
+local maxWarnings = 5 -- Players will be kicked after this many warnings. 
+local checkInterval = 5 -- (seconds) Every five seconds.
+
+-- Dynamic ping limit based on player count:
+local limits = {
+	-- Min Players|Max Players|Ping Limit
+	{1,4,1},
+	{5,8,450},
+	{9,12,375},
+	{13,16,200}	
+}
+
+local messages = {
+
+	warn = { -- To Target Player
+		environment = "rcon",  -- Valid response environments are: "rcon" or "chat" 
+		"--- [ HIGH PING WARNING ] ---",
+		"Ping is too high! Limit: %limit% (ms) Your Ping: %ping% (ms)",
+		"Please try to lower it if possible.",
+		"Warnings Left: %warnings_left%/%total_warnings%",
+	},
+	
+	kick = {
+		environment = "chat",  -- Valid response environments are: "rcon" or "chat"
+		
+		[1] = { -- Message sent to everyone (excluding Target Player):
+				"--- PING KICK ---",
+				"%name% was kicked for high ping. Limit: %limit% (ms) Their Ping: %ping% (ms)",
+			},
+			
+		[2] = {-- Message sent to Target Player:
+			"--- PING KICK ---",
+			"You were kicked for high ping. Limit: %limit% (ms) Your Ping: %ping% (ms)"
+		}
+	}	
+}
+
+-- One function temporarily removes the server prefix while
+-- it relays specific messages then restores it.
+-- The prefix will be restored to this:
+local server_prefix = "**SAPP**"
 
 -- Config [ENDS] ----------------------------------------------
 
 local players = { }
-local gsub, gameOver = string.gsub
+local gameOver
+local gsub, format = string.gsub, string.format
 local delta_time = 1 / 30
 
 api_version = "1.12.0.0"
@@ -60,42 +98,94 @@ function OnPlayerDisconnect(PlayerIndex)
 end
 
 function OnTick()
-
-    if (not gameOver) then
+    if (not gameOver) then		
         for player, v in pairs(players) do
-            if (player) then
-                if player_present(player) then
+			if player_present(player) then
+				
+				if (v.timer) then
+					
+					v.timer = v.timer + delta_time
 
-                    v.timer = v.timer + delta_time
+					if (v.timer >= checkInterval) then
+						v.timer = 0
+						
+						local params = { }
+						local limit = GetPingLimit()
+						local ping = GetPing(player)
+						
+						params.ping = ping
+						params.limit = limit
+				
+						if (ping >= limit) then
+							v.strikes = v.strikes + 1
 
-                    if (v.timer >= checkInterval) then
-                        v.timer = 0
-
-                        local ping = GetPing(player)
-                        if (ping >= limit) then
-
-                            v.strikes = v.strikes + 1
-
-                            -- Warn Player:
-                            if (v.strikes < maxStrikes) then
-
-                                local StrikesLeft = (maxStrikes - v.strikes)
-                                local msg = gsub(gsub(gsub(warning, "%%remaining_strikes%%", StrikesLeft), "%%total_strikes%%", maxStrikes), "%%ping%%", ping)
-                                say(player, msg)
-                            else
-
-                                -- Execute SAPP kick Command on this player:
-                                execute_command("k " .. player .. " \"High Ping (" .. ping .. ")\"")
-
-                                -- Print kick reason to server terminal:
-                                cprint(v.name .. " was kicked for High Ping (" .. ping .. ")\"", 4 + 8)
-                            end
-                        end
-                    end
-                end
-            end
-        end
+							if (v.strikes < maxWarnings) then
+								params.msg = messages.warn
+								Respond(player, params)
+							else
+							
+								for i = 1,16 do
+									if player_present(i) and (i ~= player) then
+										params.msg = messages.kick[1]
+										Respond(i, params)
+									end
+								end
+							
+								params.msg = messages.kick[2]
+								Respond(player, params)
+								SilentKick(player)
+							end
+						end
+					end
+				end
+			end
+		end
     end
+end
+
+function SilentKick(PlayerIndex)
+	for _ = 1,9999 do
+		rprint(PlayerIndex, " ")
+	end
+end
+
+function Respond(PlayerIndex, params)
+
+	local msg = params.msg
+	local Environment = msg.environment
+
+    local sappResponseFunc = say
+    if (Environment == "rcon") then
+		cls(PlayerIndex, 25)
+        sappResponseFunc = rprint
+    end
+
+    execute_command("msg_prefix \"\"")
+	for j = 1, #msg do
+	
+		local FormatStr = gsub(gsub(gsub(gsub(gsub(msg[j], 
+		"%%ping%%", params.ping),
+		"%%limit%%", params.limit),
+		"%%total_warnings%%", maxWarnings), 
+		"%%name%%", players[PlayerIndex].name),
+		"%%warnings_left%%", maxWarnings - players[PlayerIndex].strikes)
+		
+		sappResponseFunc(PlayerIndex, FormatStr)
+	end
+    execute_command("msg_prefix \" " .. server_prefix .. "\"")
+end
+
+function GetPingLimit()
+	for Set = 1,#limits do
+		local min = limits[Set][1]
+		local max = limits[Set][2]
+		local limit = limits[Set][3]
+		local player_count = tonumber(get_var(0, "$pn"))
+		if (player_count >= min and player_count <= max) then
+			return limit
+		end
+	end
+	return 1000
 end
 
 function InitPlayer(PlayerIndex, Reset)
@@ -103,18 +193,27 @@ function InitPlayer(PlayerIndex, Reset)
         players[PlayerIndex] = { }
     else
         players[PlayerIndex] = {
-            name = get_var(PlayerIndex, "$name"),
-            strikes = 0, timer = 0
+			strikes = 0, timer = 0,
+            name = get_var(PlayerIndex, "$name")
         }
     end
+end
+
+function cls(PlayerIndex, Count)
+	Count = Count or 25
+	for _ = 1,Count do
+		rprint(PlayerIndex, " ")
+	end
 end
 
 function GetPing(PlayerIndex)
     return tonumber(get_var(PlayerIndex, "$ping"))
 end
 
+function OnError(Message)
+    print(debug.traceback())
+end
+
 function OnScriptUnload()
 
 end
-
-return PingKicker
