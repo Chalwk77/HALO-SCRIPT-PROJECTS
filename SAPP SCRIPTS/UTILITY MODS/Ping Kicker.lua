@@ -1,8 +1,9 @@
 --[[
 --=====================================================================================================--
 Script Name: Ping Kicker, for SAPP (PC & CE)
-Description: A simple addon Auto Kicks players for high Ping.
+Description: An advanced mod that kicks players for high Ping.
              Players will be warned 5 times before they are kicked.
+			 Ping Limits are set dynamically (see config).
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -19,11 +20,17 @@ local checkInterval = 5 -- (seconds) Every five seconds.
 
 -- Dynamic ping limit based on player count:
 local limits = {
-	-- Min Players|Max Players|Ping Limit
-	{1,4,1},
-	{5,8,450},
-	{9,12,375},
-	{13,16,200}	
+	
+	-- Min Players, Max Players, Ping Limit:
+	--
+	
+	{1,4,750}, 	 -- Mod will start ping kicking if there are 1 to 4 players (if 750+ ping)
+	
+	{5,8,450}, 	 -- Mod will start ping kicking if there are 5 to 8 players (if 450+ ping)
+	  
+	{9,12,375},  -- Mod will start ping kicking if there are 9 to 12 players (if 375+ ping)
+	
+	{13,16,200}	 -- Mod will start ping kicking if there are 13 to 16 players (if 200+ ping)
 }
 
 local messages = {
@@ -134,6 +141,9 @@ function OnTick()
 								params.msg = messages.kick[2]
 								Respond(player, params)
 								SilentKick(player)
+								
+								cprint(v.name .. " was kicked for High Ping (" .. ping .. " ms)", 4 + 8)
+								execute_command("log_note " .. v.name .. " was kicked for High Ping (" .. ping .. " ms)")
 							end
 						end
 					end
