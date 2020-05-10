@@ -17,6 +17,8 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 local maxWarnings = 5 -- Players will be kicked after this many warnings. 
 local checkInterval = 5 -- (seconds) Every five seconds.
+local ignoreAdmins = true -- Set to false to kick admins with high pings
+local adminLevel = 1 -- Ignore admins at or above this level
 
 -- Dynamic ping limit based on player count:
 local limits = {
@@ -24,11 +26,11 @@ local limits = {
     -- Min Players, Max Players, Ping Limit:
     --
 
-    { 1, 4, 750 },      -- Mod will start ping kicking if there are 1 to 4 players (if 750+ ping)
+    { 1, 4, 750 }, -- Mod will start ping kicking if there are 1 to 4 players (if 750+ ping)
 
-    { 5, 8, 450 },      -- Mod will start ping kicking if there are 5 to 8 players (if 450+ ping)
+    { 5, 8, 450 }, -- Mod will start ping kicking if there are 5 to 8 players (if 450+ ping)
 
-    { 9, 12, 375 },     -- Mod will start ping kicking if there are 9 to 12 players (if 375+ ping)
+    { 9, 12, 375 }, -- Mod will start ping kicking if there are 9 to 12 players (if 375+ ping)
 
     { 13, 16, 200 }     -- Mod will start ping kicking if there are 13 to 16 players (if 200+ ping)
 }
@@ -107,10 +109,9 @@ end
 function OnTick()
     if (not gameOver) then
         for player, v in pairs(players) do
-            if player_present(player) then
+            if player_present(player) and (not Ignore(player)) then
 
                 if (v.timer) then
-
                     v.timer = v.timer + delta_time
 
                     if (v.timer >= checkInterval) then
@@ -218,6 +219,14 @@ end
 
 function GetPing(PlayerIndex)
     return tonumber(get_var(PlayerIndex, "$ping"))
+end
+
+function Ignore(PlayerIndex)
+    local level = tonumber(get_var(PlayerIndex, "$lvl"))
+    if (ignoreAdmins and level >= adminLevel) then
+        return true
+    end
+    return false
 end
 
 function OnError(Message)
