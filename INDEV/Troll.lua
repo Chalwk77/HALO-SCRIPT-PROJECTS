@@ -276,13 +276,14 @@ function OnPreSpawn(PlayerIndex)
     math.randomseed(os.time())
 
     if (t ~= nil) then
+
         local colorchange = Troll["Random Color Change"]
         if (colorchange.enabled) then
-        end
-        local player = get_player(PlayerIndex)
-        if (player ~= 0) then
-            local id = tonumber(t[10].color())
-            write_byte(player + 0x60, id)
+            local player = get_player(PlayerIndex)
+            if (player ~= 0) then
+                local id = tonumber(t[10].color())
+                write_byte(player + 0x60, id)
+            end
         end
 
         local silentkill = Troll["Silent Kill"]
@@ -326,10 +327,10 @@ function OnPlayerChat(P, Message, Type)
     end
 end
 
-function SayTeam(PlayerIndex, Message)
-    for i = 1,16 do
+function SayTeam(P, Message)
+    for i = 1, 16 do
         if player_present(i) then
-            if get_var(i, "$team") == get_var(PlayerIndex, "$team") then
+            if get_var(i, "$team") == get_var(P, "$team") then
                 say(i, Message)
             end
         end
