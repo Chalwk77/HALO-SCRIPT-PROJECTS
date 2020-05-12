@@ -12,9 +12,18 @@ local Troll = {
     -- Jumble 1-2 characters in some sentences:
     ["Chat Text Randomizer"] = {
         enabled = true,
-        min_chances = 1, -- 1 in 6 chance of your messages being randomized every time you chat
-        max_chances = 6,
+        min_chances = 1, -- 1 in 6 chance of your messages being randomized every time you chat.
+        max_chances = 1,
         format = {
+
+            --[[ Custom Variables:
+
+                %name% - will output the players name
+                %msg% - will output message
+                "%id% - will output the Player Index ID
+
+            --]]
+
             global = "%name%: %msg%",
             team = "[%name%]: %msg%",
             vehicle = "[%name%]: %msg%"
@@ -24,6 +33,9 @@ local Troll = {
     -- Inexplicable Deaths (no death message):
     ["Silent Kill"] = {
         enabled = true,
+
+        -- When a player spawns, the interval until they are killed is randomized.
+        -- The interval itself is an amount of seconds between "min" and "max".
         min = 1, -- in seconds
         max = 300, -- in seconds
     },
@@ -32,9 +44,12 @@ local Troll = {
     ["Teleport Under Map"] = {
         enabled = true,
 
+        -- Players will be teleported a random number of world units under the map.
+        -- The value of W/Units is a random number between minZ, maxZ
         minZ = 0.3, -- in world units
         maxZ = 0.7, -- in world units
 
+        -- Players will be teleported under the map at a random time between min/max seconds.
         min = 60, -- in seconds
         max = 300, -- in seconds
     },
@@ -42,6 +57,9 @@ local Troll = {
     -- Randomly force player to drop flag:
     ["Flag Dropper"] = {
         enabled = true,
+
+        -- When a player pick up the flag, the interval until they drop it is randomized.
+        -- The interval itself is an amount of seconds between "min" and "max".
         min = 1, -- in seconds
         max = 60, -- in seconds
     },
@@ -49,6 +67,9 @@ local Troll = {
     -- Randomly eject player from vehicle:
     ["Vehicle Exit"] = {
         enabled = true,
+
+        -- When a player enters a vehicle, the interval until they are forced to exit is randomized.
+        -- The interval itself is an amount of seconds between "min" and "max".
         min = 1, -- in seconds
         max = 60, -- in seconds
     },
@@ -56,6 +77,7 @@ local Troll = {
     -- Change name on join to something random
     ["Name Changer"] = {
         enabled = true,
+
         names = { -- Max 11 Characters only!
             "iLoveAG",
             "iLoveV3",
@@ -74,8 +96,6 @@ local Troll = {
 
     -- Forced Disconnect:
     ["Silent Kick"] = {
-
-        -- Set this to false to disable Silent Kick feature
         enabled = true,
 
         announcements = {
@@ -83,8 +103,7 @@ local Troll = {
             msg = "%name% was silently disconnected from the server!"
         },
 
-        -- When a player joins, the interval until they are kicked
-        -- is randomized every time they join.
+        -- When a player joins, the interval until they are kicked is randomized.
         -- The interval itself is an amount of minutes between "min" and "max".
         min = 60, -- in seconds
         max = 300, -- in seconds
@@ -93,6 +112,7 @@ local Troll = {
     -- Random Color Change:
     ["Random Color Change"] = {
         enabled = true,
+
         colors = {
             { 0, true }, --white
             { 1, true }, --black
@@ -307,17 +327,27 @@ function OnPlayerChat(P, Message, Type)
             local t = Troll["Chat Text Randomizer"]
             if (t.enabled) then
                 if (p[2].chance() == 1) then
+
                     local new_message = ShuffleWords(Message)
+                    local formatMsg = function(Msg)
+                        local patterns = {
+                            { "%%name%%", p.name },
+                            { "%%msg%%", new_message },
+                            { "%%id%%", P }
+                        }
+                        for i = 1, #patterns do
+                            Msg = (gsub(Msg, patterns[i][1], patterns[i][2]))
+                        end
+                        return Msg
+                    end
+
                     execute_command("msg_prefix \"\"")
                     if (Type == 0) then
-                        local msg = gsub(gsub(t.format.global, "%%name%%", p.name), "%%msg%%", new_message)
-                        say_all(msg)
+                        say_all(formatMsg(t.format.global))
                     elseif (Type == 1) then
-                        local msg = gsub(gsub(t.format.team, "%%name%%", p.name), "%%msg%%", new_message)
-                        SayTeam(P, msg)
+                        SayTeam(P, formatMsg(t.format.team))
                     elseif (Type == 2) then
-                        local msg = gsub(gsub(t.format.vehicle, "%%name%%", p.name), "%%msg%%", new_message)
-                        SayTeam(P, msg)
+                        SayTeam(P, formatMsg(t.format.vehicle))
                     end
                     execute_command("msg_prefix \" " .. server_prefix .. "\"")
                     return false
