@@ -39,6 +39,8 @@ local Troll = {
 
                 %name% - will output the players name
                 %msg% - will output message
+
+                -- Add this if you're using my ChatID script! (or because reasons)
                 "%id% - will output the Player Index ID
 
             --]]
@@ -61,7 +63,7 @@ local Troll = {
         max = 300, -- in seconds
     },
 
-    -- Randomly set Z axis to -0.5/WU:
+    -- Randomly TP players under the map:
     ["Teleport Under Map"] = {
         enabled = true,
         ignore_admins = true,
@@ -70,11 +72,11 @@ local Troll = {
         -- Players will be teleported a random number of world units under the map.
         -- The value of W/Units is a random number between minZ, maxZ
         minZ = 0.3, -- in world units
-        maxZ = 0.7, -- in world units
+        maxZ = 0.4, -- in world units
 
         -- Players will be teleported under the map at a random time between min/max seconds.
         min = 60, -- in seconds
-        max = 300, -- in seconds
+        max = 280, -- in seconds
     },
 
     -- Randomly force player to drop flag:
@@ -254,6 +256,7 @@ end
 
 function OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
+
         players = { }
         flag = { read_word(globals + 0x8), read_word(globals + 0xc) }
         local names = Troll["Name Changer"].names
