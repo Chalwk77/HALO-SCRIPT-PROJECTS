@@ -8,12 +8,12 @@ Features:
 * Chat Text Randomizer - Jumbles up characters in some sentences
 * Silent Kill - Inexplicable Deaths (no death message)
 * Teleport Under Map - Randomly TP players under the map
-* Flag Dropper - Randomly force player to drop flag
-* Vehicle Exit - Randomly eject player from vehicle
+* Flag Dropper - Randomly force player to drop the flag
+* Vehicle Exit - Randomly eject a player from vehicle
 * Name Changer - Change name to random pre-defined name from list
 * Ammo Changer - Randomly change weapon ammo/battery and grenades
 * Silent Kick - Force players to Disconnect (no kick message output)
-* Random Color Change - Change a players armor color when they join (works on all game types)
+* Random Color Change - Change a players armour colour when they join (works on all game types)
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
