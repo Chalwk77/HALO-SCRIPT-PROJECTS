@@ -151,11 +151,8 @@ local gsub = string.gsub
 local floor = math.floor
 local time_scale = 1 / 30
 
--- Color Change Variable:
-local ls
-
 -- Flag Dropper Variables:
-local flag, globals = { }, nil
+local flag, globals, ls = { }, nil
 
 function OnScriptLoad()
 
@@ -502,7 +499,7 @@ function InVehicle(DynamicPlayer)
     return false
 end
 
-function OnVehicleEntry(PlayerIndex, Seat)
+function OnVehicleEntry(PlayerIndex, _)
     if (players[PlayerIndex] ~= nil) then
         if (Troll["Vehicle Exit"].enabled) then
             players[PlayerIndex][6].timer = 0
@@ -512,14 +509,14 @@ function OnVehicleEntry(PlayerIndex, Seat)
 end
 
 function KillSilently(P)
-    local kill_message_addresss = sig_scan("8B42348A8C28D500000084C9") + 3
-    local original = read_dword(kill_message_addresss)
+    local kma = sig_scan("8B42348A8C28D500000084C9") + 3
+    local original = read_dword(kma)
     safe_write(true)
-    write_dword(kill_message_addresss, 0x03EB01B1)
+    write_dword(kma, 0x03EB01B1)
     safe_write(false)
     execute_command("kill " .. tonumber(P))
     safe_write(true)
-    write_dword(kill_message_addresss, original)
+    write_dword(kma, original)
     safe_write(false)
     write_dword(get_player(P) + 0x2C, 0 * 33)
     local deaths = tonumber(get_var(P, "$deaths"))
