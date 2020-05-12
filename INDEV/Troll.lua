@@ -59,7 +59,7 @@ local Troll = {
 
         -- When a player spawns, the interval until they are killed is randomized.
         -- The interval itself is an amount of seconds between "min" and "max".
-        min = 1, -- in seconds
+        min = 35, -- in seconds
         max = 300, -- in seconds
     },
 
@@ -136,14 +136,34 @@ local Troll = {
         }
     },
 
-    -- Randomly change weapon ammo/battery:
+    -- Randomly change weapon ammo/battery and nades:
     ["Ammo Changer"] = {
         enabled = true,
         ignore_admins = true,
         ignore_admin_level = 1,
-        ammo = 0,
-        mag = 0,
-        battery = 0,
+
+        minAmmoTime = 15,
+        maxAmmoTime = 300,
+
+        minNadeTime = 45,
+        maxNadeTime = 250,
+
+        weapons = {
+
+            -- If battery powered weapon, set to true!
+            { "weapons\\plasma rifle\\plasma rifle", true },
+            { "weapons\\plasma_cannon\\plasma_cannon", true },
+            { "weapons\\plasma pistol\\plasma pistol", true },
+
+            { "weapons\\pistol\\pistol", false },
+            { "weapons\\shotgun\\shotgun", false },
+            { "weapons\\needler\\mp_needler", false },
+            { "weapons\\sniper rifle\\sniper rifle", false },
+            { "weapons\\assault rifle\\assault rifle", false },
+            { "weapons\\flamethrower\\flamethrower", false },
+            { "weapons\\rocket launcher\\rocket launcher", false },
+
+        },
     },
 
     -- Forced Disconnect:
@@ -256,7 +276,6 @@ end
 
 function OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
-
         players = { }
         flag = { read_word(globals + 0x8), read_word(globals + 0xc) }
         local names = Troll["Name Changer"].names
@@ -278,9 +297,9 @@ function OnTick()
             math.randomseed(os.time())
 
             if player_alive(player) then
+
                 local silentkill = Troll["Silent Kill"]
                 if (silentkill.enabled) and TrollPlayer(player, silentkill) then
-
                     v[3].timer = v[3].timer + time_scale
                     if (v[3].timer >= v[3].time_until_kill) then
                         KillSilently(player)
@@ -325,6 +344,60 @@ function OnTick()
                         v[6].timer = v[6].timer + time_scale
                         if (v[6].timer >= v[6].time_until_exit) then
                             exit_vehicle(player)
+                        end
+                    end
+                end
+
+                local ammochanger = Troll["Ammo Changer"]
+                if (ammochanger.enabled) and TrollPlayer(player, ammochanger) then
+                    if (not InVehicle(DynamicPlayer)) then
+
+                        v[8].nade_timer = v[8].nade_timer + time_scale
+                        v[8].weapon_timer = v[8].weapon_timer + time_scale
+
+                        if (v[8].weapon_timer >= v[8].time_until_take_ammo) then
+                            v[8].weapon_timer = 0
+                            v[6].time_until_take_ammo = math.random(ammochanger.minAmmoTime, ammochanger.maxAmmoTime)
+
+                            local weapon = read_dword(DynamicPlayer + 0x118)
+                            local Object = get_object_memory(weapon)
+                            if (Object ~= 0) then
+
+                                local weapons = ammochanger.weapons
+                                for i = 1, #weapons do
+                                    local tag_name = read_string(read_dword(read_word(Object) * 32 + 0x40440038))
+                                    if (tag_name == weapons[i][1]) then
+                                        local battery_powered = weapons[i][2]
+                                        if (battery_powered) then
+                                            local energy = read_float(Object + 0x240)
+                                            execute_command("battery " .. player .. " " .. math.random(0, energy) .. " 0")
+                                        else
+                                            local ammo = read_word(Object + 0x2B8)
+                                            safe_write(true)
+                                            write_dword(Object + 0x2B8, math.random(0, ammo))
+                                            safe_write(false)
+                                            sync_ammo(weapon)
+                                        end
+                                    end
+                                end
+                            end
+                        elseif (v[8].nade_timer >= v[8].time_until_take_nades) then
+                            v[8].nade_timer = 0
+                            v[6].time_until_take_nades = math.random(ammochanger.minNadeTime, ammochanger.maxNadeTime)
+
+                            local nade_type = math.random(1,2)
+                            if (nade_type == 1) then
+
+                                local current = read_byte(DynamicPlayer + 0x31E)
+                                local amount_to_take = math.random(0, current)
+                                execute_command("nades " .. player .. " " .. current - amount_to_take)
+
+                            elseif (nade_type == 2) then
+
+                                local current = read_byte(DynamicPlayer + 0x31F)
+                                local amount_to_take = math.random(0, current)
+                                execute_command("plasmas " .. player .. " " .. current - amount_to_take)
+                            end
                         end
                     end
                 end
@@ -515,6 +588,11 @@ function InitPlayer(P, Reset)
                 },
                 [8] = { -- Ammo Changer
 
+                    nade_timer = 0,
+                    weapon_timer = 0,
+
+                    time_until_take_ammo = math.random(Troll["Ammo Changer"].minAmmoTime, Troll["Ammo Changer"].maxAmmoTime),
+                    time_until_take_nades = math.random(Troll["Ammo Changer"].minNadeTime, Troll["Ammo Changer"].maxNadeTime)
                 },
                 [9] = { -- Silent Kick
                     timer = 0,
@@ -636,8 +714,6 @@ function GetRandomName(P)
             if (string.len(nc.names[i][1]) < 12) then
                 if (not nc.names[i].used) then
                     t[#t + 1] = { nc.names[i][1], i }
-                else
-                    cprint(nc.names[i][1] .. " was already taken (skipping)", 2 + 8)
                 end
             end
         end
