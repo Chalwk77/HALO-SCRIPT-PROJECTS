@@ -15,7 +15,8 @@ Features:
 * Silent Kick               Force players to Disconnect (no kick message output)
 * Random Color Change       Randomly chance player (based on chance) when they spawn
 * Client Crasher            Randomly crash a player's game client
-* Force Chat:               Randomly force a player to say something from a list of pre-defined sentences
+* Force Chat:               [1] Randomly force a player to say something from a list of pre-defined sentences
+                            [2] Optionally force player to say something with custom command!
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
