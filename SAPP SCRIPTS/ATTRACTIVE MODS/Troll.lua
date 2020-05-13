@@ -18,9 +18,9 @@ Features:
 * Force Chat:               [1] Randomly force a player to say something from a list of pre-defined sentences
                             [2] Optionally force player to say something with custom command!
 
--- These two commands bypass feature-specific settings such as "ignore admins".
-* Add player to troll list with /addtroll [player id]
-* Remove player from troll list with /removetroll [player id]
+* Add/Remove commands (see config section for more details):
+/addtroll [player id]
+/removetroll [player id]
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -40,13 +40,18 @@ local Troll = {
     -------- [ S E T T I N G S ] ----------
     --===================================--
     settings = {
-
+        
+        -- This command lets you manually add a player to the
+        -- troll list (bypassing "ignore_admins" settings and "specific_users" settings).
         -- Command Syntax: /add_troll_command <player id>
         add_troll_command = "addtroll",
         add_troll_permission = 1,
+        --------------
 
+        -- This command will prevent a player from being trolled by this script.
         remove_troll_command = "deltroll",
         remove_troll_permission = 1,
+        --------------
 
         -- Several functions temporarily remove the server prefix when certain messages are broadcast.
         -- The prefix will be restored to 'server_prefix' when the relay has finished.
