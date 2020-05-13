@@ -263,7 +263,7 @@ local Troll = {
             -- When a player enters a vehicle, the interval until they are forced to exit is randomized.
             -- The interval itself is an amount of seconds between "min" and "max".
             min = 5, -- in seconds
-            max = 120, -- in seconds
+            max = 140, -- in seconds
         },
 
         ["Name Changer"] = {
@@ -318,8 +318,8 @@ local Troll = {
 
             -- The interval until they are nuked.
             -- The interval itself is an amount of seconds between "min" and "max".
-            min = 5, -- in seconds
-            max = 120, -- in seconds
+            min = 55, -- in seconds
+            max = 175, -- in seconds
         },
 
         ["Ammo Changer"] = {
@@ -371,8 +371,8 @@ local Troll = {
 
             -- When a player joins, the interval until they are kicked is randomized.
             -- The interval itself is an amount of seconds between "min" and "max".
-            min = 60, -- in seconds
-            max = 300, -- in seconds
+            min = 20, -- in seconds
+            max = 360, -- in seconds
         },
 
         ["Random Color Change"] = {
@@ -420,7 +420,7 @@ local Troll = {
             -- When a player joins, the interval until they are crashed is randomized.
             -- The interval itself is an amount of seconds between "min" and "max".
             min = 45, -- in seconds
-            max = 300, -- in seconds
+            max = 270, -- in seconds
         },
 
         ["Fake Join-Quit"] = {
@@ -449,8 +449,8 @@ local Troll = {
 
             -- Interval until fake join/quit message is broadcast to the target player.
             -- The interval itself is an amount of seconds between "min" and "max".
-            min = 45, -- in seconds
-            max = 240, -- in seconds
+            min = 65, -- in seconds
+            max = 255, -- in seconds
         },
 
         ["Force Chat"] = {
@@ -469,7 +469,7 @@ local Troll = {
 
             -- The interval until a player is forced to say something is randomized.
             -- The interval itself is an amount of seconds between "min" and "max".
-            min = 25, -- in seconds
+            min = 60, -- in seconds
             max = 300, -- in seconds
 
             -- Players message output format:
