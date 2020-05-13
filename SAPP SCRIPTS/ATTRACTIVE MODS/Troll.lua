@@ -15,7 +15,8 @@ Features:
 * Silent Kick               Force player to disconnect (no kick message output).
 * Random Color Change       Randomly change a player's colour when they spawn.
 * Client Crasher            Randomly crash a player's game client.
-* Nuke                      Randomly nuke a player
+* Nuke                      Randomly nuke a player.
+* Fake Join-Quit            Randomly show fake player join/quit messages to the target.
 * Force Chat:               [1] Randomly force a player to say something from a list of pre-defined sentences.
                             [2] Optionally force a player to say something with a custom command.
 
@@ -80,7 +81,7 @@ local Troll = {
         },
 
         -- Do Not Touch this.
-        script_version = 1.2
+        script_version = 1.3
     },
 
     -------- [ F E A T U R E S ] ----------
@@ -422,6 +423,36 @@ local Troll = {
             max = 300, -- in seconds
         },
 
+        ["Fake Join-Quit"] = {
+            -- Set this to "false" to disable this feature on start up:
+            enabled = true,
+
+            ignore_admins = true,
+            -- Admins who are this level (or higher) will be ignored:
+            ignore_admin_level = 1,
+
+            fake_join_message = "Welcome %fakename%",
+            fake_quit_message = "%fakename% quit",
+
+            names = {
+                { "ILoveRock" },
+                { "leila water" },
+                { "LilTuGfa" },
+                { "Nuevo001" },
+                { "Jass" },
+                { "Crypt®" },
+                { "Carbono980" },
+                { "shagnemite" },
+                { "DA-n00b1n8R" },
+                { "i- XTuAnuel" },
+            },
+
+            -- Interval until fake join/quit message is broadcast to the target player.
+            -- The interval itself is an amount of seconds between "min" and "max".
+            min = 45, -- in seconds
+            max = 240, -- in seconds
+        },
+
         ["Force Chat"] = {
             -- Set this to "false" to disable this feature on start up:
             enabled = true,
@@ -540,6 +571,12 @@ function OnGameStart()
         if (nc.enabled) then
             for i = 1, #nc.names do
                 nc.names[i].used = false
+            end
+        end
+        local fjq = Troll.features["Fake Join-Quit"]
+        if (fjq.enabled) then
+            for i = 1, #fjq.names do
+                fjq.names[i].joined = false
             end
         end
         PrintFeatureState()
@@ -711,6 +748,24 @@ function OnTick()
                                         execute_command("msg_prefix \" " .. Troll.settings.server_prefix .. "\"")
                                         cprint("[TROLL] " .. ply.name .. " was forced to say random message!", 5 + 8)
                                     end
+                                elseif (Feature == "Fake Join-Quit") then
+                                    t.timer = t.timer + time_scale
+                                    if (t.timer >= t.time_until_say) then
+                                        t.timer = 0
+                                        t.time_until_say = math.random(V1.min, V1.max)
+                                        local n = math.random(#V1.names)
+                                        local joined = V1.names[n].joined
+                                        local name = V1.names[n][1]
+                                        execute_command("msg_prefix \"\"")
+                                        if (joined) then
+                                            V1.names[n].joined = false
+                                            say_all(gsub(V1.fake_quit_message, "%%fakename%%", name))
+                                        else
+                                            V1.names[n].joined = true
+                                            say_all(gsub(V1.fake_join_message, "%%fakename%%", name))
+                                        end
+                                        execute_command("msg_prefix \" " .. Troll.settings.server_prefix .. "\"")
+                                    end
                                 end
                             end
                         end
@@ -776,6 +831,10 @@ function OnPreSpawn(P)
                             V2.time_until_nuke = math.random(V1.min, V1.max)
 
                         elseif (Feature == "Force Chat") then
+                            V2.timer = 0
+                            V2.time_until_say = math.random(V1.min, V1.max)
+
+                        elseif (Feature == "Fake Join-Quit") then
                             V2.timer = 0
                             V2.time_until_say = math.random(V1.min, V1.max)
 
@@ -1024,6 +1083,7 @@ function InitPlayer(P, Reset, Bypass)
                 ["Vehicle Exit"] = {},
                 ["Ammo Changer"] = {},
                 ["Name Changer"] = {},
+                ["Fake Join-Quit"] = {},
                 ["Client Crasher"] = {},
                 ["Teleport Under Map"] = {},
                 ["Random Color Change"] = {},
