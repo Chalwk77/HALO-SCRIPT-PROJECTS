@@ -8,15 +8,15 @@ Features:
 * Chat Text Randomizer      Jumbles up characters in some sentences.
 * Silent Kill               Inexplicable deaths (no death message).
 * Teleport Under Map        Randomly teleport players under the map.
-* Flag Dropper              Randomly force player to drop the flag.
-* Vehicle Exit              Randomly eject player from their vehicle.
+* Flag Dropper              Randomly forces a player to drop the flag.
+* Vehicle Exit              Randomly ejects a player from their vehicle.
 * Name Changer              Change player name to a random pre-defined name.
 * Ammo Changer              Randomly change weapon ammo/battery and grenades.
 * Silent Kick               Force player to disconnect (no kick message output).
-* Random Color Change       Randomly change player colour when they spawn.
+* Random Color Change       Randomly change a player's colour when they spawn.
 * Client Crasher            Randomly crash a player's game client.
 * Force Chat:               [1] Randomly force a player to say something from a list of pre-defined sentences.
-                            [2] Optionally force a player to say something with custom command.
+                            [2] Optionally force a player to say something with a custom command.
 
 * Add/Remove commands (see config section for more details):
 /addtroll [player id]
