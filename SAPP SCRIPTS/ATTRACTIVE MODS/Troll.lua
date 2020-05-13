@@ -5,18 +5,18 @@ Description: A unique mod designed to troll your whole server (or specific playe
 
 Features:
 * Damage Modifier           Randomly change damage multipliers.
-* Chat Text Randomizer      Jumbles up characters in some sentences
-* Silent Kill               Inexplicable Deaths (no death message)
-* Teleport Under Map        Randomly TP players under the map
-* Flag Dropper              Randomly force player to drop the flag
-* Vehicle Exit              Randomly eject a player from vehicle
-* Name Changer              Change name to random pre-defined name from list
-* Ammo Changer              Randomly change weapon ammo/battery and grenades
-* Silent Kick               Force players to Disconnect (no kick message output)
-* Random Color Change       Randomly chance player (based on chance) when they spawn
-* Client Crasher            Randomly crash a player's game client
-* Force Chat:               [1] Randomly force a player to say something from a list of pre-defined sentences
-                            [2] Optionally force player to say something with custom command!
+* Chat Text Randomizer      Jumbles up characters in some sentences.
+* Silent Kill               Inexplicable deaths (no death message).
+* Teleport Under Map        Randomly teleport players under the map.
+* Flag Dropper              Randomly force player to drop the flag.
+* Vehicle Exit              Randomly eject player from their vehicle.
+* Name Changer              Change player name to a random pre-defined name.
+* Ammo Changer              Randomly change weapon ammo/battery and grenades.
+* Silent Kick               Force player to disconnect (no kick message output).
+* Random Color Change       Randomly change player colour when they spawn.
+* Client Crasher            Randomly crash a player's game client.
+* Force Chat:               [1] Randomly force a player to say something from a list of pre-defined sentences.
+                            [2] Optionally force a player to say something with custom command.
 
 * Add/Remove commands (see config section for more details):
 /addtroll [player id]
@@ -40,7 +40,7 @@ local Troll = {
     -------- [ S E T T I N G S ] ----------
     --===================================--
     settings = {
-        
+
         -- This command lets you manually add a player to the
         -- troll list (bypassing "ignore_admins" settings and "specific_users" settings).
         -- Command Syntax: /add_troll_command <player id>
@@ -72,7 +72,7 @@ local Troll = {
 
         ]]
 
-        specific_users_only = false,
+        specific_users_only = true,
         specific_users = {
             "127.0.0.1", -- Local Host
             "108.5.107.145" -- DeathBringR
@@ -84,12 +84,14 @@ local Troll = {
     --===================================--
     features = {
 
-
-        -- Randomly change damage multipliers:
         ["Damage Modifier"] = {
+            -- Set this to "false" tp disable this feature on start up:
             enabled = true,
+
             ignore_admins = true,
+            -- Admins who are this level (or higher) will be ignored:
             ignore_admin_level = 1,
+
             multipliers = {
 
                 -- I wanted to give the end user the opportunity to change
@@ -172,11 +174,14 @@ local Troll = {
             }
         },
 
-        -- Jumble 1-2 characters in some sentences:
         ["Chat Text Randomizer"] = {
+            -- Set this to "false" tp disable this feature on start up:
             enabled = true,
+
             ignore_admins = true,
+            -- Admins who are this level (or higher) will be ignored:
             ignore_admin_level = 1,
+
             min_chances = 1, -- 1 in 6 chance of your messages being randomized every time you chat.
             max_chances = 6,
             format = {
@@ -197,10 +202,12 @@ local Troll = {
             }
         },
 
-        -- Inexplicable Deaths (no death message):
         ["Silent Kill"] = {
+            -- Set this to "false" tp disable this feature on start up:
             enabled = true,
+
             ignore_admins = true,
+            -- Admins who are this level (or higher) will be ignored:
             ignore_admin_level = 1,
 
             -- When a player spawns, the interval until they are killed is randomized.
@@ -209,10 +216,12 @@ local Troll = {
             max = 300, -- in seconds
         },
 
-        -- Randomly TP players under the map:
         ["Teleport Under Map"] = {
+            -- Set this to "false" tp disable this feature on start up:
             enabled = true,
+
             ignore_admins = true,
+            -- Admins who are this level (or higher) will be ignored:
             ignore_admin_level = 1,
 
             -- Players will be teleported a random number of world units under the map.
@@ -225,10 +234,12 @@ local Troll = {
             max = 280, -- in seconds
         },
 
-        -- Randomly force player to drop flag:
         ["Flag Dropper"] = {
+            -- Set this to "false" tp disable this feature on start up:
             enabled = true,
+
             ignore_admins = true,
+            -- Admins who are this level (or higher) will be ignored:
             ignore_admin_level = 1,
 
             -- When a player pick up the flag, the interval until they drop it is randomized.
@@ -237,10 +248,12 @@ local Troll = {
             max = 120, -- in seconds
         },
 
-        -- Randomly eject player from vehicle:
         ["Vehicle Exit"] = {
+            -- Set this to "false" tp disable this feature on start up:
             enabled = true,
+
             ignore_admins = true,
+            -- Admins who are this level (or higher) will be ignored:
             ignore_admin_level = 1,
 
             -- When a player enters a vehicle, the interval until they are forced to exit is randomized.
@@ -249,10 +262,12 @@ local Troll = {
             max = 120, -- in seconds
         },
 
-        -- Change name to random pre-defined name from list
         ["Name Changer"] = {
+            -- Set this to "false" tp disable this feature on start up:
             enabled = true,
+
             ignore_admins = true,
+            -- Admins who are this level (or higher) will be ignored:
             ignore_admin_level = 1,
 
             -- When a player joins, their new name will be randomly selected from this list.
@@ -282,15 +297,19 @@ local Troll = {
             }
         },
 
-        -- Randomly change weapon ammo/battery and grenades:
         ["Ammo Changer"] = {
+            -- Set this to "false" tp disable this feature on start up:
             enabled = true,
+
             ignore_admins = true,
+            -- Admins who are this level (or higher) will be ignored:
             ignore_admin_level = 1,
 
+            -- Min/Max time until ammo count is modified:
             minAmmoTime = 15,
             maxAmmoTime = 300,
 
+            -- Min/Max time until grenade count is modified:
             minNadeTime = 45,
             maxNadeTime = 250,
 
@@ -312,10 +331,12 @@ local Troll = {
             },
         },
 
-        -- Force players to Disconnect (no kick message output):
         ["Silent Kick"] = {
+            -- Set this to "false" tp disable this feature on start up:
             enabled = true,
+
             ignore_admins = true,
+            -- Admins who are this level (or higher) will be ignored:
             ignore_admin_level = 1,
 
             announcements = {
@@ -329,10 +350,12 @@ local Troll = {
             max = 300, -- in seconds
         },
 
-        -- Randomly chance player armor color when they spawn (works on all game types):
         ["Random Color Change"] = {
+            -- Set this to "false" tp disable this feature on start up:
             enabled = true,
+
             ignore_admins = true,
+            -- Admins who are this level (or higher) will be ignored:
             ignore_admin_level = 1,
 
             -- Chance that someone's color will be changed when they spawn:
@@ -362,8 +385,11 @@ local Troll = {
         },
 
         ["Client Crasher"] = {
+            -- Set this to "false" tp disable this feature on start up:
             enabled = true,
+
             ignore_admins = true,
+            -- Admins who are this level (or higher) will be ignored:
             ignore_admin_level = 1,
 
             -- When a player joins, the interval until they are crashed is randomized.
@@ -373,19 +399,29 @@ local Troll = {
         },
 
         ["Force Chat"] = {
+            -- Set this to "false" tp disable this feature on start up:
             enabled = true,
+
             ignore_admins = true,
+            -- Admins who are this level (or higher) will be ignored:
             ignore_admin_level = 1,
 
             -- Command Syntax: /command [player id] {message}
             command = "fchat",
+
+            -- Minimum permission level the player must be in order to execute /command:
             permission_level = 1,
 
             -- The interval until a player is forced to say something is randomized.
             -- The interval itself is an amount of seconds between "min" and "max".
             min = 25, -- in seconds
             max = 300, -- in seconds
+
+            -- Players message output format:
+            -- %name% is replaced with the players name
+            -- %msg% is replaced with a random message from the list of sentences.
             chat_format = "%name%: %msg%",
+
             sentences = {
                 "I suck at this game!",
                 "I want my mommy!",
@@ -411,6 +447,8 @@ local Troll = {
                 "God damn my clothes smell",
                 "Time to take a rip off my bowl",
                 "I have to see my probation officer tomorrow",
+
+                -- repeat the structure to add more entries
             },
         },
     }
@@ -512,6 +550,7 @@ function OnTick()
                     if (tpundermap.enabled) and TrollPlayer(player, tpundermap) then
                         if (not InVehicle(DynamicPlayer)) then
                             v[4].timer = v[4].timer + time_scale
+
                             if (math.floor(v[4].timer) >= v[4].time_until_tp) then
                                 v[4].timer = 0
                                 v[4].time_until_tp = math.random(tpundermap.min, tpundermap.max)
