@@ -912,7 +912,7 @@ function SilentKick(P)
 end
 
 function OnDamageApplication(VictimIndex, CauserIndex, MetaID, Damage, _, _)
-    if (tonumber(VictimIndex) > 0) then
+    if (tonumber(CauserIndex) > 0) then
         local t = Troll["Damage Modifier"]
         if (t.enabled) then
 
