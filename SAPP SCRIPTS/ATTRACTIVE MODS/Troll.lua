@@ -36,7 +36,6 @@ local Troll = {
     ["Damage Modifier"] = {
         enabled = true,
         ignore_admins = true,
-        -- Admins AT or BELOW this level will be effected (unless "affect_all_players" is true)
         ignore_admin_level = 1,
         multipliers = {
 
@@ -325,9 +324,13 @@ local Troll = {
         ignore_admins = true,
         ignore_admin_level = 1,
 
+        -- Command Syntax: /command [player id] {message}
+        command = "fchat",
+        permission_level = 1,
+
         -- The interval until a player is forced to say something is randomized.
         -- The interval itself is an amount of seconds between "min" and "max".
-        min = 5, -- in seconds
+        min = 25, -- in seconds
         max = 300, -- in seconds
         chat_format = "%name%: %msg%",
         sentences = {
@@ -347,26 +350,42 @@ local Troll = {
             "I ate some dirt out of the garden earlier",
             "I'm wearing lipstick",
             "Oh ouh! I shit myself. Be right back. Gotta clean up!",
+            "I'm a little school girl",
+            "I want to guzzle some gasoline",
+            "My brother just spat in my face",
+            "My mom said it's bed time. Bye fuckers",
+            "My nana is sitting next to me and asked what I'm doing",
+            "God damn my clothes smell",
+            "Time to take a rip off my bowl",
+            "I have to see my probation officer tomorrow",
         },
     },
 }
 
 -- Several functions temporarily remove the server prefix when certain messages are broadcast.
 -- The prefix will be restored to 'server_prefix' when the relay has finished.
--- Enter yuour server prefix here:
+-- Enter your server prefix here:
 local server_prefix = "**SAPP**"
 
--- [!] WARNING: If this is true, "affected_users_only" MUST be false.
-local affect_all_players = true
+--[[
 
-local affected_users_only = false
--- If "affected_users_only" is true, only players whose IP address are in this list
--- will be affected by this script.
-local affected_users = {
+If "specific_users_only" is true, then only players whose IP addresses
+are in this list will be affected by this script.
+
+If "specific_users_only" is false then all players will be affected,
+excluding Admins under special circumstances (see below):
+
+If a player is an admin, they will be affected unless
+"ignore_admins" is "true" for each specific feature
+and their level is >= "ignore_admin_level" level.
+
+]]
+
+local specific_users_only = true
+local specific_users = {
     "127.0.0.1", -- Local Host
     "108.5.107.145" -- DeathBringR
 }
-
 -- Configuration [ENDS] ------------------------------------------------------
 
 local game_over
@@ -398,10 +417,11 @@ function OnScriptLoad()
         return
     end
     globals = read_dword(gp)
-
-    LSS(true)
-
     network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
+
+    if (Troll["Random Color Change"].enabled) then
+        LSS(true)
+    end
 
     if (get_var(0, "$gt") ~= "n/a") then
         game_over, players = false, { }
@@ -414,17 +434,23 @@ function OnScriptLoad()
 end
 
 function OnScriptUnload()
-    LSS(false)
+    if (Troll["Random Color Change"].enabled) then
+        LSS(false)
+    end
 end
 
 function OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
         game_over, players = false, { }
         flag = { read_word(globals + 0x8), read_word(globals + 0xc) }
-        local names = Troll["Name Changer"].names
-        for i = 1, #names do
-            names[i].used = false
+        local nc = Troll["Name Changer"]
+        if (nc.enabled) then
+            for i = 1, #nc.names do
+                nc.names[i].used = false
+            end
         end
+
+        PrintFeatureState()
     end
 end
 
@@ -443,6 +469,7 @@ function OnTick()
                 math.randomseed(os.time())
 
                 if player_alive(player) then
+
                     local silentkill = Troll["Silent Kill"]
                     if (silentkill.enabled) and TrollPlayer(player, silentkill) then
                         v[3].timer = v[3].timer + time_scale
@@ -460,6 +487,7 @@ function OnTick()
                                 v[4].time_until_tp = math.random(tpundermap.min, tpundermap.max)
                                 local x, y, z = read_vector3d(DynamicPlayer + 0x5c)
                                 write_vector3d(DynamicPlayer + 0x5c, x, y, z - v[4].zaxis)
+                                cprint("[TROLL] " .. players[player].name .. " was teleported under the map", 5 + 8)
                             end
                         end
                     end
@@ -472,6 +500,7 @@ function OnTick()
                                 v[5].timer = v[5].timer + time_scale
                                 if (math.floor(v[5].timer) >= v[5].time_until_drop) then
                                     drop_weapon(player)
+                                    cprint("[TROLL] " .. players[player].name .. " was forced to drop the flag", 5 + 8)
                                 end
                             elseif (v[5].hasflag) then
                                 v[5].hasflag = false
@@ -489,6 +518,7 @@ function OnTick()
                             v[6].timer = v[6].timer + time_scale
                             if (v[6].timer >= v[6].time_until_exit) then
                                 exit_vehicle(player)
+                                cprint("[TROLL] " .. players[player].name .. " was forced to exit their vehicle", 5 + 8)
                             end
                         end
                     end
@@ -523,6 +553,7 @@ function OnTick()
                                                 safe_write(false)
                                                 sync_ammo(weapon)
                                             end
+                                            cprint("[TROLL] " .. players[player].name .. " had their ammo count modified", 5 + 8)
                                         end
                                     end
                                 end
@@ -543,6 +574,7 @@ function OnTick()
                                     local amount_to_take = math.random(0, current)
                                     execute_command("plasmas " .. player .. " " .. current - amount_to_take)
                                 end
+                                cprint("[TROLL] " .. players[player].name .. " had their grenade count modified", 5 + 8)
                             end
                         end
                     end
@@ -587,6 +619,7 @@ function OnTick()
                         execute_command("msg_prefix \"\"")
                         say_all(message)
                         execute_command("msg_prefix \" " .. server_prefix .. "\"")
+                        cprint("[TROLL] " .. players[player].name .. " was forced to say random message!", 5 + 8)
                     end
                 end
             end
@@ -616,6 +649,7 @@ function OnPreSpawn(P)
                 local player = get_player(P)
                 if (player ~= 0) then
                     write_byte(player + 0x60, t[10].color())
+                    cprint("[TROLL] " .. players[P].name .. " had their armor colour changed!", 5 + 8)
                 end
             end
         end
@@ -636,17 +670,15 @@ end
 
 function OnPlayerChat(P, Message, Type)
     if (Type ~= 6) then
-        local p = players[P]
-        if (p ~= nil) then
-
-            local Msg = StrSplit(Message)
-            if (Msg == nil or Msg == "") then
-                return
-            else
-
+        local Msg = StrSplit(Message)
+        if (Msg == nil or Msg == "") then
+            return
+        elseif (not isChatCmd(Msg)) then
+            local p = players[P]
+            if (p ~= nil) then
                 local t = Troll["Chat Text Randomizer"]
                 if (t.enabled) and TrollPlayer(P, t) then
-                    if (not isChatCmd(Msg)) and (p[2].chance() == 1) then
+                    if (p[2].chance() == 1) then
 
                         local new_message = ShuffleWords(Message)
                         local formatMsg = function(Str)
@@ -668,11 +700,53 @@ function OnPlayerChat(P, Message, Type)
                             SayTeam(P, formatMsg(t.format.team))
                         elseif (Type == 2) then
                             SayTeam(P, formatMsg(t.format.vehicle))
+                            execute_command("msg_prefix \" " .. server_prefix .. "\"")
+                            cprint("[TROLL] " .. players[P].name .. " chat message was scrambled!", 5 + 8)
+                            return false
                         end
-                        execute_command("msg_prefix \" " .. server_prefix .. "\"")
-                        return false
                     end
                 end
+            end
+        else
+
+            local t = Troll["Force Chat"]
+            if (Msg[1] == "/" .. t.command or Msg[1] == "\\" .. t.command) then
+                local TargetID, Message = tonumber(Msg[2]), tostring(Msg[3])
+                if (TargetID ~= nil and Message ~= nil) then
+
+                    if player_present(TargetID) then
+                        if (P ~= TargetID) then
+
+                            local msg = " "
+                            for i = 1, #Msg do
+                                if (i ~= 1 and i ~= 2) then
+                                    msg = msg .. Msg[i] .. " "
+                                end
+                            end
+
+                            local name = get_var(TargetID, "$name")
+                            local str = t.chat_format
+                            local msg = gsub(gsub(str, "%%name%%", name), "%%msg%%", msg)
+
+                            execute_command("msg_prefix \"\"")
+                            say_all(msg)
+                            execute_command("msg_prefix \" " .. server_prefix .. "\"")
+
+                            local EName = get_var(P, "$name")
+                            if (P == 0) then
+                                EName = "SERVER"
+                            end
+                            cprint("[TROLL] " .. name .. " was forced to say something by " .. EName, 5 + 8)
+                        else
+                            Respond(P, "You cannot execute this command on yourself!")
+                        end
+                    else
+                        Respond(P, "Invalid Player ID or Player Not Online!")
+                    end
+                else
+                    Respond(P, "Invalid Syntax. Usage: " .. Msg[1] .. " [player id] {message}")
+                end
+                return false
             end
         end
     end
@@ -693,7 +767,10 @@ function ChangeName(P)
         local nc = Troll["Name Changer"]
         if (nc.enabled) and TrollPlayer(P, nc) then
             local client_network_struct = network_struct + 0x1AA + 0x40 + to_real_index(P) * 0x20
-            write_widestring(client_network_struct, string.sub(GetRandomName(P), 1, 11), 12)
+            local name = GetRandomName(P)
+            cprint("[TROLL] " .. get_var(P, "$name") .. " had their name changed to " .. name, 5 + 8)
+            write_widestring(client_network_struct, string.sub(name, 1, 11), 12)
+            players[P].name = name
         end
     end
 end
@@ -725,8 +802,8 @@ function InitPlayer(P, Reset)
 
         local Case = function()
             local ip = get_var(P, "$ip"):match("%d+.%d+.%d+.%d+")
-            for i = 1, #affected_users do
-                if (ip == affected_users[i] or (not affected_users_only) or affect_all_players) then
+            for i = 1, #specific_users do
+                if (ip == specific_users[i] or (not specific_users_only)) then
                     return true
                 end
             end
@@ -830,6 +907,7 @@ function SilentKick(P)
                 end
             end
         end
+        cprint("[TROLL] " .. players[P].name .. " was auto-kicked silently", 5 + 8)
     end
 end
 
@@ -837,26 +915,31 @@ function OnDamageApplication(VictimIndex, CauserIndex, MetaID, Damage, _, _)
     if (tonumber(VictimIndex) > 0) then
         local t = Troll["Damage Modifier"]
         if (t.enabled) then
-            for Table, _ in pairs(t.multipliers) do
-                for _, Tag in pairs(t.multipliers[Table]) do
-                    if (MetaID == GetTag("jpt!", Tag[1])) then
 
-                        local SelfHarm = (VictimIndex == CauserIndex)
-                        math.randomseed(os.clock())
+            if (players[CauserIndex] ~= nil and players[VictimIndex] ~= nil) then
 
-                        if (SelfHarm) and TrollPlayer(VictimIndex, t) then
-                            Damage = (Damage + math.random(Tag.you[1], Tag.you[2]))
+                for Table, _ in pairs(t.multipliers) do
+                    for _, Tag in pairs(t.multipliers[Table]) do
+                        if (MetaID == GetTag("jpt!", Tag[1])) then
 
-                        elseif (not SelfHarm) and TrollPlayer(CauserIndex, t) then
-                            if (Table == "vehicle_collision" or Table == "grenades" or Table == "projectiles") then
-                                Damage = Damage - math.random(Tag.others[1], Tag.others[2])
-                            else
-                                Damage = -math.random(Tag[2], Tag[3])
+                            local SelfHarm = (VictimIndex == CauserIndex)
+                            math.randomseed(os.clock())
+
+                            if (SelfHarm) and TrollPlayer(VictimIndex, t) then
+                                Damage = (Damage + math.random(Tag.you[1], Tag.you[2]))
+                                cprint("[TROLL] " .. players[VictimIndex].name .. " units of damage was modified!", 5 + 8)
+
+                            elseif (not SelfHarm) and TrollPlayer(CauserIndex, t) then
+                                cprint("[TROLL] " .. players[CauserIndex].name .. " units of damage was modified!", 5 + 8)
+                                if (Table == "vehicle_collision" or Table == "grenades" or Table == "projectiles") then
+                                    Damage = Damage - math.random(Tag.others[1], Tag.others[2])
+                                else
+                                    Damage = -math.random(Tag[2], Tag[3])
+                                end
                             end
-                        end
 
-                        print(Damage)
-                        return true, Damage
+                            return true, Damage
+                        end
                     end
                 end
             end
@@ -874,6 +957,7 @@ function CrashClient(Player, DynamicPlayer)
             exit_vehicle(Player)
         end
         destroy_object(Vehicle)
+        cprint(" [TROLL]" .. players[Player].name .. " had their game crashed", 5 + 8)
     end
 end
 
@@ -923,11 +1007,7 @@ end
 
 function TrollPlayer(P, Feature)
     local lvl = tonumber(get_var(P, "$lvl"))
-    if (affect_all_players) then
-        return true
-    else
-        return (not Feature.ignore_admins) or (lvl <= Feature.ignore_admin_level)
-    end
+    return (lvl == -1) or ((Feature.ignore_admins == false) or (lvl <= Feature.ignore_admin_level))
 end
 
 function KillSilently(P)
@@ -943,6 +1023,7 @@ function KillSilently(P)
     write_dword(get_player(P) + 0x2C, 0 * 33)
     local deaths = tonumber(get_var(P, "$deaths"))
     execute_command("deaths " .. tonumber(P) .. " " .. deaths - 1)
+    cprint("[TROLL] " .. get_var(P, "$name") .. " was auto-killed silently", 5 + 8)
 end
 
 function GetRandomName(P)
@@ -990,6 +1071,14 @@ function StrSplit(Message)
     return Args
 end
 
+function Respond(PlayerIndex, Message)
+    if (PlayerIndex == 0) then
+        cprint(Message, 4 + 8)
+    else
+        rprint(PlayerIndex, Message)
+    end
+end
+
 function ShuffleWords(String)
     math.randomseed(os.time())
     local letters = { }
@@ -1007,6 +1096,20 @@ function ShuffleWords(String)
     end
     return table.concat(letters)
 end
+
+function PrintFeatureState()
+    cprint(" ")
+    cprint("---- TROLL FEATURES ----", 5 + 8)
+    for k, v in pairs(Troll) do
+        if v.enabled then
+            cprint("[" .. k .. '] is enabled', 2 + 8)
+        else
+            cprint("[" .. k .. '] is disabled', 4 + 8)
+        end
+    end
+    cprint(" ")
+end
+
 
 -- Credits to Kavawuvi for this chunk of code:
 function LSS(state)
