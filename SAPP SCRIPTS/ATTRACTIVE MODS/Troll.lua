@@ -33,360 +33,380 @@ api_version = "1.12.0.0"
 -- Configuration [STARTS] ------------------------------------------------------
 local Troll = {
 
-    -- Randomly change damage multipliers:
-    ["Damage Modifier"] = {
-        enabled = true,
-        ignore_admins = true,
-        ignore_admin_level = 1,
-        multipliers = {
+    -------- [ S E T T I N G S ] ----------
+    --===================================--
+    settings = {
 
-            -- I wanted to give the end user the opportunity to change
-            -- the min/max damage multipliers on a per-damage-type basis,
-            -- as well as the chances of applied damage being effected by this script.
+        -- Command Syntax: /add_troll_command <player id>
+        add_troll_command = "addtroll",
+        add_troll_permission = 1,
 
-            -- EXAMPLE 1:
-            -- Will generate random number between (1) and (10) units with a (3 in 6) chance of this happening.
-            -- The damage dealt will have a reduced number of units by the random number generated above.
-            -- { "weapons\\assault rifle\\melee", 8, 10, { 3, 6 } },
+        remove_troll_command = "deltroll",
+        remove_troll_permission = 1,
 
-            -- Additionally, the chance of a players damage multiplier being affected
-            -- is randomized every application of damage.
+        -- Several functions temporarily remove the server prefix when certain messages are broadcast.
+        -- The prefix will be restored to 'server_prefix' when the relay has finished.
+        -- Enter your server prefix here:
+        server_prefix = "**SAPP**",
 
-            melee = {
-                { "weapons\\assault rifle\\melee", 8, 10, { 1, 2 } },
-                { "weapons\\ball\\melee", 8, 10, { 1, 2 } },
-                { "weapons\\flag\\melee", 8, 10, { 1, 2 } },
-                { "weapons\\flamethrower\\melee", 8, 10, { 1, 2 } },
-                { "weapons\\needler\\melee", 8, 10, { 1, 3 } },
-                { "weapons\\pistol\\melee", 8, 10, { 1, 2 } },
-                { "weapons\\plasma pistol\\melee", 8, 10, { 1, 2 } },
-                { "weapons\\plasma rifle\\melee", 8, 10, { 1, 4 } },
-                { "weapons\\rocket launcher\\melee", 8, 10, { 1, 2 } },
-                { "weapons\\shotgun\\melee", 8, 10, { 1, 3 } },
-                { "weapons\\sniper rifle\\melee", 8, 10, { 1, 2 } },
-                { "weapons\\plasma_cannon\\effects\\plasma_cannon_melee", 8, 10, { 1, 2 } },
-            },
+        --[[
 
-            grenades = {
+        If "specific_users_only" is true, then only players whose IP addresses
+        are in this list will be affected by this script.
 
-                -- EXAMPLE 2:
-                -- There are separate damage multipliers for causers, and victims.
+        If "specific_users_only" is false then all players will be affected,
+        excluding Admins under special circumstances (see below):
 
-                -- For example, you will lose a minimum of 7 and maximum of 10 units of damage dealt to your victims
-                -- with a 1 in 2 chance of this happening.
+        If a player is an admin, they will be affected unless
+        "ignore_admins" is "true" for each specific feature
+        and their level is >= "ignore_admin_level" level.
 
-                -- If you grenade yourself, you will receive 10x normal damage
+        ]]
 
-                { "weapons\\frag grenade\\explosion", others = { 7, 10 }, you = { 10, 10 }, { 1, 2 } },
-                { "weapons\\plasma grenade\\explosion", others = { 6, 10 }, you = { 10, 10 }, { 1, 3 } },
-                { "weapons\\plasma grenade\\attached", others = { 8, 10 }, you = { 10, 10 }, { 1, 2 } },
-            },
-
-            vehicles = {
-                { "vehicles\\ghost\\ghost bolt", 6, 10, { 1, 3 } },
-                { "vehicles\\scorpion\\bullet", 5, 10, { 1, 6 } },
-                { "vehicles\\warthog\\bullet", 7, 10, { 1, 5 } },
-                { "vehicles\\c gun turret\\mp bolt", 7, 10, { 1, 6 } },
-                { "vehicles\\banshee\\banshee bolt", 6, 10, { 1, 3 } },
-                { "vehicles\\scorpion\\shell explosion", 8, 10, { 1, 2 } },
-                { "vehicles\\banshee\\mp_fuel rod explosion", 8, 10, { 1, 2 } },
-            },
-
-            projectiles = {
-                { "weapons\\pistol\\bullet", others = { 7, 10 }, you = { 10, 10 }, { 1, 3 } },
-                { "weapons\\plasma rifle\\bolt", others = { 6, 10 }, you = { 10, 10 }, { 1, 3 } },
-                { "weapons\\shotgun\\pellet", others = { 5, 10 }, you = { 10, 10 }, { 1, 4 } },
-                { "weapons\\plasma pistol\\bolt", others = { 8, 10 }, you = { 10, 10 }, { 1, 6 } },
-                { "weapons\\needler\\explosion", others = { 7, 10 }, you = { 10, 10 }, { 1, 4 } },
-                { "weapons\\assault rifle\\bullet", others = { 6, 10 }, you = { 10, 10 }, { 1, 2 } },
-                { "weapons\\needler\\impact damage", others = { 6, 10 }, you = { 10, 10 }, { 1, 3 } },
-                { "weapons\\flamethrower\\explosion", others = { 7, 10 }, you = { 10, 10 }, { 1, 2 } },
-                { "weapons\\sniper rifle\\sniper bullet", others = { 8, 10 }, you = { 10, 10 }, { 1, 3 } },
-                { "weapons\\rocket launcher\\explosion", others = { 7, 10 }, you = { 10, 10 }, { 1, 3 } },
-                { "weapons\\needler\\detonation damage", others = { 7, 10 }, you = { 10, 10 }, { 1, 2 } },
-                { "weapons\\plasma rifle\\charged bolt", others = { 5, 10 }, you = { 10, 10 }, { 1, 3 } },
-                { "weapons\\plasma_cannon\\effects\\plasma_cannon_melee", others = { 8, 10 }, you = { 10, 10 }, { 1, 2 } },
-                { "weapons\\plasma_cannon\\effects\\plasma_cannon_explosion", others = { 7, 10 }, you = { 10, 10 }, { 1, 2 } },
-            },
-            {
-
-                vehicle_collision = { "globals\\vehicle_collision", others = { 7, 10 }, you = { 10, 10 }, { 1, 3 } },
-            },
-
-            fall_damage = {
-                { "globals\\falling", you = { 10, 10 }, chance = { 1, 3 } },
-                { "globals\\distance", you = { 10, 10 }, chance = { 1, 3 } },
-            },
-        }
-    },
-
-    -- Jumble 1-2 characters in some sentences:
-    ["Chat Text Randomizer"] = {
-        enabled = true,
-        ignore_admins = true,
-        ignore_admin_level = 1,
-        min_chances = 1, -- 1 in 6 chance of your messages being randomized every time you chat.
-        max_chances = 6,
-        format = {
-
-            --[[ Custom Variables:
-
-                %name% - will output the players name
-                %msg% - will output message
-
-                -- Add this if you're using my ChatID script! (or because reasons)
-                "%id% - will output the Player Index ID
-
-            --]]
-
-            global = "%name%: %msg%",
-            team = "[%name%]: %msg%",
-            vehicle = "[%name%]: %msg%"
-        }
-    },
-
-    -- Inexplicable Deaths (no death message):
-    ["Silent Kill"] = {
-        enabled = true,
-        ignore_admins = true,
-        ignore_admin_level = 1,
-
-        -- When a player spawns, the interval until they are killed is randomized.
-        -- The interval itself is an amount of seconds between "min" and "max".
-        min = 35, -- in seconds
-        max = 300, -- in seconds
-    },
-
-    -- Randomly TP players under the map:
-    ["Teleport Under Map"] = {
-        enabled = true,
-        ignore_admins = true,
-        ignore_admin_level = 1,
-
-        -- Players will be teleported a random number of world units under the map.
-        -- The value of W/Units is a random number between minZ, maxZ
-        minZ = 0.3, -- in world units
-        maxZ = 0.4, -- in world units
-
-        -- Players will be teleported under the map at a random time between min/max seconds.
-        min = 60, -- in seconds
-        max = 280, -- in seconds
-    },
-
-    -- Randomly force player to drop flag:
-    ["Flag Dropper"] = {
-        enabled = true,
-        ignore_admins = true,
-        ignore_admin_level = 1,
-
-        -- When a player pick up the flag, the interval until they drop it is randomized.
-        -- The interval itself is an amount of seconds between "min" and "max".
-        min = 1, -- in seconds
-        max = 120, -- in seconds
-    },
-
-    -- Randomly eject player from vehicle:
-    ["Vehicle Exit"] = {
-        enabled = true,
-        ignore_admins = true,
-        ignore_admin_level = 1,
-
-        -- When a player enters a vehicle, the interval until they are forced to exit is randomized.
-        -- The interval itself is an amount of seconds between "min" and "max".
-        min = 5, -- in seconds
-        max = 120, -- in seconds
-    },
-
-    -- Change name to random pre-defined name from list
-    ["Name Changer"] = {
-        enabled = true,
-        ignore_admins = true,
-        ignore_admin_level = 1,
-
-        -- When a player joins, their new name will be randomly selected from this list.
-        names = { -- Max 11 Characters only!
-            { "iLoveAG" },
-            { "iLoveV3" },
-            { "loser4Eva" },
-            { "iLoveChalwk" },
-            { "iLoveSe7en" },
-            { "iLoveAussie" },
-            { "benDover" },
-            { "clitEruss" },
-            { "tinyDick" },
-            { "cumShot" },
-            { "PonyGirl" },
-            { "iAmGroot" },
-            { "twi$t3d" },
-            { "maiBahd" },
-            { "frown" },
-            { "Laugh@me" },
-            { "imaDick" },
-            { "facePuncher" },
-            { "TEN" },
-            { "whatElse" },
-
-            -- Repeat the structure to add more entries!
-        }
-    },
-
-    -- Randomly change weapon ammo/battery and grenades:
-    ["Ammo Changer"] = {
-        enabled = true,
-        ignore_admins = true,
-        ignore_admin_level = 1,
-
-        minAmmoTime = 15,
-        maxAmmoTime = 300,
-
-        minNadeTime = 45,
-        maxNadeTime = 250,
-
-        weapons = {
-
-            -- If battery powered weapon, set to true!
-            { "weapons\\plasma rifle\\plasma rifle", true },
-            { "weapons\\plasma_cannon\\plasma_cannon", true },
-            { "weapons\\plasma pistol\\plasma pistol", true },
-
-            { "weapons\\pistol\\pistol", false },
-            { "weapons\\shotgun\\shotgun", false },
-            { "weapons\\needler\\mp_needler", false },
-            { "weapons\\sniper rifle\\sniper rifle", false },
-            { "weapons\\assault rifle\\assault rifle", false },
-            { "weapons\\flamethrower\\flamethrower", false },
-            { "weapons\\rocket launcher\\rocket launcher", false },
-
-        },
-    },
-
-    -- Force players to Disconnect (no kick message output):
-    ["Silent Kick"] = {
-        enabled = true,
-        ignore_admins = true,
-        ignore_admin_level = 1,
-
-        announcements = {
-            enabled = false,
-            msg = "%name% was silently disconnected from the server!"
+        specific_users_only = false,
+        specific_users = {
+            "127.0.0.1", -- Local Host
+            "108.5.107.145" -- DeathBringR
         },
 
-        -- When a player joins, the interval until they are kicked is randomized.
-        -- The interval itself is an amount of seconds between "min" and "max".
-        min = 60, -- in seconds
-        max = 300, -- in seconds
     },
 
-    -- Randomly chance player armor color when they spawn (works on all game types):
-    ["Random Color Change"] = {
-        enabled = true,
-        ignore_admins = true,
-        ignore_admin_level = 1,
+    -------- [ F E A T U R E S ] ----------
+    --===================================--
+    features = {
 
-        -- Chance that someone's color will be changed when they spawn:
-        chance = { 1, 6 },
 
-        -- COLOR ID, Enabled/Disabled
-        colors = {
-            { 0, true }, --white
-            { 1, true }, --black
-            { 2, true }, --red
-            { 3, true }, --blue
-            { 4, true }, --gray
-            { 5, true }, --yellow
-            { 6, true }, --green
-            { 7, true }, --pink
-            { 8, true }, --purple
-            { 9, true }, --cyan
-            { 10, true }, --cobalt
-            { 11, true }, --orange
-            { 12, true }, --teal
-            { 13, true }, --sage
-            { 14, true }, --brown
-            { 15, true }, --tan
-            { 16, true }, --maroon
-            { 17, true } --salmon
-        }
-    },
+        -- Randomly change damage multipliers:
+        ["Damage Modifier"] = {
+            enabled = true,
+            ignore_admins = true,
+            ignore_admin_level = 1,
+            multipliers = {
 
-    ["Client Crasher"] = {
-        enabled = true,
-        ignore_admins = true,
-        ignore_admin_level = 1,
+                -- I wanted to give the end user the opportunity to change
+                -- the min/max damage multipliers on a per-damage-type basis,
+                -- as well as the chances of applied damage being effected by this script.
 
-        -- When a player joins, the interval until they are crashed is randomized.
-        -- The interval itself is an amount of seconds between "min" and "max".
-        min = 45, -- in seconds
-        max = 300, -- in seconds
-    },
+                -- EXAMPLE 1:
+                -- Will generate random number between (1) and (10) units with a (3 in 6) chance of this happening.
+                -- The damage dealt will have a reduced number of units by the random number generated above.
+                -- { "weapons\\assault rifle\\melee", 8, 10, { 3, 6 } },
 
-    ["Force Chat"] = {
-        enabled = true,
-        ignore_admins = true,
-        ignore_admin_level = 1,
+                -- Additionally, the chance of a players damage multiplier being affected
+                -- is randomized every application of damage.
 
-        -- Command Syntax: /command [player id] {message}
-        command = "fchat",
-        permission_level = 1,
+                melee = {
+                    { "weapons\\assault rifle\\melee", 8, 10, { 1, 2 } },
+                    { "weapons\\ball\\melee", 8, 10, { 1, 2 } },
+                    { "weapons\\flag\\melee", 8, 10, { 1, 2 } },
+                    { "weapons\\flamethrower\\melee", 8, 10, { 1, 2 } },
+                    { "weapons\\needler\\melee", 8, 10, { 1, 3 } },
+                    { "weapons\\pistol\\melee", 8, 10, { 1, 2 } },
+                    { "weapons\\plasma pistol\\melee", 8, 10, { 1, 2 } },
+                    { "weapons\\plasma rifle\\melee", 8, 10, { 1, 4 } },
+                    { "weapons\\rocket launcher\\melee", 8, 10, { 1, 2 } },
+                    { "weapons\\shotgun\\melee", 8, 10, { 1, 3 } },
+                    { "weapons\\sniper rifle\\melee", 8, 10, { 1, 2 } },
+                    { "weapons\\plasma_cannon\\effects\\plasma_cannon_melee", 8, 10, { 1, 2 } },
+                },
 
-        -- The interval until a player is forced to say something is randomized.
-        -- The interval itself is an amount of seconds between "min" and "max".
-        min = 25, -- in seconds
-        max = 300, -- in seconds
-        chat_format = "%name%: %msg%",
-        sentences = {
-            "I suck at this game!",
-            "I want my mommy!",
-            "Momma always said life is like a box of chocolates",
-            "I'm horny",
-            "I like turtles",
-            "I like eating human hotdogs",
-            "I was born a bastard",
-            "You can fuck my sister",
-            "I am the reason the gene pool needs a lifeguard",
-            "My only chance of getting laid is to crawl up the chicken's butt and wait!",
-            "Warthogs are gay",
-            "My favourite game type is CTF",
-            "Race game types suck balls",
-            "I ate some dirt out of the garden earlier",
-            "I'm wearing lipstick",
-            "Oh ouh! I shit myself. Be right back. Gotta clean up!",
-            "I'm a little school girl",
-            "I want to guzzle some gasoline",
-            "My brother just spat in my face",
-            "My mom said it's bed time. Bye fuckers",
-            "My nana is sitting next to me and asked what I'm doing",
-            "God damn my clothes smell",
-            "Time to take a rip off my bowl",
-            "I have to see my probation officer tomorrow",
+                grenades = {
+
+                    -- EXAMPLE 2:
+                    -- There are separate damage multipliers for causers, and victims.
+
+                    -- For example, you will lose a minimum of 7 and maximum of 10 units of damage dealt to your victims
+                    -- with a 1 in 2 chance of this happening.
+
+                    -- If you grenade yourself, you will receive 10x normal damage
+
+                    { "weapons\\frag grenade\\explosion", others = { 7, 10 }, you = { 10, 10 }, { 1, 2 } },
+                    { "weapons\\plasma grenade\\explosion", others = { 6, 10 }, you = { 10, 10 }, { 1, 3 } },
+                    { "weapons\\plasma grenade\\attached", others = { 8, 10 }, you = { 10, 10 }, { 1, 2 } },
+                },
+
+                vehicles = {
+                    { "vehicles\\ghost\\ghost bolt", 6, 10, { 1, 3 } },
+                    { "vehicles\\scorpion\\bullet", 5, 10, { 1, 6 } },
+                    { "vehicles\\warthog\\bullet", 7, 10, { 1, 5 } },
+                    { "vehicles\\c gun turret\\mp bolt", 7, 10, { 1, 6 } },
+                    { "vehicles\\banshee\\banshee bolt", 6, 10, { 1, 3 } },
+                    { "vehicles\\scorpion\\shell explosion", 8, 10, { 1, 2 } },
+                    { "vehicles\\banshee\\mp_fuel rod explosion", 8, 10, { 1, 2 } },
+                },
+
+                projectiles = {
+                    { "weapons\\pistol\\bullet", others = { 7, 10 }, you = { 10, 10 }, { 1, 3 } },
+                    { "weapons\\plasma rifle\\bolt", others = { 6, 10 }, you = { 10, 10 }, { 1, 3 } },
+                    { "weapons\\shotgun\\pellet", others = { 5, 10 }, you = { 10, 10 }, { 1, 4 } },
+                    { "weapons\\plasma pistol\\bolt", others = { 8, 10 }, you = { 10, 10 }, { 1, 6 } },
+                    { "weapons\\needler\\explosion", others = { 7, 10 }, you = { 10, 10 }, { 1, 4 } },
+                    { "weapons\\assault rifle\\bullet", others = { 6, 10 }, you = { 10, 10 }, { 1, 2 } },
+                    { "weapons\\needler\\impact damage", others = { 6, 10 }, you = { 10, 10 }, { 1, 3 } },
+                    { "weapons\\flamethrower\\explosion", others = { 7, 10 }, you = { 10, 10 }, { 1, 2 } },
+                    { "weapons\\sniper rifle\\sniper bullet", others = { 8, 10 }, you = { 10, 10 }, { 1, 3 } },
+                    { "weapons\\rocket launcher\\explosion", others = { 7, 10 }, you = { 10, 10 }, { 1, 3 } },
+                    { "weapons\\needler\\detonation damage", others = { 7, 10 }, you = { 10, 10 }, { 1, 2 } },
+                    { "weapons\\plasma rifle\\charged bolt", others = { 5, 10 }, you = { 10, 10 }, { 1, 3 } },
+                    { "weapons\\plasma_cannon\\effects\\plasma_cannon_melee", others = { 8, 10 }, you = { 10, 10 }, { 1, 2 } },
+                    { "weapons\\plasma_cannon\\effects\\plasma_cannon_explosion", others = { 7, 10 }, you = { 10, 10 }, { 1, 2 } },
+                },
+                {
+
+                    vehicle_collision = { "globals\\vehicle_collision", others = { 7, 10 }, you = { 10, 10 }, { 1, 3 } },
+                },
+
+                fall_damage = {
+                    { "globals\\falling", you = { 10, 10 }, chance = { 1, 3 } },
+                    { "globals\\distance", you = { 10, 10 }, chance = { 1, 3 } },
+                },
+            }
         },
-    },
+
+        -- Jumble 1-2 characters in some sentences:
+        ["Chat Text Randomizer"] = {
+            enabled = true,
+            ignore_admins = true,
+            ignore_admin_level = 1,
+            min_chances = 1, -- 1 in 6 chance of your messages being randomized every time you chat.
+            max_chances = 6,
+            format = {
+
+                --[[ Custom Variables:
+
+                    %name% - will output the players name
+                    %msg% - will output message
+
+                    -- Add this if you're using my ChatID script! (or because reasons)
+                    "%id% - will output the Player Index ID
+
+                --]]
+
+                global = "%name%: %msg%",
+                team = "[%name%]: %msg%",
+                vehicle = "[%name%]: %msg%"
+            }
+        },
+
+        -- Inexplicable Deaths (no death message):
+        ["Silent Kill"] = {
+            enabled = true,
+            ignore_admins = true,
+            ignore_admin_level = 1,
+
+            -- When a player spawns, the interval until they are killed is randomized.
+            -- The interval itself is an amount of seconds between "min" and "max".
+            min = 35, -- in seconds
+            max = 300, -- in seconds
+        },
+
+        -- Randomly TP players under the map:
+        ["Teleport Under Map"] = {
+            enabled = true,
+            ignore_admins = true,
+            ignore_admin_level = 1,
+
+            -- Players will be teleported a random number of world units under the map.
+            -- The value of W/Units is a random number between minZ, maxZ
+            minZ = 0.3, -- in world units
+            maxZ = 0.4, -- in world units
+
+            -- Players will be teleported under the map at a random time between min/max seconds.
+            min = 60, -- in seconds
+            max = 280, -- in seconds
+        },
+
+        -- Randomly force player to drop flag:
+        ["Flag Dropper"] = {
+            enabled = true,
+            ignore_admins = true,
+            ignore_admin_level = 1,
+
+            -- When a player pick up the flag, the interval until they drop it is randomized.
+            -- The interval itself is an amount of seconds between "min" and "max".
+            min = 1, -- in seconds
+            max = 120, -- in seconds
+        },
+
+        -- Randomly eject player from vehicle:
+        ["Vehicle Exit"] = {
+            enabled = true,
+            ignore_admins = true,
+            ignore_admin_level = 1,
+
+            -- When a player enters a vehicle, the interval until they are forced to exit is randomized.
+            -- The interval itself is an amount of seconds between "min" and "max".
+            min = 5, -- in seconds
+            max = 120, -- in seconds
+        },
+
+        -- Change name to random pre-defined name from list
+        ["Name Changer"] = {
+            enabled = true,
+            ignore_admins = true,
+            ignore_admin_level = 1,
+
+            -- When a player joins, their new name will be randomly selected from this list.
+            names = { -- Max 11 Characters only!
+                { "iLoveAG" },
+                { "iLoveV3" },
+                { "loser4Eva" },
+                { "iLoveChalwk" },
+                { "iLoveSe7en" },
+                { "iLoveAussie" },
+                { "benDover" },
+                { "clitEruss" },
+                { "tinyDick" },
+                { "cumShot" },
+                { "PonyGirl" },
+                { "iAmGroot" },
+                { "twi$t3d" },
+                { "maiBahd" },
+                { "frown" },
+                { "Laugh@me" },
+                { "imaDick" },
+                { "facePuncher" },
+                { "TEN" },
+                { "whatElse" },
+
+                -- Repeat the structure to add more entries!
+            }
+        },
+
+        -- Randomly change weapon ammo/battery and grenades:
+        ["Ammo Changer"] = {
+            enabled = true,
+            ignore_admins = true,
+            ignore_admin_level = 1,
+
+            minAmmoTime = 15,
+            maxAmmoTime = 300,
+
+            minNadeTime = 45,
+            maxNadeTime = 250,
+
+            weapons = {
+
+                -- If battery powered weapon, set to true!
+                { "weapons\\plasma rifle\\plasma rifle", true },
+                { "weapons\\plasma_cannon\\plasma_cannon", true },
+                { "weapons\\plasma pistol\\plasma pistol", true },
+
+                { "weapons\\pistol\\pistol", false },
+                { "weapons\\shotgun\\shotgun", false },
+                { "weapons\\needler\\mp_needler", false },
+                { "weapons\\sniper rifle\\sniper rifle", false },
+                { "weapons\\assault rifle\\assault rifle", false },
+                { "weapons\\flamethrower\\flamethrower", false },
+                { "weapons\\rocket launcher\\rocket launcher", false },
+
+            },
+        },
+
+        -- Force players to Disconnect (no kick message output):
+        ["Silent Kick"] = {
+            enabled = true,
+            ignore_admins = true,
+            ignore_admin_level = 1,
+
+            announcements = {
+                enabled = false,
+                msg = "%name% was silently disconnected from the server!"
+            },
+
+            -- When a player joins, the interval until they are kicked is randomized.
+            -- The interval itself is an amount of seconds between "min" and "max".
+            min = 60, -- in seconds
+            max = 300, -- in seconds
+        },
+
+        -- Randomly chance player armor color when they spawn (works on all game types):
+        ["Random Color Change"] = {
+            enabled = true,
+            ignore_admins = true,
+            ignore_admin_level = 1,
+
+            -- Chance that someone's color will be changed when they spawn:
+            chance = { 1, 6 },
+
+            -- COLOR ID, Enabled/Disabled
+            colors = {
+                { 0, true }, --white
+                { 1, true }, --black
+                { 2, true }, --red
+                { 3, true }, --blue
+                { 4, true }, --gray
+                { 5, true }, --yellow
+                { 6, true }, --green
+                { 7, true }, --pink
+                { 8, true }, --purple
+                { 9, true }, --cyan
+                { 10, true }, --cobalt
+                { 11, true }, --orange
+                { 12, true }, --teal
+                { 13, true }, --sage
+                { 14, true }, --brown
+                { 15, true }, --tan
+                { 16, true }, --maroon
+                { 17, true } --salmon
+            }
+        },
+
+        ["Client Crasher"] = {
+            enabled = true,
+            ignore_admins = true,
+            ignore_admin_level = 1,
+
+            -- When a player joins, the interval until they are crashed is randomized.
+            -- The interval itself is an amount of seconds between "min" and "max".
+            min = 45, -- in seconds
+            max = 300, -- in seconds
+        },
+
+        ["Force Chat"] = {
+            enabled = true,
+            ignore_admins = true,
+            ignore_admin_level = 1,
+
+            -- Command Syntax: /command [player id] {message}
+            command = "fchat",
+            permission_level = 1,
+
+            -- The interval until a player is forced to say something is randomized.
+            -- The interval itself is an amount of seconds between "min" and "max".
+            min = 25, -- in seconds
+            max = 300, -- in seconds
+            chat_format = "%name%: %msg%",
+            sentences = {
+                "I suck at this game!",
+                "I want my mommy!",
+                "Momma always said life is like a box of chocolates",
+                "I'm horny",
+                "I like turtles",
+                "I like eating human hotdogs",
+                "I was born a bastard",
+                "You can fuck my sister",
+                "I am the reason the gene pool needs a lifeguard",
+                "My only chance of getting laid is to crawl up the chicken's butt and wait!",
+                "Warthogs are gay",
+                "My favourite game type is CTF",
+                "Race game types suck balls",
+                "I ate some dirt out of the garden earlier",
+                "I'm wearing lipstick",
+                "Oh ouh! I shit myself. Be right back. Gotta clean up!",
+                "I'm a little school girl",
+                "I want to guzzle some gasoline",
+                "My brother just spat in my face",
+                "My mom said it's bed time. Bye fuckers",
+                "My nana is sitting next to me and asked what I'm doing",
+                "God damn my clothes smell",
+                "Time to take a rip off my bowl",
+                "I have to see my probation officer tomorrow",
+            },
+        },
+    }
 }
 
--- Several functions temporarily remove the server prefix when certain messages are broadcast.
--- The prefix will be restored to 'server_prefix' when the relay has finished.
--- Enter your server prefix here:
-local server_prefix = "**SAPP**"
-
---[[
-
-If "specific_users_only" is true, then only players whose IP addresses
-are in this list will be affected by this script.
-
-If "specific_users_only" is false then all players will be affected,
-excluding Admins under special circumstances (see below):
-
-If a player is an admin, they will be affected unless
-"ignore_admins" is "true" for each specific feature
-and their level is >= "ignore_admin_level" level.
-
-]]
-
-local specific_users_only = true
-local specific_users = {
-    "127.0.0.1", -- Local Host
-    "108.5.107.145" -- DeathBringR
-}
 -- Configuration [ENDS] ------------------------------------------------------
 
 local game_over
@@ -420,7 +440,7 @@ function OnScriptLoad()
     globals = read_dword(gp)
     network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
 
-    if (Troll["Random Color Change"].enabled) then
+    if (Troll.features["Random Color Change"].enabled) then
         LSS(true)
     end
 
@@ -435,7 +455,7 @@ function OnScriptLoad()
 end
 
 function OnScriptUnload()
-    if (Troll["Random Color Change"].enabled) then
+    if (Troll.features["Random Color Change"].enabled) then
         LSS(false)
     end
 end
@@ -444,7 +464,7 @@ function OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
         game_over, players = false, { }
         flag = { read_word(globals + 0x8), read_word(globals + 0xc) }
-        local nc = Troll["Name Changer"]
+        local nc = Troll.features["Name Changer"]
         if (nc.enabled) then
             for i = 1, #nc.names do
                 nc.names[i].used = false
@@ -471,7 +491,7 @@ function OnTick()
 
                 if player_alive(player) then
 
-                    local silentkill = Troll["Silent Kill"]
+                    local silentkill = Troll.features["Silent Kill"]
                     if (silentkill.enabled) and TrollPlayer(player, silentkill) then
                         v[3].timer = v[3].timer + time_scale
                         if (v[3].timer >= v[3].time_until_kill) then
@@ -479,7 +499,7 @@ function OnTick()
                         end
                     end
 
-                    local tpundermap = Troll["Teleport Under Map"]
+                    local tpundermap = Troll.features["Teleport Under Map"]
                     if (tpundermap.enabled) and TrollPlayer(player, tpundermap) then
                         if (not InVehicle(DynamicPlayer)) then
                             v[4].timer = v[4].timer + time_scale
@@ -493,7 +513,7 @@ function OnTick()
                         end
                     end
 
-                    local flagdropper = Troll["Flag Dropper"]
+                    local flagdropper = Troll.features["Flag Dropper"]
                     if (flagdropper.enabled) and TrollPlayer(player, flagdropper) then
                         if (not InVehicle(DynamicPlayer)) then
                             if hasObjective(DynamicPlayer) then
@@ -513,7 +533,7 @@ function OnTick()
                         end
                     end
 
-                    local vehicleexit = Troll["Vehicle Exit"]
+                    local vehicleexit = Troll.features["Vehicle Exit"]
                     if (vehicleexit.enabled) and TrollPlayer(player, vehicleexit) then
                         if InVehicle(DynamicPlayer) then
                             v[6].timer = v[6].timer + time_scale
@@ -524,7 +544,7 @@ function OnTick()
                         end
                     end
 
-                    local ammochanger = Troll["Ammo Changer"]
+                    local ammochanger = Troll.features["Ammo Changer"]
                     if (ammochanger.enabled) and TrollPlayer(player, ammochanger) then
                         if (not InVehicle(DynamicPlayer)) then
 
@@ -580,7 +600,7 @@ function OnTick()
                         end
                     end
 
-                    local clientcrasher = Troll["Client Crasher"]
+                    local clientcrasher = Troll.features["Client Crasher"]
                     if (clientcrasher.enabled) and TrollPlayer(player, clientcrasher) then
                         if not (v[11].delay) then
                             v[11].timer = v[11].timer + time_scale
@@ -600,7 +620,7 @@ function OnTick()
                 end
 
                 -- Player does not need to be alive to execute blocks of code below this line:
-                local silentkick = Troll["Silent Kick"]
+                local silentkick = Troll.features["Silent Kick"]
                 if (silentkick.enabled) and TrollPlayer(player, silentkick) then
                     v[9].timer = v[9].timer + time_scale
                     if (v[9].timer >= v[9].time_until_kick) then
@@ -608,18 +628,18 @@ function OnTick()
                     end
                 end
 
-                local fc = Troll["Force Chat"]
+                local fc = Troll.features["Force Chat"]
                 if (fc.enabled) and TrollPlayer(player, fc) then
                     v[12].timer = v[12].timer + time_scale
                     if (v[12].timer >= v[12].time_until_say) then
                         v[12].timer = 0
-                        v[12].time_until_say = math.random(Troll["Force Chat"].min, Troll["Force Chat"].max)
+                        v[12].time_until_say = math.random(fc.min, fc.max)
                         local message = fc.sentences[math.random(#fc.sentences)]
                         local str = fc.chat_format
                         message = gsub(gsub(str, "%%name%%", players[player].name), "%%msg%%", message)
                         execute_command("msg_prefix \"\"")
                         say_all(message)
-                        execute_command("msg_prefix \" " .. server_prefix .. "\"")
+                        execute_command("msg_prefix \" " .. Troll.settings.server_prefix .. "\"")
                         cprint("[TROLL] " .. players[player].name .. " was forced to say random message!", 5 + 8)
                     end
                 end
@@ -643,7 +663,7 @@ function OnPreSpawn(P)
 
     if (t ~= nil) then
 
-        local cc = Troll["Random Color Change"]
+        local cc = Troll.features["Random Color Change"]
         if (cc.enabled) and TrollPlayer(P, cc) then
             local chance = cc.chance[math.random(#cc.chance)]
             if (chance == 1) then
@@ -655,16 +675,16 @@ function OnPreSpawn(P)
             end
         end
 
-        local silentkill = Troll["Silent Kill"]
+        local silentkill = Troll.features["Silent Kill"]
         if (silentkill.enabled) and TrollPlayer(P, silentkill) then
             t[3].timer = 0
-            t[3].time_until_kill = math.random(Troll["Silent Kill"].min, Troll["Silent Kill"].max)
+            t[3].time_until_kill = math.random(silentkill.min, silentkill.max)
         end
 
-        local tpundermap = Troll["Teleport Under Map"]
+        local tpundermap = Troll.features["Teleport Under Map"]
         if (tpundermap.enabled) and TrollPlayer(P, tpundermap) then
-            t[4].zaxis = math.random(Troll["Teleport Under Map"].minZ, Troll["Teleport Under Map"].maxZ)
-            t[4].time_until_tp = math.random(Troll["Teleport Under Map"].min, Troll["Teleport Under Map"].max)
+            t[4].zaxis = math.random(tpundermap.minZ, tpundermap.maxZ)
+            t[4].time_until_tp = math.random(tpundermap.min, tpundermap.max)
         end
     end
 end
@@ -677,7 +697,7 @@ function OnPlayerChat(P, Message, Type)
         elseif (not isChatCmd(Msg)) then
             local p = players[P]
             if (p ~= nil) then
-                local t = Troll["Chat Text Randomizer"]
+                local t = Troll.features["Chat Text Randomizer"]
                 if (t.enabled) and TrollPlayer(P, t) then
                     if (p[2].chance() == 1) then
 
@@ -701,7 +721,7 @@ function OnPlayerChat(P, Message, Type)
                             SayTeam(P, formatMsg(t.format.team))
                         elseif (Type == 2) then
                             SayTeam(P, formatMsg(t.format.vehicle))
-                            execute_command("msg_prefix \" " .. server_prefix .. "\"")
+                            execute_command("msg_prefix \" " .. Troll.settings.server_prefix .. "\"")
                             cprint("[TROLL] " .. players[P].name .. " chat message was scrambled!", 5 + 8)
                             return false
                         end
@@ -710,7 +730,7 @@ function OnPlayerChat(P, Message, Type)
             end
         else
 
-            local t = Troll["Force Chat"]
+            local t = Troll.features["Force Chat"]
             if (Msg[1] == "/" .. t.command or Msg[1] == "\\" .. t.command) then
                 local TargetID, Message = tonumber(Msg[2]), tostring(Msg[3])
                 if (TargetID ~= nil and Message ~= nil) then
@@ -731,7 +751,7 @@ function OnPlayerChat(P, Message, Type)
 
                             execute_command("msg_prefix \"\"")
                             say_all(msg)
-                            execute_command("msg_prefix \" " .. server_prefix .. "\"")
+                            execute_command("msg_prefix \" " .. Troll.settings.server_prefix .. "\"")
 
                             local EName = get_var(P, "$name")
                             if (P == 0) then
@@ -748,6 +768,61 @@ function OnPlayerChat(P, Message, Type)
                     Respond(P, "Invalid Syntax. Usage: " .. Msg[1] .. " [player id] {message}")
                 end
                 return false
+            elseif (Msg[1] == "/" .. Troll.settings.add_troll_command or Msg[1] == "\\" .. Troll.settings.add_troll_command) then
+                local lvl = tonumber(get_var(P, "$lvl"))
+                if (lvl >= Troll.settings.add_troll_permission) then
+                    local TargetID = tonumber(Msg[2])
+                    if (TargetID ~= nil) then
+                        if player_present(TargetID) then
+                            if (players[TargetID] == nil) then
+                                InitPlayer(TargetID, false, true)
+                                players[TargetID].ignore_status = true
+                                if (TargetID == P) then
+                                    Respond(P, "Successfully added yourself to TROLL list!")
+                                else
+                                    local name = get_var(TargetID, "$name")
+                                    Respond(P, "Temporarily adding " .. name .. " to the list of players to troll!")
+                                end
+                            else
+                                Respond(P, "This player is already on the Troll List!")
+                            end
+                        else
+                            Respond(P, "Invalid Player ID or Player Not Online!")
+                        end
+                    else
+                        Respond(P, "Invalid Syntax. Usage: " .. Msg[1] .. " [player id]")
+                    end
+                else
+                    Respond(P, "You do not have permission to execute this command!")
+                end
+                return false
+            elseif (Msg[1] == "/" .. Troll.settings.remove_troll_command or Msg[1] == "\\" .. Troll.settings.remove_troll_command) then
+                local lvl = tonumber(get_var(P, "$lvl"))
+                if (lvl >= Troll.settings.remove_troll_permission) then
+                    local TargetID = tonumber(Msg[2])
+                    if (TargetID ~= nil) then
+                        if player_present(TargetID) then
+                            if (players[TargetID] ~= nil) then
+                                players[TargetID] = nil
+                                if (TargetID == P) then
+                                    Respond(P, "Successfully removed yourself from TROLL list!")
+                                else
+                                    local name = get_var(TargetID, "$name")
+                                    Respond(P, "Removed " .. name .. " to the list of players to troll!")
+                                end
+                            else
+                                Respond(P, "This player isn't on the TROLL LIST!")
+                            end
+                        else
+                            Respond(P, "Invalid Player ID or Player Not Online!")
+                        end
+                    else
+                        Respond(P, "Invalid Syntax. Usage: " .. Msg[1] .. " [player id]")
+                    end
+                else
+                    Respond(P, "You do not have permission to execute this command!")
+                end
+                return false
             end
         end
     end
@@ -755,7 +830,7 @@ end
 
 function OnVehicleEntry(P, _)
     if (players[P] ~= nil) then
-        local t = Troll["Vehicle Exit"]
+        local t = Troll.features["Vehicle Exit"]
         if (t.enabled) and TrollPlayer(P, t) then
             players[P][6].timer = 0
             players[P][6].time_until_exit = math.random(t.min, t.max)
@@ -765,7 +840,7 @@ end
 
 function ChangeName(P)
     if (players[P] ~= nil) then
-        local nc = Troll["Name Changer"]
+        local nc = Troll.features["Name Changer"]
         if (nc.enabled) and TrollPlayer(P, nc) then
             local client_network_struct = network_struct + 0x1AA + 0x40 + to_real_index(P) * 0x20
             local name = GetRandomName(P)
@@ -786,10 +861,10 @@ function SayTeam(P, Message)
     end
 end
 
-function InitPlayer(P, Reset)
+function InitPlayer(P, Reset, Bypass)
     if (Reset) then
 
-        local nc = Troll["Name Changer"]
+        local nc = Troll.features["Name Changer"]
         if (nc.enabled) and TrollPlayer(P, nc) then
             local id = players[P][7].name_id
             if (nc.names[id] ~= nil) then
@@ -803,44 +878,47 @@ function InitPlayer(P, Reset)
 
         local Case = function()
             local ip = get_var(P, "$ip"):match("%d+.%d+.%d+.%d+")
-            for i = 1, #specific_users do
-                if (ip == specific_users[i] or (not specific_users_only)) then
+            for i = 1, #Troll.settings.specific_users do
+                if (ip == Troll.settings.specific_users[i] or (not Troll.settings.specific_users_only)) or (Bypass) then
                     return true
                 end
             end
             return false
         end
 
-        if (Case) then
+        if Case() then
 
             math.randomseed(os.time())
+            local t = Troll.features
+
             players[P] = {
                 name = get_var(P, "$name"),
+                ignore_status = false,
                 [1] = { -- Damage Modifier
                     -- N/A
                 },
                 [2] = { -- Chat Text Randomizer
                     chance = function()
-                        return math.random(Troll["Chat Text Randomizer"].min_chances, Troll["Chat Text Randomizer"].max_chances)
+                        return math.random(t["Chat Text Randomizer"].min_chances, t["Chat Text Randomizer"].max_chances)
                     end
                 },
                 [3] = { -- Silent Kill
                     timer = 0,
-                    time_until_kill = math.random(Troll["Silent Kill"].min, Troll["Silent Kill"].max)
+                    time_until_kill = math.random(t["Silent Kill"].min, t["Silent Kill"].max)
                 },
                 [4] = { -- Teleport Under Map
                     timer = 0,
-                    zaxis = math.random(Troll["Teleport Under Map"].minZ, Troll["Teleport Under Map"].maxZ),
-                    time_until_tp = math.random(Troll["Teleport Under Map"].min, Troll["Teleport Under Map"].max)
+                    zaxis = math.random(t["Teleport Under Map"].minZ, t["Teleport Under Map"].maxZ),
+                    time_until_tp = math.random(t["Teleport Under Map"].min, t["Teleport Under Map"].max)
                 },
                 [5] = { -- Flag Dropper
                     timer = 0,
                     hasflag = false,
-                    time_until_drop = math.random(Troll["Flag Dropper"].min, Troll["Flag Dropper"].max)
+                    time_until_drop = math.random(t["Flag Dropper"].min, t["Flag Dropper"].max)
                 },
                 [6] = { -- Vehicle Exit
                     timer = 0,
-                    time_until_exit = math.random(Troll["Vehicle Exit"].min, Troll["Vehicle Exit"].max)
+                    time_until_exit = math.random(t["Vehicle Exit"].min, t["Vehicle Exit"].max)
                 },
                 [7] = { -- Name Changer
                     name_id = 0,
@@ -850,19 +928,19 @@ function InitPlayer(P, Reset)
                     nade_timer = 0,
                     weapon_timer = 0,
 
-                    time_until_take_ammo = math.random(Troll["Ammo Changer"].minAmmoTime, Troll["Ammo Changer"].maxAmmoTime),
-                    time_until_take_nades = math.random(Troll["Ammo Changer"].minNadeTime, Troll["Ammo Changer"].maxNadeTime)
+                    time_until_take_ammo = math.random(t["Ammo Changer"].minAmmoTime, t["Ammo Changer"].maxAmmoTime),
+                    time_until_take_nades = math.random(t["Ammo Changer"].minNadeTime, t["Ammo Changer"].maxNadeTime)
                 },
                 [9] = { -- Silent Kick
                     timer = 0,
                     broadcast = true,
-                    time_until_kick = math.random(Troll["Silent Kick"].min, Troll["Silent Kick"].max)
+                    time_until_kick = math.random(t["Silent Kick"].min, t["Silent Kick"].max)
                 },
                 [10] = { -- Random Color Change
                     color = function()
 
                         local temp = { }
-                        local colors = Troll["Random Color Change"].colors
+                        local colors = t["Random Color Change"].colors
                         for i = 1, #colors do
                             if (colors[i][2]) then
                                 temp[#temp + 1] = colors[i][1]
@@ -879,17 +957,21 @@ function InitPlayer(P, Reset)
                 [11] = { -- Client Crasher
                     timer = 0,
                     delay = false,
-                    time_until_crash = math.random(Troll["Client Crasher"].min, Troll["Client Crasher"].max)
+                    time_until_crash = math.random(t["Client Crasher"].min, t["Client Crasher"].max)
                 },
                 [12] = { -- Force Chat
                     timer = 0,
-                    time_until_say = math.random(Troll["Force Chat"].min, Troll["Force Chat"].max)
+                    time_until_say = math.random(t["Force Chat"].min, t["Force Chat"].max)
                 }
             }
 
             ChangeName(P)
+            cprint("[TROLL] " .. get_var(P, "$name") .. " has been added to the list of players to troll", 5 + 8)
+            return true
         end
     end
+
+    return false
 end
 
 function SilentKick(P)
@@ -898,7 +980,7 @@ function SilentKick(P)
         rprint(P, " ")
     end
 
-    local sk = Troll["Silent Kick"]
+    local sk = Troll.features["Silent Kick"]
     if (sk.announcements.enabled) then
         if (players[P][9].broadcast) then
             players[P][9].broadcast = false
@@ -914,7 +996,7 @@ end
 
 function OnDamageApplication(VictimIndex, CauserIndex, MetaID, Damage, _, _)
     if (tonumber(CauserIndex) > 0) then
-        local t = Troll["Damage Modifier"]
+        local t = Troll.features["Damage Modifier"]
         if (t.enabled) then
 
             if (players[CauserIndex] ~= nil and players[VictimIndex] ~= nil) then
@@ -1008,7 +1090,8 @@ end
 
 function TrollPlayer(P, Feature)
     local lvl = tonumber(get_var(P, "$lvl"))
-    return (lvl == -1) or ((Feature.ignore_admins == false) or (lvl <= Feature.ignore_admin_level))
+    local ignore_status = (players[P].ignore_status == true)
+    return (lvl == -1) or ((Feature.ignore_admins == false) or (lvl <= Feature.ignore_admin_level)) or (ignore_status)
 end
 
 function KillSilently(P)
@@ -1028,7 +1111,7 @@ function KillSilently(P)
 end
 
 function GetRandomName(P)
-    local nc = Troll["Name Changer"]
+    local nc = Troll.features["Name Changer"]
     if (nc.enabled) then
 
         local t = { }
@@ -1101,8 +1184,8 @@ end
 function PrintFeatureState()
     cprint(" ")
     cprint("---- TROLL FEATURES ----", 5 + 8)
-    for k, v in pairs(Troll) do
-        if v.enabled then
+    for k, v in pairs(Troll.features) do
+        if (v.enabled) then
             cprint("[" .. k .. '] is enabled', 2 + 8)
         else
             cprint("[" .. k .. '] is disabled', 4 + 8)
