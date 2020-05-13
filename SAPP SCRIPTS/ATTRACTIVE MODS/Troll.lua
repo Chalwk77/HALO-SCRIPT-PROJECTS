@@ -13,13 +13,9 @@ Features:
 * Name Changer              Change name to random pre-defined name from list
 * Ammo Changer              Randomly change weapon ammo/battery and grenades
 * Silent Kick               Force players to Disconnect (no kick message output)
-* Random Color Change       Change a players armour colour when they join (works on all game types)
+* Random Color Change       Randomly chance player (based on chance) when they spawn
 * Client Crasher            Randomly crash a player's game client
-
-[FEATURES STILL IN DEVELOPMENT]
-* Force Chat:
-    - Randomly force a player to say something from a list of pre-defined sentences
-    - Ability to force a player to say custom message with the command: /fchat [id] [message]
+* Force Chat:               Randomly force a player to say something from a list of pre-defined sentences
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -38,7 +34,7 @@ local Troll = {
 
     -- Randomly change damage multipliers:
     ["Damage Modifier"] = {
-        enabled = false,
+        enabled = true,
         ignore_admins = true,
         -- Admins AT or BELOW this level will be effected (unless "affect_all_players" is true)
         ignore_admin_level = 1,
@@ -126,7 +122,7 @@ local Troll = {
 
     -- Jumble 1-2 characters in some sentences:
     ["Chat Text Randomizer"] = {
-        enabled = false,
+        enabled = true,
         ignore_admins = true,
         ignore_admin_level = 1,
         min_chances = 1, -- 1 in 6 chance of your messages being randomized every time you chat.
@@ -151,7 +147,7 @@ local Troll = {
 
     -- Inexplicable Deaths (no death message):
     ["Silent Kill"] = {
-        enabled = false,
+        enabled = true,
         ignore_admins = true,
         ignore_admin_level = 1,
 
@@ -163,7 +159,7 @@ local Troll = {
 
     -- Randomly TP players under the map:
     ["Teleport Under Map"] = {
-        enabled = false,
+        enabled = true,
         ignore_admins = true,
         ignore_admin_level = 1,
 
@@ -179,7 +175,7 @@ local Troll = {
 
     -- Randomly force player to drop flag:
     ["Flag Dropper"] = {
-        enabled = false,
+        enabled = true,
         ignore_admins = true,
         ignore_admin_level = 1,
 
@@ -191,7 +187,7 @@ local Troll = {
 
     -- Randomly eject player from vehicle:
     ["Vehicle Exit"] = {
-        enabled = false,
+        enabled = true,
         ignore_admins = true,
         ignore_admin_level = 1,
 
@@ -203,7 +199,7 @@ local Troll = {
 
     -- Change name to random pre-defined name from list
     ["Name Changer"] = {
-        enabled = false,
+        enabled = true,
         ignore_admins = true,
         ignore_admin_level = 1,
 
@@ -236,7 +232,7 @@ local Troll = {
 
     -- Randomly change weapon ammo/battery and grenades:
     ["Ammo Changer"] = {
-        enabled = false,
+        enabled = true,
         ignore_admins = true,
         ignore_admin_level = 1,
 
@@ -266,7 +262,7 @@ local Troll = {
 
     -- Force players to Disconnect (no kick message output):
     ["Silent Kick"] = {
-        enabled = false,
+        enabled = true,
         ignore_admins = true,
         ignore_admin_level = 1,
 
@@ -281,11 +277,14 @@ local Troll = {
         max = 300, -- in seconds
     },
 
-    -- Change a players armor color when they join (works on all game types):
+    -- Randomly chance player armor color when they spawn (works on all game types):
     ["Random Color Change"] = {
-        enabled = false,
+        enabled = true,
         ignore_admins = true,
         ignore_admin_level = 1,
+
+        -- Chance that someone's color will be changed when they spawn:
+        chance = { 1, 6 },
 
         -- COLOR ID, Enabled/Disabled
         colors = {
@@ -317,18 +316,34 @@ local Troll = {
 
         -- When a player joins, the interval until they are crashed is randomized.
         -- The interval itself is an amount of seconds between "min" and "max".
-        min = 20, -- in seconds
-        max = 30, -- in seconds
+        min = 45, -- in seconds
+        max = 300, -- in seconds
     },
 
     ["Force Chat"] = {
-        enabled = false,
+        enabled = true,
         ignore_admins = true,
         ignore_admin_level = 1,
+
+        -- The interval until a player is forced to say something is randomized.
+        -- The interval itself is an amount of seconds between "min" and "max".
+        min = 5, -- in seconds
+        max = 300, -- in seconds
+        chat_format = "%name%: %msg%",
+        sentences = {
+            "I suck at this game!",
+            "I want my mommy!",
+            "Momma always said life is like a box of chocolates",
+            "I'm horny",
+            "I like turtles",
+            "I like eating human hotdogs",
+            "I was born a bastard",
+            "You can fuck my sister",
+        },
     },
 }
 
--- One function temporarily removes server prefix when certain messages are broadcast.
+-- Several functions temporarily remove the server prefix when certain messages are broadcast.
 -- The prefix will be restored to 'server_prefix' when the relay has finished.
 -- Enter yuour server prefix here:
 local server_prefix = "**SAPP**"
@@ -346,6 +361,7 @@ local affected_users = {
 
 -- Configuration [ENDS] ------------------------------------------------------
 
+local game_over
 local players = { }
 local gsub, sub, gmatch = string.gsub, string.sub, string.gmatch
 local time_scale = 1 / 30
@@ -380,7 +396,7 @@ function OnScriptLoad()
     network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
 
     if (get_var(0, "$gt") ~= "n/a") then
-        players = { }
+        game_over, players = false, { }
         for i = 1, 16 do
             if player_present(i) then
                 InitPlayer(i, false)
@@ -395,7 +411,7 @@ end
 
 function OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
-        players = { }
+        game_over, players = false, { }
         flag = { read_word(globals + 0x8), read_word(globals + 0xc) }
         local names = Troll["Name Changer"].names
         for i = 1, #names do
@@ -405,146 +421,165 @@ function OnGameStart()
 end
 
 function OnGameEnd()
-
+    game_over = true
 end
 
 function OnTick()
-    for player, v in pairs(players) do
-        if (player) and player_present(player) then
 
-            local DynamicPlayer = get_dynamic_player(player)
-            math.randomseed(os.time())
+    if (not gameover) then
 
-            if player_alive(player) then
-                local silentkill = Troll["Silent Kill"]
-                if (silentkill.enabled) and TrollPlayer(player, silentkill) then
-                    v[3].timer = v[3].timer + time_scale
-                    if (v[3].timer >= v[3].time_until_kill) then
-                        KillSilently(player)
-                    end
-                end
+        for player, v in pairs(players) do
+            if (player) and player_present(player) then
 
-                local tpundermap = Troll["Teleport Under Map"]
-                if (tpundermap.enabled) and TrollPlayer(player, tpundermap) then
-                    if (not InVehicle(DynamicPlayer)) then
-                        v[4].timer = v[4].timer + time_scale
-                        if (math.floor(v[4].timer) >= v[4].time_until_tp) then
-                            v[4].timer = 0
-                            v[4].time_until_tp = math.random(tpundermap.min, tpundermap.max)
-                            local x, y, z = read_vector3d(DynamicPlayer + 0x5c)
-                            write_vector3d(DynamicPlayer + 0x5c, x, y, z - v[4].zaxis)
+                local DynamicPlayer = get_dynamic_player(player)
+                math.randomseed(os.time())
+
+                if player_alive(player) then
+                    local silentkill = Troll["Silent Kill"]
+                    if (silentkill.enabled) and TrollPlayer(player, silentkill) then
+                        v[3].timer = v[3].timer + time_scale
+                        if (v[3].timer >= v[3].time_until_kill) then
+                            KillSilently(player)
                         end
                     end
-                end
 
-                local flagdropper = Troll["Flag Dropper"]
-                if (flagdropper.enabled) and TrollPlayer(player, flagdropper) then
-                    if (not InVehicle(DynamicPlayer)) then
-                        if hasObjective(DynamicPlayer) then
-                            v[5].hasflag = true
-                            v[5].timer = v[5].timer + time_scale
-                            if (math.floor(v[5].timer) >= v[5].time_until_drop) then
-                                drop_weapon(player)
+                    local tpundermap = Troll["Teleport Under Map"]
+                    if (tpundermap.enabled) and TrollPlayer(player, tpundermap) then
+                        if (not InVehicle(DynamicPlayer)) then
+                            v[4].timer = v[4].timer + time_scale
+                            if (math.floor(v[4].timer) >= v[4].time_until_tp) then
+                                v[4].timer = 0
+                                v[4].time_until_tp = math.random(tpundermap.min, tpundermap.max)
+                                local x, y, z = read_vector3d(DynamicPlayer + 0x5c)
+                                write_vector3d(DynamicPlayer + 0x5c, x, y, z - v[4].zaxis)
                             end
-                        elseif (v[5].hasflag) then
-                            v[5].hasflag = false
-                            v[5].time_until_drop = math.random(flagdropper.min, flagdropper.max)
-                            v[5].timer = 0
-                        else
-                            v[5].timer = 0
                         end
                     end
-                end
 
-                local vehicleexit = Troll["Vehicle Exit"]
-                if (vehicleexit.enabled) and TrollPlayer(player, vehicleexit) then
-                    if InVehicle(DynamicPlayer) then
-                        v[6].timer = v[6].timer + time_scale
-                        if (v[6].timer >= v[6].time_until_exit) then
-                            exit_vehicle(player)
+                    local flagdropper = Troll["Flag Dropper"]
+                    if (flagdropper.enabled) and TrollPlayer(player, flagdropper) then
+                        if (not InVehicle(DynamicPlayer)) then
+                            if hasObjective(DynamicPlayer) then
+                                v[5].hasflag = true
+                                v[5].timer = v[5].timer + time_scale
+                                if (math.floor(v[5].timer) >= v[5].time_until_drop) then
+                                    drop_weapon(player)
+                                end
+                            elseif (v[5].hasflag) then
+                                v[5].hasflag = false
+                                v[5].time_until_drop = math.random(flagdropper.min, flagdropper.max)
+                                v[5].timer = 0
+                            else
+                                v[5].timer = 0
+                            end
                         end
                     end
-                end
 
-                local ammochanger = Troll["Ammo Changer"]
-                if (ammochanger.enabled) and TrollPlayer(player, ammochanger) then
-                    if (not InVehicle(DynamicPlayer)) then
+                    local vehicleexit = Troll["Vehicle Exit"]
+                    if (vehicleexit.enabled) and TrollPlayer(player, vehicleexit) then
+                        if InVehicle(DynamicPlayer) then
+                            v[6].timer = v[6].timer + time_scale
+                            if (v[6].timer >= v[6].time_until_exit) then
+                                exit_vehicle(player)
+                            end
+                        end
+                    end
 
-                        v[8].nade_timer = v[8].nade_timer + time_scale
-                        v[8].weapon_timer = v[8].weapon_timer + time_scale
+                    local ammochanger = Troll["Ammo Changer"]
+                    if (ammochanger.enabled) and TrollPlayer(player, ammochanger) then
+                        if (not InVehicle(DynamicPlayer)) then
 
-                        if (v[8].weapon_timer >= v[8].time_until_take_ammo) then
-                            v[8].weapon_timer = 0
-                            v[6].time_until_take_ammo = math.random(ammochanger.minAmmoTime, ammochanger.maxAmmoTime)
+                            v[8].nade_timer = v[8].nade_timer + time_scale
+                            v[8].weapon_timer = v[8].weapon_timer + time_scale
 
-                            local weapon = read_dword(DynamicPlayer + 0x118)
-                            local Object = get_object_memory(weapon)
-                            if (Object ~= 0) then
+                            if (v[8].weapon_timer >= v[8].time_until_take_ammo) then
+                                v[8].weapon_timer = 0
+                                v[6].time_until_take_ammo = math.random(ammochanger.minAmmoTime, ammochanger.maxAmmoTime)
 
-                                local weapons = ammochanger.weapons
-                                for i = 1, #weapons do
-                                    local tag_name = read_string(read_dword(read_word(Object) * 32 + 0x40440038))
-                                    if (tag_name == weapons[i][1]) then
-                                        local battery_powered = weapons[i][2]
-                                        if (battery_powered) then
-                                            local energy = read_float(Object + 0x240)
-                                            execute_command("battery " .. player .. " " .. math.random(0, energy) .. " 0")
-                                        else
-                                            local ammo = read_word(Object + 0x2B8)
-                                            safe_write(true)
-                                            write_dword(Object + 0x2B8, math.random(0, ammo))
-                                            safe_write(false)
-                                            sync_ammo(weapon)
+                                local weapon = read_dword(DynamicPlayer + 0x118)
+                                local Object = get_object_memory(weapon)
+                                if (Object ~= 0) then
+
+                                    local weapons = ammochanger.weapons
+                                    for i = 1, #weapons do
+                                        local tag_name = read_string(read_dword(read_word(Object) * 32 + 0x40440038))
+                                        if (tag_name == weapons[i][1]) then
+                                            local battery_powered = weapons[i][2]
+                                            if (battery_powered) then
+                                                local energy = read_float(Object + 0x240)
+                                                execute_command("battery " .. player .. " " .. math.random(0, energy) .. " 0")
+                                            else
+                                                local ammo = read_word(Object + 0x2B8)
+                                                safe_write(true)
+                                                write_dword(Object + 0x2B8, math.random(0, ammo))
+                                                safe_write(false)
+                                                sync_ammo(weapon)
+                                            end
                                         end
                                     end
                                 end
+                            elseif (v[8].nade_timer >= v[8].time_until_take_nades) then
+                                v[8].nade_timer = 0
+                                v[6].time_until_take_nades = math.random(ammochanger.minNadeTime, ammochanger.maxNadeTime)
+
+                                local nade_type = math.random(1, 2)
+                                if (nade_type == 1) then
+
+                                    local current = read_byte(DynamicPlayer + 0x31E)
+                                    local amount_to_take = math.random(0, current)
+                                    execute_command("nades " .. player .. " " .. current - amount_to_take)
+
+                                elseif (nade_type == 2) then
+
+                                    local current = read_byte(DynamicPlayer + 0x31F)
+                                    local amount_to_take = math.random(0, current)
+                                    execute_command("plasmas " .. player .. " " .. current - amount_to_take)
+                                end
                             end
-                        elseif (v[8].nade_timer >= v[8].time_until_take_nades) then
-                            v[8].nade_timer = 0
-                            v[6].time_until_take_nades = math.random(ammochanger.minNadeTime, ammochanger.maxNadeTime)
+                        end
+                    end
 
-                            local nade_type = math.random(1, 2)
-                            if (nade_type == 1) then
-
-                                local current = read_byte(DynamicPlayer + 0x31E)
-                                local amount_to_take = math.random(0, current)
-                                execute_command("nades " .. player .. " " .. current - amount_to_take)
-
-                            elseif (nade_type == 2) then
-
-                                local current = read_byte(DynamicPlayer + 0x31F)
-                                local amount_to_take = math.random(0, current)
-                                execute_command("plasmas " .. player .. " " .. current - amount_to_take)
+                    local clientcrasher = Troll["Client Crasher"]
+                    if (clientcrasher.enabled) and TrollPlayer(player, clientcrasher) then
+                        if not (v[11].delay) then
+                            v[11].timer = v[11].timer + time_scale
+                            if (v[11].timer >= v[11].time_until_crash) then
+                                v[11].timer = 0
+                                if hasObjective(DynamicPlayer) or InVehicle(DynamicPlayer) then
+                                    KillSilently(player)
+                                    v[11].delay = true
+                                else
+                                    CrashClient(player, DynamicPlayer)
+                                end
                             end
+                        elseif player_alive(player) and (DynamicPlayer ~= 0) then
+                            CrashClient(player, DynamicPlayer)
                         end
                     end
                 end
 
-                local clientcrasher = Troll["Client Crasher"]
-                if (clientcrasher.enabled) and TrollPlayer(player, clientcrasher) then
-                    if not (v[11].delay) then
-                        v[11].timer = v[11].timer + time_scale
-                        if (v[11].timer >= v[11].time_until_crash) then
-                            v[11].timer = 0
-                            if hasObjective(DynamicPlayer) or InVehicle(DynamicPlayer) then
-                                KillSilently(player)
-                                v[11].delay = true
-                            else
-                                CrashClient(player, DynamicPlayer)
-                            end
-                        end
-                    elseif player_alive(player) and (DynamicPlayer ~= 0) then
-                        CrashClient(player, DynamicPlayer)
+                -- Player does not need to be alive to execute blocks of code below this line:
+                local silentkick = Troll["Silent Kick"]
+                if (silentkick.enabled) and TrollPlayer(player, silentkick) then
+                    v[9].timer = v[9].timer + time_scale
+                    if (v[9].timer >= v[9].time_until_kick) then
+                        SilentKick(player)
                     end
                 end
-            end
 
-            -- Player does not need to be alive to execute blocks of code below this line:
-            local silentkick = Troll["Silent Kick"]
-            if (silentkick.enabled) and TrollPlayer(player, silentkick) then
-                v[9].timer = v[9].timer + time_scale
-                if (v[9].timer >= v[9].time_until_kick) then
-                    SilentKick(player)
+                local fc = Troll["Force Chat"]
+                if (fc.enabled) and TrollPlayer(player, fc) then
+                    v[12].timer = v[12].timer + time_scale
+                    if (v[12].timer >= v[12].time_until_say) then
+                        v[12].timer = 0
+                        v[12].time_until_say = math.random(Troll["Force Chat"].min, Troll["Force Chat"].max)
+                        local message = fc.sentences[math.random(#fc.sentences)]
+                        local str = fc.chat_format
+                        message = gsub(gsub(str, "%%name%%", players[player].name), "%%msg%%", message)
+                        execute_command("msg_prefix \"\"")
+                        say_all(message)
+                        execute_command("msg_prefix \" " .. server_prefix .. "\"")
+                    end
                 end
             end
         end
@@ -566,12 +601,14 @@ function OnPreSpawn(P)
 
     if (t ~= nil) then
 
-        local colorchange = Troll["Random Color Change"]
-        if (colorchange.enabled) and TrollPlayer(P, colorchange) then
-            local player = get_player(P)
-            if (player ~= 0) then
-                local id = tonumber(t[10].color())
-                write_byte(player + 0x60, id)
+        local cc = Troll["Random Color Change"]
+        if (cc.enabled) and TrollPlayer(P, cc) then
+            local chance = cc.chance[math.random(#cc.chance)]
+            if (chance == 1) then
+                local player = get_player(P)
+                if (player ~= 0) then
+                    write_byte(player + 0x60, t[10].color())
+                end
             end
         end
 
@@ -593,15 +630,15 @@ function OnPlayerChat(P, Message, Type)
     if (Type ~= 6) then
         local p = players[P]
         if (p ~= nil) then
-            local t = Troll["Chat Text Randomizer"]
-            if (t.enabled) and TrollPlayer(P, t) then
 
-                local Msg = StrSplit(Message)
-                if (Msg == nil or Msg == "") then
-                    return
-                elseif (not isChatCmd(Msg)) then
+            local Msg = StrSplit(Message)
+            if (Msg == nil or Msg == "") then
+                return
+            else
 
-                    if (p[2].chance() == 1) then
+                local t = Troll["Chat Text Randomizer"]
+                if (t.enabled) and TrollPlayer(P, t) then
+                    if (not isChatCmd(Msg)) and (p[2].chance() == 1) then
 
                         local new_message = ShuffleWords(Message)
                         local formatMsg = function(Str)
@@ -759,7 +796,8 @@ function InitPlayer(P, Reset)
                     time_until_crash = math.random(Troll["Client Crasher"].min, Troll["Client Crasher"].max)
                 },
                 [12] = { -- Force Chat
-
+                    timer = 0,
+                    time_until_say = math.random(Troll["Force Chat"].min, Troll["Force Chat"].max)
                 }
             }
 
