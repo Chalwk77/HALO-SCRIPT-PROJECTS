@@ -4,16 +4,22 @@ Script Name: Troll, for SAPP (PC & CE)
 Description: A unique mod designed to troll your whole server (or specific players)
 
 Features:
-* Damage Modifier - Randomly change damage multipliers.
-* Chat Text Randomizer - Jumbles up characters in some sentences
-* Silent Kill - Inexplicable Deaths (no death message)
-* Teleport Under Map - Randomly TP players under the map
-* Flag Dropper - Randomly force player to drop the flag
-* Vehicle Exit - Randomly eject a player from vehicle
-* Name Changer - Change name to random pre-defined name from list
-* Ammo Changer - Randomly change weapon ammo/battery and grenades
-* Silent Kick - Force players to Disconnect (no kick message output)
-* Random Color Change - Change a players armour colour when they join (works on all game types)
+* Damage Modifier           Randomly change damage multipliers.
+* Chat Text Randomizer      Jumbles up characters in some sentences
+* Silent Kill               Inexplicable Deaths (no death message)
+* Teleport Under Map        Randomly TP players under the map
+* Flag Dropper              Randomly force player to drop the flag
+* Vehicle Exit              Randomly eject a player from vehicle
+* Name Changer              Change name to random pre-defined name from list
+* Ammo Changer              Randomly change weapon ammo/battery and grenades
+* Silent Kick               Force players to Disconnect (no kick message output)
+* Random Color Change       Change a players armour colour when they join (works on all game types)
+* Client Crasher            Randomly crash a player's game client
+
+[FEATURES STILL IN DEVELOPMENT]
+* Force Chat:
+    - Randomly force a player to say something from a list of pre-defined sentences
+    - Ability to force a player to say custom message with the command: /fchat [id] [message]
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -32,7 +38,7 @@ local Troll = {
 
     -- Randomly change damage multipliers:
     ["Damage Modifier"] = {
-        enabled = true,
+        enabled = false,
         ignore_admins = true,
         -- Admins AT or BELOW this level will be effected (unless "affect_all_players" is true)
         ignore_admin_level = 1,
@@ -120,7 +126,7 @@ local Troll = {
 
     -- Jumble 1-2 characters in some sentences:
     ["Chat Text Randomizer"] = {
-        enabled = true,
+        enabled = false,
         ignore_admins = true,
         ignore_admin_level = 1,
         min_chances = 1, -- 1 in 6 chance of your messages being randomized every time you chat.
@@ -145,7 +151,7 @@ local Troll = {
 
     -- Inexplicable Deaths (no death message):
     ["Silent Kill"] = {
-        enabled = true,
+        enabled = false,
         ignore_admins = true,
         ignore_admin_level = 1,
 
@@ -157,7 +163,7 @@ local Troll = {
 
     -- Randomly TP players under the map:
     ["Teleport Under Map"] = {
-        enabled = true,
+        enabled = false,
         ignore_admins = true,
         ignore_admin_level = 1,
 
@@ -173,7 +179,7 @@ local Troll = {
 
     -- Randomly force player to drop flag:
     ["Flag Dropper"] = {
-        enabled = true,
+        enabled = false,
         ignore_admins = true,
         ignore_admin_level = 1,
 
@@ -185,7 +191,7 @@ local Troll = {
 
     -- Randomly eject player from vehicle:
     ["Vehicle Exit"] = {
-        enabled = true,
+        enabled = false,
         ignore_admins = true,
         ignore_admin_level = 1,
 
@@ -197,7 +203,7 @@ local Troll = {
 
     -- Change name to random pre-defined name from list
     ["Name Changer"] = {
-        enabled = true,
+        enabled = false,
         ignore_admins = true,
         ignore_admin_level = 1,
 
@@ -230,7 +236,7 @@ local Troll = {
 
     -- Randomly change weapon ammo/battery and grenades:
     ["Ammo Changer"] = {
-        enabled = true,
+        enabled = false,
         ignore_admins = true,
         ignore_admin_level = 1,
 
@@ -260,7 +266,7 @@ local Troll = {
 
     -- Force players to Disconnect (no kick message output):
     ["Silent Kick"] = {
-        enabled = true,
+        enabled = false,
         ignore_admins = true,
         ignore_admin_level = 1,
 
@@ -277,7 +283,7 @@ local Troll = {
 
     -- Change a players armor color when they join (works on all game types):
     ["Random Color Change"] = {
-        enabled = true,
+        enabled = false,
         ignore_admins = true,
         ignore_admin_level = 1,
 
@@ -302,6 +308,23 @@ local Troll = {
             { 16, true }, --maroon
             { 17, true } --salmon
         }
+    },
+
+    ["Client Crasher"] = {
+        enabled = true,
+        ignore_admins = true,
+        ignore_admin_level = 1,
+
+        -- When a player joins, the interval until they are crashed is randomized.
+        -- The interval itself is an amount of seconds between "min" and "max".
+        min = 20, -- in seconds
+        max = 30, -- in seconds
+    },
+
+    ["Force Chat"] = {
+        enabled = false,
+        ignore_admins = true,
+        ignore_admin_level = 1,
     },
 }
 
@@ -393,7 +416,6 @@ function OnTick()
             math.randomseed(os.time())
 
             if player_alive(player) then
-
                 local silentkill = Troll["Silent Kill"]
                 if (silentkill.enabled) and TrollPlayer(player, silentkill) then
                     v[3].timer = v[3].timer + time_scale
@@ -418,7 +440,7 @@ function OnTick()
                 local flagdropper = Troll["Flag Dropper"]
                 if (flagdropper.enabled) and TrollPlayer(player, flagdropper) then
                     if (not InVehicle(DynamicPlayer)) then
-                        if holdingFlag(DynamicPlayer) then
+                        if hasObjective(DynamicPlayer) then
                             v[5].hasflag = true
                             v[5].timer = v[5].timer + time_scale
                             if (math.floor(v[5].timer) >= v[5].time_until_drop) then
@@ -495,6 +517,24 @@ function OnTick()
                                 execute_command("plasmas " .. player .. " " .. current - amount_to_take)
                             end
                         end
+                    end
+                end
+
+                local clientcrasher = Troll["Client Crasher"]
+                if (clientcrasher.enabled) and TrollPlayer(player, clientcrasher) then
+                    if not (v[11].delay) then
+                        v[11].timer = v[11].timer + time_scale
+                        if (v[11].timer >= v[11].time_until_crash) then
+                            v[11].timer = 0
+                            if hasObjective(DynamicPlayer) or InVehicle(DynamicPlayer) then
+                                KillSilently(player)
+                                v[11].delay = true
+                            else
+                                CrashClient(player, DynamicPlayer)
+                            end
+                        end
+                    elseif player_alive(player) and (DynamicPlayer ~= 0) then
+                        CrashClient(player, DynamicPlayer)
                     end
                 end
             end
@@ -712,6 +752,14 @@ function InitPlayer(P, Reset)
 
                         return 0
                     end
+                },
+                [11] = { -- Client Crasher
+                    timer = 0,
+                    delay = false,
+                    time_until_crash = math.random(Troll["Client Crasher"].min, Troll["Client Crasher"].max)
+                },
+                [12] = { -- Force Chat
+
                 }
             }
 
@@ -770,23 +818,37 @@ function OnDamageApplication(VictimIndex, CauserIndex, MetaID, Damage, _, _)
     end
 end
 
+function CrashClient(Player, DynamicPlayer)
+    local Coords = GetXYZ(DynamicPlayer)
+    local Vehicle = spawn_object("vehi", "vehicles\\rwarthog\\rwarthog", Coords.x, Coords.y, Coords.z)
+    local VehicleObject = get_object_memory(Vehicle)
+    if (VehicleObject ~= 0) then
+        for j = 0, 20 do
+            enter_vehicle(Vehicle, Player, j)
+            exit_vehicle(Player)
+        end
+        destroy_object(Vehicle)
+    end
+end
+
 function GetTag(obj_type, obj_name)
     local tag = lookup_tag(obj_type, obj_name)
     return tag ~= 0 and read_dword(tag + 0xC) or nil
 end
 
-function HasFlag(DP)
-    for j = 0, 3 do
-        local weapon = read_dword(DP + 0x2F8 + 4 * j)
-        for i = 1, #flag do
-            if (weapon == flag[i]) then
-                return true
-            end
-        end
+function GetXYZ(DynamicPlayer)
+    local coordinates, x, y, z = {}
+    local VehicleID = read_dword(DynamicPlayer + 0x11C)
+    if (VehicleID == 0xFFFFFFFF) then
+        x, y, z = read_vector3d(DynamicPlayer + 0x5c)
+    else
+        x, y, z = read_vector3d(get_object_memory(VehicleID) + 0x5c)
     end
+    coordinates.x, coordinates.y, coordinates.z = x, y, z
+    return coordinates
 end
 
-function holdingFlag(DynamicPlayer)
+function hasObjective(DynamicPlayer)
     for i = 0, 3 do
         local WeaponID = read_dword(DynamicPlayer + 0x2F8 + 0x4 * i)
         if (WeaponID ~= 0xFFFFFFFF) then
