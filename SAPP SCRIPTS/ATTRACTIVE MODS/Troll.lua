@@ -926,7 +926,6 @@ function OnPlayerChat(P, Message, Type)
             if (Msg[1] == "/" .. t.command or Msg[1] == "\\" .. t.command) then
                 local TargetID, Message = tonumber(Msg[2]), tostring(Msg[3])
                 if (TargetID ~= nil and Message ~= nil) then
-
                     if player_present(TargetID) then
                         if (P ~= TargetID) then
 
@@ -946,9 +945,6 @@ function OnPlayerChat(P, Message, Type)
                             execute_command("msg_prefix \" " .. Troll.settings.server_prefix .. "\"")
 
                             local EName = get_var(P, "$name")
-                            if (P == 0) then
-                                EName = "SERVER"
-                            end
                             cprint("[TROLL] " .. name .. " was forced to say something by " .. EName, 5 + 8)
                         else
                             Respond(P, "You cannot execute this command on yourself!")
@@ -963,26 +959,27 @@ function OnPlayerChat(P, Message, Type)
             elseif (Msg[1] == "/" .. Troll.settings.add_troll_command or Msg[1] == "\\" .. Troll.settings.add_troll_command) then
                 local lvl = tonumber(get_var(P, "$lvl"))
                 if (lvl >= Troll.settings.add_troll_permission) then
-                    local TargetID = tonumber(Msg[2])
-                    if (TargetID ~= nil) then
-                        if player_present(TargetID) then
+                    local pl = GetPlayers(P, Msg)
+                    if (pl) then
+                        for i = 1, #pl do
+                            local TargetID = tonumber(pl[i])
                             if (players[TargetID] == nil) then
                                 InitPlayer(TargetID, false, true)
                                 players[TargetID].ignore_status = true
                                 if (TargetID == P) then
-                                    Respond(P, "Successfully added yourself to TROLL list!")
+                                    Respond(P, "Successfully added yourself to troll list!")
                                 else
                                     local name = get_var(TargetID, "$name")
                                     Respond(P, "Temporarily adding " .. name .. " to the list of players to troll!")
                                 end
                             else
-                                Respond(P, "This player is already on the Troll List!")
+                                if (TargetID == P) then
+                                    Respond(P, "You are already on the troll list")
+                                else
+                                    Respond(P, "This player is already on the troll List!")
+                                end
                             end
-                        else
-                            Respond(P, "Invalid Player ID or Player Not Online!")
                         end
-                    else
-                        Respond(P, "Invalid Syntax. Usage: " .. Msg[1] .. " [player id]")
                     end
                 else
                     Respond(P, "You do not have permission to execute this command!")
@@ -991,25 +988,26 @@ function OnPlayerChat(P, Message, Type)
             elseif (Msg[1] == "/" .. Troll.settings.remove_troll_command or Msg[1] == "\\" .. Troll.settings.remove_troll_command) then
                 local lvl = tonumber(get_var(P, "$lvl"))
                 if (lvl >= Troll.settings.remove_troll_permission) then
-                    local TargetID = tonumber(Msg[2])
-                    if (TargetID ~= nil) then
-                        if player_present(TargetID) then
+                    local pl = GetPlayers(P, Msg)
+                    if (pl) then
+                        for i = 1, #pl do
+                            local TargetID = tonumber(pl[i])
                             if (players[TargetID] ~= nil) then
                                 players[TargetID] = nil
                                 if (TargetID == P) then
-                                    Respond(P, "Successfully removed yourself from TROLL list!")
+                                    Respond(P, "Successfully removed yourself from troll list!")
                                 else
                                     local name = get_var(TargetID, "$name")
-                                    Respond(P, "Removed " .. name .. " to the list of players to troll!")
+                                    Respond(P, "Successfully removed " .. name .. " from the list of players to troll!")
                                 end
                             else
-                                Respond(P, "This player isn't on the TROLL LIST!")
+                                if (TargetID == P) then
+                                    Respond(P, "You are not on the troll list")
+                                else
+                                    Respond(P, "This player is not on the troll list")
+                                end
                             end
-                        else
-                            Respond(P, "Invalid Player ID or Player Not Online!")
                         end
-                    else
-                        Respond(P, "Invalid Syntax. Usage: " .. Msg[1] .. " [player id]")
                     end
                 else
                     Respond(P, "You do not have permission to execute this command!")
@@ -1227,6 +1225,25 @@ function hasObjective(DynamicPlayer)
         end
     end
     return false
+end
+
+function GetPlayers(P, Args)
+    local pl = { }
+    if (Args[2] == nil or Args[2] == "me") then
+        pl[#pl + 1] = P
+    elseif (Args[2]:match("%d+")) and player_present(Args[2]) then
+        pl[#pl + 1] = Args[2]
+    elseif (Args[2] == "all" or Args[2] == "*") then
+        for i = 1, 16 do
+            if player_present(i) then
+                pl[#pl + 1] = i
+            end
+        end
+    else
+        Respond(P, "Invalid Player ID or Player not Online")
+        Respond(P, "Command Usage: " .. Args[1] .. " [number: 1-16] | */all | me")
+    end
+    return pl
 end
 
 function InVehicle(DynamicPlayer)
