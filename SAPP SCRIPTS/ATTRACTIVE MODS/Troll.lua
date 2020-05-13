@@ -18,7 +18,7 @@ Features:
 * Force Chat:               [1] Randomly force a player to say something from a list of pre-defined sentences
                             [2] Optionally force player to say something with custom command!
 
--- These two commands bypass feature specific settings such as "ignore admins".
+-- These two commands bypass feature-specific settings such as "ignore admins".
 * Add player to troll list with /addtroll [player id]
 * Remove player from troll list with /removetroll [player id]
 
