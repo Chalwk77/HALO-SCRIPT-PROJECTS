@@ -91,7 +91,7 @@ local Troll = {
             -- Set this to "false" to disable this feature on start up:
             enabled = true,
 
-            ignore_admins = false,
+            ignore_admins = true,
             -- Admins who are this level (or higher) will be ignored:
             ignore_admin_level = 1,
 
@@ -181,7 +181,7 @@ local Troll = {
             -- Set this to "false" to disable this feature on start up:
             enabled = true,
 
-            ignore_admins = false,
+            ignore_admins = true,
             -- Admins who are this level (or higher) will be ignored:
             ignore_admin_level = 1,
 
@@ -209,7 +209,7 @@ local Troll = {
             -- Set this to "false" to disable this feature on start up:
             enabled = true,
 
-            ignore_admins = false,
+            ignore_admins = true,
             -- Admins who are this level (or higher) will be ignored:
             ignore_admin_level = 1,
 
@@ -223,7 +223,7 @@ local Troll = {
             -- Set this to "false" to disable this feature on start up:
             enabled = true,
 
-            ignore_admins = false,
+            ignore_admins = true,
             -- Admins who are this level (or higher) will be ignored:
             ignore_admin_level = 1,
 
@@ -241,13 +241,13 @@ local Troll = {
             -- Set this to "false" to disable this feature on start up:
             enabled = true,
 
-            ignore_admins = false,
+            ignore_admins = true,
             -- Admins who are this level (or higher) will be ignored:
             ignore_admin_level = 1,
 
             -- When a player pick up the flag, the interval until they drop it is randomized.
             -- The interval itself is an amount of seconds between "min" and "max".
-            min = 1, -- in seconds
+            min = 5, -- in seconds
             max = 120, -- in seconds
         },
 
@@ -255,7 +255,7 @@ local Troll = {
             -- Set this to "false" to disable this feature on start up:
             enabled = true,
 
-            ignore_admins = false,
+            ignore_admins = true,
             -- Admins who are this level (or higher) will be ignored:
             ignore_admin_level = 1,
 
@@ -269,7 +269,7 @@ local Troll = {
             -- Set this to "false" to disable this feature on start up:
             enabled = true,
 
-            ignore_admins = false,
+            ignore_admins = true,
             -- Admins who are this level (or higher) will be ignored:
             ignore_admin_level = 1,
 
@@ -304,7 +304,7 @@ local Troll = {
             -- Set this to "false" to disable this feature on start up:
             enabled = true,
 
-            ignore_admins = false,
+            ignore_admins = true,
             -- Admins who are this level (or higher) will be ignored:
             ignore_admin_level = 1,
 
@@ -325,7 +325,7 @@ local Troll = {
             -- Set this to "false" to disable this feature on start up:
             enabled = true,
 
-            ignore_admins = false,
+            ignore_admins = true,
             -- Admins who are this level (or higher) will be ignored:
             ignore_admin_level = 1,
 
@@ -359,7 +359,7 @@ local Troll = {
             -- Set this to "false" to disable this feature on start up:
             enabled = true,
 
-            ignore_admins = false,
+            ignore_admins = true,
             -- Admins who are this level (or higher) will be ignored:
             ignore_admin_level = 1,
 
@@ -378,7 +378,7 @@ local Troll = {
             -- Set this to "false" to disable this feature on start up:
             enabled = true,
 
-            ignore_admins = false,
+            ignore_admins = true,
             -- Admins who are this level (or higher) will be ignored:
             ignore_admin_level = 1,
 
@@ -412,7 +412,7 @@ local Troll = {
             -- Set this to "false" to disable this feature on start up:
             enabled = true,
 
-            ignore_admins = false,
+            ignore_admins = true,
             -- Admins who are this level (or higher) will be ignored:
             ignore_admin_level = 1,
 
@@ -426,7 +426,7 @@ local Troll = {
             -- Set this to "false" to disable this feature on start up:
             enabled = true,
 
-            ignore_admins = false,
+            ignore_admins = true,
             -- Admins who are this level (or higher) will be ignored:
             ignore_admin_level = 1,
 
@@ -482,6 +482,7 @@ local Troll = {
 
 local game_over
 local players = { }
+local format = string.format
 local gsub, sub, gmatch = string.gsub, string.sub, string.gmatch
 local time_scale = 1 / 30
 
@@ -601,10 +602,10 @@ function OnTick()
                                             end
                                         end
                                     elseif (Feature == "Vehicle Exit") then
-
                                         if InVehicle(DynamicPlayer) then
                                             t.timer = t.timer + time_scale
                                             if (t.timer >= t.time_until_exit) then
+                                                t.timer = 0
                                                 exit_vehicle(player)
                                                 cprint("[TROLL] " .. ply.name .. " was forced to exit their vehicle", 5 + 8)
                                             end
@@ -693,7 +694,7 @@ function OnTick()
                                 if (Feature == "Silent Kick") then
 
                                     t.timer = t.timer + time_scale
-                                    if (t.timer >= t.time_until_kick) then
+                                    if (t.timer >= t.time_until_kick) and (t.broadcast) then
                                         SilentKick(player, V1)
                                     end
                                 elseif (Feature == "Force Chat") then
@@ -784,22 +785,22 @@ function OnPreSpawn(P)
                             V2.time_until_crash = math.random(V1.min, V1.max)
 
                         elseif (Feature == "Random Color Change") then
-                            local NewColor = function()
-                                local temp = { }
-                                for i = 1, #V1.colors do
-                                    if (V1.colors[i][2]) then
-                                        temp[#temp + 1] = V1.colors[i][1]
-                                    end
-                                end
-                                if (#temp > 0) then
-                                    return math.random(#temp)
-                                end
-                                return 0
-                            end
                             local chance = V1.chance[math.random(#V1.chance)]
                             if (chance == 1) then
                                 local player = get_player(P)
                                 if (player ~= 0) then
+                                    local NewColor = function()
+                                        local temp = { }
+                                        for i = 1, #V1.colors do
+                                            if (V1.colors[i][2]) then
+                                                temp[#temp + 1] = V1.colors[i][1]
+                                            end
+                                        end
+                                        if (#temp > 0) then
+                                            return math.random(#temp)
+                                        end
+                                        return 0
+                                    end
                                     write_byte(player + 0x60, NewColor())
                                     cprint("[TROLL] " .. t.name .. " had their armor colour changed!", 5 + 8)
                                 end
@@ -846,7 +847,7 @@ function OnPlayerChat(P, Message, Type)
                         end
 
                         execute_command("msg_prefix \"\"")
-                        local F = Troll.features["Chat Text Randomizer"]
+                        local F = Troll.features["Chat Text Randomizer"].format
                         if (Type == 0) then
                             say_all(formatMsg(F.global))
                         elseif (Type == 1) then
@@ -963,9 +964,11 @@ end
 function OnVehicleEntry(P, _)
     local t = players[P]
     if (t ~= nil) then
-        if (t[P]["Vehicle Exit"].timer) then
-            t[P]["Vehicle Exit"].timer = 0
-            t[P]["Vehicle Exit"].time_until_exit = math.random(t.min, t.max)
+        local VE = Troll.features["Vehicle Exit"]
+        if (VE.enabled) and TrollPlayer(P, VE) then
+            math.randomseed(os.time())
+            t["Vehicle Exit"].timer = 0
+            t["Vehicle Exit"].time_until_exit = math.random(VE.min, VE.max)
         end
     end
 end
@@ -1018,6 +1021,7 @@ function InitPlayer(P, Reset, Bypass)
                 ["Silent Kick"] = {},
                 ["Silent Kill"] = {},
                 ["Flag Dropper"] = {},
+                ["Vehicle Exit"] = {},
                 ["Ammo Changer"] = {},
                 ["Name Changer"] = {},
                 ["Client Crasher"] = {},
@@ -1044,11 +1048,13 @@ function SilentKick(P, SK)
     end
 
     local t = players[P]
-    if (t["Silent Kick."].broadcast) then
-        t["Silent Kick."].broadcast = false
-        for i = 1, 6 do
-            if player_present(i) and (i ~= P) then
-                say(i, gsub(SK.announcements.msg, "%%name%%", t.name))
+    if (t["Silent Kick"].broadcast) then
+        t["Silent Kick"].broadcast = false
+        if (SK.announcements.enabled) then
+            for i = 1, 6 do
+                if player_present(i) and (i ~= P) then
+                    say(i, gsub(SK.announcements.msg, "%%name%%", t.name))
+                end
             end
         end
     end
@@ -1280,7 +1286,7 @@ function PrintFeatureState()
 end
 
 function report()
-    local script_version = format("%0.2f", Troll.script_version)
+    local script_version = format("%0.2f", Troll.settings.script_version)
     cprint("--------------------------------------------------------", 5 + 8)
     cprint("Please report this error on github:", 7 + 8)
     cprint("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", 7 + 8)
