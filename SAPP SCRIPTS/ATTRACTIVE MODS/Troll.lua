@@ -18,6 +18,10 @@ Features:
 * Force Chat:               [1] Randomly force a player to say something from a list of pre-defined sentences
                             [2] Optionally force player to say something with custom command!
 
+-- These two commands bypass feature specific settings such as "ignore admins".
+* Add player to troll list with /addtroll [player id]
+* Remove player from troll list with /removetroll [player id]
+
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
