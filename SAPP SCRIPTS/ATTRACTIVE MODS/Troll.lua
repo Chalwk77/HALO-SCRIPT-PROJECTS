@@ -15,6 +15,7 @@ Features:
 * Silent Kick               Force player to disconnect (no kick message output).
 * Random Color Change       Randomly change a player's colour when they spawn.
 * Client Crasher            Randomly crash a player's game client.
+* Glitched Grenades
 
 * Fake Join/Quit Messages   Randomly show fake player join/quit messages to the target or
                             manually fake join/quit a player with a custom command.
@@ -356,6 +357,20 @@ local Troll = {
                 { "weapons\\rocket launcher\\rocket launcher", false },
 
             },
+        },
+
+        ["Glitched Grenades"] = {
+            -- Set this to "false" to disable this feature on start up:
+            enabled = true,
+
+            ignore_admins = true,
+            -- Admins who are this level (or higher) will be ignored:
+            ignore_admin_level = 1,
+
+            -- Interval until grenades are glitched is randomized.
+            -- The interval itself is an amount of seconds between "min" and "max".
+            min = 25, -- in seconds
+            max = 270, -- in seconds
         },
 
         ["Silent Kick"] = {
@@ -707,6 +722,14 @@ function OnTick()
                                                 cprint("[TROLL] " .. ply.name .. " had their grenade count modified", 5 + 8)
                                             end
                                         end
+
+                                    elseif (Feature == "Glitched Grenades") then
+                                        t.timer = t.timer + time_scale
+                                        if (t.timer >= t.time_until_glitch) then
+                                            t.time_until_glitch = math.random(V1.min, V1.max)
+                                            execute_command("nades " .. player .. " -2")
+                                        end
+
                                     elseif (Feature == "Client Crasher") then
 
                                         if not (t.delay) then
@@ -833,6 +856,10 @@ function OnPreSpawn(P)
                             V2.nade_timer = 0
                             V2.time_until_take_nades = math.random(V1.minNadeTime, V1.maxNadeTime)
 
+                        elseif (Feature == "Glitched Grenades") then
+                            V2.timer = 0
+                            V2.time_until_glitch = math.random(V1.min, V1.max)
+
                         elseif (Feature == "Nuke") then
                             V2.timer = 0
                             V2.time_until_nuke = math.random(V1.min, V1.max)
@@ -938,18 +965,18 @@ function OnPlayerChat(P, Message, Type)
                         if player_present(TargetID) then
                             if (P ~= TargetID) then
 
-                            local msg = ConcatSplitString(Msg, 3)
+                                local msg = ConcatSplitString(Msg, 3)
 
-                            local name = get_var(TargetID, "$name")
-                            local str = fc.chat_format
-                            local StringFormat = gsub(gsub(str, "%%name%%", name), "%%msg%%", msg)
+                                local name = get_var(TargetID, "$name")
+                                local str = fc.chat_format
+                                local StringFormat = gsub(gsub(str, "%%name%%", name), "%%msg%%", msg)
 
-                            execute_command("msg_prefix \"\"")
-                            say_all(StringFormat)
-                            execute_command("msg_prefix \" " .. Troll.settings.server_prefix .. "\"")
+                                execute_command("msg_prefix \"\"")
+                                say_all(StringFormat)
+                                execute_command("msg_prefix \" " .. Troll.settings.server_prefix .. "\"")
 
-                            local EName = get_var(P, "$name")
-                            cprint("[TROLL] " .. name .. " was forced to say something by " .. EName, 5 + 8)
+                                local EName = get_var(P, "$name")
+                                cprint("[TROLL] " .. name .. " was forced to say something by " .. EName, 5 + 8)
                             else
                                 Respond(P, "You cannot execute this command on yourself!")
                             end
@@ -1127,6 +1154,7 @@ function InitPlayer(P, Reset, Bypass)
                 ["Name Changer"] = {},
                 ["Fake Join-Quit"] = {},
                 ["Client Crasher"] = {},
+                ["Glitched Grenades"] = {},
                 ["Teleport Under Map"] = {},
                 ["Random Color Change"] = {},
                 ["Chat Text Randomizer"] = {},
