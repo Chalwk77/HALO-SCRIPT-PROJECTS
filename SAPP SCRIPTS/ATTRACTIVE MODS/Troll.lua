@@ -4,9 +4,9 @@ Script Name: Troll, for SAPP (PC & CE)
 Description: A unique mod designed to troll your whole server (or specific players)
 
 Features:
+* Silent Kill               Random inexplicable deaths (no death message).
 * Damage Modifier           Randomly change damage multipliers.
 * Chat Text Randomizer      Randomly jumbles up characters in some sentences.
-* Silent Kill               Random inexplicable deaths (no death message).
 * Teleport Under Map        Randomly teleports a player under the map.
 * Flag Dropper              Randomly force a player to drop the flag.
 * Vehicle Exit              Randomly eject a player from their vehicle.
@@ -15,6 +15,7 @@ Features:
 * Random Color Change       Randomly change a player's colour when they spawn.
 * Client Crasher            Randomly crash a player's game client.
 * Name Changer              Randomly change newly joined player's name to a random pre-defined name.
+* Inverted Controls         Randomly invert player controls.
 
 * Glitched Grenades         Randomly glitch out grenades.
                             No grenade projectiles will be thrown but the throw animation will still play.
@@ -107,6 +108,8 @@ local Troll = {
             "127.0.0.1", -- Local Host
             "108.5.107.145" -- DeathBringR
         },
+
+        print_feature_state = false,
 
         -- Do Not Touch this.
         script_version = 1.3
@@ -270,14 +273,16 @@ local Troll = {
             -- Set this to "false" to disable this feature on start up:
             enabled = true,
 
-            ignore_admins = true,
+            ignore_admins = false,
             -- Admins who are this level (or higher) will be ignored:
             ignore_admin_level = 1,
 
             -- When a player pick up the flag, the interval until they drop it is randomized.
             -- The interval itself is an amount of seconds between "min" and "max".
-            min = 45, -- in seconds
-            max = 210, -- in seconds
+            untilMin = 2, -- in seconds
+            untilMax = 2, -- in seconds
+
+            inverted_time = 10, -- in seconds
         },
 
         ["Flag Dropper"] = {
@@ -651,7 +656,9 @@ function OnGameStart()
             feature_id = feature_id + 1
         end
 
-        PrintFeatureState()
+        if (Troll.settings.print_feature_state) then
+            PrintFeatureState()
+        end
     end
 end
 
@@ -688,6 +695,23 @@ function OnTick()
                                                 local x, y, z = read_vector3d(DynamicPlayer + 0x5c)
                                                 write_vector3d(DynamicPlayer + 0x5c, x, y, z - t.zaxis)
                                                 cprint("[TROLL] " .. ply.name .. " was teleported under the map", 5 + 8)
+                                            end
+                                        end
+
+                                    elseif (Feature == "Inverted Controls") then
+                                        t.timer = t.timer + time_scale
+                                        if (t.timer > t.time_until_invert) then
+
+                                            local speed = read_float(DynamicPlayer + 0x6C)
+                                            if (t.getspeed) then
+                                                t.getspeed = false
+                                                t.old_speed = speed
+                                                execute_command("s " .. player .. " " .. speed - 2)
+                                            end
+
+                                            if (t.timer > (t.time_until_invert + V1.inverted_time)) then
+                                                t.timer = 0
+                                                execute_command("s " .. player .. " " .. speed + 1)
                                             end
                                         end
                                     elseif (Feature == "Flag Dropper") then
@@ -899,11 +923,9 @@ function OnPreSpawn(P, OnEnable, EnableFeat)
                                 V2.time_until_kick = math.random(V1.min, V1.max)
 
                             elseif (Feature == "Inverted Controls") then
-                                local DynP = get_dynamic_player(P)
-                                --local player_speed = read_float(DynP + 0x6C)
-                                --V2.timer = 0
-                                --V2.speed = 1
-                                --V2.time_until_invert = math.random(V1.min, V1.max)
+                                V2.timer = 0
+                                V2.getspeed = true
+                                V2.time_until_invert = math.random(V1.untilMin, V1.untilMax)
 
                             elseif (Feature == "Flag Dropper") then
                                 V2.hasflag = false
