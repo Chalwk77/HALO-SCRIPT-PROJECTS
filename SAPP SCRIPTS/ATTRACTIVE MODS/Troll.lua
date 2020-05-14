@@ -48,6 +48,16 @@ local Troll = {
     --===================================--
     settings = {
 
+        -- Command Syntax: /features
+        feature_list_command = "features",
+
+        -- Command Syntax: /enable_command <feature id>
+        enable_command = "enable",
+
+        -- Command Syntax: /disable_command <feature id>
+        disable_command = "disable",
+
+
         -- This command lets you manually add a player to the
         -- troll list (bypassing "ignore_admins" settings and "specific_users" settings).
         -- Command Syntax: /add_troll_command <player id>
@@ -458,6 +468,8 @@ local Troll = {
             fake_join_message = "Welcome %fakename%",
             fake_quit_message = "%fakename% quit",
 
+            permission_level = 1,
+
             names = {
                 { "ILoveRock" },
                 { "leila water" },
@@ -553,6 +565,7 @@ function OnScriptLoad()
 
     register_callback(cb["EVENT_CHAT"], "OnPlayerChat")
     register_callback(cb["EVENT_PRESPAWN"], "OnPreSpawn")
+    register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
 
     register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
@@ -914,9 +927,170 @@ function OnPreSpawn(P)
     end
 end
 
+function OnServerCommand(P, Command, _, _)
+    local CMD = CmdSplit(Command)
+    if (CMD == nil or CMD == "") then
+        return
+    else
+
+        local fc = Troll.features["Force Chat"]
+        if (CMD[1] == fc.command) then
+
+            local access = hasAccess(P, fc.permission_level)
+            if access then
+
+                local enabled = IsEnabled(P, fc)
+                if (enabled) then
+
+                    local TargetID, String = tonumber(CMD[2]), tostring(CMD[3])
+                    if (TargetID ~= nil and String ~= nil) then
+                        if player_present(TargetID) then
+                            if (P ~= TargetID) then
+
+                                local msg = ConcatSplitString(CMD, 3)
+                                msg = gsub(msg, '"', "")
+
+                                local name = get_var(TargetID, "$name")
+                                local str = fc.chat_format
+                                local StringFormat = gsub(gsub(str, "%%name%%", name), "%%msg%%", msg)
+
+                                execute_command("msg_prefix \"\"")
+                                say_all(StringFormat)
+                                execute_command("msg_prefix \" " .. Troll.settings.server_prefix .. "\"")
+
+                                local EName = get_var(P, "$name")
+                                if (P == 0) then
+                                    EName = "THE SERVER"
+                                end
+
+                                cprint("[TROLL] " .. name .. " was forced to say something by " .. EName, 5 + 8)
+                            else
+                                Respond(P, "You cannot execute this command on yourself!")
+                            end
+                        else
+                            Respond(P, "Invalid Player ID or Player Not Online!")
+                        end
+                    else
+                        Respond(P, "Invalid Syntax. Usage: " .. CMD[1] .. " [player id] {message}")
+                    end
+                end
+                return false
+            end
+        end
+
+        local FJQ = Troll.features["Fake Join-Quit"]
+        if (CMD[1] == FJQ.fake_join_command) then
+
+            local access = hasAccess(P, FJQ.permission_level)
+            if access then
+                local enabled = IsEnabled(P, FJQ)
+                if (enabled) then
+                    local fake_name = ConcatSplitString(CMD, 2)
+                    fake_name = gsub(fake_name, '"', "")
+                    if (string.len(fake_name) > 0 and string.len(fake_name) < 12) then
+                        execute_command("msg_prefix \"\"")
+                        say_all(gsub(FJQ.fake_join_message, "%%fakename%%", fake_name))
+                        execute_command("msg_prefix \" " .. Troll.settings.server_prefix .. "\"")
+                    else
+                        Respond(P, "Sorry, player names can only be 1-11 characters")
+                    end
+                end
+            end
+            return false
+        elseif (CMD[1] == FJQ.fake_quit_command) then
+            local access = hasAccess(P, FJQ.permission_level)
+            if access then
+
+                local enabled = IsEnabled(P, FJQ)
+                if (enabled) then
+                    local fake_name = ConcatSplitString(CMD, 2)
+                    fake_name = gsub(fake_name, '"', "")
+                    if (string.len(fake_name) > 0 and string.len(fake_name) < 12) then
+                        execute_command("msg_prefix \"\"")
+                        say_all(gsub(FJQ.fake_quit_message, "%%fakename%%", fake_name))
+                        execute_command("msg_prefix \" " .. Troll.settings.server_prefix .. "\"")
+                    else
+                        Respond(P, "Sorry, player names can only be 1-11 characters")
+                    end
+                end
+            end
+            return false
+        end
+        -- ======================================================================--
+        -- ADD/REMOVE (troll) commands:
+        local Troll = Troll.settings
+        if (CMD[1] == Troll.add_troll_command) then
+
+            local access = hasAccess(P, Troll.add_troll_permission)
+            if access then
+
+                local pl = GetPlayers(P, CMD)
+                if (pl) then
+                    for i = 1, #pl do
+                        local TargetID = tonumber(pl[i])
+                        if (TargetID ~= 0) then
+                            if (players[TargetID] == nil) then
+                                InitPlayer(TargetID, false, true)
+                                players[TargetID].ignore_status = true
+                                OnPreSpawn(TargetID)
+                                if (TargetID == P) then
+                                    Respond(P, "Successfully added yourself to troll list!")
+                                else
+                                    local name = get_var(TargetID, "$name")
+                                    Respond(P, "Temporarily adding " .. name .. " to the list of players to troll!")
+                                end
+                            else
+                                if (TargetID == P) then
+                                    Respond(P, "You are already on the troll list")
+                                else
+                                    Respond(P, "This player is already on the troll List!")
+                                end
+                            end
+                        else
+                            Respond(P, "Server cannot be on troll list!")
+                        end
+                    end
+                end
+            end
+            return false
+        elseif (CMD[1] == Troll.remove_troll_command) then
+            local access = hasAccess(P, Troll.remove_troll_permission)
+            if access then
+
+                local pl = GetPlayers(P, CMD)
+                if (pl) then
+                    for i = 1, #pl do
+                        local TargetID = tonumber(pl[i])
+                        if (TargetID ~= 0) then
+                            if (players[TargetID] ~= nil) then
+                                players[TargetID] = nil
+                                if (TargetID == P) then
+                                    Respond(P, "Successfully removed yourself from troll list!")
+                                else
+                                    local name = get_var(TargetID, "$name")
+                                    Respond(P, "Successfully removed " .. name .. " from the list of players to troll!")
+                                end
+                            else
+                                if (TargetID == P) then
+                                    Respond(P, "You are not on the troll list")
+                                else
+                                    Respond(P, "This player is not on the troll list")
+                                end
+                            end
+                        else
+                            Respond(P, "Server cannot be on troll list!")
+                        end
+                    end
+                end
+            end
+            return false
+        end
+    end
+end
+
 function OnPlayerChat(P, Message, Type)
     if (Type ~= 6) then
-        local Msg = StrSplit(Message)
+        local Msg = CmdSplit(Message)
         if (Msg == nil or Msg == "") then
             return
         elseif (not isChatCmd(Msg)) then
@@ -955,137 +1129,6 @@ function OnPlayerChat(P, Message, Type)
                         end
                     end
                 end
-            end
-        else
-
-            local fc = Troll.features["Force Chat"]
-            if (Msg[1] == "/" .. fc.command or Msg[1] == "\\" .. fc.command) then
-                local enabled = IsEnabled(P, fc)
-                if (enabled) then
-                    local TargetID, String = tonumber(Msg[2]), tostring(Msg[3])
-                    if (TargetID ~= nil and String ~= nil) then
-                        if player_present(TargetID) then
-                            if (P ~= TargetID) then
-
-                                local msg = ConcatSplitString(Msg, 3)
-
-                                local name = get_var(TargetID, "$name")
-                                local str = fc.chat_format
-                                local StringFormat = gsub(gsub(str, "%%name%%", name), "%%msg%%", msg)
-
-                                execute_command("msg_prefix \"\"")
-                                say_all(StringFormat)
-                                execute_command("msg_prefix \" " .. Troll.settings.server_prefix .. "\"")
-
-                                local EName = get_var(P, "$name")
-                                cprint("[TROLL] " .. name .. " was forced to say something by " .. EName, 5 + 8)
-                            else
-                                Respond(P, "You cannot execute this command on yourself!")
-                            end
-                        else
-                            Respond(P, "Invalid Player ID or Player Not Online!")
-                        end
-                    else
-                        Respond(P, "Invalid Syntax. Usage: " .. Msg[1] .. " [player id] {message}")
-                    end
-                end
-                return false
-            end
-
-            local FJQ = Troll.features["Fake Join-Quit"]
-            if (Msg[1] == "/" .. FJQ.fake_join_command or Msg[1] == "\\" .. FJQ.fake_join_command) then
-                local enabled = IsEnabled(P, FJQ)
-                if (enabled) then
-
-                    local fake_name = ConcatSplitString(Msg, 2)
-
-                    if (string.len(fake_name) > 0 and string.len(fake_name) < 12) then
-                        execute_command("msg_prefix \"\"")
-                        say_all(gsub(FJQ.fake_join_message, "%%fakename%%", fake_name))
-                        execute_command("msg_prefix \" " .. Troll.settings.server_prefix .. "\"")
-                    else
-                        Respond(P, "Sorry, player names can only be 1-11 characters")
-                    end
-                end
-                return false
-            elseif (Msg[1] == "/" .. FJQ.fake_quit_command or Msg[1] == "\\" .. FJQ.fake_quit_command) then
-                local enabled = IsEnabled(P, FJQ)
-                if (enabled) then
-
-                    local fake_name = ConcatSplitString(Msg, 2)
-
-                    if (string.len(fake_name) > 0 and string.len(fake_name) < 12) then
-                        execute_command("msg_prefix \"\"")
-                        say_all(gsub(FJQ.fake_quit_message, "%%fakename%%", fake_name))
-                        execute_command("msg_prefix \" " .. Troll.settings.server_prefix .. "\"")
-                    else
-                        Respond(P, "Sorry, player names can only be 1-11 characters")
-                    end
-                end
-                return false
-            end
-
-            -- ======================================================================--
-            -- ADD/REMOVE (troll) commands:
-            local CMD = Troll.settings
-            if (Msg[1] == "/" .. CMD.add_troll_command or Msg[1] == "\\" .. CMD.add_troll_command) then
-                local lvl = tonumber(get_var(P, "$lvl"))
-                if (lvl >= CMD.add_troll_permission) then
-                    local pl = GetPlayers(P, Msg)
-                    if (pl) then
-                        for i = 1, #pl do
-                            local TargetID = tonumber(pl[i])
-                            if (players[TargetID] == nil) then
-                                InitPlayer(TargetID, false, true)
-                                players[TargetID].ignore_status = true
-                                OnPreSpawn(TargetID)
-                                if (TargetID == P) then
-                                    Respond(P, "Successfully added yourself to troll list!")
-                                else
-                                    local name = get_var(TargetID, "$name")
-                                    Respond(P, "Temporarily adding " .. name .. " to the list of players to troll!")
-                                end
-                            else
-                                if (TargetID == P) then
-                                    Respond(P, "You are already on the troll list")
-                                else
-                                    Respond(P, "This player is already on the troll List!")
-                                end
-                            end
-                        end
-                    end
-                else
-                    Respond(P, "You do not have permission to execute this command!")
-                end
-                return false
-            elseif (Msg[1] == "/" .. CMD.remove_troll_command or Msg[1] == "\\" .. CMD.remove_troll_command) then
-                local lvl = tonumber(get_var(P, "$lvl"))
-                if (lvl >= CMD.remove_troll_permission) then
-                    local pl = GetPlayers(P, Msg)
-                    if (pl) then
-                        for i = 1, #pl do
-                            local TargetID = tonumber(pl[i])
-                            if (players[TargetID] ~= nil) then
-                                players[TargetID] = nil
-                                if (TargetID == P) then
-                                    Respond(P, "Successfully removed yourself from troll list!")
-                                else
-                                    local name = get_var(TargetID, "$name")
-                                    Respond(P, "Successfully removed " .. name .. " from the list of players to troll!")
-                                end
-                            else
-                                if (TargetID == P) then
-                                    Respond(P, "You are not on the troll list")
-                                else
-                                    Respond(P, "This player is not on the troll list")
-                                end
-                            end
-                        end
-                    end
-                else
-                    Respond(P, "You do not have permission to execute this command!")
-                end
-                return false
             end
         end
     end
@@ -1405,7 +1448,7 @@ function isChatCmd(Msg)
     end
 end
 
-function StrSplit(Message)
+function CmdSplit(Message)
     local Args, index = { }, 1
     for Params in gmatch(Message, "([^%s]+)") do
         Args[index] = Params
@@ -1438,6 +1481,16 @@ function ShuffleWords(String)
         letters[i] = v.letter
     end
     return table.concat(letters)
+end
+
+function hasAccess(P, RequiredLevel)
+    local lvl = tonumber(get_var(P, "$lvl"))
+    local case = (lvl >= RequiredLevel) or (P == 0)
+    if (case) then
+        return true
+    else
+        Respond(P, "You do not have permission to execute this command")
+    end
 end
 
 function PrintFeatureState()
