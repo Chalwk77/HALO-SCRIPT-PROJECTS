@@ -7,7 +7,7 @@ Features:
 * Damage Modifier           Randomly change damage multipliers.
 * Chat Text Randomizer      Jumbles up characters in some sentences.
 * Silent Kill               Inexplicable deaths (no death message).
-* Teleport Under Map        Randomly teleport players under the map.
+* Teleport Under Map        Randomly teleports a player under the map.
 * Flag Dropper              Randomly forces a player to drop the flag.
 * Vehicle Exit              Randomly ejects a player from their vehicle.
 * Name Changer              Change player name to a random pre-defined name.
@@ -15,16 +15,16 @@ Features:
 * Silent Kick               Force player to disconnect (no kick message output).
 * Random Color Change       Randomly change a player's colour when they spawn.
 * Client Crasher            Randomly crash a player's game client.
-* Nuke                      Randomly nuke a player.
-* Fake Join-Quit            [1] Randomly show fake player join/quit messages to the target.
-                            [2] Custom commands to fake join/quit a player name
 
-* Force Chat:               [1] Randomly force a player to say something from a list of pre-defined sentences.
-                            [2] Optionally force a player to say something with a custom command.
+* Fake Join/Quit Messages   Randomly show fake player join/quit messages to the target or
+                            manually fake join/quit a player with a custom command.
 
-* Add/Remove commands (see config section for more details):
-/addtroll [player id]
-/removetroll [player id]
+* Force Chat                Randomly force a player to say something from a list of pre-defined sentences
+                            or manually force a player to say something with a custom command:
+
+* SPECIAL COMMANDS (see settings table in config section):
+Manually add a player to the troll list (bypassing "ignore_admins" settings and "specific_users" settings)
+or manually prevent a player from being trolled by this script.
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -76,7 +76,7 @@ local Troll = {
 
         ]]
 
-        specific_users_only = true,
+        specific_users_only = false,
         specific_users = {
             "127.0.0.1", -- Local Host
             "108.5.107.145" -- DeathBringR
