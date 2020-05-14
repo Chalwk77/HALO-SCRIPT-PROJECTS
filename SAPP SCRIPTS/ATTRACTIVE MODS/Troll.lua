@@ -114,7 +114,7 @@ local Troll = {
         print_feature_state = false,
 
         -- Do Not Touch this.
-        script_version = 1.3
+        script_version = 1.5
     },
 
     -------- [ F E A T U R E S ] ----------
