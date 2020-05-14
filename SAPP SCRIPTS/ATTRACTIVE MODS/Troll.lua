@@ -266,11 +266,19 @@ local Troll = {
             -- Min/Max time until a player is burnt to a crisp.
             min = 35, -- in seconds
             max = 225, -- in seconds
+            
         },
 
         ["Fake Kill Messages"] = {
             -- Set this to "false" to disable this feature on start up:
             enabled = true,
+
+            --[[
+                Only the player being trolled will see these messages:
+                Example:
+                Type 1: mrSands001 was killed by Chalwk
+                Type 2: You killed mrSands001
+            ]]
 
             ignore_admins = true,
             -- Admins who are this level (or higher) will be ignored:
