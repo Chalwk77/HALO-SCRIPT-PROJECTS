@@ -29,6 +29,8 @@ Features:
 Manually add a player to the troll list (bypassing "ignore_admins" settings and "specific_users" settings)
 or manually prevent a player from being trolled by this script.
 
+* ENABLE or DISABLE any feature at any time with two simple commands (see config section)
+
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -48,17 +50,22 @@ local Troll = {
     --===================================--
     settings = {
 
+        --------------------------------------------------------
+        -- Use these commands to ENABLE or DISABLE specific features:
         -- Command Syntax: /features
         feature_list_command = "features",
-
         -- Command Syntax: /enable_command <feature id>
         enable_command = "enable",
-
         -- Command Syntax: /disable_command <feature id>
         disable_command = "disable",
 
+        -- Minimum permission level needed to execute any of the above three commands:
+        enable_disable_list_perm = 1,
+        --------------------------------------------------------
+
 
         -- This command lets you manually add a player to the
+        --------------------------------------------------------
         -- troll list (bypassing "ignore_admins" settings and "specific_users" settings).
         -- Command Syntax: /add_troll_command <player id>
         add_troll_command = "addtroll",
@@ -225,7 +232,7 @@ local Troll = {
             -- Set this to "false" to disable this feature on start up:
             enabled = true,
 
-            ignore_admins = true,
+            ignore_admins = false,
             -- Admins who are this level (or higher) will be ignored:
             ignore_admin_level = 1,
 
@@ -616,6 +623,13 @@ function OnGameStart()
                 fjq.names[i].joined = false
             end
         end
+
+        local feature_id = 1
+        for _,v in pairs(Troll.features) do
+            v.feature_id = feature_id
+            feature_id = feature_id + 1
+        end
+
         PrintFeatureState()
     end
 end
@@ -625,7 +639,6 @@ function OnGameEnd()
 end
 
 function OnTick()
-
     if (not gameover) then
 
         for player, ply in pairs(players) do
@@ -640,7 +653,6 @@ function OnTick()
                                     local DynamicPlayer = get_dynamic_player(player)
 
                                     if (Feature == "Silent Kill") then
-
                                         t.timer = t.timer + time_scale
                                         if (t.timer >= t.time_until_kill) then
                                             KillSilently(player)
@@ -838,86 +850,92 @@ function OnPlayerDisconnect(P)
     InitPlayer(P, true)
 end
 
-function OnPreSpawn(P)
+function OnPreSpawn(P, OnEnable, EnableFeat)
     local t = players[P]
     if (t ~= nil) then
+
         for Feature, V1 in pairs(Troll.features) do
             for B, V2 in pairs(t) do
                 if (Feature == B) then
                     if (V1.enabled) and TrollPlayer(P, V1) then
                         math.randomseed(os.time())
-                        if (Feature == "Silent Kill") then
-                            V2.timer = 0
-                            V2.time_until_kill = math.random(V1.min, V1.max)
 
-                        elseif (Feature == "Silent Kick") then
-                            V2.timer = 0
-                            V2.broadcast = true
-                            V2.time_until_kick = math.random(V1.min, V1.max)
 
-                        elseif (Feature == "Teleport Under Map") then
-                            V2.timer = 0
-                            V2.zaxis = math.random(V1.minZ, V1.maxZ)
-                            V2.time_until_tp = math.random(V1.min, V1.max)
+                        if (not OnEnable) or (OnEnable and EnableFeat == Feature) then
 
-                        elseif (Feature == "Flag Dropper") then
-                            V2.hasflag = false
-                            V2.timer = 0
-                            V2.time_until_drop = math.random(V1.min, V1.max)
+                            if (Feature == "Silent Kill") then
+                                V2.timer = 0
+                                V2.time_until_kill = math.random(V1.min, V1.max)
 
-                        elseif (Feature == "Ammo Changer") then
-                            V2.weapon_timer = 0
-                            V2.time_until_take_ammo = math.random(V1.minAmmoTime, V1.maxAmmoTime)
-                            V2.nade_timer = 0
-                            V2.time_until_take_nades = math.random(V1.minNadeTime, V1.maxNadeTime)
+                            elseif (Feature == "Silent Kick") then
+                                V2.timer = 0
+                                V2.broadcast = true
+                                V2.time_until_kick = math.random(V1.min, V1.max)
 
-                        elseif (Feature == "Glitched Grenades") then
-                            V2.timer = 0
-                            V2.time_until_glitch = math.random(V1.min, V1.max)
+                            elseif (Feature == "Teleport Under Map") then
+                                V2.timer = 0
+                                V2.zaxis = math.random(V1.minZ, V1.maxZ)
+                                V2.time_until_tp = math.random(V1.min, V1.max)
 
-                        elseif (Feature == "Nuke") then
-                            V2.timer = 0
-                            V2.time_until_nuke = math.random(V1.min, V1.max)
+                            elseif (Feature == "Flag Dropper") then
+                                V2.hasflag = false
+                                V2.timer = 0
+                                V2.time_until_drop = math.random(V1.min, V1.max)
 
-                        elseif (Feature == "Force Chat") then
-                            V2.timer = 0
-                            V2.time_until_say = math.random(V1.min, V1.max)
+                            elseif (Feature == "Ammo Changer") then
+                                V2.weapon_timer = 0
+                                V2.time_until_take_ammo = math.random(V1.minAmmoTime, V1.maxAmmoTime)
+                                V2.nade_timer = 0
+                                V2.time_until_take_nades = math.random(V1.minNadeTime, V1.maxNadeTime)
 
-                        elseif (Feature == "Fake Join-Quit") then
-                            V2.timer = 0
-                            V2.time_until_say = math.random(V1.min, V1.max)
+                            elseif (Feature == "Glitched Grenades") then
+                                V2.timer = 0
+                                V2.time_until_glitch = math.random(V1.min, V1.max)
 
-                        elseif (Feature == "Client Crasher") then
-                            V2.timer = 0
-                            V2.delay = false
-                            V2.time_until_crash = math.random(V1.min, V1.max)
+                            elseif (Feature == "Nuke") then
+                                V2.timer = 0
+                                V2.time_until_nuke = math.random(V1.min, V1.max)
 
-                        elseif (Feature == "Random Color Change") then
-                            local chance = V1.chance[math.random(#V1.chance)]
-                            if (chance == 1) then
-                                local player = get_player(P)
-                                if (player ~= 0) then
-                                    local NewColor = function()
-                                        local temp = { }
-                                        for i = 1, #V1.colors do
-                                            if (V1.colors[i][2]) then
-                                                temp[#temp + 1] = V1.colors[i][1]
+                            elseif (Feature == "Force Chat") then
+                                V2.timer = 0
+                                V2.time_until_say = math.random(V1.min, V1.max)
+
+                            elseif (Feature == "Fake Join-Quit") then
+                                V2.timer = 0
+                                V2.time_until_say = math.random(V1.min, V1.max)
+
+                            elseif (Feature == "Client Crasher") then
+                                V2.timer = 0
+                                V2.delay = false
+                                V2.time_until_crash = math.random(V1.min, V1.max)
+
+                            elseif (Feature == "Random Color Change") then
+                                local chance = V1.chance[math.random(#V1.chance)]
+                                if (chance == 1) then
+                                    local player = get_player(P)
+                                    if (player ~= 0) then
+                                        local NewColor = function()
+                                            local temp = { }
+                                            for i = 1, #V1.colors do
+                                                if (V1.colors[i][2]) then
+                                                    temp[#temp + 1] = V1.colors[i][1]
+                                                end
                                             end
+                                            if (#temp > 0) then
+                                                return math.random(#temp)
+                                            end
+                                            return 0
                                         end
-                                        if (#temp > 0) then
-                                            return math.random(#temp)
-                                        end
-                                        return 0
+                                        write_byte(player + 0x60, NewColor())
+                                        cprint("[TROLL] " .. t.name .. " had their armor colour changed!", 5 + 8)
                                     end
-                                    write_byte(player + 0x60, NewColor())
-                                    cprint("[TROLL] " .. t.name .. " had their armor colour changed!", 5 + 8)
                                 end
-                            end
 
-                        elseif (Feature == "Chat Text Randomizer") then
+                            elseif (Feature == "Chat Text Randomizer") then
 
-                            V2.chance = function()
-                                return math.random(V1.min_chances, V1.max_chances)
+                                V2.chance = function()
+                                    return math.random(V1.min_chances, V1.max_chances)
+                                end
                             end
                         end
                     end
@@ -965,13 +983,13 @@ function OnServerCommand(P, Command, _, _)
 
                                 cprint("[TROLL] " .. name .. " was forced to say something by " .. EName, 5 + 8)
                             else
-                                Respond(P, "You cannot execute this command on yourself!")
+                                Respond(P, "You cannot execute this command on yourself!", 4+8)
                             end
                         else
-                            Respond(P, "Invalid Player ID or Player Not Online!")
+                            Respond(P, "Invalid Player ID or Player Not Online!", 4+8)
                         end
                     else
-                        Respond(P, "Invalid Syntax. Usage: " .. CMD[1] .. " [player id] {message}")
+                        Respond(P, "Invalid Syntax. Usage: " .. CMD[1] .. " [player id] {message}", 4+8)
                     end
                 end
                 return false
@@ -992,7 +1010,7 @@ function OnServerCommand(P, Command, _, _)
                         say_all(gsub(FJQ.fake_join_message, "%%fakename%%", fake_name))
                         execute_command("msg_prefix \" " .. Troll.settings.server_prefix .. "\"")
                     else
-                        Respond(P, "Sorry, player names can only be 1-11 characters")
+                        Respond(P, "Sorry, player names can only be 1-11 characters", 4+8)
                     end
                 end
             end
@@ -1010,18 +1028,19 @@ function OnServerCommand(P, Command, _, _)
                         say_all(gsub(FJQ.fake_quit_message, "%%fakename%%", fake_name))
                         execute_command("msg_prefix \" " .. Troll.settings.server_prefix .. "\"")
                     else
-                        Respond(P, "Sorry, player names can only be 1-11 characters")
+                        Respond(P, "Sorry, player names can only be 1-11 characters", 4+8)
                     end
                 end
             end
             return false
         end
-        -- ======================================================================--
-        -- ADD/REMOVE (troll) commands:
-        local Troll = Troll.settings
-        if (CMD[1] == Troll.add_troll_command) then
 
-            local access = hasAccess(P, Troll.add_troll_permission)
+        -- ======================================================================--
+        -- OTHER CUSTOM COMMANDS:
+        local set = Troll.settings
+        if (CMD[1] == set.add_troll_command) then
+
+            local access = hasAccess(P, set.add_troll_permission)
             if access then
 
                 local pl = GetPlayers(P, CMD)
@@ -1034,27 +1053,27 @@ function OnServerCommand(P, Command, _, _)
                                 players[TargetID].ignore_status = true
                                 OnPreSpawn(TargetID)
                                 if (TargetID == P) then
-                                    Respond(P, "Successfully added yourself to troll list!")
+                                    Respond(P, "Successfully added yourself to troll list!", 2+8)
                                 else
                                     local name = get_var(TargetID, "$name")
-                                    Respond(P, "Temporarily adding " .. name .. " to the list of players to troll!")
+                                    Respond(P, "Temporarily adding " .. name .. " to the list of players to troll!", 2+8)
                                 end
                             else
                                 if (TargetID == P) then
-                                    Respond(P, "You are already on the troll list")
+                                    Respond(P, "You are already on the troll list", 4+8)
                                 else
-                                    Respond(P, "This player is already on the troll List!")
+                                    Respond(P, "This player is already on the troll List!", 4+8)
                                 end
                             end
                         else
-                            Respond(P, "Server cannot be on troll list!")
+                            Respond(P, "Server cannot be on troll list!", 4+8)
                         end
                     end
                 end
             end
             return false
-        elseif (CMD[1] == Troll.remove_troll_command) then
-            local access = hasAccess(P, Troll.remove_troll_permission)
+        elseif (CMD[1] == set.remove_troll_command) then
+            local access = hasAccess(P, set.remove_troll_permission)
             if access then
 
                 local pl = GetPlayers(P, CMD)
@@ -1065,26 +1084,80 @@ function OnServerCommand(P, Command, _, _)
                             if (players[TargetID] ~= nil) then
                                 players[TargetID] = nil
                                 if (TargetID == P) then
-                                    Respond(P, "Successfully removed yourself from troll list!")
+                                    Respond(P, "Successfully removed yourself from troll list!", 2+8)
                                 else
                                     local name = get_var(TargetID, "$name")
-                                    Respond(P, "Successfully removed " .. name .. " from the list of players to troll!")
+                                    Respond(P, "Successfully removed " .. name .. " from the list of players to troll!", 2+8)
                                 end
                             else
                                 if (TargetID == P) then
-                                    Respond(P, "You are not on the troll list")
+                                    Respond(P, "You are not on the troll list", 4+8)
                                 else
-                                    Respond(P, "This player is not on the troll list")
+                                    Respond(P, "This player is not on the troll list", 4+8)
                                 end
                             end
                         else
-                            Respond(P, "Server cannot be on troll list!")
+                            Respond(P, "Server cannot be on troll list!", 4+8)
                         end
                     end
                 end
             end
             return false
+        elseif (CMD[1] == set.feature_list_command) then
+            local access = hasAccess(P, set.enable_disable_list_perm)
+            if access then
+                Respond(P, "----- [ FEATURES ] -----")
+                for k, v in pairs(Troll.features) do
+                    if (v.enabled) then
+                        Respond(P, "[" .. v.feature_id .. "] "  .. k .. "|rEnabled", 2+8)
+                    else
+                        Respond(P, "[" .. v.feature_id .. "] "  .. k .. "|rDisabled", 4+8)
+                    end
+                end
+            end
+            return false
+        elseif (CMD[1] == set.enable_command) then
+            local access = hasAccess(P, set.enable_disable_list_perm)
+            if access then
+                EnableDisable(P, tonumber(CMD[2]), true)
+            end
+            return false
+        elseif (CMD[1] == set.disable_command) then
+            local access = hasAccess(P, set.enable_disable_list_perm)
+            if access then
+                EnableDisable(P, tonumber(CMD[2]), false)
+            end
+            return false
         end
+    end
+end
+
+function EnableDisable(P, ID, Enable)
+    local valid_id
+    for k,v in pairs(Troll.features) do
+        if (v.feature_id == ID) then
+            valid_id = true
+            if (Enable) then
+                if (not v.enabled) then
+                    v.enabled = true
+                    OnPreSpawn(P, true, k)
+                    Respond(P, k .. " is now enabled!", 2+8)
+                else
+                    Respond(P, k .. " is already enabled!", 4+8)
+                end
+            else
+                if (v.enabled) then
+                    v.enabled = false
+                    Respond(P, k .. " is now disabled!", 2+8)
+                else
+                    Respond(P, k .. " is already disabled!", 4+8)
+                end
+            end
+        end
+    end
+    if (not valid_id) then
+        Respond(P, "Invalid Feature ID!", 4+8)
+        Respond(P, "Type /" .. Troll.settings.feature_list_command .. " to view feature ID", 4+8)
     end
 end
 
@@ -1367,15 +1440,15 @@ function GetPlayers(P, Args)
             end
         end
     else
-        Respond(P, "Invalid Player ID or Player not Online")
-        Respond(P, "Command Usage: " .. Args[1] .. " [number: 1-16] | */all | me")
+        Respond(P, "Invalid Player ID or Player not Online", 4+8)
+        Respond(P, "Command Usage: " .. Args[1] .. " [number: 1-16] | */all | me", 4+8)
     end
     return pl
 end
 
 function IsEnabled(P, Feature)
     if (not Feature.enabled) then
-        return Respond(P, "Sorry! This feature is disabled!")
+        return Respond(P, "Sorry! This feature is disabled!", 4+8)
     end
     return true
 end
@@ -1457,9 +1530,10 @@ function CmdSplit(Message)
     return Args
 end
 
-function Respond(PlayerIndex, Message)
+function Respond(PlayerIndex, Message, Color)
     if (PlayerIndex == 0) then
-        cprint(Message, 4 + 8)
+        Color = Color or 2+8
+        cprint(Message, Color)
     else
         rprint(PlayerIndex, Message)
     end
@@ -1489,7 +1563,7 @@ function hasAccess(P, RequiredLevel)
     if (case) then
         return true
     else
-        Respond(P, "You do not have permission to execute this command")
+        Respond(P, "You do not have permission to execute this command", 4+8)
     end
 end
 
