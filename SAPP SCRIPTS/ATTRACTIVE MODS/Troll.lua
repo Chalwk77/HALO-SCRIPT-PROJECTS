@@ -5,17 +5,19 @@ Description: A unique mod designed to troll your whole server (or specific playe
 
 Features:
 * Damage Modifier           Randomly change damage multipliers.
-* Chat Text Randomizer      Jumbles up characters in some sentences.
-* Silent Kill               Inexplicable deaths (no death message).
+* Chat Text Randomizer      Randomly jumbles up characters in some sentences.
+* Silent Kill               Random inexplicable deaths (no death message).
 * Teleport Under Map        Randomly teleports a player under the map.
-* Flag Dropper              Randomly forces a player to drop the flag.
-* Vehicle Exit              Randomly ejects a player from their vehicle.
-* Name Changer              Change player name to a random pre-defined name.
-* Ammo Changer              Randomly change weapon ammo/battery and grenades.
-* Silent Kick               Force player to disconnect (no kick message output).
+* Flag Dropper              Randomly force a player to drop the flag.
+* Vehicle Exit              Randomly eject a player from their vehicle.
+* Ammo Changer              Randomly change weapon ammo, battery and grenade count.
+* Silent Kick               Randomly force a player to disconnect (no kick message output).
 * Random Color Change       Randomly change a player's colour when they spawn.
 * Client Crasher            Randomly crash a player's game client.
-* Glitched Grenades
+* Name Changer              Randomly change newly joined player's name to a random pre-defined name.
+
+* Glitched Grenades         Randomly glitch out grenades.
+                            No grenade projectiles will be thrown but the throw animation will still play.
 
 * Fake Join/Quit Messages   Randomly show fake player join/quit messages to the target or
                             manually fake join/quit a player with a custom command.
