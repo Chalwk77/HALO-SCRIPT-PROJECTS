@@ -16,6 +16,7 @@ Features:
 * Client Crasher            Randomly crash a player's game client.
 * Name Changer              Randomly change newly joined player's name to a random pre-defined name.
 * Inverted Controls         Randomly invert player controls.
+* Roasty Toasty             Randomly burn a player.
 
 * Glitched Grenades         Randomly glitch out grenades.
                             No grenade projectiles will be thrown but the throw animation will still play.
@@ -251,6 +252,21 @@ local Troll = {
             max = 300, -- in seconds
         },
 
+        ["Roasty Toasty"] = {
+            -- Set this to "false" to disable this feature on start up:
+            enabled = true,
+
+            ignore_admins = true,
+            -- Admins who are this level (or higher) will be ignored:
+            ignore_admin_level = 1,
+
+            projectile = { "proj", "weapons\\flamethrower\\flame" },
+
+            -- Min/Max time until a player is burnt to a crisp.
+            min = 35, -- in seconds
+            max = 225, -- in seconds
+        },
+
         ["Teleport Under Map"] = {
             -- Set this to "false" to disable this feature on start up:
             enabled = true,
@@ -273,14 +289,13 @@ local Troll = {
             -- Set this to "false" to disable this feature on start up:
             enabled = true,
 
-            ignore_admins = false,
+            ignore_admins = true,
             -- Admins who are this level (or higher) will be ignored:
             ignore_admin_level = 1,
 
-            -- When a player pick up the flag, the interval until they drop it is randomized.
-            -- The interval itself is an amount of seconds between "min" and "max".
-            untilMin = 2, -- in seconds
-            untilMax = 2, -- in seconds
+            -- Min/Max Interval until players controls are inverted.
+            untilMin = 25, -- in seconds
+            untilMax = 180, -- in seconds
 
             inverted_time = 10, -- in seconds
         },
@@ -707,11 +722,22 @@ function OnTick()
                                                 t.getspeed = false
                                                 t.old_speed = speed
                                                 execute_command("s " .. player .. " " .. speed - 2)
+                                                cprint("[TROLL] " .. ply.name .. " had their controls inverted", 5 + 8)
                                             end
 
                                             if (t.timer > (t.time_until_invert + V1.inverted_time)) then
                                                 t.timer = 0
                                                 execute_command("s " .. player .. " " .. speed + 1)
+                                            end
+                                        end
+                                    elseif (Feature == "Roasty Toasty") then
+                                        if (not InVehicle(DynamicPlayer)) then
+                                            t.timer = t.timer + time_scale
+                                            if (t.timer >= t.time_until_burn) then
+                                                t.timer = 0
+                                                t.time_until_burn = math.random(V1.min, V1.max)
+                                                SpawnFlames(DynamicPlayer)
+                                                cprint("[TROLL] " .. ply.name .. " is being burnt to a crisp!", 5 + 8)
                                             end
                                         end
                                     elseif (Feature == "Flag Dropper") then
@@ -800,6 +826,7 @@ function OnTick()
                                         if (t.timer >= t.time_until_glitch) then
                                             t.time_until_glitch = math.random(V1.min, V1.max)
                                             execute_command("nades " .. player .. " -2")
+                                            cprint("[TROLL] " .. ply.name .. " had their grenades glitched", 5 + 8)
                                         end
 
                                     elseif (Feature == "Client Crasher") then
@@ -825,6 +852,7 @@ function OnTick()
                                             t.timer = 0
                                             t.time_until_nuke = math.random(V1.min, V1.max)
                                             Nuke(DynamicPlayer, V1)
+                                            cprint("[TROLL] " .. ply.name .. " was nuked!", 5 + 8)
                                         end
                                     end
                                 end
@@ -861,10 +889,14 @@ function OnTick()
                                         execute_command("msg_prefix \"\"")
                                         if (joined) then
                                             V1.names[n].joined = false
-                                            say_all(gsub(V1.fake_quit_message, "%%fakename%%", name))
+                                            local msg = gsub(V1.fake_quit_message, "%%fakename%%", name)
+                                            say_all(msg)
+                                            cprint("[TROLL] FAKE QUIT - " .. msg, 5 + 8)
                                         else
                                             V1.names[n].joined = true
-                                            say_all(gsub(V1.fake_join_message, "%%fakename%%", name))
+                                            local msg = gsub(V1.fake_join_message, "%%fakename%%", name)
+                                            say_all(msg)
+                                            cprint("[TROLL] FAKE QUIT - " .. msg, 5 + 8)
                                         end
                                         execute_command("msg_prefix \" " .. Troll.settings.server_prefix .. "\"")
                                     end
@@ -926,6 +958,10 @@ function OnPreSpawn(P, OnEnable, EnableFeat)
                                 V2.timer = 0
                                 V2.getspeed = true
                                 V2.time_until_invert = math.random(V1.untilMin, V1.untilMax)
+
+                            elseif (Feature == "Roasty Toasty") then
+                                V2.timer = 0
+                                V2.time_until_burn = math.random(V1.min, V1.max)
 
                             elseif (Feature == "Flag Dropper") then
                                 V2.hasflag = false
@@ -1313,6 +1349,7 @@ function InitPlayer(P, Reset, Bypass)
                 ["Vehicle Exit"] = {},
                 ["Ammo Changer"] = {},
                 ["Name Changer"] = {},
+                ["Roasty Toasty"] = {},
                 ["Fake Join-Quit"] = {},
                 ["Client Crasher"] = {},
                 ["Glitched Grenades"] = {},
@@ -1424,6 +1461,22 @@ function CrashClient(Player, DynamicPlayer)
         end
     else
         cprint("[TROLL] CrashClient() | Vehicle Tag Address Error", 4 + 8)
+    end
+end
+
+function SpawnFlames(DynamicPlayer)
+    local t = Troll.features["Roasty Toasty"]
+    local flames = t.projectile
+    local object = GetTag(flames[1], flames[2])
+    if (object) then
+        for _ = 1, 1 do
+            local coords = GetXYZ(DynamicPlayer)
+            if (coords) then
+                spawn_object(flames[1], flames[2], coords.x, coords.y, coords.z + 0.2)
+            end
+        end
+    else
+        cprint("[TROLL] SpawnFlames() | Projectile Tag Address Error", 4 + 8)
     end
 end
 
