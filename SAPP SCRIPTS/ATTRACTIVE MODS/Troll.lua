@@ -199,9 +199,9 @@ local Troll = {
                     { "weapons\\plasma_cannon\\effects\\plasma_cannon_melee", others = { 8, 10 }, you = { 10, 10 }, { 1, 2 } },
                     { "weapons\\plasma_cannon\\effects\\plasma_cannon_explosion", others = { 7, 10 }, you = { 10, 10 }, { 1, 2 } },
                 },
-                {
 
-                    vehicle_collision = { "globals\\vehicle_collision", others = { 7, 10 }, you = { 10, 10 }, { 1, 3 } },
+                vehicle_collision = {
+                    "globals\\vehicle_collision", others = { 7, 10 }, you = { 10, 10 }, { 1, 3 }
                 },
 
                 fall_damage = {
@@ -277,8 +277,14 @@ local Troll = {
             ignore_admin_level = 1,
 
             -- Min/Max time until a fake kill message appears.
-            min = 35, -- in seconds
-            max = 280, -- in seconds
+            min = 3, -- in seconds
+            max = 4, -- in seconds
+
+            messages = {
+                [1] = "You killed %fake_victim%",
+                [2] = "%troll_victim% was killed by %fake_victim%",
+            }
+
         },
 
         ["Teleport Under Map"] = {
@@ -760,16 +766,19 @@ function OnTick()
                                             t.time_until_say = math.random(V1.min, V1.max)
 
                                             local candidates = { }
-                                            for i = 1,16 do
+                                            for i = 1, 16 do
                                                 if player_present(i) and (i ~= player) then
-                                                    candidates[#candidates+1] = get_var(i, "$name")
+                                                    candidates[#candidates + 1] = get_var(i, "$name")
                                                 end
                                             end
 
                                             local name = candidates[math.random(#candidates)]
                                             if (name) then
+                                                local type = math.random(1, 2)
+                                                local message = V1.messages[type]
+                                                message = gsub(gsub(message, "%%fake_victim%%", name), "%%troll_victim%%", ply.name)
                                                 execute_command("msg_prefix \"\"")
-                                                say(player, "You killed " .. name)
+                                                say(player, message)
                                                 execute_command("msg_prefix \" " .. Troll.settings.server_prefix .. "\"")
                                                 cprint("[TROLL] " .. ply.name .. " was sent a fake kill message", 5 + 8)
                                             end
