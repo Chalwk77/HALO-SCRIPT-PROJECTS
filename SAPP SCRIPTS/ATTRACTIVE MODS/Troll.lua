@@ -966,6 +966,7 @@ function OnPlayerChat(P, Message, Type)
                             if (players[TargetID] == nil) then
                                 InitPlayer(TargetID, false, true)
                                 players[TargetID].ignore_status = true
+                                OnPreSpawn(TargetID)
                                 if (TargetID == P) then
                                     Respond(P, "Successfully added yourself to troll list!")
                                 else
