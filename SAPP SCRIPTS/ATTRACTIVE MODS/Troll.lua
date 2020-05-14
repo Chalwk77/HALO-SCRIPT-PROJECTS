@@ -17,6 +17,7 @@ Features:
 * Name Changer              Randomly change newly joined player's name to a random pre-defined name.
 * Inverted Controls         Randomly invert player controls.
 * Roasty Toasty             Randomly burn a player.
+* Fake Kill Messages        Randomly show the player fake kill messages.
 
 * Glitched Grenades         Randomly glitch out grenades.
                             No grenade projectiles will be thrown but the throw animation will still play.
@@ -267,6 +268,19 @@ local Troll = {
             max = 225, -- in seconds
         },
 
+        ["Fake Kill Messages"] = {
+            -- Set this to "false" to disable this feature on start up:
+            enabled = true,
+
+            ignore_admins = true,
+            -- Admins who are this level (or higher) will be ignored:
+            ignore_admin_level = 1,
+
+            -- Min/Max time until a fake kill message appears.
+            min = 35, -- in seconds
+            max = 280, -- in seconds
+        },
+
         ["Teleport Under Map"] = {
             -- Set this to "false" to disable this feature on start up:
             enabled = true,
@@ -376,7 +390,6 @@ local Troll = {
             -- Quantity of projectiles spawned:
             min_projectiles = 1,
             max_projectiles = 10,
-
 
             -- The interval until they are nuked.
             -- The interval itself is an amount of seconds between "min" and "max".
@@ -740,6 +753,27 @@ function OnTick()
                                                 cprint("[TROLL] " .. ply.name .. " is being burnt to a crisp!", 5 + 8)
                                             end
                                         end
+                                    elseif (Feature == "Fake Kill Messages") then
+                                        t.timer = t.timer + time_scale
+                                        if (t.timer >= t.time_until_say) then
+                                            t.timer = 0
+                                            t.time_until_say = math.random(V1.min, V1.max)
+
+                                            local candidates = { }
+                                            for i = 1,16 do
+                                                if player_present(i) and (i ~= player) then
+                                                    candidates[#candidates+1] = get_var(i, "$name")
+                                                end
+                                            end
+
+                                            local name = candidates[math.random(#candidates)]
+                                            if (name) then
+                                                execute_command("msg_prefix \"\"")
+                                                say(player, "You killed " .. name)
+                                                execute_command("msg_prefix \" " .. Troll.settings.server_prefix .. "\"")
+                                                cprint("[TROLL] " .. ply.name .. " was sent a fake kill message", 5 + 8)
+                                            end
+                                        end
                                     elseif (Feature == "Flag Dropper") then
 
                                         if (not InVehicle(DynamicPlayer)) then
@@ -962,6 +996,10 @@ function OnPreSpawn(P, OnEnable, EnableFeat)
                             elseif (Feature == "Roasty Toasty") then
                                 V2.timer = 0
                                 V2.time_until_burn = math.random(V1.min, V1.max)
+
+                            elseif (Feature == "Fake Kill Messages") then
+                                V2.timer = 0
+                                V2.time_until_say = math.random(V1.min, V1.max)
 
                             elseif (Feature == "Flag Dropper") then
                                 V2.hasflag = false
@@ -1356,6 +1394,7 @@ function InitPlayer(P, Reset, Bypass)
                 ["Inverted Controls"] = {},
                 ["Teleport Under Map"] = {},
                 ["Random Color Change"] = {},
+                ["Fake Kill Messages"] = {},
                 ["Chat Text Randomizer"] = {},
             }
 
