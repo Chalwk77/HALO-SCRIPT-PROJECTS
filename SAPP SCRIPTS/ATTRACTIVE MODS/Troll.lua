@@ -243,7 +243,7 @@ local Troll = {
             -- Set this to "false" to disable this feature on start up:
             enabled = true,
 
-            ignore_admins = false,
+            ignore_admins = true,
             -- Admins who are this level (or higher) will be ignored:
             ignore_admin_level = 1,
 
@@ -266,7 +266,7 @@ local Troll = {
             -- Min/Max time until a player is burnt to a crisp.
             min = 35, -- in seconds
             max = 225, -- in seconds
-            
+
         },
 
         ["Fake Kill Messages"] = {
@@ -285,8 +285,8 @@ local Troll = {
             ignore_admin_level = 1,
 
             -- Min/Max time until a fake kill message appears.
-            min = 3, -- in seconds
-            max = 4, -- in seconds
+            min = 45, -- in seconds
+            max = 200, -- in seconds
 
             messages = {
                 [1] = "You killed %fake_victim%",
