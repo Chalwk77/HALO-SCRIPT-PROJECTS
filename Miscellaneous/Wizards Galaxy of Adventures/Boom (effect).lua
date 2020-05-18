@@ -13,7 +13,7 @@ local messages = {
 
 api_version = "1.12.0.0"
 
-local grenade_objects = { }
+local rocket_objects = { }
 local gsub, gmatch = string.gsub, string.gmatch
 
 function OnScriptLoad()
@@ -21,7 +21,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
     if (get_var(0, "$gt") ~= "n/a") then
-        grenade_objects = { }
+        rocket_objects = { }
         tag_data = TagData()
     end
 end
@@ -31,18 +31,18 @@ function OnScriptUnload()
 end
 
 function OnTick()
-    if (#grenade_objects > 0) then
+    if (#rocket_objects > 0) then
 
-        for i = 1, #grenade_objects do
-            if (grenade_objects[i]) then
-                local projectile = get_object_memory(grenade_objects[i])
+        for i = 1, #rocket_objects do
+            if (rocket_objects[i]) then
+                local projectile = get_object_memory(rocket_objects[i])
                 if (projectile == 0) then
-                    table.remove(grenade_objects, i)
+                    table.remove(rocket_objects, i)
                 end
             end
         end
 
-        if (#grenade_objects == 0) then
+        if (#rocket_objects == 0) then
             RollbackRocketProjectile()
         end
     end
@@ -50,7 +50,7 @@ end
 
 function OnNewGame()
     if (get_var(0, "$gt") ~= "n/a") then
-        grenade_objects = { }
+        rocket_objects = { }
         tag_data = TagData()
     end
 end
@@ -81,7 +81,7 @@ function OnServerCommand(Executor, Command, _, _)
                                     local projectile = get_object_memory(payload)
                                     if (projectile ~= 0) then
 
-                                        grenade_objects[#grenade_objects + 1] = payload
+                                        rocket_objects[#rocket_objects + 1] = payload
                                         ModifyRocketProjectile()
 
                                         write_float(projectile + 0x68, 0)
