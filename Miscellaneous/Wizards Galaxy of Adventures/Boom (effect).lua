@@ -22,6 +22,7 @@ function OnScriptLoad()
     register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
     if (get_var(0, "$gt") ~= "n/a") then
         grenade_objects = { }
+        tag_data = TagData()
     end
 end
 
@@ -42,7 +43,7 @@ function OnTick()
         end
 
         if (#grenade_objects == 0) then
-            RollBackPlasmaGrenade()
+            RollbackRocketProjectile()
         end
     end
 end
@@ -50,6 +51,7 @@ end
 function OnNewGame()
     if (get_var(0, "$gt") ~= "n/a") then
         grenade_objects = { }
+        tag_data = TagData()
     end
 end
 
@@ -62,7 +64,7 @@ function OnServerCommand(Executor, Command, _, _)
         CMD[1] = string.lower(CMD[1]) or string.upper(CMD[1])
         if (CMD[1] == custom_command) then
 
-                local lvl = tonumber(get_var(Executor, "$lvl"))
+            local lvl = tonumber(get_var(Executor, "$lvl"))
             if (lvl >= permission_level) then
                 local pl = GetPlayers(Executor, CMD)
                 if (pl) then
@@ -73,14 +75,14 @@ function OnServerCommand(Executor, Command, _, _)
                             if (DynamicPlayer ~= 0) then
 
                                 local coords = GetXYZ(DynamicPlayer)
-                                local payload = spawn_object("proj", "weapons\\plasma grenade\\plasma grenade", coords.x, coords.y, coords.z + 5)
+                                local payload = spawn_object("proj", "weapons\\rocket launcher\\rocket", coords.x, coords.y, coords.z + 5)
                                 if (payload) then
 
                                     local projectile = get_object_memory(payload)
                                     if (projectile ~= 0) then
 
                                         grenade_objects[#grenade_objects + 1] = payload
-                                        ModifyPlasmaGrenade()
+                                        ModifyRocketProjectile()
 
                                         write_float(projectile + 0x68, 0)
                                         write_float(projectile + 0x6C, 0)
@@ -118,135 +120,22 @@ function OnServerCommand(Executor, Command, _, _)
     end
 end
 
-function ModifyPlasmaGrenade()
-    local tag_address = read_dword(0x40440000)
-    local tag_count = read_dword(0x4044000C)
-
-    -- weapons\plasma grenade\shock wave.jpt!
-    for i = 0, tag_count - 1 do
-        local tag = tag_address + 0x20 * i
-        local tag_name = read_string(read_dword(tag + 0x10))
-        local tag_class = read_dword(tag)
-        if (tag_class == 1785754657 and tag_name == "weapons\\plasma grenade\\shock wave") then
-            local tag_data = read_dword(tag + 0x14)
-            write_dword(tag_data + 0x0, 1092616192)
-            write_dword(tag_data + 0x4, 1092616192)
-            break
-        end
-    end
-
-    -- weapons\plasma grenade\explosion.jpt!
-    for i = 0, tag_count - 1 do
-        local tag = tag_address + 0x20 * i
-        local tag_name = read_string(read_dword(tag + 0x10))
-        local tag_class = read_dword(tag)
-        if (tag_class == 1785754657 and tag_name == "weapons\\plasma grenade\\explosion") then
-            local tag_data = read_dword(tag + 0x14)
-            write_dword(tag_data + 0x0, 1084227584)
-            write_dword(tag_data + 0x4, 1084227584)
-            write_dword(tag_data + 0x1d0, 1065353216)
-            write_dword(tag_data + 0x1d4, 1065353216)
-            write_dword(tag_data + 0x1d8, 1065353216)
-            write_dword(tag_data + 0x1f4, 1094713344)
-            break
-        end
-    end
-
-    -- weapons\plasma grenade\plasma grenade.proj
-    for i = 0, tag_count - 1 do
-        local tag = tag_address + 0x20 * i
-        local tag_name = read_string(read_dword(tag + 0x10))
-        local tag_class = read_dword(tag)
-        if (tag_class == 1886547818 and tag_name == "weapons\\plasma grenade\\plasma grenade") then
-            local tag_data = read_dword(tag + 0x14)
-            write_dword(tag_data + 0x1bc, 0)
-            write_dword(tag_data + 0x1c0, 0)
-            break
-        end
-    end
-
-    -- weapons\plasma grenade\attached.jpt!
-    for i = 0, tag_count - 1 do
-        local tag = tag_address + 0x20 * i
-        local tag_name = read_string(read_dword(tag + 0x10))
-        local tag_class = read_dword(tag)
-        if (tag_class == 1785754657 and tag_name == "weapons\\plasma grenade\\attached") then
-            local tag_data = read_dword(tag + 0x14)
-            write_dword(tag_data + 0x0, 1084227584)
-            write_dword(tag_data + 0x4, 1084227584)
-            write_dword(tag_data + 0x1d0, 1065353216)
-            write_dword(tag_data + 0x1d4, 1065353216)
-            write_dword(tag_data + 0x1d8, 1065353216)
-            write_dword(tag_data + 0x1f4, 1094713344)
-            break
-        end
-    end
+function ModifyRocketProjectile()
+    write_dword(tag_data + 0x0, 1084227584)
+    write_dword(tag_data + 0x4, 1084227584)
+    write_dword(tag_data + 0x1d0, 1065353216)
+    write_dword(tag_data + 0x1d4, 1065353216)
+    write_dword(tag_data + 0x1d8, 1065353216)
+    write_dword(tag_data + 0x1f4, 1092616192)
 end
 
-function RollBackPlasmaGrenade()
-    local tag_address = read_dword(0x40440000)
-    local tag_count = read_dword(0x4044000C)
-    -- weapons\plasma grenade\shock wave.jpt!
-    for i = 0, tag_count - 1 do
-        local tag = tag_address + 0x20 * i
-        local tag_name = read_string(read_dword(tag + 0x10))
-        local tag_class = read_dword(tag)
-        if (tag_class == 1785754657 and tag_name == "weapons\\plasma grenade\\shock wave") then
-            local tag_data = read_dword(tag + 0x14)
-            write_dword(tag_data + 0x0, 1080033280)
-            write_dword(tag_data + 0x4, 1090519040)
-            break
-        end
-    end
-
-    -- weapons\plasma grenade\explosion.jpt!
-    for i = 0, tag_count - 1 do
-        local tag = tag_address + 0x20 * i
-        local tag_name = read_string(read_dword(tag + 0x10))
-        local tag_class = read_dword(tag)
-        if (tag_class == 1785754657 and tag_name == "weapons\\plasma grenade\\explosion") then
-            local tag_data = read_dword(tag + 0x14)
-            write_dword(tag_data + 0x0, 1056964608)
-            write_dword(tag_data + 0x4, 1073741824)
-            write_dword(tag_data + 0x1d0, 1117782016)
-            write_dword(tag_data + 0x1d4, 1123024896)
-            write_dword(tag_data + 0x1d8, 1123024896)
-            write_dword(tag_data + 0x1f4, 1082130432)
-            break
-        end
-    end
-
-
-    -- weapons\plasma grenade\plasma grenade.proj
-    for i = 0, tag_count - 1 do
-        local tag = tag_address + 0x20 * i
-        local tag_name = read_string(read_dword(tag + 0x10))
-        local tag_class = read_dword(tag)
-        if (tag_class == 1886547818 and tag_name == "weapons\\plasma grenade\\plasma grenade") then
-            local tag_data = read_dword(tag + 0x14)
-            write_dword(tag_data + 0x1bc, 1073741824)
-            write_dword(tag_data + 0x1c0, 1073741824)
-            break
-        end
-    end
-
-
-    -- weapons\plasma grenade\attached.jpt!
-    for i = 0, tag_count - 1 do
-        local tag = tag_address + 0x20 * i
-        local tag_name = read_string(read_dword(tag + 0x10))
-        local tag_class = read_dword(tag)
-        if (tag_class == 1785754657 and tag_name == "weapons\\plasma grenade\\attached") then
-            local tag_data = read_dword(tag + 0x14)
-            write_dword(tag_data + 0x0, 0)
-            write_dword(tag_data + 0x4, 0)
-            write_dword(tag_data + 0x1d0, 1117782016)
-            write_dword(tag_data + 0x1d4, 1123024896)
-            write_dword(tag_data + 0x1d8, 1123024896)
-            write_dword(tag_data + 0x1f4, 1082130432)
-            break
-        end
-    end
+function RollbackRocketProjectile()
+    write_dword(tag_data + 0x0, 1056964608)
+    write_dword(tag_data + 0x4, 1073741824)
+    write_dword(tag_data + 0x1d0, 1117782016)
+    write_dword(tag_data + 0x1d4, 1133903872)
+    write_dword(tag_data + 0x1d8, 1134886912)
+    write_dword(tag_data + 0x1f4, 1086324736)
 end
 
 function TagInfo(obj_type, obj_name)
@@ -305,4 +194,18 @@ function Respond(PlayerIndex, Message, Color, ChatType)
             say(PlayerIndex, Message)
         end
     end
+end
+
+function TagData()
+    local tag_address = read_dword(0x40440000)
+    local tag_count = read_dword(0x4044000C)
+    for i = 0, tag_count - 1 do
+        local tag = tag_address + 0x20 * i
+        local tag_name = read_string(read_dword(tag + 0x10))
+        local tag_class = read_dword(tag)
+        if (tag_class == 1785754657 and tag_name == "weapons\\rocket launcher\\explosion") then
+            return read_dword(tag + 0x14)
+        end
+    end
+    return nil
 end
