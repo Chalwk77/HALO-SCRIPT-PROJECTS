@@ -2,6 +2,7 @@
 -- By Chalwk, v 1.0
 
 local custom_command = "boom"
+local proj = { "proj", "weapons\\rocket launcher\\rocket" }
 local permission_level = 1
 
 local enable_messages = false
@@ -64,56 +65,60 @@ function OnServerCommand(Executor, Command, _, _)
         CMD[1] = string.lower(CMD[1]) or string.upper(CMD[1])
         if (CMD[1] == custom_command) then
 
-            local lvl = tonumber(get_var(Executor, "$lvl"))
-            if (lvl >= permission_level) then
-                local pl = GetPlayers(Executor, CMD)
-                if (pl) then
-                    for i = 1, #pl do
-                        local TargetID = tonumber(pl[i])
-                        if (TargetID ~= 0) then
-                            local DynamicPlayer = get_dynamic_player(TargetID)
-                            if (DynamicPlayer ~= 0) then
+            if (tag_data) then
+                local lvl = tonumber(get_var(Executor, "$lvl"))
+                if (lvl >= permission_level) then
+                    local pl = GetPlayers(Executor, CMD)
+                    if (pl) then
+                        for i = 1, #pl do
+                            local TargetID = tonumber(pl[i])
+                            if (TargetID ~= 0) then
+                                local DynamicPlayer = get_dynamic_player(TargetID)
+                                if (DynamicPlayer ~= 0) then
 
-                                local coords = GetXYZ(DynamicPlayer)
-                                local payload = spawn_object("proj", "weapons\\rocket launcher\\rocket", coords.x, coords.y, coords.z + 5)
-                                if (payload) then
+                                    local coords = GetXYZ(DynamicPlayer)
+                                    local payload = spawn_object(proj[1], proj[2], coords.x, coords.y, coords.z + 5)
+                                    if (payload) then
 
-                                    local projectile = get_object_memory(payload)
-                                    if (projectile ~= 0) then
+                                        local projectile = get_object_memory(payload)
+                                        if (projectile ~= 0) then
 
-                                        rocket_objects[#rocket_objects + 1] = payload
-                                        ModifyRocketProjectile()
+                                            rocket_objects[#rocket_objects + 1] = payload
+                                            ModifyRocketProjectile()
 
-                                        write_float(projectile + 0x68, 0)
-                                        write_float(projectile + 0x6C, 0)
-                                        write_float(projectile + 0x70, -9999)
+                                            write_float(projectile + 0x68, 0)
+                                            write_float(projectile + 0x6C, 0)
+                                            write_float(projectile + 0x70, -9999)
 
-                                        if (enable_messages) then
+                                            if (enable_messages) then
 
-                                            local TargetName = get_var(TargetID, "$name")
-                                            local ExecutorName = get_var(Executor, "$name")
+                                                local TargetName = get_var(TargetID, "$name")
+                                                local ExecutorName = get_var(Executor, "$name")
 
-                                            if (Executor == 0) then
-                                                ExecutorName = "The Server"
-                                            end
+                                                if (Executor == 0) then
+                                                    ExecutorName = "The Server"
+                                                end
 
-                                            if (Executor ~= TargetID) then
-                                                Respond(Executor, gsub(messages[1], "%%victim_name%%", TargetName), 2 + 8, "rcon")
-                                                Respond(TargetID, gsub(messages[2], "%%killer_name%%", ExecutorName), 2 + 8, "rcon")
-                                            else
-                                                Respond(Executor, messages[3], 2 + 8, "rcon")
+                                                if (Executor ~= TargetID) then
+                                                    Respond(Executor, gsub(messages[1], "%%victim_name%%", TargetName), 2 + 8, "rcon")
+                                                    Respond(TargetID, gsub(messages[2], "%%killer_name%%", ExecutorName), 2 + 8, "rcon")
+                                                else
+                                                    Respond(Executor, messages[3], 2 + 8, "rcon")
+                                                end
                                             end
                                         end
                                     end
                                 end
+                            else
+                                Respond(Executor, "Server cannot be exploded!", 4 + 8, "rcon")
                             end
-                        else
-                            Respond(Executor, "Server cannot be exploded!", 4 + 8, "rcon")
                         end
                     end
+                else
+                    Respond(Executor, "You do not have permission execute this command", 4 + 8, "rcon")
                 end
             else
-                Respond(Executor, "You do not have permission execute this command", 4 + 8, "rcon")
+                Respond(Executor, "Internal Map Error. Command Failed", 4 + 8, "rcon")
             end
             return false
         end
@@ -136,11 +141,6 @@ function RollbackRocketProjectile()
     write_dword(tag_data + 0x1d4, 1133903872)
     write_dword(tag_data + 0x1d8, 1134886912)
     write_dword(tag_data + 0x1f4, 1086324736)
-end
-
-function TagInfo(obj_type, obj_name)
-    local tag = lookup_tag(obj_type, obj_name)
-    return tag ~= 0 and read_dword(tag + 0xC) or nil
 end
 
 function CmdSplit(CMD)
@@ -196,6 +196,11 @@ function Respond(PlayerIndex, Message, Color, ChatType)
     end
 end
 
+function ValidTag(obj_type, obj_name)
+    local tag = lookup_tag(obj_type, obj_name)
+    return tag ~= 0 and read_dword(tag + 0xC) or nil
+end
+
 function TagData()
     local tag_address = read_dword(0x40440000)
     local tag_count = read_dword(0x4044000C)
@@ -204,7 +209,9 @@ function TagData()
         local tag_name = read_string(read_dword(tag + 0x10))
         local tag_class = read_dword(tag)
         if (tag_class == 1785754657 and tag_name == "weapons\\rocket launcher\\explosion") then
-            return read_dword(tag + 0x14)
+            if (ValidTag(proj[1], proj[2])) then
+                return read_dword(tag + 0x14)
+            end
         end
     end
     return nil
