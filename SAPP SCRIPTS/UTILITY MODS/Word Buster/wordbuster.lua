@@ -25,13 +25,13 @@ wordBuster.censor = "*"
 -- Semi Censor: Show the first and last character of bad words?
 wordBuster.semiCensor = true
 
--- Notify: Notify the user that one of his words was censored.
+-- Notify: Notify the user that one of his/her words were censored.
 wordBuster.notify = true
 
 wordBuster.serverPrefix = "**SAPP**"
 
 -- Notify Text: Text to notify the user with.
-wordBuster.notifyText = "Watch your language young boy!"
+wordBuster.notifyText = "Watch your language!"
 
 -- Chat Format: Messages are formatted as per default settings
 wordBuster.chatFormat = {
@@ -45,9 +45,9 @@ wordBuster.languages = {
     ["cs"] = false,
     ["da"] = false,
     ["de"] = false,
-    ["en"] = true,
+    ["en"] = true, -- English
     ["eo"] = false,
-    ["es"] = false,
+    ["es"] = true, -- Spanish
     ["fr"] = false,
     ["hu"] = false,
     ["it"] = false,
@@ -67,11 +67,11 @@ wordBuster.languages = {
 
 -- Whitelist: Groups allowed to use bad words.
 wordBuster.whitelist = {
-    [-1] = true, -- PUBLIC
-    [1] = true, -- LEVEL 1
-    [2] = true, -- LEVEL 2
-    [3] = true, -- LEVEL 3
-    [4] = false, -- LEVEL 4
+    [-1] = false, -- PUBLIC
+    [1] = true, -- ADMIN LEVEL 1
+    [2] = true, -- ADMIN LEVEL 2
+    [3] = true, -- ADMIN LEVEL 3
+    [4] = true, -- ADMIN LEVEL 4
 }
 
 -- Patterns: Advanced users only, patterns used to block variations of bad words.
