@@ -48,10 +48,10 @@ wordBuster.chatFormat = {
 wordBuster.languages = {
     ["cs"] = false,
     ["da"] = false,
-    ["de"] = true,
+    ["de"] = false,
     ["en"] = true, -- English
     ["eo"] = false,
-    ["es"] = true, -- Spanish
+    ["es"] = false, -- Spanish
     ["fr"] = false,
     ["hu"] = false,
     ["it"] = false,
@@ -131,14 +131,25 @@ function wordBuster.Load()
             end
 
             if (file) then
-                local words = StrSplit(rawData)
+
+                local lines = {}
+                for line in io.lines("wordbuster_database/" .. lang .. ".txt") do
+                    lines[#lines + 1] = line
+                end
+
+                local words = {}
+                for _,v in pairs(lines) do
+                    words[#words+1] = v
+                end
+
                 for _, word in pairs(words) do
+
                     local formattedWord = ""
                     for _, char in pairs(string.ToTable(word)) do
                         if wordBuster.patterns[char] then
                             formattedWord = formattedWord .. wordBuster.patterns[char]
                         else
-                            formattedWord = formattedWord .. word
+                            formattedWord = formattedWord .. "." -- Wildcard for instances of words containing spaces
                         end
                     end
                     insert(wordBuster.badWords, { formattedWord, word, lang })
@@ -161,10 +172,26 @@ function wordBuster.Load()
         local time_took = os.clock()
         cprint("[Word Buster] " .. #wordBuster.badWords .. " words loaded in " .. time_took .. " seconds", 2 + 8)
         register_callback(cb["EVENT_CHAT"], "OnPlayerChat")
+        register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     else
         unregister_callback(cb["EVENT_CHAT"])
         cprint("[Word Buster] Unable to load Bad Words for ", 4 + 8)
     end
+end
+
+function OnGameStart()
+    -- DEBUG CODE:
+    --local Msg, Params = wordBuster.isCensored("phrase")
+    --if (#Params > 0) then
+    --    for i = 1,#Params do
+    --        cprint("------------- WORD FOUND ------------- ", 5+8)
+    --        cprint("Pattern: " .. Params[i][1], 5+8)
+    --        cprint("Word: " .. Params[i][2], 5+8)
+    --        cprint("Language: " .. Params[i][3], 5+8)
+    --    end
+    --else
+    --    cprint("WORD NOT FOUND", 4+8)
+    --end
 end
 
 function OnPlayerChat(PlayerIndex, Message, Type)
@@ -260,7 +287,7 @@ end
 function wordBuster.isCensored(Msg)
     local Params = { }
     for _, Pattern in pairs(wordBuster.badWords) do
-        if (Msg:match(Pattern[1])) then
+        if (Msg:lower():match(Pattern[1])) then
             Msg = wordBuster.CensorWord(Msg, Pattern[1])
             Params[#Params + 1] = Pattern
         end
