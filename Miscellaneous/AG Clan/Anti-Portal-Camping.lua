@@ -315,8 +315,8 @@ function getXYZ(PlayerObject)
     return coords
 end
 
-function CheckCoordinates(x1, y1, z1, x2, y2, z2)
-    local distance = math.sqrt((x1 - x2) ^ 2 + (y1 - y2) ^ 2 + (z1 - z2) ^ 2)
+function CheckCoordinates(pX, pY, pZ, x, y, z)
+    local distance = math.sqrt((pX - x) ^ 2 + (pY - y) ^ 2 + (pZ - z) ^ 2)
     if (distance <= trigger_distance) then
         return distance
     end

@@ -235,9 +235,7 @@ function GetPlayers(Executor, Args)
         table.insert(pl, Args[2])
     elseif (Args[2] == "all" or Args[2] == "*") then
         for i = 1, 16 do
-            if player_present(i) then
-                table.insert(pl, i)
-            end
+            table.insert(pl, i)
         end
     else
         rprint(Executor, gsub(messages[4], "%%cmd%%", Args[1]))

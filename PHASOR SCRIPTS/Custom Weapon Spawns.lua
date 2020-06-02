@@ -439,6 +439,7 @@ function OnObjectInteraction(player, objectId, mapId)
                     elseif tag == "weapons\\plasma pistol\\plasma pistol" then
                         ammo = readfloat(m_weapon, 0x140)
                     elseif tag == "weapons\\plasma rifle\\plasma rifle" or tag == "weapons\\plasma_cannon\\plasma_cannon" then
+                        local m_weapon = getobject(readdword(m_object, 0x118))
                         ammo = readfloat(m_weapon, 0x240)
                     else
                         ammo = readword(m_weapon, 0x2B6)
