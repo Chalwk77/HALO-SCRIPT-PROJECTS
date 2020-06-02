@@ -16,6 +16,9 @@ api_version = "1.12.0.0"
 local wordBuster = { }
 -- Word Buster Configuration --
 
+-- Version: Current version of Word Buster
+wordBuster.version = 1.0
+
 -- Censor: Which character should be used to replace bad words?
 wordBuster.censor = "*"
 
@@ -57,9 +60,9 @@ wordBuster.languages = {
     ["ru"] = false,
     ["sv"] = false,
     ["th"] = false,
-    ["tlh"] = false,
     ["tr"] = false,
     ["zh"] = false,
+    ["tlh"] = false,
 }
 
 -- Whitelist: Groups allowed to use bad words.
@@ -233,4 +236,18 @@ string.ToTable = function(String)
         table.insert(Array, String:sub(i, i))
     end
     return Array
+end
+
+function report()
+    local script_version = string.format("%0.2f", wordBuster.version)
+    cprint("--------------------------------------------------------", 5 + 8)
+    cprint("Please report this error on github:", 7 + 8)
+    cprint("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", 7 + 8)
+    cprint("Script Version: " .. script_version, 7 + 8)
+    cprint("--------------------------------------------------------", 5 + 8)
+end
+
+function OnError()
+    cprint(debug.traceback(), 4 + 8)
+    timer(50, "report")
 end
