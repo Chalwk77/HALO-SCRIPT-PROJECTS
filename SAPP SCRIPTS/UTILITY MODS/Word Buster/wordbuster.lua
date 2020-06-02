@@ -23,7 +23,11 @@ wordBuster.version = 1.0
 wordBuster.censor = "*"
 
 -- Semi Censor: Show the first and last character of bad words?
+-- If false, the whole word will be censored
 wordBuster.semiCensor = true
+
+-- Block Word: If this is true, the users message will not be sent
+wordBuster.blockWord = false
 
 -- Notify: Notify the user that one of his/her words were censored.
 wordBuster.notify = true
@@ -157,16 +161,10 @@ function wordBuster.Load()
         local time_took = os.clock()
         cprint("[Word Buster] " .. #wordBuster.badWords .. " words loaded in " .. time_took .. " seconds", 2 + 8)
         register_callback(cb["EVENT_CHAT"], "OnPlayerChat")
-        register_callback(cb["EVENT_GAME_START"], "Start")
-
     else
         unregister_callback(cb["EVENT_CHAT"])
         cprint("[Word Buster] Unable to load Bad Words for ", 4 + 8)
     end
-end
-
-function Start()
-
 end
 
 function OnPlayerChat(PlayerIndex, Message, Type)
@@ -178,13 +176,27 @@ function OnPlayerChat(PlayerIndex, Message, Type)
             return
         end
 
-        local Censored, Pattern = wordBuster.isCensored(Message)
-        if (Censored) then
+        local Msg, Params = wordBuster.isCensored(Message)
+        if (#Params > 0) then
 
-            Message = wordBuster.CensorWord(Message, Pattern)
+            Message = Msg
+
+            cprint("--------- [ WORD BUSTER ] ---------", 5 + 8)
+            cprint("Blocked Words:", 5 + 8)
+            for i = 1, #Params do
+                cprint("WORD: " .. Params[i][2] .. " LANGUAGE: " .. Params[i][3], 5 + 8)
+            end
+            cprint(" ")
+            cprint("-----------------------------------------------", 5 + 8)
 
             if (wordBuster.notify) then
+                local name = get_var(PlayerIndex, "$name")
+                cprint(name .. " was notified that his/her message is censored", 5 + 8)
                 rprint(PlayerIndex, wordBuster.notifyText)
+            end
+
+            if (wordBuster.blockWord) then
+                return false
             end
 
             local f = wordBuster.chatFormat
@@ -246,11 +258,14 @@ function wordBuster.CensorWord(Str, Pattern)
 end
 
 function wordBuster.isCensored(Msg)
+    local Params = { }
     for _, Pattern in pairs(wordBuster.badWords) do
         if (Msg:match(Pattern[1])) then
-            return true, Pattern[1]
+            Msg = wordBuster.CensorWord(Msg, Pattern[1])
+            Params[#Params + 1] = Pattern
         end
     end
+    return Msg, Params
 end
 
 function wordBuster.formatMessage(PlayerIndex, Message, Str)
