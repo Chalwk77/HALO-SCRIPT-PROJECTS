@@ -44,7 +44,7 @@ wordBuster.chatFormat = {
 wordBuster.languages = {
     ["cs"] = false,
     ["da"] = false,
-    ["de"] = false,
+    ["de"] = true,
     ["en"] = true, -- English
     ["eo"] = false,
     ["es"] = true, -- Spanish
@@ -71,7 +71,7 @@ wordBuster.whitelist = {
     [1] = true, -- ADMIN LEVEL 1
     [2] = true, -- ADMIN LEVEL 2
     [3] = true, -- ADMIN LEVEL 3
-    [4] = true, -- ADMIN LEVEL 4
+    [4] = false, -- ADMIN LEVEL 4
 }
 
 -- Patterns: Advanced users only, patterns used to block variations of bad words.
@@ -104,6 +104,10 @@ wordBuster.patterns = {
     ["z"] = "[zZ2]"
 }
 
+local len = string.len
+local sub, gsub = string.sub, string.gsub
+local insert, remove = table.insert, table.remove
+
 function OnScriptLoad()
     wordBuster.Load()
 end
@@ -133,7 +137,7 @@ function wordBuster.Load()
                             formattedWord = formattedWord .. word
                         end
                     end
-                    table.insert(wordBuster.badWords, formattedWord)
+                    insert(wordBuster.badWords, { formattedWord, word, lang })
                 end
             else
                 cprint("[Word Buster] Couldn't load language '" .. lang .. "', language not found!", 4 + 8)
@@ -144,20 +148,25 @@ function wordBuster.Load()
     if (#wordBuster.badWords > 0) then
 
         for k, v in pairs(wordBuster.badWords) do
-            if (v == "" or v == " ") then
-                cprint("[Word Buster] Removing Pattern Entry " .. v, 4+8)
-                table.remove(wordBuster.badWords, k) -- Removes empty filters
+            if (v[1] == "" or v[1] == " ") then
+                cprint("[Word Buster] Removing Pattern Entry " .. v, 4 + 8)
+                remove(wordBuster.badWords, k) -- Removes empty filters
             end
         end
 
         local time_took = os.clock()
         cprint("[Word Buster] " .. #wordBuster.badWords .. " words loaded in " .. time_took .. " seconds", 2 + 8)
         register_callback(cb["EVENT_CHAT"], "OnPlayerChat")
+        register_callback(cb["EVENT_GAME_START"], "Start")
 
     else
         unregister_callback(cb["EVENT_CHAT"])
         cprint("[Word Buster] Unable to load Bad Words for ", 4 + 8)
     end
+end
+
+function Start()
+
 end
 
 function OnPlayerChat(PlayerIndex, Message, Type)
@@ -169,48 +178,36 @@ function OnPlayerChat(PlayerIndex, Message, Type)
             return
         end
 
-        for _, Pattern in pairs(wordBuster.badWords) do
+        local Censored, Pattern = wordBuster.isCensored(Message)
+        if (Censored) then
 
-            if string.find(Message:lower(), Pattern) then
+            Message = wordBuster.CensorWord(Message, Pattern)
 
-                if (wordBuster.notify) then
-                    rprint(PlayerIndex, wordBuster.notifyText)
-                end
+            if (wordBuster.notify) then
+                rprint(PlayerIndex, wordBuster.notifyText)
+            end
 
-                local f = wordBuster.chatFormat
-                local name = get_var(PlayerIndex, "$name")
+            local f = wordBuster.chatFormat
+            local FORMAT = wordBuster.formatMessage
 
-                local formatMsg = function(Str)
-                    local patterns = {
-                        { "%%name%%", name },
-                        { "%%msg%%", Message },
-                        { "%%id%%", PlayerIndex }
-                    }
-                    for i = 1, #patterns do
-                        Str = (string.gsub(Str, patterns[i][1], patterns[i][2]))
-                    end
-
-                    return Str
-                end
-
+            if (Type == 0) then
                 execute_command("msg_prefix \"\"")
-                if (Type == 0) then
-                    say_all(formatMsg(f.global))
-                    return false
-                elseif (Type == 1) then
-                    wordBuster.SayTeam(P, formatMsg(f.team))
-                    return false
-                elseif (Type == 2) then
-                    wordBuster.SayTeam(P, formatMsg(f.vehicle))
-                    return false
-                end
+                say_all(FORMAT(PlayerIndex, Message, f.global))
                 execute_command("msg_prefix \" " .. wordBuster.serverPrefix .. "\"")
+                return false
+            elseif (Type == 1) then
+                wordBuster.SayTeam(PlayerIndex, FORMAT(PlayerIndex, Message, f.team))
+                return false
+            elseif (Type == 2) then
+                wordBuster.SayTeam(PlayerIndex, FORMAT(PlayerIndex, Message, f.vehicle))
+                return false
             end
         end
     end
 end
 
 function wordBuster.SayTeam(PlayerIndex, Message)
+    execute_command("msg_prefix \"\"")
     local team = get_var(PlayerIndex, "$team")
     for i = 1, 16 do
         if player_present(i) then
@@ -219,6 +216,58 @@ function wordBuster.SayTeam(PlayerIndex, Message)
             end
         end
     end
+    execute_command("msg_prefix \" " .. wordBuster.serverPrefix .. "\"")
+end
+
+function wordBuster.CensorWord(Str, Pattern)
+
+    local l = 0
+    local censor = ""
+
+    local WORD = Str:match(Pattern)
+    local ORI = WORD
+    local len = len(WORD)
+
+    if (wordBuster.semiCensor) then
+        for i = 1, len do
+            if (i ~= 1 and i ~= len) then
+                local letters = sub(WORD, i, i)
+                WORD = gsub(WORD, letters, wordBuster.censor)
+            end
+        end
+        return gsub(Str, ORI, WORD)
+    else
+        while l < len do
+            censor = censor .. wordBuster.censor
+            l = l + 1
+        end
+        return gsub(Str, WORD, censor)
+    end
+end
+
+function wordBuster.isCensored(Msg)
+    for _, Pattern in pairs(wordBuster.badWords) do
+        if (Msg:match(Pattern[1])) then
+            return true, Pattern[1]
+        end
+    end
+end
+
+function wordBuster.formatMessage(PlayerIndex, Message, Str)
+
+    local name = get_var(PlayerIndex, "$name")
+
+    local patterns = {
+        { "%%name%%", name },
+        { "%%msg%%", Message },
+        { "%%id%%", PlayerIndex }
+    }
+
+    for i = 1, #patterns do
+        Str = (gsub(Str, patterns[i][1], patterns[i][2]))
+    end
+
+    return Str
 end
 
 function StrSplit(STR)
