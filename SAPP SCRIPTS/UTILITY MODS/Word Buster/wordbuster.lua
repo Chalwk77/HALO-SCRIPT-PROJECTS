@@ -161,7 +161,7 @@ function wordBuster.Load()
 
         for k, v in pairs(wordBuster.badWords) do
             if (v[1] == "" or v[1] == " ") then
-                cprint("[Word Buster] Removing Pattern Entry " .. v, 4 + 8)
+                cprint("[Word Buster] Removing empty filters " .. v, 4 + 8)
                 remove(wordBuster.badWords, k) -- Removes empty filters
             end
         end
@@ -216,6 +216,7 @@ function OnPlayerChat(PlayerIndex, Message, Type)
                 rprint(PlayerIndex, wordBuster.notifyText)
             end
             cprint("--------------------------------------------------------------------", 5 + 8)
+
 
             if (wordBuster.blockWord) then
                 return false
