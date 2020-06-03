@@ -164,7 +164,7 @@ function wordBuster.Load()
                     insert(wordBuster.badWords, { Pattern, word, lang })
                 end
             else
-                cprint("[Word Buster] Couldn't load language '" .. lang .. "', language not found!", 4 + 8)
+                cprint("[Word Buster] Couldn't load language '" .. lang .. ".txt', language not found!", 4 + 8)
             end
         end
     end
