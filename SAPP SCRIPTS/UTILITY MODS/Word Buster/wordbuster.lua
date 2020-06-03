@@ -1,7 +1,12 @@
 --[[
 --=====================================================================================================--
 Script Name: Word Buster (v1.0), for SAPP (PC & CE)
-Description: An extremely advanced Chat Filter mod
+Description [short]: An extremely advanced profanity filter mod.
+
+Description [long]:
+This mod will automatically censor chat messages containing words found in the respective language files. 
+These files contain the lists of bad words in various languages, including (but not limited to, English, Spanish and German).
+To install a language file, simply download and place into your servers root directory.
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
