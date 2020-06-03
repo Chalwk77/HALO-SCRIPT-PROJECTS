@@ -3,10 +3,11 @@
 Script Name: Word Buster (v1.3), for SAPP (PC & CE)
 
 --- Description ---
-Advanced profanity filter mod that automatically censors chat messages containing profanity.
+Advanced profanity filter mod that automatically censors, replaces or blocks chat messages containing profanity.
 
 --- Features ---
 * Pattern matching algorithm to detect variations of words, like "asshole", for example, "a$$hole", "assH0l3" or "a55h01e.
+* Censor, Replace or Block bad words
 * Supports multiple languages
 * Warning System + Grace Period
 * Customizable messages
@@ -39,21 +40,27 @@ local wordBuster = { }
 -- Version: Current version of Word Buster
 wordBuster.version = 1.3
 
+-- Censor Words: Censor words with "wordBuster.censor" character?
+wordBuster.censorWords = true
+
+-- Semi Censor: Show the first and last character of bad words?
+-- If false, the whole word will be censored
+wordBuster.semiCensor = true
+
 -- Censor: Which character should be used to replace bad words?
 wordBuster.censor = "*"
+
+-- Replace profanity with a random word from the substitute list? (wordBuster.censor MUST BE FALSE)
+wordBuster.substituteWords = false
+
+-- Block Word: If this is true, the player's message will not be sent
+wordBuster.blockWords = false
 
 -- Warning Count: How many warnings before the player is kicked?
 wordBuster.warnings = 5
 
 -- Grace Period: Warnings reset after this many seconds of no profanity
 wordBuster.grace = 30
-
--- Semi Censor: Show the first and last character of bad words?
--- If false, the whole word will be censored
-wordBuster.semiCensor = true
-
--- Block Word: If this is true, the player's message will not be sent
-wordBuster.blockWord = false
 
 -- Notify: Notify player that one of his/her words were censored
 wordBuster.notifyUser = true
@@ -86,6 +93,23 @@ wordBuster.chatFormat = {
     global = "%name%: %msg%",
     team = "[%name%]: %msg%",
     vehicle = "[%name%]: %msg%"
+}
+
+-- Word Substitutions: If (wordBuster.substituteWords) is enabled,
+-- bad words will be randomly replaced with one of these words:
+wordBuster.substitutions = {
+    "buccaneer", "bulgur", "bumfuzzle", "canoodle", "cantankerous",
+    "bamboozled", "bazinga", "bevy", "bifurcate", "bilirubin", "bobolink",
+    "prestidigitation", "proctor", "rapscallion", "rookery", "rumpus", "scootch",
+    "dingy", "doodle", "doohickey", "eschew", "fiddledeedee", "finagle", "flanker",
+    "sprocket", "squeegee", "succubus", "tater", "tuber", "tuchis", "viper", "waddle",
+    "kerplunk", "kinkajou", "knickers", "lackadaisical", "loopy", "manscape", "monkey",
+    "walkabout", "wasabi", "weasel", "wenis", "whatnot", "wombat", "wonky", "zeitgeist",
+    "floozy", "fungible", "girdle", "gobsmacked", "grog", "gumption", "gunky", "hitherto",
+    "carbuncle", "caterwaul", "cattywampus", "cheeky", "conniption", "coot", "didgeridoo",
+    "mugwump", "namby-pamby", "noggin", "pantaloons", "passel", "persnickety", "popinjay",
+    "hoi polloi", "hornswoggle", "hullabaloo", "indubitably", "janky", "kahuna", "katydid",
+    "scuttlebutt", "shebang", "Shih Tzu", "smegma", "snarky", "snuffle", "spelunker", "spork",
 }
 
 -- Language Directory: Folder path to Language Files database (default: server root)
@@ -253,7 +277,7 @@ end
 function OnGameStart()
     -- DEBUG CODE:
 
-    --local _, Params = wordBuster.isCensored("sex")
+    local _, Params = wordBuster.isCensored("sex")
     --if (#Params > 0) then
     --    for i = 1, #Params do
     --        cprint("------------- WORD FOUND ------------- ", 5 + 8)
@@ -369,7 +393,7 @@ function OnPlayerChat(PlayerIndex, Message, Type)
                     return false
                 end
 
-                if (wordBuster.blockWord) then
+                if (wordBuster.blockWords) then
                     return false
                 end
 
@@ -417,11 +441,7 @@ function Broadcast(PlayerIndex, Message, Type)
     execute_command("msg_prefix \" " .. wordBuster.serverPrefix .. "\"")
 end
 
-function wordBuster.CensorWord(Str, Pattern)
-    local l = 0
-    local censor = ""
-    local WORD = Str:match(Pattern)
-    local ORI = WORD
+function wordBuster.CensorWord(WORD)
     if (wordBuster.semiCensor) then
         for i = 1, len(WORD) do
             if (i > 1 and i < len(WORD)) then
@@ -429,32 +449,47 @@ function wordBuster.CensorWord(Str, Pattern)
                 WORD = gsub(WORD, letters, wordBuster.censor)
             end
         end
-        return gsub(Str, ORI, WORD)
+        return WORD
     else
+        local censor, l = "", 0
         while l < len(WORD) do
             censor = censor .. wordBuster.censor
             l = l + 1
         end
-        return gsub(Str, WORD, censor)
+        return gsub(WORD, WORD, censor)
     end
 end
 
 function wordBuster.isCensored(Msg)
     local Params = { }
     for _, Pattern in pairs(wordBuster.badWords) do
-        if (Msg:lower():match(Pattern[1])) then
-            Msg = wordBuster.CensorWord(Msg, Pattern[1])
+
+        local censored_word = Msg:lower():match(Pattern[1])
+        if (censored_word ~= nil) then
+
+            if (wordBuster.censorWords) then
+                Msg = wordBuster.CensorWord(censored_word)
+            elseif (wordBuster.substituteWords) then
+                Msg = wordBuster.SubstituteWord()
+            end
+
             Params[#Params + 1] = Pattern
         end
     end
     return Msg, Params
 end
 
-function wordBuster.formatMessage(PlayerIndex, Message, Str, Name)
+function wordBuster.SubstituteWord()
+    math.randomseed(os.time())
+    local s = wordBuster.substitutions
+    return s[math.random(#s)]
+end
+
+function wordBuster.formatMessage(PlayerIndex, Msg, Str, Name)
 
     local patterns = {
         { "%%name%%", Name },
-        { "%%msg%%", Message },
+        { "%%msg%%", Msg },
         { "%%id%%", PlayerIndex }
     }
 
