@@ -111,6 +111,7 @@ wordBuster.patterns = {
 }
 
 local len = string.len
+local format = string.format
 local sub, gsub = string.sub, string.gsub
 local insert, remove = table.insert, table.remove
 
@@ -134,18 +135,12 @@ function wordBuster.Load()
 
             if (file) then
 
-                local lines = {}
-                for line in io.lines(dir .. lang .. ".txt") do
-                    lines[#lines + 1] = line
-                end
-
                 local words = {}
-                for _, v in pairs(lines) do
-                    words[#words + 1] = v
+                for line in io.lines(dir .. lang .. ".txt") do
+                    words[#words + 1] = line
                 end
 
                 for _, word in pairs(words) do
-
                     local formattedWord = ""
                     for _, char in pairs(string.ToTable(word)) do
                         if wordBuster.patterns[char] then
@@ -183,7 +178,7 @@ end
 
 function OnGameStart()
     -- DEBUG CODE:
-    --local Msg, Params = wordBuster.isCensored("pass")
+    --local Msg, Params = wordBuster.isCensored("phrase")
     --if (#Params > 0) then
     --    for i = 1, #Params do
     --        cprint("------------- WORD FOUND ------------- ", 5 + 8)
@@ -211,18 +206,16 @@ function OnPlayerChat(PlayerIndex, Message, Type)
             Message = Msg
 
             cprint("--------- [ WORD BUSTER ] ---------", 5 + 8)
-            cprint("Blocked Words:", 5 + 8)
             for i = 1, #Params do
-                cprint("WORD: " .. Params[i][2] .. " LANGUAGE: " .. Params[i][3], 5 + 8)
+                cprint(Params[i][1] .. ", " .. Params[i][2] .. ", " .. Params[i][3])
             end
-            cprint(" ")
-            cprint("-----------------------------------------------", 5 + 8)
 
             if (wordBuster.notify) then
                 local name = get_var(PlayerIndex, "$name")
                 cprint(name .. " was notified that his/her message is censored", 5 + 8)
                 rprint(PlayerIndex, wordBuster.notifyText)
             end
+            cprint("--------------------------------------------------------------------", 5 + 8)
 
             if (wordBuster.blockWord) then
                 return false
@@ -267,18 +260,17 @@ function wordBuster.CensorWord(Str, Pattern)
 
     local WORD = Str:match(Pattern)
     local ORI = WORD
-    local len = len(WORD)
 
     if (wordBuster.semiCensor) then
-        for i = 1, len do
-            if (i > 1 and i < len) then
+        for i = 1, len(WORD) do
+            if (i > 1 and i < len(WORD)) then
                 local letters = sub(WORD, i, i)
                 WORD = gsub(WORD, letters, wordBuster.censor)
             end
         end
         return gsub(Str, ORI, WORD)
     else
-        while l < len do
+        while l < len(WORD) do
             censor = censor .. wordBuster.censor
             l = l + 1
         end
@@ -312,15 +304,6 @@ function wordBuster.formatMessage(PlayerIndex, Message, Str)
     end
 
     return Str
-end
-
-function StrSplit(STR)
-    local t, i = {}, 1
-    for Args in string.gmatch(STR, "([^%s]+)") do
-        t[i] = Args
-        i = i + 1
-    end
-    return t
 end
 
 string.ToTable = function(String)
