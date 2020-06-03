@@ -1,15 +1,14 @@
 --[[
 --=====================================================================================================--
 Script Name: Word Buster (v1.2), for SAPP (PC & CE)
-Description [short]: An extremely advanced profanity filter mod.
-Description [long]:
-
-This mod will automatically censor chat messages containing words found in the respective language files.
-These files contain the lists of bad words in various languages, including (but not limited to, English, Spanish and German).
+Description:
+> Advanced profanity filter mod that automatically censors chat messages containing profanity.
+> Supports multiple languages
+> Warning System + Grace Period
 
 -------------- [ INSTALLING LANGUAGE FILES ] ------------
 1). Create a new folder in your servers Root directory and call it "wordbuster_database".
-2). Download language files here: shorturl.at/entH6
+2). Download language files [here](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/SAPP%20SCRIPTS/UTILITY%20MODS/Word%20Buster/wordbuster_database)
 3). Place these files in the folder you created in step 1.
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
