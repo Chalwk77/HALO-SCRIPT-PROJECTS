@@ -40,37 +40,43 @@ wordBuster.grace = 30
 -- If false, the whole word will be censored
 wordBuster.semiCensor = true
 
--- Block Word: If this is true, the users message will not be sent
+-- Block Word: If this is true, the player's message will not be sent
 wordBuster.blockWord = false
 
--- Notify: Notify the user that one of his/her words were censored.
+-- Notify: Notify player that one of his/her words were censored
 wordBuster.notifyUser = true
 
--- Notify Text: Text to notify the user with.
-wordBuster.notifyText = "Watch your language!"
+-- Notify Text: Sent to player when they use profanity (if not last warning or kick event)
+wordBuster.notifyText = "[Word Buster] Watch your language!"
 
--- Profanity Warning Message: Warning message sent to player when they use obscene language
+-- Notify Warning Text: Sent to player when they have 1 warning left
 wordBuster.onWarn = "[Word Buster] You will be kicked if you continue to use that language!"
 
--- Kick Message: Message sent to player when they are kicked for profanity
+-- Notify Kick Text: Sent to player when they are kicked
 wordBuster.onKick = "[Word Buster] You were kicked for profanity!"
 
 -- Notify Admins: Notify admins that player was kicked?
 wordBuster.notifyAdmins = true
+
+-- Notify Admins Text: Message sent to admins when someone is kicked
 wordBuster.adminMsg = "[Word Buster] %name% was kicked for profanity!"
 
--- Server Prefix: A chat relay function temporarily removes the server
--- prefix during a broadcast and and will restores it to this when the relay is finished:
+-- Server Prefix: A message relay function temporarily removes the server prefix
+-- and will restore it to this when the relay is finished
 wordBuster.serverPrefix = "**SAPP**"
 
--- Chat Format: Messages are formatted as per default settings
+-- Chat Format: Messages are modified to accommodate censoring
+-- %name% - will output the players name
+-- %msg% - will output message
+-- "%id% - will output the Player Index ID
+
 wordBuster.chatFormat = {
     global = "%name%: %msg%",
     team = "[%name%]: %msg%",
     vehicle = "[%name%]: %msg%"
 }
 
--- Language Directory: Folder path to Language Files database
+-- Language Directory: Folder path to Language Files database (default: server root)
 wordBuster.lang_directory = "wordbuster_database/"
 
 -- Languages: Which languages should be loaded?
@@ -98,7 +104,7 @@ wordBuster.languages = {
     ["tlh"] = false, -- Vietnamese
 }
 
--- Whitelist: Groups allowed to use bad words.
+-- Whitelist: Groups allowed to use bad words
 wordBuster.whitelist = {
     [-1] = false, -- PUBLIC
     [1] = true, -- ADMIN LEVEL 1
@@ -107,7 +113,7 @@ wordBuster.whitelist = {
     [4] = true, -- ADMIN LEVEL 4
 }
 
--- Patterns: Advanced users only, patterns used to block variations of bad words.
+-- Patterns: Advanced users only, patterns used to block variations of bad words
 wordBuster.patterns = {
     ["a"] = { "[aA@]" },
     ["b"] = { "[bB]" },
@@ -136,6 +142,8 @@ wordBuster.patterns = {
     ["y"] = { "[yY]" },
     ["z"] = { "[zZ2]" },
 }
+
+-- [CONFIG ENDS] ============================================================================================
 
 local len = string.len
 local sub, gsub = string.sub, string.gsub
@@ -295,10 +303,10 @@ function OnPlayerChat(PlayerIndex, Message, Type)
         local CMD = ((sub(Message, 1, 1) == "/") or (sub(Message, 1, 1) == "\\"))
         if (not CMD) then
 
-            local Msg, Params = wordBuster.isCensored(Message)
+            local Str, Params = wordBuster.isCensored(Message)
             if (#Params > 0) then
 
-                Message = Msg
+                Message = Str
 
                 local name = get_var(PlayerIndex, "$name")
                 local p = wordBuster.players[PlayerIndex]
