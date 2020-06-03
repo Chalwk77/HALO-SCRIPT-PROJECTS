@@ -50,7 +50,7 @@ wordBuster.semiCensor = true
 -- Censor: Which character should be used to replace bad words?
 wordBuster.censor = "*"
 
--- Replace profanity with a random word from the substitute list? (wordBuster.censor MUST BE FALSE)
+-- Replace profanity with a random word from the substitute list? (wordBuster.censor & wordBuster.blockWords MUST BE FALSE)
 wordBuster.substituteWords = false
 
 -- Block Word: If this is true, the player's message will not be sent
