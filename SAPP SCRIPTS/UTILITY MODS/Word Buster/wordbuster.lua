@@ -32,10 +32,12 @@ wordBuster.blockWord = false
 -- Notify: Notify the user that one of his/her words were censored.
 wordBuster.notify = true
 
-wordBuster.serverPrefix = "**SAPP**"
-
 -- Notify Text: Text to notify the user with.
 wordBuster.notifyText = "Watch your language!"
+
+-- Server Prefix: A chat relay function temporarily removes the server
+-- prefix during a broadcast and and will restores it to this when the relay is finished:
+wordBuster.serverPrefix = "**SAPP**"
 
 -- Chat Format: Messages are formatted as per default settings
 wordBuster.chatFormat = {
@@ -44,6 +46,7 @@ wordBuster.chatFormat = {
     vehicle = "[%name%]: %msg%"
 }
 
+-- Language Directory: Folder path to Language Files database
 wordBuster.lang_directory = "wordbuster_database/"
 
 -- Languages: Which languages should be loaded?
