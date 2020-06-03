@@ -3,7 +3,7 @@
 Script Name: Word Buster (v1.3), for SAPP (PC & CE)
 Description:
 > Advanced profanity filter mod that automatically censors chat messages containing profanity.
-> Advanced pattern matching algorithm to detect different variations of words, like "ass", for example, "a$$" or "a55".
+> Pattern matching algorithm to detect variations of words, like "asshole", for example, "a$$hole", "assH0l3" or "a55h01e.
 > Supports multiple languages
 > Warning System + Grace Period
 
@@ -298,11 +298,13 @@ function OnPlayerChat(PlayerIndex, Message, Type)
 
     if (PlayerIndex > 0 and Type ~= 6) then
 
+        -- Check if player is whitelisted:
         local lvl = tonumber(get_var(PlayerIndex, "$lvl"))
         if (wordBuster.whitelist[lvl]) then
             return
         end
 
+        -- Ignore command text:
         local CMD = ((sub(Message, 1, 1) == "/") or (sub(Message, 1, 1) == "\\"))
         if (not CMD) then
 
@@ -317,13 +319,13 @@ function OnPlayerChat(PlayerIndex, Message, Type)
                 p.begin_cooldown = true
                 p.warnings = p.warnings - 1
 
+                cprint("--------- [ WORD BUSTER ] ---------", 5 + 8)
+                for i = 1, #Params do
+                    cprint(Params[i][1] .. ", " .. Params[i][2] .. ", " .. Params[i][3])
+                end
+                cprint("--------------------------------------------------------------------", 5 + 8)
+
                 if (wordBuster.notifyUser) then
-
-                    cprint("--------- [ WORD BUSTER ] ---------", 5 + 8)
-                    for i = 1, #Params do
-                        cprint(Params[i][1] .. ", " .. Params[i][2] .. ", " .. Params[i][3])
-                    end
-
                     if (p.warnings == 1) then
                         -- last warning
                         Broadcast(PlayerIndex, wordBuster.onWarn, "rprint")
@@ -334,7 +336,6 @@ function OnPlayerChat(PlayerIndex, Message, Type)
                         -- every other warning:
                         Broadcast(PlayerIndex, wordBuster.notifyText, "rprint")
                     end
-                    cprint("--------------------------------------------------------------------", 5 + 8)
                 end
 
                 if (p.warnings <= 0) then
@@ -365,13 +366,13 @@ function OnPlayerChat(PlayerIndex, Message, Type)
                 local FORMAT = wordBuster.formatMessage
 
                 if (Type == 0) then
-                    Broadcast(PlayerIndex, FORMAT(PlayerIndex, Message, f.global), "say_all")
+                    Broadcast(PlayerIndex, FORMAT(PlayerIndex, Message, f.global, name), "say_all")
                     return false
                 elseif (Type == 1) then
-                    wordBuster.SayTeam(PlayerIndex, FORMAT(PlayerIndex, Message, f.team))
+                    wordBuster.SayTeam(PlayerIndex, FORMAT(PlayerIndex, Message, f.team, name))
                     return false
                 elseif (Type == 2) then
-                    wordBuster.SayTeam(PlayerIndex, FORMAT(PlayerIndex, Message, f.vehicle))
+                    wordBuster.SayTeam(PlayerIndex, FORMAT(PlayerIndex, Message, f.vehicle, name))
                     return false
                 end
             end
@@ -438,12 +439,10 @@ function wordBuster.isCensored(Msg)
     return Msg, Params
 end
 
-function wordBuster.formatMessage(PlayerIndex, Message, Str)
-
-    local name = get_var(PlayerIndex, "$name")
+function wordBuster.formatMessage(PlayerIndex, Message, Str, Name)
 
     local patterns = {
-        { "%%name%%", name },
+        { "%%name%%", Name },
         { "%%msg%%", Message },
         { "%%id%%", PlayerIndex }
     }
