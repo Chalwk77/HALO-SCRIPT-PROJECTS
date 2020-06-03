@@ -111,6 +111,7 @@ wordBuster.patterns = {
 }
 
 local len = string.len
+local format = string.format
 local sub, gsub = string.sub, string.gsub
 local insert, remove = table.insert, table.remove
 
@@ -177,7 +178,7 @@ end
 
 function OnGameStart()
     -- DEBUG CODE:
-    --local Msg, Params = wordBuster.isCensored("pass")
+    --local Msg, Params = wordBuster.isCensored("phrase")
     --if (#Params > 0) then
     --    for i = 1, #Params do
     --        cprint("------------- WORD FOUND ------------- ", 5 + 8)
@@ -205,18 +206,17 @@ function OnPlayerChat(PlayerIndex, Message, Type)
             Message = Msg
 
             cprint("--------- [ WORD BUSTER ] ---------", 5 + 8)
-            cprint("Blocked Words:", 5 + 8)
             for i = 1, #Params do
-                cprint("WORD: " .. Params[i][2] .. " LANGUAGE: " .. Params[i][3], 5 + 8)
+                cprint(Params[i][1] .. ", " .. Params[i][2] .. ", " .. Params[i][3])
             end
-            cprint(" ")
-            cprint("-----------------------------------------------", 5 + 8)
 
             if (wordBuster.notify) then
                 local name = get_var(PlayerIndex, "$name")
                 cprint(name .. " was notified that his/her message is censored", 5 + 8)
                 rprint(PlayerIndex, wordBuster.notifyText)
             end
+            cprint("--------------------------------------------------------------------", 5 + 8)
+
 
             if (wordBuster.blockWord) then
                 return false
