@@ -1,12 +1,16 @@
 --[[
 --=====================================================================================================--
-Script Name: Word Buster (v1.1), for SAPP (PC & CE)
+Script Name: Word Buster (v1.2), for SAPP (PC & CE)
 Description [short]: An extremely advanced profanity filter mod.
-
 Description [long]:
+
 This mod will automatically censor chat messages containing words found in the respective language files.
 These files contain the lists of bad words in various languages, including (but not limited to, English, Spanish and German).
-To install a language file, simply download and place into your servers root directory.
+
+-------------- [ INSTALLING LANGUAGE FILES ] ------------
+1). Create a new folder in your servers Root directory and call it "wordbuster_database".
+2). Download language files here: shorturl.at/entH6
+3). Place these files in the folder you created in step 1.
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -22,10 +26,16 @@ local wordBuster = { }
 -- Word Buster Configuration --
 
 -- Version: Current version of Word Buster
-wordBuster.version = 1.1
+wordBuster.version = 1.2
 
 -- Censor: Which character should be used to replace bad words?
 wordBuster.censor = "*"
+
+-- Warning Count: How many warnings before the player is kicked?
+wordBuster.warnings = 5
+
+-- Grace Period: Warnings reset after this many seconds of no profanity
+wordBuster.grace = 30
 
 -- Semi Censor: Show the first and last character of bad words?
 -- If false, the whole word will be censored
@@ -127,6 +137,7 @@ function OnScriptLoad()
 end
 
 function wordBuster.Load()
+
     cprint("[Word Buster] Loading languages...", 2 + 8)
     wordBuster.badWords = {}
 
@@ -169,7 +180,17 @@ function wordBuster.Load()
         end
     end
 
+    wordBuster.players = { }
+
     if (#wordBuster.badWords > 0) then
+
+        if (get_var(0, "$gt") ~= "n/a") then
+            for i = 1,16 do
+                if player_present(i) then
+                    InitPlayer(i, false)
+                end
+            end
+        end
 
         for k, v in pairs(wordBuster.badWords) do
             if (v[1] == "" or v[1] == " ") then
@@ -180,10 +201,16 @@ function wordBuster.Load()
 
         local time_took = os.clock()
         cprint("[Word Buster] " .. #wordBuster.badWords .. " words loaded in " .. time_took .. " seconds", 2 + 8)
+        register_callback(cb["EVENT_CHAT"], "OnTick")
         register_callback(cb["EVENT_CHAT"], "OnPlayerChat")
+        register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
         register_callback(cb["EVENT_GAME_START"], "OnGameStart")
+        register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
     else
+        unregister_callback(cb["EVENT_TICK"])
         unregister_callback(cb["EVENT_CHAT"])
+        unregister_callback(cb["EVENT_JOIN"])
+        unregister_callback(cb["EVENT_LEAVE"])
         cprint("[Word Buster] Unable to load Bad Words for ", 4 + 8)
     end
 end
@@ -201,6 +228,45 @@ function OnGameStart()
     --else
     --    cprint("WORD NOT FOUND", 4 + 8)
     --end
+
+    if (get_var(0, "$gt") ~= "n/a") then
+        wordBuster.players = { }
+    end
+end
+
+function OnTick()
+    for player,v in pairs(wordBuster.players) do
+        if (player) then
+            if (v.begin_cooldown) then
+                v.timer = v.timer + 1/30
+                if (v.timer >= wordBuster.grace) then
+                    v.timer = 0
+                    v.begin_cooldown = false
+                    v.warnings = wordBuster.warnings
+                end
+            end
+        end
+    end
+end
+
+function OnPlayerConnect(PlayerIndex)
+    InitPlayer(PlayerIndex, false)
+end
+
+function OnPlayerDisconnect(PlayerIndex)
+    InitPlayer(PlayerIndex, true)
+end
+
+function InitPlayer(PlayerIndex, Reset)
+    if (Reset) then
+        wordBuster.players[PlayerIndex] = { }
+    else
+        wordBuster.players[PlayerIndex] = {
+            timer = 0,
+            begin_cooldown = false,
+            warnings = wordBuster.warnings
+        }
+    end
 end
 
 function OnPlayerChat(PlayerIndex, Message, Type)
@@ -222,14 +288,32 @@ function OnPlayerChat(PlayerIndex, Message, Type)
                 cprint(Params[i][1] .. ", " .. Params[i][2] .. ", " .. Params[i][3])
             end
 
+            local p = wordBuster.players[PlayerIndex]
             if (wordBuster.notify) then
+
+                p.timer = 0
+                p.begin_cooldown = true
+                p.warnings = p.warnings - 1
+
+                execute_command("msg_prefix \"\"")
+                if (p.warnings == 1) then
+                    say(PlayerIndex, "[Word Buster] You will be kicked if you continue to use that language!")
+                elseif (p.warnings <= 0) then
+                    say(PlayerIndex, "[Word Buster] You were kicked for profanity!")
+                    for _ = 1, 9999 do
+                        rprint(PlayerIndex, " ")
+                    end
+                end
+                execute_command("msg_prefix \" " .. wordBuster.serverPrefix .. "\"")
+
                 local name = get_var(PlayerIndex, "$name")
                 cprint(name .. " was notified that his/her message is censored", 5 + 8)
                 rprint(PlayerIndex, wordBuster.notifyText)
             end
+
             cprint("--------------------------------------------------------------------", 5 + 8)
 
-            if (wordBuster.blockWord) then
+            if (wordBuster.blockWord) or (p.warnings <= 0) then
                 return false
             end
 
