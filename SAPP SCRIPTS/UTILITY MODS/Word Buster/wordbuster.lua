@@ -1,16 +1,27 @@
 --[[
 --=====================================================================================================--
 Script Name: Word Buster (v1.3), for SAPP (PC & CE)
-Description:
-> Advanced profanity filter mod that automatically censors chat messages containing profanity.
-> Pattern matching algorithm to detect variations of words, like "asshole", for example, "a$$hole", "assH0l3" or "a55h01e.
-> Supports multiple languages
-> Warning System + Grace Period
+
+--- Description ---
+Advanced profanity filter mod that automatically censors chat messages containing profanity.
+
+--- Features ---
+* Pattern matching algorithm to detect variations of words, like "asshole", for example, "a$$hole", "assH0l3" or "a55h01e.
+* Supports multiple languages
+* Warning System + Grace Period
+* Customizable messages
 
 -------------- [ INSTALLING LANGUAGE FILES ] ------------
 1). Create a new folder in your servers Root directory and call it "wordbuster_database".
-2). Download language files [here](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/SAPP%20SCRIPTS/UTILITY%20MODS/Word%20Buster/wordbuster_database)
+2). Download language files here: https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/SAPP%20SCRIPTS/UTILITY%20MODS/Word%20Buster/wordbuster_database
 3). Place these files in the folder you created in step 1.
+
+SUPPORTED LANGUAGES:
+Chinese, Czech, Danish, Dutch, English, Esperanto
+French, German, Hungry, Italian, Japanese
+Korean, Norwegian, Polish, Portuguese, Russian
+Spanish, Swedish, Thai, Turkish, Vietnamese
+
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
