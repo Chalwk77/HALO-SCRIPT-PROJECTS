@@ -134,18 +134,12 @@ function wordBuster.Load()
 
             if (file) then
 
-                local lines = {}
-                for line in io.lines(dir .. lang .. ".txt") do
-                    lines[#lines + 1] = line
-                end
-
                 local words = {}
-                for _, v in pairs(lines) do
-                    words[#words + 1] = v
+                for line in io.lines(dir .. lang .. ".txt") do
+                    words[#words + 1] = line
                 end
 
                 for _, word in pairs(words) do
-
                     local formattedWord = ""
                     for _, char in pairs(string.ToTable(word)) do
                         if wordBuster.patterns[char] then
@@ -267,18 +261,17 @@ function wordBuster.CensorWord(Str, Pattern)
 
     local WORD = Str:match(Pattern)
     local ORI = WORD
-    local len = len(WORD)
 
     if (wordBuster.semiCensor) then
-        for i = 1, len do
-            if (i > 1 and i < len) then
+        for i = 1, len(WORD) do
+            if (i > 1 and i < len(WORD)) then
                 local letters = sub(WORD, i, i)
                 WORD = gsub(WORD, letters, wordBuster.censor)
             end
         end
         return gsub(Str, ORI, WORD)
     else
-        while l < len do
+        while l < len(WORD) do
             censor = censor .. wordBuster.censor
             l = l + 1
         end
@@ -312,15 +305,6 @@ function wordBuster.formatMessage(PlayerIndex, Message, Str)
     end
 
     return Str
-end
-
-function StrSplit(STR)
-    local t, i = {}, 1
-    for Args in string.gmatch(STR, "([^%s]+)") do
-        t[i] = Args
-        i = i + 1
-    end
-    return t
 end
 
 string.ToTable = function(String)
