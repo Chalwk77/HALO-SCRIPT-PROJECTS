@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Word Buster (v1.2), for SAPP (PC & CE)
+Script Name: Word Buster (v1.3), for SAPP (PC & CE)
 Description:
 > Advanced profanity filter mod that automatically censors chat messages containing profanity.
 > Supports multiple languages
@@ -25,19 +25,13 @@ local wordBuster = { }
 -- Word Buster Configuration --
 
 -- Version: Current version of Word Buster
-wordBuster.version = 1.2
+wordBuster.version = 1.3
 
 -- Censor: Which character should be used to replace bad words?
 wordBuster.censor = "*"
 
 -- Warning Count: How many warnings before the player is kicked?
 wordBuster.warnings = 5
-
--- Profanity Warning Message: Warning message sent to player when they use obscene language
-wordBuster.onWarn = "[Word Buster] You will be kicked if you continue to use that language!"
-
--- Kick Message: Message sent to player when they are kicked for profanity
-wordBuster.onKick = "[Word Buster] You were kicked for profanity!"
 
 -- Grace Period: Warnings reset after this many seconds of no profanity
 wordBuster.grace = 30
@@ -50,10 +44,20 @@ wordBuster.semiCensor = true
 wordBuster.blockWord = false
 
 -- Notify: Notify the user that one of his/her words were censored.
-wordBuster.notify = true
+wordBuster.notifyUser = true
 
 -- Notify Text: Text to notify the user with.
-wordBuster.notifyText = "|cWatch your language!"
+wordBuster.notifyText = "Watch your language!"
+
+-- Profanity Warning Message: Warning message sent to player when they use obscene language
+wordBuster.onWarn = "[Word Buster] You will be kicked if you continue to use that language!"
+
+-- Kick Message: Message sent to player when they are kicked for profanity
+wordBuster.onKick = "[Word Buster] You were kicked for profanity!"
+
+-- Notify Admins: Notify admins that player was kicked?
+wordBuster.notifyAdmins = true
+wordBuster.adminMsg = "[Word Buster] %name% was kicked for profanity!"
 
 -- Server Prefix: A chat relay function temporarily removes the server
 -- prefix during a broadcast and and will restores it to this when the relay is finished:
@@ -100,7 +104,7 @@ wordBuster.whitelist = {
     [1] = true, -- ADMIN LEVEL 1
     [2] = true, -- ADMIN LEVEL 2
     [3] = true, -- ADMIN LEVEL 3
-    [4] = false, -- ADMIN LEVEL 4
+    [4] = true, -- ADMIN LEVEL 4
 }
 
 -- Patterns: Advanced users only, patterns used to block variations of bad words.
@@ -144,10 +148,12 @@ end
 function wordBuster.Load()
 
     cprint("[Word Buster] Loading languages...", 2 + 8)
-    wordBuster.badWords = {}
+
+    local load_count = 0
+    wordBuster.players = { }
+    wordBuster.badWords = { }
 
     local dir = wordBuster.lang_directory
-
     for lang, load in pairs(wordBuster.languages) do
         if load then
 
@@ -158,9 +164,11 @@ function wordBuster.Load()
 
             if (file) then
 
+                load_count = load_count + 1
+
                 local words = {}
                 for line in io.lines(dir .. lang .. ".txt") do
-                    words[#words + 1] = line
+                    insert(words, line)
                 end
 
                 for _, word in pairs(words) do
@@ -185,8 +193,6 @@ function wordBuster.Load()
         end
     end
 
-    wordBuster.players = { }
-
     if (#wordBuster.badWords > 0) then
 
         if (get_var(0, "$gt") ~= "n/a") then
@@ -205,7 +211,10 @@ function wordBuster.Load()
         end
 
         local time_took = os.clock()
+
+        cprint("[Word Buster] Successfull loaded " .. load_count .. " languages:", 2 + 8)
         cprint("[Word Buster] " .. #wordBuster.badWords .. " words loaded in " .. time_took .. " seconds", 2 + 8)
+
         register_callback(cb["EVENT_CHAT"], "OnTick")
         register_callback(cb["EVENT_CHAT"], "OnPlayerChat")
         register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
@@ -297,32 +306,43 @@ function OnPlayerChat(PlayerIndex, Message, Type)
                 p.begin_cooldown = true
                 p.warnings = p.warnings - 1
 
-                if (wordBuster.notify) then
+                if (wordBuster.notifyUser) then
 
                     cprint("--------- [ WORD BUSTER ] ---------", 5 + 8)
                     for i = 1, #Params do
                         cprint(Params[i][1] .. ", " .. Params[i][2] .. ", " .. Params[i][3])
                     end
 
-                    execute_command("msg_prefix \"\"")
                     if (p.warnings == 1) then
                         -- last warning
-                        rprint(PlayerIndex, wordBuster.onWarn)
+                        Broadcast(PlayerIndex, wordBuster.onWarn, "rprint")
                     elseif (p.warnings <= 0) then
                         -- kick message
-                        rprint(PlayerIndex, wordBuster.onKick)
+                        Broadcast(PlayerIndex, wordBuster.onKick, "say")
                     else
-                        rprint(PlayerIndex, wordBuster.notifyText)
+                        -- every other warning:
+                        Broadcast(PlayerIndex, wordBuster.notifyText, "rprint")
                     end
-                    execute_command("msg_prefix \" " .. wordBuster.serverPrefix .. "\"")
                     cprint("--------------------------------------------------------------------", 5 + 8)
                 end
 
                 if (p.warnings <= 0) then
-                    for _ = 1, 9999 do
-                        rprint(PlayerIndex, " ")
+
+                    if (wordBuster.notifyAdmins) then
+                        local Msg = gsub(wordBuster.adminMsg, "%%name%%", name)
+                        for i = 1, 16 do
+                            if player_present(i) then
+                                if (i ~= PlayerIndex) then
+                                    if (tonumber(get_var(i, "$lvl")) >= 1) then
+                                        Broadcast(i, Msg, "say")
+                                    end
+                                end
+                            end
+                        end
+                        cprint(Msg, 5 + 8)
                     end
-                    cprint("[Word Buster] " .. name .. " was kicked for profanity!", 5 + 8)
+
+                    timer(0, "SilentKick", PlayerIndex)
                     return false
                 end
 
@@ -334,9 +354,7 @@ function OnPlayerChat(PlayerIndex, Message, Type)
                 local FORMAT = wordBuster.formatMessage
 
                 if (Type == 0) then
-                    execute_command("msg_prefix \"\"")
-                    say_all(FORMAT(PlayerIndex, Message, f.global))
-                    execute_command("msg_prefix \" " .. wordBuster.serverPrefix .. "\"")
+                    Broadcast(PlayerIndex, FORMAT(PlayerIndex, Message, f.global), "say_all")
                     return false
                 elseif (Type == 1) then
                     wordBuster.SayTeam(PlayerIndex, FORMAT(PlayerIndex, Message, f.team))
@@ -351,14 +369,27 @@ function OnPlayerChat(PlayerIndex, Message, Type)
 end
 
 function wordBuster.SayTeam(PlayerIndex, Message)
-    execute_command("msg_prefix \"\"")
     local team = get_var(PlayerIndex, "$team")
     for i = 1, 16 do
         if player_present(i) then
             if (get_var(i, "$team") == team) then
-                say(i, Message)
+                Broadcast(i, Message, "say")
             end
         end
+    end
+end
+
+function Broadcast(PlayerIndex, Message, Type)
+    execute_command("msg_prefix \"\"")
+    if (Type == "rprint") then
+        for _ = 1, 25 do
+            rprint(PlayerIndex, " ")
+        end
+        rprint(PlayerIndex, Message)
+    elseif (Type == "say") then
+        say(PlayerIndex, Message)
+    elseif (Type == "say_all") then
+        say_all(Message)
     end
     execute_command("msg_prefix \" " .. wordBuster.serverPrefix .. "\"")
 end
@@ -368,7 +399,6 @@ function wordBuster.CensorWord(Str, Pattern)
     local censor = ""
     local WORD = Str:match(Pattern)
     local ORI = WORD
-
     if (wordBuster.semiCensor) then
         for i = 1, len(WORD) do
             if (i > 1 and i < len(WORD)) then
@@ -414,10 +444,17 @@ function wordBuster.formatMessage(PlayerIndex, Message, Str)
     return Str
 end
 
+-- Overwhelm the player console (causes player to disconnect)
+function SilentKick(PlayerIndex)
+    for _ = 1, 9999 do
+        rprint(PlayerIndex, " ")
+    end
+end
+
 string.ToTable = function(String)
     local Array = {}
     for i = 1, String:len() do
-        table.insert(Array, String:sub(i, i))
+        insert(Array, String:sub(i, i))
     end
     return Array
 end
