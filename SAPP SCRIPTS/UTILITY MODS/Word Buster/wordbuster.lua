@@ -220,7 +220,7 @@ function wordBuster.Load()
 
         local time_took = os.clock()
 
-        cprint("[Word Buster] Successfull loaded " .. load_count .. " languages:", 2 + 8)
+        cprint("[Word Buster] Successfully loaded " .. load_count .. " languages:", 2 + 8)
         cprint("[Word Buster] " .. #wordBuster.badWords .. " words loaded in " .. time_took .. " seconds", 2 + 8)
 
         register_callback(cb["EVENT_CHAT"], "OnTick")
