@@ -44,6 +44,8 @@ wordBuster.chatFormat = {
     vehicle = "[%name%]: %msg%"
 }
 
+wordBuster.lang_directory = "wordbuster_database/"
+
 -- Languages: Which languages should be loaded?
 wordBuster.languages = {
     ["cs"] = false,
@@ -120,20 +122,20 @@ function wordBuster.Load()
     cprint("[Word Buster] Loading languages...", 2 + 8)
     wordBuster.badWords = {}
 
+    local dir = wordBuster.lang_directory
+
     for lang, load in pairs(wordBuster.languages) do
         if load then
 
-            local rawData
-            local file = io.open("wordbuster_database/" .. lang .. ".txt", "r")
+            local file = io.open(dir .. lang .. ".txt", "r")
             if (file ~= nil) then
-                rawData = file:read("*all")
                 io.close(file)
             end
 
             if (file) then
 
                 local lines = {}
-                for line in io.lines("wordbuster_database/" .. lang .. ".txt") do
+                for line in io.lines(dir .. lang .. ".txt") do
                     lines[#lines + 1] = line
                 end
 
@@ -149,7 +151,7 @@ function wordBuster.Load()
                         if wordBuster.patterns[char] then
                             formattedWord = formattedWord .. wordBuster.patterns[char]
                         else
-                            formattedWord = formattedWord .. "." -- Wildcard for instances of words containing spaces
+                            formattedWord = formattedWord .. "."
                         end
                     end
                     insert(wordBuster.badWords, { formattedWord, word, lang })
