@@ -34,7 +34,7 @@ wordBuster.censor = "*"
 wordBuster.warnings = 5
 
 -- Profanity Warning Message: Warning message sent to player when they use obscene language
-wordBuster.onWarn = "[Word Buster] You will kicked if you continue to use that language!"
+wordBuster.onWarn = "[Word Buster] You will be kicked if you continue to use that language!"
 
 -- Kick Message: Message sent to player when they are kicked for profanity
 wordBuster.onKick = "[Word Buster] You were kicked for profanity!"
