@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Word Buster (v1.0), for SAPP (PC & CE)
+Script Name: Word Buster (v1.1), for SAPP (PC & CE)
 Description [short]: An extremely advanced profanity filter mod.
 
 Description [long]:
@@ -22,7 +22,7 @@ local wordBuster = { }
 -- Word Buster Configuration --
 
 -- Version: Current version of Word Buster
-wordBuster.version = 1.0
+wordBuster.version = 1.1
 
 -- Censor: Which character should be used to replace bad words?
 wordBuster.censor = "*"
@@ -90,32 +90,32 @@ wordBuster.whitelist = {
 
 -- Patterns: Advanced users only, patterns used to block variations of bad words.
 wordBuster.patterns = {
-    ["a"] = "[aA@]",
-    ["b"] = "[bB]",
-    ["c"] = "[cCkK]",
-    ["d"] = "[dD]",
-    ["e"] = "[eE3]",
-    ["f"] = "[fF]",
-    ["g"] = "[gG6]",
-    ["h"] = "[hH]",
-    ["i"] = "[iIl!1]",
-    ["j"] = "[jJ]",
-    ["k"] = "[cCkK]",
-    ["l"] = "[lL1!i]",
-    ["m"] = "[mM]",
-    ["n"] = "[nN]",
-    ["o"] = "[oO0]",
-    ["p"] = "[pP]",
-    ["q"] = "[qQ9]",
-    ["r"] = "[rR]",
-    ["s"] = "[sS$5]",
-    ["t"] = "[tT7]",
-    ["u"] = "[uUvV]",
-    ["v"] = "[vVuU]",
-    ["w"] = "[wW]",
-    ["x"] = "[xX]",
-    ["y"] = "[yY]",
-    ["z"] = "[zZ2]"
+    ["a"] = { "[aA@]" },
+    ["b"] = { "[bB]" },
+    ["c"] = { "[cCkK]" },
+    ["d"] = { "[dD]" },
+    ["e"] = { "[eE3]" },
+    ["f"] = { "[fF]" },
+    ["g"] = { "[gG6]" },
+    ["h"] = { "[hH]" },
+    ["i"] = { "[iIl!1]" },
+    ["j"] = { "[jJ]" },
+    ["k"] = { "[cCkK]" },
+    ["l"] = { "[lL1!i]" },
+    ["m"] = { "[mM]" },
+    ["n"] = { "[nN]" },
+    ["o"] = { "[oO0]" },
+    ["p"] = { "[pP]" },
+    ["q"] = { "[qQ9]" },
+    ["r"] = { "[rR]" },
+    ["s"] = { "[sS$5]" },
+    ["t"] = { "[tT7]" },
+    ["u"] = { "[uUvV]" },
+    ["v"] = { "[vVuU]" },
+    ["w"] = { "[wW]" },
+    ["x"] = { "[xX]" },
+    ["y"] = { "[yY]" },
+    ["z"] = { "[zZ2]" },
 }
 
 local len = string.len
@@ -148,15 +148,20 @@ function wordBuster.Load()
                 end
 
                 for _, word in pairs(words) do
-                    local formattedWord = ""
+                    local Pattern = ""
                     for _, char in pairs(string.ToTable(word)) do
-                        if wordBuster.patterns[char] then
-                            formattedWord = formattedWord .. wordBuster.patterns[char]
+                        if (wordBuster.patterns[char]) then
+                            for i = 1, #wordBuster.patterns[char] do
+                                if (wordBuster.patterns[char][i]) then
+                                    Pattern = Pattern .. wordBuster.patterns[char][i]
+                                end
+                            end
                         else
-                            formattedWord = formattedWord .. "."
+                            Pattern = Pattern .. "."
                         end
                     end
-                    insert(wordBuster.badWords, { formattedWord, word, lang })
+
+                    insert(wordBuster.badWords, { Pattern, word, lang })
                 end
             else
                 cprint("[Word Buster] Couldn't load language '" .. lang .. "', language not found!", 4 + 8)
@@ -185,7 +190,7 @@ end
 
 function OnGameStart()
     -- DEBUG CODE:
-    --local Msg, Params = wordBuster.isCensored("phrase")
+    --local _, Params = wordBuster.isCensored("sex")
     --if (#Params > 0) then
     --    for i = 1, #Params do
     --        cprint("------------- WORD FOUND ------------- ", 5 + 8)
@@ -223,7 +228,6 @@ function OnPlayerChat(PlayerIndex, Message, Type)
                 rprint(PlayerIndex, wordBuster.notifyText)
             end
             cprint("--------------------------------------------------------------------", 5 + 8)
-
 
             if (wordBuster.blockWord) then
                 return false
