@@ -33,6 +33,12 @@ wordBuster.censor = "*"
 -- Warning Count: How many warnings before the player is kicked?
 wordBuster.warnings = 5
 
+-- Profanity Warning Message: Warning message sent to player when they use obscene language
+wordBuster.onWarn = "[Word Buster] You will kicked if you continue to use that language!"
+
+-- Kick Message: Message sent to player when they are kicked for profanity
+wordBuster.onKick = "[Word Buster] You were kicked for profanity!"
+
 -- Grace Period: Warnings reset after this many seconds of no profanity
 wordBuster.grace = 30
 
@@ -65,27 +71,27 @@ wordBuster.lang_directory = "wordbuster_database/"
 
 -- Languages: Which languages should be loaded?
 wordBuster.languages = {
-    ["cs"] = false,
-    ["da"] = false,
-    ["de"] = false,
+    ["cs"] = false, -- Czech
+    ["da"] = false, -- Danish
+    ["de"] = false, -- German
     ["en"] = true, -- English
-    ["eo"] = false,
-    ["es"] = false, -- Spanish
-    ["fr"] = false,
-    ["hu"] = false,
-    ["it"] = false,
-    ["ja"] = false,
-    ["ko"] = false,
-    ["nl"] = false,
-    ["no"] = false,
-    ["pl"] = false,
-    ["pt"] = false,
-    ["ru"] = false,
-    ["sv"] = false,
-    ["th"] = false,
-    ["tr"] = false,
-    ["zh"] = false,
-    ["tlh"] = false,
+    ["eo"] = false, -- Esperanto
+    ["es"] = true, -- Spanish
+    ["fr"] = false, -- French
+    ["hu"] = false,  -- Hungry
+    ["it"] = false, -- Italy
+    ["ja"] = false, -- Japan
+    ["ko"] = false, -- Korea
+    ["nl"] = false, -- Dutch
+    ["no"] = false, -- Norway
+    ["pl"] = false, -- Poland
+    ["pt"] = false, -- Portuguese
+    ["ru"] = false, -- Russia
+    ["sv"] = false, -- Swedish
+    ["th"] = false, -- Thai
+    ["tr"] = false, -- Turkish
+    ["zh"] = false, -- Chinese
+    ["tlh"] = false, -- Vietnamese
 }
 
 -- Whitelist: Groups allowed to use bad words.
@@ -184,7 +190,7 @@ function wordBuster.Load()
     if (#wordBuster.badWords > 0) then
 
         if (get_var(0, "$gt") ~= "n/a") then
-            for i = 1,16 do
+            for i = 1, 16 do
                 if player_present(i) then
                     InitPlayer(i, false)
                 end
@@ -234,10 +240,10 @@ function OnGameStart()
 end
 
 function OnTick()
-    for player,v in pairs(wordBuster.players) do
+    for player, v in pairs(wordBuster.players) do
         if (player) then
             if (v.begin_cooldown) then
-                v.timer = v.timer + 1/30
+                v.timer = v.timer + 1 / 30
                 if (v.timer >= wordBuster.grace) then
                     v.timer = 0
                     v.begin_cooldown = false
@@ -282,37 +288,39 @@ function OnPlayerChat(PlayerIndex, Message, Type)
 
             Message = Msg
 
-            cprint("--------- [ WORD BUSTER ] ---------", 5 + 8)
-            for i = 1, #Params do
-                cprint(Params[i][1] .. ", " .. Params[i][2] .. ", " .. Params[i][3])
-            end
-
+            local name = get_var(PlayerIndex, "$name")
             local p = wordBuster.players[PlayerIndex]
+            p.timer = 0
+            p.begin_cooldown = true
+            p.warnings = p.warnings - 1
+
             if (wordBuster.notify) then
 
-                p.timer = 0
-                p.begin_cooldown = true
-                p.warnings = p.warnings - 1
+                cprint("--------- [ WORD BUSTER ] ---------", 5 + 8)
+                for i = 1, #Params do
+                    cprint(Params[i][1] .. ", " .. Params[i][2] .. ", " .. Params[i][3])
+                end
 
                 execute_command("msg_prefix \"\"")
                 if (p.warnings == 1) then
-                    say(PlayerIndex, "[Word Buster] You will be kicked if you continue to use that language!")
+                    say(PlayerIndex, wordBuster.onWarn)
                 elseif (p.warnings <= 0) then
-                    say(PlayerIndex, "[Word Buster] You were kicked for profanity!")
-                    for _ = 1, 9999 do
-                        rprint(PlayerIndex, " ")
-                    end
+                    say(PlayerIndex, wordBuster.onKick)
                 end
                 execute_command("msg_prefix \" " .. wordBuster.serverPrefix .. "\"")
-
-                local name = get_var(PlayerIndex, "$name")
-                cprint(name .. " was notified that his/her message is censored", 5 + 8)
                 rprint(PlayerIndex, wordBuster.notifyText)
+                cprint("--------------------------------------------------------------------", 5 + 8)
             end
 
-            cprint("--------------------------------------------------------------------", 5 + 8)
+            if (p.warnings <= 0) then
+                for _ = 1, 9999 do
+                    rprint(PlayerIndex, " ")
+                end
+                cprint("[Word Buster] " .. name .. " was kicked for profanity!", 5 + 8)
+                return false
+            end
 
-            if (wordBuster.blockWord) or (p.warnings <= 0) then
+            if (wordBuster.blockWord) then
                 return false
             end
 
@@ -349,10 +357,8 @@ function wordBuster.SayTeam(PlayerIndex, Message)
 end
 
 function wordBuster.CensorWord(Str, Pattern)
-
     local l = 0
     local censor = ""
-
     local WORD = Str:match(Pattern)
     local ORI = WORD
 
