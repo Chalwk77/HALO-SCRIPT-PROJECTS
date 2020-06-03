@@ -138,8 +138,8 @@ function wordBuster.Load()
                 end
 
                 local words = {}
-                for _,v in pairs(lines) do
-                    words[#words+1] = v
+                for _, v in pairs(lines) do
+                    words[#words + 1] = v
                 end
 
                 for _, word in pairs(words) do
@@ -181,16 +181,16 @@ end
 
 function OnGameStart()
     -- DEBUG CODE:
-    --local Msg, Params = wordBuster.isCensored("phrase")
+    --local Msg, Params = wordBuster.isCensored("pass")
     --if (#Params > 0) then
-    --    for i = 1,#Params do
-    --        cprint("------------- WORD FOUND ------------- ", 5+8)
-    --        cprint("Pattern: " .. Params[i][1], 5+8)
-    --        cprint("Word: " .. Params[i][2], 5+8)
-    --        cprint("Language: " .. Params[i][3], 5+8)
+    --    for i = 1, #Params do
+    --        cprint("------------- WORD FOUND ------------- ", 5 + 8)
+    --        cprint("Pattern: " .. Params[i][1], 5 + 8)
+    --        cprint("Word: " .. Params[i][2], 5 + 8)
+    --        cprint("Language: " .. Params[i][3], 5 + 8)
     --    end
     --else
-    --    cprint("WORD NOT FOUND", 4+8)
+    --    cprint("WORD NOT FOUND", 4 + 8)
     --end
 end
 
@@ -269,7 +269,7 @@ function wordBuster.CensorWord(Str, Pattern)
 
     if (wordBuster.semiCensor) then
         for i = 1, len do
-            if (i ~= 1 and i ~= len) then
+            if (i > 1 and i < len) then
                 local letters = sub(WORD, i, i)
                 WORD = gsub(WORD, letters, wordBuster.censor)
             end
