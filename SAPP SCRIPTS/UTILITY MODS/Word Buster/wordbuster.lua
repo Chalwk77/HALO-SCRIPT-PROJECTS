@@ -3,6 +3,7 @@
 Script Name: Word Buster (v1.3), for SAPP (PC & CE)
 Description:
 > Advanced profanity filter mod that automatically censors chat messages containing profanity.
+> Advanced pattern matching algorithm to detect different variations of words, like "ass", for example, "a$$" or "a55".
 > Supports multiple languages
 > Warning System + Grace Period
 
@@ -240,6 +241,7 @@ end
 
 function OnGameStart()
     -- DEBUG CODE:
+
     --local _, Params = wordBuster.isCensored("sex")
     --if (#Params > 0) then
     --    for i = 1, #Params do
