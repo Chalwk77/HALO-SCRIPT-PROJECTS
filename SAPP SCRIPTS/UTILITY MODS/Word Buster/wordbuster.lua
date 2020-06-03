@@ -233,6 +233,7 @@ function wordBuster.Load()
         unregister_callback(cb["EVENT_CHAT"])
         unregister_callback(cb["EVENT_JOIN"])
         unregister_callback(cb["EVENT_LEAVE"])
+        unregister_callback(cb["EVENT_GAME_START"])
         cprint("[Word Buster] Unable to load Bad Words! ", 4 + 8)
     end
 end
