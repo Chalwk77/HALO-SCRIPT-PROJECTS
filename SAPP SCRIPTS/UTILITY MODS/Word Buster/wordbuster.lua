@@ -210,7 +210,7 @@ function wordBuster.Load()
         unregister_callback(cb["EVENT_CHAT"])
         unregister_callback(cb["EVENT_JOIN"])
         unregister_callback(cb["EVENT_LEAVE"])
-        cprint("[Word Buster] Unable to load Bad Words for ", 4 + 8)
+        cprint("[Word Buster] Unable to load Bad Words! ", 4 + 8)
     end
 end
 
