@@ -1,13 +1,13 @@
 --[[
 --=====================================================================================================--
-Script Name: Word Buster (v1.3), for SAPP (PC & CE)
+Script Name: Word Buster (v1.4), for SAPP (PC & CE)
 
 --- Description ---
 Advanced profanity filter mod that automatically censors, replaces or blocks chat messages containing profanity.
 
 --- Features ---
 * Pattern matching algorithm to detect variations of words, like "asshole", for example, "a$$hole", "assH0l3" or "a55h01e.
-* Censor, Replace or Block bad words
+* Censor, Block or Replace bad words
 * Supports multiple languages
 * Warning System + Grace Period
 * Customizable messages
@@ -38,7 +38,7 @@ local wordBuster = { }
 -- Word Buster Configuration --
 
 -- Version: Current version of Word Buster
-wordBuster.version = 1.3
+wordBuster.version = 1.4
 
 -- Censor Words: Censor words with "wordBuster.censor" character?
 wordBuster.censorWords = true
@@ -62,6 +62,15 @@ wordBuster.warnings = 5
 -- Grace Period: Warnings reset after this many seconds of no profanity
 wordBuster.grace = 30
 
+-- Punish action: Should players be kicked, banned or neither?
+wordBuster.punishment = "k" -- Valid Actions: "k" = kick, "b" = ban"
+
+-- Ban Time: How long should a player be banned for? (in minutes)
+wordBuster.banTime = 5
+
+-- Ban Reason: State the reason a player was banned
+wordBuster.punishReason = "profanity"
+
 -- Notify: Notify player that one of his/her words were censored
 wordBuster.notifyUser = true
 
@@ -69,16 +78,25 @@ wordBuster.notifyUser = true
 wordBuster.notifyText = "[Word Buster] Watch your language!"
 
 -- Notify Warning Text: Sent to player when they have 1 warning left
-wordBuster.onWarn = "[Word Buster] You will be kicked if you continue to use that language!"
+wordBuster.onWarn = "[Word Buster] You will be punished if you continue to use that language!"
 
 -- Notify Kick Text: Sent to player when they are kicked
-wordBuster.onKick = "[Word Buster] You were kicked for profanity!"
+-- Reason is replaced with wordBuster.punishReason
+wordBuster.onKick = "[Word Buster] You were kicked for %reason%!"
 
--- Notify Admins: Notify admins that player was kicked?
+-- Notify Ban Text: Sent to player when they are Banned
+-- %time% is replaced with "wordBuster.banTime"
+-- %reason% is replaced with "wordBuster.punishReason"
+wordBuster.onBan = "[Word Buster] You were banned for %time% minutes for %reason%"
+
+-- Notify Admins: Notify admins that player was punished?
 wordBuster.notifyAdmins = true
 
 -- Notify Admins Text: Message sent to admins when someone is kicked
-wordBuster.adminMsg = "[Word Buster] %name% was kicked for profanity!"
+wordBuster.kickMsg = "[Word Buster] %name% was kicked for %reason%!"
+
+-- Notify Admins Text: Message sent to admins when someone is kicked
+wordBuster.banMsg = "[Word Buster] %name% was banned for %reason%!"
 
 -- Server Prefix: A message relay function temporarily removes the server prefix
 -- and will restore it to this when the relay is finished
@@ -146,7 +164,7 @@ wordBuster.whitelist = {
     [1] = true, -- ADMIN LEVEL 1
     [2] = true, -- ADMIN LEVEL 2
     [3] = true, -- ADMIN LEVEL 3
-    [4] = true, -- ADMIN LEVEL 4
+    [4] = false, -- ADMIN LEVEL 4
 }
 
 -- Patterns: Advanced users only, patterns used to block variations of bad words
@@ -186,14 +204,19 @@ local sub, gsub = string.sub, string.gsub
 local insert, remove = table.insert, table.remove
 
 function OnScriptLoad()
-    wordBuster.Load()
+    wordBuster:Load()
 end
 
-function wordBuster.Load()
+function OnScriptUnload()
+    -- N/A
+end
+
+function wordBuster:Load()
 
     cprint("[Word Buster] Loading languages...", 2 + 8)
 
     local load_count = 0
+
     wordBuster.players = { }
     wordBuster.badWords = { }
 
@@ -242,7 +265,7 @@ function wordBuster.Load()
         if (get_var(0, "$gt") ~= "n/a") then
             for i = 1, 16 do
                 if player_present(i) then
-                    InitPlayer(i, false)
+                    wordBuster:InitPlayer(i, false)
                 end
             end
         end
@@ -259,7 +282,7 @@ function wordBuster.Load()
         cprint("[Word Buster] Successfully loaded " .. load_count .. " languages:", 2 + 8)
         cprint("[Word Buster] " .. #wordBuster.badWords .. " words loaded in " .. time_took .. " seconds", 2 + 8)
 
-        register_callback(cb["EVENT_CHAT"], "OnTick")
+        register_callback(cb["EVENT_TICK"], "OnTick")
         register_callback(cb["EVENT_CHAT"], "OnPlayerChat")
         register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
         register_callback(cb["EVENT_GAME_START"], "OnGameStart")
@@ -277,7 +300,7 @@ end
 function OnGameStart()
     -- DEBUG CODE:
 
-    local _, Params = wordBuster.isCensored("sex")
+    --local _, Params = wordBuster:isCensored("sex")
     --if (#Params > 0) then
     --    for i = 1, #Params do
     --        cprint("------------- WORD FOUND ------------- ", 5 + 8)
@@ -295,6 +318,7 @@ function OnGameStart()
 end
 
 function OnTick()
+    -- Profanity grace timer:
     for player, v in pairs(wordBuster.players) do
         if (player) then
             if (v.begin_cooldown) then
@@ -310,21 +334,22 @@ function OnTick()
 end
 
 function OnPlayerConnect(PlayerIndex)
-    InitPlayer(PlayerIndex, false)
+    wordBuster:InitPlayer(PlayerIndex, false)
 end
 
 function OnPlayerDisconnect(PlayerIndex)
-    InitPlayer(PlayerIndex, true)
+    wordBuster:InitPlayer(PlayerIndex, true)
 end
 
-function InitPlayer(PlayerIndex, Reset)
+function wordBuster:InitPlayer(Player, Reset)
     if (Reset) then
-        wordBuster.players[PlayerIndex] = { }
+        wordBuster.players[Player] = { }
     else
-        wordBuster.players[PlayerIndex] = {
+        wordBuster.players[Player] = {
             timer = 0,
             begin_cooldown = false,
-            warnings = wordBuster.warnings
+            warnings = wordBuster.warnings,
+            ip = get_var(Player, "$ip"):match("%d+.%d+.%d+.%d+")
         }
     end
 end
@@ -343,56 +368,41 @@ function OnPlayerChat(PlayerIndex, Message, Type)
         local CMD = ((sub(Message, 1, 1) == "/") or (sub(Message, 1, 1) == "\\"))
         if (not CMD) then
 
-            local Str, Params = wordBuster.isCensored(Message)
+            local Str, Params = wordBuster:isCensored(Message)
             if (#Params > 0) then
+                local p = wordBuster.players[PlayerIndex]
 
                 Message = Str
 
                 local name = get_var(PlayerIndex, "$name")
-                local p = wordBuster.players[PlayerIndex]
                 p.timer = 0
                 p.begin_cooldown = true
                 p.warnings = p.warnings - 1
 
                 cprint("--------- [ WORD BUSTER ] ---------", 5 + 8)
+                cprint(name .. " used profanity:")
                 for i = 1, #Params do
                     cprint(Params[i][1] .. ", " .. Params[i][2] .. ", " .. Params[i][3])
                 end
                 cprint("--------------------------------------------------------------------", 5 + 8)
 
                 if (wordBuster.notifyUser) then
-                    if (p.warnings == 1) then
-                        -- last warning
-                        Broadcast(PlayerIndex, wordBuster.onWarn, "rprint")
-                    elseif (p.warnings <= 0) then
-                        -- kick message
-                        Broadcast(PlayerIndex, wordBuster.onKick, "say")
-                    else
-                        -- every other warning:
-                        Broadcast(PlayerIndex, wordBuster.notifyText, "rprint")
+                    if (p.warnings > 1) then
+                        -- Send Warning:
+                        wordBuster:Broadcast(PlayerIndex, wordBuster.notifyText, "rprint")
+                    elseif (p.warnings == 1) then
+                        -- Send last warning:
+                        wordBuster:Broadcast(PlayerIndex, wordBuster.onWarn, "rprint")
                     end
                 end
 
+                -- Take "action" on this player:
                 if (p.warnings <= 0) then
-
-                    if (wordBuster.notifyAdmins) then
-                        local Msg = gsub(wordBuster.adminMsg, "%%name%%", name)
-                        for i = 1, 16 do
-                            if player_present(i) then
-                                if (i ~= PlayerIndex) then
-                                    if (tonumber(get_var(i, "$lvl")) >= 1) then
-                                        Broadcast(i, Msg, "say")
-                                    end
-                                end
-                            end
-                        end
-                        cprint(Msg, 5 + 8)
-                    end
-
-                    timer(0, "SilentKick", PlayerIndex)
+                    wordBuster:TakeAction(PlayerIndex, name)
                     return false
                 end
 
+                -- NOTE: Players will still be punished even if words are being blocked (by design).
                 if (wordBuster.blockWords) then
                     return false
                 end
@@ -401,13 +411,13 @@ function OnPlayerChat(PlayerIndex, Message, Type)
                 local FORMAT = wordBuster.formatMessage
 
                 if (Type == 0) then
-                    Broadcast(PlayerIndex, FORMAT(PlayerIndex, Message, f.global, name), "say_all")
+                    wordBuster:Broadcast(PlayerIndex, FORMAT(PlayerIndex, Message, f.global, name), "say_all")
                     return false
                 elseif (Type == 1) then
-                    wordBuster.SayTeam(PlayerIndex, FORMAT(PlayerIndex, Message, f.team, name))
+                    wordBuster:SayTeam(PlayerIndex, FORMAT(PlayerIndex, Message, f.team, name))
                     return false
                 elseif (Type == 2) then
-                    wordBuster.SayTeam(PlayerIndex, FORMAT(PlayerIndex, Message, f.vehicle, name))
+                    wordBuster:SayTeam(PlayerIndex, FORMAT(PlayerIndex, Message, f.vehicle, name))
                     return false
                 end
             end
@@ -415,18 +425,18 @@ function OnPlayerChat(PlayerIndex, Message, Type)
     end
 end
 
-function wordBuster.SayTeam(PlayerIndex, Message)
+function wordBuster:SayTeam(PlayerIndex, Message)
     local team = get_var(PlayerIndex, "$team")
     for i = 1, 16 do
         if player_present(i) then
             if (get_var(i, "$team") == team) then
-                Broadcast(i, Message, "say")
+                wordBuster:Broadcast(i, Message, "say")
             end
         end
     end
 end
 
-function Broadcast(PlayerIndex, Message, Type)
+function wordBuster:Broadcast(PlayerIndex, Message, Type)
     execute_command("msg_prefix \"\"")
     if (Type == "rprint") then
         for _ = 1, 25 do
@@ -441,7 +451,7 @@ function Broadcast(PlayerIndex, Message, Type)
     execute_command("msg_prefix \" " .. wordBuster.serverPrefix .. "\"")
 end
 
-function wordBuster.CensorWord(WORD)
+function wordBuster:CensorWord(WORD)
     if (wordBuster.semiCensor) then
         for i = 1, len(WORD) do
             if (i > 1 and i < len(WORD)) then
@@ -460,7 +470,7 @@ function wordBuster.CensorWord(WORD)
     end
 end
 
-function wordBuster.isCensored(Msg)
+function wordBuster:isCensored(Msg)
     local Params = { }
     for _, Pattern in pairs(wordBuster.badWords) do
 
@@ -468,9 +478,9 @@ function wordBuster.isCensored(Msg)
         if (censored_word ~= nil) then
 
             if (wordBuster.censorWords) then
-                Msg = wordBuster.CensorWord(censored_word)
+                Msg = wordBuster:CensorWord(censored_word)
             elseif (wordBuster.substituteWords) then
-                Msg = wordBuster.SubstituteWord()
+                Msg = wordBuster:SubstituteWord()
             end
 
             Params[#Params + 1] = Pattern
@@ -479,7 +489,7 @@ function wordBuster.isCensored(Msg)
     return Msg, Params
 end
 
-function wordBuster.SubstituteWord()
+function wordBuster:SubstituteWord()
     math.randomseed(os.time())
     local s = wordBuster.substitutions
     return s[math.random(#s)]
@@ -500,11 +510,71 @@ function wordBuster.formatMessage(PlayerIndex, Msg, Str, Name)
     return Str
 end
 
+function wordBuster:TakeAction(PlayerIndex, Name)
+    if (wordBuster.punishment == "k") then
+        wordBuster:SilentKick(PlayerIndex, Name)
+    elseif (wordBuster.punishment == "b") then
+        wordBuster:BanPlayer(PlayerIndex, Name)
+    end
+end
+
 -- Overwhelm the player console (causes player to disconnect)
-function SilentKick(PlayerIndex)
+function wordBuster:SilentKick(PlayerIndex, Name)
+
+    if (wordBuster.notifyAdmins) then
+        local Msg = gsub(gsub(wordBuster.kickMsg,
+                "%%name%%", Name),
+                "%%reason%%", wordBuster.punishReason)
+        for i = 1, 16 do
+            if player_present(i) then
+                if (i ~= PlayerIndex) then
+                    if (tonumber(get_var(i, "$lvl")) >= 1) then
+                        Broadcast(i, Msg, "say")
+                    end
+                end
+            end
+        end
+        cprint(Msg, 5 + 8)
+    end
+
+    if (wordBuster.notifyUser) then
+        wordBuster:Broadcast(PlayerIndex, gsub(wordBuster.onKick, "%%reason%%", wordBuster.punishReason), "say")
+    end
+
     for _ = 1, 9999 do
         rprint(PlayerIndex, " ")
     end
+end
+
+-- Overwhelm the player console (causes player to disconnect)
+function wordBuster:BanPlayer(PlayerIndex, Name)
+
+    if (wordBuster.notifyAdmins) then
+        local Msg = gsub(gsub(wordBuster.banMsg,
+                "%%name%%", Name),
+                "%%reason%%", wordBuster.punishReason)
+        for i = 1, 16 do
+            if player_present(i) then
+                if (i ~= PlayerIndex) then
+                    if (tonumber(get_var(i, "$lvl")) >= 1) then
+                        Broadcast(i, Msg, "say")
+                    end
+                end
+            end
+        end
+        cprint(Msg, 5 + 8)
+    end
+
+    if (wordBuster.notifyUser) then
+
+        local msg = gsub(gsub(wordBuster.onBan,
+                "%%time%%", wordBuster.banTime),
+                "%%reason%%", wordBuster.punishReason)
+
+        wordBuster:Broadcast(PlayerIndex, msg, "say")
+    end
+
+    execute_command("ipban " .. PlayerIndex .. " " .. wordBuster.banTime .. " \"" .. wordBuster.punishReason .. "\"")
 end
 
 string.ToTable = function(String)
