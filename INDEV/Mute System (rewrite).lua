@@ -20,6 +20,9 @@ MuteSystem.unmuteCmdPerm = 1
 -- Mute List CMD: The command used to view a list of currently muted players
 MuteSystem.mutelistCmd = "mutelist"
 
+MuteSystem.updateMutes = "updatemutes"
+MuteSystem.updateMutesCmdPerm = 1
+
 -- CMD Perm Level: The MIN perm lvl a player must be to execute this CMD
 MuteSystem.mutelistCmdPerm = 1
 
@@ -43,8 +46,7 @@ MuteSystem.Messages = {
     mute_list = {
         no_mutes = "There are no active mutes",
         header = "------ [ MUTE LIST ] ------",
-        content = "|l[%mute_index%] |c%name% |r%ip%",
-        footer = ""
+        content = "[%mute_index%] %name% %ip%",
     },
 
     mute_reminder = {
@@ -118,16 +120,7 @@ function OnScriptLoad()
 end
 
 function OnScriptUnload()
-    for i = 1, 16 do
-        if player_present(i) then
-            local IP = players[i].IP
-            local UserData = MuteSystem:GetMuteState(IP)
-            if (UserData ~= nil) and (UserData.muted) then
-                UserData.time_remaining = mutes[IP].time_remaining
-                MuteSystem:Update(IP, UserData)
-            end
-        end
-    end
+    MuteSystem:UpdateALL()
 end
 
 function OnNewGame()
@@ -183,7 +176,7 @@ local function checkAccess(Ply, PermLvl)
         if (tonumber(get_var(Ply, "$lvl")) >= PermLvl) then
             return true
         else
-            Respond(Ply, "Command failed. Insufficient Permission", "rprint")
+            Respond(Ply, "Command failed. Insufficient Permission", "rprint", 12)
             return false
         end
     elseif (Ply < 1) then
@@ -194,7 +187,7 @@ end
 
 local function CMDSelf(TargetID, Ply)
     if (tonumber(TargetID) == tonumber(Ply)) then
-        Respond(Ply, MuteSystem.MsgPrefix .. "You cannot execute this command on yourself", "rprint")
+        Respond(Ply, MuteSystem.MsgPrefix .. "You cannot execute this command on yourself", "rprint", 12)
         return true
     end
 end
@@ -243,17 +236,17 @@ function OnServerCommand(Executor, Command, _, _)
                                                     "%%admin%%", EName),
                                                     "%%time%%", Minutes),
                                                     "%%s%%", char)
-                                            Respond(Executor, Msg, "say_all")
+                                            Respond(Executor, Msg, "say_all", 10)
                                         end
                                     end
                                 else
-                                    Respond(Executor, "White-listed players cannot be muted!", "rprint")
+                                    Respond(Executor, "White-listed players cannot be muted!", "rprint", 12)
                                 end
                             end
                         end
                     end
                 else
-                    Respond(Executor, "Invalid Syntax. Usage: /" .. Command .. " [player id] <minutes>", "rprint")
+                    Respond(Executor, "Invalid Syntax. Usage: /" .. Command .. " [player id] <minutes>", "rprint", 12)
                 end
             end
             return false
@@ -274,20 +267,20 @@ function OnServerCommand(Executor, Command, _, _)
                                 MuteSystem:Update(k, Users[k])
                                 if (m[1][2]) then
                                     local str = gsub(gsub(m[1][1], "%%name%%", v.name), "%%admin%%", EName)
-                                    Respond(Executor, str, "say_all")
+                                    Respond(Executor, str, "say_all", 10)
                                 end
 
                             elseif (m[2][2]) then
                                 local str = gsub(m[2][1], "%%name%%", v.name)
-                                Respond(Executor, str, "rprint")
+                                Respond(Executor, str, "rprint", 12)
                             end
                         else
-                            Respond(Executor, "Invalid Mute Index", "rprint")
+                            Respond(Executor, "Invalid Mute Index", "rprint", 12)
                         end
                         break
                     end
                 else
-                    Respond(Executor, "Invalid Syntax. Usage: /" .. Command .. " [player id] <minutes>", "rprint")
+                    Respond(Executor, "Invalid Syntax. Usage: /" .. Command .. " [player id] <minutes>", "rprint", 12)
                 end
             end
             return false
@@ -306,15 +299,19 @@ function OnServerCommand(Executor, Command, _, _)
                                         "%%ip%%", k),
                                         "%%name%%", v.name),
                                         "%%mute_index%%", v.index)
-                                Respond(Executor, msg, "rprint")
-                                Respond(Executor, t.footer, "rprint")
+                                Respond(Executor, msg, "rprint", 13)
                             end
                         end
                     end
                     if (count == 0) then
-                        Respond(Executor, t.no_mutes, "rprint")
+                        Respond(Executor, t.no_mutes, "rprint", 12)
                     end
                 end
+            end
+            return false
+        elseif (Command == MuteSystem.updateMutes) then
+            if checkAccess(Executor, MuteSystem.updateMutesCmdPerm) then
+                MuteSystem:UpdateALL(Executor)
             end
             return false
         end
@@ -329,7 +326,7 @@ function OnPlayerChat(PlayerIndex, Message, Type)
             for _, v in pairs(MuteSystem.Messages.mute_reminder) do
                 if (v[2]) then
                     local msg = gsub(v[1], "%%time%%", secondsToTime(mutes[IP].time_remaining))
-                    Respond(PlayerIndex, msg, "rprint")
+                    Respond(PlayerIndex, msg, "rprint", 12)
                 end
             end
             return false
@@ -379,11 +376,12 @@ function Whitelisted(TargetID, Executor)
     end
 end
 
-function Respond(PlayerIndex, Message, Type)
+function Respond(PlayerIndex, Message, Type, Color)
+    Color = Color or 10
     execute_command("msg_prefix \"\"")
 
     if (PlayerIndex == 0) then
-        cprint(Message, 2 + 8)
+        cprint(Message, Color)
     end
 
     if (Type == "rprint") then
@@ -535,6 +533,21 @@ function MuteSystem:AddMuteTable(IP)
     end
 end
 
+function MuteSystem:UpdateALL(Executor)
+    if (get_var(0, "$gt") ~= "n/a") then
+        local UserData = MuteSystem:GetUserData()
+        for IP, User in pairs(UserData) do
+            if (IP) and (User.muted) then
+                User.time_remaining = mutes[IP].time_remaining
+                MuteSystem:Update(IP, UserData[IP])
+            end
+        end
+        if (Executor) then
+            Respond(Executor, MuteSystem.mutesDir .. " updated!", "rcon", 2 + 8)
+        end
+    end
+end
+
 function CheckFile()
     local file = io.open(MuteSystem.mutesDir, "a")
     if (file ~= nil) then
@@ -568,8 +581,8 @@ function GetPlayers(PlayerIndex, Args)
             end
         end
     else
-        Respond(PlayerIndex, "Invalid Player ID or Player not Online", "rprint")
-        Respond(PlayerIndex, "Command Usage: /" .. Args[1] .. " [number: 1-16] | */all | me", "rprint")
+        Respond(PlayerIndex, "Invalid Player ID or Player not Online", "rprint", 4 + 8)
+        Respond(PlayerIndex, "Command Usage: /" .. Args[1] .. " [number: 1-16] | */all | me", "rprint", 4 + 8)
     end
     return pl
 end
