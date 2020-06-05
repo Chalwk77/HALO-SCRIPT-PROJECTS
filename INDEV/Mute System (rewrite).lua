@@ -56,12 +56,13 @@ MuteSystem.Messages = {
 -- Whitelist: Groups that can be muted
 MuteSystem.whitelist = {
     [-1] = false, -- PUBLIC
-    [1] = true, -- ADMIN LEVEL 1
-    [2] = true, -- ADMIN LEVEL 2
+    [1] = false, -- ADMIN LEVEL 1
+    [2] = false, -- ADMIN LEVEL 2
     [3] = true, -- ADMIN LEVEL 3
     [4] = false, -- ADMIN LEVEL 4
     specific_users = {
-        -- todo: add this shit
+        enabled = true,
+        ["127.0.0.1"] = false,
     }
 }
 
@@ -77,6 +78,8 @@ MuteSystem.mutesDir = "mutes.txt"
 -- and will restore it to this when the relay is finished
 MuteSystem.serverPrefix = "**SAPP**"
 
+-- [CONFIG ENDS] =========================================================================
+
 local players, mutes = { }, { }
 
 local len = string.len
@@ -89,14 +92,59 @@ local json = (loadfile "json.lua")()
 function OnScriptLoad()
     register_callback(cb["EVENT_TICK"], "OnTick")
     register_callback(cb["EVENT_CHAT"], "OnPlayerChat")
+    register_callback(cb["EVENT_GAME_START"], "OnNewGame")
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
     CheckFile()
+
+    if (get_var(0, "$gt") ~= "n/a") then
+        for i = 1, 16 do
+            if player_present(i) then
+                InitPlayer(i, false)
+                local IP = GetIP(i)
+                local UserData = MuteSystem:GetMuteState(IP)
+                if (UserData ~= nil) and (UserData.muted) then
+                    mutes[IP] = { }
+                    mutes[IP].id = i
+                    mutes[IP].timer = 0
+                    mutes[IP].muted = true
+                    mutes[IP].time_remaining = 0
+                    mutes[IP].current_time = UserData.time_remaining
+                end
+            end
+        end
+    end
 end
 
 function OnScriptUnload()
+    for i = 1, 16 do
+        if player_present(i) then
+            local IP = players[i].IP
+            local UserData = MuteSystem:GetMuteState(IP)
+            if (UserData ~= nil) and (UserData.muted) then
+                UserData.time_remaining = mutes[IP].time_remaining
+                MuteSystem:Update(IP, UserData)
+            end
+        end
+    end
+end
 
+function OnNewGame()
+    if (get_var(0, "$gt") ~= "n/a") then
+        local UserData = MuteSystem:GetUserData()
+        for IP, User in pairs(UserData) do
+            if (IP) then
+                if (User.muted) then
+                    mutes[IP] = { }
+                    mutes[IP].timer = 0
+                    mutes[IP].muted = true
+                    mutes[IP].time_remaining = 0
+                    mutes[IP].current_time = User.time_remaining
+                end
+            end
+        end
+    end
 end
 
 function OnTick()
@@ -105,9 +153,15 @@ function OnTick()
             if (v.muted) then
                 v.timer = v.timer + 1 / 30
                 v.time_remaining = (v.current_time - v.timer)
+
+                -- DEBUGGING:
+                --local t = secondsToTime(v.time_remaining)
+                --print(t)
+                --
+
                 if (v.time_remaining <= 0) then
                     mutes[IP] = nil
-                    local UserData = MuteSystem:GetMuteState(v.id)
+                    local UserData = MuteSystem:GetMuteState(IP)
                     UserData.muted = false
                     UserData.time_remaining = 0
                     MuteSystem:Update(IP, UserData)
@@ -192,6 +246,8 @@ function OnServerCommand(Executor, Command, _, _)
                                             Respond(Executor, Msg, "say_all")
                                         end
                                     end
+                                else
+                                    Respond(Executor, "White-listed players cannot be muted!", "rprint")
                                 end
                             end
                         end
@@ -230,9 +286,9 @@ function OnServerCommand(Executor, Command, _, _)
                         end
                         break
                     end
+                else
+                    Respond(Executor, "Invalid Syntax. Usage: /" .. Command .. " [player id] <minutes>", "rprint")
                 end
-            else
-                Respond(Executor, "Invalid Syntax. Usage: /" .. Command .. " [player id] <minutes>", "rprint")
             end
             return false
         elseif (Command == MuteSystem.mutelistCmd or Command == "mutes") then
@@ -291,30 +347,35 @@ end
 
 function InitPlayer(PlayerIndex, Reset)
     if (Reset) then
-        MuteSystem:UpdateMutes(PlayerIndex)
+        MuteSystem:UpdateMutes(PlayerIndex, "quit")
         players[PlayerIndex] = { }
     else
 
-        local IP = get_var(PlayerIndex, "$ip")
-        if (not MuteSystem.IPPortIndex) then
-            IP = IP:match("%d+.%d+.%d+.%d+")
-        end
-
+        local IP = GetIP(PlayerIndex)
         players[PlayerIndex] = {
             IP = IP,
             name = get_var(PlayerIndex, "$name"),
         }
-        MuteSystem:UpdateMutes(PlayerIndex, true)
+
+        MuteSystem:UpdateMutes(PlayerIndex, "join")
     end
 end
 
 function Whitelisted(TargetID, Executor)
-    local lvl = tonumber(get_var(TargetID, "$lvl"))
-    if (MuteSystem.whitelist[lvl]) then
-        if (Executor) then
-            Respond(Executor, "White-listed players cannot be muted!", "rprint")
+    local W = MuteSystem.whitelist
+    if (W.specific_users.enabled) then
+        local IP = players[TargetID].IP:match("%d+.%d+.%d+.%d+")
+        for k, v in pairs(W.specific_users) do
+            if (k == IP) and (v) then
+                return true
+            end
         end
-        return true
+    end
+    local lvl = tonumber(get_var(TargetID, "$lvl"))
+    if (W[lvl]) then
+        if (Executor) then
+            return true
+        end
     end
 end
 
@@ -355,27 +416,30 @@ function MuteSystem:Mute(PlayerIndex, Minutes)
     mutes[IP].time_remaining = 0
     mutes[IP].current_time = (Minutes * 60)
 
-    local UserData = MuteSystem:GetMuteState(PlayerIndex)
+    local UserData = MuteSystem:GetMuteState(IP)
     UserData.muted = true
     UserData.time_remaining = (Minutes * 60)
     MuteSystem:Update(IP, UserData)
 end
 
-function MuteSystem:UpdateMutes(Player, JOIN)
+function MuteSystem:UpdateMutes(Player, Type)
     local IP = players[Player].IP
-    local UserData = MuteSystem:GetMuteState(Player)
-    if (UserData ~= nil) then
+    local UserData = MuteSystem:GetMuteState(IP)
+    if (Type == "quit" and UserData.muted) then
         if (mutes[IP] ~= nil) then
             UserData.muted = true
             UserData.time_remaining = mutes[IP].time_remaining
             MuteSystem:Update(IP, UserData)
-        elseif (UserData.muted) and (JOIN) then
+        end
+    elseif (Type == "join") then
+        if (mutes[IP] == nil) then
             mutes[IP] = { }
             mutes[IP].id = Player
             mutes[IP].timer = 0
-            mutes[IP].muted = true
+            mutes[IP].muted = false
             mutes[IP].time_remaining = 0
-            mutes[IP].current_time = UserData.time_remaining
+        else
+            mutes[IP].id = Player
         end
     end
 end
@@ -403,7 +467,7 @@ function MuteSystem:Update(IP, Table)
     end
 end
 
-function MuteSystem:GetMuteState(PlayerIndex)
+function MuteSystem:GetMuteState(IP)
 
     local User
     local file = io.open(MuteSystem.mutesDir, "r")
@@ -413,14 +477,13 @@ function MuteSystem:GetMuteState(PlayerIndex)
         if (len(data) > 0) then
 
             User = json:decode(data)
-
             if (User ~= nil) then
-                User = User[players[PlayerIndex].IP]
+                User = User[IP]
             end
 
             if (not User) then
-                MuteSystem:AddMuteTable(PlayerIndex)
-                User = MuteSystem:GetMuteState(PlayerIndex)
+                MuteSystem:AddMuteTable(IP)
+                User = MuteSystem:GetMuteState(IP)
             end
         end
         io.close(file)
@@ -429,7 +492,7 @@ function MuteSystem:GetMuteState(PlayerIndex)
     return User
 end
 
-function MuteSystem:AddMuteTable(PlayerIndex)
+function MuteSystem:AddMuteTable(IP)
 
     local content
     local File = io.open(MuteSystem.mutesDir, "r")
@@ -442,9 +505,15 @@ function MuteSystem:AddMuteTable(PlayerIndex)
         local file = assert(io.open(MuteSystem.mutesDir, "w"))
         if (file) then
 
+            local name
             local Users = json:decode(content)
-            local IP = players[PlayerIndex].IP
-            local name = players[PlayerIndex].name
+            for i = 1, 16 do
+                if player_present(i) then
+                    if (GetIP(i) == IP) then
+                        name = players[i].name
+                    end
+                end
+            end
 
             Users[IP] = {
                 name = name,
@@ -505,20 +574,26 @@ function GetPlayers(PlayerIndex, Args)
     return pl
 end
 
-function secondsToTime(seconds)
+function GetIP(PlayerIndex)
+    local IP = get_var(PlayerIndex, "$ip")
+    if (not MuteSystem.IPPortIndex) then
+        IP = IP:match("%d+.%d+.%d+.%d+")
+    end
+    return IP
+end
 
-    local years = floor(seconds / (60 * 60 * 24 * 365))
-    seconds = seconds % (60 * 60 * 24 * 365)
-    local weeks = floor(seconds / (60 * 60 * 24 * 7))
-    seconds = seconds % (60 * 60 * 24 * 7)
-    local days = floor(seconds / (60 * 60 * 24))
-    seconds = seconds % (60 * 60 * 24)
-    local hours = floor(seconds / (60 * 60))
-    seconds = seconds % (60 * 60)
-    local minutes = floor(seconds / 60)
-    seconds = seconds % 60
-
-    return format("Y: %02d W: %02d D: %02d H: %02d M: %02d S: %02d", years, weeks, days, hours, minutes, seconds)
+function secondsToTime(s)
+    local y = floor(s / (60 * 60 * 24 * 365))
+    s = s % (60 * 60 * 24 * 365)
+    local w = floor(s / (60 * 60 * 24 * 7))
+    s = s % (60 * 60 * 24 * 7)
+    local d = floor(s / (60 * 60 * 24))
+    s = s % (60 * 60 * 24)
+    local h = floor(s / (60 * 60))
+    s = s % (60 * 60)
+    local m = floor(s / 60)
+    s = s % 60
+    return format("Y: %02d W: %02d D: %02d H: %02d M: %02d S: %02d", y, w, d, h, m, s)
 end
 
 return MuteSystem
