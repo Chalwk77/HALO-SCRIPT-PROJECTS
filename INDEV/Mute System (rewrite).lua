@@ -28,7 +28,7 @@ MuteSystem.Messages = {
     mute = {
         spam = { "%name% was muted for spamming", true },
         automatic = { "%name% was muted for %time% minute%s%", true },
-        manual = { "%name% was muted by %admin% for %time% minute%s%", true },
+        manual = { "%name% was muted by %admin% for %time% minute%s%", true }
     },
 
     unmute = {
@@ -36,8 +36,8 @@ MuteSystem.Messages = {
         automatic = { "%name% is no longer muted", true },
         manual = {
             { "%name% was un-muted by %admin%", true },
-            { "%name% is already un-muted!", true },
-        },
+            { "%name% is already un-muted!", true }
+        }
     },
 
     mute_list = {
