@@ -1,0 +1,524 @@
+api_version = "1.12.0.0"
+
+local MuteSystem = { }
+-- Mute System Configuration --
+
+MuteSystem.MsgPrefix = "[Mute System]"
+
+-- Mute CMD: The command used to mute players
+MuteSystem.muteCmd = "mute"
+
+-- CMD Perm Level: The MIN perm lvl a player must be to execute this CMD
+MuteSystem.muteCmdPerm = 1
+
+-- Un-Mute CMD: The command used to unmute players
+MuteSystem.unmuteCmd = "unmute"
+
+-- CMD Perm Level: The MIN perm lvl a player must be to execute this CMD
+MuteSystem.unmuteCmdPerm = 1
+
+-- Mute List CMD: The command used to view a list of currently muted players
+MuteSystem.mutelistCmd = "mutelist"
+
+-- CMD Perm Level: The MIN perm lvl a player must be to execute this CMD
+MuteSystem.mutelistCmdPerm = 1
+
+MuteSystem.Messages = {
+
+    mute = {
+        spam = { "%name% was muted for spamming", true },
+        automatic = { "%name% was muted for %time% minute%s%", true },
+        manual = { "%name% was muted by %admin% for %time% minute%s%", true },
+    },
+
+    unmute = {
+        spam = { "%name% is no longer muted!", true },
+        automatic = { "%name% is no longer muted", true },
+        manual = {
+            { "%name% was un-muted by %admin%", true },
+            { "%name% is already un-muted!", true },
+        },
+    },
+
+    mute_list = {
+        no_mutes = "There are no active mutes",
+        header = "------ [ MUTE LIST ] ------",
+        content = "|l[%mute_index%] |c%name% |r%ip%",
+        footer = ""
+    },
+
+    mute_reminder = {
+        { "You are muted!", true },
+        { "Time Remaining: %time%", true }
+    },
+}
+
+-- Whitelist: Groups that can be muted
+MuteSystem.whitelist = {
+    [-1] = false, -- PUBLIC
+    [1] = true, -- ADMIN LEVEL 1
+    [2] = true, -- ADMIN LEVEL 2
+    [3] = true, -- ADMIN LEVEL 3
+    [4] = false, -- ADMIN LEVEL 4
+    specific_users = {
+        -- todo: add this shit
+    }
+}
+
+-- Advanced users only: Client data will be saved as a json array and
+-- the array index for each client is will be just the IP, or IP and PORT.
+-- Should the array index be IP ONLY or IP and PORT (true by default)?
+MuteSystem.IPPortIndex = true
+
+-- Muted Players Directory: This file contains data about muted players:
+MuteSystem.mutesDir = "mutes.txt"
+
+-- Server Prefix: A message relay function temporarily removes the server prefix
+-- and will restore it to this when the relay is finished
+MuteSystem.serverPrefix = "**SAPP**"
+
+local players, mutes = { }, { }
+
+local len = string.len
+local floor = math.floor
+local format = string.format
+local gmatch, gsub = string.gmatch, string.gsub
+
+local json = (loadfile "json.lua")()
+
+function OnScriptLoad()
+    register_callback(cb["EVENT_TICK"], "OnTick")
+    register_callback(cb["EVENT_CHAT"], "OnPlayerChat")
+    register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
+    register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
+    register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
+    CheckFile()
+end
+
+function OnScriptUnload()
+
+end
+
+function OnTick()
+    for IP, v in pairs(mutes) do
+        if (IP) then
+            if (v.muted) then
+                v.timer = v.timer + 1 / 30
+                v.time_remaining = (v.current_time - v.timer)
+                if (v.time_remaining <= 0) then
+                    mutes[IP] = nil
+                    local UserData = MuteSystem:GetMuteState(v.id)
+                    UserData.muted = false
+                    UserData.time_remaining = 0
+                    MuteSystem:Update(IP, UserData)
+                end
+            end
+        end
+    end
+end
+
+local function getChar(input)
+    if (tonumber(input) > 1) then
+        return "s"
+    end
+    return ""
+end
+
+local function checkAccess(Ply, PermLvl)
+    if (Ply ~= -1 and Ply >= 1 and Ply < 16) then
+        if (tonumber(get_var(Ply, "$lvl")) >= PermLvl) then
+            return true
+        else
+            Respond(Ply, "Command failed. Insufficient Permission", "rprint")
+            return false
+        end
+    elseif (Ply < 1) then
+        return true
+    end
+    return false
+end
+
+local function CMDSelf(TargetID, Ply)
+    if (tonumber(TargetID) == tonumber(Ply)) then
+        Respond(Ply, MuteSystem.MsgPrefix .. "You cannot execute this command on yourself", "rprint")
+        return true
+    end
+end
+
+local function StrSplit(Str)
+    local Args, index = { }, 1
+    for Params in gmatch(Str, "([^%s]+)") do
+        Args[index] = Params
+        index = index + 1
+    end
+    return Args
+end
+
+function OnServerCommand(Executor, Command, _, _)
+    local CMD = StrSplit(Command)
+    local muted = MuteSystem:IsMuted(Executor)
+    if (CMD == nil or CMD == "") or (muted) then
+        return false
+    else
+
+        Command = CMD[1]:lower()
+        local EName = get_var(Executor, "$name")
+        if (Executor == 0) then
+            EName = "The Server"
+        end
+
+        if (Command == MuteSystem.muteCmd or Command == "mute") then
+            if checkAccess(Executor, MuteSystem.muteCmdPerm) then
+                if (CMD[2] ~= nil and CMD[3] ~= nil) then
+                    local pl = GetPlayers(Executor, CMD)
+                    if (pl) then
+                        for i = 1, #pl do
+                            local TargetID = pl[i]
+                            if (not CMDSelf(TargetID, Executor)) then
+                                if (not Whitelisted(TargetID, Executor)) then
+
+                                    local Minutes = CMD[3]
+                                    if Minutes:match("^%d+$") then
+                                        MuteSystem:Mute(TargetID, Minutes)
+                                        local TName = get_var(TargetID, "$name")
+                                        local m = MuteSystem.Messages.mute.manual
+                                        if (m[2]) then
+                                            local char = getChar(Minutes)
+                                            local Msg = gsub(gsub(gsub(gsub(m[1],
+                                                    "%%name%%", TName),
+                                                    "%%admin%%", EName),
+                                                    "%%time%%", Minutes),
+                                                    "%%s%%", char)
+                                            Respond(Executor, Msg, "say_all")
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                else
+                    Respond(Executor, "Invalid Syntax. Usage: /" .. Command .. " [player id] <minutes>", "rprint")
+                end
+            end
+            return false
+        elseif (Command == MuteSystem.unmuteCmd or Command == "unmute") then
+            if checkAccess(Executor, MuteSystem.unmuteCmdPerm) then
+                local MuteIndex = CMD[2]
+                if (MuteIndex ~= nil) and MuteIndex:match("^%d+$") then
+                    local Users = MuteSystem:GetUserData()
+                    for k, v in pairs(Users) do
+                        if (v.index == tonumber(MuteIndex)) then
+                            local m = MuteSystem.Messages.unmute.manual
+                            if (v.muted) then
+
+                                mutes[k] = nil
+                                v.muted = false
+                                v.time_remaining = 0
+
+                                MuteSystem:Update(k, Users[k])
+                                if (m[1][2]) then
+                                    local str = gsub(gsub(m[1][1], "%%name%%", v.name), "%%admin%%", EName)
+                                    Respond(Executor, str, "say_all")
+                                end
+
+                            elseif (m[2][2]) then
+                                local str = gsub(m[2][1], "%%name%%", v.name)
+                                Respond(Executor, str, "rprint")
+                            end
+                        else
+                            Respond(Executor, "Invalid Mute Index", "rprint")
+                        end
+                        break
+                    end
+                end
+            else
+                Respond(Executor, "Invalid Syntax. Usage: /" .. Command .. " [player id] <minutes>", "rprint")
+            end
+            return false
+        elseif (Command == MuteSystem.mutelistCmd or Command == "mutes") then
+            if checkAccess(Executor, MuteSystem.mutelistCmdPerm) then
+                if (CMD[2] == nil) then
+                    local Users = MuteSystem:GetUserData()
+                    local t = MuteSystem.Messages.mute_list
+                    local count = 0
+                    for k, v in pairs(Users) do
+                        if (k) then
+                            if (v.muted) then
+                                count = count + 1
+                                Respond(Executor, t.header, "rprint")
+                                local msg = gsub(gsub(gsub(t.content,
+                                        "%%ip%%", k),
+                                        "%%name%%", v.name),
+                                        "%%mute_index%%", v.index)
+                                Respond(Executor, msg, "rprint")
+                                Respond(Executor, t.footer, "rprint")
+                            end
+                        end
+                    end
+                    if (count == 0) then
+                        Respond(Executor, t.no_mutes, "rprint")
+                    end
+                end
+            end
+            return false
+        end
+    end
+end
+
+function OnPlayerChat(PlayerIndex, Message, Type)
+    if (Message ~= "" and Type ~= 6) then
+        local muted = MuteSystem:IsMuted(PlayerIndex)
+        if (muted) then
+            local IP = get_var(PlayerIndex, "$ip")
+            for _, v in pairs(MuteSystem.Messages.mute_reminder) do
+                if (v[2]) then
+                    local msg = gsub(v[1], "%%time%%", secondsToTime(mutes[IP].time_remaining))
+                    Respond(PlayerIndex, msg, "rprint")
+                end
+            end
+            return false
+        end
+    end
+end
+
+function OnPlayerConnect(PlayerIndex)
+    InitPlayer(PlayerIndex, false)
+end
+
+function OnPlayerDisconnect(PlayerIndex)
+    InitPlayer(PlayerIndex, true)
+end
+
+function InitPlayer(PlayerIndex, Reset)
+    if (Reset) then
+        MuteSystem:UpdateMutes(PlayerIndex)
+        players[PlayerIndex] = { }
+    else
+
+        local IP = get_var(PlayerIndex, "$ip")
+        if (not MuteSystem.IPPortIndex) then
+            IP = IP:match("%d+.%d+.%d+.%d+")
+        end
+
+        players[PlayerIndex] = {
+            IP = IP,
+            name = get_var(PlayerIndex, "$name"),
+        }
+        MuteSystem:UpdateMutes(PlayerIndex, true)
+    end
+end
+
+function Whitelisted(TargetID, Executor)
+    local lvl = tonumber(get_var(TargetID, "$lvl"))
+    if (MuteSystem.whitelist[lvl]) then
+        if (Executor) then
+            Respond(Executor, "White-listed players cannot be muted!", "rprint")
+        end
+        return true
+    end
+end
+
+function Respond(PlayerIndex, Message, Type)
+    execute_command("msg_prefix \"\"")
+
+    if (PlayerIndex == 0) then
+        cprint(Message, 2 + 8)
+    end
+
+    if (Type == "rprint") then
+        rprint(PlayerIndex, MuteSystem.MsgPrefix .. " " .. Message)
+    elseif (Type == "say") then
+        say(PlayerIndex, MuteSystem.MsgPrefix .. " " .. Message)
+    elseif (Type == "say_all") then
+        say_all(MuteSystem.MsgPrefix .. " " .. Message)
+    end
+    execute_command("msg_prefix \" " .. MuteSystem.serverPrefix .. "\"")
+end
+
+function MuteSystem:IsMuted(PlayerIndex)
+    if (PlayerIndex > 0) then
+        local IP = get_var(PlayerIndex, "$ip")
+        if (mutes[IP] ~= nil) then
+            return mutes[IP]
+        end
+    end
+    return false
+end
+
+function MuteSystem:Mute(PlayerIndex, Minutes)
+    local IP = players[PlayerIndex].IP
+
+    mutes[IP] = { }
+    mutes[IP].id = PlayerIndex
+    mutes[IP].timer = 0
+    mutes[IP].muted = true
+    mutes[IP].time_remaining = 0
+    mutes[IP].current_time = (Minutes * 60)
+
+    local UserData = MuteSystem:GetMuteState(PlayerIndex)
+    UserData.muted = true
+    UserData.time_remaining = (Minutes * 60)
+    MuteSystem:Update(IP, UserData)
+end
+
+function MuteSystem:UpdateMutes(Player, JOIN)
+    local IP = players[Player].IP
+    local UserData = MuteSystem:GetMuteState(Player)
+    if (UserData ~= nil) then
+        if (mutes[IP] ~= nil) then
+            UserData.muted = true
+            UserData.time_remaining = mutes[IP].time_remaining
+            MuteSystem:Update(IP, UserData)
+        elseif (UserData.muted) and (JOIN) then
+            mutes[IP] = { }
+            mutes[IP].id = Player
+            mutes[IP].timer = 0
+            mutes[IP].muted = true
+            mutes[IP].time_remaining = 0
+            mutes[IP].current_time = UserData.time_remaining
+        end
+    end
+end
+
+function MuteSystem:GetUserData()
+    local file = io.open(MuteSystem.mutesDir, "r")
+    if (file ~= nil) then
+        local data = file:read("*all")
+        if (len(data) > 0) then
+            return json:decode(data)
+        end
+    end
+    return nil
+end
+
+function MuteSystem:Update(IP, Table)
+    local UserData = MuteSystem:GetUserData()
+    if (UserData) then
+        local file = assert(io.open(MuteSystem.mutesDir, "w"))
+        if (file) then
+            UserData[IP] = Table
+            file:write(json:encode_pretty(UserData))
+            io.close(file)
+        end
+    end
+end
+
+function MuteSystem:GetMuteState(PlayerIndex)
+
+    local User
+    local file = io.open(MuteSystem.mutesDir, "r")
+    if (file ~= nil) then
+
+        local data = file:read("*all")
+        if (len(data) > 0) then
+
+            User = json:decode(data)
+
+            if (User ~= nil) then
+                User = User[players[PlayerIndex].IP]
+            end
+
+            if (not User) then
+                MuteSystem:AddMuteTable(PlayerIndex)
+                User = MuteSystem:GetMuteState(PlayerIndex)
+            end
+        end
+        io.close(file)
+    end
+
+    return User
+end
+
+function MuteSystem:AddMuteTable(PlayerIndex)
+
+    local content
+    local File = io.open(MuteSystem.mutesDir, "r")
+    if (File ~= nil) then
+        content = File:read("*all")
+        io.close(File)
+    end
+
+    if (len(content) > 0) then
+        local file = assert(io.open(MuteSystem.mutesDir, "w"))
+        if (file) then
+
+            local Users = json:decode(content)
+            local IP = players[PlayerIndex].IP
+            local name = players[PlayerIndex].name
+
+            Users[IP] = {
+                name = name,
+                muted = false,
+                time_remaining = 0
+            }
+
+            local index = 0
+            for k, v in pairs(Users) do
+                index = index + 1
+                if (k == IP) then
+                    v.index = index
+                end
+            end
+
+            file:write(json:encode_pretty(Users))
+            io.close(file)
+        end
+    end
+end
+
+function CheckFile()
+    local file = io.open(MuteSystem.mutesDir, "a")
+    if (file ~= nil) then
+        io.close(file)
+    end
+    local content
+    local file = io.open(MuteSystem.mutesDir, "r")
+    if (file ~= nil) then
+        content = file:read("*all")
+        io.close(file)
+    end
+    if (len(content) == 0) then
+        local file = assert(io.open(MuteSystem.mutesDir, "w"))
+        if (file) then
+            file:write("{\n}")
+            io.close(file)
+        end
+    end
+end
+
+function GetPlayers(PlayerIndex, Args)
+    local pl = { }
+    if (Args[2] == nil or Args[2] == "me") then
+        pl[#pl + 1] = tonumber(PlayerIndex)
+    elseif (Args[2]:match("^%d+$")) and player_present(Args[2]) then
+        pl[#pl + 1] = tonumber(Args[2])
+    elseif (Args[2] == "all" or Args[2] == "*") then
+        for i = 1, 16 do
+            if player_present(i) then
+                pl[#pl + 1] = tonumber(i)
+            end
+        end
+    else
+        Respond(PlayerIndex, "Invalid Player ID or Player not Online", "rprint")
+        Respond(PlayerIndex, "Command Usage: /" .. Args[1] .. " [number: 1-16] | */all | me", "rprint")
+    end
+    return pl
+end
+
+function secondsToTime(seconds)
+
+    local years = floor(seconds / (60 * 60 * 24 * 365))
+    seconds = seconds % (60 * 60 * 24 * 365)
+    local weeks = floor(seconds / (60 * 60 * 24 * 7))
+    seconds = seconds % (60 * 60 * 24 * 7)
+    local days = floor(seconds / (60 * 60 * 24))
+    seconds = seconds % (60 * 60 * 24)
+    local hours = floor(seconds / (60 * 60))
+    seconds = seconds % (60 * 60)
+    local minutes = floor(seconds / 60)
+    seconds = seconds % 60
+
+    return format("Y: %02d W: %02d D: %02d H: %02d M: %02d S: %02d", years, weeks, days, hours, minutes, seconds)
+end
+
+return MuteSystem
