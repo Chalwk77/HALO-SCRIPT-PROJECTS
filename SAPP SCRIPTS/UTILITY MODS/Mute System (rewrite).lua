@@ -7,9 +7,9 @@ NOTE: This mod requires that you download and install a file called "json.lua".
 Place "json.lua" in the server's root directory - not inside the Lua Folder.
 It's crucial that the file name is exactly "json.lua".
 
-Download Links:
+Download Link:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/Miscellaneous/json.lua
--------------------------------------------------------------------
+--------------------------------------------------------------------------------------
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -170,12 +170,6 @@ function OnTick()
             if (v.muted) then
                 v.timer = v.timer + 1 / 30
                 v.time_remaining = (v.current_time - v.timer)
-
-                -- DEBUGGING:
-                local t = secondsToTime(v.time_remaining)
-                print(t)
-                --
-
                 if (v.time_remaining <= 0) then
                     mutes[IP] = nil
                     local UserData = MuteSystem:GetMuteState(IP)
