@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Word Buster (v1.3), for SAPP (PC & CE)
+Script Name: Word Buster (v1.4), for SAPP (PC & CE)
 
 --- Description ---
 Advanced profanity filter mod that automatically censors, replaces or blocks chat messages containing profanity.
@@ -23,9 +23,19 @@ French, German, Hungry, Italian, Japanese
 Korean, Norwegian, Polish, Portuguese, Russian
 Spanish, Swedish, Thai, Turkish, Vietnamese
 
-NOTE: If the punishment type is set to MUTE, you will need to download and install "json.lua".
-Download link: https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/Miscellaneous/json.lua
-Place this file in the server's root directory.
+-------------------------------------------------------------------
+MUTE SUPPORT INFORMATION:
+If "wordBuster.punishment" is set to "mute", you will need to download and install my custom
+Mute System and a file called "json.lua".
+
+Place "json.lua" in the server's root directory - not inside the Lua Folder.
+It's crucial that the file names are "json.lua" and "Mute System.lua".
+Ensure "Mute System.lua" is activated.
+
+Download Links:
+MUTE SYSTEM: https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/SAPP%20SCRIPTS/UTILITY%20MODS/Mute%20System%20(rewrite).lua
+JSON FILE: https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/Miscellaneous/json.lua
+-------------------------------------------------------------------
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -41,7 +51,7 @@ local wordBuster = { }
 -- Word Buster Configuration --
 
 -- Version: Current version of Word Buster
-wordBuster.version = 1.3
+wordBuster.version = 1.4
 
 -- Censor Words: Censor words with "wordBuster.censor" character?
 wordBuster.censorWords = true
