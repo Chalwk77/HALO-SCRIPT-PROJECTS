@@ -1,13 +1,13 @@
 --[[
 --=====================================================================================================--
-Script Name: Word Buster (v1.4), for SAPP (PC & CE)
+Script Name: Word Buster (v1.3), for SAPP (PC & CE)
 
 --- Description ---
 Advanced profanity filter mod that automatically censors, replaces or blocks chat messages containing profanity.
 
 --- Features ---
 * Pattern matching algorithm to detect variations of words, like "asshole", for example, "a$$hole", "assH0l3" or "a55h01e.
-* Censor, Block or Replace bad words
+* Censor, Block or Replace bad words (optionally mute players)
 * Supports multiple languages
 * Warning System + Grace Period
 * Customizable messages
@@ -38,7 +38,7 @@ local wordBuster = { }
 -- Word Buster Configuration --
 
 -- Version: Current version of Word Buster
-wordBuster.version = 1.4
+wordBuster.version = 1.3
 
 -- Censor Words: Censor words with "wordBuster.censor" character?
 wordBuster.censorWords = true
@@ -63,7 +63,12 @@ wordBuster.warnings = 5
 wordBuster.grace = 30
 
 -- Punish action: Should players be kicked, banned or neither?
-wordBuster.punishment = "k" -- Valid Actions: "k" = kick, "b" = ban"
+wordBuster.punishment = "mute" -- Valid Actions: "k" = kick, "b" = ban", "mute"
+
+-- Mute Time: Maximum mute time (in minutes)
+wordBuster.muteTime = 5
+
+wordBuster.muteSystemScriptName = "Mute System"
 
 -- Ban Time: How long should a player be banned for? (in minutes)
 wordBuster.banTime = 5
@@ -218,6 +223,7 @@ function wordBuster:Load()
     local load_count = 0
 
     wordBuster.players = { }
+    wordBuster.players = { }
     wordBuster.badWords = { }
 
     local dir = wordBuster.lang_directory
@@ -287,6 +293,7 @@ function wordBuster:Load()
         register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
         register_callback(cb["EVENT_GAME_START"], "OnGameStart")
         register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
+        register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
     else
         unregister_callback(cb["EVENT_TICK"])
         unregister_callback(cb["EVENT_CHAT"])
@@ -318,6 +325,7 @@ function OnGameStart()
 end
 
 function OnTick()
+
     -- Profanity grace timer:
     for player, v in pairs(wordBuster.players) do
         if (player) then
@@ -349,7 +357,6 @@ function wordBuster:InitPlayer(Player, Reset)
             timer = 0,
             begin_cooldown = false,
             warnings = wordBuster.warnings,
-            ip = get_var(Player, "$ip"):match("%d+.%d+.%d+.%d+")
         }
     end
 end
@@ -368,9 +375,9 @@ function OnPlayerChat(PlayerIndex, Message, Type)
         local CMD = ((sub(Message, 1, 1) == "/") or (sub(Message, 1, 1) == "\\"))
         if (not CMD) then
 
+            local p = wordBuster.players[PlayerIndex]
             local Str, Params = wordBuster:isCensored(Message)
             if (#Params > 0) then
-                local p = wordBuster.players[PlayerIndex]
 
                 Message = Str
 
@@ -421,6 +428,8 @@ function OnPlayerChat(PlayerIndex, Message, Type)
                     return false
                 end
             end
+        else
+            return false
         end
     end
 end
@@ -439,9 +448,6 @@ end
 function wordBuster:Broadcast(PlayerIndex, Message, Type)
     execute_command("msg_prefix \"\"")
     if (Type == "rprint") then
-        for _ = 1, 25 do
-            rprint(PlayerIndex, " ")
-        end
         rprint(PlayerIndex, Message)
     elseif (Type == "say") then
         say(PlayerIndex, Message)
@@ -515,6 +521,8 @@ function wordBuster:TakeAction(PlayerIndex, Name)
         wordBuster:SilentKick(PlayerIndex, Name)
     elseif (wordBuster.punishment == "b") then
         wordBuster:BanPlayer(PlayerIndex, Name)
+    elseif (wordBuster.punishment == "mute") then
+        wordBuster:MutePlayer(PlayerIndex, Name)
     end
 end
 
@@ -575,6 +583,12 @@ function wordBuster:BanPlayer(PlayerIndex, Name)
     end
 
     execute_command("ipban " .. PlayerIndex .. " " .. wordBuster.banTime .. " \"" .. wordBuster.punishReason .. "\"")
+end
+
+function wordBuster:MutePlayer(PlayerIndex)
+    local ID = tonumber(PlayerIndex)
+    local TIME = tonumber(wordBuster.muteTime)
+    execute_command('lua_call "' .. wordBuster.muteSystemScriptName .. '" ExternalMute ' .. ID .. ' ' .. TIME)
 end
 
 string.ToTable = function(String)
