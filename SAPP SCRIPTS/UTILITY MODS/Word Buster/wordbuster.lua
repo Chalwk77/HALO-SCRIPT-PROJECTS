@@ -182,7 +182,7 @@ wordBuster.whitelist = {
     [1] = true, -- ADMIN LEVEL 1
     [2] = true, -- ADMIN LEVEL 2
     [3] = true, -- ADMIN LEVEL 3
-    [4] = false, -- ADMIN LEVEL 4
+    [4] = true, -- ADMIN LEVEL 4
 }
 
 -- Patterns: Advanced users only, patterns used to block variations of bad words
