@@ -3,9 +3,13 @@
 Script Name: Mute System, for SAPP (PC & CE)
 Description: Custom Mute System
 
-NOTE: This mod requires that you install "json.lua".
-Download link: https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/Miscellaneous/json.lua
-Place this file in the server's root directory.
+NOTE: This mod requires that you download and install a file called "json.lua".
+Place "json.lua" in the server's root directory - not inside the Lua Folder.
+It's crucial that the file name is exactly "json.lua".
+
+Download Links:
+https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/Miscellaneous/json.lua
+-------------------------------------------------------------------
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
