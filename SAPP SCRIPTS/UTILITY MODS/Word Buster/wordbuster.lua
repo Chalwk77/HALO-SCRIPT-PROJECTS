@@ -23,6 +23,9 @@ French, German, Hungry, Italian, Japanese
 Korean, Norwegian, Polish, Portuguese, Russian
 Spanish, Swedish, Thai, Turkish, Vietnamese
 
+NOTE: If the punishment type is set to MUTE, you will need to download and install "json.lua".
+Download link: https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/Miscellaneous/json.lua
+Place this file in the server's root directory.
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
