@@ -42,6 +42,8 @@ MuteSystem.unmuteCmdPerm = 1
 MuteSystem.mutelistCmd = "mutelist"
 
 MuteSystem.updateMutes = "updatemutes"
+
+-- CMD Perm Level: The MIN perm lvl a player must be to execute this CMD
 MuteSystem.updateMutesCmdPerm = 1
 
 -- CMD Perm Level: The MIN perm lvl a player must be to execute this CMD
@@ -82,10 +84,11 @@ MuteSystem.whitelist = {
     [1] = false, -- ADMIN LEVEL 1
     [2] = false, -- ADMIN LEVEL 2
     [3] = true, -- ADMIN LEVEL 3
-    [4] = false, -- ADMIN LEVEL 4
+    [4] = true, -- ADMIN LEVEL 4
     specific_users = {
         enabled = true,
-        ["127.0.0.1"] = false,
+        -- Local Host:
+        ["127.0.0.1"] = true,
     }
 }
 
