@@ -63,7 +63,7 @@ wordBuster.semiCensor = true
 -- Censor: Which character should be used to replace bad words?
 wordBuster.censor = "*"
 
--- Block whole words: By default, this is set to true, so profanity only matches on whole words.
+-- Block whole words: By default this is set to true, so profanity only matches on whole words.
 -- Setting this to false, results in partial word matches.
 wordBuster.matchWholeWord = true
 
@@ -187,11 +187,16 @@ wordBuster.whitelist = {
     [1] = true, -- ADMIN LEVEL 1
     [2] = true, -- ADMIN LEVEL 2
     [3] = true, -- ADMIN LEVEL 3
-    [4] = false, -- ADMIN LEVEL 4
+    [4] = true, -- ADMIN LEVEL 4
+
+    -- Allow specific users:
     specific_users = {
+        -- Set this to true to enable "specific_users" feature.
         enabled = false,
-        -- Local Host:
+
+        -- Local Host IP:
         ["127.0.0.1"] = true,
+        -- repeat the structure to add more IP entries.
     }
 }
 
