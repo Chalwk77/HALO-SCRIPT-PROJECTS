@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Word Buster (v1.4), for SAPP (PC & CE)
+Script Name: Word Buster (v1.5), for SAPP (PC & CE)
 
 --- Description ---
 Advanced profanity filter mod that automatically censors, replaces or blocks chat messages containing profanity.
@@ -51,7 +51,7 @@ local wordBuster = { }
 -- Word Buster Configuration --
 
 -- Version: Current version of Word Buster
-wordBuster.version = 1.4
+wordBuster.version = 1.5
 
 -- Censor Words: Censor words with "wordBuster.censor" character?
 wordBuster.censorWords = true
@@ -62,6 +62,10 @@ wordBuster.semiCensor = true
 
 -- Censor: Which character should be used to replace bad words?
 wordBuster.censor = "*"
+
+-- Block whole words: By default this is set to true, so profanity only matches on whole words.
+-- Setting this to false, results in partial word matches.
+wordBuster.matchWholeWord = true
 
 -- Replace profanity with a random word from the substitute list? (wordBuster.censor & wordBuster.blockWords MUST BE FALSE)
 wordBuster.substituteWords = false
@@ -81,6 +85,7 @@ wordBuster.punishment = "mute" -- Valid Actions: "k" = kick, "b" = ban", "mute"
 -- Mute Time: Maximum mute time (in minutes)
 wordBuster.muteTime = 5
 
+-- Mute System Script Name: Exact name (without .txt)
 wordBuster.muteSystemScriptName = "Mute System"
 
 -- Ban Time: How long should a player be banned for? (in minutes)
@@ -182,7 +187,12 @@ wordBuster.whitelist = {
     [1] = true, -- ADMIN LEVEL 1
     [2] = true, -- ADMIN LEVEL 2
     [3] = true, -- ADMIN LEVEL 3
-    [4] = true, -- ADMIN LEVEL 4
+    [4] = false, -- ADMIN LEVEL 4
+    specific_users = {
+        enabled = false,
+        -- Local Host:
+        ["127.0.0.1"] = true,
+    }
 }
 
 -- Patterns: Advanced users only, patterns used to block variations of bad words
@@ -217,9 +227,16 @@ wordBuster.patterns = {
 
 -- [CONFIG ENDS] ============================================================================================
 
-local len = string.len
-local sub, gsub = string.sub, string.gsub
+local sub, gsub, find, len = string.sub, string.gsub, string.find, string.len
 local insert, remove = table.insert, table.remove
+
+string.ToTable = function(String)
+    local Array = {}
+    for i = 1, String:len() do
+        insert(Array, String:sub(i, i))
+    end
+    return Array
+end
 
 function OnScriptLoad()
     wordBuster:Load()
@@ -306,7 +323,6 @@ function wordBuster:Load()
         register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
         register_callback(cb["EVENT_GAME_START"], "OnGameStart")
         register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
-        register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
     else
         unregister_callback(cb["EVENT_TICK"])
         unregister_callback(cb["EVENT_CHAT"])
@@ -379,12 +395,10 @@ function OnPlayerChat(PlayerIndex, Message, Type)
     if (PlayerIndex > 0 and Type ~= 6) then
 
         -- Check if player is whitelisted:
-        local lvl = tonumber(get_var(PlayerIndex, "$lvl"))
-        if (wordBuster.whitelist[lvl]) then
+        if wordBuster:Whitelisted(PlayerIndex) then
             return
         end
 
-        -- Ignore command text:
         local CMD = ((sub(Message, 1, 1) == "/") or (sub(Message, 1, 1) == "\\"))
         if (not CMD) then
 
@@ -490,18 +504,30 @@ function wordBuster:CensorWord(WORD)
 end
 
 function wordBuster:isCensored(Msg)
+
     local Params = { }
+    Msg = Msg:lower()
+
     for _, Pattern in pairs(wordBuster.badWords) do
+        local censored_word
 
-        local censored_word = Msg:lower():match(Pattern[1])
+        if (not wordBuster.matchWholeWord) then
+            censored_word = Msg:match(Pattern[1])
+        else
+
+            local S,F = find(gsub(Msg,"(.*)"," %1 "), "[^%a]"..Pattern[1].."[^%a]")
+            if (F) then
+                F = F-2
+                censored_word = sub(Msg, S,F)
+            end
+        end
+
         if (censored_word ~= nil) then
-
             if (wordBuster.censorWords) then
                 Msg = wordBuster:CensorWord(censored_word)
             elseif (wordBuster.substituteWords) then
                 Msg = wordBuster:SubstituteWord()
             end
-
             Params[#Params + 1] = Pattern
         end
     end
@@ -529,6 +555,22 @@ function wordBuster.formatMessage(PlayerIndex, Msg, Str, Name)
     return Str
 end
 
+function wordBuster:Whitelisted(PlayerIndex)
+    local W = wordBuster.whitelist
+    if (W.specific_users.enabled) then
+        local IP = get_var(PlayerIndex, "$ip"):match("%d+.%d+.%d+.%d+")
+        for k, v in pairs(W.specific_users) do
+            if (k == IP) and (v) then
+                return true
+            end
+        end
+    end
+    local lvl = tonumber(get_var(PlayerIndex, "$lvl"))
+    if (W[lvl]) then
+        return true
+    end
+end
+
 function wordBuster:TakeAction(PlayerIndex, Name)
     if (wordBuster.punishment == "k") then
         wordBuster:SilentKick(PlayerIndex, Name)
@@ -539,7 +581,6 @@ function wordBuster:TakeAction(PlayerIndex, Name)
     end
 end
 
--- Overwhelm the player console (causes player to disconnect)
 function wordBuster:SilentKick(PlayerIndex, Name)
 
     if (wordBuster.notifyAdmins) then
@@ -567,7 +608,6 @@ function wordBuster:SilentKick(PlayerIndex, Name)
     end
 end
 
--- Overwhelm the player console (causes player to disconnect)
 function wordBuster:BanPlayer(PlayerIndex, Name)
 
     if (wordBuster.notifyAdmins) then
@@ -604,12 +644,13 @@ function wordBuster:MutePlayer(PlayerIndex)
     execute_command('lua_call "' .. wordBuster.muteSystemScriptName .. '" ExternalMute ' .. ID .. ' ' .. TIME)
 end
 
-string.ToTable = function(String)
-    local Array = {}
-    for i = 1, String:len() do
-        insert(Array, String:sub(i, i))
+function StrSplit(Str)
+    local Args, index = { }, 1
+    for Params in string.gmatch(Str, "([^%s]+)") do
+        Args[index] = Params
+        index = index + 1
     end
-    return Array
+    return Args
 end
 
 function report()
