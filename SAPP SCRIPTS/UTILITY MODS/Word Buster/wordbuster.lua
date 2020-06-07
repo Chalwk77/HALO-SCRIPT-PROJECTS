@@ -649,15 +649,6 @@ function wordBuster:MutePlayer(PlayerIndex)
     execute_command('lua_call "' .. wordBuster.muteSystemScriptName .. '" ExternalMute ' .. ID .. ' ' .. TIME)
 end
 
-function StrSplit(Str)
-    local Args, index = { }, 1
-    for Params in string.gmatch(Str, "([^%s]+)") do
-        Args[index] = Params
-        index = index + 1
-    end
-    return Args
-end
-
 function report()
     local script_version = string.format("%0.2f", wordBuster.version)
     cprint("--------------------------------------------------------", 5 + 8)
