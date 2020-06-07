@@ -63,7 +63,7 @@ wordBuster.semiCensor = true
 -- Censor: Which character should be used to replace bad words?
 wordBuster.censor = "*"
 
--- Block whole words: By default this is set to true, so profanity only matches on whole words.
+-- Block whole words: By default, this is set to true, so profanity only matches on whole words.
 -- Setting this to false, results in partial word matches.
 wordBuster.matchWholeWord = true
 
