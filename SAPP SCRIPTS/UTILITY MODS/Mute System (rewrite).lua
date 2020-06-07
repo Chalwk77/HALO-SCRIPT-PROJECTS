@@ -81,14 +81,19 @@ MuteSystem.Messages = {
 -- Whitelist: Groups that can be muted
 MuteSystem.whitelist = {
     [-1] = false, -- PUBLIC
-    [1] = false, -- ADMIN LEVEL 1
-    [2] = false, -- ADMIN LEVEL 2
+    [1] = true, -- ADMIN LEVEL 1
+    [2] = true, -- ADMIN LEVEL 2
     [3] = true, -- ADMIN LEVEL 3
     [4] = true, -- ADMIN LEVEL 4
+
+    -- Prevent specific users:
     specific_users = {
-        enabled = true,
-        -- Local Host:
+        -- Set this to true to enable "specific_users" feature.
+        enabled = false,
+
+        -- Local Host IP:
         ["127.0.0.1"] = true,
+        -- repeat the structure to add more IP entries.
     }
 }
 
@@ -540,7 +545,6 @@ function MuteSystem:AddMuteTable(IP)
         if (file) then
 
             local name
-            local Users = json:decode(content)
             for i = 1, 16 do
                 if player_present(i) then
                     if (GetIP(i) == IP) then
@@ -549,6 +553,7 @@ function MuteSystem:AddMuteTable(IP)
                 end
             end
 
+            local Users = json:decode(content)
             Users[IP] = {
                 name = name,
                 muted = false,
