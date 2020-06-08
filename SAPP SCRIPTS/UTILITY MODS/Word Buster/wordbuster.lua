@@ -160,7 +160,7 @@ wordBuster.lang_directory = "wordbuster_database/"
 wordBuster.languages = {
     ["cs"] = false, -- Czech
     ["da"] = false, -- Danish
-    ["de"] = false, -- German
+    ["de"] = true, -- German
     ["en"] = true, -- English
     ["eo"] = false, -- Esperanto
     ["es"] = true, -- Spanish
@@ -187,7 +187,7 @@ wordBuster.whitelist = {
     [1] = true, -- ADMIN LEVEL 1
     [2] = true, -- ADMIN LEVEL 2
     [3] = true, -- ADMIN LEVEL 3
-    [4] = true, -- ADMIN LEVEL 4
+    [4] = false, -- ADMIN LEVEL 4
 
     -- Allow specific users:
     specific_users = {
@@ -292,7 +292,6 @@ function wordBuster:Load()
                             Pattern = Pattern .. "."
                         end
                     end
-
                     insert(wordBuster.badWords, { Pattern, word, lang })
                 end
             else
@@ -311,15 +310,18 @@ function wordBuster:Load()
             end
         end
 
+        local filters_found
         for k, v in pairs(wordBuster.badWords) do
             if (v[1] == "" or v[1] == " ") then
-                cprint("[Word Buster] Removing empty filters " .. v, 4 + 8)
+                filters_found = true
                 remove(wordBuster.badWords, k) -- Removes empty filters
             end
         end
+        if (filters_found) then
+            cprint("[Word Buster] Removing empty filters.", 4 + 8)
+        end
 
         local time_took = os.clock()
-
         cprint("[Word Buster] Successfully loaded " .. load_count .. " languages:", 2 + 8)
         cprint("[Word Buster] " .. #wordBuster.badWords .. " words loaded in " .. time_took .. " seconds", 2 + 8)
 
@@ -339,9 +341,9 @@ function wordBuster:Load()
 end
 
 function OnGameStart()
-    -- DEBUG CODE:
 
-    --local _, Params = wordBuster:isCensored("sex")
+    -- DEBUG CODE:
+    --local _, Params = wordBuster:isCensored("bimbo")
     --if (#Params > 0) then
     --    for i = 1, #Params do
     --        cprint("------------- WORD FOUND ------------- ", 5 + 8)
@@ -514,16 +516,17 @@ function wordBuster:isCensored(Msg)
     Msg = Msg:lower()
 
     for _, Pattern in pairs(wordBuster.badWords) do
+
         local censored_word
 
         if (not wordBuster.matchWholeWord) then
             censored_word = Msg:match(Pattern[1])
         else
 
-            local S,F = find(gsub(Msg,"(.*)"," %1 "), "[^%a]"..Pattern[1].."[^%a]")
+            local S, F = find(gsub(Msg, "(.*)", " %1 "), "[^%a]" .. Pattern[1] .. "[^%a]")
             if (F) then
-                F = F-2
-                censored_word = sub(Msg, S,F)
+                F = F - 2
+                censored_word = sub(Msg, S, F)
             end
         end
 
