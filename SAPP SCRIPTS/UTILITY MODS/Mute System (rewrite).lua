@@ -49,6 +49,21 @@ MuteSystem.updateMutesCmdPerm = 1
 -- CMD Perm Level: The MIN perm lvl a player must be to execute this CMD
 MuteSystem.mutelistCmdPerm = 1
 
+MuteSystem.AntiSpam = {
+    -- Enable or disable AntiSpam
+    enabled = true,
+    -- Amount of messages sent in a row that will cause a warning.
+    warnThreshold = 4,
+    -- Amount of messages sent in a row that will cause a kick.
+    kickThreshold = 5,
+    -- Amount of time (in seconds) in which messages are considered spam.
+    maxInterval = 3.5,
+    -- Message that will be sent in chat upon warning a user.
+    warnMessage = '%name%, Please stop spamming or you will be kicked!',
+    -- Message that will be sent in chat upon kicking a user.
+    kickReason = 'spamming',
+}
+
 MuteSystem.Messages = {
 
     mute = {
@@ -154,6 +169,12 @@ end
 
 function OnNewGame()
     if (get_var(0, "$gt") ~= "n/a") then
+
+        CheckFile()
+        if (MuteSystem.enableAntiSpam) then
+            execute_command_sequence("antispam 0")
+        end
+
         local UserData = MuteSystem:GetUserData()
         for IP, User in pairs(UserData) do
             if (IP) then
@@ -181,6 +202,27 @@ function OnTick()
                     UserData.muted = false
                     UserData.time_remaining = 0
                     MuteSystem:Update(IP, UserData)
+                end
+            end
+        end
+    end
+    if (MuteSystem.AntiSpam.enabled) then
+        for Ply, v in pairs(players) do
+            if (Ply) then
+                if (v.spam.monitor) then
+                    v.spam.timer = v.spam.timer + 1 / 30
+                    if (v.spam.timer < MuteSystem.AntiSpam.maxInterval) then
+                        if (v.spam.count >= MuteSystem.AntiSpam.warnThreshold) and (v.spam.count < MuteSystem.AntiSpam.kickThreshold) then
+                            cls(Ply, 25)
+                            Respond(Ply, gsub(MuteSystem.AntiSpam.warnMessage, "%%name%%", v.name), "rprint", 4+8)
+                        elseif (v.spam.count >= MuteSystem.AntiSpam.kickThreshold) then
+                            execute_command("k " .. Ply .. ' "' .. gsub(MuteSystem.AntiSpam.kickReason, "%%name%%", v.name) .. '"')
+                        end
+                    elseif (v.spam.timer >= MuteSystem.AntiSpam.maxInterval) then
+                        v.spam.count = 0
+                        v.spam.timer = 0
+                        v.spam.monitor = false
+                    end
                 end
             end
         end
@@ -341,43 +383,52 @@ function OnServerCommand(Executor, Command, _, _)
     end
 end
 
-function OnPlayerChat(PlayerIndex, Message, Type)
+function OnPlayerChat(Ply, Message, Type)
     if (Message ~= "" and Type ~= 6) then
-        local UserData = MuteSystem:IsMuted(PlayerIndex)
+        local UserData = MuteSystem:IsMuted(Ply)
         if (UserData.muted) then
-            local IP = get_var(PlayerIndex, "$ip")
+            local IP = get_var(Ply, "$ip")
             for _, v in pairs(MuteSystem.Messages.mute_reminder) do
                 if (v[2]) then
                     local msg = gsub(v[1], "%%time%%", secondsToTime(mutes[IP].time_remaining))
-                    Respond(PlayerIndex, msg, "rprint", 12)
+                    Respond(Ply, msg, "rprint", 12)
                 end
             end
             return false
+        else
+
+            players[Ply].spam.monitor = true
+            players[Ply].spam.count = players[Ply].spam.count + 1
         end
     end
 end
 
-function OnPlayerConnect(PlayerIndex)
-    InitPlayer(PlayerIndex, false)
+function OnPlayerConnect(Ply)
+    InitPlayer(Ply, false)
 end
 
-function OnPlayerDisconnect(PlayerIndex)
-    InitPlayer(PlayerIndex, true)
+function OnPlayerDisconnect(Ply)
+    InitPlayer(Ply, true)
 end
 
-function InitPlayer(PlayerIndex, Reset)
+function InitPlayer(Ply, Reset)
     if (Reset) then
-        MuteSystem:UpdateMutes(PlayerIndex, "quit")
-        players[PlayerIndex] = { }
+        MuteSystem:UpdateMutes(Ply, "quit")
+        players[Ply] = nil
     else
 
-        local IP = GetIP(PlayerIndex)
-        players[PlayerIndex] = {
+        local IP = GetIP(Ply)
+        players[Ply] = {
             IP = IP,
-            name = get_var(PlayerIndex, "$name"),
+            name = get_var(Ply, "$name"),
+            spam = {
+                timer = 0,
+                count = 0,
+                monitor = false,
+            }
         }
 
-        MuteSystem:UpdateMutes(PlayerIndex, "join")
+        MuteSystem:UpdateMutes(Ply, "join")
     end
 end
 
@@ -399,27 +450,27 @@ function Whitelisted(TargetID, Executor)
     end
 end
 
-function Respond(PlayerIndex, Message, Type, Color)
+function Respond(Ply, Message, Type, Color)
     Color = Color or 10
     execute_command("msg_prefix \"\"")
 
-    if (PlayerIndex == 0) then
+    if (Ply == 0) then
         cprint(Message, Color)
     end
 
     if (Type == "rprint") then
-        rprint(PlayerIndex, MuteSystem.MsgPrefix .. " " .. Message)
+        rprint(Ply, MuteSystem.MsgPrefix .. " " .. Message)
     elseif (Type == "say") then
-        say(PlayerIndex, MuteSystem.MsgPrefix .. " " .. Message)
+        say(Ply, MuteSystem.MsgPrefix .. " " .. Message)
     elseif (Type == "say_all") then
         say_all(MuteSystem.MsgPrefix .. " " .. Message)
     end
     execute_command("msg_prefix \" " .. MuteSystem.serverPrefix .. "\"")
 end
 
-function MuteSystem:IsMuted(PlayerIndex)
-    if (PlayerIndex > 0) then
-        local IP = get_var(PlayerIndex, "$ip")
+function MuteSystem:IsMuted(Ply)
+    if (Ply > 0) then
+        local IP = get_var(Ply, "$ip")
         if (mutes[IP] ~= nil) then
             return mutes[IP]
         end
@@ -427,11 +478,11 @@ function MuteSystem:IsMuted(PlayerIndex)
     return false
 end
 
-function MuteSystem:Mute(PlayerIndex, Minutes)
-    local IP = players[PlayerIndex].IP
+function MuteSystem:Mute(Ply, Minutes)
+    local IP = players[Ply].IP
 
     mutes[IP] = { }
-    mutes[IP].id = PlayerIndex
+    mutes[IP].id = Ply
     mutes[IP].timer = 0
     mutes[IP].muted = true
     mutes[IP].time_remaining = 0
@@ -461,8 +512,8 @@ function ExternalMute(ID, TIME)
     end
 end
 
-function MuteSystem:UpdateMutes(Player, Type)
-    local IP = players[Player].IP
+function MuteSystem:UpdateMutes(Ply, Type)
+    local IP = players[Ply].IP
     local UserData = MuteSystem:GetMuteState(IP)
     if (Type == "quit" and UserData.muted) then
         if (mutes[IP] ~= nil) then
@@ -473,12 +524,12 @@ function MuteSystem:UpdateMutes(Player, Type)
     elseif (Type == "join") then
         if (mutes[IP] == nil) then
             mutes[IP] = { }
-            mutes[IP].id = Player
+            mutes[IP].id = Ply
             mutes[IP].timer = 0
             mutes[IP].muted = false
             mutes[IP].time_remaining = 0
         else
-            mutes[IP].id = Player
+            mutes[IP].id = Ply
         end
     end
 end
@@ -609,10 +660,10 @@ function CheckFile()
     end
 end
 
-function GetPlayers(PlayerIndex, Args)
+function GetPlayers(Ply, Args)
     local pl = { }
     if (Args[2] == nil or Args[2] == "me") then
-        pl[#pl + 1] = tonumber(PlayerIndex)
+        pl[#pl + 1] = tonumber(Ply)
     elseif (Args[2]:match("^%d+$")) and player_present(Args[2]) then
         pl[#pl + 1] = tonumber(Args[2])
     elseif (Args[2] == "all" or Args[2] == "*") then
@@ -622,14 +673,14 @@ function GetPlayers(PlayerIndex, Args)
             end
         end
     else
-        Respond(PlayerIndex, "Invalid Player ID or Player not Online", "rprint", 4 + 8)
-        Respond(PlayerIndex, "Command Usage: /" .. Args[1] .. " [number: 1-16] | */all | me", "rprint", 4 + 8)
+        Respond(Ply, "Invalid Player ID or Player not Online", "rprint", 4 + 8)
+        Respond(Ply, "Command Usage: /" .. Args[1] .. " [number: 1-16] | */all | me", "rprint", 4 + 8)
     end
     return pl
 end
 
-function GetIP(PlayerIndex)
-    local IP = get_var(PlayerIndex, "$ip")
+function GetIP(Ply)
+    local IP = get_var(Ply, "$ip")
     if (not MuteSystem.IPPortIndex) then
         IP = IP:match("%d+.%d+.%d+.%d+")
     end
@@ -648,6 +699,13 @@ function secondsToTime(s)
     local m = floor(s / 60)
     s = s % 60
     return format("Y: %02d W: %02d D: %02d H: %02d M: %02d S: %02d", y, w, d, h, m, s)
+end
+
+function cls(Ply, Count)
+    Count = Count or 25
+    for _ = 1, Count do
+        rprint(Ply, " ")
+    end
 end
 
 return MuteSystem
