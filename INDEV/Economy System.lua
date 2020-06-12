@@ -45,6 +45,26 @@ local Account = {
             }
         },
 
+        Combo = {
+            enabled = true,
+            -- required kills | money added
+            msg = "Combo x%combo% (+%currency_symbol%%amount%) dollars added!",
+            { 3, 15 },
+            { 4, 15 },
+            { 5, 10 },
+            { 6, 10 },
+            { 7, 15 },
+            { 8, 15 },
+            { 9, 20 },
+            { 10, 25 },
+            { 11, 25 },
+            { 12, 25 },
+            { 13, 30 },
+            { 14, 30 },
+            { 15, 150 },
+            duration = 7 -- in seconds (default 7)
+        },
+
         Streaks = {
             enabled = true,
             msg = "%streaks% Kill Streak (+%currency_symbol%%amount% dollars added)",
@@ -115,6 +135,7 @@ local sub, gsub, format = string.sub, string.gsub, string.format
 local json = (loadfile "json.lua")()
 
 function OnScriptLoad()
+    register_callback(cb["EVENT_TICK"], "OnTick")
     register_callback(cb["EVENT_DIE"], "OnPlayerDeath")
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb['EVENT_SCORE'], "OnPlayerScore")
@@ -134,6 +155,22 @@ end
 
 function OnScriptUnload()
     Account:UpdateALL()
+end
+
+function Account:OnTick()
+    for ply,v in pairs(self.players) do
+        if (ply) and player_present(ply) then
+            if (self.stats.Combo.enabled) then
+                if (v.Combo.init) then
+                    v.Combo.timer = v.Combo.timer
+                    if (v.Combo.timer >= self.stats.Combo.duration) then
+                        v.Combo.init = false
+                        v.Combo.timer = 0
+                    end
+                end
+            end
+        end
+    end
 end
 
 function OnGameStart()
@@ -208,6 +245,8 @@ end
 
 function OnPlayerSpawn(Ply)
     Account.players[Ply].streaks = 0
+    Account.players[Ply].Combo.timer = 0
+    Account.players[Ply].Combo.init = false
 end
 
 function OnPlayerConnect(Ply)
@@ -268,13 +307,13 @@ function Account:AddNewAccount(Ply)
             local account = json:decode(content)
 
             if (account[IP] == nil) then
-                account[IP] = {balance = self.starting_balance}
+                account[IP] = { balance = self.starting_balance }
                 file:write(json:encode_pretty(account))
             end
 
             self.players[Ply] = account[IP]
             self.players[Ply].streaks = 0
-            
+            self.players[Ply].Combo = { }
             io.close(file)
         end
     end
@@ -307,6 +346,7 @@ end
 
 function Account:CheckFile()
     self.players = { }
+
     local FA = io.open(self.dir, "a")
     if (FA ~= nil) then
         io.close(FA)
@@ -378,6 +418,10 @@ end
 
 function OnPlayerDeath(V, K)
     Account:OnPlayerDeath(V, K)
+end
+
+function OnTick()
+    Account:OnTick()
 end
 
 return Account
