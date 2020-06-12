@@ -309,7 +309,7 @@ function Account:OnTick()
     for ply, v in pairs(self.players) do
         if (ply) and player_present(ply) and player_alive(ply) then
             if (self.stats.Combo.enabled) then
-                if (v.combos.init) then
+                if (v.combos and v.combos.init) then
                     v.combos.timer = v.combos.timer + 1 / 30
                     if (v.combos.timer >= self.stats.Combo.duration) then
                         v.combos.timer, v.combos.total = 0, 0
