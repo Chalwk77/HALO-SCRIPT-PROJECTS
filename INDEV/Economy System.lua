@@ -120,7 +120,7 @@ function Account:UpdateALL()
     if (get_var(0, "$gt") ~= "n/a") then
         local accounts = self:GetAccountData()
         if (accounts) then
-            for Ply = 1,16 do
+            for Ply = 1, 16 do
                 if player_present(Ply) then
                     local IP = self:GetIP(Ply)
                     self:UpdateJSON(IP, accounts[IP])
