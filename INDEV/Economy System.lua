@@ -49,20 +49,22 @@ local Account = {
             enabled = true,
             -- required kills | money added
             msg = "Combo x%combo% (+%currency_symbol%%amount%) dollars added!",
-            { 3, 15 },
-            { 4, 15 },
-            { 5, 10 },
-            { 6, 10 },
-            { 7, 15 },
-            { 8, 15 },
-            { 9, 20 },
-            { 10, 25 },
-            { 11, 25 },
-            { 12, 25 },
-            { 13, 30 },
-            { 14, 30 },
-            { 15, 150 },
-            duration = 7 -- in seconds (default 7)
+            duration = 7, -- in seconds (default 7)
+            kills = {
+                { 3, 15 },
+                { 4, 15 },
+                { 5, 10 },
+                { 6, 10 },
+                { 7, 15 },
+                { 8, 15 },
+                { 9, 20 },
+                { 10, 25 },
+                { 11, 25 },
+                { 12, 25 },
+                { 13, 30 },
+                { 14, 30 },
+                { 15, 150 },
+            }
         },
 
         Streaks = {
@@ -158,14 +160,17 @@ function OnScriptUnload()
 end
 
 function Account:OnTick()
-    for ply,v in pairs(self.players) do
-        if (ply) and player_present(ply) then
+
+    -- COMBO SCORING TIMER
+
+    for ply, v in pairs(self.players) do
+        if (ply) and player_present(ply) and player_alive(ply) then
             if (self.stats.Combo.enabled) then
                 if (v.Combo.init) then
-                    v.Combo.timer = v.Combo.timer
+                    v.Combo.timer = v.Combo.timer + 1 / 30
                     if (v.Combo.timer >= self.stats.Combo.duration) then
-                        v.Combo.init = false
                         v.Combo.timer = 0
+                        v.Combo.init = false
                     end
                 end
             end
@@ -215,6 +220,19 @@ function Account:OnPlayerDeath(VictimIndex, KillerIndex)
                         if (self.players[killer].streaks == v[1]) then
                             self.players[killer].streaks = 0
                             self:Deposit(killer, v[2], stats.Streaks.msg)
+                        end
+                    end
+                end
+                -- Combo Scoring:
+                if (stats.Combo.enabled) then
+                    self.players[killer].Combo.Combos = self.players[killer].Combo.Combos + 1
+                    if not (self.players[killer].Combo.init) then
+                        self.players[killer].Combo.init = true
+                    elseif (self.players[killer].Combo.timer < stats.Combo.duration) then
+                        for _, v in pairs(stats.Combo.kills) do
+                            if (self.players[killer].Combo.combos == v[1]) then
+                                self:Deposit(killer, v[2], stats.Combo.msg)
+                            end
                         end
                     end
                 end
@@ -313,7 +331,7 @@ function Account:AddNewAccount(Ply)
 
             self.players[Ply] = account[IP]
             self.players[Ply].streaks = 0
-            self.players[Ply].Combo = { }
+            self.players[Ply].Combo = { combos = 0, init = false }
             io.close(file)
         end
     end
