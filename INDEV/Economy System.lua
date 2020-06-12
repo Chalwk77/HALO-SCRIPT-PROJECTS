@@ -45,11 +45,32 @@ local Account = {
             }
         },
 
-        -- Every kill will reward X amount of money
-        PvP = {
-            enabled = true, -- Set to 'false' to disable
-            award = 10,
-            msg = "(x%kills%) kills (+%currency_symbol%%amount%) dollars"
+        Streaks = {
+            enabled = true,
+            msg = "%streaks% Kill Streak (+%currency_symbol%%amount% dollars added)",
+            -- required streaks | reward
+            kills = {
+                { 5, 15 },
+                { 10, 20 },
+                { 15, 25 },
+                { 20, 30 },
+                { 25, 35 },
+                { 30, 40 },
+                { 35, 45 },
+                { 40, 50 },
+                { 45, 55 },
+                { 50, 60 },
+                { 55, 65 },
+                { 60, 70 },
+                { 65, 75 },
+                { 70, 80 },
+                { 75, 85 },
+                { 80, 95 },
+                { 85, 100 },
+                { 90, 110 },
+                { 95, 120 },
+                { 100, 130 }
+            }
         },
 
         Penalties = {
@@ -57,6 +78,13 @@ local Account = {
             [1] = { 2, "DEATH (-%currency_symbol%%amount% dollars)", true },
             [2] = { 5, "SUICIDE (-%currency_symbol%%amount% dollars)", true },
             [3] = { 30, "BETRAY (-%currency_symbol%%amount% dollars)", true }
+        },
+
+        -- Every kill will reward X amount of money
+        PvP = {
+            enabled = true, -- Set to 'false' to disable
+            award = 10,
+            msg = "(x%kills%) kills (+%currency_symbol%%amount%) dollars"
         },
 
         Assists = {
@@ -90,6 +118,7 @@ function OnScriptLoad()
     register_callback(cb["EVENT_DIE"], "OnPlayerDeath")
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb['EVENT_SCORE'], "OnPlayerScore")
+    register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
     register_callback(cb['EVENT_ASSIST'], "OnPlayerAssist")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
@@ -127,11 +156,6 @@ function Account:OnPlayerDeath(VictimIndex, KillerIndex)
         local vTeam = get_var(victim, "$team")
         local kills = tonumber(get_var(killer, "$kills"))
 
-        -- The Killer is always rewarded $X.00 for every kill.
-        -- However, combo-scoring is enabled (by design), which means
-        -- that the Killer can be rewarded for both "every-kill" and "non-consecutive" kills.
-
-
         if (killer ~= victim) then
             if (kTeam ~= vTeam) then
                 local non_consec = stats.Non_Consecutive_Kills
@@ -145,12 +169,20 @@ function Account:OnPlayerDeath(VictimIndex, KillerIndex)
                         end
                     end
                 end
-
-                -- Reward player with $$ for every kill
+                -- PvP:
                 if (stats.PvP.enabled) then
                     self:Deposit(killer, stats.PvP.award, stats.PvP.msg)
                 end
-
+                -- Streaks:
+                if (stats.Streaks.enabled) then
+                    self.players[killer].streaks = self.players[killer].streaks + 1
+                    for _, v in pairs(stats.Streaks.kills) do
+                        if (self.players[killer].streaks == v[1]) then
+                            self.players[killer].streaks = 0
+                            self:Deposit(killer, v[2], stats.Streaks.msg)
+                        end
+                    end
+                end
             elseif (stats.Penalties[3][3]) and isTeamPlay() then
                 -- BETRAY:
                 self:Withdraw(killer, stats.Penalties[3][1], stats.Penalties[3][2])
@@ -174,6 +206,10 @@ function OnPlayerScore(Ply)
     if (score.enabled) then
         Account:Deposit(Ply, score.reward, score.msg)
     end
+end
+
+function OnPlayerSpawn(Ply)
+    Account.players[Ply].streaks = 0
 end
 
 function OnPlayerConnect(Ply)
@@ -207,6 +243,9 @@ function Account:UpdateJSON(IP, Table)
     if (accounts) then
         local file = assert(io.open(self.dir, "w"))
         if (file) then
+            if (Table.streaks) then
+                Table.streaks = nil
+            end
             accounts[IP] = Table
             file:write(json:encode_pretty(accounts))
             io.close(file)
@@ -231,12 +270,15 @@ function Account:AddNewAccount(Ply)
             local account = json:decode(content)
 
             if (account[IP] == nil) then
-                account[IP] = { balance = format("%.2f", self.starting_balance) }
+                account[IP] = {
+                    balance = format("%.2f", self.starting_balance),
+                }
                 file:write(json:encode_pretty(account))
                 io.close(file)
             end
 
             self.players[Ply] = account[IP]
+            self.players[Ply].streaks = 0
         end
     end
 end
@@ -302,6 +344,7 @@ function Account:FormatStr(Ply, Msg, Amount)
     local patterns = {
         { "%%kills%%", k },
         { "%%deaths%%", d },
+        { "%%streaks%%", self.players[Ply].streaks },
         { "%%amount%%", self:FormatMoney(Amount) },
         { "%%currency_symbol%%", self.currency_symbol }
     }
