@@ -124,7 +124,6 @@ function OnScriptLoad()
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
     if (get_var(0, "$gt") ~= "n/a") then
         Account:CheckFile()
-        Account.players = { }
         for Ply = 1, 16 do
             if player_present(Ply) then
                 Account:AddNewAccount(Ply)
@@ -140,7 +139,6 @@ end
 function OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
         Account:CheckFile()
-        Account.players = { }
     end
 end
 
@@ -154,15 +152,15 @@ function Account:OnPlayerDeath(VictimIndex, KillerIndex)
         local stats = self.stats
         local kTeam = get_var(killer, "$team")
         local vTeam = get_var(victim, "$team")
-        local kills = tonumber(get_var(killer, "$kills"))
 
         if (killer ~= victim) then
             if (kTeam ~= vTeam) then
-                local non_consec = stats.Non_Consecutive_Kills
-                if (non_consec.enabled) then
-                    for _, v in pairs(non_consec.kills) do
+                local NCK = stats.Non_Consecutive_Kills
+                if (NCK.enabled) then
+                    local kills = tonumber(get_var(killer, "$kills"))
+                    for _, v in pairs(NCK.kills) do
                         if (kills == v[1]) then
-                            self:Deposit(killer, v[2], non_consec.msg)
+                            self:Deposit(killer, v[2], NCK.msg)
                             if (stats.Penalties[1][3]) then
                                 self:Withdraw(victim, stats.Penalties[1][1], stats.Penalties[1][2])
                             end
@@ -270,15 +268,14 @@ function Account:AddNewAccount(Ply)
             local account = json:decode(content)
 
             if (account[IP] == nil) then
-                account[IP] = {
-                    balance = format("%.2f", self.starting_balance),
-                }
+                account[IP] = {balance = self.starting_balance}
                 file:write(json:encode_pretty(account))
-                io.close(file)
             end
 
             self.players[Ply] = account[IP]
             self.players[Ply].streaks = 0
+            
+            io.close(file)
         end
     end
 end
@@ -309,6 +306,7 @@ function Account:GetAccountData()
 end
 
 function Account:CheckFile()
+    self.players = { }
     local FA = io.open(self.dir, "a")
     if (FA ~= nil) then
         io.close(FA)
