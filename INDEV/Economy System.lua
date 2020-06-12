@@ -32,7 +32,7 @@ local Account = {
         Non_Consecutive_Kills = {
             -- Non-consecutive, threshold-based kills:
             enabled = true,
-            msg = "Total Kills: %kills% (+%currency_symbol%%amount%) dollars added!",
+            msg = "Total Kills: %kills% (+%currency_symbol%%amount% dollars added!)",
             -- { kills required | amount awarded }
             kills = {
                 { 5, 10 }, { 10, 10 }, { 15, 10 },
@@ -48,7 +48,7 @@ local Account = {
         Combo = {
             enabled = true,
             -- required kills | money added
-            msg = "Combo x%combo% (+%currency_symbol%%amount%) dollars added!",
+            msg = "Combo Kills: %combo%x (+%currency_symbol%%amount% dollars added)",
             duration = 7, -- in seconds (default 7)
             kills = {
                 { 3, 15 },
@@ -69,7 +69,7 @@ local Account = {
 
         Streaks = {
             enabled = true,
-            msg = "%streaks% Kill Streak (+%currency_symbol%%amount% dollars added)",
+            msg = "Kill Streak: %streaks% (+%currency_symbol%%amount% dollars added)",
             -- required streaks | reward
             kills = {
                 { 5, 15 },
@@ -97,32 +97,31 @@ local Account = {
 
         Penalties = {
             -- amount deducted | message | enabled/disabled
-            [1] = { 2, "DEATH (-%currency_symbol%%amount% dollars)", true },
-            [2] = { 5, "SUICIDE (-%currency_symbol%%amount% dollars)", true },
-            [3] = { 30, "BETRAY (-%currency_symbol%%amount% dollars)", true }
+            [1] = { 2, "DEATH: (-%currency_symbol%%amount% dollars taken)", true },
+            [2] = { 5, "SUICIDE: (-%currency_symbol%%amount% dollars taken)", true },
+            [3] = { 30, "BETRAY: (-%currency_symbol%%amount% dollars taken)", true }
         },
 
         -- Every kill will reward X amount of money
         PvP = {
             enabled = true, -- Set to 'false' to disable
             award = 10,
-            msg = "(x%kills%) kills (+%currency_symbol%%amount%) dollars"
+            msg = "PvP: x%kills% kills (+%currency_symbol%%amount% dollars added)"
         },
 
         Assists = {
             enabled = true,
             reward = 30,
-            msg = "ASSIST (+%currency_symbol%%amount% dollars)"
+            msg = "ASSIST: (+%currency_symbol%%amount% dollars added)"
         },
 
         -- reward points | message | enabled/disabled
         Score = {
             enabled = true,
             reward = 30,
-            msg = "SCORE (+%currency_symbol%%amount% dollars)"
+            msg = "SCORE: (+%currency_symbol%%amount% dollars added)"
         }
     },
-
 
     --
     -- Advanced users only: Client data will be saved as a json array and
@@ -166,11 +165,11 @@ function Account:OnTick()
     for ply, v in pairs(self.players) do
         if (ply) and player_present(ply) and player_alive(ply) then
             if (self.stats.Combo.enabled) then
-                if (v.Combo.init) then
-                    v.Combo.timer = v.Combo.timer + 1 / 30
-                    if (v.Combo.timer >= self.stats.Combo.duration) then
-                        v.Combo.timer = 0
-                        v.Combo.init = false
+                if (v.combos.init) then
+                    v.combos.timer = v.combos.timer + 1 / 30
+                    if (v.combos.timer >= self.stats.Combo.duration) then
+                        v.combos.timer = 0
+                        v.combos.init = false
                     end
                 end
             end
@@ -225,12 +224,12 @@ function Account:OnPlayerDeath(VictimIndex, KillerIndex)
                 end
                 -- Combo Scoring:
                 if (stats.Combo.enabled) then
-                    self.players[killer].Combo.Combos = self.players[killer].Combo.Combos + 1
-                    if not (self.players[killer].Combo.init) then
-                        self.players[killer].Combo.init = true
-                    elseif (self.players[killer].Combo.timer < stats.Combo.duration) then
+                    self.players[killer].combos.Combos = self.players[killer].combos.Combos + 1
+                    if not (self.players[killer].combos.init) then
+                        self.players[killer].combos.init = true
+                    elseif (self.players[killer].combos.timer < stats.Combo.duration) then
                         for _, v in pairs(stats.Combo.kills) do
-                            if (self.players[killer].Combo.combos == v[1]) then
+                            if (self.players[killer].combos.combos == v[1]) then
                                 self:Deposit(killer, v[2], stats.Combo.msg)
                             end
                         end
@@ -262,9 +261,11 @@ function OnPlayerScore(Ply)
 end
 
 function OnPlayerSpawn(Ply)
-    Account.players[Ply].streaks = 0
-    Account.players[Ply].Combo.timer = 0
-    Account.players[Ply].Combo.init = false
+    if (Account.players[Ply]) then
+        Account.players[Ply].streaks = 0
+        Account.players[Ply].combos.timer = 0
+        Account.players[Ply].combos.init = false
+    end
 end
 
 function OnPlayerConnect(Ply)
@@ -272,6 +273,10 @@ function OnPlayerConnect(Ply)
 end
 
 function OnPlayerDisconnect(Ply)
+
+    Account.players[Ply].combos = nil
+    Account.players[Ply].streaks = nil
+
     Account:UpdateJSON(Account:GetIP(Ply), Account.players[Ply])
     Account.players[Ply] = nil
 end
@@ -298,9 +303,6 @@ function Account:UpdateJSON(IP, Table)
     if (accounts) then
         local file = assert(io.open(self.dir, "w"))
         if (file) then
-            if (Table.streaks) then
-                Table.streaks = nil
-            end
             accounts[IP] = Table
             file:write(json:encode_pretty(accounts))
             io.close(file)
@@ -311,7 +313,7 @@ end
 function Account:AddNewAccount(Ply)
     local content = ""
     local File = io.open(self.dir, "r")
-    if (File ~= nil) then
+    if (File) then
         content = File:read("*all")
         io.close(File)
     end
@@ -320,19 +322,17 @@ function Account:AddNewAccount(Ply)
         if (file) then
 
             self.players[Ply] = { }
-
-            local IP = self:GetIP(Ply)
             local account = json:decode(content)
-
+            local IP = self:GetIP(Ply)
             if (account[IP] == nil) then
                 account[IP] = { balance = self.starting_balance }
-                file:write(json:encode_pretty(account))
             end
+            file:write(json:encode_pretty(account))
+            io.close(file)
 
             self.players[Ply] = account[IP]
             self.players[Ply].streaks = 0
-            self.players[Ply].Combo = { combos = 0, init = false }
-            io.close(file)
+            self.players[Ply].combos = { combos = 0, init = false }
         end
     end
 end
@@ -353,25 +353,26 @@ end
 
 function Account:GetAccountData()
     local file = io.open(self.dir, "r")
-    if (file ~= nil) then
+    local table
+    if (file) then
         local data = file:read("*all")
         if (len(data) > 0) then
-            return json:decode(data)
+            table = json:decode(data)
         end
+        file:close()
     end
-    return nil
+    return table
 end
 
 function Account:CheckFile()
     self.players = { }
-
     local FA = io.open(self.dir, "a")
-    if (FA ~= nil) then
+    if (FA) then
         io.close(FA)
     end
     local content = ""
     local FB = io.open(self.dir, "r")
-    if (FB ~= nil) then
+    if (FB) then
         content = FB:read("*all")
         io.close(FB)
     end
