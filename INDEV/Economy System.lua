@@ -25,14 +25,43 @@ local Account = {
 
     dir = "accounts.txt",
     currency_symbol = "$",
+
+    -- Starting Balance (accepts decimals)
     starting_balance = 200,
+
+    commands = {
+        bal = {
+            cmd = "bal",
+            permission_level = 1,
+            responses = {
+                "Your balance is %sym%%amount%",
+                "%name%'s balance is %sym%%amount%"
+            }
+        },
+        add = {
+            cmd = "add",
+            permission_level = 1,
+            responses = {
+                "[Cheat] Received %sym%%amount% | New Balance: %sym%%total%",
+                "[Cheat] %name% received %sym%%amount% | New Balance: %sym%%total%",
+            }
+        },
+        remove = {
+            cmd = "remove",
+            permission_level = 1,
+            responses = {
+                "[Cheat] Deducting %sym%%amount% | New Balance: %total%",
+                "[Cheat] Deducted %sym%%amount% from %name%'s account  | New Balance: %total%",
+            }
+        }
+    },
 
     stats = {
 
         Non_Consecutive_Kills = {
             -- Non-consecutive, threshold-based kills:
             enabled = true,
-            msg = "Total Kills: %kills% (+%currency_symbol%%amount% dollars added!)",
+            msg = "Total Kills: %kills% (+%sym%%amount% dollars added!)",
             -- { kills required | amount awarded }
             kills = {
                 { 5, 10 }, { 10, 10 }, { 15, 10 },
@@ -48,10 +77,10 @@ local Account = {
         Combo = {
             enabled = true,
             -- required kills | money added
-            msg = "Combo Kills: %combo%x (+%currency_symbol%%amount% dollars added)",
-            duration = 7, -- in seconds (default 7)
+            msg = "Combo Kills: %combo%x (+%sym%%amount% dollars added)",
+            duration = 100, -- in seconds (default 7)
             kills = {
-                { 3, 15 },
+                { 2, 15 },
                 { 4, 15 },
                 { 5, 10 },
                 { 6, 10 },
@@ -69,7 +98,7 @@ local Account = {
 
         Streaks = {
             enabled = true,
-            msg = "Kill Streak: %streaks% (+%currency_symbol%%amount% dollars added)",
+            msg = "Kill Streak: %streaks% (+%sym%%amount% dollars added)",
             -- required streaks | reward
             kills = {
                 { 5, 15 },
@@ -97,52 +126,62 @@ local Account = {
 
         Penalties = {
             -- amount deducted | message | enabled/disabled
-            [1] = { 2, "DEATH: (-%currency_symbol%%amount% dollars taken)", true },
-            [2] = { 5, "SUICIDE: (-%currency_symbol%%amount% dollars taken)", true },
-            [3] = { 30, "BETRAY: (-%currency_symbol%%amount% dollars taken)", true }
+            [1] = { 2, "DEATH: (-%sym%%amount% dollars taken)", true },
+            [2] = { 5, "SUICIDE: (-%sym%%amount% dollars taken)", true },
+            [3] = { 30, "BETRAY: (-%sym%%amount% dollars taken)", true }
         },
 
         -- Every kill will reward X amount of money
         PvP = {
             enabled = true, -- Set to 'false' to disable
             award = 10,
-            msg = "PvP: x%kills% kills (+%currency_symbol%%amount% dollars added)"
+            msg = "PvP: x%kills% kills (+%sym%%amount% dollars added)"
         },
 
         Assists = {
             enabled = true,
             reward = 30,
-            msg = "ASSIST: (+%currency_symbol%%amount% dollars added)"
+            msg = "ASSIST: (+%sym%%amount% dollars added)"
         },
 
         -- reward points | message | enabled/disabled
         Score = {
             enabled = true,
             reward = 30,
-            msg = "SCORE: (+%currency_symbol%%amount% dollars added)"
+            msg = "SCORE: (+%sym%%amount% dollars added)"
         }
     },
 
     --
-    -- Advanced users only: Client data will be saved as a json array and
+    -- Advanced users only:
+    --
+    --
+
+    -- Client data will be saved as a json array and
     -- the array index for each client will either be "IP", or "IP:PORT".
     -- Set to 1 for IP-only indexing.
     ClientIndexType = 2,
+
+    -- A message relay function temporarily removes the server prefix
+    -- and will restore it to this when the relay is finished
+    serverPrefix = "**SAPP**"
 }
 
-local len = string.len
 local floor = math.floor
+local gmatch, len = string.gmatch, string.len
 local sub, gsub, format = string.sub, string.gsub, string.format
 local json = (loadfile "json.lua")()
 
 function OnScriptLoad()
     register_callback(cb["EVENT_TICK"], "OnTick")
     register_callback(cb["EVENT_DIE"], "OnPlayerDeath")
-    register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
+    register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
     register_callback(cb['EVENT_SCORE'], "OnPlayerScore")
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
+    register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb['EVENT_ASSIST'], "OnPlayerAssist")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
+    register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
     if (get_var(0, "$gt") ~= "n/a") then
         Account:CheckFile()
@@ -158,28 +197,127 @@ function OnScriptUnload()
     Account:UpdateALL()
 end
 
+function OnGameStart()
+    if (get_var(0, "$gt") ~= "n/a") then
+        Account:CheckFile()
+    end
+end
+
+function OnGameEnd()
+    Account:UpdateALL()
+end
+
+function Account:OnServerCommand(Ply, Command, _, _)
+    local CMD = CMDSplit(Command)
+    if (#CMD == 0) then
+        return
+    else
+        CMD[1] = CMD[1]:lower()
+        if (CMD[1] == self.commands.bal.cmd) then
+            if checkAccess(Ply, self.commands.bal.permission_level) then
+                local pl = GetPlayers(Ply, CMD)
+                if (pl) then
+                    for i = 1, #pl do
+                        local TargetID = pl[i]
+                        if (TargetID == Ply) then
+                            local m = self.commands.bal.responses[1]
+                            local bal = self:FormatMoney(self.players[Ply].balance)
+                            local msg = gsub(gsub(m, "%%sym%%", self.currency_symbol), "%%amount%%", bal)
+                            Respond(Ply, msg, "rprint", 2 + 8)
+                        else
+                            local m = self.commands.bal.responses[2]
+                            local bal = self:FormatMoney(self.players[TargetID].balance)
+                            local name = get_var(TargetID, "$name")
+                            local msg = gsub(gsub(gsub(m, "%%sym%%", self.currency_symbol), "%%amount%%", bal), "%%name%%", name)
+                            Respond(Ply, msg, "rprint", 2 + 8)
+                        end
+                    end
+                end
+            end
+            return false
+        elseif (CMD[1] == self.commands.add.cmd) then
+            if checkAccess(Ply, self.commands.add.permission_level) then
+                if (CMD[2] ~= nil and CMD[3] ~= nil) then
+                    local pl = GetPlayers(Ply, CMD)
+                    if (pl) then
+                        for i = 1, #pl do
+                            local TargetID, Amount = pl[i], CMD[3]
+                            if Amount:match("^%d+$") or Amount:match("[%.2f]") then
+                                local Msg = ""
+                                if (TargetID == Ply) then
+                                    Msg = self.commands.add.responses[1]
+                                else
+                                    Msg = self.commands.add.responses[2]
+                                end
+                                local patterns = {
+                                    { "%%sym%%", self.currency_symbol },
+                                    { "%%amount%%", self:FormatMoney(Amount) },
+                                    { "%%total%%", self:FormatMoney(self.players[TargetID].balance + Amount) },
+                                    { "%%name%%", get_var(TargetID, "$name") },
+                                }
+                                for i = 1, #patterns do
+                                    Msg = (gsub(Msg, patterns[i][1], patterns[i][2]))
+                                end
+                                Respond(Ply, Msg, "rprint", 2 + 8)
+                                self:Deposit(TargetID, Amount)
+                            end
+                        end
+                    end
+                else
+                    Respond(Executor, "Invalid Syntax. Usage: /" .. CMD[1] .. " [player id]|me|*/all [amount]", "rprint", 12)
+                end
+            end
+            return false
+        elseif (CMD[1] == self.commands.remove.cmd) then
+            if checkAccess(Ply, self.commands.remove.permission_level) then
+                if (CMD[2] ~= nil and CMD[3] ~= nil) then
+                    local pl = GetPlayers(Ply, CMD)
+                    if (pl) then
+                        for i = 1, #pl do
+                            local TargetID, Amount = pl[i], CMD[3]
+                            if Amount:match("^%d+$") or Amount:match("[%.2f]") then
+                                local Msg = ""
+                                if (TargetID == Ply) then
+                                    Msg = self.commands.remove.responses[1]
+                                else
+                                    Msg = self.commands.remove.responses[2]
+                                end
+                                local patterns = {
+                                    { "%%sym%%", self.currency_symbol },
+                                    { "%%amount%%", self:FormatMoney(Amount) },
+                                    { "%%total%%", self:FormatMoney(self.players[TargetID].balance - Amount) },
+                                    { "%%name%%", get_var(TargetID, "$name") },
+                                }
+                                for i = 1, #patterns do
+                                    Msg = (gsub(Msg, patterns[i][1], patterns[i][2]))
+                                end
+                                Respond(Ply, Msg, "rprint", 2 + 8)
+                                self:Withdraws(TargetID, Amount)
+                            end
+                        end
+                    end
+                else
+                    Respond(Executor, "Invalid Syntax. Usage: /" .. CMD[1] .. " [player id]|me|*/all [amount]", "rprint", 12)
+                end
+            end
+            return false
+        end
+    end
+end
+
 function Account:OnTick()
-
-    -- COMBO SCORING TIMER
-
     for ply, v in pairs(self.players) do
         if (ply) and player_present(ply) and player_alive(ply) then
             if (self.stats.Combo.enabled) then
                 if (v.combos.init) then
                     v.combos.timer = v.combos.timer + 1 / 30
                     if (v.combos.timer >= self.stats.Combo.duration) then
-                        v.combos.timer = 0
+                        v.combos.timer, v.combos.total = 0, 0
                         v.combos.init = false
                     end
                 end
             end
         end
-    end
-end
-
-function OnGameStart()
-    if (get_var(0, "$gt") ~= "n/a") then
-        Account:CheckFile()
     end
 end
 
@@ -224,12 +362,12 @@ function Account:OnPlayerDeath(VictimIndex, KillerIndex)
                 end
                 -- Combo Scoring:
                 if (stats.Combo.enabled) then
-                    self.players[killer].combos.Combos = self.players[killer].combos.Combos + 1
+                    self.players[killer].combos.total = self.players[killer].combos.total + 1
                     if not (self.players[killer].combos.init) then
                         self.players[killer].combos.init = true
                     elseif (self.players[killer].combos.timer < stats.Combo.duration) then
                         for _, v in pairs(stats.Combo.kills) do
-                            if (self.players[killer].combos.combos == v[1]) then
+                            if (self.players[killer].combos.total == v[1]) then
                                 self:Deposit(killer, v[2], stats.Combo.msg)
                             end
                         end
@@ -263,6 +401,7 @@ end
 function OnPlayerSpawn(Ply)
     if (Account.players[Ply]) then
         Account.players[Ply].streaks = 0
+        Account.players[Ply].combos.total = 0
         Account.players[Ply].combos.timer = 0
         Account.players[Ply].combos.init = false
     end
@@ -273,11 +412,7 @@ function OnPlayerConnect(Ply)
 end
 
 function OnPlayerDisconnect(Ply)
-
-    Account.players[Ply].combos = nil
-    Account.players[Ply].streaks = nil
-
-    Account:UpdateJSON(Account:GetIP(Ply), Account.players[Ply])
+    Account:UpdateJSON(Ply, Account:GetIP(Ply), Account.players[Ply])
     Account.players[Ply] = nil
 end
 
@@ -298,7 +433,11 @@ function Account:Withdraw(Ply, Amount, Msg)
     end
 end
 
-function Account:UpdateJSON(IP, Table)
+function Account:UpdateJSON(Ply, IP, Table)
+
+    self.players[Ply].combos = nil
+    self.players[Ply].streaks = nil
+
     local accounts = self:GetAccountData()
     if (accounts) then
         local file = assert(io.open(self.dir, "w"))
@@ -332,20 +471,19 @@ function Account:AddNewAccount(Ply)
 
             self.players[Ply] = account[IP]
             self.players[Ply].streaks = 0
-            self.players[Ply].combos = { combos = 0, init = false }
+            self.players[Ply].combos = { total = 0, init = false }
+
+            rprint(Ply, "Your balance is " .. self.currency_symbol .. " " .. self:FormatMoney(account[IP].balance))
         end
     end
 end
 
 function Account:UpdateALL()
     if (get_var(0, "$gt") ~= "n/a") then
-        local accounts = self:GetAccountData()
-        if (accounts) then
-            for Ply = 1, 16 do
-                if player_present(Ply) then
-                    local IP = self:GetIP(Ply)
-                    self:UpdateJSON(IP, accounts[IP])
-                end
+        for Ply = 1, 16 do
+            if player_present(Ply) then
+                local IP = self:GetIP(Ply)
+                self:UpdateJSON(Ply, IP, self.players[Ply])
             end
         end
     end
@@ -394,22 +532,19 @@ function Account:GetIP(Ply)
 end
 
 function Account:FormatStr(Ply, Msg, Amount)
-
     local k = tonumber(get_var(Ply, "$kills"))
     local d = tonumber(get_var(Ply, "$deaths"))
-
     local patterns = {
         { "%%kills%%", k },
         { "%%deaths%%", d },
+        { "%%combo%%", self.players[Ply].combos.total },
         { "%%streaks%%", self.players[Ply].streaks },
         { "%%amount%%", self:FormatMoney(Amount) },
-        { "%%currency_symbol%%", self.currency_symbol }
+        { "%%sym%%", self.currency_symbol }
     }
-
     for i = 1, #patterns do
         Msg = (gsub(Msg, patterns[i][1], patterns[i][2]))
     end
-
     return Msg
 end
 
@@ -435,12 +570,80 @@ function isTeamPlay()
     end
 end
 
+function CMDSplit(CMD)
+    local Args, index = { }, 1
+    for Params in gmatch(CMD, "([^%s]+)") do
+        Args[index] = Params
+        index = index + 1
+    end
+    return Args
+end
+
+function Respond(Ply, Message, Type, Color)
+    Color = Color or 10
+    execute_command("msg_prefix \"\"")
+
+    if (Ply == 0) then
+        cprint(Message, Color)
+    end
+
+    if (Type == "rprint") then
+        rprint(Ply, Message)
+    elseif (Type == "say") then
+        say(Ply, Message)
+    elseif (Type == "say_all") then
+        say_all(Message)
+    end
+    execute_command("msg_prefix \" " .. Account.serverPrefix .. "\"")
+end
+
+function checkAccess(Ply, PermLvl)
+    if (Ply ~= -1 and Ply >= 1 and Ply < 16) then
+        if (tonumber(get_var(Ply, "$lvl")) >= PermLvl) then
+            return true
+        else
+            Respond(Ply, "Command failed. Insufficient Permission", "rprint", 12)
+            return false
+        end
+    elseif (Ply < 1) then
+        return true
+    end
+    return false
+end
+
+function GetPlayers(Ply, Args)
+    local pl = { }
+    if (Args[2] == nil or Args[2] == "me") then
+        if (Ply == 0) then
+            return Respond(Ply, "Cannot execute command for the server", "rprint", 4 + 8)
+        else
+            pl[#pl + 1] = tonumber(Ply)
+        end
+    elseif (Args[2]:match("^%d+$")) and player_present(Args[2]) then
+        pl[#pl + 1] = tonumber(Args[2])
+    elseif (Args[2] == "all" or Args[2] == "*") then
+        for i = 1, 16 do
+            if player_present(i) then
+                pl[#pl + 1] = tonumber(i)
+            end
+        end
+    else
+        Respond(Ply, "Invalid Player ID or Player not Online", "rprint", 4 + 8)
+        Respond(Ply, "Command Usage: /" .. Args[1] .. " [number: 1-16] | */all | me", "rprint", 4 + 8)
+    end
+    return pl
+end
+
 function OnPlayerDeath(V, K)
-    Account:OnPlayerDeath(V, K)
+    return Account:OnPlayerDeath(V, K)
 end
 
 function OnTick()
-    Account:OnTick()
+    return Account:OnTick()
+end
+
+function OnServerCommand(P, C, _, _)
+    return Account:OnServerCommand(P, C, _, _)
 end
 
 return Account
