@@ -22,20 +22,75 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.12.0.0"
 
 local Account = {
+
     dir = "accounts.txt",
+    currency_symbol = "$",
     starting_balance = 200,
 
+    stats = {
+
+        Non_Consecutive_Kills = {
+            -- Non-consecutive, threshold-based kills:
+            enabled = true,
+            msg = "Total Kills: %kills% (+%currency_symbol%%amount%) dollars added!",
+            -- { kills required | amount awarded }
+            kills = {
+                { 5, 10 }, { 10, 10 }, { 15, 10 },
+                { 20, 10 }, { 25, 15 }, { 30, 15 },
+                { 35, 15 }, { 40, 15 }, { 45, 20 },
+                { 50, 20 }, { 55, 20 }, { 60, 20 },
+                { 65, 35 }, { 70, 35 }, { 75, 35 },
+                { 80, 35 }, { 85, 50 }, { 90, 50 },
+                { 95, 50 }, { 100, 100 },
+            }
+        },
+
+        -- Every kill will reward X amount of money
+        PvP = {
+            enabled = true, -- Set to 'false' to disable
+            award = 10,
+            msg = "(x%kills%) kills (+%currency_symbol%%amount%) dollars"
+        },
+
+        Penalties = {
+            -- amount deducted | message | enabled/disabled
+            [1] = { 2, "DEATH (-%currency_symbol%%amount% dollars)", true },
+            [2] = { 5, "SUICIDE (-%currency_symbol%%amount% dollars)", true },
+            [3] = { 30, "BETRAY (-%currency_symbol%%amount% dollars)", true }
+        },
+
+        Assists = {
+            enabled = true,
+            reward = 30,
+            msg = "ASSIST (+%currency_symbol%%amount% dollars)"
+        },
+
+        -- reward points | message | enabled/disabled
+        Score = {
+            enabled = true,
+            reward = 30,
+            msg = "SCORE (+%currency_symbol%%amount% dollars)"
+        }
+    },
+
+
+    --
     -- Advanced users only: Client data will be saved as a json array and
     -- the array index for each client will either be "IP", or "IP:PORT".
     -- Set to 1 for IP-only indexing.
-    ClientIndexType = 1
+    ClientIndexType = 2,
 }
 
 local len = string.len
+local floor = math.floor
+local sub, gsub, format = string.sub, string.gsub, string.format
 local json = (loadfile "json.lua")()
 
 function OnScriptLoad()
+    register_callback(cb["EVENT_DIE"], "OnPlayerDeath")
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
+    register_callback(cb['EVENT_SCORE'], "OnPlayerScore")
+    register_callback(cb['EVENT_ASSIST'], "OnPlayerAssist")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
     if (get_var(0, "$gt") ~= "n/a") then
@@ -60,6 +115,67 @@ function OnGameStart()
     end
 end
 
+function Account:OnPlayerDeath(VictimIndex, KillerIndex)
+
+    local victim, killer = tonumber(VictimIndex), tonumber(KillerIndex)
+    if (killer == 0) then
+        return
+    elseif (killer > 0) then
+
+        local stats = self.stats
+        local kTeam = get_var(killer, "$team")
+        local vTeam = get_var(victim, "$team")
+        local kills = tonumber(get_var(killer, "$kills"))
+
+        -- The Killer is always rewarded $X.00 for every kill.
+        -- However, combo-scoring is enabled (by design), which means
+        -- that the Killer can be rewarded for both "every-kill" and "non-consecutive" kills.
+
+
+        if (killer ~= victim) then
+            if (kTeam ~= vTeam) then
+                local non_consec = stats.Non_Consecutive_Kills
+                if (non_consec.enabled) then
+                    for _, v in pairs(non_consec.kills) do
+                        if (kills == v[1]) then
+                            self:Deposit(killer, v[2], non_consec.msg)
+                            if (stats.Penalties[1][3]) then
+                                self:Withdraw(victim, stats.Penalties[1][1], stats.Penalties[1][2])
+                            end
+                        end
+                    end
+                end
+
+                -- Reward player with $$ for every kill
+                if (stats.PvP.enabled) then
+                    self:Deposit(killer, stats.PvP.award, stats.PvP.msg)
+                end
+
+            elseif (stats.Penalties[3][3]) and isTeamPlay() then
+                -- BETRAY:
+                self:Withdraw(killer, stats.Penalties[3][1], stats.Penalties[3][2])
+            end
+        elseif (stats.Penalties[2][3]) then
+            -- SUICIDE:
+            self:Withdraw(victim, stats.Penalties[2][1], stats.Penalties[2][2])
+        end
+    end
+end
+
+function OnPlayerAssist(Ply)
+    local assist = Account.stats.assist
+    if (assist.enabled) then
+        Account:Deposit(Ply, assist.reward, assist.msg)
+    end
+end
+
+function OnPlayerScore(Ply)
+    local score = Account.stats.Score
+    if (score.enabled) then
+        Account:Deposit(Ply, score.reward, score.msg)
+    end
+end
+
 function OnPlayerConnect(Ply)
     Account:AddNewAccount(Ply)
 end
@@ -69,12 +185,21 @@ function OnPlayerDisconnect(Ply)
     Account.players[Ply] = nil
 end
 
-function Account:Deposit(Ply, Amount)
+function Account:Deposit(Ply, Amount, Msg)
     self.players[Ply].balance = self.players[Ply].balance + Amount
+    if (Msg) then
+        rprint(Ply, self:FormatStr(Ply, Msg, Amount))
+    end
 end
 
-function Account:Withdraw(Ply, Amount)
+function Account:Withdraw(Ply, Amount, Msg)
     self.players[Ply].balance = self.players[Ply].balance - Amount
+    if (self.players[Ply].balance <= 0) then
+        self.players[Ply].balance = 0
+    end
+    if (Msg) then
+        rprint(Ply, self:FormatStr(Ply, Msg, Amount))
+    end
 end
 
 function Account:UpdateJSON(IP, Table)
@@ -106,7 +231,7 @@ function Account:AddNewAccount(Ply)
             local account = json:decode(content)
 
             if (account[IP] == nil) then
-                account[IP] = { balance = self.starting_balance }
+                account[IP] = { balance = format("%.2f", self.starting_balance) }
                 file:write(json:encode_pretty(account))
                 io.close(file)
             end
@@ -167,6 +292,51 @@ function Account:GetIP(Ply)
         IP = IP:match("%d+.%d+.%d+.%d+")
     end
     return IP
+end
+
+function Account:FormatStr(Ply, Msg, Amount)
+
+    local k = tonumber(get_var(Ply, "$kills"))
+    local d = tonumber(get_var(Ply, "$deaths"))
+
+    local patterns = {
+        { "%%kills%%", k },
+        { "%%deaths%%", d },
+        { "%%amount%%", self:FormatMoney(Amount) },
+        { "%%currency_symbol%%", self.currency_symbol }
+    }
+
+    for i = 1, #patterns do
+        Msg = (gsub(Msg, patterns[i][1], patterns[i][2]))
+    end
+
+    return Msg
+end
+
+function Account:FormatMoney(M)
+
+    local s = format("%d", floor(M))
+    local pos = len(s) % 3
+
+    if (pos == 0) then
+        pos = 3
+    end
+
+    return sub(s, 1, pos)
+            .. gsub(sub(s, pos + 1), "(...)", ",%1")
+            .. sub(format("%.2f", M - floor(M)), 2)
+end
+
+function isTeamPlay()
+    if (get_var(0, "$ffa") == "0") then
+        return true
+    else
+        return false
+    end
+end
+
+function OnPlayerDeath(V, K)
+    Account:OnPlayerDeath(V, K)
 end
 
 return Account
