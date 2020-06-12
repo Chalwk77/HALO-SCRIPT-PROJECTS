@@ -412,7 +412,7 @@ function OnPlayerConnect(Ply)
 end
 
 function OnPlayerDisconnect(Ply)
-    Account:UpdateJSON(Ply, Account:GetIP(Ply), Account.players[Ply])
+    Account:UpdateJSON(Account:GetIP(Ply), Account.players[Ply])
     Account.players[Ply] = nil
 end
 
@@ -433,11 +433,8 @@ function Account:Withdraw(Ply, Amount, Msg)
     end
 end
 
-function Account:UpdateJSON(Ply, IP, Table)
-
-    self.players[Ply].combos = nil
-    self.players[Ply].streaks = nil
-
+function Account:UpdateJSON(IP, Table)
+    Table.combos, Table.streaks = nil, nil
     local accounts = self:GetAccountData()
     if (accounts) then
         local file = assert(io.open(self.dir, "w"))
@@ -459,8 +456,6 @@ function Account:AddNewAccount(Ply)
     if (len(content) > 0) then
         local file = assert(io.open(self.dir, "w"))
         if (file) then
-
-            self.players[Ply] = { }
             local account = json:decode(content)
             local IP = self:GetIP(Ply)
             if (account[IP] == nil) then
@@ -468,11 +463,10 @@ function Account:AddNewAccount(Ply)
             end
             file:write(json:encode_pretty(account))
             io.close(file)
-
+            self.players[Ply] = { }
             self.players[Ply] = account[IP]
             self.players[Ply].streaks = 0
             self.players[Ply].combos = { total = 0, init = false }
-
             rprint(Ply, "Your balance is " .. self.currency_symbol .. " " .. self:FormatMoney(account[IP].balance))
         end
     end
@@ -483,7 +477,7 @@ function Account:UpdateALL()
         for Ply = 1, 16 do
             if player_present(Ply) then
                 local IP = self:GetIP(Ply)
-                self:UpdateJSON(Ply, IP, self.players[Ply])
+                self:UpdateJSON(IP, self.players[Ply])
             end
         end
     end
