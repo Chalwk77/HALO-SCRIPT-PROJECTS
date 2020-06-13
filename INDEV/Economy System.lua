@@ -30,6 +30,11 @@ local Account = {
     starting_balance = 200,
 
     commands = {
+
+        sapp = {
+            -- todo: finish this shit
+        },
+
         bal = {
             cmd = "bal",
             permission_level = 1,
