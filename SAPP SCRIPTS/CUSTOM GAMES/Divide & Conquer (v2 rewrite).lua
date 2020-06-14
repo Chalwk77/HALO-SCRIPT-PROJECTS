@@ -277,11 +277,11 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
             local team_count = mod:getTeamCount() -- blues[1], reds[2]
 
             if (team_count[2] == 0 and team_count[1] >= 1) then
-                gameOver(gsub(set.end_of_game, "%%team%%", "blue"))
+                mod:gameOver(gsub(set.end_of_game, "%%team%%", "blue"))
 
                 -- No one left on BLUE team. | RED Team Wins
             elseif (team_count[1] == 0 and team_count[2] >= 1) then
-                gameOver(gsub(set.end_of_game, "%%team%%", "red"))
+                mod:gameOver(gsub(set.end_of_game, "%%team%%", "red"))
 
                 -- Game is in play | switch player
             elseif (team_count[1] ~= 0 and team_count[2] ~= 0) then
