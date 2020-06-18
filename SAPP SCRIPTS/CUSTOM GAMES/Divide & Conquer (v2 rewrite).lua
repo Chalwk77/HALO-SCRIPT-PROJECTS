@@ -60,7 +60,6 @@ local floor, sqrt = math.floor, math.sqrt
 -- Game Variables:
 local gamestarted
 local countdown, init_countdown, print_nep
-local slayer_globals = nil
 
 function OnScriptLoad()
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
@@ -75,7 +74,6 @@ function OnScriptLoad()
     register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
     if (get_var(0, '$gt') ~= "n/a") then
         mod:init()
-        slayer_globals = read_dword(sig_scan("5733C0B910000000BFE8E05B00F3ABB910000000") + 19)
     end
 end
 
@@ -133,6 +131,8 @@ function OnGameStart()
 
     if (get_var(0, '$gt') ~= "n/a") then
         mod:init()
+		execute_command("sv_friendly_fire 1")
+		execute_command("sv_tk_ban 0")
     end
 
     local set = mod.settings
