@@ -427,7 +427,6 @@ function InitPlayer(Ply, Reset)
                 monitor = false,
             }
         }
-
         MuteSystem:UpdateMutes(Ply, "join")
     end
 end
@@ -536,11 +535,9 @@ end
 
 function MuteSystem:GetUserData()
     local file = io.open(MuteSystem.mutesDir, "r")
-    if (file ~= nil) then
+    if (file) then
         local data = file:read("*all")
-        if (len(data) > 0) then
-            return json:decode(data)
-        end
+        return json:decode(data)
     end
     return nil
 end
@@ -561,20 +558,18 @@ function MuteSystem:GetMuteState(IP)
 
     local User
     local file = io.open(MuteSystem.mutesDir, "r")
-    if (file ~= nil) then
+    if (file) then
 
         local data = file:read("*all")
-        if (len(data) > 0) then
 
-            User = json:decode(data)
-            if (User ~= nil) then
-                User = User[IP]
-            end
+        User = json:decode(data)
+        if (User ~= nil) then
+            User = User[IP]
+        end
 
-            if (not User) then
-                MuteSystem:AddMuteTable(IP)
-                User = MuteSystem:GetMuteState(IP)
-            end
+        if (not User) then
+            MuteSystem:AddMuteTable(IP)
+            User = MuteSystem:GetMuteState(IP)
         end
         io.close(file)
     end
@@ -585,43 +580,41 @@ end
 function MuteSystem:AddMuteTable(IP)
 
     local content
-    local File = io.open(MuteSystem.mutesDir, "r")
-    if (File ~= nil) then
-        content = File:read("*all")
-        io.close(File)
+    local file = io.open(MuteSystem.mutesDir, "r")
+    if (file) then
+        content = file:read("*all")
+        io.close(file)
     end
 
-    if (len(content) > 0) then
-        local file = assert(io.open(MuteSystem.mutesDir, "w"))
-        if (file) then
+    local file = assert(io.open(MuteSystem.mutesDir, "w"))
+    if (file) then
 
-            local name
-            for i = 1, 16 do
-                if player_present(i) then
-                    if (GetIP(i) == IP) then
-                        name = players[i].name
-                    end
+        local name
+        for i = 1, 16 do
+            if player_present(i) then
+                if (GetIP(i) == IP) then
+                    name = players[i].name
                 end
             end
-
-            local Users = json:decode(content)
-            Users[IP] = {
-                name = name,
-                muted = false,
-                time_remaining = 0
-            }
-
-            local index = 0
-            for k, v in pairs(Users) do
-                index = index + 1
-                if (k == IP) then
-                    v.index = index
-                end
-            end
-
-            file:write(json:encode_pretty(Users))
-            io.close(file)
         end
+
+        local Users = json:decode(content)
+        Users = Users or {}
+        Users[IP] = {
+            name = name,
+            muted = false,
+            time_remaining = 0
+        }
+        local index = 0
+        for k, v in pairs(Users) do
+            index = index + 1
+            if (k == IP) then
+                v.index = index
+            end
+        end
+
+        file:write(json:encode_pretty(Users))
+        io.close(file)
     end
 end
 
@@ -642,21 +635,8 @@ end
 
 function CheckFile()
     local file = io.open(MuteSystem.mutesDir, "a")
-    if (file ~= nil) then
+    if (file) then
         io.close(file)
-    end
-    local content
-    local file = io.open(MuteSystem.mutesDir, "r")
-    if (file ~= nil) then
-        content = file:read("*all")
-        io.close(file)
-    end
-    if (len(content) == 0) then
-        local file = assert(io.open(MuteSystem.mutesDir, "w"))
-        if (file) then
-            file:write("{\n}")
-            io.close(file)
-        end
     end
 end
 
