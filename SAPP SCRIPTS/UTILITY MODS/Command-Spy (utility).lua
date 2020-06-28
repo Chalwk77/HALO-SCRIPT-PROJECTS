@@ -1,28 +1,21 @@
 --[[
 --=====================================================================================================--
-Script Name: Command Spy (utility), for SAPP (PC & CE)
-Implementing API version: 1.11.0.0
-Description:    Spy on your players commands!
-                This script will show commands typed by non-admins (to admins). 
+Script Name: Command Spy, for SAPP (PC & CE)
+Description:    This script will show commands typed by non-admins (to admins).
                 Admins wont see their own commands (:
 
-Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 * Written by Jericho Crosby (Chalwk)
-
-- This script is included in the Velocity Multi-Mod with many improvements.
 --=====================================================================================================--
 ]]--
 
-settings = {
-    ["HideCommands"] = true,
-}
+local output_format = "[SPY] %name%: %command%"
 
---=========================================================--
-commands_to_hide = {
-    -- Add your command here to hide it!
+local commands_to_hide = {
+    -- Add your command here to hide it from command spy feedback.
     "/command1",
     "/command2",
     "/command3",
@@ -30,68 +23,58 @@ commands_to_hide = {
     "/command5"
     -- Repeat the structure to add more commands.
 }
---=========================================================--
 
 api_version = "1.12.0.0"
 
+local gmatch = string.gmatch
+local gsub = string.gsub
+
 function OnScriptLoad()
-    register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
+    register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
 end
 
-function OnPlayerChat(PlayerIndex, Message)
-    if (tonumber(get_var(PlayerIndex, "$lvl"))) >= 0 then
-        AdminIndex = tonumber(PlayerIndex)
+local function CMDSplit(Str)
+    local Args, index = { }, 1
+    for Params in gmatch(Str, "([^%s]+)") do
+        Args[index] = Params
+        index = index + 1
     end
-    iscommand = nil
-    local Message = tostring(Message)
-    local command = tokenizestring(Message)
-    if string.sub(command[1], 1, 1) == "/" then
-        cmd = command[1]:gsub("\\", "/")
-        iscommand = true
+    return Args
+end
+
+function OnServerCommand(Ply, Command, _, _)
+
+    local CMD = CMDSplit(Command)
+    if (#CMD == 0) then
+        return
     else
-        iscommand = false
-    end
-    for k, v in pairs(commands_to_hide) do
-        if (cmd == v) then
-            hidden = true
-            break
-        else
-            hidden = false
+
+        CMD[1] = CMD[1]:lower()
+
+        for i = 1, #commands_to_hide do
+            if (CMD[1] == commands_to_hide[i]) then
+                return
+            end
         end
-    end
-    if (tonumber(get_var(PlayerIndex, "$lvl"))) == -1 then
-        if (iscommand and PlayerIndex) then
-            if (settings["HideCommands"] == true and hidden == true) then
-                return false
-            elseif (settings["HideCommands"] == true and hidden == false) or (settings["HideCommands"] == false) then
-                CommandSpy("[SPY]   " .. get_var(PlayerIndex, "$name") .. ":    \"" .. Message .. "\"", PlayerIndex)
-                return true
+
+        local pLvL = tonumber(get_var(Ply, "$lvl"))
+        if (pLvL == -1) then
+            local name = get_var(Ply, "$name")
+            for i = 1, 16 do
+                if player_present(i) and (i ~= Ply) then
+                    local aLvL = tonumber(get_var(i, "$lvl"))
+                    if (aLvL >= 1) then
+
+                        local cmd = ''
+                        for i = 1, #CMD do
+                            cmd = cmd .. CMD[i] .. " "
+                        end
+
+                        local str = gsub(gsub(output_format, "%%name%%", name), "%%cmd%%", cmd)
+                        rprint(i, str)
+                    end
+                end
             end
         end
     end
-end
-
-function CommandSpy(Message, AdminIndex)
-    for i = 1, 16 do
-        if (tonumber(get_var(i, "$lvl"))) >= 1 then
-            rprint(i, Message)
-        end
-    end
-end
-
-function tokenizestring(inputstr, sep)
-    if sep == nil then
-        sep = "%s"
-    end
-    local t = {};
-    i = 1
-    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
-        t[i] = str
-        i = i + 1
-    end
-    return t
-end
-
-function OnError(Message)
-    print(debug.traceback())
 end
