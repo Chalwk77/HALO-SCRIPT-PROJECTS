@@ -1,19 +1,13 @@
 --[[
 --=====================================================================================================--
 Script Name: Player Alive (timer), for SAPP (PC & CE)
-Implementing API version: 1.11.0.0
-Description:    While playerX is alive, if the timer reaches the elapsed "ALLOCATED_TIME" before they die, do something special.
-                It's up to you to code in your "something special" of choice.
-                 
-                Timer for playerX will reset when:
-                    - They quit the game (handled by OnTick)
-                    - On Death (handled by PlayerAlive)
-                    - Game Ends
-                    
-                    When the timer reaches the elapsed ALLOCATED_TIME threshold, 
-                    it will reset to 0 seconds but not continue counting down until they respawn or rejoin.
+Description: Some random shit that probably nobody wants.
+		     When a player spawns, a timer is initiated and begins to countdown from 60 seconds - 
+			 after which, it's stopped and "something happens". 
+			 The timer is reset and will begin counting down again when they respawn.
+			 It's up to YOU to "code" your "something-event" in the OnTick() function.
 
-Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
@@ -22,79 +16,71 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]]--
 
 -- Config --
-USE_TIMER = true
--- in seconds (1 minute by default) --
-ALLOCATED_TIME = 60
--- Config ends --
+local allocated_time = 60
 
--- Do not touch anything below unless you know what you're doing --
-TIMER = { }
-PLAYERS_ALIVE = { }
+local players = { }
+
 api_version = "1.12.0.0"
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
     register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
+    register_callback(cb["EVENT_LEAVE"], "OnPlayerQuit")
     register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
+    for i = 1, 16 do
+		if player_present(i) then
+			InitPlayer(i, true)
+		end
+    end
 end
 
 function OnGameEnd()
     for i = 1, 16 do
-        if player_present(i) then
-            TIMER[i] = false
-        end
+		if player_present(i) then
+			InitPlayer(i, true)
+		end
     end
 end
 
-function OnPlayerJoin(PlayerIndex)
-    local PLAYER_ID = get_var(PlayerIndex, "$n")
-    PLAYERS_ALIVE[PLAYER_ID] = { }
-    PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = 0
+local function InitPlayer(p, Reset)
+	if (not Reset) then
+		players[p] = { 
+			init = false,
+			time_alive = 0,
+		}
+	else
+		players[p] = {}
+	end
 end
 
-function OnPlayerSpawn(PlayerIndex)
-    TIMER[PlayerIndex] = true
-    local PLAYER_ID = get_var(PlayerIndex, "$n")
-    PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = 0
+function OnPlayerJoin(p)
+	InitPlayer(p, false)
 end
 
-function PlayerAlive(PlayerIndex)
-    if player_present(PlayerIndex) then
-        if (player_alive(PlayerIndex)) then
-            return true
-        else
-            return false
-        end
-    end
+function OnPlayerQuit(p)
+	InitPlayer(p, true)
 end
 
-function secondsToTime(seconds, places)
-    local minutes = math.floor(seconds / 60)
-    seconds = seconds % 60
-    if places == 2 then
-        return minutes, seconds
-    end
+function OnPlayerSpawn(p)
+	players[p].init = true
+	players[p].time_alive = 0
 end
 
 function OnTick()
-    if (USE_TIMER == true) then
-        for i = 1, 16 do
-            if player_present(i) then
-                if (TIMER[i] ~= false and PlayerAlive(i) == true) then
-                    local PLAYER_ID = get_var(i, "$n")
-                    PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE = PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE + 0.030
-                    if (PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE >= math.floor(ALLOCATED_TIME)) then
-                        TIMER[i] = false
-                        local minutes, seconds = secondsToTime(PLAYERS_ALIVE[PLAYER_ID].TIME_ALIVE, 2)
-                        cprint(get_var(i, "$name") .. " has been alive for " .. math.floor(minutes) .. " minute(s) and " .. math.floor(seconds) .. " second(s)")
-                        -- do something here --
+	for p,v in pairs(players) do
+		if (p) then
+			if player_present(p) and player_alive(p) then
+				if (v.init) then
+					v.timer = v.timer + 1/30
+					if (v.timer >= allocated_time) then
+						v.init, v.timer = false, 0
+						
+						-- do something here --
 
-                        -----------------------
-                    end
-                end
-            end
-        end
-    end
+						-----------------------
+					end
+				end
+			end
+		end
+	end
 end
-
--- Written by Jericho Crosby, (Chalwk)
