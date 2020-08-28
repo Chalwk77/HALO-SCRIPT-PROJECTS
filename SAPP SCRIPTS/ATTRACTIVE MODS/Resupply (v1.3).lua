@@ -24,7 +24,7 @@ local battery = 100 -- Full battery
 local message = "[RESUPPLY] +%ammo% ammo, +%mag% mag, +%grenades% grenades, %battery%% battery"
 -- Configuration [ends] ------------
 
-local lower, gsub = string.lower, string.gsub
+local lower, gsub, gmatch = string.lower, string.gsub, string.gmatch
 function OnScriptLoad()
     register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
 end
