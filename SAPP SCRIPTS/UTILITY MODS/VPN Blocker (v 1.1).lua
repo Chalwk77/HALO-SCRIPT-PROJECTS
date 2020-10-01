@@ -17,6 +17,11 @@ Description: VPN Blocker will detect whether an IP Address is a Proxy, Tor, or V
              I provide the tool to connect to the API but it's up to the end-user to decide what account type they register with. 
              The Free account is pretty good in general.
 
+             If you have trouble running the script on Windows 10, and recieve, for example, an error similr to this one: 
+             "cannot load module 'lua_http_client", download and install TDMGCC 9.2.0 from the link below:
+              https://jmeubank.github.io/tdm-gcc/articles/2020-03/9.2.0-release
+
+
 
 I M P O R T A N T
 -----------------
