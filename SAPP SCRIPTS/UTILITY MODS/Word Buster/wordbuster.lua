@@ -54,7 +54,7 @@ local wordBuster = { }
 wordBuster.version = 1.5
 
 -- Censor Words: Censor words with "wordBuster.censor" character?
-wordBuster.censorWords = true
+wordBuster.censorWords = false
 
 -- Semi Censor: Show the first and last character of bad words?
 -- If false, the whole word will be censored
@@ -68,7 +68,7 @@ wordBuster.censor = "*"
 wordBuster.matchWholeWord = true
 
 -- Replace profanity with a random word from the substitute list? (wordBuster.censor & wordBuster.blockWords MUST BE FALSE)
-wordBuster.substituteWords = false
+wordBuster.substituteWords = true
 
 -- Block Word: If this is true, the player's message will not be sent
 wordBuster.blockWords = false
@@ -81,6 +81,10 @@ wordBuster.grace = 30
 
 -- Punish action: Should players be kicked, banned or neither?
 wordBuster.punishment = "mute" -- Valid Actions: "k" = kick, "b" = ban", "mute"
+
+-- No Punish: If true, no punishments will be dealt (warning system will also be disabled)
+-- Note that word substitution and censoring will still work.
+wordBuster.noPunish = true
 
 -- Mute Time: Maximum mute time (in minutes)
 wordBuster.muteTime = 5
@@ -160,10 +164,10 @@ wordBuster.lang_directory = "wordbuster_database/"
 wordBuster.languages = {
     ["cs"] = false, -- Czech
     ["da"] = false, -- Danish
-    ["de"] = true, -- German
+    ["de"] = false, -- German
     ["en"] = true, -- English
     ["eo"] = false, -- Esperanto
-    ["es"] = true, -- Spanish
+    ["es"] = false, -- Spanish
     ["fr"] = false, -- French
     ["hu"] = false, -- Hungry
     ["it"] = false, -- Italy
@@ -325,7 +329,9 @@ function wordBuster:Load()
         cprint("[Word Buster] Successfully loaded " .. load_count .. " languages:", 2 + 8)
         cprint("[Word Buster] " .. #wordBuster.badWords .. " words loaded in " .. time_took .. " seconds", 2 + 8)
 
-        register_callback(cb["EVENT_TICK"], "OnTick")
+		if (not wordBuster.noPunish) then
+			register_callback(cb["EVENT_TICK"], "OnTick")
+		end
         register_callback(cb["EVENT_CHAT"], "OnPlayerChat")
         register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
         register_callback(cb["EVENT_GAME_START"], "OnGameStart")
@@ -401,7 +407,6 @@ function OnPlayerChat(PlayerIndex, Message, Type)
 
     if (PlayerIndex > 0 and Type ~= 6) then
 
-        -- Check if player is whitelisted:
         if wordBuster:Whitelisted(PlayerIndex) then
             return
         end
@@ -431,14 +436,14 @@ function OnPlayerChat(PlayerIndex, Message, Type)
                     if (p.warnings > 1) then
                         -- Send Warning:
                         wordBuster:Broadcast(PlayerIndex, wordBuster.notifyText, "rprint")
-                    elseif (p.warnings == 1) then
+                    elseif (p.warnings == 1) and (not wordBuster.noPunish) then
                         -- Send last warning:
                         wordBuster:Broadcast(PlayerIndex, wordBuster.onWarn, "rprint")
                     end
                 end
 
                 -- Take "action" on this player:
-                if (p.warnings <= 0) then
+                if (p.warnings <= 0) and (not wordBuster.noPunish) then
                     wordBuster:TakeAction(PlayerIndex, name)
                     return false
                 end
@@ -462,8 +467,6 @@ function OnPlayerChat(PlayerIndex, Message, Type)
                     return false
                 end
             end
-        else
-            return false
         end
     end
 end
