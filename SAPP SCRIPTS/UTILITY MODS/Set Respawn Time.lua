@@ -8,10 +8,8 @@ Description: This script will allow you to set respawn times on a per-map, per-g
             Set the global respawn time on demand with the following command:
             /setrespawn <time>
 
-             Additionally, you can manually set a specific player's respawn time on demand with the following command:
-             /setrespawn <pid> <time> <-s>
-             The "-s" parameter is optional. If you specify the "-s" flag, your command will be executed silently.
-             This means the target player will not receive the "[Command Executor name] set your respawn time to X seconds" message.
+            Additionally, you can manually set a specific player's respawn time on demand with the following command:
+            /setrespawn <pid> <time> <-s>
 
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
@@ -34,14 +32,17 @@ local settings = {
     -- Minimum level required to change the respawn time for other players
     permission_level_extra = 4,
 
-    -- If map is not listed below, it will use this global default respawn time:
-    default_respawn_time = 100,
-
+    -- The "-s" parameter is optional. If you specify the "-s" flag, your command will be executed silently.
+    -- This means the target player will not receive the "[Command Executor name] set your respawn time to X seconds" message.
     silent_flag = "-s",
 
     -- A message relay function temporarily removes the server prefix
     -- and will restore it to this when the relay is finished
     serverPrefix = "**SAPP**",
+
+
+    -- If map is not listed below, it will use this global default respawn time (in seconds):
+    default_respawn_time = 3,
 
     messages = {
         [1] = "Global server respawn time set to %time% second%s%",
