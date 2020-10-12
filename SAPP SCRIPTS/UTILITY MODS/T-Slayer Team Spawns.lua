@@ -16,7 +16,7 @@ api_version = "1.12.0.0"
 local spawns = { }
 
 local function Init()
-	spawns = { red = { }, blue = { } }
+    spawns = { red = { }, blue = { } }
     if (get_var(0, "$gt") ~= "n/a") then
         if (get_var(0, "$gt") == "slayer" and get_var(0, "$ffa") == "0") then
             LoadSpawns()
@@ -33,7 +33,7 @@ function OnScriptLoad()
 end
 
 function OnScriptUnload()
-	-- N/A
+    -- N/A
 end
 
 function OnGameStart()
@@ -55,7 +55,7 @@ function OnPlayerPreSpawn(PlayerIndex)
         local occupied = isOccupied(coords.x, coords.y, coords.z)
         if (not occupied) then
             write_vector3d(player + 0x5C, coords.x, coords.y, coords.z)
-        else 
+        else
             OnPlayerPreSpawn(PlayerIndex)
         end
     end
@@ -63,8 +63,8 @@ end
 
 local function getXYZ(DyN)
     local coords, x, y, z = { }
-	local VehicleID = read_dword(DyN + 0x11C)
-	if (VehicleID ~= 0xFFFFFFFF) then
+    local VehicleID = read_dword(DyN + 0x11C)
+    if (VehicleID ~= 0xFFFFFFFF) then
         local vehicle = get_object_memory(VehicleID)
         x, y, z = read_vector3d(vehicle + 0x5c)
     else
