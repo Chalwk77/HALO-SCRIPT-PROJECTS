@@ -51,18 +51,41 @@ function OnPlayerPreSpawn(PlayerIndex)
         if (not occupied) then
             write_vector3d(player + 0x5C, coords.x, coords.y, coords.z)
         else
+            say_all("Choosing a new spawn point")
             OnPlayerPreSpawn(PlayerIndex)
         end
     end
 end
 
+local function PlayerInVehicle(DyN)
+    local VehicleID = read_dword(DyN + 0x11C)
+    if (VehicleID == 0xFFFFFFFF) then
+        return false
+    else
+        return true
+    end
+end
+
+function getXYZ(DyN)
+    local coords, x, y, z = { }
+    if PlayerInVehicle(DyN) then
+        local VehicleID = read_dword(DyN + 0x11C)
+        local vehicle = get_object_memory(VehicleID)
+        x, y, z = read_vector3d(vehicle + 0x5c)
+    else
+        x, y, z = read_vector3d(DyN + 0x5c)
+    end
+    coords.x, coords.y, coords.z = x, y, z
+    return coords
+end
+
 function isOccupied(sx, sy, sz)
     for i = 1, 16 do
         if player_present(i) and player_alive(i) then
-            local player = get_dynamic_player(i)
-            if (player ~= 0) then
-                local px, py, pz = read_vector3d(player + 0x5C)
-                local R = GetRadius(sx, sy, sz, px, py, pz)
+            local DyN = get_dynamic_player(i)
+            if (DyN ~= 0) then
+                local p = getXYZ(DyN)
+                local R = GetRadius(sx, sy, sz, p.x, p.y, p.z)
                 if (R <= 1) then
                     return true
                 end
