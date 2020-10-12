@@ -40,10 +40,10 @@ local settings = {
     -- and will restore it to this when the relay is finished
     serverPrefix = "**SAPP**",
 
-
     -- If map is not listed below, it will use this global default respawn time (in seconds):
     default_respawn_time = 3,
 
+    -- All script messages that are output to the player/console:
     messages = {
         [1] = "Global server respawn time set to %time% second%s%",
         [2] = {
@@ -84,16 +84,29 @@ local settings = {
         ["prisoner"] = { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
         ["wizard"] = { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
         ["longest"] = { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
+
+        -- Repeat the structure to add more maps:
+        ["map_name_here"] = { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
     }
 }
 
-local gmatch, gsub, lower, upper = string.gmatch, string.gsub, string.lower, string.upper
+local gmatch, gsub = string.gmatch, string.gsub
+local lower, upper = string.lower, string.upper
 
-local function Init()
+local function Init(SAPPReloaded)
     local gt = get_var(0, "$gt")
     local map = get_var(0, "$map")
     if (gt ~= "n/a") then
         settings.respawn_time = getSpawnTime(gt, map)
+        if (SAPPReloaded) then
+            local s = settings.respawn_time
+            local str = gsub(gsub(settings.messages[1], "%%time%%", s), "%%s%%", Plural(s))
+            for i = 1, 16 do
+                if player_present(i) then
+                    Respond(i, str, "rprint", 10)
+                end
+            end
+        end
     end
 end
 
@@ -101,11 +114,11 @@ function OnScriptLoad()
     register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
-    Init()
+    Init(true)
 end
 
 function OnNewGame()
-    Init()
+    Init(false)
 end
 
 local function SetRespawn(PlayerIndex, Time)
@@ -173,7 +186,7 @@ local function CmdSplit(Cmd)
     return t
 end
 
-local function Plural(n)
+function Plural(n)
     if (tonumber(n) > 1) then
         return "s"
     elseif (tonumber(n) <= 1) then
