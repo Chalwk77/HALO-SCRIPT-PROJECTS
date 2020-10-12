@@ -13,13 +13,14 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.12.0.0"
 
-local spawns = { red = { }, blue = { } }
+local spawns = { }
 
 local function Init()
+	spawns = { red = { }, blue = { } }
     if (get_var(0, "$gt") ~= "n/a") then
         if (get_var(0, "$gt") == "slayer" and get_var(0, "$ffa") == "0") then
-            register_callback(cb["EVENT_PRESPAWN"], "OnPlayerPreSpawn")
             LoadSpawns()
+            register_callback(cb["EVENT_PRESPAWN"], "OnPlayerPreSpawn")
         else
             unregister_callback(cb["EVENT_PRESPAWN"])
         end
@@ -29,6 +30,10 @@ end
 function OnScriptLoad()
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     Init()
+end
+
+function OnScriptUnload()
+	-- N/A
 end
 
 function OnGameStart()
@@ -56,19 +61,10 @@ function OnPlayerPreSpawn(PlayerIndex)
     end
 end
 
-local function PlayerInVehicle(DyN)
-    local VehicleID = read_dword(DyN + 0x11C)
-    if (VehicleID == 0xFFFFFFFF) then
-        return false
-    else
-        return true
-    end
-end
-
-function getXYZ(DyN)
+local function getXYZ(DyN)
     local coords, x, y, z = { }
-    if PlayerInVehicle(DyN) then
-        local VehicleID = read_dword(DyN + 0x11C)
+	local VehicleID = read_dword(DyN + 0x11C)
+	if (VehicleID ~= 0xFFFFFFFF) then
         local vehicle = get_object_memory(VehicleID)
         x, y, z = read_vector3d(vehicle + 0x5c)
     else
