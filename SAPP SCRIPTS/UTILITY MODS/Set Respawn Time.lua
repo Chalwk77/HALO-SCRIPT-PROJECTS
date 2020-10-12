@@ -66,7 +66,7 @@ local settings = {
     maps = {
         --	CTF | SLAYER | TEAM-S | KOTH |   TEAM-KOTH |   ODDBALL |   TEAM-ODDBALL |   RACE |   TEAM-RACE
         ["beavercreek"] = { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
-        ["bloodgulch"] = { 3.0, 3.0, 0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
+        ["bloodgulch"] = { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
         ["boardingaction"] = { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
         ["carousel"] = { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
         ["dangercanyon"] = { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
