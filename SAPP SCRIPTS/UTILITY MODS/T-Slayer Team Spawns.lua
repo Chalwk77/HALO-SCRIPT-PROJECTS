@@ -50,8 +50,7 @@ function OnPlayerPreSpawn(PlayerIndex)
         local occupied = isOccupied(coords.x, coords.y, coords.z)
         if (not occupied) then
             write_vector3d(player + 0x5C, coords.x, coords.y, coords.z)
-        else
-            say_all("Choosing a new spawn point")
+        else 
             OnPlayerPreSpawn(PlayerIndex)
         end
     end
