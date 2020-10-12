@@ -66,7 +66,7 @@ local settings = {
     maps = {
         --	CTF | SLAYER | TEAM-S | KOTH |   TEAM-KOTH |   ODDBALL |   TEAM-ODDBALL |   RACE |   TEAM-RACE
         ["beavercreek"] = { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
-        ["bloodgulch"] = { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
+        ["bloodgulch"] = { 3.0, 3.0, 0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
         ["boardingaction"] = { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
         ["carousel"] = { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
         ["dangercanyon"] = { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
@@ -84,6 +84,7 @@ local settings = {
         ["prisoner"] = { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
         ["wizard"] = { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
         ["longest"] = { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
+        ["Bigass"] = { 3.0, 3.0, 0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
 
         -- Repeat the structure to add more maps:
         ["map_name_here"] = { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
@@ -93,47 +94,55 @@ local settings = {
 local gmatch, gsub = string.gmatch, string.gsub
 local lower, upper = string.lower, string.upper
 
-local function Init(SAPPReloaded)
+local function Init()
     local gt = get_var(0, "$gt")
     local map = get_var(0, "$map")
     if (gt ~= "n/a") then
-        settings.respawn_time = getSpawnTime(gt, map)
-        if (SAPPReloaded) then
-            local s = settings.respawn_time
-            local str = gsub(gsub(settings.messages[1], "%%time%%", s), "%%s%%", Plural(s))
-            cprint(str, 10)
-            for i = 1, 16 do
-                if player_present(i) then
-                    Respond(i, str, "rprint", 10)
-                end
+
+        settings.global_respawn_time = getSpawnTime(gt, map)
+
+        local str = gsub(gsub(settings.messages[1], "%%time%%", settings.global_respawn_time), "%%s%%", Plural(settings.global_respawn_time))
+        cprint(str, 10)
+
+        settings.players = { }
+        for i = 1, 16 do
+            if player_present(i) then
+                settings.players[i] = settings.global_respawn_time
+                SetRespawn(i)
+                Respond(i, str, "rprint", 10)
             end
         end
     end
 end
 
 function OnScriptLoad()
-    register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
+    register_callback(cb['EVENT_JOIN'], "OnPlayerConnect")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
-    Init(true)
+    register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
+    Init()
 end
 
 function OnNewGame()
-    Init(false)
+    Init()
 end
 
-local function SetRespawn(PlayerIndex, Time)
+function OnPlayerConnect(PlayerIndex)
+    settings.players[PlayerIndex] = tonumber(settings.global_respawn_time)
+end
+
+function SetRespawn(PlayerIndex)
     local player = get_player(PlayerIndex)
     if (player ~= 0) then
-        write_dword(player + 0x2C, tonumber(Time) * 33)
+        write_dword(player + 0x2C, settings.players[PlayerIndex] * 33)
     end
 end
 
 function OnPlayerDeath(PlayerIndex)
-    SetRespawn(PlayerIndex, settings.respawn_time)
+    SetRespawn(PlayerIndex)
 end
 
-local function getTeamPlay()
+local function TeamPlay()
     if (get_var(0, "$ffa") == "0") then
         return true
     else
@@ -147,25 +156,25 @@ function getSpawnTime(gt, map)
             if (gt == "ctf") then
                 return v[1]
             elseif (gt == "slayer") then
-                if not getTeamPlay() then
+                if (not TeamPlay()) then
                     return v[2]
                 else
                     return v[3]
                 end
             elseif (gt == "koth") then
-                if not getTeamPlay() then
+                if (not TeamPlay()) then
                     return v[4]
                 else
                     return v[5]
                 end
             elseif (gt == "oddball") then
-                if not getTeamPlay() then
+                if (not TeamPlay()) then
                     return v[6]
                 else
                     return v[7]
                 end
             elseif (gt == "race") then
-                if not getTeamPlay() then
+                if (not TeamPlay()) then
                     return v[8]
                 else
                     return v[9]
@@ -205,59 +214,69 @@ function OnServerCommand(Executor, Command, _, _)
         Args[1] = (lower(Args[1]) or upper(Args[1]))
         if (Args[1] == settings.custom_command) then
             local lvl = tonumber(get_var(Executor, "$lvl"))
+            if (lvl >= settings.permission_level) or (Executor == 0) then
 
-            if (Args[2] ~= nil and Args[3] == nil) then
+                if (Args[2] ~= nil and Args[3] == nil) then
 
-                if (lvl >= settings.permission_level) or (Executor == 0) then
                     if (Args[2]:match("^%d+$")) then
-                        settings.respawn_time = Args[2]
+
+                        settings.global_respawn_time = tonumber(Args[2])
+
+                        for i = 1,16 do
+                            if player_present(i) then
+                                settings.players[i] = Args[2]
+                                SetRespawn(i)
+                            end
+                        end
                         local str = gsub(gsub(settings.messages[1], "%%time%%", Args[2]), "%%s%%", Plural(Args[2]))
                         Respond(Executor, str, "rprint", 10)
                     else
                         Respond(Executor, settings.messages[3], "rprint", 10)
                     end
-                else
-                    Respond(Executor, settings.messages[7], "rprint", 10)
-                end
-            elseif (Args[2] ~= nil) and (Args[3]:match("^%d+$")) then
+                elseif (Args[2] ~= nil) and (Args[3]:match("^%d+$")) then
 
-                local pl = GetPlayers(Executor, Args)
-                if (#pl > 0) then
-                    for i = 1, #pl do
-                        local TargetID = tonumber(pl[i])
+                    local pl = GetPlayers(Executor, Args)
+                    if (#pl > 0) then
+                        for i = 1, #pl do
 
-                        if (TargetID ~= Executor) and (lvl < settings.permission_level_extra) and (Executor ~= 0) then
-                            Respond(Executor, settings.messages[8], "rprint", 10)
-                            return false
-                        elseif (Args[4] ~= nil) and (Args[4] ~= settings.silent_flag) then
-                            Respond(Executor, settings.messages[4], "rprint", 10)
-                            return false
-                        end
+                            local TargetID = tonumber(pl[i])
+                            if (TargetID ~= Executor) and (lvl < settings.permission_level_extra) and (Executor ~= 0) then
+                                Respond(Executor, settings.messages[8], "rprint", 10)
+                                return false
+                            elseif (Args[4] ~= nil) and (Args[4] ~= settings.silent_flag) then
+                                Respond(Executor, settings.messages[4], "rprint", 10)
+                                return false
+                            end
 
-                        local t_name = get_var(TargetID, "$name")
-                        local e_name = get_var(Executor, "$name")
+                            local t_name = get_var(TargetID, "$name")
+                            local e_name = get_var(Executor, "$name")
 
-                        if (Executor == 0) then
-                            e_name = "[SERVER]"
-                        end
+                            if (Executor == 0) then
+                                e_name = "[SERVER]"
+                            end
 
-                        SetRespawn(TargetID, Args[3])
-                        for MsgIndex, v in pairs(settings.messages[2]) do
-                            local str = gsub(gsub(gsub(gsub(v, "%%time%%", Args[3]), "%%s%%", Plural(Args[3])), "%%target_name%%", t_name), "%%executor_name%%", e_name)
-                            if (MsgIndex == 1) and (TargetID == Executor) and (Args[4] == nil) then
-                                Respond(Executor, str, "rprint", 10)
-                            elseif (MsgIndex == 2) and (TargetID ~= Executor) and (Args[4] == nil) then
-                                Respond(Executor, str, "rprint", 10)
-                            elseif (MsgIndex == 3) and (TargetID ~= Executor) and (Args[4] == nil) then
-                                Respond(TargetID, str, "rprint", 10)
-                            elseif (MsgIndex == 4) and (Args[4] ~= nil and Args[4] == settings.silent_flag) then
-                                Respond(Executor, str, "rprint", 10)
+                            settings.players[TargetID] = tonumber(Args[3])
+                            SetRespawn(TargetID)
+
+                            for MsgIndex, v in pairs(settings.messages[2]) do
+                                local str = gsub(gsub(gsub(gsub(v, "%%time%%", Args[3]), "%%s%%", Plural(Args[3])), "%%target_name%%", t_name), "%%executor_name%%", e_name)
+                                if (MsgIndex == 1) and (TargetID == Executor) and (Args[4] == nil) then
+                                    Respond(Executor, str, "rprint", 10)
+                                elseif (MsgIndex == 2) and (TargetID ~= Executor) and (Args[4] == nil) then
+                                    Respond(Executor, str, "rprint", 10)
+                                elseif (MsgIndex == 3) and (TargetID ~= Executor) and (Args[4] == nil) then
+                                    Respond(TargetID, str, "rprint", 10)
+                                elseif (MsgIndex == 4) and (Args[4] ~= nil and Args[4] == settings.silent_flag) then
+                                    Respond(Executor, str, "rprint", 10)
+                                end
                             end
                         end
                     end
+                else
+                    Respond(Executor, settings.messages[4], "rprint", 10)
                 end
             else
-                Respond(Executor, settings.messages[4], "rprint", 10)
+                Respond(Executor, settings.messages[7], "rprint", 10)
             end
             return false
         end
