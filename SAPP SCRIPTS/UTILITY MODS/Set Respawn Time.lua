@@ -101,6 +101,7 @@ local function Init(SAPPReloaded)
         if (SAPPReloaded) then
             local s = settings.respawn_time
             local str = gsub(gsub(settings.messages[1], "%%time%%", s), "%%s%%", Plural(s))
+            cprint(str, 10)
             for i = 1, 16 do
                 if player_present(i) then
                     Respond(i, str, "rprint", 10)
