@@ -76,10 +76,10 @@ local vpn_blocker = {
 
     -- Message output to Dedicated Server Console:
     feedback2 = "%name% was %action% for using a VPN or Proxy (IP: %ip%)",
-	
-	-- A message relay function temporarily removes the server prefix
-	-- and will restore it to this when the relay is finished
-	serverPrefix = "**SAPP**",
+
+    -- A message relay function temporarily removes the server prefix
+    -- and will restore it to this when the relay is finished
+    serverPrefix = "**SAPP**",
 
     -- Request Parameters:
     checks = {
@@ -131,10 +131,10 @@ local vpn_blocker = {
     },
 
     exclusion_list = {
-		
-		-- If enabled, all IP's in this array will be ignored.
-		enable = true,
-		
+
+        -- If enabled, all IP's in this array will be ignored.
+        enable = true,
+
         "127.0.0.1",
         "192.168.1.1",
         -- Repeat the structure to add more entries
@@ -159,7 +159,7 @@ end
 function OnPreJoin(p)
     local player = vpn_blocker:GetCredentials(p)
     if (player) then
-	
+
         local site = "https://www.ipqualityscore.com/api/json/ip/api_key/"
         local key = gsub(site, "api_key", vpn_blocker.api_key)
 
@@ -176,13 +176,13 @@ function OnPreJoin(p)
 
         local JsonData = vpn_blocker:Query(query_link)
         if (JsonData) then
-	
+
             local ip_lookup = json:decode(JsonData)
             if (ip_lookup.success) then
 
                 local connected = function()
                     cprint("VPN Blocker -> Running Ip Lookup ^ Please wait...", 4 + 8)
-                    for k, v in pairs(vpn_blocker.checks) do					
+                    for k, v in pairs(vpn_blocker.checks) do
                         if (type(v) == "boolean") then
                             if (v) and (ip_lookup[k]) then
                                 return false
@@ -203,7 +203,7 @@ function OnPreJoin(p)
 
                     if (vpn_blocker.action == "k") then
                         state = "kicked"
-						SilentKick(p)
+                        SilentKick(p)
                     elseif (vpn_blocker.action == "b") then
                         state = "banned"
                         execute_command("b" .. " " .. p .. " " .. vpn_blocker.bantime .. " \"" .. vpn_blocker.reason .. "\"")
@@ -224,9 +224,9 @@ function OnPreJoin(p)
                             "%%action%%", state),
                             "%%ip%%", player.ip)
                     cprint(msg, 4 + 8)
-					execute_command("msg_prefix \"\"")
-					say_all(msg)
-					execute_command("msg_prefix \" " .. vpn_blocker.serverPrefix .. "\"")
+                    execute_command("msg_prefix \"\"")
+                    say_all(msg)
+                    execute_command("msg_prefix \" " .. vpn_blocker.serverPrefix .. "\"")
                 else
                     cprint("VPN Blocker -> Player connected successfully.", 2 + 8)
                 end
@@ -257,9 +257,9 @@ end
 ----------------------------------------------------------
 
 function SilentKick(p)
-	for _ = 1, 999999 do
-		rprint(p, " ")
-	end
+    for _ = 1, 999999 do
+        rprint(p, " ")
+    end
 end
 
 function vpn_blocker:CrashPlayer(PlayerIndex)
@@ -295,20 +295,20 @@ end
 function isExcluded(IP)
     -- Check if IP is in the exclusion list.
     local t = vpn_blocker.exclusion_list
-	if (t.enabled) then
-		for i = 1, #t do
-			if (t[i]) then
-				if (IP == t[i]) then
-					return true
-				end
-			end
-		end
-	end
+    if (t.enabled) then
+        for i = 1, #t do
+            if (t[i]) then
+                if (IP == t[i]) then
+                    return true
+                end
+            end
+        end
+    end
     return false
 end
 
 function vpn_blocker:GetCredentials(p)
-	vpn_blocker[p] = {}
+    vpn_blocker[p] = {}
     local ip = get_var(p, "$ip"):match('(%d+.%d+.%d+.%d+)')
     if (not isExcluded(ip)) then
         local name = get_var(p, "$name")
