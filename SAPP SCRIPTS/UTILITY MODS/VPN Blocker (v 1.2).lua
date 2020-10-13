@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: VPN Blocker (v 1.1), for SAPP (PC & CE)
+Script Name: VPN Blocker (v 1.2), for SAPP (PC & CE)
 
 Description: VPN Blocker will detect whether an IP Address is a Proxy, Tor, or VPN Connection
              and retrieve an overall Fraud Score that provides accurate risk analysis. 
@@ -16,11 +16,6 @@ Description: VPN Blocker will detect whether an IP Address is a Proxy, Tor, or V
              This is at your own expense, obviously. 
              I provide the tool to connect to the API but it's up to the end-user to decide what account type they register with. 
              The Free account is pretty good in general.
-
-             If you have trouble running the script on Windows 10, and recieve, for example, an error similr to this one: 
-             "cannot load module 'lua_http_client", download and install TDMGCC 9.2.0 from the link below:
-              https://jmeubank.github.io/tdm-gcc/articles/2020-03/9.2.0-release
-
 
 
 I M P O R T A N T
@@ -81,6 +76,10 @@ local vpn_blocker = {
 
     -- Message output to Dedicated Server Console:
     feedback2 = "%name% was %action% for using a VPN or Proxy (IP: %ip%)",
+	
+	-- A message relay function temporarily removes the server prefix
+	-- and will restore it to this when the relay is finished
+	serverPrefix = "**SAPP**",
 
     -- Request Parameters:
     checks = {
@@ -132,8 +131,12 @@ local vpn_blocker = {
     },
 
     exclusion_list = {
-        "127.0.0.1", -- localhost
-        "000.000.000.000",
+		
+		-- If enabled, all IP's in this array will be ignored.
+		enable = true,
+		
+        "127.0.0.1",
+        "192.168.1.1",
         -- Repeat the structure to add more entries
     }
     --====================================== --
@@ -143,7 +146,7 @@ local vpn_blocker = {
 
 local gsub, format = string.gsub, string.format
 local json = (loadfile "json.lua")()
-local script_version = 1.1
+local script_version = 1.2
 
 function OnScriptLoad()
     register_callback(cb["EVENT_PREJOIN"], "OnPreJoin")
@@ -156,7 +159,7 @@ end
 function OnPreJoin(p)
     local player = vpn_blocker:GetCredentials(p)
     if (player) then
-
+	
         local site = "https://www.ipqualityscore.com/api/json/ip/api_key/"
         local key = gsub(site, "api_key", vpn_blocker.api_key)
 
@@ -173,13 +176,13 @@ function OnPreJoin(p)
 
         local JsonData = vpn_blocker:Query(query_link)
         if (JsonData) then
-
+	
             local ip_lookup = json:decode(JsonData)
             if (ip_lookup.success) then
 
                 local connected = function()
                     cprint("VPN Blocker -> Running Ip Lookup ^ Please wait...", 4 + 8)
-                    for k, v in pairs(vpn_blocker.checks) do
+                    for k, v in pairs(vpn_blocker.checks) do					
                         if (type(v) == "boolean") then
                             if (v) and (ip_lookup[k]) then
                                 return false
@@ -200,13 +203,12 @@ function OnPreJoin(p)
 
                     if (vpn_blocker.action == "k") then
                         state = "kicked"
-                        execute_command("k" .. " " .. p .. " \"" .. vpn_blocker.reason .. "\"")
+						SilentKick(p)
                     elseif (vpn_blocker.action == "b") then
                         state = "banned"
                         execute_command("b" .. " " .. p .. " " .. vpn_blocker.bantime .. " \"" .. vpn_blocker.reason .. "\"")
                     elseif (vpn_blocker.action == "c") then
                         state = "crashed"
-                        vpn_blocker[p] = {}
                         vpn_blocker[p].crash = true
                     end
 
@@ -222,6 +224,9 @@ function OnPreJoin(p)
                             "%%action%%", state),
                             "%%ip%%", player.ip)
                     cprint(msg, 4 + 8)
+					execute_command("msg_prefix \"\"")
+					say_all(msg)
+					execute_command("msg_prefix \" " .. vpn_blocker.serverPrefix .. "\"")
                 else
                     cprint("VPN Blocker -> Player connected successfully.", 2 + 8)
                 end
@@ -250,6 +255,12 @@ function OnPlayerSpawn(PlayerIndex)
     end
 end
 ----------------------------------------------------------
+
+function SilentKick(p)
+	for _ = 1, 999999 do
+		rprint(p, " ")
+	end
+end
 
 function vpn_blocker:CrashPlayer(PlayerIndex)
     local player_object = get_dynamic_player(PlayerIndex)
@@ -284,17 +295,20 @@ end
 function isExcluded(IP)
     -- Check if IP is in the exclusion list.
     local t = vpn_blocker.exclusion_list
-    for i = 1, #t do
-        if (t[i]) then
-            if (IP == t[i]) then
-                return true
-            end
-        end
-    end
+	if (t.enabled) then
+		for i = 1, #t do
+			if (t[i]) then
+				if (IP == t[i]) then
+					return true
+				end
+			end
+		end
+	end
     return false
 end
 
 function vpn_blocker:GetCredentials(p)
+	vpn_blocker[p] = {}
     local ip = get_var(p, "$ip"):match('(%d+.%d+.%d+.%d+)')
     if (not isExcluded(ip)) then
         local name = get_var(p, "$name")
