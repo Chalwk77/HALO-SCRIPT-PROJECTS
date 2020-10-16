@@ -19,12 +19,28 @@ api_version = "1.12.0.0"
 -- Configuration Begins --
 local loadout = {
 
+    -- A message relay function temporarily removes the server prefix
+    -- and will restore it to this when the relay is finished
+    server_prefix = "**SAPP**",
+
     default_class = "Regeneration",
     starting_level = 1,
+
+    -- Command Syntax: /info_command <class>
+    info_command = "info",
 
     classes = {
         ["Regeneration"] = {
             command = "regen",
+            info = {
+                identifier = "regen",
+                "Regeneration: Good for players who want the classic Halo experience. This is the Default.",
+                "Level 1 - Health regenerates 3 seconds after shields recharge, at 20%/second.",
+                "Level 2 - 2 Second Delay after shields recharge, at 25%/second. Unlocks Weapon 3.",
+                "Level 3 - 1 Second Delay after shields recharge, at 30%/second. Melee damage is increased to 200%",
+                "Level 4 - Health regenerates as soon as shields recharge, at 35%/second. You now spawn with full grenade count.",
+                "Level 5 - Shields now charge 1 second sooner as well.",
+            },
             weapons = {
                 -- primary, secondary, tertiary, quaternary
                 [1] = { 1, 2, nil, nil },
@@ -36,12 +52,63 @@ local loadout = {
         },
         ["Armor Boost"] = {
             command = "armor",
+            info = {
+                identifier = "armor",
+                "Armor Boost: Good for players who engage vehicles or defend.",
+                "Level 1 - 1.20x durability.",
+                "Level 2 - 1.30x durability. Unlocks Weapon 3.",
+                "Level 3 - 1.40x durability. Melee damage is increased to 200%",
+                "Level 4 - 1.50x durability. You now spawn with full grenades.",
+                "Level 5 - You are now immune to falling damage in addition to all other perks in this class.",
+            },
+            weapons = {
+                -- primary, secondary, tertiary, quaternary
+                [1] = { 1, 2, nil, nil },
+                [2] = { 1, 2, nil, nil },
+                [3] = { 1, 2, nil, nil },
+                [4] = { 1, 2, nil, nil },
+                [5] = { 1, 2, nil, nil },
+            }
         },
         ["Partial Camo"] = {
             command = "camo",
+            info = {
+                identifier = "camo",
+                "Partial Camo: Good for players who prefer stealth and quick kills or CQB.",
+                "Level 1 - Camo works until you fire your weapon or take damage. Reinitialize delays are 3s/Weapon, 5s/Damage",
+                "Level 2 - Reinitialize delays are 2s/Weapon, 5s/Damage. Unlocks Weapon 3.",
+                "Level 3 - Reinitialize delays are 2s/Weapon, 3s/Damage. Melee damage is increased to 200%",
+                "Level 4 - Reinitialize delays are 1s/Weapon, 3s/Damage. You now spawn with full grenades.",
+                "Level 5 - Reinitialize delays are 0.5s/Weapon, 2s/Damage.",
+            },
+            weapons = {
+                -- primary, secondary, tertiary, quaternary
+                [1] = { 1, 2, nil, nil },
+                [2] = { 1, 2, nil, nil },
+                [3] = { 1, 2, nil, nil },
+                [4] = { 1, 2, nil, nil },
+                [5] = { 1, 2, nil, nil },
+            }
         },
         ["Recon"] = {
             command = "speed",
+            info = {
+                identifier = "speed",
+                "Recon: Good for players who don't use vehicles. Also good for capturing.",
+                "Level 1 - Default speed raised to 1.5x. Sprint duration is 200%.",
+                "Level 2 - Default speed raised to 1.6x. Sprint duration is 225%. Unlocks Weapon 3.",
+                "Level 3 - Default speed raised to 1.7x. Sprint duration is 250%. Melee damage is increased to 200%.",
+                "Level 4 - Default speed raised to 1.8x. Sprint duration is 300%. You now spawn with full grenades.",
+                "Level 5 - Sprint speed is raised from 2.5x to 3x in addition to all other perks in this class.",
+            },
+            weapons = {
+                -- primary, secondary, tertiary, quaternary
+                [1] = { 1, 2, nil, nil },
+                [2] = { 1, 2, nil, nil },
+                [3] = { 1, 2, nil, nil },
+                [4] = { 1, 2, nil, nil },
+                [5] = { 1, 2, nil, nil },
+            }
         }
     },
 
@@ -130,8 +197,13 @@ function OnServerCommand(Executor, Command, _, _)
         for class, v in pairs(loadout.classes) do
             if (Args[1] == v.command) then
                 if (loadout.players[Executor].class == class) then
-                    return Respond(Executor, "You already have that class!", "rprint", 12)
+                    Respond(Executor, "You already have " .. class .. " class", "rprint", 12)
                 end
+            elseif (Args[1] == loadout.info_command and Args[2] == v.info.identifier) then
+                for i = 1, #v.info do
+                    Respond(Executor, v.info[i], "rprint", 10)
+                end
+                return false
             end
         end
     end
@@ -199,8 +271,6 @@ function Respond(Ply, Message, Type, Color)
     Color = Color or 10
     execute_command("msg_prefix \"\"")
 
-    Message = gsub(Message, "%%script_prefix%%", loadout.script_prefix)
-
     if (Ply == 0) then
         cprint(Message, Color)
     end
@@ -212,7 +282,7 @@ function Respond(Ply, Message, Type, Color)
     elseif (Type == "say_all") then
         say_all(Message)
     end
-    execute_command("msg_prefix \" " .. loadout.serverPrefix .. "\"")
+    execute_command("msg_prefix \" " .. loadout.server_prefix .. "\"")
 end
 
 function DelaySecQuat(Ply, Weapon, x, y, z)
