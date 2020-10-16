@@ -27,7 +27,9 @@ local loadout = {
     starting_level = 1,
 
     -- Command Syntax: /info_command <class>
-    info_command = "info",
+    info_command = "help",
+
+    rank_hud = "Class: %class% | Level: %lvl%/%total_levels% | Exp: %exp%->%req_exp%",
 
     classes = {
         ["Regeneration"] = {
@@ -41,73 +43,131 @@ local loadout = {
                 "Level 4 - Health regenerates as soon as shields recharge, at 35%/second. You now spawn with full grenade count.",
                 "Level 5 - Shields now charge 1 second sooner as well.",
             },
-            weapons = {
-                -- primary, secondary, tertiary, quaternary
-                [1] = { 1, 2, nil, nil },
-                [2] = { 1, 2, nil, nil },
-                [3] = { 1, 2, nil, nil },
-                [4] = { 1, 2, nil, nil },
-                [5] = { 1, 2, nil, nil },
-            }
-        },
-        ["Armor Boost"] = {
-            command = "armor",
-            info = {
-                identifier = "armor",
-                "Armor Boost: Good for players who engage vehicles or defend.",
-                "Level 1 - 1.20x durability.",
-                "Level 2 - 1.30x durability. Unlocks Weapon 3.",
-                "Level 3 - 1.40x durability. Melee damage is increased to 200%",
-                "Level 4 - 1.50x durability. You now spawn with full grenades.",
-                "Level 5 - You are now immune to falling damage in addition to all other perks in this class.",
+
+            levels = {
+                [1] = {
+                    until_next_rank = 200,
+                    weapons = { 1, 2, nil, nil },
+                },
+                [2] = {
+                    until_next_rank = 500,
+                    weapons = { 1, 2, nil, nil },
+                },
+                [3] = {
+                    until_next_rank = 1000,
+                    weapons = { 1, 2, nil, nil },
+                },
+                [4] = {
+                    until_next_rank = 2000,
+                    weapons = { 1, 2, nil, nil },
+                },
+                [5] = {
+                    until_next_rank = 3500,
+                    weapons = { 1, 2, nil, nil },
+                }
             },
-            weapons = {
-                -- primary, secondary, tertiary, quaternary
-                [1] = { 1, 2, nil, nil },
-                [2] = { 1, 2, nil, nil },
-                [3] = { 1, 2, nil, nil },
-                [4] = { 1, 2, nil, nil },
-                [5] = { 1, 2, nil, nil },
-            }
-        },
-        ["Partial Camo"] = {
-            command = "camo",
-            info = {
-                identifier = "camo",
-                "Partial Camo: Good for players who prefer stealth and quick kills or CQB.",
-                "Level 1 - Camo works until you fire your weapon or take damage. Reinitialize delays are 3s/Weapon, 5s/Damage",
-                "Level 2 - Reinitialize delays are 2s/Weapon, 5s/Damage. Unlocks Weapon 3.",
-                "Level 3 - Reinitialize delays are 2s/Weapon, 3s/Damage. Melee damage is increased to 200%",
-                "Level 4 - Reinitialize delays are 1s/Weapon, 3s/Damage. You now spawn with full grenades.",
-                "Level 5 - Reinitialize delays are 0.5s/Weapon, 2s/Damage.",
+
+            ["Armor Boost"] = {
+                command = "armor",
+                info = {
+                    identifier = "armor",
+                    "Armor Boost: Good for players who engage vehicles or defend.",
+                    "Level 1 - 1.20x durability.",
+                    "Level 2 - 1.30x durability. Unlocks Weapon 3.",
+                    "Level 3 - 1.40x durability. Melee damage is increased to 200%",
+                    "Level 4 - 1.50x durability. You now spawn with full grenades.",
+                    "Level 5 - You are now immune to falling damage in addition to all other perks in this class.",
+                },
+                levels = {
+                    [1] = {
+                        until_next_rank = 200,
+                        weapons = { 1, 2, nil, nil },
+                    },
+                    [2] = {
+                        until_next_rank = 500,
+                        weapons = { 1, 2, nil, nil },
+                    },
+                    [3] = {
+                        until_next_rank = 1000,
+                        weapons = { 1, 2, nil, nil },
+                    },
+                    [4] = {
+                        until_next_rank = 2000,
+                        weapons = { 1, 2, nil, nil },
+                    },
+                    [5] = {
+                        until_next_rank = 3500,
+                        weapons = { 1, 2, nil, nil },
+                    }
+                }
             },
-            weapons = {
-                -- primary, secondary, tertiary, quaternary
-                [1] = { 1, 2, nil, nil },
-                [2] = { 1, 2, nil, nil },
-                [3] = { 1, 2, nil, nil },
-                [4] = { 1, 2, nil, nil },
-                [5] = { 1, 2, nil, nil },
-            }
-        },
-        ["Recon"] = {
-            command = "speed",
-            info = {
-                identifier = "speed",
-                "Recon: Good for players who don't use vehicles. Also good for capturing.",
-                "Level 1 - Default speed raised to 1.5x. Sprint duration is 200%.",
-                "Level 2 - Default speed raised to 1.6x. Sprint duration is 225%. Unlocks Weapon 3.",
-                "Level 3 - Default speed raised to 1.7x. Sprint duration is 250%. Melee damage is increased to 200%.",
-                "Level 4 - Default speed raised to 1.8x. Sprint duration is 300%. You now spawn with full grenades.",
-                "Level 5 - Sprint speed is raised from 2.5x to 3x in addition to all other perks in this class.",
+            ["Partial Camo"] = {
+                command = "camo",
+                info = {
+                    identifier = "camo",
+                    "Partial Camo: Good for players who prefer stealth and quick kills or CQB.",
+                    "Level 1 - Camo works until you fire your weapon or take damage. Reinitialize delays are 3s/Weapon, 5s/Damage",
+                    "Level 2 - Reinitialize delays are 2s/Weapon, 5s/Damage. Unlocks Weapon 3.",
+                    "Level 3 - Reinitialize delays are 2s/Weapon, 3s/Damage. Melee damage is increased to 200%",
+                    "Level 4 - Reinitialize delays are 1s/Weapon, 3s/Damage. You now spawn with full grenades.",
+                    "Level 5 - Reinitialize delays are 0.5s/Weapon, 2s/Damage.",
+                },
+                levels = {
+                    [1] = {
+                        until_next_rank = 200,
+                        weapons = { 1, 2, nil, nil },
+                    },
+                    [2] = {
+                        until_next_rank = 500,
+                        weapons = { 1, 2, nil, nil },
+                    },
+                    [3] = {
+                        until_next_rank = 1000,
+                        weapons = { 1, 2, nil, nil },
+                    },
+                    [4] = {
+                        until_next_rank = 2000,
+                        weapons = { 1, 2, nil, nil },
+                    },
+                    [5] = {
+                        until_next_rank = 3500,
+                        weapons = { 1, 2, nil, nil },
+                    }
+                }
             },
-            weapons = {
-                -- primary, secondary, tertiary, quaternary
-                [1] = { 1, 2, nil, nil },
-                [2] = { 1, 2, nil, nil },
-                [3] = { 1, 2, nil, nil },
-                [4] = { 1, 2, nil, nil },
-                [5] = { 1, 2, nil, nil },
+            ["Recon"] = {
+                command = "speed",
+                info = {
+                    identifier = "speed",
+                    "Recon: Good for players who don't use vehicles. Also good for capturing.",
+                    "Level 1 - Default speed raised to 1.5x. Sprint duration is 200%.",
+                    "Level 2 - Default speed raised to 1.6x. Sprint duration is 225%. Unlocks Weapon 3.",
+                    "Level 3 - Default speed raised to 1.7x. Sprint duration is 250%. Melee damage is increased to 200%.",
+                    "Level 4 - Default speed raised to 1.8x. Sprint duration is 300%. You now spawn with full grenades.",
+                    "Level 5 - Sprint speed is raised from 2.5x to 3x in addition to all other perks in this class.",
+                },
+                levels = {
+                    [1] = {
+                        until_next_rank = 200,
+                        weapons = { 1, 2, nil, nil },
+                    },
+                    [2] = {
+                        until_next_rank = 500,
+                        weapons = { 1, 2, nil, nil },
+                    },
+                    [3] = {
+                        until_next_rank = 1000,
+                        weapons = { 1, 2, nil, nil },
+                    },
+                    [4] = {
+                        until_next_rank = 2000,
+                        weapons = { 1, 2, nil, nil },
+                    },
+                    [5] = {
+                        until_next_rank = 3500,
+                        weapons = { 1, 2, nil, nil },
+                    }
+                }
             }
         }
     },
@@ -129,7 +189,7 @@ local loadout = {
         [11] = "some_random\\weapon\\epic",
 
         -- repeat the structure to add more weapon tags:
-        [31] = "some_random\\weapon\\epic",
+        [12] = "a tag\\will go\\here",
     }
 }
 -- Configuration Ends --
@@ -187,18 +247,29 @@ local function CmdSplit(Cmd)
     return t
 end
 
+local function cls(Ply, Count)
+    Count = Count or 25
+    for _ = 1, Count do
+        rprint(Ply, " ")
+    end
+end
+
 function OnServerCommand(Executor, Command, _, _)
     local Args = CmdSplit(Command)
     if (Args == nil) then
         return
     else
 
-        Args[1] = (lower(Args[1]) or upper(Args[1]))
+        Args[1] = lower(Args[1]) or upper(Args[1])
         for class, v in pairs(loadout.classes) do
             if (Args[1] == v.command) then
                 if (loadout.players[Executor].class == class) then
                     Respond(Executor, "You already have " .. class .. " class", "rprint", 12)
+                else
+                    loadout.players[Executor].class = class
+                    Respond(Executor, "Switching to " .. class .. " class", "rprint", 12)
                 end
+                return false
             elseif (Args[1] == loadout.info_command and Args[2] == v.info.identifier) then
                 for i = 1, #v.info do
                     Respond(Executor, v.info[i], "rprint", 10)
@@ -213,9 +284,33 @@ local function GetWeapon(WeaponIndex)
     return loadout.weapon_tags[WeaponIndex]
 end
 
+function PrintRank(Ply)
+    cls(Ply, 25)
+
+    local str = loadout.rank_hud
+
+    local p = loadout.players[Ply]
+    local req_exp = loadout.classes[p.class].levels[p.level].until_next_rank
+
+    local words = {
+        ["%%exp%%"] = p.exp,
+        ["%%lvl%%"] = p.level,
+        ["%%class%%"] = p.class,
+        ["%%req_exp%%"] = req_exp,
+        ["%%total_levels%%"] = #loadout.classes[p.class].levels,
+    }
+    for k, v in pairs(words) do
+        str = gsub(str, k, v)
+    end
+    Respond(Ply, str, "rprint", 10)
+end
+
 function OnTick()
     for i, player in pairs(loadout.players) do
         if (i) and player_alive(i) then
+
+            PrintRank(i)
+
             if (player.assign) then
 
                 local DyN = get_dynamic_player(i)
@@ -225,7 +320,7 @@ function OnTick()
                     player.assign = false
                     execute_command("wdel " .. i)
 
-                    local weapon_table = loadout.classes[player.class].weapons[player.level]
+                    local weapon_table = loadout.classes[player.class].levels[player.level].weapons
 
                     for Slot, WeaponIndex in pairs(weapon_table) do
                         if (Slot == 1 or Slot == 2) then
