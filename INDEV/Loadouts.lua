@@ -29,6 +29,15 @@ local loadout = {
     -- Command Syntax: /info_command <class>
     info_command = "help",
 
+    -- If a player types /help <class>, how long should the information be on screen for? (in seconds)
+    help_hud_duration = 5,
+
+    -- Enable or disable rank HUD:
+    show_rank_hud = true,
+
+    -- If a player types any command, the rank_hud info will disappear to prevent it from overwriting other information.
+    -- How long should rank_hud info disappear for?
+    rank_hud_pause_duration = 5,
     rank_hud = "Class: %class% | Level: %lvl%/%total_levels% | Exp: %exp%->%req_exp%",
 
     classes = {
@@ -194,6 +203,8 @@ local loadout = {
 }
 -- Configuration Ends --
 
+local time_scale = 1 / 30
+
 local gmatch, gsub = string.gmatch, string.gsub
 local lower, upper = string.lower, string.upper
 
@@ -260,20 +271,26 @@ function OnServerCommand(Executor, Command, _, _)
         return
     else
 
+        local state
         Args[1] = lower(Args[1]) or upper(Args[1])
+        local p = loadout.players[Executor]
+
+        cls(Executor, 25)
+        p.rank_hud_pause = true
+        p.rank_hud_pause_duration = loadout.rank_hud_pause_duration
+
         for class, v in pairs(loadout.classes) do
             if (Args[1] == v.command) then
-                if (loadout.players[Executor].class == class) then
+                if (p.class == class) then
                     Respond(Executor, "You already have " .. class .. " class", "rprint", 12)
                 else
-                    loadout.players[Executor].class = class
+                    p.class = class
                     Respond(Executor, "Switching to " .. class .. " class", "rprint", 12)
                 end
                 return false
             elseif (Args[1] == loadout.info_command and Args[2] == v.info.identifier) then
-                for i = 1, #v.info do
-                    Respond(Executor, v.info[i], "rprint", 10)
-                end
+                p.show_help = true
+                p.help_page = v.info
                 return false
             end
         end
@@ -285,50 +302,79 @@ local function GetWeapon(WeaponIndex)
 end
 
 function PrintRank(Ply)
-    cls(Ply, 25)
-
-    local str = loadout.rank_hud
 
     local p = loadout.players[Ply]
-    local req_exp = loadout.classes[p.class].levels[p.level].until_next_rank
+    if (not p.rank_hud_pause) then
 
-    local words = {
-        ["%%exp%%"] = p.exp,
-        ["%%lvl%%"] = p.level,
-        ["%%class%%"] = p.class,
-        ["%%req_exp%%"] = req_exp,
-        ["%%total_levels%%"] = #loadout.classes[p.class].levels,
-    }
-    for k, v in pairs(words) do
-        str = gsub(str, k, v)
+        cls(Ply, 25)
+        local str = loadout.rank_hud
+        local req_exp = loadout.classes[p.class].levels[p.level].until_next_rank
+
+        local words = {
+            ["%%exp%%"] = p.exp,
+            ["%%lvl%%"] = p.level,
+            ["%%class%%"] = p.class,
+            ["%%req_exp%%"] = req_exp,
+            ["%%total_levels%%"] = #loadout.classes[p.class].levels,
+        }
+        for k, v in pairs(words) do
+            str = gsub(str, k, v)
+        end
+        Respond(Ply, str, "rprint", 10)
     end
-    Respond(Ply, str, "rprint", 10)
+end
+
+function PrintHelp(Ply, Tab)
+    cls(Ply, 25)
+    for i = 1, #Tab do
+        Respond(Ply, Tab[i], "rprint", 10)
+    end
 end
 
 function OnTick()
     for i, player in pairs(loadout.players) do
-        if (i) and player_alive(i) then
+        if (i) then
+            if player_alive(i) then
 
-            PrintRank(i)
+                if (player.assign) then
 
-            if (player.assign) then
+                    local DyN = get_dynamic_player(i)
+                    local coords = getXYZ(DyN)
 
-                local DyN = get_dynamic_player(i)
-                local coords = getXYZ(DyN)
+                    if (not coords.invehicle) then
+                        player.assign = false
+                        execute_command("wdel " .. i)
 
-                if (not coords.invehicle) then
-                    player.assign = false
-                    execute_command("wdel " .. i)
+                        local weapon_table = loadout.classes[player.class].levels[player.level].weapons
 
-                    local weapon_table = loadout.classes[player.class].levels[player.level].weapons
-
-                    for Slot, WeaponIndex in pairs(weapon_table) do
-                        if (Slot == 1 or Slot == 2) then
-                            assign_weapon(spawn_object("weap", GetWeapon(WeaponIndex), coords.x, coords.y, coords.z), i)
-                        elseif (Slot == 3 or Slot == 4) then
-                            timer(250, "DelaySecQuat", i, GetWeapon(WeaponIndex), coords.x, coords.y, coords.z)
+                        for Slot, WeaponIndex in pairs(weapon_table) do
+                            if (Slot == 1 or Slot == 2) then
+                                assign_weapon(spawn_object("weap", GetWeapon(WeaponIndex), coords.x, coords.y, coords.z), i)
+                            elseif (Slot == 3 or Slot == 4) then
+                                timer(250, "DelaySecQuat", i, GetWeapon(WeaponIndex), coords.x, coords.y, coords.z)
+                            end
                         end
                     end
+                end
+            end
+
+            if (loadout.show_rank_hud) then
+                PrintRank(i)
+                if (player.rank_hud_pause) then
+                    player.rank_hud_pause_duration = player.rank_hud_pause_duration - time_scale
+                    if (player.rank_hud_pause_duration <= 0) then
+                        player.rank_hud_pause = false
+                        player.rank_hud_pause_duration = loadout.rank_hud_pause_duration
+                    end
+                end
+            end
+
+            if (player.show_help) then
+                player.help_hud_duration = player.help_hud_duration - time_scale
+                PrintHelp(i, player.help_page)
+                if (player.help_hud_duration <= 0) then
+                    player.show_help = false
+                    player.help_hud_duration = loadout.help_hud_duration
                 end
             end
         end
@@ -341,10 +387,20 @@ function InitPlayer(Ply, Reset)
     else
         loadout.players[Ply] = {
             exp = 0,
+
             assign = true,
             rank_up = false,
+
             class = loadout.default_class,
             level = loadout.starting_level,
+
+            help_page = nil,
+
+            show_help = false,
+            help_hud_duration = loadout.help_hud_duration,
+
+            rank_hud_pause = false,
+            rank_hud_pause_duration = loadout.rank_hud_pause_duration,
         }
     end
 end
