@@ -7,8 +7,6 @@ Description: N/A
 Concept credit goes to OSH Clan, a gaming community operating on Halo CE.
 - website:  https://oldschoolhalo.boards.net/
 
-todo: implement vehicle noob protection
-
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -44,6 +42,14 @@ local loadout = {
     -- How long should rank_hud info disappear for?
     rank_hud_pause_duration = 5,
     rank_hud = "Class: %class% | Level: %lvl%/%total_levels% | Exp: %exp%->%req_exp%",
+
+    -- Command Syntax: /rank_up_command <pid>
+    rank_up_command = "rankup",
+    promote_permission_level = 2,
+
+    -- Command Syntax: /rank_down_command <pid>
+    rank_down_command = "rankdown",
+    demote_permission_level = 2,
 
     experience = {
 
@@ -107,9 +113,10 @@ local loadout = {
                     regen_delay = 5,
                     -- Time (in seconds) between each incremental increase in health:
                     regen_rate = 1,
-                    -- Experience Points require to rank up:
+                    -- Experience Points required to rank up:
                     until_next_rank = 200,
                     weapons = { 2, nil, nil, nil },
+                    grenades = { nil, nil }
                 },
                 [2] = {
                     increment = 0.0550,
@@ -117,6 +124,7 @@ local loadout = {
                     regen_rate = 1,
                     until_next_rank = 500,
                     weapons = { 1, 2, nil, nil },
+                    grenades = { 2, 2 }
                 },
                 [3] = {
                     increment = 0.750,
@@ -124,6 +132,7 @@ local loadout = {
                     regen_rate = 1,
                     until_next_rank = 1000,
                     weapons = { 1, 2, 4, nil },
+                    grenades = { 4, 4 }
                 },
                 [4] = {
                     increment = 0.950,
@@ -131,6 +140,7 @@ local loadout = {
                     regen_rate = 1,
                     until_next_rank = 2000,
                     weapons = { 1, 2, nil, nil },
+                    grenades = { 5, 5 }
                 },
                 [5] = {
                     increment = 0.1100,
@@ -138,6 +148,7 @@ local loadout = {
                     regen_rate = 1,
                     until_next_rank = 3500,
                     weapons = { 1, 2, nil, nil },
+                    grenades = { 7, 7 }
                 }
             },
 
@@ -258,7 +269,7 @@ local loadout = {
         [10] = "weapons\\shotgun\\shotgun",
 
         -- ============= [ CUSTOM WEAPONS ] ============= --
-        [11] = "some_random\\weapon\\epic",
+        [11] = "some_random\\epic\\weapon",
 
         -- repeat the structure to add more weapon tags:
         [12] = "a tag\\will go\\here",
@@ -270,10 +281,9 @@ local loadout = {
 local time_scale = 1 / 30
 --
 
+local tags = { }
 local gmatch, gsub = string.gmatch, string.gsub
 local lower, upper = string.lower, string.upper
-
-local tags = { }
 
 local function Init()
 
@@ -406,6 +416,35 @@ local function cls(Ply, Count)
     end
 end
 
+function GetPlayers(Executor, Args)
+    local pl = { }
+    if (Args[2] == "me" or Args[2] == nil) then
+        if (Executor ~= 0) then
+            table.insert(pl, Executor)
+        else
+            -- server cannot execute this command
+        end
+    elseif (Args[2] ~= nil) and (Args[2]:match("^%d+$")) then
+        if player_present(Args[2]) then
+            table.insert(pl, Args[2])
+        else
+            -- player not online
+        end
+    elseif (Args[2] == "all" or Args[2] == "*") then
+        for i = 1, 16 do
+            if player_present(i) then
+                table.insert(pl, i)
+            end
+        end
+        if (#pl == 0) then
+            -- no players online
+        end
+    else
+        -- invalid syntax
+    end
+    return pl
+end
+
 function OnServerCommand(Executor, Command, _, _)
     local Args = CmdSplit(Command)
     if (Args == nil) then
@@ -413,25 +452,45 @@ function OnServerCommand(Executor, Command, _, _)
     else
 
         Args[1] = lower(Args[1]) or upper(Args[1])
-        local p = loadout.players[Executor]
 
-        cls(Executor, 25)
-        p.rank_hud_pause = true
-        p.rank_hud_pause_duration = loadout.rank_hud_pause_duration
-
-        for class, v in pairs(loadout.classes) do
-            if (Args[1] == v.command) then
-                if (p.class == class) then
-                    Respond(Executor, "You already have " .. class .. " class", "rprint", 12)
-                else
-                    p.class = class
-                    Respond(Executor, "Switching to " .. class .. " class", "rprint", 12)
+        if (Executor > 0) then
+            local p = loadout.players[Executor]
+            cls(Executor, 25)
+            p.rank_hud_pause = true
+            p.rank_hud_pause_duration = loadout.rank_hud_pause_duration
+            for class, v in pairs(loadout.classes) do
+                if (Args[1] == v.command) then
+                    if (p.class == class) then
+                        Respond(Executor, "You already have " .. class .. " class", "rprint", 12)
+                    else
+                        p.class = class
+                        Respond(Executor, "Switching to " .. class .. " class", "rprint", 12)
+                    end
+                    return false
+                elseif (Args[1] == loadout.info_command) then
+                    p.help_page, p.show_help = class, true
+                    return false
                 end
-                return false
-            elseif (Args[1] == loadout.info_command) then
-                p.help_page, p.show_help = class, true
-                return false
             end
+        end
+    end
+
+    if (Args[1] == loadout.rank_up_command) then
+        local lvl = tonumber(get_var(Executor, "$lvl"))
+        if (lvl >= loadout.promote_permission_level) or (Executor == 0) then
+
+            local pl = GetPlayers(Executor, Args)
+            if (pl) and (#pl > 0) then
+
+                if (Args[2] == nil) then
+                    return Promote(Executor)
+                else
+                    for i = 1, #players do
+                        return Promote(tonumber(pl[i]))
+                    end
+                end
+            end
+            return false
         end
     end
 end
@@ -482,6 +541,9 @@ function OnTick()
                         local coords = getXYZ(DyN)
                         if (not coords.invehicle) then
                             player.assign = false
+
+                            SetGrenades(DyN, current_class, player.level)
+
                             execute_command("wdel " .. i)
                             local weapon_table = current_class.levels[player.level].weapons
                             for Slot, WeaponIndex in pairs(weapon_table) do
@@ -591,6 +653,17 @@ function OnPlayerSpawn(Ply)
     t.time_until_regen_begin = loadout.classes["Regeneration"].levels[t.level].regen_delay
 end
 
+function SetGrenades(DyN, Class, Level)
+    local frag_count = Class.levels[Level].grenades[1]
+    local plasma_count = Class.levels[Level].grenades[2]
+    if (frag_count ~= nil) then
+        write_word(DyN + 0x31E, frag_count)
+    end
+    if (plasma_count ~= nil) then
+        write_word(DyN + 0x31E, plasma_count)
+    end
+end
+
 function Respond(Ply, Message, Type, Color)
 
     Color = Color or 10
@@ -648,6 +721,18 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
     end
 end
 
+function Promote(Ply)
+    local p = loadout.players[Ply]
+    p.level = p.level + 1
+    if (p.level > #loadout.classes[p.class].levels) then
+        p.level = #loadout.classes[p.class].levels
+    elseif (p.level == #loadout.classes[p.class].levels) then
+        Respond(Ply, "You're already on the highest tier for this class")
+    end
+    Respond(Ply, "[DEBUG] ranking up...", "rprint", 10)
+    loadout.players[Ply].assign = true
+end
+
 local function Melee(Victim)
     for i = 1, #tags.melee do
         if (loadout.players[Victim].last_damage == tags.melee[i]) then
@@ -678,8 +763,6 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
 
     local kteam = get_var(killer, "$team")
     local vteam = get_var(victim, "$team")
-
-    local k_kills = tonumber(get_var(killer, "$kills"))
 
     local pvp = ((killer > 0) and killer ~= victim)
     local suicide = (killer == victim)
