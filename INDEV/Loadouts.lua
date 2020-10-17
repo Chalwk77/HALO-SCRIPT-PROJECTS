@@ -7,6 +7,8 @@ Description: N/A
 Concept credit goes to OSH Clan, a gaming community operating on Halo CE.
 - website:  https://oldschoolhalo.boards.net/
 
+todo: implement vehicle noob protection
+
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -26,6 +28,9 @@ local loadout = {
     default_class = "Regeneration",
     starting_level = 1,
 
+    -- Should we allow negative experience?
+    allow_negative_exp = false,
+
     -- Command used to display information about your current class:
     info_command = "help",
 
@@ -39,6 +44,17 @@ local loadout = {
     -- How long should rank_hud info disappear for?
     rank_hud_pause_duration = 5,
     rank_hud = "Class: %class% | Level: %lvl%/%total_levels% | Exp: %exp%->%req_exp%",
+
+    experience = {
+        pvp = 15,
+        suicide = -15,
+        betrayal = 15,
+        vehicle_squash = 15,
+        guardians = 15,
+        server = 15,
+        fall_damage = 15,
+        distance_damage = 15,
+    },
 
     classes = {
         ["Regeneration"] = {
@@ -218,23 +234,49 @@ local loadout = {
 }
 -- Configuration Ends --
 
+-- Do not touch unless you know what you're doing!
 local time_scale = 1 / 30
+--
 
 local gmatch, gsub = string.gmatch, string.gsub
 local lower, upper = string.lower, string.upper
 
+local fall_damage, distance_damage
+
 local function Init()
+
+    fall_damage = GetTag("jpt!", "globals\\falling")
+    distance_damage = GetTag("jpt!", "globals\\distance")
+
     loadout.players = { }
     for i = 1, 16 do
         if player_present(i) then
             InitPlayer(i, false)
         end
     end
+
+    -- # Disable Weapon Pick Ups
+    execute_command("disable_object 'weapons\\assault rifle\\assault rifle'")
+    execute_command("disable_object 'weapons\\flamethrower\\flamethrower'")
+    execute_command("disable_object 'weapons\\needler\\mp_needler'")
+    execute_command("disable_object 'weapons\\pistol\\pistol'")
+    execute_command("disable_object 'weapons\\plasma pistol\\plasma pistol'")
+    execute_command("disable_object 'weapons\\plasma rifle\\plasma rifle'")
+    execute_command("disable_object 'weapons\\plasma_cannon\\plasma_cannon'")
+    execute_command("disable_object 'weapons\\rocket launcher\\rocket launcher'")
+    execute_command("disable_object 'weapons\\shotgun\\shotgun'")
+    execute_command("disable_object 'weapons\\sniper rifle\\sniper rifle'")
+
+    -- # Disable Grenade Pick Ups
+    execute_command("disable_object 'weapons\\frag grenade\\frag grenade'")
+    execute_command("disable_object 'weapons\\plasma grenade\\plasma grenade'")
 end
 
 function OnScriptLoad()
 
     register_callback(cb["EVENT_TICK"], "OnTick")
+
+    register_callback(cb['EVENT_DIE'], 'OnPlayerDeath')
 
     register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
@@ -244,6 +286,7 @@ function OnScriptLoad()
     register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
+    register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
 
     if (get_var(0, '$gt') ~= "n/a") then
         Init()
@@ -315,7 +358,6 @@ local function GetWeapon(WeaponIndex)
 end
 
 local function PrintRank(Ply)
-
     local p = loadout.players[Ply]
     if (not p.rank_hud_pause) then
 
@@ -372,22 +414,15 @@ function OnTick()
                         local shield = read_float(DyN + 0xE4)
 
                         if (health < 1 and shield == 1) then
-
-                            -- Countdown until regen begin:
                             player.time_until_regen_begin = player.time_until_regen_begin - time_scale
-
                             if (player.time_until_regen_begin <= 0) and (not player.begin_regen) then
                                 player.time_until_regen_begin = current_class.levels[player.level].regen_delay
                                 player.begin_regen = true
                             elseif (player.begin_regen) then
                                 player.regen_timer = player.regen_timer + time_scale
                                 if (player.regen_timer >= current_class.levels[player.level].regen_rate) then
-                                    print('updating health')
                                     player.regen_timer = 0
-
                                     write_float(DyN + 0xE0, health + current_class.levels[player.level].increment)
-
-                                    --write_float(DyN + 0xE0, health + current_class.increment)
                                 end
                             end
                         elseif (player.begin_regen and health >= 1) then
@@ -424,7 +459,7 @@ end
 
 function InitPlayer(Ply, Reset)
     if (Reset) then
-        loadout.players[Ply] = { }
+        loadout.players[Ply] = nil
     else
         loadout.players[Ply] = {
             exp = 0,
@@ -503,4 +538,60 @@ function getXYZ(DyN)
 
     coords.x, coords.y, coords.z = x, y, z
     return coords
+end
+
+function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
+    local killer, victim = tonumber(CauserIndex), tonumber(PlayerIndex)
+
+    if (CauserIndex > 0) then
+        loadout.players[CauserIndex] = MetaID
+        loadout.players[PlayerIndex] = MetaID
+    end
+end
+
+function OnPlayerDeath(VictimIndex, KillerIndex)
+    local killer = tonumber(KillerIndex)
+    local victim = tonumber(VictimIndex)
+
+    local kteam = get_var(killer, "$team")
+    local vteam = get_var(victim, "$team")
+
+    local pvp = ((killer > 0) and killer ~= victim)
+    local suicide = (killer == victim)
+    local betrayal = ((kteam == vteam) and killer ~= victim)
+    local vehicle_squash = (killer == 0)
+    local guardians = (killer == nil)
+    local server = (killer == -1)
+    local fall_damage = (loadout.players[victim].last_damage == fall_damage)
+    local distance_damage = (loadout.players[victim].last_damage == distance_damage)
+
+    if (pvp) then
+        UpdateExp(killer, loadout.experience.pvp)
+    elseif (suicide) then
+        UpdateExp(victim, loadout.experience.suicide)
+    elseif (betrayal) then
+        UpdateExp(victim, loadout.experience.betrayal)
+    elseif (vehicle_squash) then
+        UpdateExp(victim, loadout.experience.vehicle_squash)
+    elseif (guardians) then
+        UpdateExp(victim, loadout.experience.guardians)
+    elseif (server) then
+        UpdateExp(victim, loadout.experience.server)
+    elseif (fall_damage) then
+        UpdateExp(victim, loadout.experience.fall_damage)
+    elseif (distance_damage) then
+        UpdateExp(victim, loadout.experience.distance_damage)
+    end
+end
+
+function UpdateExp(Player, Amount)
+    loadout.players[Player].exp = loadout.players[Player].exp + Amount
+    if (not loadout.allow_negative_exp and loadout.players[Player].exp < 0) then
+        loadout.players[Player].exp = 0
+    end
+end
+
+function GetTag(ObjectType, ObjectName)
+    local Tag = lookup_tag(ObjectType, ObjectName)
+    return Tag ~= 0 and read_dword(Tag + 0xC) or nil
 end
