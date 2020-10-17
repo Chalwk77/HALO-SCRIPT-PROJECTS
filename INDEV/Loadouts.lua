@@ -46,14 +46,45 @@ local loadout = {
     rank_hud = "Class: %class% | Level: %lvl%/%total_levels% | Exp: %exp%->%req_exp%",
 
     experience = {
+
         pvp = 15,
+        use_pvp_bonus = true,
+        pvp_bonus = function(EnemyKDR)
+            return (10 * EnemyKDR)
+        end,
+
         suicide = -15,
-        betrayal = 15,
+        betrayal = -15,
         vehicle_squash = 15,
         guardians = 15,
         server = 15,
-        fall_damage = 15,
-        distance_damage = 15,
+        fall_damage = -15,
+        distance_damage = -15,
+
+        -- Skill Bonus for killing an enemy with a higher class level than you:
+        skill_bonus = 5,
+
+        killed_from_the_grave = 10,
+        beat_down = 5,
+        frag_kill = 5,
+        plasma_stick = 5,
+        plasma_explosion = 5,
+
+        spree = {
+            -- consecutive kills required, xp rewarded
+            { 5, 5 },
+            { 10, 10 },
+            { 15, 15 },
+            { 20, 20 },
+            { 25, 25 },
+            { 30, 30 },
+            { 35, 35 },
+            { 40, 45 },
+            { 50, 50 },
+            --
+            -- xp awarded every 5 kills above 50
+            { 100 }
+        }
     },
 
     classes = {
@@ -241,12 +272,9 @@ local time_scale = 1 / 30
 local gmatch, gsub = string.gmatch, string.gsub
 local lower, upper = string.lower, string.upper
 
-local fall_damage, distance_damage
+local tags = { }
 
 local function Init()
-
-    fall_damage = GetTag("jpt!", "globals\\falling")
-    distance_damage = GetTag("jpt!", "globals\\distance")
 
     loadout.players = { }
     for i = 1, 16 do
@@ -270,6 +298,60 @@ local function Init()
     -- # Disable Grenade Pick Ups
     execute_command("disable_object 'weapons\\frag grenade\\frag grenade'")
     execute_command("disable_object 'weapons\\plasma grenade\\plasma grenade'")
+
+    tags = {
+        -- fall damage --
+        [1] = GetTag("jpt!", "globals\\falling"),
+        [2] = GetTag("jpt!", "globals\\distance"),
+
+        -- vehicle collision --
+        [3] = GetTag("jpt!", "globals\\vehicle_collision"),
+
+        -- vehicle projectiles --
+        [4] = GetTag("jpt!", "vehicles\\ghost\\ghost bolt"),
+        [5] = GetTag("jpt!", "vehicles\\scorpion\\bullet"),
+        [6] = GetTag("jpt!", "vehicles\\warthog\\bullet"),
+        [7] = GetTag("jpt!", "vehicles\\c gun turret\\mp bolt"),
+        [8] = GetTag("jpt!", "vehicles\\banshee\\banshee bolt"),
+        [9] = GetTag("jpt!", "vehicles\\scorpion\\shell explosion"),
+        [10] = GetTag("jpt!", "vehicles\\banshee\\mp_fuel rod explosion"),
+
+        -- weapon projectiles --
+        [11] = GetTag("jpt!", "weapons\\pistol\\bullet"),
+        [12] = GetTag("jpt!", "weapons\\plasma rifle\\bolt"),
+        [13] = GetTag("jpt!", "weapons\\shotgun\\pellet"),
+        [14] = GetTag("jpt!", "weapons\\plasma pistol\\bolt"),
+        [15] = GetTag("jpt!", "weapons\\needler\\explosion"),
+        [16] = GetTag("jpt!", "weapons\\assault rifle\\bullet"),
+        [17] = GetTag("jpt!", "weapons\\needler\\impact damage"),
+        [18] = GetTag("jpt!", "weapons\\flamethrower\\explosion"),
+        [19] = GetTag("jpt!", "weapons\\sniper rifle\\sniper bullet"),
+        [20] = GetTag("jpt!", "weapons\\rocket launcher\\explosion"),
+        [21] = GetTag("jpt!", "weapons\\needler\\detonation damage"),
+        [22] = GetTag("jpt!", "weapons\\plasma rifle\\charged bolt"),
+        [23] = GetTag("jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_explosion"),
+
+        -- grenades --
+        [24] = GetTag("jpt!", "weapons\\frag grenade\\explosion"),
+        [25] = GetTag("jpt!", "weapons\\plasma grenade\\attached"),
+        [26] = GetTag("jpt!", "weapons\\plasma grenade\\explosion"),
+
+        melee = {
+            -- weapon melee --
+            [1] = GetTag("jpt!", "weapons\\flag\\melee"),
+            [2] = GetTag("jpt!", "weapons\\ball\\melee"),
+            [3] = GetTag("jpt!", "weapons\\pistol\\melee"),
+            [4] = GetTag("jpt!", "weapons\\needler\\melee"),
+            [5] = GetTag("jpt!", "weapons\\shotgun\\melee"),
+            [6] = GetTag("jpt!", "weapons\\flamethrower\\melee"),
+            [7] = GetTag("jpt!", "weapons\\sniper rifle\\melee"),
+            [8] = GetTag("jpt!", "weapons\\plasma rifle\\melee"),
+            [9] = GetTag("jpt!", "weapons\\plasma pistol\\melee"),
+            [10] = GetTag("jpt!", "weapons\\assault rifle\\melee"),
+            [11] = GetTag("jpt!", "weapons\\rocket launcher\\melee"),
+            [12] = GetTag("jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_melee"),
+        },
+    }
 end
 
 function OnScriptLoad()
@@ -300,6 +382,13 @@ end
 function OnGameStart()
     if (get_var(0, '$gt') ~= "n/a") then
         Init()
+
+        --local spree = 500
+        --for k,v in pairs(loadout.experience.spree) do
+        --    if (spree == v[1]) --[[or (spree >= #loadout.experience.spree[1] and spree % 5 == 0)]] then
+        --        print(v[1])
+        --    end
+        --end
     end
 end
 
@@ -476,6 +565,10 @@ function InitPlayer(Ply, Reset)
 
             rank_hud_pause = false,
             rank_hud_pause_duration = loadout.rank_hud_pause_duration,
+
+            last_damage = nil,
+
+            streaks = 0,
         }
     end
 end
@@ -544,9 +637,61 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
     local killer, victim = tonumber(CauserIndex), tonumber(PlayerIndex)
 
     if (CauserIndex > 0) then
-        loadout.players[CauserIndex] = MetaID
-        loadout.players[PlayerIndex] = MetaID
+        loadout.players[killer].last_damage = MetaID
+        loadout.players[victim].last_damage = MetaID
     end
+end
+
+local function Melee(Player)
+    for i = 1, #tags.melee do
+        if (loadout.players[Player].last_damage == tags.melee[i]) then
+            return true
+        end
+    end
+end
+
+local function MultiKill(killer)
+    local xp = 0
+    local player = get_player(killer)
+    if (player ~= 0) then
+        local multi = read_word(player + 0x98)
+        if (multi == 2) then
+            xp = 2
+        elseif (multi == 3) then
+            xp = 4
+        elseif (multi == 4) then
+            xp = 6
+        elseif (multi == 5) then
+            xp = 8
+        elseif (multi == 6) then
+            xp = 10
+        elseif (multi == 7) then
+            xp = 12
+        elseif (multi == 8) then
+            xp = 14
+        elseif (multi == 9) then
+            xp = 16
+        elseif (multi == 10) then
+            xp = 18
+        elseif (multi >= 10) then
+            xp = 20
+        end
+    end
+    UpdateExp(killer, xp)
+end
+
+local function KillingSpree(killer)
+    local xp = 0
+    local player = get_player(killer)
+    if (player ~= 0) then
+        local spree = read_word(player + 0x96)
+        for k, v in pairs(loadout.experience.spree) do
+            if (spree == s[i][1]) or (spree >= #s[1] and spree % 5 == 0) then
+                xp = s[i]
+            end
+        end
+    end
+    UpdateExp(killer, xp)
 end
 
 function OnPlayerDeath(VictimIndex, KillerIndex)
@@ -556,17 +701,45 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
     local kteam = get_var(killer, "$team")
     local vteam = get_var(victim, "$team")
 
+    local k_kills = tonumber(get_var(killer, "$kills"))
+
     local pvp = ((killer > 0) and killer ~= victim)
     local suicide = (killer == victim)
     local betrayal = ((kteam == vteam) and killer ~= victim)
     local vehicle_squash = (killer == 0)
     local guardians = (killer == nil)
     local server = (killer == -1)
-    local fall_damage = (loadout.players[victim].last_damage == fall_damage)
-    local distance_damage = (loadout.players[victim].last_damage == distance_damage)
+    local fall_damage = (loadout.players[victim].last_damage == tags[1])
+    local distance_damage = (loadout.players[victim].last_damage == tags[2])
 
     if (pvp) then
-        UpdateExp(killer, loadout.experience.pvp)
+
+        MultiKill(killer)
+        KillingSpree(killer)
+
+        -- Killed from the grave
+        if (not player_alive(killer)) then
+            UpdateExp(killer, loadout.experience.killed_from_the_grave)
+        end
+
+        local pvp_bonus = 0
+        if (loadout.experience.use_pvp_bonus) then
+            local enemy_kills = tonumber(get_var(victim, "$kills"))
+            local enemy_deaths = tonumber(get_var(victim, "$deaths"))
+            local kdr_bonus = (enemy_kills / enemy_deaths)
+            pvp_bonus = loadout.experience.pvp_bonus(kdr_bonus)
+        end
+        UpdateExp(killer, loadout.experience.pvp + pvp_bonus)
+
+        -- Skill bonus for killing an enemy with a higher class level than you:
+        local killer_class, killer_lvl = loadout.players[killer].class, loadout.players[killer].level
+        local victim_class, victim_lvl = loadout.players[victim].class, loadout.players[victim].level
+        if (killer_class == victim_class and killer_lvl > victim_lvl) then
+            UpdateExp(killer, loadout.experience.skill_bonus)
+        end
+
+        loadout.players[killer].streaks = loadout.players[killer].streaks + 1
+
     elseif (suicide) then
         UpdateExp(victim, loadout.experience.suicide)
     elseif (betrayal) then

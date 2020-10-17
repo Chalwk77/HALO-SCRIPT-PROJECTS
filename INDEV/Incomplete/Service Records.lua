@@ -579,11 +579,15 @@ function MultiKill(killer)
                 k.credits = k.credits + 20
             elseif (multi == 9) then
                 k.credits = k.credits + 22
-            elseif (multi >= 10) then
-                k.credits = k.credits + 25
+            elseif (multi == 10) then
+                k.credits = k.credits + 24
+            elseif (multi >= 40 and multi % 5 == 0) then
+                k.credits = k.credits + 26
             end
         end
     end
+
+    UpdateExp(killer, loadout.experience.killed_from_the_grave)
 end
 
 function KillingSpree(killer)
