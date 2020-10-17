@@ -45,11 +45,10 @@ local loadout = {
 
     -- Command Syntax: /rank_up_command <pid>
     rank_up_command = "rankup",
-    promote_permission_level = 2,
-
-    -- Command Syntax: /rank_down_command <pid>
+    -- Command Syntax: /rank_up_command <pid>
     rank_down_command = "rankdown",
-    demote_permission_level = 2,
+    -- Minimum permission level required to execute /rank_up_command or /rank_down_command
+    change_level_permission_node = 2,
 
     experience = {
 
@@ -422,13 +421,13 @@ function GetPlayers(Executor, Args)
         if (Executor ~= 0) then
             table.insert(pl, Executor)
         else
-            -- server cannot execute this command
+            Respond(Executor, "The server cannot execute this command!", "rprint", 10)
         end
     elseif (Args[2] ~= nil) and (Args[2]:match("^%d+$")) then
         if player_present(Args[2]) then
             table.insert(pl, Args[2])
         else
-            -- player not online
+            Respond(Executor, "Player #" .. Args[2] .. " is not online", "rprint", 10)
         end
     elseif (Args[2] == "all" or Args[2] == "*") then
         for i = 1, 16 do
@@ -437,10 +436,10 @@ function GetPlayers(Executor, Args)
             end
         end
         if (#pl == 0) then
-            -- no players online
+            Respond(Executor, "There are not players online!", "rprint", 10)
         end
     else
-        -- invalid syntax
+        Respond(Executor, "Invalid Command Syntax. Please try again!", "rprint", 10)
     end
     return pl
 end
@@ -452,7 +451,6 @@ function OnServerCommand(Executor, Command, _, _)
     else
 
         Args[1] = lower(Args[1]) or upper(Args[1])
-
         if (Executor > 0) then
             local p = loadout.players[Executor]
             cls(Executor, 25)
@@ -475,18 +473,23 @@ function OnServerCommand(Executor, Command, _, _)
         end
     end
 
-    if (Args[1] == loadout.rank_up_command) then
+    if (Args[1] == loadout.rank_up_command or Args[1] == loadout.rank_down_command) then
         local lvl = tonumber(get_var(Executor, "$lvl"))
-        if (lvl >= loadout.promote_permission_level) or (Executor == 0) then
-
+        if (lvl >= loadout.change_level_permission_node) or (Executor == 0) then
             local pl = GetPlayers(Executor, Args)
             if (pl) and (#pl > 0) then
-
+                local function Check(E, T)
+                    if (Args[1] == loadout.rank_up_command) then
+                        Promote(E, T)
+                    elseif (Args[1] == loadout.rank_down_command) then
+                        Demote(E, T)
+                    end
+                end
                 if (Args[2] == nil) then
-                    return Promote(Executor)
+                    Check(Executor, Executor)
                 else
-                    for i = 1, #players do
-                        return Promote(tonumber(pl[i]))
+                    for i = 1, #pl do
+                        Check(Executor, tonumber(pl[i]))
                     end
                 end
             end
@@ -721,16 +724,45 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
     end
 end
 
-function Promote(Ply)
-    local p = loadout.players[Ply]
-    p.level = p.level + 1
-    if (p.level > #loadout.classes[p.class].levels) then
-        p.level = #loadout.classes[p.class].levels
-    elseif (p.level == #loadout.classes[p.class].levels) then
-        Respond(Ply, "You're already on the highest tier for this class")
+function Promote(Executor, TargetID)
+    local p = loadout.players[TargetID]
+    local name = get_var(TargetID, "$name")
+    if (p.level >= #loadout.classes[p.class].levels) then
+        local str = "[DEBUG] " .. name .. " is already on the highest tier for this class"
+        if (Executor == TargetID) then
+            str = "[DEBUG] You are already on the highest tier for this class"
+        end
+        Respond(Executor, str, "rprint", 10)
+    else
+        p.level = p.level + 1
+        local str = "[DEBUG] Promoting " .. name .. " to level %lvl%"
+        if (Executor == TargetID) then
+            str = "[DEBUG] Promoting to level %lvl%"
+        end
+        Respond(Executor, gsub(str, "%%lvl%%", p.level), "rprint", 10)
+        loadout.players[TargetID].assign = true
     end
-    Respond(Ply, "[DEBUG] ranking up...", "rprint", 10)
-    loadout.players[Ply].assign = true
+end
+
+function Demote(Executor, TargetID)
+    local p = loadout.players[TargetID]
+    local name = get_var(TargetID, "$name")
+    p.level = p.level - 1
+    if (p.level < 1) then
+        p.level = 1
+        local str = "[DEBUG] " .. name .. " is already on the first level"
+        if (Executor == TargetID) then
+            str = "[DEBUG] You are already on the first level"
+        end
+        return Respond(Executor, str, "rprint", 10)
+    else
+        local str = "[DEBUG] demoting " .. name .. " to level %lvl%"
+        if (Executor == TargetID) then
+            str = "[DEBUG] demoting to level %lvl%"
+        end
+        Respond(Executor, gsub(str, "%%lvl%%", p.level), "rprint", 10)
+        loadout.players[TargetID].assign = true
+    end
 end
 
 local function Melee(Victim)
