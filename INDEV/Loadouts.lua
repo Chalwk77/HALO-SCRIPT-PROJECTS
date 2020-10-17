@@ -50,12 +50,39 @@ local loadout = {
     -- Minimum permission level required to execute /rank_up_command or /rank_down_command
     change_level_permission_node = 2,
 
+    messages = {
+
+        flag_score = "Flag Score [+%exp%]",
+        flag_score_team = "Flag Team Score [+%exp%]",
+
+        death_messages = {
+            head_shot = "Head Shot: [+%exp%]",
+            melee = "Melee: [+%exp%]",
+            frag_kill = "Frag Kill: [+%exp%]",
+            plasma_stick = "Plasma Stick: [+%exp%]",
+            plasma_explosion = "Plasma Explision: [+%exp%]",
+            skill_bonus = "Skill Bonus: [+%exp%]",
+            pvp = "PvP: [+%exp%]",
+            pvp_bonus = "PvP Bonus: [+%exp%]",
+            suicide = "Suicide: [%exp%]",
+            betrayal = "Betrayal: [%exp%]",
+            vehicle_squash = "Vehicle Squash: [%exp%]",
+            guardians = "Guardians: [%exp%]",
+            server = "Server: [%exp%]",
+            fall_damage = "Fall Damage: [%exp%]",
+            distance_damage = "Distance Damage: [%exp%]",
+            unknown_or_glitched = "Unknown Death: [%exp%]",
+            killed_from_the_grave = "Kill From Grave: [%exp%]",
+            spree = "Spree: (%kills%x kills) - [%exp%]"
+        }
+    },
+
     experience = {
 
         pvp = 15,
         use_pvp_bonus = true,
         pvp_bonus = function(EnemyKDR)
-            return (10 * EnemyKDR)
+            return tonumber((10 * EnemyKDR))
         end,
 
         suicide = -15,
@@ -98,7 +125,6 @@ local loadout = {
 
     classes = {
         ["Regeneration"] = {
-            index = 1,
             command = "regen",
             info = {
                 "Regeneration: Good for players who want the classic Halo experience. This is the Default.",
@@ -162,7 +188,6 @@ local loadout = {
         },
 
         ["Armor Boost"] = {
-            index = 2,
             command = "armor",
             info = {
                 "Armor Boost: Good for players who engage vehicles or defend.",
@@ -197,7 +222,6 @@ local loadout = {
         },
 
         ["Partial Camo"] = {
-            index = 3,
             command = "camo",
             info = {
                 "Partial Camo: Good for players who prefer stealth and quick kills or CQB.",
@@ -232,7 +256,6 @@ local loadout = {
         },
 
         ["Recon"] = {
-            index = 4,
             command = "speed",
             info = {
                 "Recon: Good for players who don't use vehicles. Also good for capturing.",
@@ -375,8 +398,6 @@ local function Init()
             [12] = GetTag("jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_melee"),
         },
     }
-
-    GetNextRank()
 end
 
 function OnScriptLoad()
@@ -409,8 +430,6 @@ function OnGameStart()
     if (get_var(0, '$gt') ~= "n/a") then
         Init()
     end
-
-    print(#loadout.classes)
 end
 
 function OnGameEnd()
@@ -462,6 +481,13 @@ function GetPlayers(Executor, Args)
     return pl
 end
 
+function PauseRankHUD(Player)
+    local p = loadout.players[Player]
+    --cls(Player, 25)
+    p.rank_hud_pause = true
+    p.rank_hud_pause_duration = loadout.rank_hud_pause_duration
+end
+
 function OnServerCommand(Executor, Command, _, _)
     local Args = CmdSplit(Command)
     if (Args == nil) then
@@ -471,9 +497,7 @@ function OnServerCommand(Executor, Command, _, _)
         Args[1] = lower(Args[1]) or upper(Args[1])
         if (Executor > 0) then
             local p = loadout.players[Executor]
-            cls(Executor, 25)
-            p.rank_hud_pause = true
-            p.rank_hud_pause_duration = loadout.rank_hud_pause_duration
+            PauseRankHUD(Executor)
             for class, v in pairs(loadout.classes) do
                 if (Args[1] == v.command) then
                     if (p.class == class) then
@@ -550,6 +574,7 @@ local function PrintHelp(Ply, InfoTab)
 end
 
 function OnTick()
+
     for i, player in pairs(loadout.players) do
         if (i) then
             if player_alive(i) then
@@ -631,13 +656,15 @@ end
 
 function OnPlayerScore(Ply)
     UpdateExp(Ply, loadout.experience.flag_score)
+    SendStatsMessage(Ply, loadout.experience.flag_score, loadout.messages.flag_score)
+
     local pteam = get_var(Ply, "$team")
     for i = 1, 16 do
         if player_present(i) then
-            local iteam = get_var(Ply, "$team")
+            local iteam = get_var(i, "$team")
             if (pteam == iteam) then
                 if (i ~= Ply) then
-                    UpdateExp(i, loadout.experience.flag_score_team)
+                    SendStatsMessage(i, loadout.experience.flag_score, loadout.messages.flag_score_team)
                 end
             end
         end
@@ -712,6 +739,8 @@ function Respond(Ply, Message, Type, Color)
 
     if (Ply == 0) then
         cprint(Message, Color)
+    else
+        PauseRankHUD(Ply)
     end
 
     if (Type == "rprint") then
@@ -726,39 +755,6 @@ end
 
 function DelaySecQuat(Ply, Weapon, x, y, z)
     assign_weapon(spawn_object("weap", Weapon, x, y, z), Ply)
-end
-
-function table.map_length(t)
-    local c = 0
-    for k, v in pairs(t) do
-        c = c + 1
-    end
-    return c
-end
-
-function GetNextRank()
-    local class = "Regeneration"
-    local n = { }
-    n.next = 1
-    n.next_class = "N/A"
-
-    for k, v in pairs(loadout.classes) do
-        if (k == class) then
-            n.next = v.index + 1
-        end
-    end
-
-    local len = table.map_length(loadout.classes)
-    if (n.next > len) then
-        n.next = len
-    end
-
-    for k, v in pairs(loadout.classes) do
-        if (n.next == v.index) then
-            class = k
-        end
-    end
-    print("The Next Class is: " .. class)
 end
 
 function getXYZ(DyN)
@@ -851,15 +847,22 @@ local function KillingSpree(killer)
     if (player ~= 0) then
         local spree = read_word(player + 0x96)
         local s = loadout.experience.spree
-        local max = s[#s]
+        local m = loadout.messages.death_messages
         for _, v in pairs(s) do
             if (spree == v[1]) then
-                return UpdateExp(killer, v[2])
-            elseif (spree >= max[1]) and (spree % 5 == 0) then
-                return UpdateExp(killer, max[2])
+                return SendStatsMessage(killer, v[2], m.spree)
+            elseif (spree >= s[#s][1]) and (spree % 5 == 0) then
+                return SendStatsMessage(killer, v[2], m.spree)
             end
         end
     end
+end
+
+function SendStatsMessage(Ply, EXP, STR)
+    UpdateExp(Ply, EXP)
+    local kills = tonumber(get_var(Ply, "$kills"))
+    STR = gsub(gsub(STR, "%%exp%%", EXP), "%%kills%%", kills)
+    Respond(Ply, STR, "rprint", 10)
 end
 
 function OnPlayerDeath(VictimIndex, KillerIndex)
@@ -868,6 +871,8 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
 
     local kteam = get_var(killer, "$team")
     local vteam = get_var(victim, "$team")
+    local exp = loadout.experience
+    local message = loadout.messages.death_messages
 
     local pvp = ((killer > 0) and killer ~= victim)
     local suicide = (killer == victim)
@@ -878,51 +883,65 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
     local fall_damage = (loadout.players[victim].last_damage == tags[1])
     local distance_damage = (loadout.players[victim].last_damage == tags[2])
 
+    local frag_kill = (loadout.players[victim].last_damage == tags[24])
+    local plasma_stick = (loadout.players[victim].last_damage == tags[25])
+    local plasma_explosion = (loadout.players[victim].last_damage == tags[26])
+
     if (pvp) then
 
         KillingSpree(killer)
+        SendStatsMessage(killer, exp.pvp, message.pvp)
 
         if (loadout.players[victim].head_shot) then
-            UpdateExp(killer, loadout.experience.head_shot)
+            SendStatsMessage(killer, exp.head_shot, message.head_shot)
         elseif (Melee(victim)) then
-            UpdateExp(killer, loadout.experience.beat_down)
+            SendStatsMessage(killer, exp.melee, message.melee)
+        elseif (frag_kill) then
+            SendStatsMessage(killer, exp.frag_kill, message.frag_kill)
+        elseif (plasma_stick) then
+            SendStatsMessage(killer, exp.plasma_stick, message.plasma_stick)
+        elseif (plasma_explosion) then
+            SendStatsMessage(killer, exp.plasma_explosion, message.plasma_explosion)
         end
 
         -- Killed from the grave
         if (not player_alive(killer)) then
-            UpdateExp(killer, loadout.experience.killed_from_the_grave)
+            SendStatsMessage(killer, exp.killed_from_the_grave, message.killed_from_the_grave)
         end
 
-        local pvp_bonus = 0
-        if (loadout.experience.use_pvp_bonus) then
+        -- PvP Bonus:
+        if (exp.use_pvp_bonus) then
             local enemy_kills = tonumber(get_var(victim, "$kills"))
             local enemy_deaths = tonumber(get_var(victim, "$deaths"))
             local kdr_bonus = (enemy_kills / enemy_deaths)
-            pvp_bonus = loadout.experience.pvp_bonus(kdr_bonus)
-        end
-        UpdateExp(killer, loadout.experience.pvp + pvp_bonus)
+            local pvp_bonus = exp.pvp_bonus(kdr_bonus)
 
-        -- Skill bonus for killing an enemy with a higher class level than you:
+            if (pvp_bonus > 0) then
+                SendStatsMessage(killer, pvp_bonus, message.pvp_bonus)
+            end
+        end
+
+        -- Skill bonus:
         local killer_class, killer_lvl = loadout.players[killer].class, loadout.players[killer].level
         local victim_class, victim_lvl = loadout.players[victim].class, loadout.players[victim].level
         if (killer_class == victim_class and killer_lvl > victim_lvl) then
-            UpdateExp(killer, loadout.experience.skill_bonus)
+            SendStatsMessage(killer, exp.skill_bonus, message.skill_bonus)
         end
 
     elseif (suicide) then
-        UpdateExp(victim, loadout.experience.suicide)
+        SendStatsMessage(victim, exp.suicide, message.suicide)
     elseif (betrayal) then
-        UpdateExp(victim, loadout.experience.betrayal)
+        SendStatsMessage(victim, exp.betrayal, message.betrayal)
     elseif (vehicle_squash) then
-        UpdateExp(victim, loadout.experience.vehicle_squash)
+        SendStatsMessage(victim, exp.vehicle_squash, message.vehicle_squash)
     elseif (guardians) then
-        UpdateExp(victim, loadout.experience.guardians)
+        SendStatsMessage(victim, exp.guardians, message.guardians)
     elseif (server) then
-        UpdateExp(victim, loadout.experience.server)
+        SendStatsMessage(victim, exp.server, message.server)
     elseif (fall_damage) then
-        UpdateExp(victim, loadout.experience.fall_damage)
+        SendStatsMessage(victim, exp.fall_damage, message.fall_damage)
     elseif (distance_damage) then
-        UpdateExp(victim, loadout.experience.distance_damage)
+        SendStatsMessage(victim, exp.distance_damage, message.distance_damage)
     end
 end
 
