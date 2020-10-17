@@ -115,7 +115,8 @@ local loadout = {
                     -- Experience Points required to rank up:
                     until_next_rank = 200,
                     weapons = { 2, nil, nil, nil },
-                    grenades = { nil, nil }
+                    shield_regen_delay = 60,
+                    grenades = { nil, nil },
                 },
                 [2] = {
                     increment = 0.0550,
@@ -123,6 +124,7 @@ local loadout = {
                     regen_rate = 1,
                     until_next_rank = 500,
                     weapons = { 1, 2, nil, nil },
+                    shield_regen_delay = nil,
                     grenades = { 2, 2 }
                 },
                 [3] = {
@@ -131,6 +133,7 @@ local loadout = {
                     regen_rate = 1,
                     until_next_rank = 1000,
                     weapons = { 1, 2, 4, nil },
+                    shield_regen_delay = nil,
                     grenades = { 4, 4 }
                 },
                 [4] = {
@@ -139,6 +142,7 @@ local loadout = {
                     regen_rate = 1,
                     until_next_rank = 2000,
                     weapons = { 1, 2, nil, nil },
+                    shield_regen_delay = nil,
                     grenades = { 5, 5 }
                 },
                 [5] = {
@@ -147,6 +151,7 @@ local loadout = {
                     regen_rate = 1,
                     until_next_rank = 3500,
                     weapons = { 1, 2, nil, nil },
+                    shield_regen_delay = 50,
                     grenades = { 7, 7 }
                 }
             },
@@ -561,6 +566,12 @@ function OnTick()
                         local health = read_float(DyN + 0xE0)
                         local shield = read_float(DyN + 0xE4)
 
+                        local shield_regen_delay = tonumber(current_class.levels[player.level].shield_regen_delay)
+                        if (shield < 1 and shield_regen_delay ~= nil and player.regen_shield) then
+                            player.regen_shield = false
+                            write_word(DyN + 0x104, shield_regen_delay)
+                        end
+
                         if (health < 1 and shield == 1) then
                             player.time_until_regen_begin = player.time_until_regen_begin - time_scale
                             if (player.time_until_regen_begin <= 0) and (not player.begin_regen) then
@@ -652,6 +663,7 @@ function OnPlayerSpawn(Ply)
 
     t.head_shot = nil
     t.last_damage = nil
+    t.regen_shield = false
 
     t.time_until_regen_begin = loadout.classes["Regeneration"].levels[t.level].regen_delay
 end
@@ -719,6 +731,7 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
         else
             loadout.players[victim].head_shot = false
         end
+        loadout.players[victim].regen_shield = true
         loadout.players[killer].last_damage = MetaID
         loadout.players[victim].last_damage = MetaID
     end
