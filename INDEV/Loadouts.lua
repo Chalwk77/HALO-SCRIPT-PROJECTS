@@ -64,14 +64,15 @@ local loadout = {
         -- Skill Bonus for killing an enemy with a higher class level than you:
         skill_bonus = 5,
 
-        killed_from_the_grave = 10,
+        head_shot = 5,
         beat_down = 5,
         frag_kill = 5,
         plasma_stick = 5,
         plasma_explosion = 5,
+        killed_from_the_grave = 10,
 
+        -- consecutive kills required, xp rewarded
         spree = {
-            -- consecutive kills required, xp rewarded
             { 5, 5 },
             { 10, 10 },
             { 15, 15 },
@@ -81,9 +82,9 @@ local loadout = {
             { 35, 35 },
             { 40, 45 },
             { 50, 50 },
-            --
-            -- xp awarded every 5 kills above 50
-            { 100 }
+            -- The last entry is special:
+            -- Award 100 XP every 5 kills at or above 55
+            { 55, 100 },
         }
     },
 
@@ -108,7 +109,7 @@ local loadout = {
                     regen_rate = 1,
                     -- Experience Points require to rank up:
                     until_next_rank = 200,
-                    weapons = { 1, nil, nil, nil },
+                    weapons = { 2, nil, nil, nil },
                 },
                 [2] = {
                     increment = 0.0550,
@@ -382,13 +383,6 @@ end
 function OnGameStart()
     if (get_var(0, '$gt') ~= "n/a") then
         Init()
-
-        --local spree = 500
-        --for k,v in pairs(loadout.experience.spree) do
-        --    if (spree == v[1]) --[[or (spree >= #loadout.experience.spree[1] and spree % 5 == 0)]] then
-        --        print(v[1])
-        --    end
-        --end
     end
 end
 
@@ -567,8 +561,8 @@ function InitPlayer(Ply, Reset)
             rank_hud_pause_duration = loadout.rank_hud_pause_duration,
 
             last_damage = nil,
+            head_shot = nil,
 
-            streaks = 0,
         }
     end
 end
@@ -590,6 +584,9 @@ function OnPlayerSpawn(Ply)
     -- Health regeneration Variables --
     t.regen_timer = 0
     t.begin_regen = false
+
+    t.head_shot = nil
+    t.last_damage = nil
 
     t.time_until_regen_begin = loadout.classes["Regeneration"].levels[t.level].regen_delay
 end
@@ -635,63 +632,44 @@ end
 
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
     local killer, victim = tonumber(CauserIndex), tonumber(PlayerIndex)
-
-    if (CauserIndex > 0) then
+    if player_present(victim) and (CauserIndex > 0) then
+        local CausesHeadShot = OnDamageLookup(victim, killer)
+        if (CausesHeadShot ~= nil) then
+            if (HitString == "head") then
+                loadout.players[victim].head_shot = true
+            else
+                loadout.players[victim].head_shot = false
+            end
+        else
+            loadout.players[victim].head_shot = false
+        end
         loadout.players[killer].last_damage = MetaID
         loadout.players[victim].last_damage = MetaID
     end
 end
 
-local function Melee(Player)
+local function Melee(Victim)
     for i = 1, #tags.melee do
-        if (loadout.players[Player].last_damage == tags.melee[i]) then
+        if (loadout.players[Victim].last_damage == tags.melee[i]) then
             return true
         end
     end
 end
 
-local function MultiKill(killer)
-    local xp = 0
-    local player = get_player(killer)
-    if (player ~= 0) then
-        local multi = read_word(player + 0x98)
-        if (multi == 2) then
-            xp = 2
-        elseif (multi == 3) then
-            xp = 4
-        elseif (multi == 4) then
-            xp = 6
-        elseif (multi == 5) then
-            xp = 8
-        elseif (multi == 6) then
-            xp = 10
-        elseif (multi == 7) then
-            xp = 12
-        elseif (multi == 8) then
-            xp = 14
-        elseif (multi == 9) then
-            xp = 16
-        elseif (multi == 10) then
-            xp = 18
-        elseif (multi >= 10) then
-            xp = 20
-        end
-    end
-    UpdateExp(killer, xp)
-end
-
 local function KillingSpree(killer)
-    local xp = 0
     local player = get_player(killer)
     if (player ~= 0) then
         local spree = read_word(player + 0x96)
-        for k, v in pairs(loadout.experience.spree) do
-            if (spree == s[i][1]) or (spree >= #s[1] and spree % 5 == 0) then
-                xp = s[i]
+        local s = loadout.experience.spree
+        local max = s[#s]
+        for _, v in pairs(s) do
+            if (spree == v[1]) then
+                return UpdateExp(killer, v[2])
+            elseif (spree >= max[1]) and (spree % 5 == 0) then
+                return UpdateExp(killer, max[2])
             end
         end
     end
-    UpdateExp(killer, xp)
 end
 
 function OnPlayerDeath(VictimIndex, KillerIndex)
@@ -714,8 +692,13 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
 
     if (pvp) then
 
-        MultiKill(killer)
         KillingSpree(killer)
+
+        if (loadout.players[victim].head_shot) then
+            UpdateExp(killer, loadout.experience.head_shot)
+        elseif (Melee(victim)) then
+            UpdateExp(killer, loadout.experience.beat_down)
+        end
 
         -- Killed from the grave
         if (not player_alive(killer)) then
@@ -737,8 +720,6 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
         if (killer_class == victim_class and killer_lvl > victim_lvl) then
             UpdateExp(killer, loadout.experience.skill_bonus)
         end
-
-        loadout.players[killer].streaks = loadout.players[killer].streaks + 1
 
     elseif (suicide) then
         UpdateExp(victim, loadout.experience.suicide)
@@ -768,3 +749,42 @@ function GetTag(ObjectType, ObjectName)
     local Tag = lookup_tag(ObjectType, ObjectName)
     return Tag ~= 0 and read_dword(Tag + 0xC) or nil
 end
+
+-- Credits to H® Shaft for this function:
+-- Taken from https://pastebin.com/edZ82aWn
+function OnDamageLookup(ReceiverIndex, CauserIndex)
+    local response = nil
+    if get_var(0, "$gt") ~= "n/a" then
+        if (CauserIndex and ReceiverIndex ~= CauserIndex) then
+            if (CauserIndex ~= 0) then
+                local r_team = read_word(get_player(ReceiverIndex) + 0x20)
+                local c_team = read_word(get_player(CauserIndex) + 0x20)
+                if (r_team ~= c_team) then
+                    local tag_address = read_dword(0x40440000)
+                    local tag_count = read_word(0x4044000C)
+                    for A = 0, tag_count - 1 do
+                        local tag_id = tag_address + A * 0x20
+                        if (read_dword(tag_id) == 1785754657) then
+                            local tag_data = read_dword(tag_id + 0x14)
+                            if (tag_data ~= nil) then
+                                if (read_word(tag_data + 0x1C6) == 5) or (read_word(tag_data + 0x1C6) == 6) then
+                                    -- damage category: bullets
+                                    if (read_bit(tag_data + 0x1C8, 1) == 1) then
+                                        -- damage effect: can cause head shots
+                                        response = true
+                                    else
+                                        response = false
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            else
+                response = false
+            end
+        end
+    end
+    return response
+end
+--
