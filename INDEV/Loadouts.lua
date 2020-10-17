@@ -26,10 +26,10 @@ local loadout = {
     default_class = "Regeneration",
     starting_level = 1,
 
-    -- Command Syntax: /info_command <class>
+    -- Command used to display information about your current class:
     info_command = "help",
 
-    -- If a player types /help <class>, how long should the information be on screen for? (in seconds)
+    -- If a player types /info_command, how long should the information be on screen for? (in seconds)
     help_hud_duration = 5,
 
     -- Enable or disable rank HUD:
@@ -44,7 +44,6 @@ local loadout = {
         ["Regeneration"] = {
             command = "regen",
             info = {
-                identifier = "regen",
                 "Regeneration: Good for players who want the classic Halo experience. This is the Default.",
                 "Level 1 - Health regenerates 3 seconds after shields recharge, at 20%/second.",
                 "Level 2 - 2 Second Delay after shields recharge, at 25%/second. Unlocks Weapon 3.",
@@ -52,25 +51,43 @@ local loadout = {
                 "Level 4 - Health regenerates as soon as shields recharge, at 35%/second. You now spawn with full grenade count.",
                 "Level 5 - Shields now charge 1 second sooner as well.",
             },
-
             levels = {
                 [1] = {
+                    -- Amount of health regenerated. (1 is full health)
+                    increment = 0.0300,
+                    -- Health will start regenerating this many seconds after shields are full:
+                    regen_delay = 5,
+                    -- Time (in seconds) between each incremental increase in health:
+                    regen_rate = 1,
+                    -- Experience Points require to rank up:
                     until_next_rank = 200,
-                    weapons = { 1, 2, nil, nil },
+                    weapons = { 1, nil, nil, nil },
                 },
                 [2] = {
+                    increment = 0.0550,
+                    regen_delay = 4,
+                    regen_rate = 1,
                     until_next_rank = 500,
                     weapons = { 1, 2, nil, nil },
                 },
                 [3] = {
+                    increment = 0.750,
+                    regen_delay = 3,
+                    regen_rate = 1,
                     until_next_rank = 1000,
-                    weapons = { 1, 2, nil, nil },
+                    weapons = { 1, 2, 4, nil },
                 },
                 [4] = {
+                    increment = 0.950,
+                    regen_delay = 2,
+                    regen_rate = 1,
                     until_next_rank = 2000,
                     weapons = { 1, 2, nil, nil },
                 },
                 [5] = {
+                    increment = 0.1100,
+                    regen_delay = 1,
+                    regen_rate = 1,
                     until_next_rank = 3500,
                     weapons = { 1, 2, nil, nil },
                 }
@@ -79,7 +96,6 @@ local loadout = {
             ["Armor Boost"] = {
                 command = "armor",
                 info = {
-                    identifier = "armor",
                     "Armor Boost: Good for players who engage vehicles or defend.",
                     "Level 1 - 1.20x durability.",
                     "Level 2 - 1.30x durability. Unlocks Weapon 3.",
@@ -113,7 +129,6 @@ local loadout = {
             ["Partial Camo"] = {
                 command = "camo",
                 info = {
-                    identifier = "camo",
                     "Partial Camo: Good for players who prefer stealth and quick kills or CQB.",
                     "Level 1 - Camo works until you fire your weapon or take damage. Reinitialize delays are 3s/Weapon, 5s/Damage",
                     "Level 2 - Reinitialize delays are 2s/Weapon, 5s/Damage. Unlocks Weapon 3.",
@@ -144,10 +159,10 @@ local loadout = {
                     }
                 }
             },
+
             ["Recon"] = {
                 command = "speed",
                 info = {
-                    identifier = "speed",
                     "Recon: Good for players who don't use vehicles. Also good for capturing.",
                     "Level 1 - Default speed raised to 1.5x. Sprint duration is 200%.",
                     "Level 2 - Default speed raised to 1.6x. Sprint duration is 225%. Unlocks Weapon 3.",
@@ -271,7 +286,6 @@ function OnServerCommand(Executor, Command, _, _)
         return
     else
 
-        local state
         Args[1] = lower(Args[1]) or upper(Args[1])
         local p = loadout.players[Executor]
 
@@ -288,9 +302,8 @@ function OnServerCommand(Executor, Command, _, _)
                     Respond(Executor, "Switching to " .. class .. " class", "rprint", 12)
                 end
                 return false
-            elseif (Args[1] == loadout.info_command and Args[2] == v.info.identifier) then
-                p.show_help = true
-                p.help_page = v.info
+            elseif (Args[1] == loadout.info_command) then
+                p.help_page, p.show_help = class, true
                 return false
             end
         end
@@ -301,7 +314,7 @@ local function GetWeapon(WeaponIndex)
     return loadout.weapon_tags[WeaponIndex]
 end
 
-function PrintRank(Ply)
+local function PrintRank(Ply)
 
     local p = loadout.players[Ply]
     if (not p.rank_hud_pause) then
@@ -324,10 +337,10 @@ function PrintRank(Ply)
     end
 end
 
-function PrintHelp(Ply, Tab)
+local function PrintHelp(Ply, InfoTab)
     cls(Ply, 25)
-    for i = 1, #Tab do
-        Respond(Ply, Tab[i], "rprint", 10)
+    for i = 1, #InfoTab do
+        Respond(Ply, InfoTab[i], "rprint", 10)
     end
 end
 
@@ -336,23 +349,50 @@ function OnTick()
         if (i) then
             if player_alive(i) then
 
-                if (player.assign) then
+                local DyN = get_dynamic_player(i)
+                if (DyN ~= 0) then
 
-                    local DyN = get_dynamic_player(i)
-                    local coords = getXYZ(DyN)
-
-                    if (not coords.invehicle) then
-                        player.assign = false
-                        execute_command("wdel " .. i)
-
-                        local weapon_table = loadout.classes[player.class].levels[player.level].weapons
-
-                        for Slot, WeaponIndex in pairs(weapon_table) do
-                            if (Slot == 1 or Slot == 2) then
-                                assign_weapon(spawn_object("weap", GetWeapon(WeaponIndex), coords.x, coords.y, coords.z), i)
-                            elseif (Slot == 3 or Slot == 4) then
-                                timer(250, "DelaySecQuat", i, GetWeapon(WeaponIndex), coords.x, coords.y, coords.z)
+                    local current_class = loadout.classes[player.class]
+                    if (player.assign) then
+                        local coords = getXYZ(DyN)
+                        if (not coords.invehicle) then
+                            player.assign = false
+                            execute_command("wdel " .. i)
+                            local weapon_table = current_class.levels[player.level].weapons
+                            for Slot, WeaponIndex in pairs(weapon_table) do
+                                if (Slot == 1 or Slot == 2) then
+                                    assign_weapon(spawn_object("weap", GetWeapon(WeaponIndex), coords.x, coords.y, coords.z), i)
+                                elseif (Slot == 3 or Slot == 4) then
+                                    timer(250, "DelaySecQuat", i, GetWeapon(WeaponIndex), coords.x, coords.y, coords.z)
+                                end
                             end
+                        end
+                    elseif (player.class == "Regeneration") then
+                        local health = read_float(DyN + 0xE0)
+                        local shield = read_float(DyN + 0xE4)
+
+                        if (health < 1 and shield == 1) then
+
+                            -- Countdown until regen begin:
+                            player.time_until_regen_begin = player.time_until_regen_begin - time_scale
+
+                            if (player.time_until_regen_begin <= 0) and (not player.begin_regen) then
+                                player.time_until_regen_begin = current_class.levels[player.level].regen_delay
+                                player.begin_regen = true
+                            elseif (player.begin_regen) then
+                                player.regen_timer = player.regen_timer + time_scale
+                                if (player.regen_timer >= current_class.levels[player.level].regen_rate) then
+                                    print('updating health')
+                                    player.regen_timer = 0
+
+                                    write_float(DyN + 0xE0, health + current_class.levels[player.level].increment)
+
+                                    --write_float(DyN + 0xE0, health + current_class.increment)
+                                end
+                            end
+                        elseif (player.begin_regen and health >= 1) then
+                            player.begin_regen = false
+                            player.regen_timer = 0
                         end
                     end
                 end
@@ -371,8 +411,9 @@ function OnTick()
 
             if (player.show_help) then
                 player.help_hud_duration = player.help_hud_duration - time_scale
-                PrintHelp(i, player.help_page)
+                PrintHelp(i, loadout.classes[player.class].info)
                 if (player.help_hud_duration <= 0) then
+                    player.help_page = nil
                     player.show_help = false
                     player.help_hud_duration = loadout.help_hud_duration
                 end
@@ -388,7 +429,6 @@ function InitPlayer(Ply, Reset)
         loadout.players[Ply] = {
             exp = 0,
 
-            assign = true,
             rank_up = false,
 
             class = loadout.default_class,
@@ -414,7 +454,16 @@ function OnPlayerDisconnect(Ply)
 end
 
 function OnPlayerSpawn(Ply)
-    loadout.players[Ply].assign = true
+
+    local t = loadout.players[Ply]
+    -- Weapon Assignment Variables
+    t.assign = true
+
+    -- Health regeneration Variables --
+    t.regen_timer = 0
+    t.begin_regen = false
+
+    t.time_until_regen_begin = loadout.classes["Regeneration"].levels[t.level].regen_delay
 end
 
 function Respond(Ply, Message, Type, Color)
