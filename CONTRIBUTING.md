@@ -42,6 +42,9 @@ Contributors to projects and code
   * Crash_Player (function)
         - http://pastebin.com/1dtn0DiM
         
+  * OnDamageLookup (function)
+        - https://pastebin.com/edZ82aWn
+        
 * **[giraffe](https://opencarnage.net/index.php?/profile/1463-giraffe/)**
 
   * Auto-Vehicle Flip (script)
