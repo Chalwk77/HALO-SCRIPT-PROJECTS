@@ -24,7 +24,7 @@ local loadout = {
     server_prefix = "**SAPP**",
 
     default_class = "Armor Boost",
-    starting_level = 1,
+    starting_level = 5,
 
     -- Should we allow negative experience?
     allow_negative_exp = false,
@@ -216,13 +216,16 @@ local loadout = {
                 "Level 2 - 1.30x durability. Unlocks Weapon 3.",
                 "Level 3 - 1.40x durability. Melee damage is increased to 200%",
                 "Level 4 - 1.50x durability. You now spawn with full grenades.",
-                "Level 5 - You are now immune to falling damage in addition to all other perks in this class.",
+                "Level 5 - 1.55x durability. You are now immune to falling damage in addition to all other perks in this class.",
             },
             levels = {
                 [1] = {
                     until_next_rank = 200,
+                    -- Set to 0 to use default damage resistance:
                     damage_resistance = 1.20,
+                    -- Set to true to enable fall damage immunity:
                     fall_damage_immunity = false,
+                    melee_damage_multiplier = 0,
                     grenades = { nil, nil },
                     weapons = { 1, 2, nil, nil },
                 },
@@ -230,29 +233,33 @@ local loadout = {
                     until_next_rank = 500,
                     damage_resistance = 1.30,
                     fall_damage_immunity = false,
+                    melee_damage_multiplier = 0,
                     grenades = { nil, nil },
-                    weapons = { 1, 2, nil, nil },
+                    weapons = { 1, 2, 10, nil },
                 },
                 [3] = {
                     until_next_rank = 1000,
                     damage_resistance = 1.40,
                     fall_damage_immunity = false,
+                    melee_damage_multiplier = 200,
                     grenades = { nil, nil },
-                    weapons = { 1, 2, nil, nil },
+                    weapons = { 1, 2, 10, nil },
                 },
                 [4] = {
                     until_next_rank = 2000,
                     damage_resistance = 1.50,
                     fall_damage_immunity = false,
+                    melee_damage_multiplier = 200,
                     grenades = { nil, nil },
-                    weapons = { 1, 2, nil, nil },
+                    weapons = { 1, 2, 10, nil },
                 },
                 [5] = {
                     until_next_rank = nil,
-                    damage_resistance = 1.50,
+                    damage_resistance = 1.55,
                     fall_damage_immunity = true,
-                    grenades = { nil, nil },
-                    weapons = { 1, 2, nil, nil },
+                    melee_damage_multiplier = 200,
+                    grenades = { 7, 7 },
+                    weapons = { 1, 2, 10, nil },
                 }
             }
         },
@@ -280,6 +287,7 @@ local loadout = {
                 },
                 [3] = {
                     until_next_rank = 1000,
+                    grenades = { nil, nil },
                     weapons = { 1, 2, nil, nil },
                 },
                 [4] = {
@@ -781,7 +789,7 @@ function SetGrenades(DyN, Class, Level)
         write_word(DyN + 0x31E, frag_count)
     end
     if (plasma_count ~= nil) then
-        write_word(DyN + 0x31E, plasma_count)
+        write_word(DyN + 0x31F, plasma_count)
     end
 end
 
@@ -826,9 +834,21 @@ function getXYZ(DyN)
     return coords
 end
 
+function IsMelee(MetaID)
+    local melee
+    for i = 1, #tags.melee do
+        if (MetaID == tags.melee[i]) then
+            melee = true
+        end
+    end
+    return melee
+end
+
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
     local killer, victim = tonumber(CauserIndex), tonumber(PlayerIndex)
     local v = loadout.players[victim]
+
+    local hurt = true
 
     if player_present(victim) then
         if (CauserIndex > 0) then
@@ -846,18 +866,24 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
             end
 
             if (k.class == "Armor Boost") and (killer ~= victim) then
-                return true, Damage * (loadout.classes[k.class].levels[k.level].damage_resistance or 0)
+                if (not IsMelee(MetaID)) then
+                    Damage = Damage - (10 * loadout.classes[k.class].levels[k.level].damage_resistance)
+                else
+                    Damage = Damage + (loadout.classes[k.class].levels[k.level].melee_damage_multiplier)
+                end
+                hurt = true
             end
             k.last_damage = MetaID
+        end
+        if (v.class == "Armor Boost") and (loadout.classes[v.class].levels[v.level].fall_damage_immunity) then
+            if (MetaID == tags[1] or MetaID == tags[2]) then
+                hurt = false
+            end
         end
 
         v.regen_shield = true
         v.last_damage = MetaID
-        if (v.class == "Armor Boost") and (loadout.classes[v.class].levels[v.level].fall_damage_immunity) then
-            if (MetaID == tags[1] or MetaID == tags[2]) then
-                return false
-            end
-        end
+        return hurt, Damage
     end
 end
 
@@ -903,9 +929,9 @@ function Demote(Executor, TargetID)
     end
 end
 
-local function Melee(Victim)
+local function Melee(Ply)
     for i = 1, #tags.melee do
-        if (loadout.players[Victim].last_damage == tags.melee[i]) then
+        if (loadout.players[Ply].last_damage == tags.melee[i]) then
             return true
         end
     end
