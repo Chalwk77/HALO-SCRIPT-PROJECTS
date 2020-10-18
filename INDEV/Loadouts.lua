@@ -23,7 +23,7 @@ local loadout = {
     -- and will restore it to this when the relay is finished
     server_prefix = "**SAPP**",
 
-    default_class = "Regeneration",
+    default_class = "Armor Boost",
     starting_level = 1,
 
     -- Should we allow negative experience?
@@ -52,28 +52,30 @@ local loadout = {
 
     messages = {
 
-        flag_score = "Flag Score [+%exp%]",
-        flag_score_team = "Flag Team Score [+%exp%]",
+        flag_score = "Flag Score [+%exp%exp]",
+        flag_score_team = "Flag Team Score [+%exp%exp]",
+        new_bounty = "%name% has a bounty of %bounty% exp!",
 
         death_messages = {
-            head_shot = "Head Shot: [+%exp%]",
-            melee = "Melee: [+%exp%]",
-            frag_kill = "Frag Kill: [+%exp%]",
-            plasma_stick = "Plasma Stick: [+%exp%]",
-            plasma_explosion = "Plasma Explision: [+%exp%]",
-            skill_bonus = "Skill Bonus: [+%exp%]",
-            pvp = "PvP: [+%exp%]",
-            pvp_bonus = "PvP Bonus: [+%exp%]",
-            suicide = "Suicide: [%exp%]",
-            betrayal = "Betrayal: [%exp%]",
-            vehicle_squash = "Vehicle Squash: [%exp%]",
-            guardians = "Guardians: [%exp%]",
-            server = "Server: [%exp%]",
-            fall_damage = "Fall Damage: [%exp%]",
-            distance_damage = "Distance Damage: [%exp%]",
-            unknown_or_glitched = "Unknown Death: [%exp%]",
-            killed_from_the_grave = "Kill From Grave: [%exp%]",
-            spree = "Spree: (%kills%x kills) - [%exp%]"
+            head_shot = "Head Shot: [+%exp%exp]",
+            melee = "Melee: [+%exp%exp]",
+            frag_kill = "Frag Kill: [+%exp%exp]",
+            plasma_stick = "Plasma Stick: [+%exp%exp]",
+            plasma_explosion = "Plasma Explosion: [+%exp%exp]",
+            skill_bonus = "Skill Bonus: [+%exp%exp]",
+            pvp = "PvP: [+%exp%exp]",
+            pvp_bonus = "PvP Bonus: [+%exp%exp]",
+            suicide = "Suicide: [%exp%exp]",
+            betrayal = "Betrayal: [%exp%exp]",
+            vehicle_squash = "Vehicle Squash: [%exp%exp]",
+            guardians = "Guardians: [%exp%exp]",
+            server = "Server: [%exp%exp]",
+            fall_damage = "Fall Damage: [%exp%exp]",
+            distance_damage = "Distance Damage: [%exp%exp]",
+            unknown_or_glitched = "Unknown Death: [%exp%exp]",
+            killed_from_the_grave = "Kill From Grave: [%exp%exp]",
+            spree = "Spree: (%kills%x kills) - [%exp%exp]",
+            multi_kill = "Multi-Kill: (%kills%x kills) - [%exp%exp]"
         }
     },
 
@@ -85,9 +87,10 @@ local loadout = {
             return tonumber((10 * EnemyKDR))
         end,
 
+        melee = 5,
         suicide = -15,
         betrayal = -15,
-        vehicle_squash = 15,
+        vehicle_squash = 5,
         guardians = 15,
         server = -15,
         fall_damage = -15,
@@ -106,20 +109,38 @@ local loadout = {
         plasma_explosion = 5,
         killed_from_the_grave = 10,
 
-        -- consecutive kills required, xp rewarded
+        -- Bonus EXP per bounty level:
+        bounty_exp = 25,
+
+        -- consecutive kills required, xp rewarded, bounty levels added
         spree = {
-            { 5, 5 },
-            { 10, 10 },
-            { 15, 15 },
-            { 20, 20 },
-            { 25, 25 },
-            { 30, 30 },
-            { 35, 35 },
-            { 40, 45 },
-            { 50, 50 },
-            -- The last entry is special:
-            -- Award 100 XP every 5 kills at or above 55
-            { 55, 100 },
+            { 5, 5, 1 },
+            { 10, 10, 2 },
+            { 15, 15, 3 },
+            { 20, 20, 4 },
+            { 25, 25, 5 },
+            { 30, 30, 6 },
+            { 35, 35, 7 },
+            { 40, 40, 8 },
+            { 45, 45, 9 },
+
+            -- Award 50 XP for every 5 kills at or above 50 and +1 bounty level
+            { 50, 50, 10 },
+        },
+
+        -- multi-kills required, xp rewarded
+        multi_kill = {
+            { 2, 8 },
+            { 3, 10 },
+            { 4, 12 },
+            { 5, 14 },
+            { 6, 16 },
+            { 7, 18 },
+            { 8, 20 },
+            { 9, 23 },
+
+            -- Award 25 XP every 2 kills at or above 10
+            { 10, 25 },
         }
     },
 
@@ -144,45 +165,45 @@ local loadout = {
                     regen_rate = 1,
                     -- Experience Points required to rank up:
                     until_next_rank = 200,
+                    grenades = { nil, nil },
                     weapons = { 2, nil, nil, nil },
                     shield_regen_delay = nil,
-                    grenades = { nil, nil },
                 },
                 [2] = {
                     increment = 0.0550,
                     regen_delay = 4,
                     regen_rate = 1,
                     until_next_rank = 500,
+                    grenades = { 2, 2 },
                     weapons = { 1, 2, nil, nil },
                     shield_regen_delay = nil,
-                    grenades = { 2, 2 }
                 },
                 [3] = {
                     increment = 0.750,
                     regen_delay = 3,
                     regen_rate = 1,
                     until_next_rank = 1000,
+                    grenades = { 4, 4 },
                     weapons = { 1, 2, 4, nil },
                     shield_regen_delay = nil,
-                    grenades = { 4, 4 }
                 },
                 [4] = {
                     increment = 0.950,
                     regen_delay = 2,
                     regen_rate = 1,
                     until_next_rank = 2000,
+                    grenades = { 5, 5 },
                     weapons = { 1, 2, nil, nil },
                     shield_regen_delay = nil,
-                    grenades = { 5, 5 }
                 },
                 [5] = {
                     increment = 0.1100,
                     regen_delay = 0,
                     regen_rate = 1,
                     until_next_rank = 3500,
+                    grenades = { 7, 7 },
                     weapons = { 1, 2, nil, nil },
                     shield_regen_delay = 50,
-                    grenades = { 7, 7 }
                 }
             },
         },
@@ -200,22 +221,37 @@ local loadout = {
             levels = {
                 [1] = {
                     until_next_rank = 200,
+                    damage_resistance = 1.20,
+                    fall_damage_immunity = false,
+                    grenades = { nil, nil },
                     weapons = { 1, 2, nil, nil },
                 },
                 [2] = {
                     until_next_rank = 500,
+                    damage_resistance = 1.30,
+                    fall_damage_immunity = false,
+                    grenades = { nil, nil },
                     weapons = { 1, 2, nil, nil },
                 },
                 [3] = {
                     until_next_rank = 1000,
+                    damage_resistance = 1.40,
+                    fall_damage_immunity = false,
+                    grenades = { nil, nil },
                     weapons = { 1, 2, nil, nil },
                 },
                 [4] = {
                     until_next_rank = 2000,
+                    damage_resistance = 1.50,
+                    fall_damage_immunity = false,
+                    grenades = { nil, nil },
                     weapons = { 1, 2, nil, nil },
                 },
                 [5] = {
-                    until_next_rank = 3500,
+                    until_next_rank = nil,
+                    damage_resistance = 1.50,
+                    fall_damage_immunity = true,
+                    grenades = { nil, nil },
                     weapons = { 1, 2, nil, nil },
                 }
             }
@@ -234,10 +270,12 @@ local loadout = {
             levels = {
                 [1] = {
                     until_next_rank = 200,
+                    grenades = { nil, nil },
                     weapons = { 1, 2, nil, nil },
                 },
                 [2] = {
                     until_next_rank = 500,
+                    grenades = { nil, nil },
                     weapons = { 1, 2, nil, nil },
                 },
                 [3] = {
@@ -246,10 +284,12 @@ local loadout = {
                 },
                 [4] = {
                     until_next_rank = 2000,
+                    grenades = { nil, nil },
                     weapons = { 1, 2, nil, nil },
                 },
                 [5] = {
                     until_next_rank = 3500,
+                    grenades = { nil, nil },
                     weapons = { 1, 2, nil, nil },
                 }
             }
@@ -268,22 +308,27 @@ local loadout = {
             levels = {
                 [1] = {
                     until_next_rank = 200,
+                    grenades = { nil, nil },
                     weapons = { 1, 2, nil, nil },
                 },
                 [2] = {
                     until_next_rank = 500,
+                    grenades = { nil, nil },
                     weapons = { 1, 2, nil, nil },
                 },
                 [3] = {
                     until_next_rank = 1000,
+                    grenades = { nil, nil },
                     weapons = { 1, 2, nil, nil },
                 },
                 [4] = {
                     until_next_rank = 2000,
+                    grenades = { nil, nil },
                     weapons = { 1, 2, nil, nil },
                 },
                 [5] = {
                     until_next_rank = 3500,
+                    grenades = { nil, nil },
                     weapons = { 1, 2, nil, nil },
                 }
             }
@@ -473,7 +518,7 @@ function GetPlayers(Executor, Args)
             end
         end
         if (#pl == 0) then
-            Respond(Executor, "There are not players online!", "rprint", 10)
+            Respond(Executor, "There are no players online!", "rprint", 10)
         end
     else
         Respond(Executor, "Invalid Command Syntax. Please try again!", "rprint", 10)
@@ -481,9 +526,11 @@ function GetPlayers(Executor, Args)
     return pl
 end
 
-function PauseRankHUD(Player)
+function PauseRankHUD(Player, Clear)
     local p = loadout.players[Player]
-    --cls(Player, 25)
+    if (Clear) then
+        cls(Player, 25)
+    end
     p.rank_hud_pause = true
     p.rank_hud_pause_duration = loadout.rank_hud_pause_duration
 end
@@ -497,7 +544,7 @@ function OnServerCommand(Executor, Command, _, _)
         Args[1] = lower(Args[1]) or upper(Args[1])
         if (Executor > 0) then
             local p = loadout.players[Executor]
-            PauseRankHUD(Executor)
+            PauseRankHUD(Executor, true)
             for class, v in pairs(loadout.classes) do
                 if (Args[1] == v.command) then
                     if (p.class == class) then
@@ -601,6 +648,7 @@ function OnTick()
                             end
                         end
                     elseif (player.class == "Regeneration") then
+
                         local health = read_float(DyN + 0xE0)
                         local shield = read_float(DyN + 0xE4)
 
@@ -631,13 +679,14 @@ function OnTick()
             end
 
             if (loadout.show_rank_hud) then
-                PrintRank(i)
                 if (player.rank_hud_pause) then
                     player.rank_hud_pause_duration = player.rank_hud_pause_duration - time_scale
                     if (player.rank_hud_pause_duration <= 0) then
                         player.rank_hud_pause = false
                         player.rank_hud_pause_duration = loadout.rank_hud_pause_duration
                     end
+                else
+                    PrintRank(i)
                 end
             end
 
@@ -676,6 +725,10 @@ function InitPlayer(Ply, Reset)
         loadout.players[Ply] = nil
     else
         loadout.players[Ply] = {
+
+            name = get_var(Ply, "$name"),
+
+            bounty = 0,
             exp = { ["Regeneration"] = 0, ["Armor Boost"] = 0, ["Partial Camo"] = 0, ["Recon"] = 0 },
             rank_up = false,
 
@@ -732,7 +785,7 @@ function SetGrenades(DyN, Class, Level)
     end
 end
 
-function Respond(Ply, Message, Type, Color)
+function Respond(Ply, Message, Type, Color, Clear)
 
     Color = Color or 10
     execute_command("msg_prefix \"\"")
@@ -740,7 +793,7 @@ function Respond(Ply, Message, Type, Color)
     if (Ply == 0) then
         cprint(Message, Color)
     else
-        PauseRankHUD(Ply)
+        PauseRankHUD(Ply, Clear)
     end
 
     if (Type == "rprint") then
@@ -775,20 +828,36 @@ end
 
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
     local killer, victim = tonumber(CauserIndex), tonumber(PlayerIndex)
-    if player_present(victim) and (CauserIndex > 0) then
-        local CausesHeadShot = OnDamageLookup(victim, killer)
-        if (CausesHeadShot ~= nil) then
-            if (HitString == "head") then
-                loadout.players[victim].head_shot = true
+    local v = loadout.players[victim]
+
+    if player_present(victim) then
+        if (CauserIndex > 0) then
+
+            local k = loadout.players[killer]
+            local CausesHeadShot = OnDamageLookup(victim, killer)
+            if (CausesHeadShot ~= nil) then
+                if (HitString == "head") then
+                    v.head_shot = true
+                else
+                    v.head_shot = false
+                end
             else
-                loadout.players[victim].head_shot = false
+                v.head_shot = false
             end
-        else
-            loadout.players[victim].head_shot = false
+
+            if (k.class == "Armor Boost") and (killer ~= victim) then
+                return true, Damage * (loadout.classes[k.class].levels[k.level].damage_resistance or 0)
+            end
+            k.last_damage = MetaID
         end
-        loadout.players[victim].regen_shield = true
-        loadout.players[killer].last_damage = MetaID
-        loadout.players[victim].last_damage = MetaID
+
+        v.regen_shield = true
+        v.last_damage = MetaID
+        if (v.class == "Armor Boost") and (loadout.classes[v.class].levels[v.level].fall_damage_immunity) then
+            if (MetaID == tags[1] or MetaID == tags[2]) then
+                return false
+            end
+        end
     end
 end
 
@@ -845,14 +914,37 @@ end
 local function KillingSpree(killer)
     local player = get_player(killer)
     if (player ~= 0) then
-        local spree = read_word(player + 0x96)
+
+        local m = loadout.messages
         local s = loadout.experience.spree
-        local m = loadout.messages.death_messages
+        local name = loadout.players[killer].name
+        local bounty_level = loadout.players[killer].bounty
+
+        local spree = read_word(player + 0x96)
         for _, v in pairs(s) do
-            if (spree == v[1]) then
-                return SendStatsMessage(killer, v[2], m.spree)
-            elseif (spree >= s[#s][1]) and (spree % 5 == 0) then
-                return SendStatsMessage(killer, v[2], m.spree)
+            if (spree == v[1]) or (spree >= s[#s][1] and spree % 5 == 0) then
+                bounty_level = bounty_level + v[3]
+                SendStatsMessage(killer, v[2], m.death_messages.spree)
+
+                local bonus = (bounty_level * loadout.experience.bounty_exp)
+                local str = gsub(gsub(m.new_bounty, "%%name%%", name), "%%bounty%%", bonus)
+                Respond(_, str, "say_all", 10)
+            end
+        end
+    end
+end
+
+local function MultiKill(killer)
+    local player = get_player(killer)
+    if (player ~= 0) then
+        local multikill = read_word(player + 0x98)
+        local mk = loadout.experience.multi_kill
+        local dm = loadout.messages.death_messages
+        for _, v in pairs(mk) do
+            if (multikill == v[1]) then
+                return SendStatsMessage(killer, v[2], dm.multi_kill)
+            elseif (multikill >= mk[#mk][1]) and (multikill % 2 == 0) then
+                return SendStatsMessage(killer, v[2], dm.multi_kill)
             end
         end
     end
@@ -889,19 +981,20 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
 
     if (pvp) then
 
+        MultiKill(killer)
         KillingSpree(killer)
         SendStatsMessage(killer, exp.pvp, message.pvp)
 
         if (loadout.players[victim].head_shot) then
             SendStatsMessage(killer, exp.head_shot, message.head_shot)
-        elseif (Melee(victim)) then
-            SendStatsMessage(killer, exp.melee, message.melee)
         elseif (frag_kill) then
             SendStatsMessage(killer, exp.frag_kill, message.frag_kill)
         elseif (plasma_stick) then
             SendStatsMessage(killer, exp.plasma_stick, message.plasma_stick)
         elseif (plasma_explosion) then
             SendStatsMessage(killer, exp.plasma_explosion, message.plasma_explosion)
+        elseif (Melee(victim)) then
+            SendStatsMessage(killer, exp.melee, message.melee)
         end
 
         -- Killed from the grave
@@ -961,7 +1054,7 @@ end
 -- Credits to H® Shaft for this function:
 -- Taken from https://pastebin.com/edZ82aWn
 function OnDamageLookup(ReceiverIndex, CauserIndex)
-    local response = nil
+    local response
     if get_var(0, "$gt") ~= "n/a" then
         if (CauserIndex and ReceiverIndex ~= CauserIndex) then
             if (CauserIndex ~= 0) then
@@ -976,9 +1069,7 @@ function OnDamageLookup(ReceiverIndex, CauserIndex)
                             local tag_data = read_dword(tag_id + 0x14)
                             if (tag_data ~= nil) then
                                 if (read_word(tag_data + 0x1C6) == 5) or (read_word(tag_data + 0x1C6) == 6) then
-                                    -- damage category: bullets
                                     if (read_bit(tag_data + 0x1C8, 1) == 1) then
-                                        -- damage effect: can cause head shots
                                         response = true
                                     else
                                         response = false
