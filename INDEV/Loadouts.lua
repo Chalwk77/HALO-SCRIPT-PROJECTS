@@ -23,8 +23,8 @@ local loadout = {
     -- and will restore it to this when the relay is finished
     server_prefix = "**SAPP**",
 
-    default_class = "Armor Boost",
-    starting_level = 5,
+    default_class = "Regeneration",
+    starting_level = 1,
 
     -- Should we allow negative experience?
     allow_negative_exp = false,
@@ -43,12 +43,12 @@ local loadout = {
     rank_hud_pause_duration = 5,
     rank_hud = "Class: %class% | Level: %lvl%/%total_levels% | Exp: %exp%->%req_exp%",
 
-    -- Command Syntax: /rank_up_command <pid>
-    rank_up_command = "rankup",
-    -- Command Syntax: /rank_up_command <pid>
-    rank_down_command = "rankdown",
-    -- Minimum permission level required to execute /rank_up_command or /rank_down_command
-    change_level_permission_node = 2,
+    ---- Command Syntax: /rank_up_command <pid>
+    --level_up_command = "levelup",
+    ---- Command Syntax: /rank_up_command <pid>
+    --level_down_command = "leveldown",
+    ---- Minimum permission level required to execute /level_up_command or /level_down_command
+    --change_level_permission_node = 2,
 
     messages = {
 
@@ -468,6 +468,7 @@ function OnScriptLoad()
     register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
+    register_callback(cb["EVENT_PRESPAWN"], "OnPlayerPreSpawn")
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
 
     if (get_var(0, '$gt') ~= "n/a") then
@@ -503,6 +504,12 @@ local function cls(Ply, Count)
     for _ = 1, Count do
         rprint(Ply, " ")
     end
+end
+
+-- Returns and array: {exp, level}
+local function GetLvlInfo(Ply)
+    local p = loadout.players[Ply]
+    return p.levels[p.class]
 end
 
 function GetPlayers(Executor, Args)
@@ -558,8 +565,9 @@ function OnServerCommand(Executor, Command, _, _)
                     if (p.class == class) then
                         Respond(Executor, "You already have " .. class .. " class", "rprint", 12)
                     else
-                        p.class = class
-                        Respond(Executor, "Switching to " .. class .. " class", "rprint", 12)
+                        p.switch_on_respawn[1] = true
+                        p.switch_on_respawn[2] = class
+                        Respond(Executor, "You will switch to " .. class .. " when you respawn", "rprint", 12)
                     end
                     return false
                 elseif (Args[1] == loadout.info_command) then
@@ -570,29 +578,29 @@ function OnServerCommand(Executor, Command, _, _)
         end
     end
 
-    if (Args[1] == loadout.rank_up_command or Args[1] == loadout.rank_down_command) then
-        local lvl = tonumber(get_var(Executor, "$lvl"))
-        if (lvl >= loadout.change_level_permission_node) or (Executor == 0) then
-            local pl = GetPlayers(Executor, Args)
-            if (pl) and (#pl > 0) then
-                local function Check(E, T)
-                    if (Args[1] == loadout.rank_up_command) then
-                        Promote(E, T)
-                    elseif (Args[1] == loadout.rank_down_command) then
-                        Demote(E, T)
-                    end
-                end
-                if (Args[2] == nil) then
-                    Check(Executor, Executor)
-                else
-                    for i = 1, #pl do
-                        Check(Executor, tonumber(pl[i]))
-                    end
-                end
-            end
-            return false
-        end
-    end
+    --if (Args[1] == loadout.rank_up_command or Args[1] == loadout.rank_down_command) then
+    --    local lvl = tonumber(get_var(Executor, "$lvl"))
+    --    if (lvl >= loadout.change_level_permission_node) or (Executor == 0) then
+    --        local pl = GetPlayers(Executor, Args)
+    --        if (pl) and (#pl > 0) then
+    --            local function Check(E, T)
+    --                if (Args[1] == loadout.rank_up_command) then
+    --                    Promote(E, T)
+    --                elseif (Args[1] == loadout.rank_down_command) then
+    --                    Demote(E, T)
+    --                end
+    --            end
+    --            if (Args[2] == nil) then
+    --                Check(Executor, Executor)
+    --            else
+    --                for i = 1, #pl do
+    --                    Check(Executor, tonumber(pl[i]))
+    --                end
+    --            end
+    --        end
+    --        return false
+    --    end
+    --end
 end
 
 local function GetWeapon(WeaponIndex)
@@ -603,13 +611,15 @@ local function PrintRank(Ply)
     local p = loadout.players[Ply]
     if (not p.rank_hud_pause) then
 
+        local lvl = GetLvlInfo(Ply)
+
         cls(Ply, 25)
         local str = loadout.rank_hud
-        local req_exp = loadout.classes[p.class].levels[p.level].until_next_rank
+        local req_exp = loadout.classes[p.class].levels[lvl.level].until_next_rank
 
         local words = {
-            ["%%exp%%"] = p.exp[p.class],
-            ["%%lvl%%"] = p.level,
+            ["%%exp%%"] = lvl.exp,
+            ["%%lvl%%"] = lvl.level,
             ["%%class%%"] = p.class,
             ["%%req_exp%%"] = req_exp,
             ["%%total_levels%%"] = #loadout.classes[p.class].levels,
@@ -637,16 +647,18 @@ function OnTick()
                 local DyN = get_dynamic_player(i)
                 if (DyN ~= 0) then
 
+                    local level = player.levels[player.class].level
                     local current_class = loadout.classes[player.class]
+
                     if (player.assign) then
                         local coords = getXYZ(DyN)
                         if (not coords.invehicle) then
                             player.assign = false
 
-                            SetGrenades(DyN, current_class, player.level)
+                            SetGrenades(DyN, current_class, level)
 
                             execute_command("wdel " .. i)
-                            local weapon_table = current_class.levels[player.level].weapons
+                            local weapon_table = current_class.levels[level].weapons
                             for Slot, WeaponIndex in pairs(weapon_table) do
                                 if (Slot == 1 or Slot == 2) then
                                     assign_weapon(spawn_object("weap", GetWeapon(WeaponIndex), coords.x, coords.y, coords.z), i)
@@ -660,7 +672,7 @@ function OnTick()
                         local health = read_float(DyN + 0xE0)
                         local shield = read_float(DyN + 0xE4)
 
-                        local shield_regen_delay = tonumber(current_class.levels[player.level].shield_regen_delay)
+                        local shield_regen_delay = tonumber(current_class.levels[level].shield_regen_delay)
                         if (shield < 1 and shield_regen_delay ~= nil and player.regen_shield) then
                             player.regen_shield = false
                             write_word(DyN + 0x104, shield_regen_delay)
@@ -669,13 +681,13 @@ function OnTick()
                         if (health < 1 and shield == 1) then
                             player.time_until_regen_begin = player.time_until_regen_begin - time_scale
                             if (player.time_until_regen_begin <= 0) and (not player.begin_regen) then
-                                player.time_until_regen_begin = current_class.levels[player.level].regen_delay
+                                player.time_until_regen_begin = current_class.levels[level].regen_delay
                                 player.begin_regen = true
                             elseif (player.begin_regen) then
                                 player.regen_timer = player.regen_timer + time_scale
-                                if (player.regen_timer >= current_class.levels[player.level].regen_rate) then
+                                if (player.regen_timer >= current_class.levels[level].regen_rate) then
                                     player.regen_timer = 0
-                                    write_float(DyN + 0xE0, health + current_class.levels[player.level].increment)
+                                    write_float(DyN + 0xE0, health + current_class.levels[level].increment)
                                 end
                             end
                         elseif (player.begin_regen and health >= 1) then
@@ -732,19 +744,18 @@ function InitPlayer(Ply, Reset)
     if (Reset) then
         loadout.players[Ply] = nil
     else
+
         loadout.players[Ply] = {
 
             name = get_var(Ply, "$name"),
 
             bounty = 0,
-            exp = { ["Regeneration"] = 0, ["Armor Boost"] = 0, ["Partial Camo"] = 0, ["Recon"] = 0 },
-            rank_up = false,
+            levels = { },
 
             class = loadout.default_class,
-            level = loadout.starting_level,
+            switch_on_respawn = { false, nil },
 
             help_page = nil,
-
             show_help = false,
             help_hud_duration = loadout.help_hud_duration,
 
@@ -754,6 +765,13 @@ function InitPlayer(Ply, Reset)
             last_damage = nil,
             head_shot = nil,
         }
+
+        for k, _ in pairs(loadout.classes) do
+            loadout.players[Ply].levels[k] = {
+                exp = 0,
+                level = loadout.starting_level,
+            }
+        end
     end
 end
 
@@ -765,9 +783,19 @@ function OnPlayerDisconnect(Ply)
     InitPlayer(Ply, true)
 end
 
+function OnPlayerPreSpawn(Ply)
+    local p = loadout.players[Ply]
+    if (p.switch_on_respawn[1]) then
+        p.switch_on_respawn[1] = false
+        p.class = p.switch_on_respawn[2]
+    end
+end
+
 function OnPlayerSpawn(Ply)
 
     local t = loadout.players[Ply]
+    local info = GetLvlInfo(Ply)
+
     -- Weapon Assignment Variables
     t.assign = true
 
@@ -779,7 +807,7 @@ function OnPlayerSpawn(Ply)
     t.last_damage = nil
     t.regen_shield = false
 
-    t.time_until_regen_begin = loadout.classes["Regeneration"].levels[t.level].regen_delay
+    t.time_until_regen_begin = loadout.classes["Regeneration"].levels[info.level].regen_delay
 end
 
 function SetGrenades(DyN, Class, Level)
@@ -793,57 +821,6 @@ function SetGrenades(DyN, Class, Level)
     end
 end
 
-function Respond(Ply, Message, Type, Color, Clear)
-
-    Color = Color or 10
-    execute_command("msg_prefix \"\"")
-
-    if (Ply == 0) then
-        cprint(Message, Color)
-    else
-        PauseRankHUD(Ply, Clear)
-    end
-
-    if (Type == "rprint") then
-        rprint(Ply, Message)
-    elseif (Type == "say") then
-        say(Ply, Message)
-    elseif (Type == "say_all") then
-        say_all(Message)
-    end
-    execute_command("msg_prefix \" " .. loadout.server_prefix .. "\"")
-end
-
-function DelaySecQuat(Ply, Weapon, x, y, z)
-    assign_weapon(spawn_object("weap", Weapon, x, y, z), Ply)
-end
-
-function getXYZ(DyN)
-    local coords, x, y, z = { }
-
-    local VehicleID = read_dword(DyN + 0x11C)
-    if (VehicleID == 0xFFFFFFFF) then
-        coords.invehicle = false
-        x, y, z = read_vector3d(DyN + 0x5c)
-    else
-        coords.invehicle = true
-        x, y, z = read_vector3d(get_object_memory(VehicleID) + 0x5c)
-    end
-
-    coords.x, coords.y, coords.z = x, y, z
-    return coords
-end
-
-function IsMelee(MetaID)
-    local melee
-    for i = 1, #tags.melee do
-        if (MetaID == tags.melee[i]) then
-            melee = true
-        end
-    end
-    return melee
-end
-
 function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
     local killer, victim = tonumber(CauserIndex), tonumber(PlayerIndex)
     local v = loadout.players[victim]
@@ -854,6 +831,8 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
         if (CauserIndex > 0) then
 
             local k = loadout.players[killer]
+            local k_info = GetLvlInfo(killer)
+
             local CausesHeadShot = OnDamageLookup(victim, killer)
             if (CausesHeadShot ~= nil) then
                 if (HitString == "head") then
@@ -867,15 +846,16 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
 
             if (k.class == "Armor Boost") and (killer ~= victim) then
                 if (not IsMelee(MetaID)) then
-                    Damage = Damage - (10 * loadout.classes[k.class].levels[k.level].damage_resistance)
+                    Damage = Damage - (10 * loadout.classes[k.class].levels[k_info.level].damage_resistance)
                 else
-                    Damage = Damage + (loadout.classes[k.class].levels[k.level].melee_damage_multiplier)
+                    Damage = Damage + (loadout.classes[k.class].levels[k_info.level].melee_damage_multiplier)
                 end
                 hurt = true
             end
             k.last_damage = MetaID
         end
-        if (v.class == "Armor Boost") and (loadout.classes[v.class].levels[v.level].fall_damage_immunity) then
+        local v_info = GetLvlInfo(victim)
+        if (v.class == "Armor Boost") and (loadout.classes[v.class].levels[v_info.level].fall_damage_immunity) then
             if (MetaID == tags[1] or MetaID == tags[2]) then
                 hurt = false
             end
@@ -889,15 +869,17 @@ end
 
 function Promote(Executor, TargetID)
     local p = loadout.players[TargetID]
+    local info = GetLvlInfo(TargetID)
+
     local name = get_var(TargetID, "$name")
-    if (p.level >= #loadout.classes[p.class].levels) then
+    if (info.level >= #loadout.classes[p.class].levels) then
         local str = "[DEBUG] " .. name .. " is already on the highest tier for this class"
         if (Executor == TargetID) then
             str = "[DEBUG] You are already on the highest tier for this class"
         end
         Respond(Executor, str, "rprint", 10)
     else
-        p.level = p.level + 1
+        info.level = info.level + 1
         local str = "[DEBUG] Promoting " .. name .. " to level %lvl%"
         if (Executor == TargetID) then
             str = "[DEBUG] Promoting to level %lvl%"
@@ -910,10 +892,11 @@ end
 
 function Demote(Executor, TargetID)
     local p = loadout.players[TargetID]
+    local info = GetLvlInfo(TargetID)
     local name = get_var(TargetID, "$name")
-    p.level = p.level - 1
-    if (p.level < 1) then
-        p.level = 1
+    info.level = info.level - 1
+    if (info.level < 1) then
+        info.level = 1
         local str = "[DEBUG] " .. name .. " is already on the first level"
         if (Executor == TargetID) then
             str = "[DEBUG] You are already on the first level"
@@ -924,7 +907,7 @@ function Demote(Executor, TargetID)
         if (Executor == TargetID) then
             str = "[DEBUG] demoting to level %lvl%"
         end
-        Respond(Executor, gsub(str, "%%lvl%%", p.level), "rprint", 10)
+        Respond(Executor, gsub(str, "%%lvl%%", info.level), "rprint", 10)
         p.assign = true
     end
 end
@@ -1041,8 +1024,12 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
         end
 
         -- Skill bonus:
-        local killer_class, killer_lvl = loadout.players[killer].class, loadout.players[killer].level
-        local victim_class, victim_lvl = loadout.players[victim].class, loadout.players[victim].level
+
+        local k_info = GetLvlInfo(killer)
+        local v_info = GetLvlInfo(victim)
+
+        local killer_class, killer_lvl = loadout.players[killer].class, k_info.level
+        local victim_class, victim_lvl = loadout.players[victim].class, v_info.level
         if (killer_class == victim_class and killer_lvl > victim_lvl) then
             SendStatsMessage(killer, exp.skill_bonus, message.skill_bonus)
         end
@@ -1064,12 +1051,65 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
     end
 end
 
-function UpdateExp(Player, Amount)
-    local t = loadout.players[Player]
-    t.exp[t.class] = t.exp[t.class] + Amount
-    if (not loadout.allow_negative_exp and t.exp[t.class] < 0) then
-        t.exp[t.class] = 0
+function UpdateExp(Ply, Amount)
+    local t = loadout.players[Ply]
+    local info = GetLvlInfo(Ply)
+
+    info.exp = info.exp + Amount
+    if (not loadout.allow_negative_exp and info.exp < 0) then
+        info.exp = 0
     end
+end
+
+function Respond(Ply, Message, Type, Color, Clear)
+
+    Color = Color or 10
+    execute_command("msg_prefix \"\"")
+
+    if (Ply == 0) then
+        cprint(Message, Color)
+    else
+        PauseRankHUD(Ply, Clear)
+    end
+
+    if (Type == "rprint") then
+        rprint(Ply, Message)
+    elseif (Type == "say") then
+        say(Ply, Message)
+    elseif (Type == "say_all") then
+        say_all(Message)
+    end
+    execute_command("msg_prefix \" " .. loadout.server_prefix .. "\"")
+end
+
+function DelaySecQuat(Ply, Weapon, x, y, z)
+    assign_weapon(spawn_object("weap", Weapon, x, y, z), Ply)
+end
+
+function getXYZ(DyN)
+    local coords, x, y, z = { }
+
+    local VehicleID = read_dword(DyN + 0x11C)
+    if (VehicleID == 0xFFFFFFFF) then
+        coords.invehicle = false
+        x, y, z = read_vector3d(DyN + 0x5c)
+    else
+        coords.invehicle = true
+        x, y, z = read_vector3d(get_object_memory(VehicleID) + 0x5c)
+    end
+
+    coords.x, coords.y, coords.z = x, y, z
+    return coords
+end
+
+function IsMelee(MetaID)
+    local melee
+    for i = 1, #tags.melee do
+        if (MetaID == tags.melee[i]) then
+            melee = true
+        end
+    end
+    return melee
 end
 
 function GetTag(ObjectType, ObjectName)
