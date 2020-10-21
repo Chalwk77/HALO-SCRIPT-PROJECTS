@@ -7,6 +7,10 @@ Players earn credits for killing, scoring and achievements, such as sprees, kill
 Credits vary for individual weapons.
 For example, you will earn 6 credits for killing someone with the sniper rifle, however, only 4 credits with the plasma pistol.
 
+1): This mod requires that the following json library is installed to your server:
+    Place "json.lua" in your servers root directory:
+    http://regex.info/blog/lua/json
+
 Copyright (c) 2016-2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
