@@ -429,18 +429,6 @@ end
 function Rank:KillingSpree(Ply)
     local player = get_player(Ply)
     if (player ~= 0) then
-        local spree = read_word(player + 0x96)
-        for _, v in pairs(self.credits.spree) do
-            if (spree >= v[1] and spree % 5 == 0) then
-                self:UpdateCredits(Ply, v[2])
-            end
-        end
-    end
-end
-
-function Rank:KillingSpree(Ply)
-    local player = get_player(Ply)
-    if (player ~= 0) then
         local t = self.credits.spree
         local k = read_word(player + 0x96)
         for _, v in pairs(t) do
@@ -458,7 +446,7 @@ function Rank:MultiKill(Ply)
         local t = self.credits.multi_kill
         for _, v in pairs(t) do
             if (k == v[1]) or (k >= t[#t][1] and k % 2 == 0) then
-                return self:UpdateCredits(Ply, v[2])
+                self:UpdateCredits(Ply, v[2])
             end
         end
     end
@@ -479,10 +467,8 @@ function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
 
     if (pvp) then
         local vehicle = InVehicle(killer)
-
-        Rank:MultiKill(killer)
-        Rank:KillingSpree(killer)
-
+        self:MultiKill(killer)
+        self:KillingSpree(killer)
         if (vehicle) then
             self:UpdateCredits(killer, vehicle)
         else
