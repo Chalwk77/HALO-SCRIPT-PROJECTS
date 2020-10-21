@@ -1,3 +1,20 @@
+--[[
+--=====================================================================================================--
+Script Name: Top Ranked, for SAPP (PC & CE)
+Description: A fully integrated ranking system for SAPP servers.
+Players earn credits for killing, scoring and achievements, such as sprees, kill-combos and more.
+
+Credits vary for individual weapons.
+For example, you will earn 6 credits for killing someone with the sniper rifle, however, only 4 credits with the plasma pistol.
+
+Copyright (c) 2016-2019, Jericho Crosby <jericho.crosby227@gmail.com>
+* Notice: You can use this document subject to the following conditions:
+https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
+
+* Written by Jericho Crosby (Chalwk)
+--=====================================================================================================--
+]]--
+
 api_version = "1.12.0.0"
 
 local Rank = {

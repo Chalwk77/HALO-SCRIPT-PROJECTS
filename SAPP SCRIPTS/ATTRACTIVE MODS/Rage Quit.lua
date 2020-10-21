@@ -1,3 +1,16 @@
+--[[
+--=====================================================================================================--
+Script Name: Rage-Quit, for SAPP (PC & CE)
+Description: Rage-Quit announcer
+
+Copyright (c) 2016-2019, Jericho Crosby <jericho.crosby227@gmail.com>
+* Notice: You can use this document subject to the following conditions:
+https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
+
+* Written by Jericho Crosby (Chalwk)
+--=====================================================================================================--
+]]--
+
 api_version = "1.12.0.0"
 
 -- Config Starts --
