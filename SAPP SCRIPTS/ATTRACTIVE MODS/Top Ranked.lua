@@ -59,6 +59,9 @@ local Rank = {
         -- betrayal (credits deducted):
         betrayal = -15,
 
+        -- Killed from the grave (credits added to killer)
+        killed_from_the_grave = 5,
+
         -- {consecutive kills, xp rewarded}
         spree = {
             { 5, 5 },
@@ -249,6 +252,7 @@ function Rank:AddNewPlayer(Ply)
             self.players[Ply] = pl[IP]
             self.players[Ply].id = Ply
             self.players[Ply].name = name
+            self.players[Ply].last_damage = nil
 
             self:GetRank(Ply, IP)
         end
@@ -325,7 +329,7 @@ function Rank:GetRank(Ply, IP, CMD)
 
         for k, v in pairs(results) do
             if (IP == v.ip) then
-                local function PrintSelf(I)
+                local function PrintMsg(I)
                     for i = 1, #self.messages[2] do
                         local str = gsub(gsub(gsub(gsub(self.messages[I][i],
                                 "%%rank%%", k),
@@ -337,12 +341,12 @@ function Rank:GetRank(Ply, IP, CMD)
                 end
                 if (CMD) then
                     if (self:GetIP(Ply) == IP) then
-                        PrintSelf(1)
+                        PrintMsg(1)
                     else
-                        PrintSelf(2)
+                        PrintMsg(2)
                     end
                 else
-                    PrintSelf(1)
+                    PrintMsg(1)
                     local str = v.name .. " connected -> Rank " .. k .. " out of " .. #results .. " with " .. v.credits .. " credits."
                     Rank:Respond(Ply, str, say, 10, true)
                 end
@@ -473,6 +477,9 @@ function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
             self:UpdateCredits(killer, vehicle)
         else
             self:UpdateCredits(killer, CheckDamageTag(last_damage))
+            if (not player_alive(killer)) then
+                self:UpdateCredits(killer, self.credits.killed_from_the_grave)
+            end
         end
     elseif (server) then
         self:UpdateCredits(victim, self.credits.server)
@@ -488,10 +495,9 @@ function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
 end
 
 function Rank:UpdateCredits(Ply, Amount)
-    local cr = self.players[Ply].credits
-    cr = cr + (Amount)
-    if (cr < 0) then
-        cr = 0
+    self.players[Ply].credits = self.players[Ply].credits + Amount
+    if (self.players[Ply].credits < 0) then
+        self.players[Ply].credits = 0
     end
 end
 
@@ -558,7 +564,7 @@ function Rank:OnServerCommand(Executor, Command, _, _)
                         if (TargetID ~= Executor and lvl < self.check_rank_cmd_permission_other) then
                             self:Respond(Executor, self.messages[4], rprint, 10)
                         else
-                            Rank:GetRank(Executor, self:GetIP(TargetID), true)
+                            self:GetRank(Executor, self:GetIP(TargetID), true)
                         end
                     end
                 end
