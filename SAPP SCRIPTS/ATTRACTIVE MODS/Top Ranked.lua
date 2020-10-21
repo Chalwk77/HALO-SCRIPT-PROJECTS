@@ -25,25 +25,6 @@ local Rank = {
 
     dir = "ranks.json",
 
-    -- A message relay function temporarily removes the server prefix
-    -- and will restore it to this when the relay is finished
-    server_prefix = "**SAPP**",
-
-    --
-    -- Advanced users only:
-    --
-    --
-
-    -- Client data is saved as a json array.
-    -- The array index for each client will either be "IP", or "IP:PORT".
-    -- Set to 1 for IP-only indexing.
-    ClientIndexType = 2,
-
-    -- A message relay function temporarily removes the server prefix
-    -- and will restore it to this when the relay is finished
-    serverPrefix = "**SAPP**",
-    --
-
     credits = {
 
         -- Score (credits added):
@@ -126,7 +107,22 @@ local Rank = {
             { "jpt!", "weapons\\rocket launcher\\melee", 10 },
             { "jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_melee", 10 },
         }
-    }
+    },
+
+    --
+    -- Advanced users only:
+    --
+    --
+
+    -- Client data is saved as a json array.
+    -- The array index for each client will either be "IP", or "IP:PORT".
+    -- Set to 1 for IP-only indexing.
+    ClientIndexType = 2,
+
+    -- A message relay function temporarily removes the server prefix
+    -- and will restore it to this when the relay is finished
+    serverPrefix = "**SAPP**",
+    --
 }
 
 local len = string.len
