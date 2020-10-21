@@ -25,6 +25,7 @@ local Rank = {
 
     dir = "ranks.json",
 
+    -- Command Syntax: /check_rank_cmd [number: 1-16] | */all | me
     check_rank_cmd = "rank",
     check_rank_cmd_permission = -1,
     check_rank_cmd_permission_other = 4,
@@ -189,6 +190,12 @@ function OnScriptLoad()
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
     if (get_var(0, "$gt") ~= "n/a") then
         Rank:CheckFile()
+
+        for i = 1, 16 do
+            if player_present(i) then
+                Rank:AddNewPlayer(i, true)
+            end
+        end
     end
 end
 
@@ -207,7 +214,7 @@ function OnGameEnd()
 end
 
 function OnPlayerConnect(Ply)
-    Rank:AddNewPlayer(Ply)
+    Rank:AddNewPlayer(Ply, false)
 end
 
 function OnPlayerDisconnect(Ply)
@@ -219,7 +226,7 @@ function OnPlayerScore(Ply)
     Rank:UpdateCredits(Ply, Rank.credits.score)
 end
 
-function Rank:AddNewPlayer(Ply)
+function Rank:AddNewPlayer(Ply, ManualLoad)
 
     local content = ""
     local File = io.open(self.dir, "r")
@@ -254,7 +261,9 @@ function Rank:AddNewPlayer(Ply)
             self.players[Ply].name = name
             self.players[Ply].last_damage = nil
 
-            self:GetRank(Ply, IP)
+            if (not ManualLoad) then
+                self:GetRank(Ply, IP)
+            end
         end
     end
 end
@@ -548,7 +557,7 @@ local function CMDSplit(CMD)
     return Args
 end
 
-function Rank:OnServerCommand(Executor, Command, _, _)
+function Rank:OnServerCommand(Executor, Command)
     local Args = CMDSplit(Command)
     if (Args == nil) then
         return
@@ -624,8 +633,8 @@ function UpdateRageQuit(ip, amount)
     end
 end
 
-function OnServerCommand(P, C, _, _)
-    return Rank:OnServerCommand(P, C, _, _)
+function OnServerCommand(P, C)
+    return Rank:OnServerCommand(P, C)
 end
 
 function OnPlayerDeath(V, K)
