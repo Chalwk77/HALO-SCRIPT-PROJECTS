@@ -236,8 +236,8 @@ function Rank:AddNewPlayer(Ply)
             if (pl[IP] == nil) then
                 pl[IP] = {
                     name = name,
+                    credits = 0,
                     last_damage = nil,
-                    rank = 0, credits = 0,
                     ip = IP, id = Ply
                 }
             end
