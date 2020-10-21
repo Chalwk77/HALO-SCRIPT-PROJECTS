@@ -439,7 +439,7 @@ function Rank:KillingSpree(Ply)
 end
 
 function Rank:KillingSpree(Ply)
-    local player = get_player(killer)
+    local player = get_player(Ply)
     if (player ~= 0) then
         local t = self.credits.spree
         local k = read_word(player + 0x96)
