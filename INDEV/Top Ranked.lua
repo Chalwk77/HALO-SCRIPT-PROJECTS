@@ -4,13 +4,17 @@ local Rank = {
 
     dir = "ranks.json",
 
+    -- A message relay function temporarily removes the server prefix
+    -- and will restore it to this when the relay is finished
+    server_prefix = "**SAPP**",
+
     --
     -- Advanced users only:
     --
     --
 
-    -- Client data will be saved as a json array and
-    -- the array index for each client will either be "IP", or "IP:PORT".
+    -- Client data is saved as a json array.
+    -- The array index for each client will either be "IP", or "IP:PORT".
     -- Set to 1 for IP-only indexing.
     ClientIndexType = 2,
 
@@ -167,8 +171,15 @@ function Rank:AddNewPlayer(Ply)
 
             local pl = json:decode(content)
             local IP = self:GetIP(Ply)
+            local name = get_var(Ply, "$name")
+
             if (pl[IP] == nil) then
-                pl[IP] = { rank = 0, credits = 0, last_damage = nil, ip = IP, kdr = 0, id = Ply, }
+                pl[IP] = {
+                    last_damage = nil,
+                    rank = 0, credits = 0,
+                    ip = IP, kdr = 0, id = Ply,
+                    name = name
+                }
             end
 
             file:write(json:encode_pretty(pl))
@@ -177,8 +188,9 @@ function Rank:AddNewPlayer(Ply)
             self.players[Ply] = { }
             self.players[Ply] = pl[IP]
             self.players[Ply].id = Ply
+            self.players[Ply].name = name
 
-            self.GetRank(Ply, IP)
+            self:GetRank(Ply, IP)
         end
     end
 end
@@ -242,10 +254,11 @@ function Rank:GetRanks()
 end
 
 function Rank:GetRank(Ply, IP)
+
     local ranks = Rank:GetRanks()
     local results = { }
     for ip, _ in pairs(ranks) do
-        table.insert(results, { ["ip"] = ip, ["credits"] = ranks[ip].credits })
+        results[#results + 1] = { ["ip"] = ip, ["credits"] = ranks[ip].credits }
     end
 
     table.sort(results, function(a, b)
@@ -254,16 +267,18 @@ function Rank:GetRank(Ply, IP)
 
     for k, _ in ipairs(results) do
         if (IP == results[k].ip) then
-            print('yes')
-            rprint(Ply, "You are ranked " .. k .. " out of " .. #results .. "!")
-            rprint(Ply, "Credits: " .. ranks[IP].credits)
-            for i = 1, 16 do
-                if player_present(i) and (i ~= Ply) then
-                    execute_command("msg_prefix \"\"")
-                    say(i, self.players[IP].name .. " connected -> Rank " .. k .. " out of " .. #results .. " with " .. ranks[IP].credits .. " credits.")
-                    execute_command("msg_prefix \" " .. Rank.serverPrefix .. "\"")
-                end
+            local str = {
+                "You are ranked " .. k .. " out of " .. #results .. "!",
+                "Credits: " .. ranks[IP].credits,
+            }
+            for i = 1, #str do
+                Rank:Respond(Ply, str[i], rprint, 10)
             end
+
+            local n, max = self.players[Ply].name, #results
+            local cr = ranks[IP].credits
+            local str = n .. " connected -> Rank " .. k .. " out of " .. max .. " with " .. cr .. " credits."
+            Rank:Respond(Ply, str, say, 10, true)
         end
     end
 end
@@ -377,7 +392,6 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
 end
 
 function UpdateCredits(Ply, Amount)
-    print(Amount, Amount, Amount, Amount, Amount, Amount, Amount)
     Rank.players[Ply].credits = Rank.players[Ply].credits + Amount
 end
 
@@ -396,4 +410,44 @@ function GetVehicleTag(Vehicle)
         return read_string(read_dword(read_word(Vehicle) * 32 + 0x40440038))
     end
     return nil
+end
+
+function Rank:Respond(Ply, Message, Type, Color, Exclude)
+    Color = Color or 10
+    execute_command("msg_prefix \"\"")
+    if (Ply == 0) then
+        cprint(Message, Color)
+    elseif (not Exclude) then
+        if (Type ~= say_all) then
+            Type(Ply, Message)
+        else
+            Type(Message)
+        end
+    else
+        for i = 1, 16 do
+            if player_present(i) and (i ~= Ply) then
+                Type(i, Message)
+            end
+        end
+    end
+    execute_command("msg_prefix \" " .. self.server_prefix .. "\"")
+end
+
+-- SUPPORT FOR MY RAGE QUIT SCRIPT:
+function UpdateRageQuit(ip, amount)
+    local ranks = Rank:GetRanks()
+    if (ranks) then
+        local file = assert(io.open(Rank.dir, "w"))
+        if (file) then
+            if (ranks[ip] ~= nil) then
+                ranks[ip].credits = ranks[ip].credits - amount
+                local name = ranks[ip].name
+                local str = name .. " was penalized " .. amount .. "x credits for rage-quitting"
+                Rank:Respond(_, str, say_all, 10)
+                Rank:Respond(0, str, "n/a", 10)
+            end
+            file:write(json:encode_pretty(ranks))
+            io.close(file)
+        end
+    end
 end
