@@ -179,12 +179,12 @@ function OnPlayerConnect(Ply)
 end
 
 function OnPlayerDisconnect(Ply)
-    Rank:UpdateJSON(Rank.players[Ply].ip)
+    Rank:UpdateJSON(Ply)
     Rank.players[Ply] = nil
 end
 
 function OnPlayerScore(Ply)
-    UpdateCredits(Ply, Rank.credits.score)
+    Rank:UpdateCredits(Ply, Rank.credits.score)
 end
 
 local function GetKDR(Ply)
@@ -232,18 +232,27 @@ function Rank:AddNewPlayer(Ply)
     end
 end
 
-function Rank:UpdateJSON(ip)
+function Rank:UpdateJSON(Ply)
     local ranks = self:GetRanks()
     if (ranks) then
         local file = assert(io.open(self.dir, "w"))
         if (file) then
-
-            local t = self.players[ip]
-            t.kdr = GetKDR(t.id)
-
-            ranks[ip] = self.players[ip]
+            ranks[self.players[Ply].ip] = self.players[Ply]
             file:write(json:encode_pretty(ranks))
             io.close(file)
+        end
+    end
+end
+
+function Rank:UpdateALL()
+    if (get_var(0, "$gt") ~= "n/a") then
+        local ranks = self:GetRanks()
+        if (ranks) then
+            local file = assert(io.open(self.dir, "w"))
+            if (file) then
+                file:write(json:encode_pretty(ranks))
+                io.close(file)
+            end
         end
     end
 end
@@ -252,85 +261,68 @@ local function GetAllIP()
     local p = { }
     for i = 1, 16 do
         if player_present(i) then
-            p[#p + 1] = Rank:GetIP(i)
+            p[i] = Rank:GetIP(i)
         end
     end
     return p
 end
 
-function Rank:UpdateALL()
-    if (get_var(0, "$gt") ~= "n/a") then
-        local p = GetAllIP()
-        if (#p > 0) then
-            local ranks = self:GetRanks()
-            if (ranks) then
-                local file = assert(io.open(self.dir, "w"))
-                if (file) then
-                    for _, ip in pairs(p) do
-                        ranks[ip] = self.players[ip]
-                    end
-                    file:write(json:encode_pretty(ranks))
-                    io.close(file)
-                end
-            end
-        end
-    end
-end
-
 function Rank:GetRanks()
-    local table
+    local ranks
     local file = io.open(self.dir, "r")
     if (file) then
         local data = file:read("*all")
         if (len(data) > 0) then
-            table = json:decode(data)
+            ranks = json:decode(data)
+            local p = GetAllIP()
+            if (#p > 0) then
+                for i, ip in pairs(p) do
+                    ranks[ip] = self.players[i]
+                end
+            end
         end
         file:close()
     end
-    return table
+    return ranks
 end
 
 function Rank:GetRank(Ply, IP, CMD)
 
     local ranks = Rank:GetRanks()
-    local results = { }
-    for ip, _ in pairs(ranks) do
-        results[#results + 1] = { ["ip"] = ip, ["credits"] = ranks[ip].credits, ["name"] = ranks[ip].name }
-    end
+    if (ranks ~= nil) then
 
-    table.sort(results, function(a, b)
-        return a.credits > b.credits
-    end)
+        local results = { }
+        for _, v in pairs(ranks) do
+            results[#results + 1] = { ["ip"] = v.ip, ["credits"] = v.credits, ["name"] = v.name }
+        end
 
-    local max = #results
-    local ip = self:GetIP(Ply)
-    local cr = ranks[IP].credits
+        table.sort(results, function(a, b)
+            return a.credits > b.credits
+        end)
 
-    for k, _ in ipairs(results) do
-        if (IP == results[k].ip) then
-
-            local function PrintSelf()
-                for i = 1, #self.messages[1] do
-                    local str = gsub(gsub(gsub(self.messages[1][i], "%%rank%%", k), "%%credits%%", cr), "%%totalplayers%%", max)
-                    Rank:Respond(Ply, str, rprint, 10)
-                end
-            end
-
-            if (CMD) then
-                if (ip == IP) then
-                    PrintSelf()
-                else
-                    local n = results[k].name
+        for k, v in pairs(results) do
+            if (IP == v.ip) then
+                local function PrintSelf(I)
                     for i = 1, #self.messages[2] do
-                        local str = gsub(gsub(gsub(gsub(self.messages[2][i], "%%rank%%", k), "%%credits%%", cr), "%%totalplayers%%", max), "%%name%%", n)
-                        Rank:Respond(Ply, str, rprint, 10)
+                        local str = gsub(gsub(gsub(gsub(self.messages[I][i],
+                                "%%rank%%", k),
+                                "%%name%%", v.name),
+                                "%%credits%%", v.credits),
+                                "%%totalplayers%%", #results)
+                        Rank:Respond(Ply, str, say, 10)
                     end
                 end
-            else
-                PrintSelf()
-                local n = self.players[Ply].name
-                local str = n .. " connected -> Rank " .. k .. " out of " .. max .. " with " .. cr .. " credits."
-                Rank:Respond(Ply, str, say, 10, true)
+                if (CMD) then
+                    if (self:GetIP(Ply) == IP) then
+                        PrintSelf(1)
+                    else
+                        PrintSelf(2)
+                    end
+                else
+                    PrintSelf(1)
+                    local str = v.name .. " connected -> Rank " .. k .. " out of " .. #results .. " with " .. v.credits .. " credits."
+                    Rank:Respond(Ply, str, say, 10, true)
+                end
             end
         end
     end
@@ -411,10 +403,10 @@ local function InVehicle(Ply)
     return nil
 end
 
-function OnPlayerDeath(VictimIndex, KillerIndex)
+function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
     local killer, victim = tonumber(KillerIndex), tonumber(VictimIndex)
 
-    local last_damage = Rank.players[victim].last_damage
+    local last_damage = self.players[victim].last_damage
     local kteam = get_var(killer, "$team")
     local vteam = get_var(victim, "$team")
 
@@ -424,28 +416,38 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
     local pvp = ((killer > 0) and killer ~= victim)
     local betrayal = ((kteam == vteam) and killer ~= victim)
 
+    self.players[victim].kdr = GetKDR(victim)
+
     if (pvp) then
         local vehicle = InVehicle(killer)
         if (vehicle) then
-            UpdateCredits(killer, vehicle)
+            self:UpdateCredits(killer, vehicle)
         else
-            UpdateCredits(killer, CheckDamageTag(last_damage))
+            self:UpdateCredits(killer, CheckDamageTag(last_damage))
         end
     elseif (server) then
-        UpdateCredits(victim, Rank.credits.server)
+        self:UpdateCredits(victim, self.credits.server)
     elseif (guardians) then
-        UpdateCredits(victim, Rank.credits.guardians)
+        self:UpdateCredits(victim, self.credits.guardians)
     elseif (suicide) then
-        UpdateCredits(victim, Rank.credits.suicide)
+        self:UpdateCredits(victim, self.credits.suicide)
     elseif (betrayal) then
-        UpdateCredits(victim, Rank.credits.betrayal)
+        self:UpdateCredits(victim, self.credits.betrayal)
     else
-        UpdateCredits(victim, CheckDamageTag(last_damage))
+        self:UpdateCredits(victim, CheckDamageTag(last_damage))
     end
 end
 
-function UpdateCredits(Ply, Amount)
-    Rank.players[Ply].credits = Rank.players[Ply].credits + Amount
+function Rank:UpdateCredits(Ply, Amount)
+    self.players[Ply].credits = self.players[Ply].credits + Amount
+    --local prefix = ""
+    --if not tostring(Amount):find("-") then
+    --    prefix = "+"
+    --end
+    --self:Respond(Ply, "[" .. prefix .. Amount .. "] cR", rprint, 10)
+    if (self.players[Ply].credits < 0) then
+        self.players[Ply].credits = 0
+    end
 end
 
 function OnDamageApplication(VictimIndex, KillerIndex, MetaID, _, _, _)
@@ -503,19 +505,20 @@ function Rank:OnServerCommand(Executor, Command, _, _)
         Args[1] = lower(Args[1]) or upper(Args[1])
         if (Args[1] == self.check_rank_cmd) then
             local lvl = tonumber(get_var(Executor, "$lvl"))
-
             if (lvl >= self.check_rank_cmd_permission) then
                 local pl = self:GetPlayers(Executor, Args)
                 if (pl) then
                     for i = 1, #pl do
                         local TargetID = tonumber(pl[i])
                         if (TargetID ~= Executor and lvl < self.check_rank_cmd_permission_other) then
-                            return false, self:Respond(Executor, self.messages[4], rprint, 10)
+                            self:Respond(Executor, self.messages[4], rprint, 10)
                         else
                             Rank:GetRank(Executor, self:GetIP(TargetID), true)
                         end
                     end
                 end
+            else
+                self:Respond(Executor, self.messages[3], rprint, 10)
             end
             return false
         end
@@ -572,4 +575,8 @@ end
 
 function OnServerCommand(P, C, _, _)
     return Rank:OnServerCommand(P, C, _, _)
+end
+
+function OnPlayerDeath(V, K)
+    return Rank:OnPlayerDeath(V, K)
 end
