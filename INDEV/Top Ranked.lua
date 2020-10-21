@@ -87,9 +87,12 @@ local Rank = {
             -- MELEE --
             { "jpt!", "weapons\\flag\\melee", 5 },
             { "jpt!", "weapons\\ball\\melee", 5 },
+
             { "jpt!", "weapons\\pistol\\melee", 4 },
+
             { "jpt!", "weapons\\needler\\melee", 4 },
             { "jpt!", "weapons\\shotgun\\melee", 5 },
+
             { "jpt!", "weapons\\flamethrower\\melee", 5 },
             { "jpt!", "weapons\\sniper rifle\\melee", 5 },
             { "jpt!", "weapons\\plasma rifle\\melee", 4 },
@@ -143,6 +146,12 @@ function OnPlayerScore(Ply)
     UpdateCredits(Ply, Rank.credits.score)
 end
 
+local function GetKDR(Ply)
+    local kills = tonumber(get_var(Ply, "$kills"))
+    local deaths = tonumber(get_var(Ply, "deaths"))
+    return kills / deaths
+end
+
 function Rank:AddNewPlayer(Ply)
 
     local content = ""
@@ -157,22 +166,19 @@ function Rank:AddNewPlayer(Ply)
         if (file) then
 
             local pl = json:decode(content)
-            local ip = self:GetIP(Ply)
-            if (pl[ip] == nil) then
-                pl[ip] = { rank = 0, credits = 0, last_damage = nil, ip = ip }
+            local IP = self:GetIP(Ply)
+            if (pl[IP] == nil) then
+                pl[IP] = { rank = 0, credits = 0, last_damage = nil, ip = IP, kdr = 0, id = Ply, }
             end
 
             file:write(json:encode_pretty(pl))
             io.close(file)
 
-            local total_players = 0
-
             self.players[Ply] = { }
-            self.players[Ply] = pl[ip]
+            self.players[Ply] = pl[IP]
+            self.players[Ply].id = Ply
 
-            execute_command("msg_prefix \"\"")
-            say_all("You are ranked " .. self.players[Ply].rank .. " out of " .. total_players)
-            execute_command("msg_prefix \" " .. Rank.serverPrefix .. "\"")
+            self.GetRank(Ply, IP)
         end
     end
 end
@@ -182,6 +188,10 @@ function Rank:UpdateJSON(ip)
     if (ranks) then
         local file = assert(io.open(self.dir, "w"))
         if (file) then
+
+            local t = self.players[ip]
+            t.kdr = GetKDR(t.id)
+
             ranks[ip] = self.players[ip]
             file:write(json:encode_pretty(ranks))
             io.close(file)
@@ -229,6 +239,33 @@ function Rank:GetRanks()
         file:close()
     end
     return table
+end
+
+function Rank:GetRank(Ply, IP)
+    local ranks = Rank:GetRanks()
+    local results = { }
+    for ip, _ in pairs(ranks) do
+        table.insert(results, { ["ip"] = ip, ["credits"] = ranks[ip].credits })
+    end
+
+    table.sort(results, function(a, b)
+        return a.credits > b.credits
+    end)
+
+    for k, _ in ipairs(results) do
+        if (IP == results[k].ip) then
+            print('yes')
+            rprint(Ply, "You are ranked " .. k .. " out of " .. #results .. "!")
+            rprint(Ply, "Credits: " .. ranks[IP].credits)
+            for i = 1, 16 do
+                if player_present(i) and (i ~= Ply) then
+                    execute_command("msg_prefix \"\"")
+                    say(i, self.players[IP].name .. " connected -> Rank " .. k .. " out of " .. #results .. " with " .. ranks[IP].credits .. " credits.")
+                    execute_command("msg_prefix \" " .. Rank.serverPrefix .. "\"")
+                end
+            end
+        end
+    end
 end
 
 function Rank:GetIP(Ply)
