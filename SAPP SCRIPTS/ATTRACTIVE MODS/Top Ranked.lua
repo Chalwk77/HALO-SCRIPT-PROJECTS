@@ -59,6 +59,35 @@ local Rank = {
         -- betrayal (credits deducted):
         betrayal = -15,
 
+        -- {consecutive kills, xp rewarded}
+        spree = {
+            { 5, 5 },
+            { 10, 10 },
+            { 15, 15 },
+            { 20, 20 },
+            { 25, 25 },
+            { 30, 30 },
+            { 35, 35 },
+            { 40, 40 },
+            { 45, 45 },
+            -- Award 50 credits for every 5 kills at or above 50
+            { 50, 50 },
+        },
+
+        -- kill-combo required, credits awarded
+        multi_kill = {
+            { 2, 8 },
+            { 3, 10 },
+            { 4, 12 },
+            { 5, 14 },
+            { 6, 16 },
+            { 7, 18 },
+            { 8, 20 },
+            { 9, 23 },
+            -- Award 25 credits every 2 kills at or above 10 kill-combos
+            { 10, 25 },
+        },
+
         tags = {
 
             --
@@ -187,12 +216,6 @@ function OnPlayerScore(Ply)
     Rank:UpdateCredits(Ply, Rank.credits.score)
 end
 
-local function GetKDR(Ply)
-    local kills = tonumber(get_var(Ply, "$kills"))
-    local deaths = tonumber(get_var(Ply, "deaths"))
-    return kills / deaths
-end
-
 function Rank:AddNewPlayer(Ply)
 
     local content = ""
@@ -212,10 +235,10 @@ function Rank:AddNewPlayer(Ply)
 
             if (pl[IP] == nil) then
                 pl[IP] = {
+                    name = name,
                     last_damage = nil,
                     rank = 0, credits = 0,
-                    ip = IP, kdr = 0, id = Ply,
-                    name = name
+                    ip = IP, id = Ply
                 }
             end
 
@@ -403,6 +426,44 @@ local function InVehicle(Ply)
     return nil
 end
 
+function Rank:KillingSpree(Ply)
+    local player = get_player(Ply)
+    if (player ~= 0) then
+        local spree = read_word(player + 0x96)
+        for _, v in pairs(self.credits.spree) do
+            if (spree >= v[1] and spree % 5 == 0) then
+                self:UpdateCredits(Ply, v[2])
+            end
+        end
+    end
+end
+
+function Rank:KillingSpree(Ply)
+    local player = get_player(killer)
+    if (player ~= 0) then
+        local t = self.credits.spree
+        local k = read_word(player + 0x96)
+        for _, v in pairs(t) do
+            if (k == v[1]) or (k >= t[#t][1] and k % 5 == 0) then
+                self:UpdateCredits(Ply, v[2])
+            end
+        end
+    end
+end
+
+function Rank:MultiKill(Ply)
+    local player = get_player(Ply)
+    if (player ~= 0) then
+        local k = read_word(player + 0x98)
+        local t = self.credits.multi_kill
+        for _, v in pairs(t) do
+            if (k == v[1]) or (k >= t[#t][1] and k % 2 == 0) then
+                return self:UpdateCredits(Ply, v[2])
+            end
+        end
+    end
+end
+
 function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
     local killer, victim = tonumber(KillerIndex), tonumber(VictimIndex)
 
@@ -416,10 +477,12 @@ function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
     local pvp = ((killer > 0) and killer ~= victim)
     local betrayal = ((kteam == vteam) and killer ~= victim)
 
-    self.players[victim].kdr = GetKDR(victim)
-
     if (pvp) then
         local vehicle = InVehicle(killer)
+
+        Rank:MultiKill(killer)
+        Rank:KillingSpree(killer)
+
         if (vehicle) then
             self:UpdateCredits(killer, vehicle)
         else
@@ -439,14 +502,10 @@ function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
 end
 
 function Rank:UpdateCredits(Ply, Amount)
-    self.players[Ply].credits = self.players[Ply].credits + Amount
-    --local prefix = ""
-    --if not tostring(Amount):find("-") then
-    --    prefix = "+"
-    --end
-    --self:Respond(Ply, "[" .. prefix .. Amount .. "] cR", rprint, 10)
-    if (self.players[Ply].credits < 0) then
-        self.players[Ply].credits = 0
+    local cr = self.players[Ply].credits
+    cr = cr + (Amount)
+    if (cr < 0) then
+        cr = 0
     end
 end
 
