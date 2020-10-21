@@ -26,7 +26,7 @@ local Rank = {
     dir = "ranks.json",
 
     check_rank_cmd = "rank",
-    check_rank_cmd_permission = 1,
+    check_rank_cmd_permission = -1,
     check_rank_cmd_permission_other = 4,
 
     messages = {
@@ -503,6 +503,7 @@ function Rank:OnServerCommand(Executor, Command, _, _)
         Args[1] = lower(Args[1]) or upper(Args[1])
         if (Args[1] == self.check_rank_cmd) then
             local lvl = tonumber(get_var(Executor, "$lvl"))
+
             if (lvl >= self.check_rank_cmd_permission) then
                 local pl = self:GetPlayers(Executor, Args)
                 if (pl) then
