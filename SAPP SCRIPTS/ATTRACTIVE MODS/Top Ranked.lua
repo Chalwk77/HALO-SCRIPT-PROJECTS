@@ -25,6 +25,23 @@ local Rank = {
 
     dir = "ranks.json",
 
+    check_rank_cmd = "rank",
+    check_rank_cmd_permission = 1,
+    check_rank_cmd_permission_other = 4,
+
+    messages = {
+        [1] = {
+            "You are ranked %rank% out of %totalplayers%!",
+            "Credits: %credits%",
+        },
+        [2] = {
+            "%name% is ranked %rank% out of %totalplayers%!",
+            "Credits: %credits%",
+        },
+        [3] = { "You do not have permission to execute this command." },
+        [4] = { "You do not have permission to execute this command on other players" },
+    },
+
     credits = {
 
         -- Score (credits added):
@@ -121,11 +138,13 @@ local Rank = {
 
     -- A message relay function temporarily removes the server prefix
     -- and will restore it to this when the relay is finished
-    serverPrefix = "**SAPP**",
+    server_prefix = "**SAPP**",
     --
 }
 
 local len = string.len
+local gmatch, gsub = string.gmatch, string.gsub
+local lower, upper = string.lower, string.upper
 local json = (loadfile "json.lua")()
 
 function OnScriptLoad()
@@ -134,6 +153,7 @@ function OnScriptLoad()
     register_callback(cb["EVENT_SCORE"], "OnPlayerScore")
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
+    register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
     if (get_var(0, "$gt") ~= "n/a") then
         Rank:CheckFile()
@@ -270,32 +290,48 @@ function Rank:GetRanks()
     return table
 end
 
-function Rank:GetRank(Ply, IP)
+function Rank:GetRank(Ply, IP, CMD)
 
     local ranks = Rank:GetRanks()
     local results = { }
     for ip, _ in pairs(ranks) do
-        results[#results + 1] = { ["ip"] = ip, ["credits"] = ranks[ip].credits }
+        results[#results + 1] = { ["ip"] = ip, ["credits"] = ranks[ip].credits, ["name"] = ranks[ip].name }
     end
 
     table.sort(results, function(a, b)
         return a.credits > b.credits
     end)
 
+    local max = #results
+    local ip = self:GetIP(Ply)
+    local cr = ranks[IP].credits
+
     for k, _ in ipairs(results) do
         if (IP == results[k].ip) then
-            local str = {
-                "You are ranked " .. k .. " out of " .. #results .. "!",
-                "Credits: " .. ranks[IP].credits,
-            }
-            for i = 1, #str do
-                Rank:Respond(Ply, str[i], rprint, 10)
+
+            local function PrintSelf()
+                for i = 1, #self.messages[1] do
+                    local str = gsub(gsub(gsub(self.messages[1][i], "%%rank%%", k), "%%credits%%", cr), "%%totalplayers%%", max)
+                    Rank:Respond(Ply, str, rprint, 10)
+                end
             end
 
-            local n, max = self.players[Ply].name, #results
-            local cr = ranks[IP].credits
-            local str = n .. " connected -> Rank " .. k .. " out of " .. max .. " with " .. cr .. " credits."
-            Rank:Respond(Ply, str, say, 10, true)
+            if (CMD) then
+                if (ip == IP) then
+                    PrintSelf()
+                else
+                    local n = results[k].name
+                    for i = 1, #self.messages[2] do
+                        local str = gsub(gsub(gsub(gsub(self.messages[2][i], "%%rank%%", k), "%%credits%%", cr), "%%totalplayers%%", max), "%%name%%", n)
+                        Rank:Respond(Ply, str, rprint, 10)
+                    end
+                end
+            else
+                PrintSelf()
+                local n = self.players[Ply].name
+                local str = n .. " connected -> Rank " .. k .. " out of " .. max .. " with " .. cr .. " credits."
+                Rank:Respond(Ply, str, say, 10, true)
+            end
         end
     end
 end
@@ -450,6 +486,70 @@ function Rank:Respond(Ply, Message, Type, Color, Exclude)
     execute_command("msg_prefix \" " .. self.server_prefix .. "\"")
 end
 
+local function CMDSplit(CMD)
+    local Args, index = { }, 1
+    for Params in gmatch(CMD, "([^%s]+)") do
+        Args[index] = Params
+        index = index + 1
+    end
+    return Args
+end
+
+function Rank:OnServerCommand(Executor, Command, _, _)
+    local Args = CMDSplit(Command)
+    if (Args == nil) then
+        return
+    else
+        Args[1] = lower(Args[1]) or upper(Args[1])
+        if (Args[1] == self.check_rank_cmd) then
+            local lvl = tonumber(get_var(Executor, "$lvl"))
+            if (lvl >= self.check_rank_cmd_permission) then
+                local pl = self:GetPlayers(Executor, Args)
+                if (pl) then
+                    for i = 1, #pl do
+                        local TargetID = tonumber(pl[i])
+                        if (TargetID ~= Executor and lvl < self.check_rank_cmd_permission_other) then
+                            return false, self:Respond(Executor, self.messages[4], rprint, 10)
+                        else
+                            Rank:GetRank(Executor, self:GetIP(TargetID), true)
+                        end
+                    end
+                end
+            end
+            return false
+        end
+    end
+end
+
+function Rank:GetPlayers(Executor, Args)
+    local pl = { }
+    if (Args[2] == "me" or Args[2] == nil) then
+        if (Executor ~= 0) then
+            table.insert(pl, Executor)
+        else
+            self:Respond(Executor, "The server cannot execute this command!", rprint, 10)
+        end
+    elseif (Args[2] ~= nil) and (Args[2]:match("^%d+$")) then
+        if player_present(Args[2]) then
+            table.insert(pl, Args[2])
+        else
+            self:Respond(Executor, "Player #" .. Args[2] .. " is not online", rprint, 10)
+        end
+    elseif (Args[2] == "all" or Args[2] == "*") then
+        for i = 1, 16 do
+            if player_present(i) then
+                table.insert(pl, i)
+            end
+        end
+        if (#pl == 0) then
+            self:Respond(Executor, "There are no players online!", rprint, 10)
+        end
+    else
+        self:Respond(Executor, "Invalid Command Syntax. Please try again!", rprint, 10)
+    end
+    return pl
+end
+
 -- SUPPORT FOR MY RAGE QUIT SCRIPT:
 function UpdateRageQuit(ip, amount)
     local ranks = Rank:GetRanks()
@@ -467,4 +567,8 @@ function UpdateRageQuit(ip, amount)
             io.close(file)
         end
     end
+end
+
+function OnServerCommand(P, C, _, _)
+    return Rank:OnServerCommand(P, C, _, _)
 end
