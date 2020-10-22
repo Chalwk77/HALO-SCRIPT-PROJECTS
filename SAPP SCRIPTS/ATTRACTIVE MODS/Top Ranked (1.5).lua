@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Top Ranked (v1.4), for SAPP (PC & CE)
+Script Name: Top Ranked (v1.5), for SAPP (PC & CE)
 Description: A fully integrated ranking system for SAPP servers.
 Players earn credits for killing, scoring and achievements, such as sprees, kill-combos and more.
 
@@ -10,11 +10,6 @@ For example, you will earn 6 credits for killing someone with the sniper rifle, 
 1): This mod requires that the following json library is installed to your server:
     Place "json.lua" in your servers root directory:
     http://regex.info/blog/lua/json
-
--- todo: -------------------------------------------
--- todo: 1). Announce who top player is on game end
--- todo: 2). Add /toplist command
--- todo: -------------------------------------------
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -34,6 +29,17 @@ local Rank = {
     check_rank_cmd = "rank",
     check_rank_cmd_permission = -1,
     check_rank_cmd_permission_other = 4,
+
+    -- Command Syntax: /toplist_cmd
+    toplist_cmd = "toplist",
+    toplist_cmd_permission = -1,
+
+    toplist_format = "Rank#: [%pos%] %name% | Credits: %cr%",
+    topplayers = {
+        header = "--------------------------------------",
+        txt = "Rank#: [%pos%] %name% | Credits: %cr%",
+        footer = "--------------------------------------",
+    },
 
     messages = {
         [1] = {
@@ -57,13 +63,13 @@ local Rank = {
         server = { -0, "%credits% cR (Server)" },
 
         -- killed by guardians (credits deducted):
-        guardians = { -5, "-%credits% cR (Guardians)" },
+        guardians = { -5, "%credits% cR (Guardians)" },
 
         -- suicide (credits deducted):
-        suicide = { -10, "-%credits% cR (Suicide)" },
+        suicide = { -10, "%credits% cR (Suicide)" },
 
         -- betrayal (credits deducted):
-        betrayal = { -15, "-%credits% cR (Betrayal)" },
+        betrayal = { -15, "%credits% cR (Betrayal)" },
 
         -- Killed from the grave (credits added to killer)
         killed_from_the_grave = { 5, "+%credits% cR (Killed From Grave)" },
@@ -80,7 +86,7 @@ local Rank = {
             { 40, 40, "+%credits% cR (spree)" },
             { 45, 45, "+%credits% cR (spree)" },
             -- Award 50 credits for every 5 kills at or above 50
-            { 50, 50, "-%credits% cR (spree)" },
+            { 50, 50, "+%credits% cR (spree)" },
         },
 
         -- kill-combo required, credits awarded
@@ -104,17 +110,8 @@ local Rank = {
             --
 
             -- FALL DAMAGE --
-            { "jpt!", "globals\\falling", -3, "-%credits% cR (Fall Damage)" },
-            { "jpt!", "globals\\distance", -4, "-%credits% cR (Distance Damage)" },
-
-            -- VEHICLE COLLISION --
-            -- If you can run over someone with the gun-turret then you deserve these points for sure...
-            { "vehi", "vehicles\\ghost\\ghost_mp", 5, "+%credits% cR (Vehicle Squash: GHOST)" },
-            { "vehi", "vehicles\\rwarthog\\rwarthog", 6, "+%credits% cR (Vehicle Squash: R-Hog)" },
-            { "vehi", "vehicles\\warthog\\mp_warthog", 7, "+%credits% cR (Vehicle Squash: Warthog)" },
-            { "vehi", "vehicles\\banshee\\banshee_mp", 8, "+%credits% cR (Vehicle Squash: Banshee)" },
-            { "vehi", "vehicles\\scorpion\\scorpion_mp", 10, "+%credits% cR (Vehicle Squash: Tank)" },
-            { "vehi", "vehicles\\c gun turret\\c gun turret_mp", 1000, "+%credits% cR (Vehicle Squash: Turret)" },
+            { "jpt!", "globals\\falling", -3, "%credits% cR (Fall Damage)" },
+            { "jpt!", "globals\\distance", -4, "%credits% cR (Distance Damage)" },
 
             -- VEHICLE PROJECTILES --
             { "jpt!", "vehicles\\ghost\\ghost bolt", 7, "+%credits% cR (Ghost Bolt)" },
@@ -123,7 +120,7 @@ local Rank = {
             { "jpt!", "vehicles\\c gun turret\\mp bolt", 7, "+%credits% cR (Turret Bolt)" },
             { "jpt!", "vehicles\\banshee\\banshee bolt", 7, "+%credits% cR (Banshee Bolt)" },
             { "jpt!", "vehicles\\scorpion\\shell explosion", 10, "+%credits% cR (Tank Shell)" },
-            { "jpt!", "vehicles\\banshee\\mp_fuel rod explosion", 10, "+%credits% cR (Fuel-Rod Explosion)" },
+            { "jpt!", "vehicles\\banshee\\mp_fuel rod explosion", 10, "+%credits% cR (Banshee Fuel-Rod Explosion)" },
 
             -- WEAPON PROJECTILES --
             { "jpt!", "weapons\\pistol\\bullet", 5, "+%credits% cR (Pistol Bullet)" },
@@ -134,7 +131,7 @@ local Rank = {
             { "jpt!", "weapons\\assault rifle\\bullet", 5, "+%credits% cR (Assault Rifle Bullet)" },
             { "jpt!", "weapons\\needler\\impact damage", 4, "+%credits% cR (Needler Impact Damage)" },
             { "jpt!", "weapons\\flamethrower\\explosion", 5, "+%credits% cR (Flamethrower)" },
-            { "jpt!", "weapons\\rocket launcher\\explosion", 8, "+%credits% cR (Rocket Launcher Explosion)" },
+            { "jpt!", "weapons\\rocket launcher\\explosion", 8, "+%credits% cR (Rocket Launcher Explosion)", "+%credits% cR (R-Hog Rocket Launcher Explosion)" },
             { "jpt!", "weapons\\needler\\detonation damage", 3, "+%credits% cR (Needler Detonation Damage)" },
             { "jpt!", "weapons\\plasma rifle\\charged bolt", 4, "+%credits% cR (Plasma Rifle Bolt)" },
             { "jpt!", "weapons\\sniper rifle\\sniper bullet", 6, "+%credits% cR (Sniper Rifle Bullet)" },
@@ -158,6 +155,17 @@ local Rank = {
             { "jpt!", "weapons\\assault rifle\\melee", 4, "+%credits% cR (Melee: Assault Rifle)" },
             { "jpt!", "weapons\\rocket launcher\\melee", 10, "+%credits% cR (Melee: Rocket Launcher)" },
             { "jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_melee", 10, "+%credits% cR (Melee: Plasma Cannon)" },
+
+            -- VEHICLE COLLISION --
+            vehicles = {
+                collision = { "jpt!", "globals\\vehicle_collision" },
+                { "vehi", "vehicles\\ghost\\ghost_mp", 5, "+%credits% cR (Vehicle Squash: GHOST)" },
+                { "vehi", "vehicles\\rwarthog\\rwarthog", 6, "+%credits% cR (Vehicle Squash: R-Hog)" },
+                { "vehi", "vehicles\\warthog\\mp_warthog", 7, "+%credits% cR (Vehicle Squash: Warthog)" },
+                { "vehi", "vehicles\\banshee\\banshee_mp", 8, "+%credits% cR (Vehicle Squash: Banshee)" },
+                { "vehi", "vehicles\\scorpion\\scorpion_mp", 10, "+%credits% cR (Vehicle Squash: Tank)" },
+                { "vehi", "vehicles\\c gun turret\\c gun turret_mp", 1000, "+%credits% cR (Vehicle Squash: Turret)" },
+            }
         }
     },
 
@@ -213,6 +221,43 @@ end
 
 function OnGameEnd()
     Rank:UpdateALL()
+
+    if tonumber(get_var(0, "$pn")) > 0 then
+        local results = { }
+        for i = 1, 16 do
+            if player_present(i) then
+                results[i] = Rank.players[i]
+            end
+        end
+
+        if (#results > 0) then
+            local t = { }
+            for _, v in pairs(results) do
+                t[#t + 1] = { ["ip"] = v.ip, ["credits"] = v.credits, ["name"] = v.name }
+            end
+            table.sort(t, function(a, b)
+                return a.credits > b.credits
+            end)
+
+            Rank:Respond(_, Rank.topplayers.header, say_all, 10)
+            for i, v in pairs(t) do
+                if (i > 0 and i < 4) then
+
+                    if (i == 1) then
+                        i = "1st"
+                    elseif (i == 2) then
+                        i = "2nd"
+                    else
+                        i = "3rd"
+                    end
+
+                    local str = gsub(gsub(gsub(Rank.topplayers.txt, "%%pos%%", i), "%%name%%", v.name), "%%cr%%", v.credits)
+                    Rank:Respond(_, str, say_all, 10)
+                end
+            end
+            Rank:Respond(_, Rank.topplayers.footer, say_all, 10)
+        end
+    end
 end
 
 function OnPlayerConnect(Ply)
@@ -225,7 +270,7 @@ function OnPlayerDisconnect(Ply)
 end
 
 function OnPlayerScore(Ply)
-    Rank:UpdateCredits(Ply, { Rank.credits.score[1], Rank.credits.score[2]})
+    Rank:UpdateCredits(Ply, { Rank.credits.score[1], Rank.credits.score[2] })
 end
 
 function Rank:AddNewPlayer(Ply, ManualLoad)
@@ -324,8 +369,7 @@ function Rank:GetRanks()
     return ranks
 end
 
-function Rank:GetRank(Ply, IP, CMD)
-
+function SortRanks()
     local ranks = Rank:GetRanks()
     if (ranks ~= nil) then
 
@@ -338,6 +382,13 @@ function Rank:GetRank(Ply, IP, CMD)
             return a.credits > b.credits
         end)
 
+        return results
+    end
+end
+
+function Rank:GetRank(Ply, IP, CMD)
+    local results = SortRanks()
+    if (#results > 0) then
         for k, v in pairs(results) do
             if (IP == v.ip) then
                 local function PrintMsg(I)
@@ -396,49 +447,22 @@ function Rank:CheckFile()
 end
 
 local function GetTag(ObjectType, ObjectName)
-    local Tag = lookup_tag(ObjectType, ObjectName)
-    return Tag ~= 0 and read_dword(Tag + 0xC) or nil
+    if type(ObjectType) == "string" then
+        local Tag = lookup_tag(ObjectType, ObjectName)
+        return Tag ~= 0 and read_dword(Tag + 0xC) or nil
+    else
+        return nil
+    end
 end
 
 local function CheckDamageTag(DamageMeta)
     for _, d in pairs(Rank.credits.tags) do
         local tag = GetTag(d[1], d[2])
-        if (tag ~= nil) then
-            if (tag == DamageMeta) then
-                return { d[3], d[4] }
-            end
+        if (tag ~= nil) and (tag == DamageMeta) then
+            return { d[3], d[4] }
         end
     end
     return 0
-end
-
-local function GetVehicleCredits(VehicleObject)
-    local name = GetVehicleTag(VehicleObject)
-    if (name ~= nil) then
-        for _, d in pairs(Rank.credits.tags) do
-            if (d[2] == name) then
-                return { d[3], d[4] }
-            end
-        end
-    end
-    return 0
-end
-
-local function InVehicle(Ply)
-    local DyN = get_dynamic_player(Ply)
-    if (DyN ~= 0) then
-        local VehicleID = read_dword(DyN + 0x11C)
-        if (VehicleID ~= 0XFFFFFFFF) then
-            local VehicleObject = get_object_memory(VehicleID)
-            local cr = GetVehicleCredits(VehicleObject)
-            if (cr[1] ~= 0) then
-                return { cr[1], cr[2] }
-            else
-                return nil
-            end
-        end
-    end
-    return nil
 end
 
 function Rank:KillingSpree(Ply)
@@ -467,6 +491,21 @@ function Rank:MultiKill(Ply)
     end
 end
 
+function Rank:InVehicle(Ply)
+    local DyN = get_dynamic_player(Ply)
+    if (DyN ~= 0) then
+        local VehicleID = read_dword(DyN + 0x11C)
+        if (VehicleID ~= 0xFFFFFFFF) then
+            local VehicleObject = get_object_memory(VehicleID)
+            local name = GetVehicleTag(VehicleObject)
+            if (name ~= nil) then
+                return name
+            end
+        end
+    end
+    return false
+end
+
 function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
     local killer, victim = tonumber(KillerIndex), tonumber(VictimIndex)
 
@@ -481,25 +520,37 @@ function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
     local betrayal = ((kteam == vteam) and killer ~= victim)
 
     if (pvp) then
-        local vehicle = InVehicle(killer)
+
         self:MultiKill(killer)
         self:KillingSpree(killer)
+        if (not player_alive(killer)) then
+            self:UpdateCredits(killer, { self.credits.killed_from_the_grave[1], self.credits.killed_from_the_grave[2] })
+        end
+
+        local vehicle = self:InVehicle(killer)
         if (vehicle) then
-            self:UpdateCredits(killer, vehicle)
-        else
-            self:UpdateCredits(killer, CheckDamageTag(last_damage))
-            if (not player_alive(killer)) then
-                self:UpdateCredits(killer, { self.credits.killed_from_the_grave[1], self.credits.killed_from_the_grave[2]})
+            local t = self.credits.tags.vehicles
+            for _, v in pairs(t) do
+                if (vehicle == v[2]) then
+                    -- vehicle squash:
+                    if (last_damage == GetTag(t.collision[1], t.collision[2])) then
+                        return self:UpdateCredits(killer, { v[3], v[4] })
+                    else
+                        return self:UpdateCredits(killer, CheckDamageTag(last_damage))
+                    end
+                end
             end
         end
+        return self:UpdateCredits(killer, CheckDamageTag(last_damage))
+
     elseif (server) then
         self:UpdateCredits(victim, { self.credits.server[1], self.credits.server[2] })
     elseif (guardians) then
-        self:UpdateCredits(victim, { self.credits.guardians[1], self.credits.guardians[2]})
+        self:UpdateCredits(victim, { self.credits.guardians[1], self.credits.guardians[2] })
     elseif (suicide) then
         self:UpdateCredits(victim, { self.credits.suicide[1], self.credits.suicide[2] })
     elseif (betrayal) then
-        self:UpdateCredits(victim, { self.credits.betrayal[1], self.credits.betrayal[2]})
+        self:UpdateCredits(victim, { self.credits.betrayal[1], self.credits.betrayal[2] })
     else
         self:UpdateCredits(victim, CheckDamageTag(last_damage))
     end
@@ -508,10 +559,10 @@ end
 function Rank:UpdateCredits(Ply, Params)
 
     local cr = Params[1]
+    local str = Params[2]
     self.players[Ply].credits = self.players[Ply].credits + cr
 
-    local str = Params[2]
-    str = gsub(str, "%%credits%%", self.players[Ply].credits)
+    str = gsub(str, "%%credits%%", cr)
     self:Respond(Ply, str, rprint, 10)
 
     if (self.players[Ply].credits < 0) then
@@ -527,13 +578,6 @@ function OnDamageApplication(VictimIndex, KillerIndex, MetaID, _, _, _)
         end
         Rank.players[v].last_damage = MetaID
     end
-end
-
-function GetVehicleTag(Vehicle)
-    if (Vehicle ~= nil and Vehicle ~= 0) then
-        return read_string(read_dword(read_word(Vehicle) * 32 + 0x40440038))
-    end
-    return nil
 end
 
 function Rank:Respond(Ply, Message, Type, Color, Exclude)
@@ -572,8 +616,8 @@ function Rank:OnServerCommand(Executor, Command)
         return
     else
         Args[1] = lower(Args[1]) or upper(Args[1])
+        local lvl = tonumber(get_var(Executor, "$lvl"))
         if (Args[1] == self.check_rank_cmd) then
-            local lvl = tonumber(get_var(Executor, "$lvl"))
             if (lvl >= self.check_rank_cmd_permission) then
                 local pl = self:GetPlayers(Executor, Args)
                 if (pl) then
@@ -588,6 +632,20 @@ function Rank:OnServerCommand(Executor, Command)
                 end
             else
                 self:Respond(Executor, self.messages[3], rprint, 10)
+            end
+            return false
+        elseif (Args[1] == self.toplist_cmd) then
+            if (lvl >= self.toplist_cmd_permission) then
+                local ranks = Rank:GetRanks()
+                if (ranks ~= nil) then
+                    local results = SortRanks()
+                    for i, v in pairs(results) do
+                        if (i > 0 and i < 11) then
+                            local str = gsub(gsub(gsub(self.toplist_format, "%%pos%%", i), "%%name%%", v.name), "%%cr%%", v.credits)
+                            self:Respond(Executor, str, rprint, 10)
+                        end
+                    end
+                end
             end
             return false
         end
@@ -648,4 +706,11 @@ end
 
 function OnPlayerDeath(V, K)
     return Rank:OnPlayerDeath(V, K)
+end
+
+function GetVehicleTag(Vehicle)
+    if (Vehicle ~= nil and Vehicle ~= 0) then
+        return read_string(read_dword(read_word(Vehicle) * 32 + 0x40440038))
+    end
+    return nil
 end
