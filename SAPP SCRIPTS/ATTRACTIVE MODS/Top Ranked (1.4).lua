@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Top Ranked (v1.3), for SAPP (PC & CE)
+Script Name: Top Ranked (v1.4), for SAPP (PC & CE)
 Description: A fully integrated ranking system for SAPP servers.
 Players earn credits for killing, scoring and achievements, such as sprees, kill-combos and more.
 
@@ -11,7 +11,12 @@ For example, you will earn 6 credits for killing someone with the sniper rifle, 
     Place "json.lua" in your servers root directory:
     http://regex.info/blog/lua/json
 
-Copyright (c) 2016-2019, Jericho Crosby <jericho.crosby227@gmail.com>
+-- todo: -------------------------------------------
+-- todo: 1). Announce who top player is on game end
+-- todo: 2). Add /toplist command
+-- todo: -------------------------------------------
+
+Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
@@ -46,50 +51,50 @@ local Rank = {
     credits = {
 
         -- Score (credits added):
-        score = 25,
+        score = { 25, "+%credits% cR (Flag Cap)" },
 
         -- Killed by Server (credits deducted):
-        server = 0,
+        server = { -0, "%credits% cR (Server)" },
 
         -- killed by guardians (credits deducted):
-        guardians = -5,
+        guardians = { -5, "-%credits% cR (Guardians)" },
 
         -- suicide (credits deducted):
-        suicide = -10,
+        suicide = { -10, "-%credits% cR (Suicide)" },
 
         -- betrayal (credits deducted):
-        betrayal = -15,
+        betrayal = { -15, "-%credits% cR (Betrayal)" },
 
         -- Killed from the grave (credits added to killer)
-        killed_from_the_grave = 5,
+        killed_from_the_grave = { 5, "+%credits% cR (Killed From Grave)" },
 
         -- {consecutive kills, xp rewarded}
         spree = {
-            { 5, 5 },
-            { 10, 10 },
-            { 15, 15 },
-            { 20, 20 },
-            { 25, 25 },
-            { 30, 30 },
-            { 35, 35 },
-            { 40, 40 },
-            { 45, 45 },
+            { 5, 5, "+%credits% cR (spree)" },
+            { 10, 10, "+%credits% cR (spree)" },
+            { 15, 15, "+%credits% cR (spree)" },
+            { 20, 20, "+%credits% cR (spree)" },
+            { 25, 25, "+%credits% cR (spree)" },
+            { 30, 30, "+%credits% cR (spree)" },
+            { 35, 35, "+%credits% cR (spree)" },
+            { 40, 40, "+%credits% cR (spree)" },
+            { 45, 45, "+%credits% cR (spree)" },
             -- Award 50 credits for every 5 kills at or above 50
-            { 50, 50 },
+            { 50, 50, "-%credits% cR (spree)" },
         },
 
         -- kill-combo required, credits awarded
         multi_kill = {
-            { 2, 8 },
-            { 3, 10 },
-            { 4, 12 },
-            { 5, 14 },
-            { 6, 16 },
-            { 7, 18 },
-            { 8, 20 },
-            { 9, 23 },
+            { 2, 8, "+%credits% cR (multi-kill)" },
+            { 3, 10, "+%credits% cR (multi-kill)" },
+            { 4, 12, "+%credits% cR (multi-kill)" },
+            { 5, 14, "+%credits% cR (multi-kill)" },
+            { 6, 16, "+%credits% cR (multi-kill)" },
+            { 7, 18, "+%credits% cR (multi-kill)" },
+            { 8, 20, "+%credits% cR (multi-kill)" },
+            { 9, 23, "+%credits% cR (multi-kill)" },
             -- Award 25 credits every 2 kills at or above 10 kill-combos
-            { 10, 25 },
+            { 10, 25, "+%credits% cR (multi-kill)" },
         },
 
         tags = {
@@ -99,60 +104,60 @@ local Rank = {
             --
 
             -- FALL DAMAGE --
-            { "jpt!", "globals\\falling", -3 },
-            { "jpt!", "globals\\distance", -4 },
+            { "jpt!", "globals\\falling", -3, "-%credits% cR (Fall Damage)" },
+            { "jpt!", "globals\\distance", -4, "-%credits% cR (Distance Damage)" },
 
             -- VEHICLE COLLISION --
             -- If you can run over someone with the gun-turret then you deserve these points for sure...
-            { "vehi", "vehicles\\ghost\\ghost_mp", 5 },
-            { "vehi", "vehicles\\rwarthog\\rwarthog", 6 },
-            { "vehi", "vehicles\\warthog\\mp_warthog", 7 },
-            { "vehi", "vehicles\\banshee\\banshee_mp", 8 },
-            { "vehi", "vehicles\\scorpion\\scorpion_mp", 10 },
-            { "vehi", "vehicles\\c gun turret\\c gun turret_mp", 1000 },
+            { "vehi", "vehicles\\ghost\\ghost_mp", 5, "+%credits% cR (Vehicle Squash: GHOST)" },
+            { "vehi", "vehicles\\rwarthog\\rwarthog", 6, "+%credits% cR (Vehicle Squash: R-Hog)" },
+            { "vehi", "vehicles\\warthog\\mp_warthog", 7, "+%credits% cR (Vehicle Squash: Warthog)" },
+            { "vehi", "vehicles\\banshee\\banshee_mp", 8, "+%credits% cR (Vehicle Squash: Banshee)" },
+            { "vehi", "vehicles\\scorpion\\scorpion_mp", 10, "+%credits% cR (Vehicle Squash: Tank)" },
+            { "vehi", "vehicles\\c gun turret\\c gun turret_mp", 1000, "+%credits% cR (Vehicle Squash: Turret)" },
 
             -- VEHICLE PROJECTILES --
-            { "jpt!", "vehicles\\ghost\\ghost bolt", 7 },
-            { "jpt!", "vehicles\\scorpion\\bullet", 6 },
-            { "jpt!", "vehicles\\warthog\\bullet", 6 },
-            { "jpt!", "vehicles\\c gun turret\\mp bolt", 7 },
-            { "jpt!", "vehicles\\banshee\\banshee bolt", 7 },
-            { "jpt!", "vehicles\\scorpion\\shell explosion", 10 },
-            { "jpt!", "vehicles\\banshee\\mp_fuel rod explosion", 10 },
+            { "jpt!", "vehicles\\ghost\\ghost bolt", 7, "+%credits% cR (Ghost Bolt)" },
+            { "jpt!", "vehicles\\scorpion\\bullet", 6, "+%credits% cR (Tank Bullet)" },
+            { "jpt!", "vehicles\\warthog\\bullet", 6, "+%credits% cR (Warthog Bullet)" },
+            { "jpt!", "vehicles\\c gun turret\\mp bolt", 7, "+%credits% cR (Turret Bolt)" },
+            { "jpt!", "vehicles\\banshee\\banshee bolt", 7, "+%credits% cR (Banshee Bolt)" },
+            { "jpt!", "vehicles\\scorpion\\shell explosion", 10, "+%credits% cR (Tank Shell)" },
+            { "jpt!", "vehicles\\banshee\\mp_fuel rod explosion", 10, "+%credits% cR (Fuel-Rod Explosion)" },
 
             -- WEAPON PROJECTILES --
-            { "jpt!", "weapons\\pistol\\bullet", 5 },
-            { "jpt!", "weapons\\shotgun\\pellet", 6 },
-            { "jpt!", "weapons\\plasma rifle\\bolt", 4 },
-            { "jpt!", "weapons\\needler\\explosion", 8 },
-            { "jpt!", "weapons\\plasma pistol\\bolt", 4 },
-            { "jpt!", "weapons\\assault rifle\\bullet", 5 },
-            { "jpt!", "weapons\\needler\\impact damage", 4 },
-            { "jpt!", "weapons\\flamethrower\\explosion", 5 },
-            { "jpt!", "weapons\\rocket launcher\\explosion", 8 },
-            { "jpt!", "weapons\\needler\\detonation damage", 3 },
-            { "jpt!", "weapons\\plasma rifle\\charged bolt", 4 },
-            { "jpt!", "weapons\\sniper rifle\\sniper bullet", 6 },
-            { "jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_explosion", 8 },
+            { "jpt!", "weapons\\pistol\\bullet", 5, "+%credits% cR (Pistol Bullet)" },
+            { "jpt!", "weapons\\shotgun\\pellet", 6, "+%credits% cR (Shotgun Pallet)" },
+            { "jpt!", "weapons\\plasma rifle\\bolt", 4, "+%credits% cR (Plasma Rifle Bolt)" },
+            { "jpt!", "weapons\\needler\\explosion", 8, "+%credits% cR (Needler Explosion)" },
+            { "jpt!", "weapons\\plasma pistol\\bolt", 4, "+%credits% cR (Plasma Bolt)" },
+            { "jpt!", "weapons\\assault rifle\\bullet", 5, "+%credits% cR (Assault Rifle Bullet)" },
+            { "jpt!", "weapons\\needler\\impact damage", 4, "+%credits% cR (Needler Impact Damage)" },
+            { "jpt!", "weapons\\flamethrower\\explosion", 5, "+%credits% cR (Flamethrower)" },
+            { "jpt!", "weapons\\rocket launcher\\explosion", 8, "+%credits% cR (Rocket Launcher Explosion)" },
+            { "jpt!", "weapons\\needler\\detonation damage", 3, "+%credits% cR (Needler Detonation Damage)" },
+            { "jpt!", "weapons\\plasma rifle\\charged bolt", 4, "+%credits% cR (Plasma Rifle Bolt)" },
+            { "jpt!", "weapons\\sniper rifle\\sniper bullet", 6, "+%credits% cR (Sniper Rifle Bullet)" },
+            { "jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_explosion", 8, "+%credits% cR (Plasma Cannon Explosion)" },
 
             -- GRENADES --
-            { "jpt!", "weapons\\frag grenade\\explosion", 8 },
-            { "jpt!", "weapons\\plasma grenade\\attached", 7 },
-            { "jpt!", "weapons\\plasma grenade\\explosion", 5 },
+            { "jpt!", "weapons\\frag grenade\\explosion", 8, "+%credits% cR (Frag Explosion)" },
+            { "jpt!", "weapons\\plasma grenade\\attached", 7, "+%credits% cR (Plasma Grenade - attached)" },
+            { "jpt!", "weapons\\plasma grenade\\explosion", 5, "+%credits% cR (Plasma Grenade explosion)" },
 
             -- MELEE --
-            { "jpt!", "weapons\\flag\\melee", 5 },
-            { "jpt!", "weapons\\ball\\melee", 5 },
-            { "jpt!", "weapons\\pistol\\melee", 4 },
-            { "jpt!", "weapons\\needler\\melee", 4 },
-            { "jpt!", "weapons\\shotgun\\melee", 5 },
-            { "jpt!", "weapons\\flamethrower\\melee", 5 },
-            { "jpt!", "weapons\\sniper rifle\\melee", 5 },
-            { "jpt!", "weapons\\plasma rifle\\melee", 4 },
-            { "jpt!", "weapons\\plasma pistol\\melee", 4 },
-            { "jpt!", "weapons\\assault rifle\\melee", 4 },
-            { "jpt!", "weapons\\rocket launcher\\melee", 10 },
-            { "jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_melee", 10 },
+            { "jpt!", "weapons\\flag\\melee", 5, "+%credits% cR (Melee: Flag)" },
+            { "jpt!", "weapons\\ball\\melee", 5, "+%credits% cR (Melee: Ball)" },
+            { "jpt!", "weapons\\pistol\\melee", 4, "+%credits% cR (Melee: Pistol)" },
+            { "jpt!", "weapons\\needler\\melee", 4, "+%credits% cR (Melee: Needler)" },
+            { "jpt!", "weapons\\shotgun\\melee", 5, "+%credits% cR (Melee: Shotgun)" },
+            { "jpt!", "weapons\\flamethrower\\melee", 5, "+%credits% cR (Melee: Flamethrower)" },
+            { "jpt!", "weapons\\sniper rifle\\melee", 5, "+%credits% cR (Melee: Sniper Rifle)" },
+            { "jpt!", "weapons\\plasma rifle\\melee", 4, "+%credits% cR (Melee: Plasma Rifle)" },
+            { "jpt!", "weapons\\plasma pistol\\melee", 4, "+%credits% cR (Melee: Plasma Pistol)" },
+            { "jpt!", "weapons\\assault rifle\\melee", 4, "+%credits% cR (Melee: Assault Rifle)" },
+            { "jpt!", "weapons\\rocket launcher\\melee", 10, "+%credits% cR (Melee: Rocket Launcher)" },
+            { "jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_melee", 10, "+%credits% cR (Melee: Plasma Cannon)" },
         }
     },
 
@@ -220,7 +225,7 @@ function OnPlayerDisconnect(Ply)
 end
 
 function OnPlayerScore(Ply)
-    Rank:UpdateCredits(Ply, Rank.credits.score)
+    Rank:UpdateCredits(Ply, { Rank.credits.score[1], Rank.credits.score[2]})
 end
 
 function Rank:AddNewPlayer(Ply, ManualLoad)
@@ -400,7 +405,7 @@ local function CheckDamageTag(DamageMeta)
         local tag = GetTag(d[1], d[2])
         if (tag ~= nil) then
             if (tag == DamageMeta) then
-                return d[3]
+                return { d[3], d[4] }
             end
         end
     end
@@ -412,7 +417,7 @@ local function GetVehicleCredits(VehicleObject)
     if (name ~= nil) then
         for _, d in pairs(Rank.credits.tags) do
             if (d[2] == name) then
-                return d[3]
+                return { d[3], d[4] }
             end
         end
     end
@@ -425,9 +430,9 @@ local function InVehicle(Ply)
         local VehicleID = read_dword(DyN + 0x11C)
         if (VehicleID ~= 0XFFFFFFFF) then
             local VehicleObject = get_object_memory(VehicleID)
-            local credits = GetVehicleCredits(VehicleObject)
-            if (credits ~= 0) then
-                return credits
+            local cr = GetVehicleCredits(VehicleObject)
+            if (cr[1] ~= 0) then
+                return { cr[1], cr[2] }
             else
                 return nil
             end
@@ -443,7 +448,7 @@ function Rank:KillingSpree(Ply)
         local k = read_word(player + 0x96)
         for _, v in pairs(t) do
             if (k == v[1]) or (k >= t[#t][1] and k % 5 == 0) then
-                self:UpdateCredits(Ply, v[2])
+                self:UpdateCredits(Ply, { v[2], v[3] })
             end
         end
     end
@@ -456,7 +461,7 @@ function Rank:MultiKill(Ply)
         local t = self.credits.multi_kill
         for _, v in pairs(t) do
             if (k == v[1]) or (k >= t[#t][1] and k % 2 == 0) then
-                self:UpdateCredits(Ply, v[2])
+                self:UpdateCredits(Ply, { v[2], v[3] })
             end
         end
     end
@@ -484,24 +489,31 @@ function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
         else
             self:UpdateCredits(killer, CheckDamageTag(last_damage))
             if (not player_alive(killer)) then
-                self:UpdateCredits(killer, self.credits.killed_from_the_grave)
+                self:UpdateCredits(killer, { self.credits.killed_from_the_grave[1], self.credits.killed_from_the_grave[2]})
             end
         end
     elseif (server) then
-        self:UpdateCredits(victim, self.credits.server)
+        self:UpdateCredits(victim, { self.credits.server[1], self.credits.server[2] })
     elseif (guardians) then
-        self:UpdateCredits(victim, self.credits.guardians)
+        self:UpdateCredits(victim, { self.credits.guardians[1], self.credits.guardians[2]})
     elseif (suicide) then
-        self:UpdateCredits(victim, self.credits.suicide)
+        self:UpdateCredits(victim, { self.credits.suicide[1], self.credits.suicide[2] })
     elseif (betrayal) then
-        self:UpdateCredits(victim, self.credits.betrayal)
+        self:UpdateCredits(victim, { self.credits.betrayal[1], self.credits.betrayal[2]})
     else
         self:UpdateCredits(victim, CheckDamageTag(last_damage))
     end
 end
 
-function Rank:UpdateCredits(Ply, Amount)
-    self.players[Ply].credits = self.players[Ply].credits + Amount
+function Rank:UpdateCredits(Ply, Params)
+
+    local cr = Params[1]
+    self.players[Ply].credits = self.players[Ply].credits + cr
+
+    local str = Params[2]
+    str = gsub(str, "%%credits%%", self.players[Ply].credits)
+    self:Respond(Ply, str, rprint, 10)
+
     if (self.players[Ply].credits < 0) then
         self.players[Ply].credits = 0
     end
