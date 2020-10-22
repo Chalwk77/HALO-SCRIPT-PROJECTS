@@ -143,12 +143,9 @@ local Rank = {
             -- MELEE --
             { "jpt!", "weapons\\flag\\melee", 5 },
             { "jpt!", "weapons\\ball\\melee", 5 },
-
             { "jpt!", "weapons\\pistol\\melee", 4 },
-
             { "jpt!", "weapons\\needler\\melee", 4 },
             { "jpt!", "weapons\\shotgun\\melee", 5 },
-
             { "jpt!", "weapons\\flamethrower\\melee", 5 },
             { "jpt!", "weapons\\sniper rifle\\melee", 5 },
             { "jpt!", "weapons\\plasma rifle\\melee", 4 },
