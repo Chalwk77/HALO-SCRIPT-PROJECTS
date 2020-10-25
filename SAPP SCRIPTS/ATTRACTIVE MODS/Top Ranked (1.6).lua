@@ -61,7 +61,7 @@ local Rank = {
             enabled = true,
             human_team = "red",
             zombie_team = "blue",
-            credits = { -25, "%credits% cR (Zombie-Bite)" },
+            credits = { 25, "%credits% cR (Zombie-Bite)" },
         },
 
         -- Score (credits added):
