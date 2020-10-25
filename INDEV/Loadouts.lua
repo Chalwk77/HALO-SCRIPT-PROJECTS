@@ -13,24 +13,55 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.12.0.0"
 
-local Rank = {
+local Loadout = {
 
     default_class = "Cloaking",
     starting_level = 1,
 
+    -- Command Syntax: /level_cmd [number: 1-16] | */all | me <level>
+    level_cmd = "level",
+    level_cmd_permission = 1,
+    level_cmd_permission_others = 4,
+
+    -- Command Syntax: /credits_cmd [number: 1-16] | */all | me <credits>
+    credits_cmd = "cr",
+    credits_cmd_permission = 1,
+    credits_cmd_permission_others = 4,
+
+    -- if true, a player's credits will be able to fall into the negatives.
+    allow_negatives = false,
+
+    -- Enable or disable rank HUD:
+    show_rank_hud = true,
+
+    -- If a player types any command, the rank_hud info will disappear to prevent it from overwriting other information.
+    -- How long should rank_hud info disappear for?
+    rank_hud_pause_duration = 5,
+    rank_hud = "Class: [%class%] Level: [%lvl%/%total_levels%] Credits: [%credits%/%req_exp%]",
+
+    -- Time (in seconds) a player must return to the server before their credits are reset.
+    disconnect_cooldown = 120,
+
     messages = {
-        [1] = {
-            "You are ranked %rank% out of %totalplayers%!",
-            "Credits: %credits%",
+        [1] = "Class [%class%] Level: [%level%] Credits: [%credits%/%cr_req%]",
+        [2] = "n/a",
+        [3] = "You do not have permission to execute this command.",
+        [4] = "You do not have permission to execute this command on other players",
+        [5] = "%name% has a bounty of +%bounty% cR! - Kill to claim!",
+        [6] = "%name% collected the bounty of %bounty% credits on %victim%!",
+        [7] = {
+            "Your level has been set to %level%",
+            "Setting %name% to level %level%",
         },
-        [2] = {
-            "%name% is ranked %rank% out of %totalplayers%!",
-            "Credits: %credits%",
+        -- /level command feedback:
+        [8] = "Invalid level!",
+
+        --/credits command feedback:
+        [9] = "Credits cannot be higher than %max%",
+        [10] = {
+            "Your credits have been set to %credits%",
+            "Setting %name%'s credits to %credits%",
         },
-        [3] = { "You do not have permission to execute this command." },
-        [4] = { "You do not have permission to execute this command on other players" },
-        [5] = "%name% has a bounty of %bounty% exp!",
-        [6] = "%name% collected the bounty of %bounty% credits on %victim%!"
     },
 
     classes = {
@@ -52,8 +83,8 @@ local Rank = {
                     increment = 0.0300,
                     -- Time (in seconds) between each incremental increase in health:
                     regen_rate = 1,
-                    -- Credits required to rank up:
-                    until_next_rank = 200,
+                    -- Credits required to level up:
+                    until_next_level = 200,
                     -- GRENADES | <frag/plasma> (set to nil to use default grenade settings)
                     grenades = { 2, 0 },
                     -- WEAPONS | Slot 1, Slot 2 Slot 3, Slot 4
@@ -64,7 +95,7 @@ local Rank = {
                     regen_delay = 4,
                     increment = 0.0550,
                     regen_rate = 1,
-                    until_next_rank = 500,
+                    until_next_level = 500,
                     grenades = { 2, 0 },
                     weapons = { 1, 7, 2, nil },
                     shield_regen_delay = nil,
@@ -73,7 +104,7 @@ local Rank = {
                     regen_delay = 3,
                     increment = 0.750,
                     regen_rate = 1,
-                    until_next_rank = 1000,
+                    until_next_level = 1000,
                     grenades = { 2, 0 },
                     weapons = { 1, 7, 2, nil },
                     shield_regen_delay = nil,
@@ -82,7 +113,7 @@ local Rank = {
                     regen_delay = 2,
                     increment = 0.950,
                     regen_rate = 1,
-                    until_next_rank = 2000,
+                    until_next_level = 2000,
                     grenades = { 4, 4 },
                     weapons = { 1, 7, 2, nil },
                     shield_regen_delay = nil,
@@ -91,7 +122,7 @@ local Rank = {
                     regen_delay = 0,
                     increment = 0.1100,
                     regen_rate = 1,
-                    until_next_rank = nil,
+                    until_next_level = nil,
                     grenades = { 4, 4 },
                     weapons = { 1, 7, 2, nil },
                     shield_regen_delay = 50,
@@ -111,7 +142,7 @@ local Rank = {
             },
             levels = {
                 [1] = {
-                    until_next_rank = 200,
+                    until_next_level = 200,
                     -- Set to 0 to use default damage resistance:
                     damage_resistance = 1.20,
                     -- Set to true to enable fall damage immunity:
@@ -121,7 +152,7 @@ local Rank = {
                     weapons = { 1, 7, nil, nil },
                 },
                 [2] = {
-                    until_next_rank = 500,
+                    until_next_level = 500,
                     damage_resistance = 1.30,
                     fall_damage_immunity = false,
                     melee_damage_multiplier = 0,
@@ -129,7 +160,7 @@ local Rank = {
                     weapons = { 1, 7, 2, nil },
                 },
                 [3] = {
-                    until_next_rank = 1000,
+                    until_next_level = 1000,
                     damage_resistance = 1.40,
                     fall_damage_immunity = false,
                     melee_damage_multiplier = 200,
@@ -137,7 +168,7 @@ local Rank = {
                     weapons = { 1, 7, 2, nil },
                 },
                 [4] = {
-                    until_next_rank = 2000,
+                    until_next_level = 2000,
                     damage_resistance = 1.50,
                     fall_damage_immunity = false,
                     melee_damage_multiplier = 200,
@@ -145,7 +176,7 @@ local Rank = {
                     weapons = { 1, 7, 2, nil },
                 },
                 [5] = {
-                    until_next_rank = nil,
+                    until_next_level = nil,
                     damage_resistance = 1.55,
                     fall_damage_immunity = true,
                     melee_damage_multiplier = 200,
@@ -168,31 +199,31 @@ local Rank = {
             levels = {
                 [1] = {
                     duration = 10,
-                    until_next_rank = 200,
+                    until_next_level = 200,
                     grenades = { 2, 0 },
                     weapons = { 1, 7, nil, nil },
                 },
                 [2] = {
                     duration = 15,
-                    until_next_rank = 500,
+                    until_next_level = 500,
                     grenades = { 2, 0 },
                     weapons = { 1, 7, 2, nil },
                 },
                 [3] = {
                     duration = 20,
-                    until_next_rank = 1000,
+                    until_next_level = 1000,
                     grenades = { 2, 0 },
                     weapons = { 1, 7, 2, nil },
                 },
                 [4] = {
                     duration = 25,
-                    until_next_rank = 2000,
+                    until_next_level = 2000,
                     grenades = { 4, 4 },
                     weapons = { 1, 7, 2, nil },
                 },
                 [5] = {
                     duration = 25,
-                    until_next_rank = nil,
+                    until_next_level = nil,
                     grenades = { 4, 4 },
                     weapons = { 1, 7, 2, nil },
                 }
@@ -213,35 +244,35 @@ local Rank = {
                 [1] = {
                     speed = 1.5,
                     speed_duration = 10,
-                    until_next_rank = 200,
+                    until_next_level = 200,
                     grenades = { 2, 0 },
                     weapons = { 1, 7, nil, nil },
                 },
                 [2] = {
                     speed = 1.6,
                     speed_duration = 10,
-                    until_next_rank = 500,
+                    until_next_level = 500,
                     grenades = { 2, 0 },
                     weapons = { 1, 7, 2, nil },
                 },
                 [3] = {
                     speed = 1.7,
                     speed_duration = 10,
-                    until_next_rank = 1000,
+                    until_next_level = 1000,
                     grenades = { 2, 0 },
                     weapons = { 1, 7, 2, nil },
                 },
                 [4] = {
                     speed = 1.8,
                     speed_duration = 10,
-                    until_next_rank = 2000,
+                    until_next_level = 2000,
                     grenades = { 4, 4 },
                     weapons = { 1, 7, 2, nil },
                 },
                 [5] = {
                     speed = 2.5,
                     speed_duration = 10,
-                    until_next_rank = nil,
+                    until_next_level = nil,
                     grenades = { 4, 4 },
                     weapons = { 1, 7, 2, nil },
                 }
@@ -279,7 +310,7 @@ local Rank = {
         killed_from_the_grave = { 5, "+5cR (Killed From Grave)" },
 
         -- Bonus Credits per bounty level:
-        bounty_exp = 25,
+        bounty_bonus = 25,
 
         -- {consecutive kills, xp rewarded}
         spree = {
@@ -427,11 +458,11 @@ function OnScriptLoad()
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
 
     if (get_var(0, "$gt") ~= "n/a") then
-
-        Rank.players = { }
+        execute_command('sv_map_reset')
+        Loadout.players = { }
         for i = 1, 16 do
             if player_present(i) then
-                Rank:InitPlayer(i)
+                Loadout:InitPlayer(i)
             end
         end
     end
@@ -443,7 +474,7 @@ end
 
 function OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
-        Rank.players = { }
+        Loadout.players = { }
     end
 end
 
@@ -452,7 +483,7 @@ function OnGameEnd()
 end
 
 function OnPlayerConnect(Ply)
-    Rank:InitPlayer(Ply)
+    Loadout:InitPlayer(Ply)
 end
 
 local function SetGrenades(DyN, Class, Level)
@@ -484,25 +515,13 @@ local function SecondsToClock(seconds)
     end
 end
 
-function Rank:OnTick()
+function Loadout:OnTick()
     for i, v in pairs(self.players) do
         if (player_present(i)) then
             if player_alive(i) then
 
                 local DyN = get_dynamic_player(i)
                 if (DyN ~= 0) then
-
-                    --self:cls(i, 25)
-                    --for k, text in pairs(v.messages) do
-                    --    if (k) then
-                    --        text.time = text.time - time_scale
-                    --        if (text.time > 0) then
-                    --            rprint(i, text.content)
-                    --        else
-                    --            k = nil
-                    --        end
-                    --    end
-                    --end
 
                     -- Check for level up:
                     self:UpdateLevel(i)
@@ -610,7 +629,7 @@ function Rank:OnTick()
                             -- apply speed:
                         elseif (key == 4 and v.key_released == 3) then
                             v.speed_timer = v.speed_timer + time_scale
-                            Rank:cls(i, 25)
+                            Loadout:cls(i, 25)
                             local time_remaining = SecondsToClock(current_class.levels[level].speed_duration - v.speed_timer)
                             self:Respond(i, "Boost Time: " .. time_remaining, rprint, 10)
                             if (v.speed_timer <= current_class.levels[level].speed_duration) then
@@ -627,27 +646,77 @@ function Rank:OnTick()
 
                             -- begin regenerating time:
                         elseif (v.regen) then
-
-                            --v.speed_cooldown = v.speed_cooldown + time_scale
+                            v.speed_cooldown = v.speed_cooldown + time_scale
                             --local time_remaining = SecondsToClock(current_class.levels[level].speed_duration - v.speed_timer)
                             --self:Respond(i, "Boost Time: " .. time_remaining, rprint, 10)
-                            --if (math.floor(v.speed_cooldown % 4) == 3) and (v.speed_timer > 0) then
-                            --    v.speed_timer = v.speed_timer - 1 / 30
-                            --    if (v.speed_timer < 0) then
-                            --        v.speed_timer = 0
-                            --    end
-                            --end
+                            if (math.floor(v.speed_cooldown % 4) == 3) and (v.speed_timer > 0) then
+                                v.speed_timer = v.speed_timer - 1 / 30
+                                if (v.speed_timer < 0) then
+                                    v.speed_timer = 0
+                                end
+                            end
+                        end
+                    end
+
+                    -- ======================================= --
+                    -- HUD LOGIC --
+                    -- ======================================= --
+                    if (self.show_rank_hud) then
+                        if (v.rank_hud_pause) then
+                            v.rank_hud_pause_duration = v.rank_hud_pause_duration - time_scale
+                            if (v.rank_hud_pause_duration <= 0) then
+                                v.rank_hud_pause = false
+                                v.rank_hud_pause_duration = self.rank_hud_pause_duration
+                            end
+                        else
+                            self:PrintRank(i)
                         end
                     end
                 end
             end
         else
+
+            -- todo:        Find alternative to this method:
+            -- todo:        This wont work as another player could join within the cooldown period and
+            -- todo:        and be assigned the previous player's ID!
             -- Player's have X seconds to return to the server, otherwise their stats are cleared:
-            v.disconnect_timer = v.disconnect_timer - time_scale
-            if (v.disconnect_timer <= 0) then
-                self.players[i] = nil
-            end
+            --v.disconnect_timer = v.disconnect_timer - time_scale
+            --if (v.disconnect_timer <= 0) then
+            --    self.players[i] = nil
+            --end
         end
+    end
+end
+
+function Loadout:PauseRankHUD(Ply, Clear)
+    local p = self.players[Ply]
+    if (Clear) then
+        self:cls(Ply, 25)
+    end
+    p.rank_hud_pause = true
+    p.rank_hud_pause_duration = self.rank_hud_pause_duration
+end
+
+function Loadout:PrintRank(Ply)
+    local t = self.players[Ply]
+    if (not t.rank_hud_pause) then
+
+        local info = self:GetLevelInfo(Ply)
+
+        self:cls(Ply, 25)
+        local str = self.rank_hud
+
+        local words = {
+            ["%%credits%%"] = info.credits,
+            ["%%lvl%%"] = info.level,
+            ["%%class%%"] = info.class,
+            ["%%req_exp%%"] = info.cr_req,
+            ["%%total_levels%%"] = #self.classes[t.class].levels,
+        }
+        for k, v in pairs(words) do
+            str = gsub(str, k, v)
+        end
+        self:Respond(Ply, str, rprint, 10, _, true)
     end
 end
 
@@ -660,23 +729,83 @@ local function CMDSplit(CMD)
     return Args
 end
 
-function Rank:OnServerCommand(Executor, Command)
+function Loadout:OnServerCommand(Executor, Command)
     local Args = CMDSplit(Command)
     if (Args == nil) then
         return
     else
         Args[1] = lower(Args[1]) or upper(Args[1])
+
+        if (Executor > 0) then
+            self:PauseRankHUD(Executor, true)
+        end
+
         local lvl = tonumber(get_var(Executor, "$lvl"))
-        if (Args[1] == self.some_command) then
-            if (lvl >= self.some_command_permission) then
+        if (Args[1] == self.level_cmd) then
+            if (lvl >= self.level_cmd_permission or (Executor == 0)) then
                 local pl = self:GetPlayers(Executor, Args)
                 if (pl) then
                     for i = 1, #pl do
                         local TargetID = tonumber(pl[i])
-                        if (TargetID ~= Executor and lvl < self.some_command_permission_other) then
+                        if (TargetID ~= Executor and lvl < self.level_cmd_permission_others) then
                             self:Respond(Executor, self.messages[4], rprint, 10)
-                        else
-                            self:GetRank(Executor, self:GetIP(TargetID), true)
+                        elseif (Args[3]:match("^%d+$")) then
+                            local t = self.players[TargetID]
+                            local level = tonumber(Args[3])
+                            if (level <= #self.classes[t.class].levels) then
+                                t.assign = true
+                                t.levels[t.class].level = level
+                                if (TargetID == Executor) then
+                                    local s = gsub(self.messages[7][1], "%%level%%", level)
+                                    self:Respond(TargetID, s, rprint, 10)
+                                else
+                                    local s1 = gsub(self.messages[7][1], "%%level%%", level)
+                                    self:Respond(TargetID, s1, rprint, 10)
+                                    local s2 = gsub(gsub(self.messages[7][2], "%%level%%", level), "%%name%%", t.name)
+                                    self:Respond(Executor, s2, rprint, 10)
+                                end
+                            else
+                                self:Respond(Executor, self.messages[8], rprint, 10)
+                            end
+                        end
+                    end
+                end
+            else
+                self:Respond(Executor, self.messages[3], rprint, 10)
+            end
+            return false
+        elseif (Args[1] == self.credits_cmd) then
+            if (lvl >= self.credits_cmd_permission or (Executor == 0)) then
+                local pl = self:GetPlayers(Executor, Args)
+                if (pl) then
+                    for i = 1, #pl do
+                        local TargetID = tonumber(pl[i])
+                        if (TargetID ~= Executor and lvl < self.credits_cmd_permission_others) then
+                            self:Respond(Executor, self.messages[4], rprint, 10)
+                        elseif (Args[3]:match("^%d+$")) then
+
+                            local t = self.players[TargetID]
+                            local credits = tonumber(Args[3])
+                            local info = self:GetLevelInfo(TargetID)
+                            local max_credits = self.classes[t.class].levels[info.level].until_next_level
+
+                            if (credits <= max_credits or max_credits == nil) then
+
+                                t.levels[t.class].credits = t.levels[t.class].credits + credits
+
+                                if (TargetID == Executor) then
+                                    local s = gsub(self.messages[10][1], "%%credits%%", credits)
+                                    self:Respond(TargetID, s, rprint, 10)
+                                else
+                                    local s1 = gsub(self.messages[10][1], "%%credits%%", credits)
+                                    self:Respond(TargetID, s1, rprint, 10)
+                                    local s2 = gsub(gsub(self.messages[10][2], "%%credits%%", credits), "%%name%%", t.name)
+                                    self:Respond(Executor, s2, rprint, 10)
+                                end
+                            else
+                                local s = gsub(self.messages[9], "%%max%%", max_credits)
+                                self:Respond(Executor, s, rprint, 10)
+                            end
                         end
                     end
                 end
@@ -689,10 +818,10 @@ function Rank:OnServerCommand(Executor, Command)
 end
 
 function OnPlayerScore(Ply)
-    Rank:UpdateCredits(Ply, { Rank.credits.score[1], Rank.credits.score[2] })
+    Loadout:UpdateCredits(Ply, { Loadout.credits.score[1], Loadout.credits.score[2] })
 end
 
-function Rank:ResetSpeed(Ply)
+function Loadout:ResetSpeed(Ply)
     self.players[Ply].regen = false
     self.players[Ply].press_count = 0
     self.players[Ply].key_released = 0
@@ -700,7 +829,7 @@ function Rank:ResetSpeed(Ply)
     execute_command("s" .. " " .. Ply .. " 1")
 end
 
-function Rank:ResetCamo(Ply, SpawnTrigger)
+function Loadout:ResetCamo(Ply, SpawnTrigger)
     self.players[Ply].shooting = 0
     self.players[Ply].active_camo = false
     self.players[Ply].flashlight_state = 0
@@ -710,7 +839,7 @@ function Rank:ResetCamo(Ply, SpawnTrigger)
     end
 end
 
-function Rank:InitPlayer(Ply)
+function Loadout:InitPlayer(Ply)
     self.players[Ply] = {
         levels = { },
 
@@ -724,10 +853,10 @@ function Rank:InitPlayer(Ply)
         button_press_delay = 0,
 
         -- OnPlayerDisconnect() --
-        disconnect_timer = 120,
+        --disconnect_timer = self.disconnect_cooldown,
 
-        -- Message handler stuff
-        messages = { paused = false },
+        rank_hud_pause = false,
+        rank_hud_pause_duration = self.rank_hud_pause_duration,
     }
     for k, _ in pairs(self.classes) do
         self.players[Ply].levels[k] = {
@@ -739,13 +868,13 @@ end
 
 -- Returns and array: {exp, level}
 function GetLvlInfo(Ply)
-    local p = Rank.players[Ply]
+    local p = Loadout.players[Ply]
     return p.levels[p.class]
 end
 
 function OnPlayerSpawn(Ply)
-    local t = Rank.players[Ply]
-    local info = Rank:GetLevelInfo(Ply)
+    local t = Loadout.players[Ply]
+    local info = Loadout:GetLevelInfo(Ply)
 
     -- Weapon Assignment Variables
     t.assign = true
@@ -758,10 +887,10 @@ function OnPlayerSpawn(Ply)
     t.last_damage = nil
     t.regen_shield = false
 
-    Rank:ResetSpeed(Ply)
-    Rank:ResetCamo(Ply, true)
+    Loadout:ResetSpeed(Ply)
+    Loadout:ResetCamo(Ply, true)
 
-    t.time_until_regen_begin = Rank.classes["Regeneration"].levels[info.level].regen_delay
+    t.time_until_regen_begin = Loadout.classes["Regeneration"].levels[info.level].regen_delay
 
     --t.messages["HUD"] = {
     --    time = 3600,
@@ -779,7 +908,7 @@ local function GetTag(ObjectType, ObjectName)
 end
 
 local function CheckDamageTag(DamageMeta)
-    for _, d in pairs(Rank.credits.tags) do
+    for _, d in pairs(Loadout.credits.tags) do
         local tag = GetTag(d[1], d[2])
         if (tag ~= nil) and (tag == DamageMeta) then
             return { d[3], d[4] }
@@ -788,7 +917,7 @@ local function CheckDamageTag(DamageMeta)
     return 0
 end
 
-function Rank:KillingSpree(Ply)
+function Loadout:KillingSpree(Ply)
     local player = get_player(Ply)
     if (player ~= 0) then
         local t = self.credits.spree
@@ -798,7 +927,8 @@ function Rank:KillingSpree(Ply)
             if (k == v[1]) or (k >= t[#t][1] and k % 5 == 0) then
                 self:UpdateCredits(Ply, { v[2], v[3] })
 
-                local bonus = (self.players[Ply].bounty * self.credits.bounty_exp) + v[4]
+                local bonus = self.credits.bounty_bonus + v[4]
+
                 self.players[Ply].bounty = self.players[Ply].bounty + bonus
 
                 local str = gsub(gsub(self.messages[5], "%%name%%", self.players[Ply].name), "%%bounty%%", self.players[Ply].bounty)
@@ -808,7 +938,7 @@ function Rank:KillingSpree(Ply)
     end
 end
 
-function Rank:MultiKill(Ply)
+function Loadout:MultiKill(Ply)
     local player = get_player(Ply)
     if (player ~= 0) then
         local k = read_word(player + 0x98)
@@ -821,7 +951,7 @@ function Rank:MultiKill(Ply)
     end
 end
 
-function Rank:InVehicle(Ply)
+function Loadout:InVehicle(Ply)
     local DyN = get_dynamic_player(Ply)
     if (DyN ~= 0) then
         local VehicleID = read_dword(DyN + 0x11C)
@@ -836,14 +966,14 @@ function Rank:InVehicle(Ply)
     return false
 end
 
-function Rank:cls(Ply, Count)
+function Loadout:cls(Ply, Count)
     Count = Count or 25
     for _ = 1, Count do
         rprint(Ply, " ")
     end
 end
 
-function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
+function Loadout:OnPlayerDeath(VictimIndex, KillerIndex)
     local killer, victim = tonumber(KillerIndex), tonumber(VictimIndex)
 
     local last_damage = self.players[victim].last_damage
@@ -924,40 +1054,44 @@ function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
     end
 end
 
-function Rank:GetLevelInfo(Ply)
+function Loadout:GetLevelInfo(Ply)
     local t = self.players[Ply]
 
     local c = t.class
     local l = t.levels[c].level
     local cr = t.levels[c].credits
 
-    local crR = self.classes[c].levels[l].until_next_rank
+    local crR = self.classes[c].levels[l].until_next_level
 
     return { class = c, level = l, credits = cr, cr_req = crR }
 end
 
-function Rank:UpdateLevel(Ply)
+function Loadout:UpdateLevel(Ply)
     local t = self.players[Ply]
-    local cr_req = self.classes[t.class].levels[t.levels[t.class].level].until_next_rank
+    local cr_req = self.classes[t.class].levels[t.levels[t.class].level].until_next_level
     if (cr_req ~= nil and t.levels[t.class].credits >= cr_req) then
         t.levels[t.class].level = t.levels[t.class].level + 1
     end
 end
 
-function Rank:UpdateCredits(Ply, Params)
+function Loadout:UpdateCredits(Ply, Params)
     local t = self.players[Ply]
     t.levels[t.class].credits = t.levels[t.class].credits + Params[1]
 
     -- t.messages[#t.messages + 1] = { time = 5, content = Params[2] }
 
     self:Respond(Ply, Params[2], rprint, 10)
+    execute_command("score " .. Ply .. " " .. t.levels[t.class].credits)
 
-    if (t.levels[t.class].credits < 0) then
+    if (not self.allow_negatives) and (t.levels[t.class].credits < 0) then
         t.levels[t.class].credits = 0
+        if (get_var(Ply, "$score") < 0) then
+            execute_command('score ' .. Ply .. " 0")
+        end
     end
 end
 
-function Rank:IsMelee(MetaID)
+function Loadout:IsMelee(MetaID)
     for i = 26, 37 do
         local Type, Name = self.credits.tags[i][1], self.credits.tags[i][2]
         if (MetaID == GetTag(Type, Name)) then
@@ -967,7 +1101,7 @@ function Rank:IsMelee(MetaID)
     return false
 end
 
-function Rank:OnDamageApplication(VictimIndex, KillerIndex, MetaID, Damage, HitString, Backtap)
+function Loadout:OnDamageApplication(VictimIndex, KillerIndex, MetaID, Damage, HitString, Backtap)
     local killer, victim = tonumber(KillerIndex), tonumber(VictimIndex)
     local hurt = true
 
@@ -1023,34 +1157,40 @@ function Rank:OnDamageApplication(VictimIndex, KillerIndex, MetaID, Damage, HitS
     end
 end
 
-function Rank:Respond(Ply, Message, Type, Color, Exclude)
+function Loadout:Respond(Ply, Message, Type, Color, Exclude, HUD)
     Color = Color or 10
     execute_command("msg_prefix \"\"")
     if (Ply == 0) then
         cprint(Message, Color)
-    elseif (not Exclude) then
-        if (Type ~= say_all) then
-            Type(Ply, Message)
-        else
-            Type(Message)
-        end
+
     else
-        for i = 1, 16 do
-            if player_present(i) and (i ~= Ply) then
-                Type(i, Message)
+        if (not HUD) then
+            self:PauseRankHUD(Ply)
+        end
+        if (not Exclude) then
+            if (Type ~= say_all) then
+                Type(Ply, Message)
+            else
+                Type(Message)
+            end
+        else
+            for i = 1, 16 do
+                if player_present(i) and (i ~= Ply) then
+                    Type(i, Message)
+                end
             end
         end
     end
     execute_command("msg_prefix \" " .. self.server_prefix .. "\"")
 end
 
-function Rank:GetPlayers(Executor, Args)
+function Loadout:GetPlayers(Executor, Args)
     local pl = { }
-    if (Args[2] == "me" or Args[2] == nil) then
+    if (Args[2] == "me") then
         if (Executor ~= 0) then
             table.insert(pl, Executor)
         else
-            self:Respond(Executor, "The server cannot execute this command!", rprint, 10)
+            self:Respond(Executor, "Please enter a valid player id", rprint, 10)
         end
     elseif (Args[2] ~= nil) and (Args[2]:match("^%d+$")) then
         if player_present(Args[2]) then
@@ -1090,19 +1230,19 @@ function GetXYZ(DyN)
 end
 
 function OnServerCommand(P, C)
-    return Rank:OnServerCommand(P, C)
+    return Loadout:OnServerCommand(P, C)
 end
 
 function OnPlayerDeath(V, K)
-    return Rank:OnPlayerDeath(V, K)
+    return Loadout:OnPlayerDeath(V, K)
 end
 
 function OnTick()
-    return Rank:OnTick()
+    return Loadout:OnTick()
 end
 
 function OnDamageApplication(V, K, M, D, H, B)
-    return Rank:OnDamageApplication(V, K, M, D, H, B)
+    return Loadout:OnDamageApplication(V, K, M, D, H, B)
 end
 
 function GetVehicleTag(Vehicle)
