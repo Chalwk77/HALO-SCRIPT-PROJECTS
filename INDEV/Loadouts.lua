@@ -90,6 +90,7 @@ local Rank = {
                     increment = 0.1100,
                     regen_rate = 1,
                     until_next_rank = nil,
+                    -- {plasma,frags}
                     grenades = { 4, 4 },
                     weapons = { 1, 7, 2, nil },
                     shield_regen_delay = 50,
@@ -475,11 +476,19 @@ end
 
 function Rank:OnTick()
     for i, v in pairs(self.players) do
-        if (i) then
+        if (player_present(i)) then
             if player_alive(i) then
 
                 local DyN = get_dynamic_player(i)
                 if (DyN ~= 0) then
+
+                    local info = self:GetLevelInfo(i)
+                    self:cls(i, 25)
+                    local str = "Class: [" .. info.class .. "] Credits: [" .. info.credits .. "/" .. info.cr_req .. " ] Level: [" .. info.level .. "]"
+                    self:Respond(i, str, rprint, 10)
+
+                    -- Check for level up:
+                    self:UpdateLevel(i)
 
                     local level = v.levels[v.class].level
                     local current_class = self.classes[v.class]
@@ -556,9 +565,7 @@ function Rank:OnTick()
                             -- apply speed:
                         elseif (key == 4 and v.key_released == 3) then
                             v.speed_timer = v.speed_timer + time_scale
-                            for _ = 1, 25 do
-                                rprint(i, " ")
-                            end
+                            Rank:cls(i, 25)
                             local time_remaining = SecondsToClock(current_class.levels[level].speed_duration - v.speed_timer)
                             self:Respond(i, "Boost Time: " .. time_remaining, rprint, 10)
                             if (v.speed_timer <= current_class.levels[level].speed_duration) then
@@ -572,10 +579,12 @@ function Rank:OnTick()
                         elseif (case1 or case2 or case3 or case4) then
                             self:ResetSpeed(i)
                             v.regen = true
+
                             -- begin regenerating time:
                         elseif (v.regen) then
                             v.speed_cooldown = v.speed_cooldown + time_scale
-
+                            local time_remaining = SecondsToClock(current_class.levels[level].speed_duration - v.speed_timer)
+                            self:Respond(i, "Boost Time: " .. time_remaining, rprint, 10)
                             if (math.floor(v.speed_cooldown % 4) == 3) and (v.speed_timer > 0) then
                                 v.speed_timer = v.speed_timer - 1 / 30
                                 if (v.speed_timer < 0) then
@@ -585,6 +594,12 @@ function Rank:OnTick()
                         end
                     end
                 end
+            end
+        else
+            -- Player's have X seconds to return to the server, otherwise their stats are cleared:
+            v.disconnect_timer = v.disconnect_timer - 1 / 30
+            if (v.disconnect_timer <= 0) then
+                self.players[i] = nil
             end
         end
     end
@@ -649,6 +664,8 @@ function Rank:InitPlayer(Ply, Reset)
 
             speed_cooldown = 0,
             speed_timer = 0,
+
+            disconnect_timer = 120,
         }
         for k, _ in pairs(self.classes) do
             self.players[Ply].levels[k] = {
@@ -656,8 +673,6 @@ function Rank:InitPlayer(Ply, Reset)
                 level = self.starting_level,
             }
         end
-    else
-        self.players[Ply] = nil
     end
 end
 
@@ -747,6 +762,13 @@ function Rank:InVehicle(Ply)
     return false
 end
 
+function Rank:cls(Ply, Count)
+    Count = Count or 25
+    for _ = 1, Count do
+        rprint(Ply, " ")
+    end
+end
+
 function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
     local killer, victim = tonumber(KillerIndex), tonumber(VictimIndex)
 
@@ -823,17 +845,27 @@ function Rank:GetLevelInfo(Ply)
     local l = t.levels[c].level
     local cr = t.levels[c].credits
 
-    return { class = c, level = l, credits = cr }
+    local crR = self.classes[c].levels[l].until_next_rank
+
+    return { class = c, level = l, credits = cr, cr_req = crR }
+end
+
+function Rank:UpdateLevel(Ply)
+    local info = self:GetLevelInfo(Ply)
+    local cr_req = self.classes[info.class].levels[info.level].until_next_rank
+    if (cr_req ~= nil) and (info.credits >= cr_req) then
+        info.level = info.level + 1
+    end
 end
 
 function Rank:UpdateCredits(Ply, Params)
 
-    local info = self:GetLevelInfo(Ply)
-    info.credits = info.credits + Params[1]
+    local i = self:GetLevelInfo(Ply)
+    i.credits = i.credits + Params[1]
     self:Respond(Ply, Params[2], rprint, 10)
 
-    if (info.credits < 0) then
-        info.credits = 0
+    if (i.credits < 0) then
+        i.credits = 0
     end
 end
 
