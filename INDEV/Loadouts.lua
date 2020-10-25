@@ -403,13 +403,17 @@ local gmatch, gsub = string.gmatch, string.gsub
 local lower, upper = string.lower, string.upper
 
 function OnScriptLoad()
+
     register_callback(cb["EVENT_TICK"], "OnTick")
-    register_callback(cb["EVENT_DIE"], "OnPlayerDeath")
+
     register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
+    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
+
+    register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
+    register_callback(cb["EVENT_DIE"], "OnPlayerDeath")
     register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
     register_callback(cb["EVENT_SCORE"], "OnPlayerScore")
-    register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
-    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
+
     register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
     if (get_var(0, "$gt") ~= "n/a") then
@@ -417,7 +421,7 @@ function OnScriptLoad()
         Rank.players = { }
         for i = 1, 16 do
             if player_present(i) then
-                Rank:InitPlayer(i, false)
+                Rank:InitPlayer(i)
             end
         end
     end
@@ -438,11 +442,7 @@ function OnGameEnd()
 end
 
 function OnPlayerConnect(Ply)
-    Rank:InitPlayer(Ply, false)
-end
-
-function OnPlayerDisconnect(Ply)
-    Rank:InitPlayer(Ply, true)
+    Rank:InitPlayer(Ply)
 end
 
 local function SetGrenades(DyN, Class, Level)
@@ -597,7 +597,7 @@ function Rank:OnTick()
             end
         else
             -- Player's have X seconds to return to the server, otherwise their stats are cleared:
-            v.disconnect_timer = v.disconnect_timer - 1 / 30
+            v.disconnect_timer = v.disconnect_timer - time_scale
             if (v.disconnect_timer <= 0) then
                 self.players[i] = nil
             end
@@ -654,25 +654,23 @@ function Rank:ResetSpeed(Ply)
     execute_command("s" .. " " .. Ply .. " 1")
 end
 
-function Rank:InitPlayer(Ply, Reset)
-    if (not Reset) then
-        self.players[Ply] = {
-            levels = { },
-            class = self.default_class,
-            name = get_var(Ply, "$name"),
-            button_press_delay = 0,
+function Rank:InitPlayer(Ply)
+    self.players[Ply] = {
+        levels = { },
+        class = self.default_class,
+        name = get_var(Ply, "$name"),
+        button_press_delay = 0,
 
-            speed_cooldown = 0,
-            speed_timer = 0,
+        speed_cooldown = 0,
+        speed_timer = 0,
 
-            disconnect_timer = 120,
+        disconnect_timer = 120,
+    }
+    for k, _ in pairs(self.classes) do
+        self.players[Ply].levels[k] = {
+            credits = 0,
+            level = self.starting_level,
         }
-        for k, _ in pairs(self.classes) do
-            self.players[Ply].levels[k] = {
-                credits = 0,
-                level = self.starting_level,
-            }
-        end
     end
 end
 
@@ -795,23 +793,22 @@ function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
 
         -- Calculate PvP Bonus:
         if (self.credits.use_pvp_bonus) then
-
             local enemy_kills = tonumber(get_var(victim, "$kills"))
             local enemy_deaths = tonumber(get_var(victim, "$deaths"))
             local krd = (enemy_kills / enemy_deaths)
-
             local pvp_bonus = self.credits.pvp_bonus(krd)
-
             if (pvp_bonus[1] > 0) then
                 local str = gsub(pvp_bonus[2], "%%credits%%", pvp_bonus[1])
                 self:UpdateCredits(killer, { pvp_bonus[1], str })
             end
         end
 
+        -- Vehicle check logic:
         local vehicle = self:InVehicle(killer)
         if (vehicle) then
             local t = self.credits.tags.vehicles
             for _, v in pairs(t) do
+                -- validate vehicle tag:
                 if (vehicle == v[2]) then
                     -- vehicle squash:
                     if (last_damage == GetTag(t.collision[1], t.collision[2])) then
@@ -859,13 +856,13 @@ function Rank:UpdateLevel(Ply)
 end
 
 function Rank:UpdateCredits(Ply, Params)
+    local t = self.players[Ply]
+    t.levels[t.class].credits = t.levels[t.class].credits + Params[1]
 
-    local i = self:GetLevelInfo(Ply)
-    i.credits = i.credits + Params[1]
     self:Respond(Ply, Params[2], rprint, 10)
 
-    if (i.credits < 0) then
-        i.credits = 0
+    if (t.levels[t.class].credits < 0) then
+        t.levels[t.class].credits = 0
     end
 end
 
