@@ -29,6 +29,8 @@ local Rank = {
         },
         [3] = { "You do not have permission to execute this command." },
         [4] = { "You do not have permission to execute this command on other players" },
+        [5] = "%name% has a bounty of %bounty% exp!",
+        [6] = "%name% collected the bounty of %bounty% credits on %victim%!"
     },
 
     classes = {
@@ -276,19 +278,22 @@ local Rank = {
         -- Killed from the grave (credits added to killer)
         killed_from_the_grave = { 5, "+5cR (Killed From Grave)" },
 
+        -- Bonus Credits per bounty level:
+        bounty_exp = 25,
+
         -- {consecutive kills, xp rewarded}
         spree = {
-            { 5, 5, "+5cR (spree)" },
-            { 10, 10, "+10cR (spree)" },
-            { 15, 15, "+15cR (spree)" },
-            { 20, 20, "+20cR (spree)" },
-            { 25, 25, "+25cR (spree)" },
-            { 30, 30, "+30cR (spree)" },
-            { 35, 35, "+35cR (spree)" },
-            { 40, 40, "+40cR (spree)" },
-            { 45, 45, "+45cR (spree)" },
-            -- Award 50 credits for every 5 kills at or above 50
-            { 50, 50, "+50cR (spree)" },
+            { 5, 5, "+5cR (spree)", 1 },
+            { 10, 10, "+10cR (spree)", 2 },
+            { 15, 15, "+15cR (spree)", 3 },
+            { 20, 20, "+20cR (spree)", 4 },
+            { 25, 25, "+25cR (spree)", 5 },
+            { 30, 30, "+30cR (spree)", 6 },
+            { 35, 35, "+35cR (spree)", 7 },
+            { 40, 40, "+40cR (spree)", 8 },
+            { 45, 45, "+45cR (spree)", 9 },
+            -- Award 50 credits for every 5 kills at or above 50 and +10 bounty level
+            { 50, 50, "+50cR (spree)", 10 },
         },
 
         -- kill-combo required, credits awarded
@@ -569,9 +574,9 @@ function Rank:OnTick()
 
                         local shooting = read_float(DyN + 0x490)
                         if (shooting ~= v.shooting and shooting == 1) then
-
+                            -- shooting
                         else
-                            print('not shooting')
+                            -- not shooting
                         end
                         v.shooting = shooting
 
@@ -708,6 +713,8 @@ end
 function Rank:InitPlayer(Ply)
     self.players[Ply] = {
         levels = { },
+
+        bounty = 0,
         class = self.default_class,
         name = get_var(Ply, "$name"),
 
@@ -786,9 +793,16 @@ function Rank:KillingSpree(Ply)
     if (player ~= 0) then
         local t = self.credits.spree
         local k = read_word(player + 0x96)
+
         for _, v in pairs(t) do
             if (k == v[1]) or (k >= t[#t][1] and k % 5 == 0) then
                 self:UpdateCredits(Ply, { v[2], v[3] })
+
+                local bonus = (self.players[Ply].bounty * self.credits.bounty_exp) + v[4]
+                self.players[Ply].bounty = self.players[Ply].bounty + bonus
+
+                local str = gsub(gsub(self.messages[5], "%%name%%", self.players[Ply].name), "%%bounty%%", self.players[Ply].bounty)
+                self:Respond(_, str, say_all, 10)
             end
         end
     end
@@ -845,6 +859,17 @@ function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
     -- self.players[victim].messages["HUD"] = nil
 
     if (pvp) then
+
+        local v = self.players[victim]
+        local k = self.players[killer]
+
+        if (v.bounty > 0) then
+
+            local str = self.messages[6]
+            str = gsub(gsub(gsub(str, "%%name%%", k.name), "%%bounty%%", v.bounty), "%%victim%%", v.name)
+
+            self:UpdateCredits(killer, { v.bounty, str })
+        end
 
         self:MultiKill(killer)
         self:KillingSpree(killer)
@@ -974,9 +999,19 @@ function Rank:OnDamageApplication(VictimIndex, KillerIndex, MetaID, Damage, HitS
                     Damage = Damage + (self.classes[k.class].levels[k_info.level].melee_damage_multiplier)
                 end
                 hurt = true
+            elseif (v.class == "Cloaking") then
+                local DyN = get_dynamic_player(victim)
+                if (DyN ~= 0) then
+                    local invisible = read_float(DyN + 0x37C)
+                    if (v.active_camo) and (invisible ~= 0) then
+                        self:ResetCamo(victim)
+                    end
+                end
             end
+
             k.last_damage = MetaID
         end
+
         if (v.class == "Armor Boost") and (self.classes[v.class].levels[v_info.level].fall_damage_immunity) then
             if (MetaID == self.credits.tags[1] or MetaID == self.credits.tags[2]) then
                 hurt = false
