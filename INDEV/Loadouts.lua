@@ -847,6 +847,7 @@ function Rank:GetLevelInfo(Ply)
     return { class = c, level = l, credits = cr, cr_req = crR }
 end
 
+-- todo: figure out why levels are not updating!
 function Rank:UpdateLevel(Ply)
     local info = self:GetLevelInfo(Ply)
     local cr_req = self.classes[info.class].levels[info.level].until_next_rank
