@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Top Ranked (v1.6), for SAPP (PC & CE)
+Script Name: Top Ranked (v1.7), for SAPP (PC & CE)
 Description: A fully integrated ranking system for SAPP servers.
 Players earn credits for killing, scoring and achievements, such as sprees, kill-combos and more.
 
@@ -208,6 +208,7 @@ function OnScriptLoad()
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
     if (get_var(0, "$gt") ~= "n/a") then
         Rank:CheckFile()
+
         for i = 1, 16 do
             if player_present(i) then
                 Rank:AddNewPlayer(i, true)
@@ -528,12 +529,6 @@ function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
 
     if (pvp) then
 
-        if (self.credits.zombies.enabled) then
-            if (kteam == self.credits.zombies.zombie_team) and (vteam == self.credits.zombies.human_team) then
-                self:UpdateCredits(killer, { self.credits.zombies.credits[1], self.credits.zombies.credits[2] })
-            end
-        end
-
         self:MultiKill(killer)
         self:KillingSpree(killer)
         if (not player_alive(killer)) then
@@ -545,7 +540,6 @@ function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
             local t = self.credits.tags.vehicles
             for _, v in pairs(t) do
                 if (vehicle == v[2]) then
-                    -- vehicle squash:
                     if (last_damage == GetTag(t.collision[1], t.collision[2])) then
                         return self:UpdateCredits(killer, { v[3], v[4] })
                     else
@@ -554,7 +548,14 @@ function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
                 end
             end
         end
-        return self:UpdateCredits(killer, CheckDamageTag(last_damage))
+
+        local case = (kteam == self.credits.zombies.zombie_team and vteam == self.credits.zombies.human_team)
+        local zombie_infect = (self.credits.zombies.enabled) and (case)
+        if (zombie_infect) then
+            self:UpdateCredits(killer, { self.credits.zombies.credits[1], self.credits.zombies.credits[2] })
+        else
+            return self:UpdateCredits(killer, CheckDamageTag(last_damage))
+        end
 
     elseif (server) then
         self:UpdateCredits(victim, { self.credits.server[1], self.credits.server[2] })
