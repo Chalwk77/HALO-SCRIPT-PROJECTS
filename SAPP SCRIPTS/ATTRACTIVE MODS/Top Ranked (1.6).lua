@@ -208,7 +208,6 @@ function OnScriptLoad()
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
     if (get_var(0, "$gt") ~= "n/a") then
         Rank:CheckFile()
-
         for i = 1, 16 do
             if player_present(i) then
                 Rank:AddNewPlayer(i, true)
