@@ -911,7 +911,6 @@ function Rank:GetLevelInfo(Ply)
     return { class = c, level = l, credits = cr, cr_req = crR }
 end
 
--- todo: figure out why levels are being reset back to 1!!
 function Rank:UpdateLevel(Ply)
     local t = self.players[Ply]
     local cr_req = self.classes[t.class].levels[t.levels[t.class].level].until_next_rank
