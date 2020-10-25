@@ -1,11 +1,7 @@
 --[[
 --=====================================================================================================--
-Script Name: LoadOut, for SAPP (PC & CE)
+Script Name: Loadout, for SAPP (PC & CE)
 Description: N/A
-
-~ acknowledgements ~
-Concept credit goes to OSH Clan, a gaming community operating on Halo CE.
-- website:  https://oldschoolhalo.boards.net/
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -16,132 +12,23 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]]--
 
 api_version = "1.12.0.0"
--- Configuration Begins --
-local loadout = {
 
-    -- A message relay function temporarily removes the server prefix
-    -- and will restore it to this when the relay is finished
-    server_prefix = "**SAPP**",
+local Rank = {
 
-    default_class = "Regeneration",
+    default_class = "Recon",
     starting_level = 1,
 
-    -- Should we allow negative experience?
-    allow_negative_exp = false,
-
-    -- Command used to display information about your current class:
-    info_command = "help",
-
-    -- If a player types /info_command, how long should the information be on screen for? (in seconds)
-    help_hud_duration = 5,
-
-    -- Enable or disable rank HUD:
-    show_rank_hud = true,
-
-    -- If a player types any command, the rank_hud info will disappear to prevent it from overwriting other information.
-    -- How long should rank_hud info disappear for?
-    rank_hud_pause_duration = 5,
-    rank_hud = "Class: %class% | Level: %lvl%/%total_levels% | Exp: %exp%->%req_exp%",
-
-    ---- Command Syntax: /rank_up_command <pid>
-    --level_up_command = "levelup",
-    ---- Command Syntax: /rank_up_command <pid>
-    --level_down_command = "leveldown",
-    ---- Minimum permission level required to execute /level_up_command or /level_down_command
-    --change_level_permission_node = 2,
-
     messages = {
-
-        flag_score = "Flag Score [+%exp%exp]",
-        flag_score_team = "Flag Team Score [+%exp%exp]",
-        new_bounty = "%name% has a bounty of %bounty% exp!",
-
-        death_messages = {
-            head_shot = "Head Shot: [+%exp%exp]",
-            melee = "Melee: [+%exp%exp]",
-            frag_kill = "Frag Kill: [+%exp%exp]",
-            plasma_stick = "Plasma Stick: [+%exp%exp]",
-            plasma_explosion = "Plasma Explosion: [+%exp%exp]",
-            skill_bonus = "Skill Bonus: [+%exp%exp]",
-            pvp = "PvP: [+%exp%exp]",
-            pvp_bonus = "PvP Bonus: [+%exp%exp]",
-            suicide = "Suicide: [%exp%exp]",
-            betrayal = "Betrayal: [%exp%exp]",
-            vehicle_squash = "Vehicle Squash: [%exp%exp]",
-            guardians = "Guardians: [%exp%exp]",
-            server = "Server: [%exp%exp]",
-            fall_damage = "Fall Damage: [%exp%exp]",
-            distance_damage = "Distance Damage: [%exp%exp]",
-            unknown_or_glitched = "Unknown Death: [%exp%exp]",
-            killed_from_the_grave = "Kill From Grave: [%exp%exp]",
-            spree = "Spree: (%kills%x kills) - [%exp%exp]",
-            multi_kill = "Multi-Kill: (%kills%x kills) - [%exp%exp]"
-        }
-    },
-
-    experience = {
-
-        pvp = 15,
-        use_pvp_bonus = true,
-        pvp_bonus = function(EnemyKDR)
-            return tonumber((10 * EnemyKDR))
-        end,
-
-        melee = 5,
-        suicide = -15,
-        betrayal = -15,
-        vehicle_squash = 5,
-        guardians = 15,
-        server = -15,
-        fall_damage = -15,
-        distance_damage = -15,
-
-        -- Skill Bonus for killing an enemy with a higher class level than you:
-        skill_bonus = 5,
-
-        flag_score = 100,
-        flag_score_team = 10,
-
-        head_shot = 5,
-        beat_down = 5,
-        frag_kill = 5,
-        plasma_stick = 5,
-        plasma_explosion = 5,
-        killed_from_the_grave = 10,
-
-        -- Bonus EXP per bounty level:
-        bounty_exp = 25,
-
-        -- consecutive kills required, xp rewarded, bounty levels added
-        spree = {
-            { 5, 5, 1 },
-            { 10, 10, 2 },
-            { 15, 15, 3 },
-            { 20, 20, 4 },
-            { 25, 25, 5 },
-            { 30, 30, 6 },
-            { 35, 35, 7 },
-            { 40, 40, 8 },
-            { 45, 45, 9 },
-
-            -- Award 50 XP for every 5 kills at or above 50 and +1 bounty level
-            { 50, 50, 10 },
+        [1] = {
+            "You are ranked %rank% out of %totalplayers%!",
+            "Credits: %credits%",
         },
-
-        -- multi-kills required, xp rewarded
-        multi_kill = {
-            { 2, 8 },
-            { 3, 10 },
-            { 4, 12 },
-            { 5, 14 },
-            { 6, 16 },
-            { 7, 18 },
-            { 8, 20 },
-            { 9, 23 },
-
-            -- Award 25 XP every 2 kills at or above 10
-            { 10, 25 },
-        }
+        [2] = {
+            "%name% is ranked %rank% out of %totalplayers%!",
+            "Credits: %credits%",
+        },
+        [3] = { "You do not have permission to execute this command." },
+        [4] = { "You do not have permission to execute this command on other players" },
     },
 
     classes = {
@@ -157,52 +44,54 @@ local loadout = {
             },
             levels = {
                 [1] = {
-                    -- Amount of health regenerated. (1 is full health)
-                    increment = 0.0300,
                     -- Health will start regenerating this many seconds after shields are full:
                     regen_delay = 5,
+                    -- Amount of health regenerated. (1 is full health)
+                    increment = 0.0300,
                     -- Time (in seconds) between each incremental increase in health:
                     regen_rate = 1,
-                    -- Experience Points required to rank up:
+                    -- Credits required to rank up:
                     until_next_rank = 200,
-                    grenades = { nil, nil },
-                    weapons = { 2, nil, nil, nil },
+                    -- GRENADES | <frag/plasma> (set to nil to use default grenade settings)
+                    grenades = { 2, 0 },
+                    -- WEAPONS | Slot 1, Slot 2 Slot 3, Slot 4
+                    weapons = { 1, 7, nil, nil },
                     shield_regen_delay = nil,
                 },
                 [2] = {
-                    increment = 0.0550,
                     regen_delay = 4,
+                    increment = 0.0550,
                     regen_rate = 1,
                     until_next_rank = 500,
-                    grenades = { 2, 2 },
-                    weapons = { 1, 2, nil, nil },
+                    grenades = { 2, 0 },
+                    weapons = { 1, 7, 2, nil },
                     shield_regen_delay = nil,
                 },
                 [3] = {
-                    increment = 0.750,
                     regen_delay = 3,
+                    increment = 0.750,
                     regen_rate = 1,
                     until_next_rank = 1000,
-                    grenades = { 4, 4 },
-                    weapons = { 1, 2, 4, nil },
+                    grenades = { 2, 0 },
+                    weapons = { 1, 7, 2, nil },
                     shield_regen_delay = nil,
                 },
                 [4] = {
-                    increment = 0.950,
                     regen_delay = 2,
+                    increment = 0.950,
                     regen_rate = 1,
                     until_next_rank = 2000,
-                    grenades = { 5, 5 },
-                    weapons = { 1, 2, nil, nil },
+                    grenades = { 4, 4 },
+                    weapons = { 1, 7, 2, nil },
                     shield_regen_delay = nil,
                 },
                 [5] = {
-                    increment = 0.1100,
                     regen_delay = 0,
+                    increment = 0.1100,
                     regen_rate = 1,
-                    until_next_rank = 3500,
-                    grenades = { 7, 7 },
-                    weapons = { 1, 2, nil, nil },
+                    until_next_rank = nil,
+                    grenades = { 4, 4 },
+                    weapons = { 1, 7, 2, nil },
                     shield_regen_delay = 50,
                 }
             },
@@ -226,40 +115,40 @@ local loadout = {
                     -- Set to true to enable fall damage immunity:
                     fall_damage_immunity = false,
                     melee_damage_multiplier = 0,
-                    grenades = { nil, nil },
-                    weapons = { 1, 2, nil, nil },
+                    grenades = { 2, 0 },
+                    weapons = { 1, 7, nil, nil },
                 },
                 [2] = {
                     until_next_rank = 500,
                     damage_resistance = 1.30,
                     fall_damage_immunity = false,
                     melee_damage_multiplier = 0,
-                    grenades = { nil, nil },
-                    weapons = { 1, 2, 10, nil },
+                    grenades = { 2, 0 },
+                    weapons = { 1, 7, 2, nil },
                 },
                 [3] = {
                     until_next_rank = 1000,
                     damage_resistance = 1.40,
                     fall_damage_immunity = false,
                     melee_damage_multiplier = 200,
-                    grenades = { nil, nil },
-                    weapons = { 1, 2, 10, nil },
+                    grenades = { 2, 0 },
+                    weapons = { 1, 7, 2, nil },
                 },
                 [4] = {
                     until_next_rank = 2000,
                     damage_resistance = 1.50,
                     fall_damage_immunity = false,
                     melee_damage_multiplier = 200,
-                    grenades = { nil, nil },
-                    weapons = { 1, 2, 10, nil },
+                    grenades = { 4, 4 },
+                    weapons = { 1, 7, 2, nil },
                 },
                 [5] = {
                     until_next_rank = nil,
                     damage_resistance = 1.55,
                     fall_damage_immunity = true,
                     melee_damage_multiplier = 200,
-                    grenades = { 7, 7 },
-                    weapons = { 1, 2, 10, nil },
+                    grenades = { 4, 4 },
+                    weapons = { 1, 7, 2, nil },
                 }
             }
         },
@@ -277,28 +166,28 @@ local loadout = {
             levels = {
                 [1] = {
                     until_next_rank = 200,
-                    grenades = { nil, nil },
-                    weapons = { 1, 2, nil, nil },
+                    grenades = { 2, 0 },
+                    weapons = { 1, 7, nil, nil },
                 },
                 [2] = {
                     until_next_rank = 500,
-                    grenades = { nil, nil },
-                    weapons = { 1, 2, nil, nil },
+                    grenades = { 2, 0 },
+                    weapons = { 1, 7, 2, nil },
                 },
                 [3] = {
                     until_next_rank = 1000,
-                    grenades = { nil, nil },
-                    weapons = { 1, 2, nil, nil },
+                    grenades = { 2, 0 },
+                    weapons = { 1, 7, 2, nil },
                 },
                 [4] = {
                     until_next_rank = 2000,
-                    grenades = { nil, nil },
-                    weapons = { 1, 2, nil, nil },
+                    grenades = { 4, 4 },
+                    weapons = { 1, 7, 2, nil },
                 },
                 [5] = {
-                    until_next_rank = 3500,
-                    grenades = { nil, nil },
-                    weapons = { 1, 2, nil, nil },
+                    until_next_rank = nil,
+                    grenades = { 4, 4 },
+                    weapons = { 1, 7, 2, nil },
                 }
             }
         },
@@ -315,33 +204,172 @@ local loadout = {
             },
             levels = {
                 [1] = {
+                    speed = 1.5,
+                    speed_duration = 10,
                     until_next_rank = 200,
-                    grenades = { nil, nil },
-                    weapons = { 1, 2, nil, nil },
+                    grenades = { 2, 0 },
+                    weapons = { 1, 7, nil, nil },
                 },
                 [2] = {
+                    speed = 1.6,
+                    speed_duration = 10,
                     until_next_rank = 500,
-                    grenades = { nil, nil },
-                    weapons = { 1, 2, nil, nil },
+                    grenades = { 2, 0 },
+                    weapons = { 1, 7, 2, nil },
                 },
                 [3] = {
+                    speed = 1.7,
+                    speed_duration = 10,
                     until_next_rank = 1000,
-                    grenades = { nil, nil },
-                    weapons = { 1, 2, nil, nil },
+                    grenades = { 2, 0 },
+                    weapons = { 1, 7, 2, nil },
                 },
                 [4] = {
+                    speed = 1.8,
+                    speed_duration = 10,
                     until_next_rank = 2000,
-                    grenades = { nil, nil },
-                    weapons = { 1, 2, nil, nil },
+                    grenades = { 4, 4 },
+                    weapons = { 1, 7, 2, nil },
                 },
                 [5] = {
-                    until_next_rank = 3500,
-                    grenades = { nil, nil },
-                    weapons = { 1, 2, nil, nil },
+                    speed = 2.5,
+                    speed_duration = 10,
+                    until_next_rank = nil,
+                    grenades = { 4, 4 },
+                    weapons = { 1, 7, 2, nil },
                 }
             }
         }
     },
+
+    credits = {
+
+        -- If true, players will receive bonus credits based on their victim's KDR
+        use_pvp_bonus = true,
+        pvp_bonus = function(EnemyKDR)
+            local cr = tonumber((10 * EnemyKDR))
+            return { cr, "+%credits% (PvP Bonus)" }
+        end,
+
+        -- Score (credits added):
+        score = { 25, "+25cR (Flag Cap)" },
+
+        head_shot = { 5, "+5cR (head shot!)" },
+
+        -- Killed by Server (credits deducted):
+        server = { -0, "0cR (Killed by Server)" },
+
+        -- killed by guardians (credits deducted):
+        guardians = { -5, "-5cR (Killed by Guardians)" },
+
+        -- suicide (credits deducted):
+        suicide = { -10, "-10cR (Suicide)" },
+
+        -- betrayal (credits deducted):
+        betrayal = { -15, "-15cR (Betrayal)" },
+
+        -- Killed from the grave (credits added to killer)
+        killed_from_the_grave = { 5, "+5cR (Killed From Grave)" },
+
+        -- {consecutive kills, xp rewarded}
+        spree = {
+            { 5, 5, "+5cR (spree)" },
+            { 10, 10, "+10cR (spree)" },
+            { 15, 15, "+15cR (spree)" },
+            { 20, 20, "+20cR (spree)" },
+            { 25, 25, "+25cR (spree)" },
+            { 30, 30, "+30cR (spree)" },
+            { 35, 35, "+35cR (spree)" },
+            { 40, 40, "+40cR (spree)" },
+            { 45, 45, "+45cR (spree)" },
+            -- Award 50 credits for every 5 kills at or above 50
+            { 50, 50, "+50cR (spree)" },
+        },
+
+        -- kill-combo required, credits awarded
+        multi_kill = {
+            { 2, 8, "+8cR (multi-kill)" },
+            { 3, 10, "+10cR (multi-kill)" },
+            { 4, 12, "+12cR (multi-kill)" },
+            { 5, 14, "+14cR (multi-kill)" },
+            { 6, 16, "+16cR (multi-kill)" },
+            { 7, 18, "+18cR (multi-kill)" },
+            { 8, 20, "+20cR (multi-kill)" },
+            { 9, 23, "+23cR (multi-kill)" },
+            -- Award 25 credits every 2 kills at or above 10 kill-combos
+            { 10, 25, "+25cR (multi-kill)" },
+        },
+
+        tags = {
+
+            --
+            -- tag {type, name, credits}
+            --
+
+            -- FALL DAMAGE --
+            [1] = { "jpt!", "globals\\falling", -3, "-3cR (Fall Damage)" },
+            [2] = { "jpt!", "globals\\distance", -4, "-4cR (Distance Damage)" },
+
+            -- VEHICLE PROJECTILES --
+            [3] = { "jpt!", "vehicles\\ghost\\ghost bolt", 7, "+7cR (Ghost Bolt)" },
+            [4] = { "jpt!", "vehicles\\scorpion\\bullet", 6, "+6cR (Tank Bullet)" },
+            [5] = { "jpt!", "vehicles\\warthog\\bullet", 6, "+6cR (Warthog Bullet)" },
+            [6] = { "jpt!", "vehicles\\c gun turret\\mp bolt", 7, "+7cR (Turret Bolt)" },
+            [7] = { "jpt!", "vehicles\\banshee\\banshee bolt", 7, "+7cR (Banshee Bolt)" },
+            [8] = { "jpt!", "vehicles\\scorpion\\shell explosion", 10, "+10cR (Tank Shell)" },
+            [9] = { "jpt!", "vehicles\\banshee\\mp_fuel rod explosion", 10, "+10cR (Banshee Fuel-Rod Explosion)" },
+
+            -- WEAPON PROJECTILES --
+            [10] = { "jpt!", "weapons\\pistol\\bullet", 5, "+5cR (Pistol Bullet)" },
+            [11] = { "jpt!", "weapons\\shotgun\\pellet", 6, "+6cR (Shotgun Pallet)" },
+            [12] = { "jpt!", "weapons\\plasma rifle\\bolt", 4, "+4cR (Plasma Rifle Bolt)" },
+            [13] = { "jpt!", "weapons\\needler\\explosion", 8, "+8cR (Needler Explosion)" },
+            [14] = { "jpt!", "weapons\\plasma pistol\\bolt", 4, "+4cR (Plasma Bolt)" },
+            [15] = { "jpt!", "weapons\\assault rifle\\bullet", 5, "+5cR (Assault Rifle Bullet)" },
+            [16] = { "jpt!", "weapons\\needler\\impact damage", 4, "+4cR (Needler Impact Damage)" },
+            [17] = { "jpt!", "weapons\\flamethrower\\explosion", 5, "+5cR (Flamethrower)" },
+            [18] = { "jpt!", "weapons\\rocket launcher\\explosion", 8, "+8cR (Rocket Launcher Explosion)" },
+            [19] = { "jpt!", "weapons\\needler\\detonation damage", 3, "+3cR (Needler Detonation Damage)" },
+            [20] = { "jpt!", "weapons\\plasma rifle\\charged bolt", 4, "+4cR (Plasma Rifle Bolt)" },
+            [21] = { "jpt!", "weapons\\sniper rifle\\sniper bullet", 6, "+6cR (Sniper Rifle Bullet)" },
+            [22] = { "jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_explosion", 8, "+8cR (Plasma Cannon Explosion)" },
+
+            -- GRENADES --
+            [23] = { "jpt!", "weapons\\frag grenade\\explosion", 8, "+8cR (Frag Explosion)" },
+            [24] = { "jpt!", "weapons\\plasma grenade\\attached", 7, "+7cR (Plasma Grenade - attached)" },
+            [25] = { "jpt!", "weapons\\plasma grenade\\explosion", 5, "+5cR (Plasma Grenade explosion)" },
+
+            -- MELEE --
+            [26] = { "jpt!", "weapons\\flag\\melee", 5, "+5cR (Melee: Flag)" },
+            [27] = { "jpt!", "weapons\\ball\\melee", 5, "+5cR (Melee: Ball)" },
+            [28] = { "jpt!", "weapons\\pistol\\melee", 4, "+4cR (Melee: Pistol)" },
+            [29] = { "jpt!", "weapons\\needler\\melee", 4, "+4cR (Melee: Needler)" },
+            [30] = { "jpt!", "weapons\\shotgun\\melee", 5, "+5cR (Melee: Shotgun)" },
+            [31] = { "jpt!", "weapons\\flamethrower\\melee", 5, "+5cR (Melee: Flamethrower)" },
+            [32] = { "jpt!", "weapons\\sniper rifle\\melee", 5, "+5cR (Melee: Sniper Rifle)" },
+            [33] = { "jpt!", "weapons\\plasma rifle\\melee", 4, "+4cR (Melee: Plasma Rifle)" },
+            [34] = { "jpt!", "weapons\\plasma pistol\\melee", 4, "+4cR (Melee: Plasma Pistol)" },
+            [35] = { "jpt!", "weapons\\assault rifle\\melee", 4, "+4cR (Melee: Assault Rifle)" },
+            [36] = { "jpt!", "weapons\\rocket launcher\\melee", 10, "+10cR (Melee: Rocket Launcher)" },
+            [37] = { "jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_melee", 10, "+10cR (Melee: Plasma Cannon)" },
+
+            -- VEHICLE COLLISION --
+            vehicles = {
+                collision = { "jpt!", "globals\\vehicle_collision" },
+                { "vehi", "vehicles\\ghost\\ghost_mp", 5, "+5cR (Vehicle Squash: GHOST)" },
+                { "vehi", "vehicles\\rwarthog\\rwarthog", 6, "+6cR (Vehicle Squash: R-Hog)" },
+                { "vehi", "vehicles\\warthog\\mp_warthog", 7, "+7cR (Vehicle Squash: Warthog)" },
+                { "vehi", "vehicles\\banshee\\banshee_mp", 8, "+8cR (Vehicle Squash: Banshee)" },
+                { "vehi", "vehicles\\scorpion\\scorpion_mp", 10, "+10cR (Vehicle Squash: Tank)" },
+                { "vehi", "vehicles\\c gun turret\\c gun turret_mp", 1000, "+1000R (Vehicle Squash: Turret)" },
+            }
+        }
+    },
+
+    --
+    -- Advanced users only:
+    --
+    --
 
     weapon_tags = {
         -- ============= [ STOCK WEAPONS ] ============= --
@@ -361,439 +389,286 @@ local loadout = {
 
         -- repeat the structure to add more weapon tags:
         [12] = "a tag\\will go\\here",
-    }
+    },
+
+    -- A message relay function temporarily removes the server prefix
+    -- and will restore it to this when the relay is finished
+    server_prefix = "**SAPP**",
+    --
 }
--- Configuration Ends --
 
--- Do not touch unless you know what you're doing!
 local time_scale = 1 / 30
---
-
-local tags = { }
 local gmatch, gsub = string.gmatch, string.gsub
 local lower, upper = string.lower, string.upper
 
-local function Init()
-
-    loadout.players = { }
-    for i = 1, 16 do
-        if player_present(i) then
-            InitPlayer(i, false)
-        end
-    end
-
-    -- # Disable Weapon Pick Ups
-    execute_command("disable_object 'weapons\\assault rifle\\assault rifle'")
-    execute_command("disable_object 'weapons\\flamethrower\\flamethrower'")
-    execute_command("disable_object 'weapons\\needler\\mp_needler'")
-    execute_command("disable_object 'weapons\\pistol\\pistol'")
-    execute_command("disable_object 'weapons\\plasma pistol\\plasma pistol'")
-    execute_command("disable_object 'weapons\\plasma rifle\\plasma rifle'")
-    execute_command("disable_object 'weapons\\plasma_cannon\\plasma_cannon'")
-    execute_command("disable_object 'weapons\\rocket launcher\\rocket launcher'")
-    execute_command("disable_object 'weapons\\shotgun\\shotgun'")
-    execute_command("disable_object 'weapons\\sniper rifle\\sniper rifle'")
-
-    -- # Disable Grenade Pick Ups
-    execute_command("disable_object 'weapons\\frag grenade\\frag grenade'")
-    execute_command("disable_object 'weapons\\plasma grenade\\plasma grenade'")
-
-    tags = {
-        -- fall damage --
-        [1] = GetTag("jpt!", "globals\\falling"),
-        [2] = GetTag("jpt!", "globals\\distance"),
-
-        -- vehicle collision --
-        [3] = GetTag("jpt!", "globals\\vehicle_collision"),
-
-        -- vehicle projectiles --
-        [4] = GetTag("jpt!", "vehicles\\ghost\\ghost bolt"),
-        [5] = GetTag("jpt!", "vehicles\\scorpion\\bullet"),
-        [6] = GetTag("jpt!", "vehicles\\warthog\\bullet"),
-        [7] = GetTag("jpt!", "vehicles\\c gun turret\\mp bolt"),
-        [8] = GetTag("jpt!", "vehicles\\banshee\\banshee bolt"),
-        [9] = GetTag("jpt!", "vehicles\\scorpion\\shell explosion"),
-        [10] = GetTag("jpt!", "vehicles\\banshee\\mp_fuel rod explosion"),
-
-        -- weapon projectiles --
-        [11] = GetTag("jpt!", "weapons\\pistol\\bullet"),
-        [12] = GetTag("jpt!", "weapons\\plasma rifle\\bolt"),
-        [13] = GetTag("jpt!", "weapons\\shotgun\\pellet"),
-        [14] = GetTag("jpt!", "weapons\\plasma pistol\\bolt"),
-        [15] = GetTag("jpt!", "weapons\\needler\\explosion"),
-        [16] = GetTag("jpt!", "weapons\\assault rifle\\bullet"),
-        [17] = GetTag("jpt!", "weapons\\needler\\impact damage"),
-        [18] = GetTag("jpt!", "weapons\\flamethrower\\explosion"),
-        [19] = GetTag("jpt!", "weapons\\sniper rifle\\sniper bullet"),
-        [20] = GetTag("jpt!", "weapons\\rocket launcher\\explosion"),
-        [21] = GetTag("jpt!", "weapons\\needler\\detonation damage"),
-        [22] = GetTag("jpt!", "weapons\\plasma rifle\\charged bolt"),
-        [23] = GetTag("jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_explosion"),
-
-        -- grenades --
-        [24] = GetTag("jpt!", "weapons\\frag grenade\\explosion"),
-        [25] = GetTag("jpt!", "weapons\\plasma grenade\\attached"),
-        [26] = GetTag("jpt!", "weapons\\plasma grenade\\explosion"),
-
-        melee = {
-            -- weapon melee --
-            [1] = GetTag("jpt!", "weapons\\flag\\melee"),
-            [2] = GetTag("jpt!", "weapons\\ball\\melee"),
-            [3] = GetTag("jpt!", "weapons\\pistol\\melee"),
-            [4] = GetTag("jpt!", "weapons\\needler\\melee"),
-            [5] = GetTag("jpt!", "weapons\\shotgun\\melee"),
-            [6] = GetTag("jpt!", "weapons\\flamethrower\\melee"),
-            [7] = GetTag("jpt!", "weapons\\sniper rifle\\melee"),
-            [8] = GetTag("jpt!", "weapons\\plasma rifle\\melee"),
-            [9] = GetTag("jpt!", "weapons\\plasma pistol\\melee"),
-            [10] = GetTag("jpt!", "weapons\\assault rifle\\melee"),
-            [11] = GetTag("jpt!", "weapons\\rocket launcher\\melee"),
-            [12] = GetTag("jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_melee"),
-        },
-    }
-end
-
 function OnScriptLoad()
-
     register_callback(cb["EVENT_TICK"], "OnTick")
-    register_callback(cb["EVENT_SCORE"], "OnPlayerScore")
-
-    register_callback(cb['EVENT_DIE'], 'OnPlayerDeath')
-
+    register_callback(cb["EVENT_DIE"], "OnPlayerDeath")
     register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
-    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
-
-    register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
-
     register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
+    register_callback(cb["EVENT_SCORE"], "OnPlayerScore")
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
-    register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
-    register_callback(cb["EVENT_PRESPAWN"], "OnPlayerPreSpawn")
+    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
+    register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
+    if (get_var(0, "$gt") ~= "n/a") then
 
-    if (get_var(0, '$gt') ~= "n/a") then
-        Init()
+        Rank.players = { }
+        for i = 1, 16 do
+            if player_present(i) then
+                Rank:InitPlayer(i, false)
+            end
+        end
     end
 end
 
 function OnScriptUnload()
-
+    -- N/A
 end
 
 function OnGameStart()
-    if (get_var(0, '$gt') ~= "n/a") then
-        Init()
+    if (get_var(0, "$gt") ~= "n/a") then
+        Rank.players = { }
     end
 end
 
 function OnGameEnd()
-
+    -- N/A
 end
 
-local function CmdSplit(Cmd)
-    local t, i = {}, 1
-    for Args in gmatch(Cmd, "([^%s]+)") do
-        t[i] = Args
-        i = i + 1
+function OnPlayerConnect(Ply)
+    Rank:InitPlayer(Ply, false)
+end
+
+function OnPlayerDisconnect(Ply)
+    Rank:InitPlayer(Ply, true)
+end
+
+local function SetGrenades(DyN, Class, Level)
+    local frag_count = Class.levels[Level].grenades[1]
+    local plasma_count = Class.levels[Level].grenades[2]
+    if (frag_count ~= nil) then
+        write_word(DyN + 0x31E, frag_count)
     end
-    return t
-end
-
-local function cls(Ply, Count)
-    Count = Count or 25
-    for _ = 1, Count do
-        rprint(Ply, " ")
+    if (plasma_count ~= nil) then
+        write_word(DyN + 0x31F, plasma_count)
     end
 end
 
--- Returns and array: {exp, level}
-local function GetLvlInfo(Ply)
-    local p = loadout.players[Ply]
-    return p.levels[p.class]
+function DelaySecQuat(Ply, Weapon, x, y, z)
+    assign_weapon(spawn_object("weap", Weapon, x, y, z), Ply)
 end
 
-function GetPlayers(Executor, Args)
-    local pl = { }
-    if (Args[2] == "me" or Args[2] == nil) then
-        if (Executor ~= 0) then
-            table.insert(pl, Executor)
-        else
-            Respond(Executor, "The server cannot execute this command!", "rprint", 10)
-        end
-    elseif (Args[2] ~= nil) and (Args[2]:match("^%d+$")) then
-        if player_present(Args[2]) then
-            table.insert(pl, Args[2])
-        else
-            Respond(Executor, "Player #" .. Args[2] .. " is not online", "rprint", 10)
-        end
-    elseif (Args[2] == "all" or Args[2] == "*") then
-        for i = 1, 16 do
-            if player_present(i) then
-                table.insert(pl, i)
-            end
-        end
-        if (#pl == 0) then
-            Respond(Executor, "There are no players online!", "rprint", 10)
-        end
+local floor, format = math.floor, string.format
+local function SecondsToClock(seconds)
+    seconds = tonumber(seconds)
+    if (seconds <= 0) then
+        return "00:00:00";
     else
-        Respond(Executor, "Invalid Command Syntax. Please try again!", "rprint", 10)
-    end
-    return pl
-end
-
-function PauseRankHUD(Player, Clear)
-    local p = loadout.players[Player]
-    if (Clear) then
-        cls(Player, 25)
-    end
-    p.rank_hud_pause = true
-    p.rank_hud_pause_duration = loadout.rank_hud_pause_duration
-end
-
-function OnServerCommand(Executor, Command, _, _)
-    local Args = CmdSplit(Command)
-    if (Args == nil) then
-        return
-    else
-
-        Args[1] = lower(Args[1]) or upper(Args[1])
-        if (Executor > 0) then
-            local p = loadout.players[Executor]
-            PauseRankHUD(Executor, true)
-            for class, v in pairs(loadout.classes) do
-                if (Args[1] == v.command) then
-                    if (p.class == class) then
-                        Respond(Executor, "You already have " .. class .. " class", "rprint", 12)
-                    else
-                        p.switch_on_respawn[1] = true
-                        p.switch_on_respawn[2] = class
-                        Respond(Executor, "You will switch to " .. class .. " when you respawn", "rprint", 12)
-                    end
-                    return false
-                elseif (Args[1] == loadout.info_command) then
-                    p.help_page, p.show_help = class, true
-                    return false
-                end
-            end
-        end
-    end
-
-    --if (Args[1] == loadout.rank_up_command or Args[1] == loadout.rank_down_command) then
-    --    local lvl = tonumber(get_var(Executor, "$lvl"))
-    --    if (lvl >= loadout.change_level_permission_node) or (Executor == 0) then
-    --        local pl = GetPlayers(Executor, Args)
-    --        if (pl) and (#pl > 0) then
-    --            local function Check(E, T)
-    --                if (Args[1] == loadout.rank_up_command) then
-    --                    Promote(E, T)
-    --                elseif (Args[1] == loadout.rank_down_command) then
-    --                    Demote(E, T)
-    --                end
-    --            end
-    --            if (Args[2] == nil) then
-    --                Check(Executor, Executor)
-    --            else
-    --                for i = 1, #pl do
-    --                    Check(Executor, tonumber(pl[i]))
-    --                end
-    --            end
-    --        end
-    --        return false
-    --    end
-    --end
-end
-
-local function GetWeapon(WeaponIndex)
-    return loadout.weapon_tags[WeaponIndex]
-end
-
-local function PrintRank(Ply)
-    local p = loadout.players[Ply]
-    if (not p.rank_hud_pause) then
-
-        local lvl = GetLvlInfo(Ply)
-
-        cls(Ply, 25)
-        local str = loadout.rank_hud
-        local req_exp = loadout.classes[p.class].levels[lvl.level].until_next_rank
-
-        local words = {
-            ["%%exp%%"] = lvl.exp,
-            ["%%lvl%%"] = lvl.level,
-            ["%%class%%"] = p.class,
-            ["%%req_exp%%"] = req_exp,
-            ["%%total_levels%%"] = #loadout.classes[p.class].levels,
-        }
-        for k, v in pairs(words) do
-            str = gsub(str, k, v)
-        end
-        Respond(Ply, str, "rprint", 10)
+        local hours, mins, secs
+        hours = format("%02.f", floor(seconds / 3600));
+        mins = format("%02.f", floor(seconds / 60 - (hours * 60)));
+        secs = format("%02.f", floor(seconds - hours * 3600 - mins * 60));
+        return hours .. ":" .. mins .. ":" .. secs
     end
 end
 
-local function PrintHelp(Ply, InfoTab)
-    cls(Ply, 25)
-    for i = 1, #InfoTab do
-        Respond(Ply, InfoTab[i], "rprint", 10)
-    end
-end
-
-function OnTick()
-
-    for i, player in pairs(loadout.players) do
+function Rank:OnTick()
+    for i, v in pairs(self.players) do
         if (i) then
             if player_alive(i) then
 
                 local DyN = get_dynamic_player(i)
                 if (DyN ~= 0) then
 
-                    local level = player.levels[player.class].level
-                    local current_class = loadout.classes[player.class]
+                    local level = v.levels[v.class].level
+                    local current_class = self.classes[v.class]
 
-                    if (player.assign) then
-                        local coords = getXYZ(DyN)
+                    if (v.assign) then
+                        local coords = GetXYZ(DyN)
                         if (not coords.invehicle) then
-                            player.assign = false
-
+                            v.assign = false
                             SetGrenades(DyN, current_class, level)
-
                             execute_command("wdel " .. i)
                             local weapon_table = current_class.levels[level].weapons
-                            for Slot, WeaponIndex in pairs(weapon_table) do
+                            for Slot, WI in pairs(weapon_table) do
                                 if (Slot == 1 or Slot == 2) then
-                                    assign_weapon(spawn_object("weap", GetWeapon(WeaponIndex), coords.x, coords.y, coords.z), i)
+                                    assign_weapon(spawn_object("weap", self.weapon_tags[WI], coords.x, coords.y, coords.z), i)
                                 elseif (Slot == 3 or Slot == 4) then
-                                    timer(250, "DelaySecQuat", i, GetWeapon(WeaponIndex), coords.x, coords.y, coords.z)
+                                    timer(250, "DelaySecQuat", i, self.weapon_tags[WI], coords.x, coords.y, coords.z)
                                 end
                             end
                         end
-                    elseif (player.class == "Regeneration") then
+                    elseif (v.class == "Regeneration") then
 
                         local health = read_float(DyN + 0xE0)
                         local shield = read_float(DyN + 0xE4)
 
-                        local shield_regen_delay = tonumber(current_class.levels[level].shield_regen_delay)
-                        if (shield < 1 and shield_regen_delay ~= nil and player.regen_shield) then
-                            player.regen_shield = false
-                            write_word(DyN + 0x104, shield_regen_delay)
+                        local delay = tonumber(current_class.levels[level].shield_regen_delay)
+                        if (shield < 1 and delay ~= nil and v.regen_shield) then
+                            v.regen_shield = false
+                            write_word(DyN + 0x104, delay)
                         end
 
                         if (health < 1 and shield == 1) then
-                            player.time_until_regen_begin = player.time_until_regen_begin - time_scale
-                            if (player.time_until_regen_begin <= 0) and (not player.begin_regen) then
-                                player.time_until_regen_begin = current_class.levels[level].regen_delay
-                                player.begin_regen = true
-                            elseif (player.begin_regen) then
-                                player.regen_timer = player.regen_timer + time_scale
-                                if (player.regen_timer >= current_class.levels[level].regen_rate) then
-                                    player.regen_timer = 0
+                            v.time_until_regen_begin = v.time_until_regen_begin - time_scale
+                            if (v.time_until_regen_begin <= 0) and (not v.begin_regen) then
+                                v.time_until_regen_begin = current_class.levels[level].regen_delay
+                                v.begin_regen = true
+                            elseif (v.begin_regen) then
+                                v.regen_timer = v.regen_timer + time_scale
+                                if (v.regen_timer >= current_class.levels[level].regen_rate) then
+                                    v.regen_timer = 0
                                     write_float(DyN + 0xE0, health + current_class.levels[level].increment)
                                 end
                             end
-                        elseif (player.begin_regen and health >= 1) then
-                            player.begin_regen = false
-                            player.regen_timer = 0
+                        elseif (v.begin_regen and health >= 1) then
+                            v.begin_regen = false
+                            v.regen_timer = 0
+                        end
+                    elseif (v.class == "Recon") then
+                        local key = read_byte(DyN + 0x2A3)
+
+                        -- RESET CASE --
+                        --
+                        local case1 = (key == 0 and v.key_released == 3)
+                        local case2 = (v.button_press_delay >= .10) and (key == 0 or key == 4)
+                        local case3 = (v.press_count == 1 and key == 0) and (v.button_press_delay >= .10)
+                        local case4 = (v.button_press_delay >= .10) and (key == 0 and v.key_released == 2)
+
+                        -- press 1:
+                        if (key == 4 and v.press_count == 0 and v.key_released == 0) then
+                            v.press_count = v.press_count + 1
+
+                            -- release:
+                        elseif (key == 0 and v.press_count == 1 and v.key_released == 0) then
+                            v.key_released = 2
+
+                            -- checking for press 2:
+                        elseif (key == 0 and v.key_released == 2 and v.button_press_delay < .10) and (v.press_count == 1) then
+                            v.button_press_delay = v.button_press_delay + time_scale
+
+                            -- press 2:
+                        elseif (key == 4 and v.key_released == 2 and v.button_press_delay < .10) and (v.press_count == 1) then
+                            v.press_count = v.press_count + 1
+                            v.key_released = 3
+
+                            -- apply speed:
+                        elseif (key == 4 and v.key_released == 3) then
+                            v.speed_timer = v.speed_timer + time_scale
+                            for _ = 1, 25 do
+                                rprint(i, " ")
+                            end
+                            local time_remaining = SecondsToClock(current_class.levels[level].speed_duration - v.speed_timer)
+                            self:Respond(i, "Boost Time: " .. time_remaining, rprint, 10)
+                            if (v.speed_timer <= current_class.levels[level].speed_duration) then
+                                execute_command("s" .. " " .. i .. " " .. current_class.levels[level].speed)
+                            else
+                                v.speed_timer = 0
+                                v.speed_cooldown = 0
+                                self:ResetSpeed(i)
+                            end
+                            -- reset
+                        elseif (case1 or case2 or case3 or case4) then
+                            self:ResetSpeed(i)
+                            v.regen = true
+                            -- begin regenerating time:
+                        elseif (v.regen) then
+                            v.speed_cooldown = v.speed_cooldown + time_scale
+
+                            if (math.floor(v.speed_cooldown % 4) == 3) and (v.speed_timer > 0) then
+                                v.speed_timer = v.speed_timer - 1 / 30
+                                if (v.speed_timer < 0) then
+                                    v.speed_timer = 0
+                                end
+                            end
                         end
                     end
                 end
             end
+        end
+    end
+end
 
-            if (loadout.show_rank_hud) then
-                if (player.rank_hud_pause) then
-                    player.rank_hud_pause_duration = player.rank_hud_pause_duration - time_scale
-                    if (player.rank_hud_pause_duration <= 0) then
-                        player.rank_hud_pause = false
-                        player.rank_hud_pause_duration = loadout.rank_hud_pause_duration
+local function CMDSplit(CMD)
+    local Args, index = { }, 1
+    for Params in gmatch(CMD, "([^%s]+)") do
+        Args[index] = Params
+        index = index + 1
+    end
+    return Args
+end
+
+function Rank:OnServerCommand(Executor, Command)
+    local Args = CMDSplit(Command)
+    if (Args == nil) then
+        return
+    else
+        Args[1] = lower(Args[1]) or upper(Args[1])
+        local lvl = tonumber(get_var(Executor, "$lvl"))
+        if (Args[1] == self.some_command) then
+            if (lvl >= self.some_command_permission) then
+                local pl = self:GetPlayers(Executor, Args)
+                if (pl) then
+                    for i = 1, #pl do
+                        local TargetID = tonumber(pl[i])
+                        if (TargetID ~= Executor and lvl < self.some_command_permission_other) then
+                            self:Respond(Executor, self.messages[4], rprint, 10)
+                        else
+                            self:GetRank(Executor, self:GetIP(TargetID), true)
+                        end
                     end
-                else
-                    PrintRank(i)
                 end
+            else
+                self:Respond(Executor, self.messages[3], rprint, 10)
             end
-
-            if (player.show_help) then
-                player.help_hud_duration = player.help_hud_duration - time_scale
-                PrintHelp(i, loadout.classes[player.class].info)
-                if (player.help_hud_duration <= 0) then
-                    player.help_page = nil
-                    player.show_help = false
-                    player.help_hud_duration = loadout.help_hud_duration
-                end
-            end
+            return false
         end
     end
 end
 
 function OnPlayerScore(Ply)
-    UpdateExp(Ply, loadout.experience.flag_score)
-    SendStatsMessage(Ply, loadout.experience.flag_score, loadout.messages.flag_score)
-
-    local pteam = get_var(Ply, "$team")
-    for i = 1, 16 do
-        if player_present(i) then
-            local iteam = get_var(i, "$team")
-            if (pteam == iteam) then
-                if (i ~= Ply) then
-                    SendStatsMessage(i, loadout.experience.flag_score, loadout.messages.flag_score_team)
-                end
-            end
-        end
-    end
+    Rank:UpdateCredits(Ply, { Rank.credits.score[1], Rank.credits.score[2] })
 end
 
-function InitPlayer(Ply, Reset)
-    if (Reset) then
-        loadout.players[Ply] = nil
-    else
+function Rank:ResetSpeed(Ply)
+    self.players[Ply].regen = 0
+    self.players[Ply].press_count = 0
+    self.players[Ply].key_released = 0
+    self.players[Ply].button_press_delay = 0
+    execute_command("s" .. " " .. Ply .. " 1")
+end
 
-        loadout.players[Ply] = {
-
-            name = get_var(Ply, "$name"),
-
-            bounty = 0,
+function Rank:InitPlayer(Ply, Reset)
+    if (not Reset) then
+        self.players[Ply] = {
             levels = { },
+            class = self.default_class,
+            name = get_var(Ply, "$name"),
+            button_press_delay = 0,
 
-            class = loadout.default_class,
-            switch_on_respawn = { false, nil },
-
-            help_page = nil,
-            show_help = false,
-            help_hud_duration = loadout.help_hud_duration,
-
-            rank_hud_pause = false,
-            rank_hud_pause_duration = loadout.rank_hud_pause_duration,
-
-            last_damage = nil,
-            head_shot = nil,
+            speed_cooldown = 0,
+            speed_timer = 0,
         }
-
-        for k, _ in pairs(loadout.classes) do
-            loadout.players[Ply].levels[k] = {
-                exp = 0,
-                level = loadout.starting_level,
+        for k, _ in pairs(self.classes) do
+            self.players[Ply].levels[k] = {
+                credits = 0,
+                level = self.starting_level,
             }
         end
+    else
+        self.players[Ply] = nil
     end
 end
 
-function OnPlayerConnect(Ply)
-    InitPlayer(Ply, false)
-end
-
-function OnPlayerDisconnect(Ply)
-    InitPlayer(Ply, true)
-end
-
-function OnPlayerPreSpawn(Ply)
-    local p = loadout.players[Ply]
-    if (p.switch_on_respawn[1]) then
-        p.switch_on_respawn[1] = false
-        p.class = p.switch_on_respawn[2]
-    end
+-- Returns and array: {exp, level}
+function GetLvlInfo(Ply)
+    local p = Rank.players[Ply]
+    return p.levels[p.class]
 end
 
 function OnPlayerSpawn(Ply)
-
-    local t = loadout.players[Ply]
+    local t = Rank.players[Ply]
     local info = GetLvlInfo(Ply)
 
     -- Weapon Assignment Variables
@@ -807,34 +682,187 @@ function OnPlayerSpawn(Ply)
     t.last_damage = nil
     t.regen_shield = false
 
-    t.time_until_regen_begin = loadout.classes["Regeneration"].levels[info.level].regen_delay
+    Rank:ResetSpeed(Ply)
+
+    t.time_until_regen_begin = Rank.classes["Regeneration"].levels[info.level].regen_delay
 end
 
-function SetGrenades(DyN, Class, Level)
-    local frag_count = Class.levels[Level].grenades[1]
-    local plasma_count = Class.levels[Level].grenades[2]
-    if (frag_count ~= nil) then
-        write_word(DyN + 0x31E, frag_count)
-    end
-    if (plasma_count ~= nil) then
-        write_word(DyN + 0x31F, plasma_count)
+local function GetTag(ObjectType, ObjectName)
+    if type(ObjectType) == "string" then
+        local Tag = lookup_tag(ObjectType, ObjectName)
+        return Tag ~= 0 and read_dword(Tag + 0xC) or nil
+    else
+        return nil
     end
 end
 
-function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
-    local killer, victim = tonumber(CauserIndex), tonumber(PlayerIndex)
-    local v = loadout.players[victim]
+local function CheckDamageTag(DamageMeta)
+    for _, d in pairs(Rank.credits.tags) do
+        local tag = GetTag(d[1], d[2])
+        if (tag ~= nil) and (tag == DamageMeta) then
+            return { d[3], d[4] }
+        end
+    end
+    return 0
+end
 
+function Rank:KillingSpree(Ply)
+    local player = get_player(Ply)
+    if (player ~= 0) then
+        local t = self.credits.spree
+        local k = read_word(player + 0x96)
+        for _, v in pairs(t) do
+            if (k == v[1]) or (k >= t[#t][1] and k % 5 == 0) then
+                self:UpdateCredits(Ply, { v[2], v[3] })
+            end
+        end
+    end
+end
+
+function Rank:MultiKill(Ply)
+    local player = get_player(Ply)
+    if (player ~= 0) then
+        local k = read_word(player + 0x98)
+        local t = self.credits.multi_kill
+        for _, v in pairs(t) do
+            if (k == v[1]) or (k >= t[#t][1] and k % 2 == 0) then
+                self:UpdateCredits(Ply, { v[2], v[3] })
+            end
+        end
+    end
+end
+
+function Rank:InVehicle(Ply)
+    local DyN = get_dynamic_player(Ply)
+    if (DyN ~= 0) then
+        local VehicleID = read_dword(DyN + 0x11C)
+        if (VehicleID ~= 0xFFFFFFFF) then
+            local VehicleObject = get_object_memory(VehicleID)
+            local name = GetVehicleTag(VehicleObject)
+            if (name ~= nil) then
+                return name
+            end
+        end
+    end
+    return false
+end
+
+function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
+    local killer, victim = tonumber(KillerIndex), tonumber(VictimIndex)
+
+    local last_damage = self.players[victim].last_damage
+    local kteam = get_var(killer, "$team")
+    local vteam = get_var(victim, "$team")
+
+    local server = (killer == -1)
+    local guardians = (killer == nil)
+    local suicide = (killer == victim)
+    local pvp = ((killer > 0) and killer ~= victim)
+    local betrayal = ((kteam == vteam) and killer ~= victim)
+
+    if (pvp) then
+
+        self:MultiKill(killer)
+        self:KillingSpree(killer)
+
+        if (not player_alive(killer)) then
+            self:UpdateCredits(killer, { self.credits.killed_from_the_grave[1], self.credits.killed_from_the_grave[2] })
+        elseif (self.players[victim].head_shot) then
+            self:UpdateCredits(killer, { self.credits.head_shot[1], self.credits.head_shot[2] })
+        end
+
+        -- Calculate PvP Bonus:
+        if (self.credits.use_pvp_bonus) then
+
+            local enemy_kills = tonumber(get_var(victim, "$kills"))
+            local enemy_deaths = tonumber(get_var(victim, "$deaths"))
+            local krd = (enemy_kills / enemy_deaths)
+
+            local pvp_bonus = self.credits.pvp_bonus(krd)
+
+            if (pvp_bonus[1] > 0) then
+                local str = gsub(pvp_bonus[2], "%%credits%%", pvp_bonus[1])
+                self:UpdateCredits(killer, { pvp_bonus[1], str })
+            end
+        end
+
+        local vehicle = self:InVehicle(killer)
+        if (vehicle) then
+            local t = self.credits.tags.vehicles
+            for _, v in pairs(t) do
+                if (vehicle == v[2]) then
+                    -- vehicle squash:
+                    if (last_damage == GetTag(t.collision[1], t.collision[2])) then
+                        return self:UpdateCredits(killer, { v[3], v[4] })
+                    else
+                        -- vehicle weapon:
+                        return self:UpdateCredits(killer, CheckDamageTag(last_damage))
+                    end
+                end
+            end
+        end
+        return self:UpdateCredits(killer, CheckDamageTag(last_damage))
+
+    elseif (server) then
+        self:UpdateCredits(victim, { self.credits.server[1], self.credits.server[2] })
+    elseif (guardians) then
+        self:UpdateCredits(victim, { self.credits.guardians[1], self.credits.guardians[2] })
+    elseif (suicide) then
+        self:UpdateCredits(victim, { self.credits.suicide[1], self.credits.suicide[2] })
+    elseif (betrayal) then
+        self:UpdateCredits(victim, { self.credits.betrayal[1], self.credits.betrayal[2] })
+    else
+        self:UpdateCredits(victim, CheckDamageTag(last_damage))
+    end
+end
+
+function Rank:GetLevelInfo(Ply)
+    local t = self.players[Ply]
+
+    local c = t.class
+    local l = t.levels[c].level
+    local cr = t.levels[c].credits
+
+    return { class = c, level = l, credits = cr }
+end
+
+function Rank:UpdateCredits(Ply, Params)
+
+    local info = self:GetLevelInfo(Ply)
+    info.credits = info.credits + Params[1]
+    self:Respond(Ply, Params[2], rprint, 10)
+
+    if (info.credits < 0) then
+        info.credits = 0
+    end
+end
+
+function Rank:IsMelee(MetaID)
+    for i = 26, 37 do
+        local Type, Name = self.credits.tags[i][1], self.credits.tags[i][2]
+        if (MetaID == GetTag(Type, Name)) then
+            return true
+        end
+    end
+    return false
+end
+
+function Rank:OnDamageApplication(VictimIndex, KillerIndex, MetaID, Damage, HitString, Backtap)
+    local killer, victim = tonumber(KillerIndex), tonumber(VictimIndex)
     local hurt = true
 
     if player_present(victim) then
-        if (CauserIndex > 0) then
 
-            local k = loadout.players[killer]
-            local k_info = GetLvlInfo(killer)
+        local v = self.players[victim]
+        local v_info = self:GetLevelInfo(victim)
 
-            local CausesHeadShot = OnDamageLookup(victim, killer)
-            if (CausesHeadShot ~= nil) then
+        if (killer > 0) then
+
+            local k = self.players[killer]
+            local k_info = self:GetLevelInfo(killer)
+
+            local HeadShot = OnDamageLookup(victim, killer)
+            if (HeadShot ~= nil) then
                 if (HitString == "head") then
                     v.head_shot = true
                 else
@@ -845,248 +873,77 @@ function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString
             end
 
             if (k.class == "Armor Boost") and (killer ~= victim) then
-                if (not IsMelee(MetaID)) then
-                    Damage = Damage - (10 * loadout.classes[k.class].levels[k_info.level].damage_resistance)
+                if (not self:IsMelee(MetaID)) then
+                    Damage = Damage - (10 * self.classes[k.class].levels[k_info.level].damage_resistance)
                 else
-                    Damage = Damage + (loadout.classes[k.class].levels[k_info.level].melee_damage_multiplier)
+                    Damage = Damage + (self.classes[k.class].levels[k_info.level].melee_damage_multiplier)
                 end
                 hurt = true
             end
             k.last_damage = MetaID
         end
-        local v_info = GetLvlInfo(victim)
-        if (v.class == "Armor Boost") and (loadout.classes[v.class].levels[v_info.level].fall_damage_immunity) then
-            if (MetaID == tags[1] or MetaID == tags[2]) then
+        if (v.class == "Armor Boost") and (self.classes[v.class].levels[v_info.level].fall_damage_immunity) then
+            if (MetaID == self.credits.tags[1] or MetaID == self.credits.tags[2]) then
                 hurt = false
             end
         end
-
         v.regen_shield = true
         v.last_damage = MetaID
         return hurt, Damage
     end
 end
 
-function Promote(Executor, TargetID)
-    local p = loadout.players[TargetID]
-    local info = GetLvlInfo(TargetID)
-
-    local name = get_var(TargetID, "$name")
-    if (info.level >= #loadout.classes[p.class].levels) then
-        local str = "[DEBUG] " .. name .. " is already on the highest tier for this class"
-        if (Executor == TargetID) then
-            str = "[DEBUG] You are already on the highest tier for this class"
-        end
-        Respond(Executor, str, "rprint", 10)
-    else
-        info.level = info.level + 1
-        local str = "[DEBUG] Promoting " .. name .. " to level %lvl%"
-        if (Executor == TargetID) then
-            str = "[DEBUG] Promoting to level %lvl%"
-        end
-        Respond(Executor, gsub(str, "%%lvl%%", p.level), "rprint", 10)
-        p.assign = true
-        p.exp[p.class] = 0
-    end
-end
-
-function Demote(Executor, TargetID)
-    local p = loadout.players[TargetID]
-    local info = GetLvlInfo(TargetID)
-    local name = get_var(TargetID, "$name")
-    info.level = info.level - 1
-    if (info.level < 1) then
-        info.level = 1
-        local str = "[DEBUG] " .. name .. " is already on the first level"
-        if (Executor == TargetID) then
-            str = "[DEBUG] You are already on the first level"
-        end
-        return Respond(Executor, str, "rprint", 10)
-    else
-        local str = "[DEBUG] demoting " .. name .. " to level %lvl%"
-        if (Executor == TargetID) then
-            str = "[DEBUG] demoting to level %lvl%"
-        end
-        Respond(Executor, gsub(str, "%%lvl%%", info.level), "rprint", 10)
-        p.assign = true
-    end
-end
-
-local function Melee(Ply)
-    for i = 1, #tags.melee do
-        if (loadout.players[Ply].last_damage == tags.melee[i]) then
-            return true
-        end
-    end
-end
-
-local function KillingSpree(killer)
-    local player = get_player(killer)
-    if (player ~= 0) then
-
-        local m = loadout.messages
-        local s = loadout.experience.spree
-        local name = loadout.players[killer].name
-        local bounty_level = loadout.players[killer].bounty
-
-        local spree = read_word(player + 0x96)
-        for _, v in pairs(s) do
-            if (spree == v[1]) or (spree >= s[#s][1] and spree % 5 == 0) then
-                bounty_level = bounty_level + v[3]
-                SendStatsMessage(killer, v[2], m.death_messages.spree)
-
-                local bonus = (bounty_level * loadout.experience.bounty_exp)
-                local str = gsub(gsub(m.new_bounty, "%%name%%", name), "%%bounty%%", bonus)
-                Respond(_, str, "say_all", 10)
-            end
-        end
-    end
-end
-
-local function MultiKill(killer)
-    local player = get_player(killer)
-    if (player ~= 0) then
-        local multikill = read_word(player + 0x98)
-        local mk = loadout.experience.multi_kill
-        local dm = loadout.messages.death_messages
-        for _, v in pairs(mk) do
-            if (multikill == v[1]) then
-                return SendStatsMessage(killer, v[2], dm.multi_kill)
-            elseif (multikill >= mk[#mk][1]) and (multikill % 2 == 0) then
-                return SendStatsMessage(killer, v[2], dm.multi_kill)
-            end
-        end
-    end
-end
-
-function SendStatsMessage(Ply, EXP, STR)
-    UpdateExp(Ply, EXP)
-    local kills = tonumber(get_var(Ply, "$kills"))
-    STR = gsub(gsub(STR, "%%exp%%", EXP), "%%kills%%", kills)
-    Respond(Ply, STR, "rprint", 10)
-end
-
-function OnPlayerDeath(VictimIndex, KillerIndex)
-    local killer = tonumber(KillerIndex)
-    local victim = tonumber(VictimIndex)
-
-    local kteam = get_var(killer, "$team")
-    local vteam = get_var(victim, "$team")
-    local exp = loadout.experience
-    local message = loadout.messages.death_messages
-
-    local pvp = ((killer > 0) and killer ~= victim)
-    local suicide = (killer == victim)
-    local betrayal = ((kteam == vteam) and killer ~= victim)
-    local vehicle_squash = (killer == 0)
-    local guardians = (killer == nil)
-    local server = (killer == -1)
-    local fall_damage = (loadout.players[victim].last_damage == tags[1])
-    local distance_damage = (loadout.players[victim].last_damage == tags[2])
-
-    local frag_kill = (loadout.players[victim].last_damage == tags[24])
-    local plasma_stick = (loadout.players[victim].last_damage == tags[25])
-    local plasma_explosion = (loadout.players[victim].last_damage == tags[26])
-
-    if (pvp) then
-
-        MultiKill(killer)
-        KillingSpree(killer)
-        SendStatsMessage(killer, exp.pvp, message.pvp)
-
-        if (loadout.players[victim].head_shot) then
-            SendStatsMessage(killer, exp.head_shot, message.head_shot)
-        elseif (frag_kill) then
-            SendStatsMessage(killer, exp.frag_kill, message.frag_kill)
-        elseif (plasma_stick) then
-            SendStatsMessage(killer, exp.plasma_stick, message.plasma_stick)
-        elseif (plasma_explosion) then
-            SendStatsMessage(killer, exp.plasma_explosion, message.plasma_explosion)
-        elseif (Melee(victim)) then
-            SendStatsMessage(killer, exp.melee, message.melee)
-        end
-
-        -- Killed from the grave
-        if (not player_alive(killer)) then
-            SendStatsMessage(killer, exp.killed_from_the_grave, message.killed_from_the_grave)
-        end
-
-        -- PvP Bonus:
-        if (exp.use_pvp_bonus) then
-            local enemy_kills = tonumber(get_var(victim, "$kills"))
-            local enemy_deaths = tonumber(get_var(victim, "$deaths"))
-            local kdr_bonus = (enemy_kills / enemy_deaths)
-            local pvp_bonus = exp.pvp_bonus(kdr_bonus)
-
-            if (pvp_bonus > 0) then
-                SendStatsMessage(killer, pvp_bonus, message.pvp_bonus)
-            end
-        end
-
-        -- Skill bonus:
-
-        local k_info = GetLvlInfo(killer)
-        local v_info = GetLvlInfo(victim)
-
-        local killer_class, killer_lvl = loadout.players[killer].class, k_info.level
-        local victim_class, victim_lvl = loadout.players[victim].class, v_info.level
-        if (killer_class == victim_class and killer_lvl > victim_lvl) then
-            SendStatsMessage(killer, exp.skill_bonus, message.skill_bonus)
-        end
-
-    elseif (suicide) then
-        SendStatsMessage(victim, exp.suicide, message.suicide)
-    elseif (betrayal) then
-        SendStatsMessage(victim, exp.betrayal, message.betrayal)
-    elseif (vehicle_squash) then
-        SendStatsMessage(victim, exp.vehicle_squash, message.vehicle_squash)
-    elseif (guardians) then
-        SendStatsMessage(victim, exp.guardians, message.guardians)
-    elseif (server) then
-        SendStatsMessage(victim, exp.server, message.server)
-    elseif (fall_damage) then
-        SendStatsMessage(victim, exp.fall_damage, message.fall_damage)
-    elseif (distance_damage) then
-        SendStatsMessage(victim, exp.distance_damage, message.distance_damage)
-    end
-end
-
-function UpdateExp(Ply, Amount)
-    local t = loadout.players[Ply]
-    local info = GetLvlInfo(Ply)
-
-    info.exp = info.exp + Amount
-    if (not loadout.allow_negative_exp and info.exp < 0) then
-        info.exp = 0
-    end
-end
-
-function Respond(Ply, Message, Type, Color, Clear)
-
+function Rank:Respond(Ply, Message, Type, Color, Exclude)
     Color = Color or 10
     execute_command("msg_prefix \"\"")
-
     if (Ply == 0) then
         cprint(Message, Color)
+    elseif (not Exclude) then
+        if (Type ~= say_all) then
+            Type(Ply, Message)
+        else
+            Type(Message)
+        end
     else
-        PauseRankHUD(Ply, Clear)
+        for i = 1, 16 do
+            if player_present(i) and (i ~= Ply) then
+                Type(i, Message)
+            end
+        end
     end
-
-    if (Type == "rprint") then
-        rprint(Ply, Message)
-    elseif (Type == "say") then
-        say(Ply, Message)
-    elseif (Type == "say_all") then
-        say_all(Message)
-    end
-    execute_command("msg_prefix \" " .. loadout.server_prefix .. "\"")
+    execute_command("msg_prefix \" " .. self.server_prefix .. "\"")
 end
 
-function DelaySecQuat(Ply, Weapon, x, y, z)
-    assign_weapon(spawn_object("weap", Weapon, x, y, z), Ply)
+function Rank:GetPlayers(Executor, Args)
+    local pl = { }
+    if (Args[2] == "me" or Args[2] == nil) then
+        if (Executor ~= 0) then
+            table.insert(pl, Executor)
+        else
+            self:Respond(Executor, "The server cannot execute this command!", rprint, 10)
+        end
+    elseif (Args[2] ~= nil) and (Args[2]:match("^%d+$")) then
+        if player_present(Args[2]) then
+            table.insert(pl, Args[2])
+        else
+            self:Respond(Executor, "Player #" .. Args[2] .. " is not online", rprint, 10)
+        end
+    elseif (Args[2] == "all" or Args[2] == "*") then
+        for i = 1, 16 do
+            if player_present(i) then
+                table.insert(pl, i)
+            end
+        end
+        if (#pl == 0) then
+            self:Respond(Executor, "There are no players online!", rprint, 10)
+        end
+    else
+        self:Respond(Executor, "Invalid Command Syntax. Please try again!", rprint, 10)
+    end
+    return pl
 end
 
-function getXYZ(DyN)
+function GetXYZ(DyN)
     local coords, x, y, z = { }
 
     local VehicleID = read_dword(DyN + 0x11C)
@@ -1102,21 +959,31 @@ function getXYZ(DyN)
     return coords
 end
 
-function IsMelee(MetaID)
-    local melee
-    for i = 1, #tags.melee do
-        if (MetaID == tags.melee[i]) then
-            melee = true
-        end
+function OnServerCommand(P, C)
+    return Rank:OnServerCommand(P, C)
+end
+
+function OnPlayerDeath(V, K)
+    return Rank:OnPlayerDeath(V, K)
+end
+
+function OnTick()
+    return Rank:OnTick()
+end
+
+function OnDamageApplication(V, K, M, D, H, B)
+    return Rank:OnDamageApplication(V, K, M, D, H, B)
+end
+
+function GetVehicleTag(Vehicle)
+    if (Vehicle ~= nil and Vehicle ~= 0) then
+        return read_string(read_dword(read_word(Vehicle) * 32 + 0x40440038))
     end
-    return melee
+    return nil
 end
 
-function GetTag(ObjectType, ObjectName)
-    local Tag = lookup_tag(ObjectType, ObjectName)
-    return Tag ~= 0 and read_dword(Tag + 0xC) or nil
-end
-
+--======================================================
+--======================================================
 -- Credits to H® Shaft for this function:
 -- Taken from https://pastebin.com/edZ82aWn
 function OnDamageLookup(ReceiverIndex, CauserIndex)
