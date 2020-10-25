@@ -83,7 +83,7 @@ local vpn_blocker = {
 
     -- Request Parameters:
     checks = {
-        --Check if IP is associated with being a confirmed crawler 
+        --Check if IP is associated with being a confirmed crawler
         --such as Googlebot, Bingbot, etc based on hostname or IP address verification.
         is_crawler = true,
 
@@ -96,33 +96,33 @@ local vpn_blocker = {
         --Check if IP address suspected to be a proxy? (SOCKS, Elite, Anonymous, VPN, Tor, etc.)
         proxy = true,
 
-        --Fraud Score Threshold: 
-        --Fraud Scores >= 75 are suspicious, but not necessarily fraudulent. 
-        --I recommend flagging or blocking traffic with Fraud Scores >= 85, 
+        --Fraud Score Threshold:
+        --Fraud Scores >= 75 are suspicious, but not necessarily fraudulent.
+        --I recommend flagging or blocking traffic with Fraud Scores >= 85,
         --but you may find it beneficial to use a higher or lower threshold.
         fraud_score = 85,
 
         --Premium Account Feature:
-        --Indicates if bots or non-human traffic has recently used this IP address to engage 
+        --Indicates if bots or non-human traffic has recently used this IP address to engage
         --in automated fraudulent behavior. Provides stronger confidence that the IP address is suspicious.
         bot_status = true,
     },
 
     parameters = {
-        -- How in depth (strict) do you want this query to be? 
-        -- Higher values take longer to process and may provide a higher false-positive rate. 
+        -- How in depth (strict) do you want this query to be?
+        -- Higher values take longer to process and may provide a higher false-positive rate.
         -- It is recommended to start at "0", the lowest strictness setting, and increasing to "1" or "2" depending on your needs.
         strictness = 1,
 
-        -- Bypasses certain checks for IP addresses from education and research institutions, schools, and some corporate connections 
+        -- Bypasses certain checks for IP addresses from education and research institutions, schools, and some corporate connections
         -- to better accommodate audiences that frequently use public connections.
         allow_public_access_points = true,
 
-        -- Enable this setting to lower detection rates and Fraud Scores for mixed quality IP addresses. 
+        -- Enable this setting to lower detection rates and Fraud Scores for mixed quality IP addresses.
         -- If you experience any false-positives with your traffic then enabling this feature will provide better results.
         lighter_penalties = false,
 
-        -- This setting is used for time-sensitive lookups that require a faster response time. 
+        -- This setting is used for time-sensitive lookups that require a faster response time.
         -- Accuracy is slightly degraded with the "fast" approach, but not significantly noticeable.
         fast = false,
 
@@ -292,13 +292,13 @@ function vpn_blocker:WriteLog(k, v, logtime)
     end
 end
 
-function isExcluded(IP)
+function vpn_blocker:isExcluded(IP)
     -- Check if IP is in the exclusion list.
-    local t = vpn_blocker.exclusion_list
-    if (t.enabled) then
-        for i = 1, #t do
-            if (t[i]) then
-                if (IP == t[i]) then
+    local l = self.exclusion_list
+    if (l.enabled) then
+        for i = 1, #l do
+            if (l[i]) then
+                if (IP == l[i]) then
                     return true
                 end
             end
@@ -310,7 +310,7 @@ end
 function vpn_blocker:GetCredentials(p)
     vpn_blocker[p] = {}
     local ip = get_var(p, "$ip"):match('(%d+.%d+.%d+.%d+)')
-    if (not isExcluded(ip)) then
+    if (not self:isExcluded(ip)) then
         local name = get_var(p, "$name")
         return { ip = ip, name = name }
     else
@@ -334,7 +334,7 @@ local http_client = ffi.load("lua_http_client")
 
 function vpn_blocker:Query(URL)
     local response = http_client.http_get(URL, false)
-    local returning = nil
+    local returning
     if http_client.http_response_is_null(response) ~= true then
         local response_text_ptr = http_client.http_read_response(response)
         returning = ffi.string(response_text_ptr)
@@ -349,11 +349,10 @@ end
 
 -- In the event of an error, the script will trigger these two functions: OnError(), report()
 function report()
-    local script_version = format("%0.2f", script_version)
     cprint("--------------------------------------------------------", 5 + 8)
     cprint("Please report this error on github:", 7 + 8)
     cprint("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", 7 + 8)
-    cprint("Script Version: " .. script_version, 7 + 8)
+    cprint("Script Version: " .. format("%0.2f", script_version), 7 + 8)
     cprint("--------------------------------------------------------", 5 + 8)
 end
 

@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Top Ranked (v1.5), for SAPP (PC & CE)
+Script Name: Top Ranked (v1.6), for SAPP (PC & CE)
 Description: A fully integrated ranking system for SAPP servers.
 Players earn credits for killing, scoring and achievements, such as sprees, kill-combos and more.
 
@@ -55,6 +55,14 @@ local Rank = {
     },
 
     credits = {
+
+        -- Generic Zombie Mod support:
+        zombies = {
+            enabled = true,
+            human_team = "red",
+            zombie_team = "blue",
+            credits = { -25, "%credits% cR (Zombie-Bite)" },
+        },
 
         -- Score (credits added):
         score = { 25, "+%credits% cR (Flag Cap)" },
@@ -520,6 +528,12 @@ function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
     local betrayal = ((kteam == vteam) and killer ~= victim)
 
     if (pvp) then
+
+        if (self.credits.zombies.enabled) then
+            if (kteam == self.credits.zombies.zombie_team) and (vteam == self.credits.zombies.human_team) then
+                self:UpdateCredits(killer, { self.credits.zombies.credits[1], self.credits.zombies.credits[2] })
+            end
+        end
 
         self:MultiKill(killer)
         self:KillingSpree(killer)
