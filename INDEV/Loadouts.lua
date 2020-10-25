@@ -15,7 +15,7 @@ api_version = "1.12.0.0"
 
 local Loadout = {
 
-    default_class = "Cloaking",
+    default_class = "Recon",
     starting_level = 1,
 
     -- Command Syntax: /level_cmd [number: 1-16] | */all | me <level>
@@ -37,7 +37,13 @@ local Loadout = {
     -- If a player types any command, the rank_hud info will disappear to prevent it from overwriting other information.
     -- How long should rank_hud info disappear for?
     rank_hud_pause_duration = 5,
-    rank_hud = "Class: [%class%] Level: [%lvl%/%total_levels%] Credits: [%credits%/%req_exp%]",
+    rank_hud = "Class: [%class%] Level: [%lvl%/%total_levels%] Credits: [%credits%/%req_exp%] Kills: [%kills%]",
+
+    -- Command used to display information about your current class:
+    info_command = "help",
+
+    -- If a player types /info_command, how long should the information be on screen for? (in seconds)
+    help_hud_duration = 5,
 
     -- Time (in seconds) a player must return to the server before their credits are reset.
     disconnect_cooldown = 120,
@@ -460,6 +466,7 @@ function OnScriptLoad()
     if (get_var(0, "$gt") ~= "n/a") then
         execute_command('sv_map_reset')
         Loadout.players = { }
+        Loadout.gamestarted = true
         for i = 1, 16 do
             if player_present(i) then
                 Loadout:InitPlayer(i)
@@ -475,11 +482,12 @@ end
 function OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
         Loadout.players = { }
+        Loadout.gamestarted = true
     end
 end
 
 function OnGameEnd()
-    -- N/A
+    Loadout.gamestarted = false
 end
 
 function OnPlayerConnect(Ply)
@@ -668,8 +676,17 @@ function Loadout:OnTick()
                                 v.rank_hud_pause = false
                                 v.rank_hud_pause_duration = self.rank_hud_pause_duration
                             end
-                        else
+                        elseif (self.gamestarted) then
                             self:PrintRank(i)
+                        end
+                    end
+                    if (v.show_help and self.gamestarted) then
+                        v.help_hud_duration = v.help_hud_duration - time_scale
+                        self:PrintHelp(i, self.classes[v.class].info)
+                        if (v.help_hud_duration <= 0) then
+                            v.help_page = nil
+                            v.show_help = false
+                            v.help_hud_duration = self.help_hud_duration
                         end
                     end
                 end
@@ -697,6 +714,13 @@ function Loadout:PauseRankHUD(Ply, Clear)
     p.rank_hud_pause_duration = self.rank_hud_pause_duration
 end
 
+function Loadout:PrintHelp(Ply, InfoTab)
+    Loadout:cls(Ply, 25)
+    for i = 1, #InfoTab do
+        Loadout:Respond(Ply, InfoTab[i], rprint, 10)
+    end
+end
+
 function Loadout:PrintRank(Ply)
     local t = self.players[Ply]
     if (not t.rank_hud_pause) then
@@ -712,6 +736,7 @@ function Loadout:PrintRank(Ply)
             ["%%class%%"] = info.class,
             ["%%req_exp%%"] = info.cr_req,
             ["%%total_levels%%"] = #self.classes[t.class].levels,
+            ["%%kills%%"] = get_var(Ply, "$kills"),
         }
         for k, v in pairs(words) do
             str = gsub(str, k, v)
@@ -736,7 +761,9 @@ function Loadout:OnServerCommand(Executor, Command)
     else
         Args[1] = lower(Args[1]) or upper(Args[1])
 
+        local t
         if (Executor > 0) then
+            t = self.players[Executor]
             self:PauseRankHUD(Executor, true)
         end
 
@@ -813,6 +840,9 @@ function Loadout:OnServerCommand(Executor, Command)
                 self:Respond(Executor, self.messages[3], rprint, 10)
             end
             return false
+        elseif (Args[1] == self.info_command) then
+            t.help_page, t.show_help = t.class, true
+            return false
         end
     end
 end
@@ -854,6 +884,10 @@ function Loadout:InitPlayer(Ply)
 
         -- OnPlayerDisconnect() --
         --disconnect_timer = self.disconnect_cooldown,
+
+        help_page = nil,
+        show_help = false,
+        help_hud_duration = self.help_hud_duration,
 
         rank_hud_pause = false,
         rank_hud_pause_duration = self.rank_hud_pause_duration,
@@ -1085,7 +1119,7 @@ function Loadout:UpdateCredits(Ply, Params)
 
     if (not self.allow_negatives) and (t.levels[t.class].credits < 0) then
         t.levels[t.class].credits = 0
-        if (get_var(Ply, "$score") < 0) then
+        if (tonumber(get_var(Ply, "$score")) < 0) then
             execute_command('score ' .. Ply .. " 0")
         end
     end
@@ -1162,7 +1196,6 @@ function Loadout:Respond(Ply, Message, Type, Color, Exclude, HUD)
     execute_command("msg_prefix \"\"")
     if (Ply == 0) then
         cprint(Message, Color)
-
     else
         if (not HUD) then
             self:PauseRankHUD(Ply)
