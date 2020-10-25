@@ -15,7 +15,7 @@ api_version = "1.12.0.0"
 
 local Rank = {
 
-    default_class = "Recon",
+    default_class = "Cloaking",
     starting_level = 1,
 
     messages = {
@@ -90,7 +90,6 @@ local Rank = {
                     increment = 0.1100,
                     regen_rate = 1,
                     until_next_rank = nil,
-                    -- {plasma,frags}
                     grenades = { 4, 4 },
                     weapons = { 1, 7, 2, nil },
                     shield_regen_delay = 50,
@@ -154,7 +153,7 @@ local Rank = {
             }
         },
 
-        ["Partial Camo"] = {
+        ["Cloaking"] = {
             command = "camo",
             info = {
                 "Partial Camo: Good for players who prefer stealth and quick kills or CQB.",
@@ -166,26 +165,31 @@ local Rank = {
             },
             levels = {
                 [1] = {
+                    duration = 10,
                     until_next_rank = 200,
                     grenades = { 2, 0 },
                     weapons = { 1, 7, nil, nil },
                 },
                 [2] = {
+                    duration = 15,
                     until_next_rank = 500,
                     grenades = { 2, 0 },
                     weapons = { 1, 7, 2, nil },
                 },
                 [3] = {
+                    duration = 20,
                     until_next_rank = 1000,
                     grenades = { 2, 0 },
                     weapons = { 1, 7, 2, nil },
                 },
                 [4] = {
+                    duration = 25,
                     until_next_rank = 2000,
                     grenades = { 4, 4 },
                     weapons = { 1, 7, 2, nil },
                 },
                 [5] = {
+                    duration = 25,
                     until_next_rank = nil,
                     grenades = { 4, 4 },
                     weapons = { 1, 7, 2, nil },
@@ -321,7 +325,7 @@ local Rank = {
             [9] = { "jpt!", "vehicles\\banshee\\mp_fuel rod explosion", 10, "+10cR (Banshee Fuel-Rod Explosion)" },
 
             -- WEAPON PROJECTILES --
-            [10] = { "jpt!", "weapons\\pistol\\bullet", 5, "+5cR (Pistol Bullet)" },
+            [10] = { "jpt!", "weapons\\pistol\\bullet", 50, "+5cR (Pistol Bullet)" },
             [11] = { "jpt!", "weapons\\shotgun\\pellet", 6, "+6cR (Shotgun Pallet)" },
             [12] = { "jpt!", "weapons\\plasma rifle\\bolt", 4, "+4cR (Plasma Rifle Bolt)" },
             [13] = { "jpt!", "weapons\\needler\\explosion", 8, "+8cR (Needler Explosion)" },
@@ -416,6 +420,7 @@ function OnScriptLoad()
 
     register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
+
     if (get_var(0, "$gt") ~= "n/a") then
 
         Rank.players = { }
@@ -482,10 +487,17 @@ function Rank:OnTick()
                 local DyN = get_dynamic_player(i)
                 if (DyN ~= 0) then
 
-                    local info = self:GetLevelInfo(i)
-                    self:cls(i, 25)
-                    local str = "Class: [" .. info.class .. "] Credits: [" .. info.credits .. "/" .. info.cr_req .. " ] Level: [" .. info.level .. "]"
-                    self:Respond(i, str, rprint, 10)
+                    --self:cls(i, 25)
+                    --for k, text in pairs(v.messages) do
+                    --    if (k) then
+                    --        text.time = text.time - time_scale
+                    --        if (text.time > 0) then
+                    --            rprint(i, text.content)
+                    --        else
+                    --            k = nil
+                    --        end
+                    --    end
+                    --end
 
                     -- Check for level up:
                     self:UpdateLevel(i)
@@ -535,6 +547,34 @@ function Rank:OnTick()
                             v.begin_regen = false
                             v.regen_timer = 0
                         end
+
+                    elseif (v.class == "Cloaking") then
+
+                        local invisible = read_float(DyN + 0x37C)
+                        local flashlight_state = read_bit(DyN + 0x208, 4)
+
+                        local case = (v.flashlight_state ~= flashlight_state and flashlight_state == 1)
+                        if (case) and (not v.active_camo) and (invisible == 0) then
+                            v.active_camo = true
+                        elseif (case) and (v.active_camo) and (invisible ~= 0) then
+                            self:ResetCamo(i)
+                        elseif (not case) and (v.active_camo) then
+                            execute_command("camo " .. i .. " 1")
+                            v.active_camo_timer = v.active_camo_timer + time_scale
+                            if (v.active_camo_timer >= current_class.levels[level].duration) then
+                                self:ResetCamo(i)
+                            end
+                        end
+                        v.flashlight_state = flashlight_state
+
+                        local shooting = read_float(DyN + 0x490)
+                        if (shooting ~= v.shooting and shooting == 1) then
+
+                        else
+                            print('not shooting')
+                        end
+                        v.shooting = shooting
+
                     elseif (v.class == "Recon") then
                         local key = read_byte(DyN + 0x2A3)
 
@@ -582,15 +622,16 @@ function Rank:OnTick()
 
                             -- begin regenerating time:
                         elseif (v.regen) then
-                            v.speed_cooldown = v.speed_cooldown + time_scale
-                            local time_remaining = SecondsToClock(current_class.levels[level].speed_duration - v.speed_timer)
-                            self:Respond(i, "Boost Time: " .. time_remaining, rprint, 10)
-                            if (math.floor(v.speed_cooldown % 4) == 3) and (v.speed_timer > 0) then
-                                v.speed_timer = v.speed_timer - 1 / 30
-                                if (v.speed_timer < 0) then
-                                    v.speed_timer = 0
-                                end
-                            end
+
+                            --v.speed_cooldown = v.speed_cooldown + time_scale
+                            --local time_remaining = SecondsToClock(current_class.levels[level].speed_duration - v.speed_timer)
+                            --self:Respond(i, "Boost Time: " .. time_remaining, rprint, 10)
+                            --if (math.floor(v.speed_cooldown % 4) == 3) and (v.speed_timer > 0) then
+                            --    v.speed_timer = v.speed_timer - 1 / 30
+                            --    if (v.speed_timer < 0) then
+                            --        v.speed_timer = 0
+                            --    end
+                            --end
                         end
                     end
                 end
@@ -647,11 +688,21 @@ function OnPlayerScore(Ply)
 end
 
 function Rank:ResetSpeed(Ply)
-    self.players[Ply].regen = 0
+    self.players[Ply].regen = false
     self.players[Ply].press_count = 0
     self.players[Ply].key_released = 0
     self.players[Ply].button_press_delay = 0
     execute_command("s" .. " " .. Ply .. " 1")
+end
+
+function Rank:ResetCamo(Ply, SpawnTrigger)
+    self.players[Ply].shooting = 0
+    self.players[Ply].active_camo = false
+    self.players[Ply].flashlight_state = 0
+    self.players[Ply].active_camo_timer = 0
+    if (not SpawnTrigger) then
+        execute_command("camo " .. Ply .. " 1")
+    end
 end
 
 function Rank:InitPlayer(Ply)
@@ -659,12 +710,17 @@ function Rank:InitPlayer(Ply)
         levels = { },
         class = self.default_class,
         name = get_var(Ply, "$name"),
+
+        -- Recon Class --
+        speed_timer = 0,
+        speed_cooldown = 0,
         button_press_delay = 0,
 
-        speed_cooldown = 0,
-        speed_timer = 0,
-
+        -- OnPlayerDisconnect() --
         disconnect_timer = 120,
+
+        -- Message handler stuff
+        messages = { paused = false },
     }
     for k, _ in pairs(self.classes) do
         self.players[Ply].levels[k] = {
@@ -682,7 +738,7 @@ end
 
 function OnPlayerSpawn(Ply)
     local t = Rank.players[Ply]
-    local info = GetLvlInfo(Ply)
+    local info = Rank:GetLevelInfo(Ply)
 
     -- Weapon Assignment Variables
     t.assign = true
@@ -696,8 +752,14 @@ function OnPlayerSpawn(Ply)
     t.regen_shield = false
 
     Rank:ResetSpeed(Ply)
+    Rank:ResetCamo(Ply, true)
 
     t.time_until_regen_begin = Rank.classes["Regeneration"].levels[info.level].regen_delay
+
+    --t.messages["HUD"] = {
+    --    time = 3600,
+    --    content = "Class: [" .. info.class .. "] Credits: [" .. info.credits .. "/" .. info.cr_req .. " ] Level: [" .. info.level .. "]"
+    --}
 end
 
 local function GetTag(ObjectType, ObjectName)
@@ -780,6 +842,8 @@ function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
     local pvp = ((killer > 0) and killer ~= victim)
     local betrayal = ((kteam == vteam) and killer ~= victim)
 
+    -- self.players[victim].messages["HUD"] = nil
+
     if (pvp) then
 
         self:MultiKill(killer)
@@ -847,18 +911,20 @@ function Rank:GetLevelInfo(Ply)
     return { class = c, level = l, credits = cr, cr_req = crR }
 end
 
--- todo: figure out why levels are not updating!
+-- todo: figure out why levels are being reset back to 1!!
 function Rank:UpdateLevel(Ply)
-    local info = self:GetLevelInfo(Ply)
-    local cr_req = self.classes[info.class].levels[info.level].until_next_rank
-    if (cr_req ~= nil) and (info.credits >= cr_req) then
-        info.level = info.level + 1
+    local t = self.players[Ply]
+    local cr_req = self.classes[t.class].levels[t.levels[t.class].level].until_next_rank
+    if (cr_req ~= nil and t.levels[t.class].credits >= cr_req) then
+        t.levels[t.class].level = t.levels[t.class].level + 1
     end
 end
 
 function Rank:UpdateCredits(Ply, Params)
     local t = self.players[Ply]
     t.levels[t.class].credits = t.levels[t.class].credits + Params[1]
+
+    -- t.messages[#t.messages + 1] = { time = 5, content = Params[2] }
 
     self:Respond(Ply, Params[2], rprint, 10)
 
