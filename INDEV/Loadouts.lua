@@ -695,7 +695,7 @@ function Loadout:OnTick()
 
             -- todo:        Find alternative to this method:
             -- todo:        This wont work as another player could join within the cooldown period and
-            -- todo:        andbe assigned the previous player's ID!
+            -- todo:        be assigned the previous player's ID!
             -- Player's have X seconds to return to the server, otherwise their stats are cleared:
             --v.disconnect_timer = v.disconnect_timer - time_scale
             --if (v.disconnect_timer <= 0) then
