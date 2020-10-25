@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Loadout, for SAPP (PC & CE)
+Script Name: Loadout (Alpha 1.0), for SAPP (PC & CE)
 Description: N/A
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
