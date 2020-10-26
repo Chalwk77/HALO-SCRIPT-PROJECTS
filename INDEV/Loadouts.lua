@@ -15,7 +15,7 @@ api_version = "1.12.0.0"
 
 local Loadout = {
 
-    default_class = "Regeneration",
+    default_class = "Recon",
     starting_level = 1,
 
     -- Command Syntax: /level_cmd [number: 1-16] | */all | me <level>
@@ -43,6 +43,9 @@ local Loadout = {
     -- How long should rank_hud info disappear for?
     rank_hud_pause_duration = 5,
     rank_hud = "Class: [%class%] Level: [%lvl%/%total_levels%] Credits: [%credits%/%req_exp%] Kills: [%kills%]",
+
+    -- N/A
+    pause_speedboost_hud_duration = 5,
 
     -- Command used to display information about your current class:
     info_command = "help",
@@ -115,7 +118,7 @@ local Loadout = {
                     increment = 0.0550,
                     regen_rate = 1,
                     until_next_level = 500,
-                    grenades = { 2, 0 },
+                    grenades = { 3, 0 },
                     weapons = { 1, 7, 2, nil },
                     shield_regen_delay = nil,
                 },
@@ -124,7 +127,7 @@ local Loadout = {
                     increment = 0.750,
                     regen_rate = 1,
                     until_next_level = 1000,
-                    grenades = { 2, 0 },
+                    grenades = { 3, 2 },
                     weapons = { 1, 7, 2, nil },
                     shield_regen_delay = nil,
                 },
@@ -142,7 +145,7 @@ local Loadout = {
                     increment = 0.1100,
                     regen_rate = 1,
                     until_next_level = nil,
-                    grenades = { 4, 4 },
+                    grenades = { 5, 5 },
                     weapons = { 1, 7, 2, nil },
                     shield_regen_delay = 50,
                 }
@@ -168,23 +171,23 @@ local Loadout = {
                     fall_damage_immunity = false,
                     melee_damage_multiplier = 0,
                     grenades = { 2, 0 },
-                    weapons = { 1, 7, nil, nil },
+                    weapons = { 1, 10, nil, nil },
                 },
                 [2] = {
                     until_next_level = 500,
                     damage_resistance = 1.30,
                     fall_damage_immunity = false,
                     melee_damage_multiplier = 0,
-                    grenades = { 2, 0 },
-                    weapons = { 1, 7, 2, nil },
+                    grenades = { 3, 0 },
+                    weapons = { 1, 10, 3, nil },
                 },
                 [3] = {
                     until_next_level = 1000,
                     damage_resistance = 1.40,
                     fall_damage_immunity = false,
                     melee_damage_multiplier = 200,
-                    grenades = { 2, 0 },
-                    weapons = { 1, 7, 2, nil },
+                    grenades = { 3, 2 },
+                    weapons = { 1, 10, 3, nil },
                 },
                 [4] = {
                     until_next_level = 2000,
@@ -192,15 +195,15 @@ local Loadout = {
                     fall_damage_immunity = false,
                     melee_damage_multiplier = 200,
                     grenades = { 4, 4 },
-                    weapons = { 1, 7, 2, nil },
+                    weapons = { 1, 10, 3, nil },
                 },
                 [5] = {
                     until_next_level = nil,
                     damage_resistance = 1.55,
                     fall_damage_immunity = true,
                     melee_damage_multiplier = 200,
-                    grenades = { 4, 4 },
-                    weapons = { 1, 7, 2, nil },
+                    grenades = { 5, 5 },
+                    weapons = { 1, 10, 3, nil },
                 }
             }
         },
@@ -221,35 +224,35 @@ local Loadout = {
                     reinitialize_delay = 8,
                     until_next_level = 200,
                     grenades = { 2, 0 },
-                    weapons = { 1, 7, nil, nil },
+                    weapons = { 1, 10, nil, nil },
                 },
                 [2] = {
                     duration = 15,
                     reinitialize_delay = 8,
                     until_next_level = 500,
-                    grenades = { 2, 0 },
-                    weapons = { 1, 7, 2, nil },
+                    grenades = { 3, 0 },
+                    weapons = { 10, 1, 8, nil },
                 },
                 [3] = {
                     duration = 20,
                     reinitialize_delay = 8,
                     until_next_level = 1000,
-                    grenades = { 2, 0 },
-                    weapons = { 1, 7, 2, nil },
+                    grenades = { 3, 2 },
+                    weapons = { 10, 1, 8, nil },
                 },
                 [4] = {
                     duration = 25,
                     reinitialize_delay = 0,
                     until_next_level = 2000,
                     grenades = { 4, 4 },
-                    weapons = { 1, 7, 2, nil },
+                    weapons = { 10, 1, 8, nil },
                 },
                 [5] = {
                     duration = 25,
                     reinitialize_delay = 0,
                     until_next_level = nil,
-                    grenades = { 4, 4 },
-                    weapons = { 1, 7, 2, nil },
+                    grenades = { 5, 5 },
+                    weapons = { 10, 1, 8, nil },
                 }
             }
         },
@@ -266,39 +269,39 @@ local Loadout = {
             },
             levels = {
                 [1] = {
-                    speed = 1.5,
+                    speed = 2,
                     speed_duration = 10,
                     until_next_level = 200,
                     grenades = { 2, 0 },
                     weapons = { 1, 7, nil, nil },
                 },
                 [2] = {
-                    speed = 1.6,
-                    speed_duration = 10,
+                    speed = 2,
+                    speed_duration = 12,
                     until_next_level = 500,
-                    grenades = { 2, 0 },
-                    weapons = { 1, 7, 2, nil },
+                    grenades = { 3, 0 },
+                    weapons = { 1, 7, 10, nil },
                 },
                 [3] = {
-                    speed = 1.7,
-                    speed_duration = 10,
+                    speed = 2,
+                    speed_duration = 15,
                     until_next_level = 1000,
-                    grenades = { 2, 0 },
-                    weapons = { 1, 7, 2, nil },
+                    grenades = { 3, 2 },
+                    weapons = { 1, 7, 10, nil },
                 },
                 [4] = {
-                    speed = 1.8,
-                    speed_duration = 10,
+                    speed = 2,
+                    speed_duration = 18,
                     until_next_level = 2000,
                     grenades = { 4, 4 },
-                    weapons = { 1, 7, 2, nil },
+                    weapons = { 1, 7, 10, nil },
                 },
                 [5] = {
                     speed = 2.5,
-                    speed_duration = 10,
+                    speed_duration = 20,
                     until_next_level = nil,
-                    grenades = { 4, 4 },
-                    weapons = { 1, 7, 2, nil },
+                    grenades = { 5, 5 },
+                    weapons = { 1, 7, 10, nil },
                 }
             }
         }
@@ -342,7 +345,7 @@ local Loadout = {
         -- Bonus Credits per bounty level:
         bounty_bonus = 25,
 
-        -- {consecutive kills, xp rewarded}
+        -- {consecutive kills, xp rewarded, "message sent", bounty level added}
         spree = {
             { 5, 5, "+5cR (spree)", 1 },
             { 10, 10, "+10cR (spree)", 2 },
@@ -680,9 +683,9 @@ function Loadout:OnTick()
                         -- RESET CASE --
                         --
                         local case1 = (key == 0 and v.key_released == 3)
-                        local case2 = (v.button_press_delay >= .10) and (key == 0 or key == 4)
-                        local case3 = (v.press_count == 1 and key == 0) and (v.button_press_delay >= .10)
-                        local case4 = (v.button_press_delay >= .10) and (key == 0 and v.key_released == 2)
+                        local case2 = (v.button_press_delay >= .13) and (key == 0 or key == 4)
+                        local case3 = (v.press_count == 1 and key == 0) and (v.button_press_delay >= .13)
+                        local case4 = (v.button_press_delay >= .13) and (key == 0 and v.key_released == 2)
 
                         -- press 1:
                         if (key == 4 and v.press_count == 0 and v.key_released == 0) then
@@ -693,42 +696,56 @@ function Loadout:OnTick()
                             v.key_released = 2
 
                             -- checking for press 2:
-                        elseif (key == 0 and v.key_released == 2 and v.button_press_delay < .10) and (v.press_count == 1) then
+                        elseif (key == 0 and v.key_released == 2 and v.button_press_delay < .13) and (v.press_count == 1) then
                             v.button_press_delay = v.button_press_delay + time_scale
 
                             -- press 2:
-                        elseif (key == 4 and v.key_released == 2 and v.button_press_delay < .10) and (v.press_count == 1) then
+                        elseif (key == 4 and v.key_released == 2 and v.button_press_delay < .13) and (v.press_count == 1) then
                             v.press_count = v.press_count + 1
                             v.key_released = 3
 
                             -- apply speed:
                         elseif (key == 4 and v.key_released == 3) then
                             v.speed_timer = v.speed_timer + time_scale
-                            Loadout:cls(i, 25)
-                            local time_remaining = SecondsToClock(current_class.levels[level].speed_duration - v.speed_timer)
-                            self:Respond(i, "Boost Time: " .. time_remaining, rprint, 10)
+
+                            if (not v.pause_speedboost_hud) then
+                                local t = (current_class.levels[level].speed_duration - v.speed_timer)
+                                self:PrintSpeedBoostHUD(i, t)
+                            end
+
+                            -- Apply Speed:
                             if (v.speed_timer <= current_class.levels[level].speed_duration) then
                                 execute_command("s" .. " " .. i .. " " .. current_class.levels[level].speed)
                             else
-                                v.speed_timer = 0
-                                v.speed_cooldown = 0
-                                self:ResetSpeed(i)
+                                self:ResetSpeed(i, true)
                             end
+
                             -- reset
                         elseif (case1 or case2 or case3 or case4) then
-                            self:ResetSpeed(i)
-                            v.regen = true
+                            self:ResetSpeed(i, true)
 
                             -- begin regenerating time:
-                        elseif (v.regen) then
+                        elseif (v.regen and v.speed_timer > 0) then
+
                             v.speed_cooldown = v.speed_cooldown + time_scale
-                            --local time_remaining = SecondsToClock(current_class.levels[level].speed_duration - v.speed_timer)
-                            --self:Respond(i, "Boost Time: " .. time_remaining, rprint, 10)
+
+                            if (not v.pause_speedboost_hud) then
+                                local t = (current_class.levels[level].speed_duration - v.speed_timer)
+                                self:PrintSpeedBoostHUD(i, t)
+                            end
+
                             if (math.floor(v.speed_cooldown % 4) == 3) and (v.speed_timer > 0) then
                                 v.speed_timer = v.speed_timer - 1 / 30
                                 if (v.speed_timer < 0) then
-                                    v.speed_timer = 0
+                                    self:ResetSpeed(i)
                                 end
+                            end
+                        end
+                        if (key == 20) and (v.key_released == 3) then
+                            v.speed_timer = v.speed_timer + (time_scale * 3)
+                            if (not v.pause_speedboost_hud) then
+                                local t = (current_class.levels[level].speed_duration - v.speed_timer)
+                                self:PrintSpeedBoostHUD(i, t)
                             end
                         end
                     end
@@ -745,6 +762,13 @@ function Loadout:OnTick()
                             end
                         elseif (self.gamestarted) then
                             self:PrintRank(i)
+                        end
+                    end
+                    if (v.pause_speedboost_hud) then
+                        v.pause_speedboost_hud_duration = v.pause_speedboost_hud_duration - time_scale
+                        if (v.pause_speedboost_hud_duration <= 0) then
+                            v.pause_speedboost_hud = false
+                            v.pause_speedboost_hud_duration = self.pause_speedboost_hud_duration
                         end
                     end
                     if (v.show_help and self.gamestarted) then
@@ -772,20 +796,36 @@ function Loadout:OnTick()
     end
 end
 
-function Loadout:PauseRankHUD(Ply, Clear)
+function Loadout:PauseHUD(Ply, Clear)
     local p = self.players[Ply]
     if (Clear) then
         self:cls(Ply, 25)
     end
+
     p.rank_hud_pause = true
     p.rank_hud_pause_duration = self.rank_hud_pause_duration
 end
 
-function Loadout:PrintHelp(Ply, InfoTab)
-    Loadout:cls(Ply, 25)
-    for i = 1, #InfoTab do
-        Loadout:Respond(Ply, InfoTab[i], rprint, 10)
+function Loadout:PauseSpeedBoostHUD(Ply, Clear)
+    local p = self.players[Ply]
+    if (Clear) then
+        self:cls(Ply, 25)
     end
+
+    p.pause_speedboost_hud = true
+    p.pause_speedboost_hud_duration = self.pause_speedboost_hud_duration
+end
+
+function Loadout:PrintHelp(Ply, InfoTab)
+    self:cls(Ply, 25)
+    for i = 1, #InfoTab do
+        self:Respond(Ply, InfoTab[i], rprint, 10)
+    end
+end
+
+function Loadout:PrintSpeedBoostHUD(Ply, Time)
+    self:cls(Ply, 25)
+    self:Respond(Ply, "Boost Time: " .. SecondsToClock(Time), rprint, 10)
 end
 
 function Loadout:PrintRank(Ply)
@@ -832,7 +872,8 @@ function Loadout:OnServerCommand(Executor, Command)
 
         if (Executor > 0) then
             etab = self.players[Executor]
-            self:PauseRankHUD(Executor, true)
+            self:PauseHUD(Executor, true)
+            self:PauseSpeedBoostHUD(Executor, true)
         end
 
         for class, v in pairs(self.classes) do
@@ -976,8 +1017,15 @@ function Loadout:OnPlayerScore(Ply)
     self:UpdateCredits(Ply, { self.credits.score[1], self.credits.score[2] })
 end
 
-function Loadout:ResetSpeed(Ply)
-    self.players[Ply].regen = false
+function Loadout:ResetSpeed(Ply, Regenerating)
+
+    if (Regenerating) then
+        self.players[Ply].regen = true
+    else
+        self.players[Ply].regen = false
+        self.players[Ply].speed_timer = 0
+    end
+
     self.players[Ply].press_count = 0
     self.players[Ply].key_released = 0
     self.players[Ply].button_press_delay = 0
@@ -1025,6 +1073,9 @@ function Loadout:InitPlayer(Ply)
 
         rank_hud_pause = false,
         rank_hud_pause_duration = self.rank_hud_pause_duration,
+
+        pause_speedboost_hud = false,
+        pause_speedboost_hud_duration = self.pause_speedboost_hud_duration,
 
     }
     for k, _ in pairs(self.classes) do
@@ -1346,7 +1397,7 @@ function Loadout:Respond(Ply, Message, Type, Color, Exclude, HUD)
     else
 
         if (not HUD and Ply) then
-            self:PauseRankHUD(Ply)
+            self:PauseHUD(Ply)
         end
 
         if (not Exclude) then
@@ -1358,7 +1409,7 @@ function Loadout:Respond(Ply, Message, Type, Color, Exclude, HUD)
         else
             for i = 1, 16 do
                 if player_present(i) and (i ~= Ply) then
-                    self:PauseRankHUD(i)
+                    self:PauseHUD(i)
                     Type(i, Message)
                 end
             end
