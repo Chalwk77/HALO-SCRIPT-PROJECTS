@@ -24,7 +24,7 @@ local Loadout = {
     level_cmd_permission_others = 4,
 
     -- Command Syntax: /credits_cmd [number: 1-16] | */all | me <credits>
-    credits_cmd = "cr",
+    credits_cmd = "credits",
     credits_cmd_permission = 1,
     credits_cmd_permission_others = 4,
 
