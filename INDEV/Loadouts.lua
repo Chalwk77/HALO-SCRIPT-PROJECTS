@@ -15,7 +15,7 @@ api_version = "1.12.0.0"
 
 local Loadout = {
 
-    default_class = "Cloaking",
+    default_class = "Regeneration",
     starting_level = 1,
 
     -- Command Syntax: /level_cmd [number: 1-16] | */all | me <level>
@@ -192,8 +192,8 @@ local Loadout = {
             }
         },
 
-        ["Cloaking"] = {
-            command = "camo",
+        ["Cloak"] = {
+            command = "cloak",
             info = {
                 "Partial Camo: Good for players who prefer stealth and quick kills or CQB.",
                 "Level 1 - Camo works until you fire your weapon or take damage. Reinitialize delays are 3s/Weapon, 5s/Damage",
@@ -242,7 +242,7 @@ local Loadout = {
         },
 
         ["Recon"] = {
-            command = "speed",
+            command = "recon",
             info = {
                 "Recon: Good for players who don't use vehicles. Also good for capturing.",
                 "Level 1 - Default speed raised to 1.5x. Sprint duration is 200%.",
@@ -462,8 +462,10 @@ function OnScriptLoad()
 
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb["EVENT_DIE"], "OnPlayerDeath")
-    register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
     register_callback(cb["EVENT_SCORE"], "OnPlayerScore")
+
+    register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
+    register_callback(cb["EVENT_PRESPAWN"], "OnPlayerPreSpawn")
 
     register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
@@ -497,6 +499,14 @@ end
 
 function OnPlayerConnect(Ply)
     Loadout:InitPlayer(Ply)
+end
+
+function OnPlayerPreSpawn(Ply)
+    local t = Loadout.players[Ply]
+    if (t.switch_on_respawn[1]) then
+        t.switch_on_respawn[1] = false
+        t.class = t.switch_on_respawn[2]
+    end
 end
 
 local function SetGrenades(DyN, Class, Level)
@@ -585,7 +595,7 @@ function Loadout:OnTick()
                             v.regen_timer = 0
                         end
 
-                    elseif (v.class == "Cloaking") then
+                    elseif (v.class == "Cloak") then
 
                         local invisible = read_float(DyN + 0x37C)
                         local flashlight_state = read_bit(DyN + 0x208, 4)
@@ -777,6 +787,20 @@ function Loadout:OnServerCommand(Executor, Command)
             self:PauseRankHUD(Executor, true)
         end
 
+        for class, v in pairs(self.classes) do
+            if (Args[1] == v.command) then
+                print('command is mother fucking valid')
+                if (t.class == class) then
+                    self:Respond(Executor, "You already have " .. class .. " class", rprint, 12)
+                else
+                    t.switch_on_respawn[1] = true
+                    t.switch_on_respawn[2] = class
+                    self:Respond(Executor, "You will switch to " .. class .. " when you respawn", rprint, 12)
+                end
+                return false
+            end
+        end
+
         local lvl = tonumber(get_var(Executor, "$lvl"))
         if (Args[1] == self.level_cmd) then
             if (lvl >= self.level_cmd_permission or (Executor == 0)) then
@@ -899,6 +923,8 @@ function Loadout:InitPlayer(Ply)
 
         -- OnPlayerDisconnect() --
         --disconnect_timer = self.disconnect_cooldown,
+
+        switch_on_respawn = { false, nil },
 
         help_page = nil,
         show_help = false,
@@ -1182,17 +1208,12 @@ function Loadout:OnDamageApplication(VictimIndex, KillerIndex, MetaID, Damage, H
                     Damage = Damage + (self.classes[k.class].levels[k_info.level].melee_damage_multiplier)
                 end
                 hurt = true
-            elseif (v.class == "Cloaking") then
+            elseif (v.class == "Cloak") then
                 local DyN = get_dynamic_player(victim)
                 if (DyN ~= 0) then
                     local invisible = read_float(DyN + 0x37C)
                     if (v.active_camo) and (invisible ~= 0) then
                         v.camo_pause = true
-
-                        --self.players[Ply].shooting = 0
-                        --self.players[Ply].active_camo = false
-                        --self.players[Ply].flashlight_state = 0
-                        --self.players[Ply].active_camo_timer = 0
                     end
                 end
             end
