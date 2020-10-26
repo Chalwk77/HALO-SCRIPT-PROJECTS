@@ -301,7 +301,7 @@ local Loadout = {
         end,
 
         -- Bonus credits for killing the flag carrier
-        flag_carrier_kill_bonus = 10,
+        flag_carrier_kill_bonus = { 10, "+10cR (Flag Carrier Kill Bonus)" },
 
         -- Score (credits added):
         score = { 25, "+25cR (Flag Cap)" },
@@ -567,7 +567,7 @@ function Loadout:OnTick()
                         local coords = GetXYZ(DyN)
                         if (not coords.invehicle) then
 
-                            local flag = hasObjective(DyN)
+                            local flag = self:hasObjective(DyN)
                             if (flag) then
                                 v.assign_delay = true
                                 v.assign_delay_timer = v.assign_delay_timer - time_scale
@@ -1119,6 +1119,13 @@ function Loadout:OnPlayerDeath(VictimIndex, KillerIndex)
         self:MultiKill(killer)
         self:KillingSpree(killer)
 
+        local DyN = get_dynamic_player(victim)
+        if (DyN ~= 0) then
+            if self:hasObjective(DyN) then
+                self:UpdateCredits(killer, { self.credits.flag_carrier_kill_bonus[1], self.credits.flag_carrier_kill_bonus[2] })
+            end
+        end
+
         if (not player_alive(killer)) then
             self:UpdateCredits(killer, { self.credits.killed_from_the_grave[1], self.credits.killed_from_the_grave[2] })
         elseif (self.players[victim].head_shot) then
@@ -1157,7 +1164,13 @@ function Loadout:OnPlayerDeath(VictimIndex, KillerIndex)
         return self:UpdateCredits(killer, CheckDamageTag(last_damage))
 
     elseif (server) then
-        self:UpdateCredits(victim, { self.credits.server[1], self.credits.server[2] })
+        if (last_damage == GetTag(self.credits.tags[1][1], self.credits.tags[1][2])) then
+            self:UpdateCredits(victim, { self.credits.tags[1][3], self.credits.tags[1][4] })
+        elseif (last_damage == GetTag(self.credits.tags[2][1], self.credits.tags[2][2])) then
+            self:UpdateCredits(victim, { self.credits.tags[2][3], self.credits.tags[2][4] })
+        else
+            self:UpdateCredits(victim, { self.credits.server[1], self.credits.server[2] })
+        end
     elseif (guardians) then
         self:UpdateCredits(victim, { self.credits.guardians[1], self.credits.guardians[2] })
     elseif (suicide) then
@@ -1367,7 +1380,7 @@ function GetVehicleTag(Vehicle)
     return nil
 end
 
-function hasObjective(DyN)
+function Loadout:hasObjective(DyN)
     for i = 0, 3 do
         local WeaponID = read_dword(DyN + 0x2F8 + 0x4 * i)
         if (WeaponID ~= 0xFFFFFFFF) then
