@@ -300,6 +300,9 @@ local Loadout = {
             return { cr, "+%credits% (PvP Bonus)" }
         end,
 
+        -- Bonus credits for killing the flag carrier
+        flag_carrier_kill_bonus = 10,
+
         -- Score (credits added):
         score = { 25, "+25cR (Flag Cap)" },
 
@@ -456,6 +459,19 @@ local time_scale = 1 / 30
 local gmatch, gsub = string.gmatch, string.gsub
 local lower, upper = string.lower, string.upper
 
+local function Init()
+    execute_command('sv_map_reset')
+
+    Loadout.players = { }
+    Loadout.gamestarted = true
+
+    for i = 1, 16 do
+        if player_present(i) then
+            Loadout:InitPlayer(i)
+        end
+    end
+end
+
 function OnScriptLoad()
 
     register_callback(cb["EVENT_TICK"], "OnTick")
@@ -474,14 +490,7 @@ function OnScriptLoad()
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
 
     if (get_var(0, "$gt") ~= "n/a") then
-        execute_command('sv_map_reset')
-        Loadout.players = { }
-        Loadout.gamestarted = true
-        for i = 1, 16 do
-            if player_present(i) then
-                Loadout:InitPlayer(i)
-            end
-        end
+        Init()
     end
 end
 
@@ -491,8 +500,7 @@ end
 
 function OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
-        Loadout.players = { }
-        Loadout.gamestarted = true
+        Init()
     end
 end
 
@@ -558,15 +566,35 @@ function Loadout:OnTick()
                     if (v.assign) then
                         local coords = GetXYZ(DyN)
                         if (not coords.invehicle) then
-                            v.assign = false
-                            SetGrenades(DyN, current_class, level)
-                            execute_command("wdel " .. i)
-                            local weapon_table = current_class.levels[level].weapons
-                            for Slot, WI in pairs(weapon_table) do
-                                if (Slot == 1 or Slot == 2) then
-                                    assign_weapon(spawn_object("weap", self.weapon_tags[WI], coords.x, coords.y, coords.z), i)
-                                elseif (Slot == 3 or Slot == 4) then
-                                    timer(250, "DelaySecQuat", i, self.weapon_tags[WI], coords.x, coords.y, coords.z)
+
+                            local flag = hasObjective(DyN)
+                            if (flag) then
+                                v.assign_delay = true
+                                v.assign_delay_timer = v.assign_delay_timer - time_scale
+                                if (v.assign_delay_timer <= 0) then
+                                    v.assign_delay = false
+                                end
+                            end
+
+                            if (not v.assign_delay) then
+
+                                if (flag) then
+                                    drop_weapon(i)
+                                end
+
+                                v.assign = false
+                                v.assign_delay_timer = 1
+                                v.assign_delay = false
+
+                                SetGrenades(DyN, current_class, level)
+                                execute_command("wdel " .. i)
+                                local weapon_table = current_class.levels[level].weapons
+                                for Slot, WI in pairs(weapon_table) do
+                                    if (Slot == 1 or Slot == 2) then
+                                        assign_weapon(spawn_object("weap", self.weapon_tags[WI], coords.x, coords.y, coords.z), i)
+                                    elseif (Slot == 3 or Slot == 4) then
+                                        timer(250, "DelaySecQuat", i, self.weapon_tags[WI], coords.x, coords.y, coords.z)
+                                    end
                                 end
                             end
                         end
@@ -784,9 +812,9 @@ function Loadout:OnServerCommand(Executor, Command)
     else
         Args[1] = lower(Args[1]) or upper(Args[1])
 
-        local t
+        local etab
         if (Executor > 0) then
-            t = self.players[Executor]
+            etab = self.players[Executor]
             self:PauseRankHUD(Executor, true)
         end
 
@@ -796,8 +824,8 @@ function Loadout:OnServerCommand(Executor, Command)
                 if (t.class == class) then
                     self:Respond(Executor, "You already have " .. class .. " class", rprint, 12)
                 else
-                    t.switch_on_respawn[1] = true
-                    t.switch_on_respawn[2] = class
+                    etab.switch_on_respawn[1] = true
+                    etab.switch_on_respawn[2] = class
                     self:Respond(Executor, "You will switch to " .. class .. " when you respawn", rprint, 12)
                 end
                 return false
@@ -814,9 +842,14 @@ function Loadout:OnServerCommand(Executor, Command)
                         if (TargetID ~= Executor and lvl < self.level_cmd_permission_others) then
                             self:Respond(Executor, self.messages[4], rprint, 10)
                         elseif (Args[3]:match("^%d+$")) then
+
                             local t = self.players[TargetID]
                             local level = tonumber(Args[3])
-                            if (level <= #self.classes[t.class].levels) then
+
+                            if (level == t.levels[t.class].level) then
+                                self:Respond(Executor, "s2", rprint, 10)
+
+                            elseif (level <= #self.classes[t.class].levels) then
                                 t.assign = true
                                 t.levels[t.class].level = level
                                 if (TargetID == Executor) then
@@ -878,7 +911,7 @@ function Loadout:OnServerCommand(Executor, Command)
             end
             return false
         elseif (Args[1] == self.info_command) then
-            t.help_page, t.show_help = t.class, true
+            etab.help_page, etab.show_help = etab.class, true
             return false
         end
     end
@@ -970,6 +1003,9 @@ function OnPlayerSpawn(Ply)
     Loadout:ResetCamo(Ply, true)
 
     t.time_until_regen_begin = Loadout.classes["Regeneration"].levels[info.level].regen_delay
+
+    t.assign_delay = false
+    t.assign_delay_timer = 1
 
     --t.messages["HUD"] = {
     --    time = 3600,
@@ -1149,6 +1185,7 @@ function Loadout:UpdateLevel(Ply)
     local t = self.players[Ply]
     local cr_req = self.classes[t.class].levels[t.levels[t.class].level].until_next_level
     if (cr_req ~= nil and t.levels[t.class].credits >= cr_req) then
+
         t.levels[t.class].level = t.levels[t.class].level + 1
     end
 end
@@ -1328,6 +1365,23 @@ function GetVehicleTag(Vehicle)
         return read_string(read_dword(read_word(Vehicle) * 32 + 0x40440038))
     end
     return nil
+end
+
+function hasObjective(DyN)
+    for i = 0, 3 do
+        local WeaponID = read_dword(DyN + 0x2F8 + 0x4 * i)
+        if (WeaponID ~= 0xFFFFFFFF) then
+            local Weapon = get_object_memory(WeaponID)
+            if (Weapon ~= 0) then
+                local tag_address = read_word(Weapon)
+                local tag_data = read_dword(read_dword(0x40440000) + tag_address * 0x20 + 0x14)
+                if (read_bit(tag_data + 0x308, 3) == 1) then
+                    return true
+                end
+            end
+        end
+    end
+    return false
 end
 
 --======================================================
