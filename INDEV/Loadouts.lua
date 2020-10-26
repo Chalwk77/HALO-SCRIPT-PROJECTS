@@ -15,7 +15,7 @@ api_version = "1.12.0.0"
 
 local Loadout = {
 
-    default_class = "Recon",
+    default_class = "Cloaking",
     starting_level = 1,
 
     -- Command Syntax: /level_cmd [number: 1-16] | */all | me <level>
@@ -205,30 +205,35 @@ local Loadout = {
             levels = {
                 [1] = {
                     duration = 10,
+                    reinitialize_delay = 8,
                     until_next_level = 200,
                     grenades = { 2, 0 },
                     weapons = { 1, 7, nil, nil },
                 },
                 [2] = {
                     duration = 15,
+                    reinitialize_delay = 8,
                     until_next_level = 500,
                     grenades = { 2, 0 },
                     weapons = { 1, 7, 2, nil },
                 },
                 [3] = {
                     duration = 20,
+                    reinitialize_delay = 8,
                     until_next_level = 1000,
                     grenades = { 2, 0 },
                     weapons = { 1, 7, 2, nil },
                 },
                 [4] = {
                     duration = 25,
+                    reinitialize_delay = 0,
                     until_next_level = 2000,
                     grenades = { 4, 4 },
                     weapons = { 1, 7, 2, nil },
                 },
                 [5] = {
                     duration = 25,
+                    reinitialize_delay = 0,
                     until_next_level = nil,
                     grenades = { 4, 4 },
                     weapons = { 1, 7, 2, nil },
@@ -585,25 +590,30 @@ function Loadout:OnTick()
                         local invisible = read_float(DyN + 0x37C)
                         local flashlight_state = read_bit(DyN + 0x208, 4)
 
-                        local case = (v.flashlight_state ~= flashlight_state and flashlight_state == 1)
-                        if (case) and (not v.active_camo) and (invisible == 0) then
-                            v.active_camo = true
-                        elseif (case) and (v.active_camo) and (invisible ~= 0) then
-                            self:ResetCamo(i)
-                        elseif (not case) and (v.active_camo) then
-                            execute_command("camo " .. i .. " 1")
-                            v.active_camo_timer = v.active_camo_timer + time_scale
-                            if (v.active_camo_timer >= current_class.levels[level].duration) then
-                                self:ResetCamo(i)
+                        -- Pause CAMO:
+                        if (v.camo_pause) then
+                            v.camo_pause_timer = v.camo_pause_timer + time_scale
+                            if (v.camo_pause_timer >= current_class.levels[level].reinitialize_delay) then
+                                v.camo_pause = false
                             end
+                        else
+                            local case = (v.flashlight_state ~= flashlight_state and flashlight_state == 1)
+                            if (case) and (not v.active_camo) and (invisible == 0) then
+                                v.active_camo = true
+                            elseif (case) and (v.active_camo) and (invisible ~= 0) then
+                                self:ResetCamo(i)
+                            elseif (not case) and (v.active_camo) and (not v.camo_pause) then
+                                execute_command("camo " .. i .. " 1")
+                                v.active_camo_timer = v.active_camo_timer + time_scale
+                                if (v.active_camo_timer >= current_class.levels[level].duration) then
+                                    self:ResetCamo(i)
+                                end
+                            end
+                            v.flashlight_state = flashlight_state
                         end
-                        v.flashlight_state = flashlight_state
-
                         local shooting = read_float(DyN + 0x490)
                         if (shooting ~= v.shooting and shooting == 1) then
-                            -- shooting
-                        else
-                            -- not shooting
+                            v.camo_pause = true
                         end
                         v.shooting = shooting
 
@@ -864,6 +874,8 @@ function Loadout:ResetCamo(Ply, SpawnTrigger)
     self.players[Ply].active_camo = false
     self.players[Ply].flashlight_state = 0
     self.players[Ply].active_camo_timer = 0
+    self.players[Ply].camo_pause = false
+    self.players[Ply].camo_pause_timer = 0
     if (not SpawnTrigger) then
         execute_command("camo " .. Ply .. " 1")
     end
@@ -881,6 +893,9 @@ function Loadout:InitPlayer(Ply)
         speed_timer = 0,
         speed_cooldown = 0,
         button_press_delay = 0,
+
+        camo_pause = false,
+        camo_pause_timer = 0,
 
         -- OnPlayerDisconnect() --
         --disconnect_timer = self.disconnect_cooldown,
@@ -1172,7 +1187,12 @@ function Loadout:OnDamageApplication(VictimIndex, KillerIndex, MetaID, Damage, H
                 if (DyN ~= 0) then
                     local invisible = read_float(DyN + 0x37C)
                     if (v.active_camo) and (invisible ~= 0) then
-                        self:ResetCamo(victim)
+                        v.camo_pause = true
+
+                        --self.players[Ply].shooting = 0
+                        --self.players[Ply].active_camo = false
+                        --self.players[Ply].flashlight_state = 0
+                        --self.players[Ply].active_camo_timer = 0
                     end
                 end
             end
