@@ -320,6 +320,9 @@ local Loadout = {
         -- Killed from the grave (credits added to killer)
         killed_from_the_grave = { 5, "+5cR (Killed From Grave)" },
 
+        -- Bonus Credits given to someone when they capture the flag:
+        bounty_on_score = 1,
+
         -- Bonus Credits per bounty level:
         bounty_bonus = 25,
 
@@ -882,6 +885,7 @@ function Loadout:OnServerCommand(Executor, Command)
 end
 
 function OnPlayerScore(Ply)
+    Loadout.players[Ply].bounty = self.players[Ply].bounty + self.credits.bounty_on_score
     Loadout:UpdateCredits(Ply, { Loadout.credits.score[1], Loadout.credits.score[2] })
 end
 
