@@ -472,8 +472,11 @@ local time_scale = 1 / 30
 local gmatch, gsub = string.gmatch, string.gsub
 local lower, upper = string.lower, string.upper
 
-local function Init()
-    execute_command('sv_map_reset')
+local function Init(reset)
+
+    if (reset) then
+        execute_command('sv_map_reset')
+    end
 
     Loadout.players = { }
     Loadout.gamestarted = true
@@ -503,7 +506,7 @@ function OnScriptLoad()
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
 
     if (get_var(0, "$gt") ~= "n/a") then
-        Init()
+        Init(true)
     end
 end
 
