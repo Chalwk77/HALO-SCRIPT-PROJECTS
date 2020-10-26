@@ -465,23 +465,31 @@ local Loadout = {
         [12] = "a tag\\will go\\here",
     },
 
+    -- The array index for each client will either be "IP", or "IP:PORT".
+    -- Set to 1 for ip-only indexing.
+    ClientIndexType = 2,
+
     -- A message relay function temporarily removes the server prefix
     -- and will restore it to this when the relay is finished
     server_prefix = "**SAPP**",
     --
+
+    -- DO NOT TOUCH --
+    players = { }
 }
 
 local time_scale = 1 / 30
+local floor, format = math.floor, string.format
 local gmatch, gsub = string.gmatch, string.gsub
 local lower, upper = string.lower, string.upper
 
 local function Init(reset)
 
     if (reset) then
+        Loadout.players = { }
         execute_command('sv_map_reset')
     end
 
-    Loadout.players = { }
     Loadout.gamestarted = true
 
     for i = 1, 16 do
@@ -531,8 +539,9 @@ function OnPlayerConnect(Ply)
     Loadout:InitPlayer(Ply)
 end
 
-function OnPlayerPreSpawn(Ply)
-    local t = Loadout.players[Ply]
+function Loadout:OnPlayerPreSpawn(Ply)
+    local ip = self:GetIP(Ply)
+    local t = self.players[ip]
     if (t.switch_on_respawn[1]) then
         t.switch_on_respawn[1] = false
         t.class = t.switch_on_respawn[2]
@@ -554,7 +563,6 @@ function DelaySecQuat(Ply, Weapon, x, y, z)
     assign_weapon(spawn_object("weap", Weapon, x, y, z), Ply)
 end
 
-local floor, format = math.floor, string.format
 local function SecondsToClock(seconds)
     seconds = tonumber(seconds)
     if (seconds <= 0) then
@@ -569,235 +577,236 @@ local function SecondsToClock(seconds)
 end
 
 function Loadout:OnTick()
-    for i, v in pairs(self.players) do
-        if (player_present(i)) then
-            if player_alive(i) then
+    for ip, v in pairs(self.players) do
+        if (ip) then
 
-                local DyN = get_dynamic_player(i)
-                if (DyN ~= 0) then
+            local i = v.id
 
-                    -- Check for level up:
-                    self:UpdateLevel(i)
+            if (player_present(i)) then
+                if player_alive(i) then
 
-                    local level = v.levels[v.class].level
-                    local current_class = self.classes[v.class]
+                    local DyN = get_dynamic_player(i)
+                    if (DyN ~= 0) then
 
-                    if (v.assign) then
-                        local coords = GetXYZ(DyN)
-                        if (not coords.invehicle) then
+                        -- Check for level up:
+                        self:UpdateLevel(i)
 
-                            local flag = self:hasObjective(DyN)
-                            if (flag) then
-                                v.assign_delay = true
-                                v.assign_delay_timer = v.assign_delay_timer - time_scale
-                                if (v.assign_delay_timer <= 0) then
-                                    v.assign_delay = false
-                                end
-                            end
+                        local level = v.levels[v.class].level
+                        local current_class = self.classes[v.class]
 
-                            if (not v.assign_delay) then
+                        if (v.assign) then
+                            local coords = GetXYZ(DyN)
+                            if (not coords.invehicle) then
 
+                                local flag = self:hasObjective(DyN)
                                 if (flag) then
-                                    drop_weapon(i)
+                                    v.assign_delay = true
+                                    v.assign_delay_timer = v.assign_delay_timer - time_scale
+                                    if (v.assign_delay_timer <= 0) then
+                                        v.assign_delay = false
+                                    end
                                 end
 
-                                v.assign = false
-                                v.assign_delay_timer = 1
-                                v.assign_delay = false
+                                if (not v.assign_delay) then
 
-                                SetGrenades(DyN, current_class, level)
-                                execute_command("wdel " .. i)
-                                local weapon_table = current_class.levels[level].weapons
-                                for Slot, WI in pairs(weapon_table) do
-                                    if (Slot == 1 or Slot == 2) then
-                                        assign_weapon(spawn_object("weap", self.weapon_tags[WI], coords.x, coords.y, coords.z), i)
-                                    elseif (Slot == 3 or Slot == 4) then
-                                        timer(250, "DelaySecQuat", i, self.weapon_tags[WI], coords.x, coords.y, coords.z)
+                                    if (flag) then
+                                        drop_weapon(i)
+                                    end
+
+                                    v.assign = false
+                                    v.assign_delay_timer = 1
+                                    v.assign_delay = false
+
+                                    SetGrenades(DyN, current_class, level)
+                                    execute_command("wdel " .. i)
+                                    local weapon_table = current_class.levels[level].weapons
+                                    for Slot, WI in pairs(weapon_table) do
+                                        if (Slot == 1 or Slot == 2) then
+                                            assign_weapon(spawn_object("weap", self.weapon_tags[WI], coords.x, coords.y, coords.z), i)
+                                        elseif (Slot == 3 or Slot == 4) then
+                                            timer(250, "DelaySecQuat", i, self.weapon_tags[WI], coords.x, coords.y, coords.z)
+                                        end
                                     end
                                 end
                             end
-                        end
-                    elseif (v.class == "Regeneration") then
+                        elseif (v.class == "Regeneration") then
 
-                        local health = read_float(DyN + 0xE0)
-                        local shield = read_float(DyN + 0xE4)
+                            local health = read_float(DyN + 0xE0)
+                            local shield = read_float(DyN + 0xE4)
 
-                        local delay = tonumber(current_class.levels[level].shield_regen_delay)
-                        if (shield < 1 and delay ~= nil and v.regen_shield) then
-                            v.regen_shield = false
-                            write_word(DyN + 0x104, delay)
-                        end
+                            local delay = tonumber(current_class.levels[level].shield_regen_delay)
+                            if (shield < 1 and delay ~= nil and v.regen_shield) then
+                                v.regen_shield = false
+                                write_word(DyN + 0x104, delay)
+                            end
 
-                        if (health < 1 and shield == 1) then
-                            v.time_until_regen_begin = v.time_until_regen_begin - time_scale
-                            if (v.time_until_regen_begin <= 0) and (not v.begin_regen) then
-                                v.time_until_regen_begin = current_class.levels[level].regen_delay
-                                v.begin_regen = true
-                            elseif (v.begin_regen) then
-                                v.regen_timer = v.regen_timer + time_scale
-                                if (v.regen_timer >= current_class.levels[level].regen_rate) then
-                                    v.regen_timer = 0
-                                    write_float(DyN + 0xE0, health + current_class.levels[level].increment)
+                            if (health < 1 and shield == 1) then
+                                v.time_until_regen_begin = v.time_until_regen_begin - time_scale
+                                if (v.time_until_regen_begin <= 0) and (not v.begin_regen) then
+                                    v.time_until_regen_begin = current_class.levels[level].regen_delay
+                                    v.begin_regen = true
+                                elseif (v.begin_regen) then
+                                    v.regen_timer = v.regen_timer + time_scale
+                                    if (v.regen_timer >= current_class.levels[level].regen_rate) then
+                                        v.regen_timer = 0
+                                        write_float(DyN + 0xE0, health + current_class.levels[level].increment)
+                                    end
                                 end
+                            elseif (v.begin_regen and health >= 1) then
+                                v.begin_regen = false
+                                v.regen_timer = 0
                             end
-                        elseif (v.begin_regen and health >= 1) then
-                            v.begin_regen = false
-                            v.regen_timer = 0
-                        end
 
-                    elseif (v.class == "Cloak") then
+                        elseif (v.class == "Cloak") then
 
-                        local invisible = read_float(DyN + 0x37C)
-                        local flashlight_state = read_bit(DyN + 0x208, 4)
+                            local invisible = read_float(DyN + 0x37C)
+                            local flashlight_state = read_bit(DyN + 0x208, 4)
 
-                        -- Pause CAMO:
-                        if (v.camo_pause) then
-                            v.camo_pause_timer = v.camo_pause_timer + time_scale
-                            if (v.camo_pause_timer >= current_class.levels[level].reinitialize_delay) then
-                                v.camo_pause = false
-                            end
-                        else
-                            local case = (v.flashlight_state ~= flashlight_state and flashlight_state == 1)
-                            if (case) and (not v.active_camo) and (invisible == 0) then
-                                v.active_camo = true
-                            elseif (case) and (v.active_camo) and (invisible ~= 0) then
-                                self:ResetCamo(i)
-                            elseif (not case) and (v.active_camo) and (not v.camo_pause) then
-                                execute_command("camo " .. i .. " 1")
-                                v.active_camo_timer = v.active_camo_timer + time_scale
-                                if (v.active_camo_timer >= current_class.levels[level].duration) then
-                                    self:ResetCamo(i)
+                            -- Pause CAMO:
+                            if (v.camo_pause) then
+                                v.camo_pause_timer = v.camo_pause_timer + time_scale
+                                if (v.camo_pause_timer >= current_class.levels[level].reinitialize_delay) then
+                                    v.camo_pause = false
                                 end
-                            end
-                            v.flashlight_state = flashlight_state
-                        end
-                        local shooting = read_float(DyN + 0x490)
-                        if (shooting ~= v.shooting and shooting == 1) then
-                            v.camo_pause = true
-                        end
-                        v.shooting = shooting
-
-                    elseif (v.class == "Recon") then
-                        local key = read_byte(DyN + 0x2A3)
-
-                        -- RESET CASE --
-                        --
-                        local case1 = (key == 0 and v.key_released == 3)
-                        local case2 = (v.button_press_delay >= .13) and (key == 0 or key == 4)
-                        local case3 = (v.press_count == 1 and key == 0) and (v.button_press_delay >= .13)
-                        local case4 = (v.button_press_delay >= .13) and (key == 0 and v.key_released == 2)
-
-                        -- press 1:
-                        if (key == 4 and v.press_count == 0 and v.key_released == 0) then
-                            v.press_count = v.press_count + 1
-
-                            -- release:
-                        elseif (key == 0 and v.press_count == 1 and v.key_released == 0) then
-                            v.key_released = 2
-
-                            -- checking for press 2:
-                        elseif (key == 0 and v.key_released == 2 and v.button_press_delay < .13) and (v.press_count == 1) then
-                            v.button_press_delay = v.button_press_delay + time_scale
-
-                            -- press 2:
-                        elseif (key == 4 and v.key_released == 2 and v.button_press_delay < .13) and (v.press_count == 1) then
-                            v.press_count = v.press_count + 1
-                            v.key_released = 3
-
-                            -- apply speed:
-                        elseif (key == 4 and v.key_released == 3) then
-                            v.speed_timer = v.speed_timer + time_scale
-
-                            if (not v.pause_speedboost_hud) then
-                                local t = (current_class.levels[level].speed_duration - v.speed_timer)
-                                self:PrintSpeedBoostHUD(i, t)
-                            end
-
-                            -- Apply Speed:
-                            if (v.speed_timer <= current_class.levels[level].speed_duration) then
-                                execute_command("s" .. " " .. i .. " " .. current_class.levels[level].speed)
                             else
+                                local case = (v.flashlight_state ~= flashlight_state and flashlight_state == 1)
+                                if (case) and (not v.active_camo) and (invisible == 0) then
+                                    v.active_camo = true
+                                elseif (case) and (v.active_camo) and (invisible ~= 0) then
+                                    self:ResetCamo(i)
+                                elseif (not case) and (v.active_camo) and (not v.camo_pause) then
+                                    execute_command("camo " .. i .. " 1")
+                                    v.active_camo_timer = v.active_camo_timer + time_scale
+                                    if (v.active_camo_timer >= current_class.levels[level].duration) then
+                                        self:ResetCamo(i)
+                                    end
+                                end
+                                v.flashlight_state = flashlight_state
+                            end
+                            local shooting = read_float(DyN + 0x490)
+                            if (shooting ~= v.shooting and shooting == 1) then
+                                v.camo_pause = true
+                            end
+                            v.shooting = shooting
+
+                        elseif (v.class == "Recon") then
+                            local key = read_byte(DyN + 0x2A3)
+
+                            -- RESET CASE --
+                            --
+                            local case1 = (key == 0 and v.key_released == 3)
+                            local case2 = (v.button_press_delay >= .13) and (key == 0 or key == 4)
+                            local case3 = (v.press_count == 1 and key == 0) and (v.button_press_delay >= .13)
+                            local case4 = (v.button_press_delay >= .13) and (key == 0 and v.key_released == 2)
+
+                            -- press 1:
+                            if (key == 4 and v.press_count == 0 and v.key_released == 0) then
+                                v.press_count = v.press_count + 1
+
+                                -- release:
+                            elseif (key == 0 and v.press_count == 1 and v.key_released == 0) then
+                                v.key_released = 2
+
+                                -- checking for press 2:
+                            elseif (key == 0 and v.key_released == 2 and v.button_press_delay < .13) and (v.press_count == 1) then
+                                v.button_press_delay = v.button_press_delay + time_scale
+
+                                -- press 2:
+                            elseif (key == 4 and v.key_released == 2 and v.button_press_delay < .13) and (v.press_count == 1) then
+                                v.press_count = v.press_count + 1
+                                v.key_released = 3
+
+                                -- apply speed:
+                            elseif (key == 4 and v.key_released == 3) then
+                                v.speed_timer = v.speed_timer + time_scale
+
+                                if (not v.pause_speedboost_hud) then
+                                    local t = (current_class.levels[level].speed_duration - v.speed_timer)
+                                    self:PrintSpeedBoostHUD(i, t)
+                                end
+
+                                -- Apply Speed:
+                                if (v.speed_timer <= current_class.levels[level].speed_duration) then
+                                    execute_command("s" .. " " .. i .. " " .. current_class.levels[level].speed)
+                                else
+                                    self:ResetSpeed(i, true)
+                                end
+
+                                -- reset
+                            elseif (case1 or case2 or case3 or case4) then
                                 self:ResetSpeed(i, true)
+
+                                -- begin regenerating time:
+                            elseif (v.regen and v.speed_timer > 0) then
+
+                                v.speed_cooldown = v.speed_cooldown + time_scale
+
+                                if (not v.pause_speedboost_hud) then
+                                    local t = (current_class.levels[level].speed_duration - v.speed_timer)
+                                    self:PrintSpeedBoostHUD(i, t)
+                                end
+
+                                if (math.floor(v.speed_cooldown % 4) == 3) and (v.speed_timer > 0) then
+                                    v.speed_timer = v.speed_timer - 1 / 30
+                                    if (v.speed_timer < 0) then
+                                        self:ResetSpeed(i)
+                                    end
+                                end
                             end
-
-                            -- reset
-                        elseif (case1 or case2 or case3 or case4) then
-                            self:ResetSpeed(i, true)
-
-                            -- begin regenerating time:
-                        elseif (v.regen and v.speed_timer > 0) then
-
-                            v.speed_cooldown = v.speed_cooldown + time_scale
-
-                            if (not v.pause_speedboost_hud) then
-                                local t = (current_class.levels[level].speed_duration - v.speed_timer)
-                                self:PrintSpeedBoostHUD(i, t)
-                            end
-
-                            if (math.floor(v.speed_cooldown % 4) == 3) and (v.speed_timer > 0) then
-                                v.speed_timer = v.speed_timer - 1 / 30
-                                if (v.speed_timer < 0) then
-                                    self:ResetSpeed(i)
+                            if (key == 20) and (v.key_released == 3) then
+                                v.speed_timer = v.speed_timer + (time_scale * 3)
+                                if (not v.pause_speedboost_hud) then
+                                    local t = (current_class.levels[level].speed_duration - v.speed_timer)
+                                    self:PrintSpeedBoostHUD(i, t)
                                 end
                             end
                         end
-                        if (key == 20) and (v.key_released == 3) then
-                            v.speed_timer = v.speed_timer + (time_scale * 3)
-                            if (not v.pause_speedboost_hud) then
-                                local t = (current_class.levels[level].speed_duration - v.speed_timer)
-                                self:PrintSpeedBoostHUD(i, t)
-                            end
-                        end
-                    end
 
-                    -- ======================================= --
-                    -- HUD LOGIC --
-                    -- ======================================= --
-                    if (self.show_rank_hud) then
-                        if (v.rank_hud_pause) then
-                            v.rank_hud_pause_duration = v.rank_hud_pause_duration - time_scale
-                            if (v.rank_hud_pause_duration <= 0) then
-                                v.rank_hud_pause = false
-                                v.rank_hud_pause_duration = self.rank_hud_pause_duration
+                        -- ======================================= --
+                        -- HUD LOGIC --
+                        -- ======================================= --
+                        if (self.show_rank_hud) then
+                            if (v.rank_hud_pause) then
+                                v.rank_hud_pause_duration = v.rank_hud_pause_duration - time_scale
+                                if (v.rank_hud_pause_duration <= 0) then
+                                    v.rank_hud_pause = false
+                                    v.rank_hud_pause_duration = self.rank_hud_pause_duration
+                                end
+                            elseif (self.gamestarted) then
+                                self:PrintRank(i)
                             end
-                        elseif (self.gamestarted) then
-                            self:PrintRank(i)
                         end
-                    end
-                    if (v.pause_speedboost_hud) then
-                        v.pause_speedboost_hud_duration = v.pause_speedboost_hud_duration - time_scale
-                        if (v.pause_speedboost_hud_duration <= 0) then
-                            v.pause_speedboost_hud = false
-                            v.pause_speedboost_hud_duration = self.pause_speedboost_hud_duration
+                        if (v.pause_speedboost_hud) then
+                            v.pause_speedboost_hud_duration = v.pause_speedboost_hud_duration - time_scale
+                            if (v.pause_speedboost_hud_duration <= 0) then
+                                v.pause_speedboost_hud = false
+                                v.pause_speedboost_hud_duration = self.pause_speedboost_hud_duration
+                            end
                         end
-                    end
-                    if (v.show_help and self.gamestarted) then
-                        v.help_hud_duration = v.help_hud_duration - time_scale
-                        self:PrintHelp(i, self.classes[v.class].info)
-                        if (v.help_hud_duration <= 0) then
-                            v.help_page = nil
-                            v.show_help = false
-                            v.help_hud_duration = self.help_hud_duration
+                        if (v.show_help and self.gamestarted) then
+                            v.help_hud_duration = v.help_hud_duration - time_scale
+                            self:PrintHelp(i, self.classes[v.class].info)
+                            if (v.help_hud_duration <= 0) then
+                                v.help_page = nil
+                                v.show_help = false
+                                v.help_hud_duration = self.help_hud_duration
+                            end
                         end
                     end
                 end
+            else
+                v.disconnect_timer = v.disconnect_timer - time_scale
+                if (v.disconnect_timer <= 0) then
+                    self.players[ip] = nil
+                end
             end
-        else
-
-            -- todo:        Find alternative to this method:
-            -- todo:        This wont work as another player could join within the cooldown period and
-            -- todo:        be assigned the previous player's ID!
-            -- Player's have X seconds to return to the server, otherwise their stats are cleared:
-            --v.disconnect_timer = v.disconnect_timer - time_scale
-            --if (v.disconnect_timer <= 0) then
-            --    self.players[i] = nil
-            --end
         end
     end
 end
 
 function Loadout:PauseHUD(Ply, Clear)
-    local p = self.players[Ply]
+    local ip = self:GetIP(Ply)
+    local p = self.players[ip]
     if (Clear) then
         self:cls(Ply, 25)
     end
@@ -807,7 +816,9 @@ function Loadout:PauseHUD(Ply, Clear)
 end
 
 function Loadout:PauseSpeedBoostHUD(Ply, Clear)
-    local p = self.players[Ply]
+
+    local ip = self:GetIP(Ply)
+    local p = self.players[ip]
     if (Clear) then
         self:cls(Ply, 25)
     end
@@ -829,7 +840,9 @@ function Loadout:PrintSpeedBoostHUD(Ply, Time)
 end
 
 function Loadout:PrintRank(Ply)
-    local t = self.players[Ply]
+
+    local ip = self:GetIP(Ply)
+    local t = self.players[ip]
     if (not t.rank_hud_pause) then
 
         local info = self:GetLevelInfo(Ply)
@@ -869,9 +882,10 @@ function Loadout:OnServerCommand(Executor, Command)
 
         Args[1] = lower(Args[1]) or upper(Args[1])
         local etab
+        local eip = self:GetIP(Executor)
 
         if (Executor > 0) then
-            etab = self.players[Executor]
+            etab = self.players[eip]
             self:PauseHUD(Executor, true)
             self:PauseSpeedBoostHUD(Executor, true)
         end
@@ -900,7 +914,8 @@ function Loadout:OnServerCommand(Executor, Command)
                             self:Respond(Executor, self.messages[4], rprint, 10)
                         elseif (Args[3]:match("^%d+$")) then
 
-                            local t = self.players[TargetID]
+                            local ip = self:GetIP(TargetID)
+                            local t = self.players[ip]
                             local level = tonumber(Args[3])
 
                             if (level == t.levels[t.class].level) then
@@ -938,13 +953,14 @@ function Loadout:OnServerCommand(Executor, Command)
                             self:Respond(Executor, self.messages[4], rprint, 10)
                         elseif (Args[3]:match("^%d+$")) then
 
-                            local t = self.players[TargetID]
+                            local ip = self:GetIP(TargetID)
+                            local t = self.players[ip]
+
                             local credits = tonumber(Args[3])
                             local info = self:GetLevelInfo(TargetID)
                             local max_credits = self.classes[t.class].levels[info.level].until_next_level
 
                             if (credits <= max_credits or max_credits == nil) then
-
                                 t.levels[t.class].credits = t.levels[t.class].credits + credits
 
                                 if (TargetID == Executor) then
@@ -977,10 +993,12 @@ function Loadout:OnServerCommand(Executor, Command)
                             self:Respond(Executor, self.messages[4], rprint, 10)
                         elseif (Args[3]:match("^%d+$")) then
 
-                            local t = self.players[TargetID]
-                            local bounty = tonumber(Args[3])
+                            local ip = self:GetIP(TargetID)
+                            local t = self.players[ip]
 
+                            local bounty = tonumber(Args[3])
                             t.bounty = t.bounty + bounty
+
                             local m = self.messages[11]
                             if (TargetID == Executor) then
                                 local s = gsub(gsub(m[1], "%%bounty%%", bounty), "%%total_bounty%%", t.bounty)
@@ -1013,82 +1031,94 @@ function Loadout:OnServerCommand(Executor, Command)
 end
 
 function Loadout:OnPlayerScore(Ply)
-    self.players[Ply].bounty = self.players[Ply].bounty + self.credits.bounty_on_score
+    local ip = self:GetIP(Ply)
+    self.players[ip].bounty = self.players[ip].bounty + self.credits.bounty_on_score
     self:UpdateCredits(Ply, { self.credits.score[1], self.credits.score[2] })
 end
 
 function Loadout:ResetSpeed(Ply, Regenerating)
 
+    local ip = self:GetIP(Ply)
+
     if (Regenerating) then
-        self.players[Ply].regen = true
+        self.players[ip].regen = true
     else
-        self.players[Ply].regen = false
-        self.players[Ply].speed_timer = 0
+        self.players[ip].regen = false
+        self.players[ip].speed_timer = 0
     end
 
-    self.players[Ply].press_count = 0
-    self.players[Ply].key_released = 0
-    self.players[Ply].button_press_delay = 0
+    self.players[ip].press_count = 0
+    self.players[ip].key_released = 0
+    self.players[ip].button_press_delay = 0
     execute_command("s" .. " " .. Ply .. " 1")
 end
 
 function Loadout:ResetCamo(Ply, SpawnTrigger)
-    self.players[Ply].shooting = 0
-    self.players[Ply].active_camo = false
-    self.players[Ply].flashlight_state = 0
-    self.players[Ply].active_camo_timer = 0
-    self.players[Ply].camo_pause = false
-    self.players[Ply].camo_pause_timer = 0
+    local ip = self:GetIP(Ply)
+    self.players[ip].shooting = 0
+    self.players[ip].active_camo = false
+    self.players[ip].flashlight_state = 0
+    self.players[ip].active_camo_timer = 0
+    self.players[ip].camo_pause = false
+    self.players[ip].camo_pause_timer = 0
     if (not SpawnTrigger) then
         execute_command("camo " .. Ply .. " 1")
     end
 end
 
 function Loadout:InitPlayer(Ply)
-    self.players[Ply] = {
-        levels = { },
 
-        bounty = 0,
-        class = self.default_class,
-        name = get_var(Ply, "$name"),
+    local ip = self:GetIP(Ply)
+    if (not self.players[ip]) then
+        self.players[ip] = {
 
-        -- Recon Class --
-        speed_timer = 0,
-        speed_cooldown = 0,
-        button_press_delay = 0,
+            levels = { },
 
-        deaths = 0,
+            bounty = 0,
+            class = self.default_class,
 
-        camo_pause = false,
-        camo_pause_timer = 0,
+            -- Recon Class --
+            speed_timer = 0,
+            speed_cooldown = 0,
+            button_press_delay = 0,
 
-        -- OnPlayerDisconnect() --
-        --disconnect_timer = self.disconnect_cooldown,
+            deaths = 0,
 
-        switch_on_respawn = { false, nil },
+            camo_pause = false,
+            camo_pause_timer = 0,
 
-        help_page = nil,
-        show_help = false,
-        help_hud_duration = self.help_hud_duration,
+            disconnect_timer = self.disconnect_cooldown,
 
-        rank_hud_pause = false,
-        rank_hud_pause_duration = self.rank_hud_pause_duration,
+            switch_on_respawn = { false, nil },
 
-        pause_speedboost_hud = false,
-        pause_speedboost_hud_duration = self.pause_speedboost_hud_duration,
+            help_page = nil,
+            show_help = false,
+            help_hud_duration = self.help_hud_duration,
 
-    }
-    for k, _ in pairs(self.classes) do
-        self.players[Ply].levels[k] = {
-            credits = 0,
-            level = self.starting_level,
+            rank_hud_pause = false,
+            rank_hud_pause_duration = self.rank_hud_pause_duration,
+
+            pause_speedboost_hud = false,
+            pause_speedboost_hud_duration = self.pause_speedboost_hud_duration,
         }
+        for k, _ in pairs(self.classes) do
+            self.players[ip].levels[k] = {
+                credits = 0,
+                level = self.starting_level,
+            }
+        end
     end
+
+    self.players[ip].id = Ply
+    self.players[ip].name = get_var(Ply, "$name")
+    self.players[ip].disconnect_timer = self.disconnect_cooldown
 end
 
-function OnPlayerSpawn(Ply)
-    local t = Loadout.players[Ply]
-    local info = Loadout:GetLevelInfo(Ply)
+function Loadout:OnPlayerSpawn(Ply)
+
+    local ip = self:GetIP(Ply)
+    local t = self.players[ip]
+    local info = self:GetLevelInfo(Ply)
 
     -- Weapon Assignment Variables
     t.assign = true
@@ -1101,15 +1131,15 @@ function OnPlayerSpawn(Ply)
     t.last_damage = nil
     t.regen_shield = false
 
-    Loadout:ResetSpeed(Ply)
-    Loadout:ResetCamo(Ply, true)
+    self:ResetSpeed(Ply)
+    self:ResetCamo(Ply, true)
 
-    t.time_until_regen_begin = Loadout.classes["Regeneration"].levels[info.level].regen_delay
+    t.time_until_regen_begin = self.classes["Regeneration"].levels[info.level].regen_delay
 
     t.assign_delay = false
     t.assign_delay_timer = 1
 
-    if (Loadout.death_sprees_bonus) then
+    if (self.death_sprees_bonus) then
         if (t.deaths >= 5 and t.deaths < 10) then
             powerup_interact(spawn_object("eqip", "powerups\\over shield"), Ply)
         elseif (t.deaths >= 10) then
@@ -1146,13 +1176,16 @@ function Loadout:KillingSpree(Ply)
 
         for _, v in pairs(t) do
             if (k == v[1]) or (k >= t[#t][1] and k % 5 == 0) then
+
+                local ip = self:GetIP(Ply)
+
                 self:UpdateCredits(Ply, { v[2], v[3] })
-
                 local bonus = self.credits.bounty_bonus + v[4]
+                self.players[ip].bounty = self.players[ip].bounty + bonus
 
-                self.players[Ply].bounty = self.players[Ply].bounty + bonus
-
-                local str = gsub(gsub(self.messages[5], "%%name%%", self.players[Ply].name), "%%bounty%%", self.players[Ply].bounty)
+                local str = gsub(gsub(self.messages[5],
+                        "%%name%%", self.players[ip].name),
+                        "%%bounty%%", self.players[ip].bounty)
                 self:Respond(_, str, say_all, 10)
             end
         end
@@ -1197,7 +1230,8 @@ end
 function Loadout:OnPlayerDeath(VictimIndex, KillerIndex)
     local killer, victim = tonumber(KillerIndex), tonumber(VictimIndex)
 
-    local last_damage = self.players[victim].last_damage
+    local kip, vip = self:GetIP(killer), self:GetIP(victim)
+    local last_damage = self.players[vip].last_damage
     local kteam = get_var(killer, "$team")
     local vteam = get_var(victim, "$team")
 
@@ -1209,8 +1243,8 @@ function Loadout:OnPlayerDeath(VictimIndex, KillerIndex)
 
     if (pvp) then
 
-        local v = self.players[victim]
-        local k = self.players[killer]
+        local v = self.players[vip]
+        local k = self.players[kip]
 
         k.deaths = 0
         v.deaths = v.deaths + 1
@@ -1233,7 +1267,7 @@ function Loadout:OnPlayerDeath(VictimIndex, KillerIndex)
 
         if (not player_alive(killer)) then
             self:UpdateCredits(killer, { self.credits.killed_from_the_grave[1], self.credits.killed_from_the_grave[2] })
-        elseif (self.players[victim].head_shot) then
+        elseif (self.players[vip].head_shot) then
             self:UpdateCredits(killer, { self.credits.head_shot[1], self.credits.head_shot[2] })
         end
 
@@ -1288,7 +1322,9 @@ function Loadout:OnPlayerDeath(VictimIndex, KillerIndex)
 end
 
 function Loadout:GetLevelInfo(Ply)
-    local t = self.players[Ply]
+
+    local ip = self:GetIP(Ply)
+    local t = self.players[ip]
 
     local c = t.class
     local l = t.levels[c].level
@@ -1300,7 +1336,8 @@ function Loadout:GetLevelInfo(Ply)
 end
 
 function Loadout:UpdateLevel(Ply)
-    local t = self.players[Ply]
+    local ip = self:GetIP(Ply)
+    local t = self.players[ip]
     local cr_req = self.classes[t.class].levels[t.levels[t.class].level].until_next_level
     if (cr_req ~= nil and t.levels[t.class].credits >= cr_req) then
 
@@ -1309,7 +1346,8 @@ function Loadout:UpdateLevel(Ply)
 end
 
 function Loadout:UpdateCredits(Ply, Params)
-    local t = self.players[Ply]
+    local ip = self:GetIP(Ply)
+    local t = self.players[ip]
     t.levels[t.class].credits = t.levels[t.class].credits + Params[1]
 
     self:Respond(Ply, Params[2], say, 10)
@@ -1339,12 +1377,15 @@ function Loadout:OnDamageApplication(VictimIndex, KillerIndex, MetaID, Damage, H
 
     if player_present(victim) then
 
-        local v = self.players[victim]
+        local kip = self:GetIP(killer)
+        local vip = self:GetIP(victim)
+
+        local v = self.players[vip]
         local v_info = self:GetLevelInfo(victim)
 
         if (killer > 0) then
 
-            local k = self.players[killer]
+            local k = self.players[kip]
             local k_info = self:GetLevelInfo(killer)
 
             local HeadShot = OnDamageLookup(victim, killer)
@@ -1479,8 +1520,16 @@ function OnPlayerScore(Ply)
     return Loadout:OnPlayerScore(Ply)
 end
 
+function OnPlayerSpawn(Ply)
+    return Loadout:OnPlayerSpawn(Ply)
+end
+
 function OnDamageApplication(V, K, M, D, H, B)
     return Loadout:OnDamageApplication(V, K, M, D, H, B)
+end
+
+function OnPlayerPreSpawn(P)
+    return Loadout:OnPlayerPreSpawn(P)
 end
 
 function GetVehicleTag(Vehicle)
@@ -1505,6 +1554,14 @@ function Loadout:hasObjective(DyN)
         end
     end
     return false
+end
+
+function Loadout:GetIP(Ply)
+    local IP = get_var(Ply, "$ip")
+    if (self.ClientIndexType == 1) then
+        IP = IP:match("%d+.%d+.%d+.%d+")
+    end
+    return IP
 end
 
 --======================================================
