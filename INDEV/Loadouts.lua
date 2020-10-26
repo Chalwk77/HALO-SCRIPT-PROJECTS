@@ -28,6 +28,11 @@ local Loadout = {
     credits_cmd_permission = 1,
     credits_cmd_permission_others = 4,
 
+    -- Command Syntax: /bounty_cmd [number: 1-16] | */all | me <bounty>
+    bounty_cmd = "bounty",
+    bounty_cmd_permission = 1,
+    bounty_cmd_permission_others = 4,
+
     -- if true, a player's credits will be able to fall into the negatives.
     allow_negatives = false,
 
@@ -48,6 +53,8 @@ local Loadout = {
     -- Time (in seconds) a player must return to the server before their credits are reset.
     disconnect_cooldown = 120,
 
+    death_sprees_bonus = true,
+
     messages = {
         [1] = "Class [%class%] Level: [%level%] Credits: [%credits%/%cr_req%]",
         [2] = "n/a",
@@ -67,6 +74,11 @@ local Loadout = {
         [10] = {
             "Your credits have been set to %credits%",
             "Setting %name%'s credits to %credits%",
+        },
+        [11] = {
+            "Adding +%bounty% bounty points. Total: %total_bounty%cR",
+            "Adding +%bounty% bounty points to %name%. Total: %total_bounty%",
+            "%target% has a bounty of %total_bounty%cR - Kill to Claim!",
         },
     },
 
@@ -820,8 +832,7 @@ function Loadout:OnServerCommand(Executor, Command)
 
         for class, v in pairs(self.classes) do
             if (Args[1] == v.command) then
-                print('command is mother fucking valid')
-                if (t.class == class) then
+                if (etab.class == class) then
                     self:Respond(Executor, "You already have " .. class .. " class", rprint, 12)
                 else
                     etab.switch_on_respawn[1] = true
@@ -910,6 +921,44 @@ function Loadout:OnServerCommand(Executor, Command)
                 self:Respond(Executor, self.messages[3], rprint, 10)
             end
             return false
+        elseif (Args[1] == self.bounty_cmd) then
+            if (lvl >= self.bounty_cmd_permission or (Executor == 0)) then
+                local pl = self:GetPlayers(Executor, Args)
+                if (pl) then
+                    for i = 1, #pl do
+                        local TargetID = tonumber(pl[i])
+                        if (TargetID ~= Executor and lvl < self.bounty_cmd_permission_others) then
+                            self:Respond(Executor, self.messages[4], rprint, 10)
+                        elseif (Args[3]:match("^%d+$")) then
+
+                            local t = self.players[TargetID]
+                            local bounty = tonumber(Args[3])
+
+                            t.bounty = t.bounty + bounty
+                            local m = self.messages[11]
+                            if (TargetID == Executor) then
+                                local s = gsub(gsub(m[1], "%%bounty%%", bounty), "%%total_bounty%%", t.bounty)
+                                self:Respond(TargetID, s, rprint, 10)
+                            else
+
+                                local s1 = gsub(m[1], "%%bounty%%", bounty)
+                                self:Respond(TargetID, s1, rprint, 10)
+                                local s2 = gsub(gsub(gsub(m[2],
+                                        "%%name%%", t.name),
+                                        "%%bounty%%", bounty),
+                                        "%%bounty_total%%", t.bounty)
+                                self:Respond(Executor, s2, rprint, 10)
+                            end
+
+                            local s = gsub(gsub(m[3], "%%total_bounty%%", t.bounty), "%%target%%", t.name)
+                            self:Respond(Executor, s, say, 10, Executor, _)
+                        end
+                    end
+                end
+            else
+                self:Respond(Executor, self.messages[3], rprint, 10)
+            end
+            return false
         elseif (Args[1] == self.info_command) then
             etab.help_page, etab.show_help = etab.class, true
             return false
@@ -955,6 +1004,8 @@ function Loadout:InitPlayer(Ply)
         speed_cooldown = 0,
         button_press_delay = 0,
 
+        deaths = 0,
+
         camo_pause = false,
         camo_pause_timer = 0,
 
@@ -969,6 +1020,7 @@ function Loadout:InitPlayer(Ply)
 
         rank_hud_pause = false,
         rank_hud_pause_duration = self.rank_hud_pause_duration,
+
     }
     for k, _ in pairs(self.classes) do
         self.players[Ply].levels[k] = {
@@ -1007,10 +1059,12 @@ function OnPlayerSpawn(Ply)
     t.assign_delay = false
     t.assign_delay_timer = 1
 
-    --t.messages["HUD"] = {
-    --    time = 3600,
-    --    content = "Class: [" .. info.class .. "] Credits: [" .. info.credits .. "/" .. info.cr_req .. " ] Level: [" .. info.level .. "]"
-    --}
+    if (t.deaths >= 5 and t.deaths < 10) then
+        powerup_interact(spawn_object("eqip", "powerups\\over shield"), Ply)
+    elseif (t.deaths >= 10) then
+        powerup_interact(spawn_object("eqip", "powerups\\over shield"), Ply)
+        powerup_interact(spawn_object("eqip", "powerups\\active camouflage"), Ply)
+    end
 end
 
 local function GetTag(ObjectType, ObjectName)
@@ -1101,18 +1155,17 @@ function Loadout:OnPlayerDeath(VictimIndex, KillerIndex)
     local pvp = ((killer > 0) and killer ~= victim)
     local betrayal = ((kteam == vteam) and killer ~= victim)
 
-    -- self.players[victim].messages["HUD"] = nil
-
     if (pvp) then
 
         local v = self.players[victim]
         local k = self.players[killer]
 
-        if (v.bounty > 0) then
+        k.deaths = 0
+        v.deaths = v.deaths + 1
 
+        if (v.bounty > 0) then
             local str = self.messages[6]
             str = gsub(gsub(gsub(str, "%%name%%", k.name), "%%bounty%%", v.bounty), "%%victim%%", v.name)
-
             self:UpdateCredits(killer, { v.bounty, str })
         end
 
@@ -1207,8 +1260,6 @@ function Loadout:UpdateCredits(Ply, Params)
     local t = self.players[Ply]
     t.levels[t.class].credits = t.levels[t.class].credits + Params[1]
 
-    -- t.messages[#t.messages + 1] = { time = 5, content = Params[2] }
-
     self:Respond(Ply, Params[2], rprint, 10)
     execute_command("score " .. Ply .. " " .. t.levels[t.class].credits)
 
@@ -1292,9 +1343,11 @@ function Loadout:Respond(Ply, Message, Type, Color, Exclude, HUD)
     if (Ply == 0) then
         cprint(Message, Color)
     else
-        if (not HUD) then
+
+        if (not HUD and Ply) then
             self:PauseRankHUD(Ply)
         end
+
         if (not Exclude) then
             if (Type ~= say_all) then
                 Type(Ply, Message)
@@ -1304,6 +1357,7 @@ function Loadout:Respond(Ply, Message, Type, Color, Exclude, HUD)
         else
             for i = 1, 16 do
                 if player_present(i) and (i ~= Ply) then
+                    self:PauseRankHUD(i)
                     Type(i, Message)
                 end
             end
