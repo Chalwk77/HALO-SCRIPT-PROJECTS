@@ -823,146 +823,150 @@ function Loadout:OnServerCommand(Executor, Command)
     if (Args == nil) then
         return
     else
-        Args[1] = lower(Args[1]) or upper(Args[1])
 
-        local etab
         if (Executor > 0) then
-            etab = self.players[Executor]
-            self:PauseRankHUD(Executor, true)
-        end
 
-        for class, v in pairs(self.classes) do
-            if (Args[1] == v.command) then
-                if (etab.class == class) then
-                    self:Respond(Executor, "You already have " .. class .. " class", rprint, 12)
+            Args[1] = lower(Args[1]) or upper(Args[1])
+
+            local etab
+            if (Executor > 0) then
+                etab = self.players[Executor]
+                self:PauseRankHUD(Executor, true)
+            end
+
+            for class, v in pairs(self.classes) do
+                if (Args[1] == v.command) then
+                    if (etab.class == class) then
+                        self:Respond(Executor, "You already have " .. class .. " class", rprint, 12)
+                    else
+                        etab.switch_on_respawn[1] = true
+                        etab.switch_on_respawn[2] = class
+                        self:Respond(Executor, "You will switch to " .. class .. " when you respawn", rprint, 12)
+                    end
+                    return false
+                end
+            end
+
+            local lvl = tonumber(get_var(Executor, "$lvl"))
+            if (Args[1] == self.level_cmd) then
+                if (lvl >= self.level_cmd_permission or (Executor == 0)) then
+                    local pl = self:GetPlayers(Executor, Args)
+                    if (pl) then
+                        for i = 1, #pl do
+                            local TargetID = tonumber(pl[i])
+                            if (TargetID ~= Executor and lvl < self.level_cmd_permission_others) then
+                                self:Respond(Executor, self.messages[4], rprint, 10)
+                            elseif (Args[3]:match("^%d+$")) then
+
+                                local t = self.players[TargetID]
+                                local level = tonumber(Args[3])
+
+                                if (level == t.levels[t.class].level) then
+                                    self:Respond(Executor, "s2", rprint, 10)
+
+                                elseif (level <= #self.classes[t.class].levels) then
+                                    t.assign = true
+                                    t.levels[t.class].level = level
+                                    if (TargetID == Executor) then
+                                        local s = gsub(self.messages[7][1], "%%level%%", level)
+                                        self:Respond(TargetID, s, rprint, 10)
+                                    else
+                                        local s1 = gsub(self.messages[7][1], "%%level%%", level)
+                                        self:Respond(TargetID, s1, rprint, 10)
+                                        local s2 = gsub(gsub(self.messages[7][2], "%%level%%", level), "%%name%%", t.name)
+                                        self:Respond(Executor, s2, rprint, 10)
+                                    end
+                                else
+                                    self:Respond(Executor, self.messages[8], rprint, 10)
+                                end
+                            end
+                        end
+                    end
                 else
-                    etab.switch_on_respawn[1] = true
-                    etab.switch_on_respawn[2] = class
-                    self:Respond(Executor, "You will switch to " .. class .. " when you respawn", rprint, 12)
+                    self:Respond(Executor, self.messages[3], rprint, 10)
                 end
                 return false
-            end
-        end
+            elseif (Args[1] == self.credits_cmd) then
+                if (lvl >= self.credits_cmd_permission or (Executor == 0)) then
+                    local pl = self:GetPlayers(Executor, Args)
+                    if (pl) then
+                        for i = 1, #pl do
+                            local TargetID = tonumber(pl[i])
+                            if (TargetID ~= Executor and lvl < self.credits_cmd_permission_others) then
+                                self:Respond(Executor, self.messages[4], rprint, 10)
+                            elseif (Args[3]:match("^%d+$")) then
 
-        local lvl = tonumber(get_var(Executor, "$lvl"))
-        if (Args[1] == self.level_cmd) then
-            if (lvl >= self.level_cmd_permission or (Executor == 0)) then
-                local pl = self:GetPlayers(Executor, Args)
-                if (pl) then
-                    for i = 1, #pl do
-                        local TargetID = tonumber(pl[i])
-                        if (TargetID ~= Executor and lvl < self.level_cmd_permission_others) then
-                            self:Respond(Executor, self.messages[4], rprint, 10)
-                        elseif (Args[3]:match("^%d+$")) then
+                                local t = self.players[TargetID]
+                                local credits = tonumber(Args[3])
+                                local info = self:GetLevelInfo(TargetID)
+                                local max_credits = self.classes[t.class].levels[info.level].until_next_level
 
-                            local t = self.players[TargetID]
-                            local level = tonumber(Args[3])
+                                if (credits <= max_credits or max_credits == nil) then
 
-                            if (level == t.levels[t.class].level) then
-                                self:Respond(Executor, "s2", rprint, 10)
+                                    t.levels[t.class].credits = t.levels[t.class].credits + credits
 
-                            elseif (level <= #self.classes[t.class].levels) then
-                                t.assign = true
-                                t.levels[t.class].level = level
+                                    if (TargetID == Executor) then
+                                        local s = gsub(self.messages[10][1], "%%credits%%", credits)
+                                        self:Respond(TargetID, s, rprint, 10)
+                                    else
+                                        local s1 = gsub(self.messages[10][1], "%%credits%%", credits)
+                                        self:Respond(TargetID, s1, rprint, 10)
+                                        local s2 = gsub(gsub(self.messages[10][2], "%%credits%%", credits), "%%name%%", t.name)
+                                        self:Respond(Executor, s2, rprint, 10)
+                                    end
+                                else
+                                    local s = gsub(self.messages[9], "%%max%%", max_credits)
+                                    self:Respond(Executor, s, rprint, 10)
+                                end
+                            end
+                        end
+                    end
+                else
+                    self:Respond(Executor, self.messages[3], rprint, 10)
+                end
+                return false
+            elseif (Args[1] == self.bounty_cmd) then
+                if (lvl >= self.bounty_cmd_permission or (Executor == 0)) then
+                    local pl = self:GetPlayers(Executor, Args)
+                    if (pl) then
+                        for i = 1, #pl do
+                            local TargetID = tonumber(pl[i])
+                            if (TargetID ~= Executor and lvl < self.bounty_cmd_permission_others) then
+                                self:Respond(Executor, self.messages[4], rprint, 10)
+                            elseif (Args[3]:match("^%d+$")) then
+
+                                local t = self.players[TargetID]
+                                local bounty = tonumber(Args[3])
+
+                                t.bounty = t.bounty + bounty
+                                local m = self.messages[11]
                                 if (TargetID == Executor) then
-                                    local s = gsub(self.messages[7][1], "%%level%%", level)
+                                    local s = gsub(gsub(m[1], "%%bounty%%", bounty), "%%total_bounty%%", t.bounty)
                                     self:Respond(TargetID, s, rprint, 10)
                                 else
-                                    local s1 = gsub(self.messages[7][1], "%%level%%", level)
+
+                                    local s1 = gsub(m[1], "%%bounty%%", bounty)
                                     self:Respond(TargetID, s1, rprint, 10)
-                                    local s2 = gsub(gsub(self.messages[7][2], "%%level%%", level), "%%name%%", t.name)
+                                    local s2 = gsub(gsub(gsub(m[2],
+                                            "%%name%%", t.name),
+                                            "%%bounty%%", bounty),
+                                            "%%bounty_total%%", t.bounty)
                                     self:Respond(Executor, s2, rprint, 10)
                                 end
-                            else
-                                self:Respond(Executor, self.messages[8], rprint, 10)
+
+                                local s = gsub(gsub(m[3], "%%total_bounty%%", t.bounty), "%%target%%", t.name)
+                                self:Respond(Executor, s, say, 10, Executor, _)
                             end
                         end
                     end
+                else
+                    self:Respond(Executor, self.messages[3], rprint, 10)
                 end
-            else
-                self:Respond(Executor, self.messages[3], rprint, 10)
+                return false
+            elseif (Args[1] == self.info_command) then
+                etab.help_page, etab.show_help = etab.class, true
+                return false
             end
-            return false
-        elseif (Args[1] == self.credits_cmd) then
-            if (lvl >= self.credits_cmd_permission or (Executor == 0)) then
-                local pl = self:GetPlayers(Executor, Args)
-                if (pl) then
-                    for i = 1, #pl do
-                        local TargetID = tonumber(pl[i])
-                        if (TargetID ~= Executor and lvl < self.credits_cmd_permission_others) then
-                            self:Respond(Executor, self.messages[4], rprint, 10)
-                        elseif (Args[3]:match("^%d+$")) then
-
-                            local t = self.players[TargetID]
-                            local credits = tonumber(Args[3])
-                            local info = self:GetLevelInfo(TargetID)
-                            local max_credits = self.classes[t.class].levels[info.level].until_next_level
-
-                            if (credits <= max_credits or max_credits == nil) then
-
-                                t.levels[t.class].credits = t.levels[t.class].credits + credits
-
-                                if (TargetID == Executor) then
-                                    local s = gsub(self.messages[10][1], "%%credits%%", credits)
-                                    self:Respond(TargetID, s, rprint, 10)
-                                else
-                                    local s1 = gsub(self.messages[10][1], "%%credits%%", credits)
-                                    self:Respond(TargetID, s1, rprint, 10)
-                                    local s2 = gsub(gsub(self.messages[10][2], "%%credits%%", credits), "%%name%%", t.name)
-                                    self:Respond(Executor, s2, rprint, 10)
-                                end
-                            else
-                                local s = gsub(self.messages[9], "%%max%%", max_credits)
-                                self:Respond(Executor, s, rprint, 10)
-                            end
-                        end
-                    end
-                end
-            else
-                self:Respond(Executor, self.messages[3], rprint, 10)
-            end
-            return false
-        elseif (Args[1] == self.bounty_cmd) then
-            if (lvl >= self.bounty_cmd_permission or (Executor == 0)) then
-                local pl = self:GetPlayers(Executor, Args)
-                if (pl) then
-                    for i = 1, #pl do
-                        local TargetID = tonumber(pl[i])
-                        if (TargetID ~= Executor and lvl < self.bounty_cmd_permission_others) then
-                            self:Respond(Executor, self.messages[4], rprint, 10)
-                        elseif (Args[3]:match("^%d+$")) then
-
-                            local t = self.players[TargetID]
-                            local bounty = tonumber(Args[3])
-
-                            t.bounty = t.bounty + bounty
-                            local m = self.messages[11]
-                            if (TargetID == Executor) then
-                                local s = gsub(gsub(m[1], "%%bounty%%", bounty), "%%total_bounty%%", t.bounty)
-                                self:Respond(TargetID, s, rprint, 10)
-                            else
-
-                                local s1 = gsub(m[1], "%%bounty%%", bounty)
-                                self:Respond(TargetID, s1, rprint, 10)
-                                local s2 = gsub(gsub(gsub(m[2],
-                                        "%%name%%", t.name),
-                                        "%%bounty%%", bounty),
-                                        "%%bounty_total%%", t.bounty)
-                                self:Respond(Executor, s2, rprint, 10)
-                            end
-
-                            local s = gsub(gsub(m[3], "%%total_bounty%%", t.bounty), "%%target%%", t.name)
-                            self:Respond(Executor, s, say, 10, Executor, _)
-                        end
-                    end
-                end
-            else
-                self:Respond(Executor, self.messages[3], rprint, 10)
-            end
-            return false
-        elseif (Args[1] == self.info_command) then
-            etab.help_page, etab.show_help = etab.class, true
-            return false
         end
     end
 end
