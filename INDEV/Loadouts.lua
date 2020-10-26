@@ -53,6 +53,7 @@ local Loadout = {
     -- Time (in seconds) a player must return to the server before their credits are reset.
     disconnect_cooldown = 120,
 
+    -- If enabled, a player will receive spawn protection:
     death_sprees_bonus = true,
 
     messages = {
@@ -1059,11 +1060,13 @@ function OnPlayerSpawn(Ply)
     t.assign_delay = false
     t.assign_delay_timer = 1
 
-    if (t.deaths >= 5 and t.deaths < 10) then
-        powerup_interact(spawn_object("eqip", "powerups\\over shield"), Ply)
-    elseif (t.deaths >= 10) then
-        powerup_interact(spawn_object("eqip", "powerups\\over shield"), Ply)
-        powerup_interact(spawn_object("eqip", "powerups\\active camouflage"), Ply)
+    if (Loadout.death_sprees_bonus) then
+        if (t.deaths >= 5 and t.deaths < 10) then
+            powerup_interact(spawn_object("eqip", "powerups\\over shield"), Ply)
+        elseif (t.deaths >= 10) then
+            powerup_interact(spawn_object("eqip", "powerups\\over shield"), Ply)
+            powerup_interact(spawn_object("eqip", "powerups\\active camouflage"), Ply)
+        end
     end
 end
 
