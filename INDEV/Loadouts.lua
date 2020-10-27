@@ -15,7 +15,7 @@ api_version = "1.12.0.0"
 
 local Loadout = {
 
-    default_class = "Recon",
+    default_class = "Regeneration",
     starting_level = 1,
 
     -- Command Syntax: /level_cmd [number: 1-16] | */all | me <level>
@@ -110,7 +110,10 @@ local Loadout = {
                     -- GRENADES | <frag/plasma> (set to nil to use default grenade settings)
                     grenades = { 2, 0 },
                     -- WEAPONS | Slot 1, Slot 2 Slot 3, Slot 4
-                    weapons = { 1, 7, nil, nil },
+                    weapons = {
+                        [1] = { 5, 8 },
+                        [7] = { 10, 0 },
+                    },
                     shield_regen_delay = nil,
                 },
                 [2] = {
@@ -619,12 +622,34 @@ function Loadout:OnTick()
 
                                     SetGrenades(DyN, current_class, level)
                                     execute_command("wdel " .. i)
+
                                     local weapon_table = current_class.levels[level].weapons
-                                    for Slot, WI in pairs(weapon_table) do
-                                        if (Slot == 1 or Slot == 2) then
+
+                                    local index = 0
+                                    for WI, _ in pairs(weapon_table) do
+                                        index = index + 1
+                                        if (index == 1 or index == 2) then
                                             assign_weapon(spawn_object("weap", self.weapon_tags[WI], coords.x, coords.y, coords.z), i)
-                                        elseif (Slot == 3 or Slot == 4) then
+                                        elseif (index == 3 or index == 4) then
                                             timer(250, "DelaySecQuat", i, self.weapon_tags[WI], coords.x, coords.y, coords.z)
+                                        end
+                                    end
+
+                                    for j = 0, 3 do
+                                        local WeaponID = read_dword(DyN + 0x2F8 + 0x4 * j)
+                                        if (WeaponID ~= 0xFFFFFFFF) then
+                                            local Weapon = get_object_memory(WeaponID)
+                                            if (Weapon ~= 0) then
+                                                local tag = GetObjectTagName(Weapon)
+                                                for WI, A in pairs(weapon_table) do
+                                                    if (tag == self.weapon_tags[WI]) then
+                                                        local ammo, mag = A[1], A[2]
+                                                        execute_command_sequence("w8 1;mag " .. i .. " " .. mag)
+                                                        execute_command_sequence("w8 1;ammo " .. i .. " " .. ammo)
+                                                        execute_command_sequence("w8 1;battery " .. i .. " " .. mag)
+                                                    end
+                                                end
+                                            end
                                         end
                                     end
                                 end
@@ -1105,6 +1130,7 @@ function Loadout:InitPlayer(Ply)
             self.players[ip].levels[k] = {
                 credits = 0,
                 level = self.starting_level,
+                ammo = self.classes[self.default_class].levels[self.starting_level].ammo
             }
         end
     end
@@ -1211,7 +1237,7 @@ function Loadout:InVehicle(Ply)
         local VehicleID = read_dword(DyN + 0x11C)
         if (VehicleID ~= 0xFFFFFFFF) then
             local VehicleObject = get_object_memory(VehicleID)
-            local name = GetVehicleTag(VehicleObject)
+            local name = GetObjectTagName(VehicleObject)
             if (name ~= nil) then
                 return name
             end
@@ -1532,7 +1558,7 @@ function OnPlayerPreSpawn(P)
     return Loadout:OnPlayerPreSpawn(P)
 end
 
-function GetVehicleTag(Vehicle)
+function GetObjectTagName(Vehicle)
     if (Vehicle ~= nil and Vehicle ~= 0) then
         return read_string(read_dword(read_word(Vehicle) * 32 + 0x40440038))
     end
