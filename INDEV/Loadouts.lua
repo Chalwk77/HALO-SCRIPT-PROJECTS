@@ -302,7 +302,7 @@ local Loadout = {
                     },
                 },
                 [5] = {
-                    duration = 25,
+                    duration = 1000,
                     reinitialize_delay = 0,
                     until_next_level = nil,
                     grenades = { 5, 5 },
@@ -403,7 +403,7 @@ local Loadout = {
         head_shot = { 5, "+5cR (head shot!)" },
 
         -- Killed by Server (credits deducted):
-        server = { -0, "0cR (Killed by Server)" },
+        server = { -0, "" },
 
         -- killed by guardians (credits deducted):
         guardians = { -5, "-5cR (Killed by Guardians)" },
@@ -553,7 +553,8 @@ local Loadout = {
     --
 
     -- DO NOT TOUCH --
-    players = { }
+    players = { },
+    ammo_set_delay = 300,
 }
 
 local time_scale = 1 / 30
@@ -746,7 +747,7 @@ function Loadout:OnTick()
                                             timer(250, "DelaySecQuat", i, self.weapon_tags[WI], coords.x, coords.y, coords.z)
                                         end
                                     end
-                                    timer(1000, "SetAmmo", i)
+                                    timer(self.ammo_set_delay, "SetAmmo", i)
                                 end
                             end
                         elseif (v.class == "Regeneration") then
@@ -803,7 +804,11 @@ function Loadout:OnTick()
                                 if (case) and (not v.active_camo) and (invisible == 0) then
                                     v.active_camo = true
                                 elseif (case) and (v.active_camo) and (invisible ~= 0) then
-                                    self:ResetCamo(i)
+
+                                    v.shooting = 0
+                                    v.active_camo = false
+                                    execute_command("camo " .. i .. " 1")
+
                                 elseif (not case) and (v.active_camo) and (not v.camo_pause) then
                                     execute_command("camo " .. i .. " 2")
                                     v.active_camo_timer = v.active_camo_timer + time_scale
@@ -811,6 +816,18 @@ function Loadout:OnTick()
                                     if (v.active_camo_timer >= current_class.levels[level].duration) then
                                         v.state = "CLOAK: READY"
                                         self:ResetCamo(i)
+                                    end
+                                elseif (not case) and (not v.active_camo) and (v.active_camo_timer > 0) then
+
+                                    v.camo_cooldown = v.camo_cooldown + time_scale
+                                    local t = SecondsToClock(current_class.levels[level].duration - v.active_camo_timer)
+                                    v.state = "Cloak Regen: " .. t
+
+                                    if (math.floor(v.camo_cooldown % 4) == 3) and (v.active_camo_timer > 0) then
+                                        v.active_camo_timer = v.active_camo_timer - 1 / 30
+                                        if (v.active_camo_timer < 0) then
+                                            self:ResetCamo(i)
+                                        end
                                     end
                                 else
                                     v.state = "CLOAK: READY"
@@ -1157,6 +1174,7 @@ function Loadout:ResetSpeed(Ply, Regenerating)
     else
         self.players[ip].regen = false
         self.players[ip].speed_timer = 0
+        self.players[ip].speed_cooldown = 0
     end
 
     self.players[ip].press_count = 0
@@ -1171,6 +1189,7 @@ function Loadout:ResetCamo(Ply, SpawnTrigger)
     self.players[ip].active_camo = false
     self.players[ip].flashlight_state = 0
     self.players[ip].active_camo_timer = 0
+    self.players[ip].camo_cooldown = 0
     self.players[ip].camo_pause = false
     self.players[ip].camo_pause_timer = 0
     if (not SpawnTrigger) then
@@ -1200,6 +1219,7 @@ function Loadout:InitPlayer(Ply)
 
             camo_pause = false,
             camo_pause_timer = 0,
+            camo_cooldown = 0,
 
             disconnect_timer = self.disconnect_cooldown,
 
@@ -1462,7 +1482,9 @@ function Loadout:UpdateCredits(Ply, Params)
     local t = self.players[ip]
     t.levels[t.class].credits = t.levels[t.class].credits + Params[1]
 
-    self:Respond(Ply, Params[2], say, 10)
+    if (Params[2] ~= "") then
+        self:Respond(Ply, Params[2], say, 10)
+    end
     execute_command("score " .. Ply .. " " .. t.levels[t.class].credits)
 
     if (not self.allow_negatives) and (t.levels[t.class].credits < 0) then
