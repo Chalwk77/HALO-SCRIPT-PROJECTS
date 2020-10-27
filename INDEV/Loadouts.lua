@@ -217,7 +217,7 @@ local Loadout = {
                     damage_resistance = 1.30,
                     fall_damage_immunity = false,
                     self_damage = true,
-                    melee_damage_multiplier = 0,
+                    melee_damage_multiplier = 300,
                     grenades = { 3, 0 },
                     weapons = {
                         [1] = { nil, 60, nil }, -- pistol
@@ -230,7 +230,7 @@ local Loadout = {
                     damage_resistance = 1.40,
                     fall_damage_immunity = false,
                     self_damage = true,
-                    melee_damage_multiplier = 200,
+                    melee_damage_multiplier = 300,
                     grenades = { 3, 2 },
                     weapons = {
                         [1] = { nil, 72, nil }, -- pistol
@@ -243,7 +243,7 @@ local Loadout = {
                     damage_resistance = 1.50,
                     fall_damage_immunity = false,
                     self_damage = true,
-                    melee_damage_multiplier = 200,
+                    melee_damage_multiplier = 400,
                     grenades = { 4, 4 },
                     weapons = {
                         [1] = { nil, 84, nil }, -- pistol
@@ -256,7 +256,7 @@ local Loadout = {
                     damage_resistance = 1.55,
                     fall_damage_immunity = true,
                     self_damage = false,
-                    melee_damage_multiplier = 200,
+                    melee_damage_multiplier = 500,
                     grenades = { 5, 5 },
                     weapons = {
                         [1] = { nil, 168, nil }, -- pistol
@@ -1503,6 +1503,9 @@ function Loadout:GetLevelInfo(Ply)
     local cr = t.levels[c].credits
 
     local crR = self.classes[c].levels[l].until_next_level
+    if (crR == nil) then
+        crR = "N/A"
+    end
 
     return { class = c, level = l, credits = cr, cr_req = crR, state = t.state }
 end
@@ -1575,31 +1578,36 @@ function Loadout:OnDamageApplication(VictimIndex, KillerIndex, MetaID, Damage, H
                 v.head_shot = false
             end
 
-            if (k.class == "Armor Boost") then
-                local case = (not self.classes[v.class].levels[v_info.level].self_damage)
-                if (killer == victim) and (case) then
-                    hurt = false
-                elseif (killer ~= victim) then
-                    if (not self:IsMelee(MetaID)) then
-                        Damage = Damage - (10 * self.classes[k.class].levels[k_info.level].damage_resistance)
-                    else
-                        Damage = Damage + (self.classes[k.class].levels[k_info.level].melee_damage_multiplier)
+            if (v.class == "Armor Boost") then
+                if (killer == victim) then
+                    if (not self.classes[v.class].levels[v_info.level].self_damage) then
+                        hurt = false
                     end
+                elseif (killer ~= victim) then
+                    Damage = Damage - (10 * self.classes[v.class].levels[v_info.level].damage_resistance)
                     hurt = true
                 end
+            end
 
-            elseif (v.class == "Cloak") then
-                local DyN = get_dynamic_player(victim)
-                if (DyN ~= 0) then
-                    local invisible = read_float(DyN + 0x37C)
-                    if (v.active_camo) and (invisible ~= 0) then
-                        v.camo_pause, v.active_camo = false, false
-                        execute_command("camo " .. victim .. " 1")
-                    end
+            if (k.class == "Armor Boost") then
+                if (self:IsMelee(MetaID)) then
+                    Damage = Damage + (self.classes[k.class].levels[k_info.level].melee_damage_multiplier)
+                    hurt = true
                 end
             end
 
             k.last_damage = MetaID
+        end
+
+        if (v.class == "Cloak") then
+            local DyN = get_dynamic_player(victim)
+            if (DyN ~= 0) then
+                local invisible = read_float(DyN + 0x37C)
+                if (v.active_camo) and (invisible ~= 0) then
+                    v.camo_pause, v.active_camo = false, false
+                    execute_command("camo " .. victim .. " 1")
+                end
+            end
         end
 
         local FD = GetTag(self.credits.tags[1][1], self.credits.tags[1][2])
@@ -1610,10 +1618,12 @@ function Loadout:OnDamageApplication(VictimIndex, KillerIndex, MetaID, Damage, H
                 hurt = false
             end
         end
+
         v.regen_shield = true
         v.last_damage = MetaID
-        return hurt, Damage
     end
+
+    return hurt, Damage
 end
 
 function Loadout:Respond(Ply, Message, Type, Color, Exclude, HUD)
