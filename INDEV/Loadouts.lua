@@ -15,7 +15,7 @@ api_version = "1.12.0.0"
 
 local Loadout = {
 
-    default_class = "Regeneration",
+    default_class = "Cloak",
     starting_level = 1,
 
     -- Command Syntax: /level_cmd [number: 1-16] | */all | me <level>
@@ -396,7 +396,7 @@ local Loadout = {
         flag_carrier_kill_bonus = { 10, "+10cR (Flag Carrier Kill Bonus)" },
 
         -- Score (credits added):
-        score = { 25, "+25cR (Flag Cap)" },
+        score = { 100, "+25cR (Flag Cap)" },
 
         head_shot = { 5, "+5cR (head shot!)" },
 
@@ -564,15 +564,14 @@ local function Init(reset)
     if (reset) then
         Loadout.players = { }
         execute_command('sv_map_reset')
+        for i = 1, 16 do
+            if player_present(i) then
+                Loadout:InitPlayer(i)
+            end
+        end
     end
 
     Loadout.gamestarted = true
-
-    for i = 1, 16 do
-        if player_present(i) then
-            Loadout:InitPlayer(i)
-        end
-    end
 end
 
 function OnScriptLoad()
@@ -1358,8 +1357,8 @@ function Loadout:OnPlayerDeath(VictimIndex, KillerIndex)
     local server = (killer == -1)
     local guardians = (killer == nil)
     local suicide = (killer == victim)
-    local pvp = ((killer > 0) and killer ~= victim)
-    local betrayal = ((kteam == vteam) and killer ~= victim)
+    local pvp = ((killer > 0) and killer ~= victim) and (kteam ~= vteam)
+    local betrayal = ((killer > 0) and killer ~= victim) and (kteam == vteam)
 
     if (pvp) then
 
@@ -1435,7 +1434,7 @@ function Loadout:OnPlayerDeath(VictimIndex, KillerIndex)
     elseif (suicide) then
         self:UpdateCredits(victim, { self.credits.suicide[1], self.credits.suicide[2] })
     elseif (betrayal) then
-        self:UpdateCredits(victim, { self.credits.betrayal[1], self.credits.betrayal[2] })
+        self:UpdateCredits(killer, { self.credits.betrayal[1], self.credits.betrayal[2] })
     else
         self:UpdateCredits(victim, CheckDamageTag(last_damage))
     end
