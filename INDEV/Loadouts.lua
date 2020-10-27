@@ -99,7 +99,7 @@ local Loadout = {
             "Your credits have been set to %credits%",
             "Setting %name%'s credits to %credits%",
         },
-        [6] = "Invalid level!",
+        [6] = "Invalid level! Please enter a number between 1-%max%",
         [7] = "You are already level %level%",
         [8] = "Credits cannot be higher than %max%",
         [9] = "You do not have permission to execute this command.",
@@ -108,6 +108,13 @@ local Loadout = {
 
     classes = {
         ["Regeneration"] = {
+            color = {
+                ffa = "red",
+                team = {
+                    red = "red",
+                    blue = "teal",
+                }
+            },
             command = "regen",
             hud = "Class [Regen] Level: [%lvl%] Credits: [%cr%/%cr_req%] State: [%state%]",
             info = {
@@ -193,6 +200,13 @@ local Loadout = {
         },
 
         ["Armor Boost"] = {
+            color = {
+                ffa = "black",
+                team = {
+                    red = "black",
+                    blue = "orange",
+                }
+            },
             command = "armor",
             hud = "Class [Armor] Level: [%lvl%] Credits: [%cr%/%cr_req%] State: [%state%]",
             info = {
@@ -274,6 +288,13 @@ local Loadout = {
         },
 
         ["Cloak"] = {
+            color = {
+                ffa = "cyan",
+                team = {
+                    red = "cyan",
+                    blue = "blue",
+                }
+            },
             command = "cloak",
             hud = "Class [Cloak] Level: [%lvl%] Credits: [%cr%/%cr_req%] State: [%state%]",
             info = {
@@ -343,6 +364,13 @@ local Loadout = {
         },
 
         ["Recon"] = {
+            color = {
+                ffa = "salmon",
+                team = {
+                    red = "salmon",
+                    blue = "pink",
+                }
+            },
             command = "recon",
             hud = "Class [Recon] Level: [%lvl%] Credits: [%cr%/%cr_req%] State: [%state%]",
             info = {
@@ -484,7 +512,7 @@ local Loadout = {
         tags = {
 
             --
-            -- tag {type, name, credits}
+            -- tag {type, name, credits, message}
             --
 
             -- FALL DAMAGE --
@@ -572,6 +600,29 @@ local Loadout = {
         [12] = "a tag\\will go\\here",
     },
 
+    -- Color Table --
+    -- Do Not Touch Unless you know what you're doing.
+    colors = {
+        ["white"] = 0,
+        ["black"] = 1,
+        ["red"] = 2,
+        ["blue"] = 3,
+        ["gray"] = 4,
+        ["yellow"] = 5,
+        ["green"] = 6,
+        ["pink"] = 7,
+        ["purple"] = 8,
+        ["cyan"] = 9,
+        ["cobalt"] = 10,
+        ["orange"] = 11,
+        ["teal"] = 12,
+        ["sage"] = 13,
+        ["brown"] = 14,
+        ["tan"] = 15,
+        ["maroon"] = 16,
+        ["salmon"] = 17,
+    },
+
     -- The array index for each client will either be "IP", or "IP:PORT".
     -- Set to 1 for ip-only indexing.
     ClientIndexType = 2,
@@ -586,10 +637,18 @@ local Loadout = {
     ammo_set_delay = 300,
 }
 
+local ls
 local time_scale = 1 / 30
 local floor, format = math.floor, string.format
 local gmatch, gsub = string.gmatch, string.gsub
 local lower, upper = string.lower, string.upper
+
+local function IsTeamPlay()
+    if (get_var(0, "$ffa") == "0") then
+        return true
+    end
+    return false
+end
 
 local function Init(reset)
     local events_registered = RegisterSAPPEvents()
@@ -607,7 +666,7 @@ local function Init(reset)
         local gt = get_var(0, "$gt")
         for k, v in pairs(Loadout.scorelimits) do
             if (gt == k) then
-                if (get_var(0, "$ffa") == "0") then
+                if IsTeamPlay() then
                     execute_command("scorelimit " .. v[1])
                 else
                     execute_command("scorelimit " .. v[2])
@@ -626,7 +685,7 @@ function OnScriptLoad()
 end
 
 function OnScriptUnload()
-    -- N/A
+    LSS(false)
 end
 
 function OnGameStart()
@@ -1082,13 +1141,14 @@ function Loadout:OnServerCommand(Executor, Command)
                             local ip = self:GetIP(TargetID)
                             local t = self.players[ip]
                             local level = tonumber(Args[3])
+                            local max_levels = #self.classes[t.class].levels
 
                             -- Level is the same!
                             if (level == t.levels[t.class].level) then
                                 local s = gsub(self.messages[7], "%%level%%", level)
                                 self:Respond(Executor, s, rprint, 10)
 
-                            elseif (level <= #self.classes[t.class].levels and level > 0) then
+                            elseif (level <= max_levels and level > 0) then
 
                                 t.assign = true
                                 t.levels[t.class].level = level
@@ -1103,7 +1163,8 @@ function Loadout:OnServerCommand(Executor, Command)
                                     self:Respond(Executor, s2, rprint, 10)
                                 end
                             else
-                                self:Respond(Executor, self.messages[6], rprint, 10)
+                                local s = gsub(self.messages[6], "%%max%%", max_levels)
+                                self:Respond(Executor, s, rprint, 10)
                             end
                         end
                     end
@@ -1282,6 +1343,7 @@ function Loadout:InitPlayer(Ply)
     self.players[ip].id = Ply
     self.players[ip].name = get_var(Ply, "$name")
     self.players[ip].disconnect_timer = self.disconnect_cooldown
+    self:SetColor(Ply)
 end
 
 function Loadout:OnPlayerSpawn(Ply)
@@ -1404,6 +1466,8 @@ end
 function Loadout:OnPlayerDeath(VictimIndex, KillerIndex)
     local killer, victim = tonumber(KillerIndex), tonumber(VictimIndex)
 
+    self:SetColor(victim)
+
     local kip, vip = self:GetIP(killer), self:GetIP(victim)
     local last_damage = self.players[vip].last_damage
     local kteam = get_var(killer, "$team")
@@ -1424,10 +1488,10 @@ function Loadout:OnPlayerDeath(VictimIndex, KillerIndex)
         v.deaths = v.deaths + 1
 
         if (v.bounty > 0) then
-            v.bounty = 0
             local str = self.messages[2]
             str = gsub(gsub(gsub(str, "%%name%%", k.name), "%%bounty%%", v.bounty), "%%victim%%", v.name)
             self:UpdateCredits(killer, { v.bounty, str })
+            v.bounty = 0
         end
 
         self:MultiKill(killer)
@@ -1510,13 +1574,12 @@ function Loadout:GetLevelInfo(Ply)
     local c = t.class
     local l = t.levels[c].level
     local cr = t.levels[c].credits
-
     local crR = self.classes[c].levels[l].until_next_level
     if (crR == nil) then
         crR = "N/A"
     end
 
-    return { class = c, level = l, credits = cr, cr_req = crR, state = t.state }
+    return { class = c, level = l, credits = cr, cr_req = crR, state = t.state, switch_on_respawn = t.switch_on_respawn }
 end
 
 function Loadout:UpdateLevel(Ply)
@@ -1744,6 +1807,34 @@ function GetObjectTagName(TAG)
     return nil
 end
 
+function Loadout:SetColor(Ply)
+
+    local ply_obj = get_player(Ply)
+    if (ply_obj ~= 0) then
+
+        local t = self:GetLevelInfo(Ply)
+        local class = t.class
+        if (t.switch_on_respawn[1]) then
+            class = t.switch_on_respawn[2]
+        end
+
+        local color = "red"
+        local team = get_var(Ply, "$team")
+        if not IsTeamPlay() then
+            color = self.classes[class].color.ffa
+        else
+            color = self.classes[class].color.team[team]
+        end
+        safe_write(true)
+        for ColorName, ColorID in pairs(self.colors) do
+            if (ColorName == color) then
+                write_byte(ply_obj + 0x60, ColorID)
+            end
+        end
+        safe_write(false)
+    end
+end
+
 function Loadout:hasObjective(DyN)
     for i = 0, 3 do
         local WeaponID = read_dword(DyN + 0x2F8 + 0x4 * i)
@@ -1772,6 +1863,7 @@ end
 function RegisterSAPPEvents()
     local gt = get_var(0, "$gt")
     if (gt == "ctf") or (gt == "slayer") or (gt == "race") then
+        LSS(true)
         register_callback(cb["EVENT_TICK"], "OnTick")
         register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
         register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
@@ -1783,6 +1875,7 @@ function RegisterSAPPEvents()
         register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
         return true
     else
+        LSS(false)
         unregister_callback(cb["EVENT_TICK"])
         unregister_callback(cb["EVENT_GAME_END"])
         unregister_callback(cb["EVENT_JOIN"])
@@ -1794,6 +1887,25 @@ function RegisterSAPPEvents()
         unregister_callback(cb["EVENT_DAMAGE_APPLICATION"])
         cprint("WARNING: Loadout is not compatible with " .. gt, 4 + 8)
         return false
+    end
+end
+
+function LSS(state)
+    if (state) then
+        ls = sig_scan("741F8B482085C9750C")
+        if (ls == 0) then
+            ls = sig_scan("EB1F8B482085C9750C")
+        end
+        safe_write(true)
+        write_char(ls, 235)
+        safe_write(false)
+    else
+        if (ls == 0) then
+            return
+        end
+        safe_write(true)
+        write_char(ls, 116)
+        safe_write(false)
     end
 end
 
