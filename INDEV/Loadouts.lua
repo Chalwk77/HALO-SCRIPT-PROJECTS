@@ -18,7 +18,7 @@ api_version = "1.12.0.0"
 local Loadout = {
 
     -- This is the class players will start with when they join the server:
-    default_class = "Cloak",
+    default_class = "Regeneration",
     -- This is the starting level for the above class:
     starting_level = 1,
 
@@ -204,6 +204,7 @@ local Loadout = {
                     damage_resistance = 1.20,
                     -- Set to true to enable fall damage immunity:
                     fall_damage_immunity = false,
+                    self_damage = true,
                     melee_damage_multiplier = 0,
                     grenades = { 2, 0 },
                     weapons = {
@@ -215,6 +216,7 @@ local Loadout = {
                     until_next_level = 500,
                     damage_resistance = 1.30,
                     fall_damage_immunity = false,
+                    self_damage = true,
                     melee_damage_multiplier = 0,
                     grenades = { 3, 0 },
                     weapons = {
@@ -227,6 +229,7 @@ local Loadout = {
                     until_next_level = 1000,
                     damage_resistance = 1.40,
                     fall_damage_immunity = false,
+                    self_damage = true,
                     melee_damage_multiplier = 200,
                     grenades = { 3, 2 },
                     weapons = {
@@ -239,6 +242,7 @@ local Loadout = {
                     until_next_level = 2000,
                     damage_resistance = 1.50,
                     fall_damage_immunity = false,
+                    self_damage = true,
                     melee_damage_multiplier = 200,
                     grenades = { 4, 4 },
                     weapons = {
@@ -251,6 +255,7 @@ local Loadout = {
                     until_next_level = nil,
                     damage_resistance = 1.55,
                     fall_damage_immunity = true,
+                    self_damage = false,
                     melee_damage_multiplier = 200,
                     grenades = { 5, 5 },
                     weapons = {
@@ -438,6 +443,8 @@ local Loadout = {
 
         -- Bonus Credits per bounty level:
         bounty_bonus = 25,
+
+        vehicle_kill = { 5, "+5cR (Vehicle Kill)" },
 
         -- {consecutive kills, xp rewarded, "message sent", bounty level added}
         spree = {
@@ -1359,15 +1366,19 @@ function Loadout:MultiKill(Ply)
     end
 end
 
-function Loadout:InVehicle(Ply)
+function Loadout:InVehicle(Ply, CheckOnly)
     local DyN = get_dynamic_player(Ply)
     if (DyN ~= 0) then
         local VehicleID = read_dword(DyN + 0x11C)
         if (VehicleID ~= 0xFFFFFFFF) then
-            local VehicleObject = get_object_memory(VehicleID)
-            local name = GetObjectTagName(VehicleObject)
-            if (name ~= nil) then
-                return name
+            if (CheckOnly) then
+                return true
+            else
+                local VehicleObject = get_object_memory(VehicleID)
+                local name = GetObjectTagName(VehicleObject)
+                if (name ~= nil) then
+                    return name
+                end
             end
         end
     end
@@ -1436,6 +1447,11 @@ function Loadout:OnPlayerDeath(VictimIndex, KillerIndex)
                 local str = gsub(pvp_bonus[2], "%%credits%%", pvp_bonus[1])
                 self:UpdateCredits(killer, { pvp_bonus[1], str })
             end
+        end
+
+        local VictimInVehicle = self:InVehicle(victim, true)
+        if (VictimInVehicle) then
+            self:UpdateCredits(killer, { self.credits.vehicle_kill[1], self.credits.vehicle_kill[2] })
         end
 
         -- Vehicle check logic:
@@ -1559,14 +1575,19 @@ function Loadout:OnDamageApplication(VictimIndex, KillerIndex, MetaID, Damage, H
                 v.head_shot = false
             end
 
-            if (k.class == "Armor Boost") and (killer ~= victim) then
-                if (not self:IsMelee(MetaID)) then
-                    Damage = Damage - (10 * self.classes[k.class].levels[k_info.level].damage_resistance)
-                else
-                    print('doing fucking epic damage')
-                    Damage = Damage + (self.classes[k.class].levels[k_info.level].melee_damage_multiplier)
+            if (k.class == "Armor Boost") then
+                local case = (not self.classes[v.class].levels[v_info.level].self_damage)
+                if (killer == victim) and (case) then
+                    hurt = false
+                elseif (killer ~= victim) then
+                    if (not self:IsMelee(MetaID)) then
+                        Damage = Damage - (10 * self.classes[k.class].levels[k_info.level].damage_resistance)
+                    else
+                        Damage = Damage + (self.classes[k.class].levels[k_info.level].melee_damage_multiplier)
+                    end
+                    hurt = true
                 end
-                hurt = true
+
             elseif (v.class == "Cloak") then
                 local DyN = get_dynamic_player(victim)
                 if (DyN ~= 0) then
@@ -1581,8 +1602,11 @@ function Loadout:OnDamageApplication(VictimIndex, KillerIndex, MetaID, Damage, H
             k.last_damage = MetaID
         end
 
+        local FD = GetTag(self.credits.tags[1][1], self.credits.tags[1][2])
+        local DD = GetTag(self.credits.tags[2][1], self.credits.tags[2][2])
+
         if (v.class == "Armor Boost") and (self.classes[v.class].levels[v_info.level].fall_damage_immunity) then
-            if (MetaID == self.credits.tags[1] or MetaID == self.credits.tags[2]) then
+            if (MetaID == FD or MetaID == DD) then
                 hurt = false
             end
         end
