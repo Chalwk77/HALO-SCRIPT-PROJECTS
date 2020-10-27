@@ -3,6 +3,8 @@
 Script Name: Loadout (Alpha 1.0), for SAPP (PC & CE)
 Description: N/A
 
+todo: add support for custom maps
+
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -15,34 +17,48 @@ api_version = "1.12.0.0"
 
 local Loadout = {
 
-    default_class = "Regeneration",
+    -- This is the class players will start with when they join the server:
+    default_class = "Cloak",
+    -- This is the starting level for the above class:
     starting_level = 1,
 
+    --============== SET-LEVEL COMMAND ==============--
     -- Command Syntax: /level_cmd [number: 1-16] | */all | me <level>
     level_cmd = "level",
+    -- Minimum permission level required to execute /level_cmd
     level_cmd_permission = 1,
+    -- Minimum permission level required to execute /level_cmd on other players (besides yourself)
     level_cmd_permission_others = 4,
+    --==============================================================================================--
 
+    --============== CREDITS COMMAND ==============--
     -- Command Syntax: /credits_cmd [number: 1-16] | */all | me <credits>
     credits_cmd = "credits",
+    -- Minimum permission level required to execute /credits_cmd
     credits_cmd_permission = 1,
+    -- Minimum permission level required to execute /credits_cmd on other players (besides yourself)
     credits_cmd_permission_others = 4,
+    --==============================================================================================--
 
+    --============== BOUNTY COMMAND ==============--
     -- Command Syntax: /bounty_cmd [number: 1-16] | */all | me <bounty>
     bounty_cmd = "bounty",
+    -- Minimum permission level required to execute /bounty_cmd
     bounty_cmd_permission = 1,
+    -- Minimum permission level required to execute /bounty_cmd on other players (besides yourself)
     bounty_cmd_permission_others = 4,
+    --==============================================================================================--
 
-    -- if true, a player's credits will be able to fall into the negatives.
+    -- If true, a player's credits will be able to fall into the negatives.
     allow_negatives = false,
 
-    -- Enable or disable rank HUD:
-    show_rank_hud = true,
+    -- Enable or disable HUD:
+    show_hud = true,
 
-    -- If a player types any command, the rank_hud info will disappear to prevent it from overwriting other information.
-    -- How long should rank_hud info disappear for?
-    rank_hud_pause_duration = 5,
-    rank_hud = "Class: [%class%] Level: [%lvl%/%total_levels%] Credits: [%credits%/%req_exp%]",
+    -- If the server needs to send a message to RCON,
+    -- we need to temporarily disable the HUD to prevent it from overwriting other information.
+    -- How long should it disappear for?
+    hud_pause_duration = 5,
 
     -- Command used to display information about your current class:
     info_command = "help",
@@ -53,12 +69,12 @@ local Loadout = {
     -- Time (in seconds) a player must return to the server before their credits are reset.
     disconnect_cooldown = 120,
 
-    -- If enabled, a player will receive spawn protection:
+    -- If true, a player will receive spawn protection after X death spree:
     death_sprees_bonus = true,
 
     messages = {
-        [1] = "Class [%class%] Level: [%level%] Credits: [%credits%/%cr_req%]",
-        [2] = "n/a",
+        [1] = "N/A", -- todo: remove
+        [2] = "N/A", -- todo: remove
         [3] = "You do not have permission to execute this command.",
         [4] = "You do not have permission to execute this command on other players",
         [5] = "%name% has a bounty of +%bounty% cR! - Kill to claim!",
@@ -798,42 +814,50 @@ function Loadout:OnTick()
                                 if (v.camo_pause_timer >= current_class.levels[level].reinitialize_delay) then
                                     v.camo_pause = false
                                 end
-                            else
+                            end
 
-                                local case = (v.flashlight_state ~= flashlight_state and flashlight_state == 1)
-                                if (case) and (not v.active_camo) and (invisible == 0) then
-                                    v.active_camo = true
-                                elseif (case) and (v.active_camo) and (invisible ~= 0) then
+                            local case = (v.flashlight_state ~= flashlight_state and flashlight_state == 1)
 
-                                    v.shooting = 0
-                                    v.active_camo = false
-                                    execute_command("camo " .. i .. " 1")
+                            if (case) and (v.camo_pause) then
+                                v.camo_pause = false
+                                v.active_camo = true
+                                execute_command("camo " .. i .. " 1")
+                                -- TURN ON
+                            elseif (case) and (not v.active_camo) then
+                                v.active_camo = true
+                                v.camo_pause = false
+                                -- TURN OFF
+                            elseif (case) and (v.active_camo) and (invisible ~= 0) and (not v.camo_pause) then
 
-                                elseif (not case) and (v.active_camo) and (not v.camo_pause) then
-                                    execute_command("camo " .. i .. " 2")
-                                    v.active_camo_timer = v.active_camo_timer + time_scale
-                                    v.state = "CLOAKING: " .. SecondsToClock(current_class.levels[level].duration - v.active_camo_timer)
-                                    if (v.active_camo_timer >= current_class.levels[level].duration) then
-                                        v.state = "CLOAK: READY"
+                                v.shooting = 0
+                                v.active_camo = false
+                                execute_command("camo " .. i .. " 1")
+
+                            elseif (not case) and (v.active_camo) and (not v.camo_pause) then
+                                execute_command("camo " .. i .. " 1")
+                                v.active_camo_timer = v.active_camo_timer + time_scale
+                                v.state = "CLOAKING: " .. SecondsToClock(current_class.levels[level].duration - v.active_camo_timer)
+                                if (v.active_camo_timer >= current_class.levels[level].duration) then
+                                    v.state = "CLOAK: READY"
+                                    self:ResetCamo(i)
+                                end
+                            elseif (not case) and (not v.active_camo) and (v.active_camo_timer > 0) then
+
+                                v.camo_cooldown = v.camo_cooldown + time_scale
+                                local t = SecondsToClock(current_class.levels[level].duration - v.active_camo_timer)
+                                v.state = "Cloak Regen: " .. t
+
+                                if (math.floor(v.camo_cooldown % 4) == 3) and (v.active_camo_timer > 0) then
+                                    v.active_camo_timer = v.active_camo_timer - 1 / 30
+                                    if (v.active_camo_timer < 0) then
                                         self:ResetCamo(i)
                                     end
-                                elseif (not case) and (not v.active_camo) and (v.active_camo_timer > 0) then
-
-                                    v.camo_cooldown = v.camo_cooldown + time_scale
-                                    local t = SecondsToClock(current_class.levels[level].duration - v.active_camo_timer)
-                                    v.state = "Cloak Regen: " .. t
-
-                                    if (math.floor(v.camo_cooldown % 4) == 3) and (v.active_camo_timer > 0) then
-                                        v.active_camo_timer = v.active_camo_timer - 1 / 30
-                                        if (v.active_camo_timer < 0) then
-                                            self:ResetCamo(i)
-                                        end
-                                    end
-                                else
-                                    v.state = "CLOAK: READY"
                                 end
-                                v.flashlight_state = flashlight_state
+                            else
+                                v.state = "CLOAK: READY"
                             end
+                            v.flashlight_state = flashlight_state
+
                             local shooting = read_float(DyN + 0x490)
                             if (shooting ~= v.shooting and shooting == 1) then
                                 v.camo_pause = true
@@ -891,7 +915,7 @@ function Loadout:OnTick()
                                 local t = SecondsToClock(current_class.levels[level].speed_duration - v.speed_timer)
                                 v.state = "Speed Regen: " .. t
 
-                                if (math.floor(v.speed_cooldown % 4) == 3) and (v.speed_timer > 0) then
+                                if (math.floor(v.speed_cooldown % 2) == 1) and (v.speed_timer > 0) then
                                     v.speed_timer = v.speed_timer - 1 / 30
                                     if (v.speed_timer < 0) then
                                         self:ResetSpeed(i)
@@ -901,7 +925,7 @@ function Loadout:OnTick()
                                 v.state = "Sprint Ready"
                             end
                             if (key == 20) and (v.key_released == 3) then
-                                v.speed_timer = v.speed_timer + (time_scale * 3)
+                                v.speed_timer = v.speed_timer + (time_scale * 1.5)
                                 local t = SecondsToClock(current_class.levels[level].speed_duration - v.speed_timer)
                                 v.state = "Airborne Friction:  " .. t
                             end
@@ -910,15 +934,15 @@ function Loadout:OnTick()
                         -- ======================================= --
                         -- HUD LOGIC --
                         -- ======================================= --
-                        if (self.show_rank_hud) then
-                            if (v.rank_hud_pause) then
-                                v.rank_hud_pause_duration = v.rank_hud_pause_duration - time_scale
-                                if (v.rank_hud_pause_duration <= 0) then
-                                    v.rank_hud_pause = false
-                                    v.rank_hud_pause_duration = self.rank_hud_pause_duration
+                        if (self.show_hud) then
+                            if (v.hud_pause) then
+                                v.hud_pause_duration = v.hud_pause_duration - time_scale
+                                if (v.hud_pause_duration <= 0) then
+                                    v.hud_pause = false
+                                    v.hud_pause_duration = self.hud_pause_duration
                                 end
                             elseif (self.gamestarted) then
-                                self:PrintRank(i)
+                                self:PrintHUD(i)
                             end
                         end
                         if (v.show_help and self.gamestarted) then
@@ -949,8 +973,8 @@ function Loadout:PauseHUD(Ply, Clear)
         self:cls(Ply, 25)
     end
 
-    p.rank_hud_pause = true
-    p.rank_hud_pause_duration = self.rank_hud_pause_duration
+    p.hud_pause = true
+    p.hud_pause_duration = self.hud_pause_duration
 end
 
 function Loadout:PrintHelp(Ply, InfoTab)
@@ -969,11 +993,11 @@ function math.round(n, d)
     return tonumber(format("%." .. (d or 0) .. "f", n))
 end
 
-function Loadout:PrintRank(Ply)
+function Loadout:PrintHUD(Ply)
 
     local ip = self:GetIP(Ply)
     local t = self.players[ip]
-    if (not t.rank_hud_pause) then
+    if (not t.hud_pause) then
 
         local info = self:GetLevelInfo(Ply)
 
@@ -1185,13 +1209,11 @@ end
 
 function Loadout:ResetCamo(Ply, SpawnTrigger)
     local ip = self:GetIP(Ply)
-    self.players[ip].shooting = 0
-    self.players[ip].active_camo = false
-    self.players[ip].flashlight_state = 0
-    self.players[ip].active_camo_timer = 0
     self.players[ip].camo_cooldown = 0
     self.players[ip].camo_pause = false
+    self.players[ip].active_camo = false
     self.players[ip].camo_pause_timer = 0
+    self.players[ip].active_camo_timer = 0
     if (not SpawnTrigger) then
         execute_command("camo " .. Ply .. " 1")
     end
@@ -1229,8 +1251,8 @@ function Loadout:InitPlayer(Ply)
             show_help = false,
             help_hud_duration = self.help_hud_duration,
 
-            rank_hud_pause = false,
-            rank_hud_pause_duration = self.rank_hud_pause_duration,
+            hud_pause = false,
+            hud_pause_duration = self.hud_pause_duration,
         }
         for k, _ in pairs(self.classes) do
             self.players[ip].levels[k] = {
@@ -1382,6 +1404,7 @@ function Loadout:OnPlayerDeath(VictimIndex, KillerIndex)
         v.deaths = v.deaths + 1
 
         if (v.bounty > 0) then
+            v.bounty = 0
             local str = self.messages[6]
             str = gsub(gsub(gsub(str, "%%name%%", k.name), "%%bounty%%", v.bounty), "%%victim%%", v.name)
             self:UpdateCredits(killer, { v.bounty, str })
@@ -1432,6 +1455,7 @@ function Loadout:OnPlayerDeath(VictimIndex, KillerIndex)
                 end
             end
         end
+
         return self:UpdateCredits(killer, CheckDamageTag(last_damage))
 
     elseif (server) then
@@ -1485,7 +1509,9 @@ function Loadout:UpdateCredits(Ply, Params)
     if (Params[2] ~= "") then
         self:Respond(Ply, Params[2], say, 10)
     end
-    execute_command("score " .. Ply .. " " .. t.levels[t.class].credits)
+
+    local score = tonumber(get_var(Ply, "$score"))
+    execute_command("score " .. Ply .. " " .. score + Params[1])
 
     if (not self.allow_negatives) and (t.levels[t.class].credits < 0) then
         t.levels[t.class].credits = 0
@@ -1537,6 +1563,7 @@ function Loadout:OnDamageApplication(VictimIndex, KillerIndex, MetaID, Damage, H
                 if (not self:IsMelee(MetaID)) then
                     Damage = Damage - (10 * self.classes[k.class].levels[k_info.level].damage_resistance)
                 else
+                    print('doing fucking epic damage')
                     Damage = Damage + (self.classes[k.class].levels[k_info.level].melee_damage_multiplier)
                 end
                 hurt = true
@@ -1545,7 +1572,8 @@ function Loadout:OnDamageApplication(VictimIndex, KillerIndex, MetaID, Damage, H
                 if (DyN ~= 0) then
                     local invisible = read_float(DyN + 0x37C)
                     if (v.active_camo) and (invisible ~= 0) then
-                        v.camo_pause = true
+                        v.camo_pause, v.active_camo = false, false
+                        execute_command("camo " .. victim .. " 1")
                     end
                 end
             end
