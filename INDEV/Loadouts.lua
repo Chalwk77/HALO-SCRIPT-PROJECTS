@@ -72,38 +72,44 @@ local Loadout = {
     -- If true, a player will receive spawn protection after X death spree:
     death_sprees_bonus = true,
 
-    messages = {
-        [1] = "N/A", -- todo: remove
-        [2] = "N/A", -- todo: remove
-        [3] = "You do not have permission to execute this command.",
-        [4] = "You do not have permission to execute this command on other players",
-        [5] = "%name% has a bounty of +%bounty% cR! - Kill to claim!",
-        [6] = "%name% collected the bounty of %bounty% credits on %victim%!",
-        [7] = {
-            "Your level has been set to %level%",
-            "Setting %name% to level %level%",
-        },
-        -- /level command feedback:
-        [8] = "Invalid level!",
+    -- =========================== --
+    -- SCORE LIMIT SETTINGS --
+    -- =========================== --
+    scorelimits = {
+        -- TEAM
+        ["ctf"] = { 3 },
+        -- FFA | TEAM
+        ["slayer"] = { 5000, 10000 },
+        ["race"] = { 3000, 6000 },
+    },
 
-        --/credits command feedback:
-        [9] = "Credits cannot be higher than %max%",
-        [10] = {
-            "Your credits have been set to %credits%",
-            "Setting %name%'s credits to %credits%",
-        },
-        [11] = {
+    messages = {
+        [1] = "%name% has a bounty of +%bounty% cR! - Kill to claim!",
+        [2] = "%name% collected the bounty of %bounty% credits on %victim%!",
+        [3] = {
             "Adding +%bounty% bounty points. Total: %total_bounty%cR",
             "Adding +%bounty% bounty points to %name%. Total: %total_bounty%",
             "%target% has a bounty of %total_bounty%cR - Kill to Claim!",
         },
+        [4] = {
+            "Your level has been set to %level%",
+            "Setting %name% to level %level%",
+        },
+        [5] = {
+            "Your credits have been set to %credits%",
+            "Setting %name%'s credits to %credits%",
+        },
+        [6] = "Invalid level!",
+        [7] = "You are already level %level%",
+        [8] = "Credits cannot be higher than %max%",
+        [9] = "You do not have permission to execute this command.",
+        [10] = "You do not have permission to execute this command on other players",
     },
 
     classes = {
         ["Regeneration"] = {
             command = "regen",
             hud = "Class [Regen] Level: [%lvl%] Credits: [%cr%/%cr_req%] State: [%state%]",
-
             info = {
                 "Regeneration: Good for players who want the classic Halo experience. This is the Default.",
                 "Level 1 - Health regenerates 3 seconds after shields recharge, at 20%/second.",
@@ -586,37 +592,34 @@ local gmatch, gsub = string.gmatch, string.gsub
 local lower, upper = string.lower, string.upper
 
 local function Init(reset)
-
-    if (reset) then
-        Loadout.players = { }
-        execute_command('sv_map_reset')
-        for i = 1, 16 do
-            if player_present(i) then
-                Loadout:InitPlayer(i)
+    local events_registered = RegisterSAPPEvents()
+    if (events_registered) then
+        if (reset) then
+            Loadout.players = { }
+            execute_command('sv_map_reset')
+            for i = 1, 16 do
+                if player_present(i) then
+                    Loadout:InitPlayer(i)
+                end
             end
         end
-    end
 
-    Loadout.gamestarted = true
+        local gt = get_var(0, "$gt")
+        for k, v in pairs(Loadout.scorelimits) do
+            if (gt == k) then
+                if (get_var(0, "$ffa") == "0") then
+                    execute_command("scorelimit " .. v[1])
+                else
+                    execute_command("scorelimit " .. v[2])
+                end
+            end
+        end
+        Loadout.gamestarted = true
+    end
 end
 
 function OnScriptLoad()
-
-    register_callback(cb["EVENT_TICK"], "OnTick")
-
-    register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
-
-    register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
-    register_callback(cb["EVENT_DIE"], "OnPlayerDeath")
-    register_callback(cb["EVENT_SCORE"], "OnPlayerScore")
-
-    register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
-    register_callback(cb["EVENT_PRESPAWN"], "OnPlayerPreSpawn")
-
-    register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
-    register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
-
     if (get_var(0, "$gt") ~= "n/a") then
         Init(true)
     end
@@ -691,9 +694,10 @@ function SetAmmo(Ply)
                 local WeaponObject = get_object_memory(WeaponID)
                 if (WeaponObject ~= 0) then
                     local tag = GetObjectTagName(WeaponObject)
+                    safe_write(true)
+                    -- keep safe-write and sync functions out of the loop!
                     for WI, A in pairs(weapon_table) do
                         if (tag == Loadout.weapon_tags[WI]) then
-                            safe_write(true)
                             if (A[1]) then
                                 -- loaded
                                 write_word(WeaponObject + 0x2B8, A[1])
@@ -706,10 +710,11 @@ function SetAmmo(Ply)
                                 -- battery
                                 write_float(WeaponObject + 0x240, A[5])
                             end
-                            sync_ammo(WeaponID)
-                            safe_write(false)
                         end
                     end
+                    --
+                    sync_ammo(WeaponID)
+                    safe_write(false)
                 end
             end
         end
@@ -784,7 +789,7 @@ function Loadout:OnTick()
                                 write_word(DyN + 0x104, delay)
                             end
 
-                            if (health < 1 and shield == 1) then
+                            if (health < 1 and shield > 1) then
                                 v.time_until_regen_begin = v.time_until_regen_begin - time_scale
 
                                 if (v.time_until_regen_begin <= 0) and (not v.begin_regen) then
@@ -1071,36 +1076,40 @@ function Loadout:OnServerCommand(Executor, Command)
                     for i = 1, #pl do
                         local TargetID = tonumber(pl[i])
                         if (TargetID ~= Executor and lvl < self.level_cmd_permission_others) then
-                            self:Respond(Executor, self.messages[4], rprint, 10)
+                            self:Respond(Executor, self.messages[10], rprint, 10)
                         elseif (Args[3]:match("^%d+$")) then
 
                             local ip = self:GetIP(TargetID)
                             local t = self.players[ip]
                             local level = tonumber(Args[3])
 
+                            -- Level is the same!
                             if (level == t.levels[t.class].level) then
-                                self:Respond(Executor, "s2", rprint, 10)
+                                local s = gsub(self.messages[7], "%%level%%", level)
+                                self:Respond(Executor, s, rprint, 10)
 
-                            elseif (level <= #self.classes[t.class].levels) then
+                            elseif (level <= #self.classes[t.class].levels and level > 0) then
+
                                 t.assign = true
                                 t.levels[t.class].level = level
+                                t.levels[t.class].credits = 0
                                 if (TargetID == Executor) then
-                                    local s = gsub(self.messages[7][1], "%%level%%", level)
+                                    local s = gsub(self.messages[4][1], "%%level%%", level)
                                     self:Respond(TargetID, s, rprint, 10)
                                 else
-                                    local s1 = gsub(self.messages[7][1], "%%level%%", level)
+                                    local s1 = gsub(self.messages[4][1], "%%level%%", level)
                                     self:Respond(TargetID, s1, rprint, 10)
-                                    local s2 = gsub(gsub(self.messages[7][2], "%%level%%", level), "%%name%%", t.name)
+                                    local s2 = gsub(gsub(self.messages[4][2], "%%level%%", level), "%%name%%", t.name)
                                     self:Respond(Executor, s2, rprint, 10)
                                 end
                             else
-                                self:Respond(Executor, self.messages[8], rprint, 10)
+                                self:Respond(Executor, self.messages[6], rprint, 10)
                             end
                         end
                     end
                 end
             else
-                self:Respond(Executor, self.messages[3], rprint, 10)
+                self:Respond(Executor, self.messages[9], rprint, 10)
             end
             return false
         elseif (Args[1] == self.credits_cmd) then
@@ -1110,7 +1119,7 @@ function Loadout:OnServerCommand(Executor, Command)
                     for i = 1, #pl do
                         local TargetID = tonumber(pl[i])
                         if (TargetID ~= Executor and lvl < self.credits_cmd_permission_others) then
-                            self:Respond(Executor, self.messages[4], rprint, 10)
+                            self:Respond(Executor, self.messages[10], rprint, 10)
                         elseif (Args[3]:match("^%d+$")) then
 
                             local ip = self:GetIP(TargetID)
@@ -1124,23 +1133,23 @@ function Loadout:OnServerCommand(Executor, Command)
                                 t.levels[t.class].credits = t.levels[t.class].credits + credits
 
                                 if (TargetID == Executor) then
-                                    local s = gsub(self.messages[10][1], "%%credits%%", credits)
+                                    local s = gsub(self.messages[5][1], "%%credits%%", credits)
                                     self:Respond(TargetID, s, rprint, 10)
                                 else
-                                    local s1 = gsub(self.messages[10][1], "%%credits%%", credits)
+                                    local s1 = gsub(self.messages[5][1], "%%credits%%", credits)
                                     self:Respond(TargetID, s1, rprint, 10)
-                                    local s2 = gsub(gsub(self.messages[10][2], "%%credits%%", credits), "%%name%%", t.name)
+                                    local s2 = gsub(gsub(self.messages[5][2], "%%credits%%", credits), "%%name%%", t.name)
                                     self:Respond(Executor, s2, rprint, 10)
                                 end
                             else
-                                local s = gsub(self.messages[9], "%%max%%", max_credits)
+                                local s = gsub(self.messages[8], "%%max%%", max_credits)
                                 self:Respond(Executor, s, rprint, 10)
                             end
                         end
                     end
                 end
             else
-                self:Respond(Executor, self.messages[3], rprint, 10)
+                self:Respond(Executor, self.messages[9], rprint, 10)
             end
             return false
         elseif (Args[1] == self.bounty_cmd) then
@@ -1150,7 +1159,7 @@ function Loadout:OnServerCommand(Executor, Command)
                     for i = 1, #pl do
                         local TargetID = tonumber(pl[i])
                         if (TargetID ~= Executor and lvl < self.bounty_cmd_permission_others) then
-                            self:Respond(Executor, self.messages[4], rprint, 10)
+                            self:Respond(Executor, self.messages[10], rprint, 10)
                         elseif (Args[3]:match("^%d+$")) then
 
                             local ip = self:GetIP(TargetID)
@@ -1159,7 +1168,7 @@ function Loadout:OnServerCommand(Executor, Command)
                             local bounty = tonumber(Args[3])
                             t.bounty = t.bounty + bounty
 
-                            local m = self.messages[11]
+                            local m = self.messages[3]
                             if (TargetID == Executor) then
                                 local s = gsub(gsub(m[1], "%%bounty%%", bounty), "%%total_bounty%%", t.bounty)
                                 self:Respond(TargetID, s, rprint, 10)
@@ -1180,7 +1189,7 @@ function Loadout:OnServerCommand(Executor, Command)
                     end
                 end
             else
-                self:Respond(Executor, self.messages[3], rprint, 10)
+                self:Respond(Executor, self.messages[9], rprint, 10)
             end
             return false
         elseif (Args[1] == self.info_command) then
@@ -1344,7 +1353,7 @@ function Loadout:KillingSpree(Ply)
                 local bonus = self.credits.bounty_bonus + v[4]
                 self.players[ip].bounty = self.players[ip].bounty + bonus
 
-                local str = gsub(gsub(self.messages[5],
+                local str = gsub(gsub(self.messages[1],
                         "%%name%%", self.players[ip].name),
                         "%%bounty%%", self.players[ip].bounty)
                 self:Respond(_, str, say_all, 10)
@@ -1416,7 +1425,7 @@ function Loadout:OnPlayerDeath(VictimIndex, KillerIndex)
 
         if (v.bounty > 0) then
             v.bounty = 0
-            local str = self.messages[6]
+            local str = self.messages[2]
             str = gsub(gsub(gsub(str, "%%name%%", k.name), "%%bounty%%", v.bounty), "%%victim%%", v.name)
             self:UpdateCredits(killer, { v.bounty, str })
         end
@@ -1728,9 +1737,9 @@ function OnPlayerPreSpawn(P)
     return Loadout:OnPlayerPreSpawn(P)
 end
 
-function GetObjectTagName(Vehicle)
-    if (Vehicle ~= nil and Vehicle ~= 0) then
-        return read_string(read_dword(read_word(Vehicle) * 32 + 0x40440038))
+function GetObjectTagName(TAG)
+    if (TAG ~= nil and TAG ~= 0) then
+        return read_string(read_dword(read_word(TAG) * 32 + 0x40440038))
     end
     return nil
 end
@@ -1758,6 +1767,34 @@ function Loadout:GetIP(Ply)
         IP = IP:match("%d+.%d+.%d+.%d+")
     end
     return IP
+end
+
+function RegisterSAPPEvents()
+    local gt = get_var(0, "$gt")
+    if (gt == "ctf") or (gt == "slayer") or (gt == "race") then
+        register_callback(cb["EVENT_TICK"], "OnTick")
+        register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
+        register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
+        register_callback(cb["EVENT_DIE"], "OnPlayerDeath")
+        register_callback(cb["EVENT_SCORE"], "OnPlayerScore")
+        register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
+        register_callback(cb["EVENT_PRESPAWN"], "OnPlayerPreSpawn")
+        register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
+        register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
+        return true
+    else
+        unregister_callback(cb["EVENT_TICK"])
+        unregister_callback(cb["EVENT_GAME_END"])
+        unregister_callback(cb["EVENT_JOIN"])
+        unregister_callback(cb["EVENT_DIE"])
+        unregister_callback(cb["EVENT_SCORE"])
+        unregister_callback(cb["EVENT_SPAWN"])
+        unregister_callback(cb["EVENT_PRESPAWN"])
+        unregister_callback(cb["EVENT_COMMAND"])
+        unregister_callback(cb["EVENT_DAMAGE_APPLICATION"])
+        cprint("WARNING: Loadout is not compatible with " .. gt, 4 + 8)
+        return false
+    end
 end
 
 --======================================================
