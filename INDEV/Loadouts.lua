@@ -15,7 +15,7 @@ api_version = "1.12.0.0"
 
 local Loadout = {
 
-    default_class = "Cloak",
+    default_class = "Regeneration",
     starting_level = 1,
 
     -- Command Syntax: /level_cmd [number: 1-16] | */all | me <level>
@@ -42,10 +42,7 @@ local Loadout = {
     -- If a player types any command, the rank_hud info will disappear to prevent it from overwriting other information.
     -- How long should rank_hud info disappear for?
     rank_hud_pause_duration = 5,
-    rank_hud = "Class: [%class%] Level: [%lvl%/%total_levels%] Credits: [%credits%/%req_exp%] Kills: [%kills%]",
-
-    -- N/A
-    pause_speedboost_hud_duration = 5,
+    rank_hud = "Class: [%class%] Level: [%lvl%/%total_levels%] Credits: [%credits%/%req_exp%]",
 
     -- Command used to display information about your current class:
     info_command = "help",
@@ -89,6 +86,8 @@ local Loadout = {
     classes = {
         ["Regeneration"] = {
             command = "regen",
+            hud = "Class [Regen] Level: [%lvl%] Credits: [%cr%/%cr_req%] State: [%state%]",
+
             info = {
                 "Regeneration: Good for players who want the classic Halo experience. This is the Default.",
                 "Level 1 - Health regenerates 3 seconds after shields recharge, at 20%/second.",
@@ -173,6 +172,7 @@ local Loadout = {
 
         ["Armor Boost"] = {
             command = "armor",
+            hud = "Class [Armor] Level: [%lvl%] Credits: [%cr%/%cr_req%] State: [%state%]",
             info = {
                 "Armor Boost: Good for players who engage vehicles or defend.",
                 "Level 1 - 1.20x durability.",
@@ -248,6 +248,7 @@ local Loadout = {
 
         ["Cloak"] = {
             command = "cloak",
+            hud = "Class [Cloak] Level: [%lvl%] Credits: [%cr%/%cr_req%] State: [%state%]",
             info = {
                 "Partial Camo: Good for players who prefer stealth and quick kills or CQB.",
                 "Level 1 - Camo works until you fire your weapon or take damage. Reinitialize delays are 3s/Weapon, 5s/Damage",
@@ -316,6 +317,7 @@ local Loadout = {
 
         ["Recon"] = {
             command = "recon",
+            hud = "Class [Recon] Level: [%lvl%] Credits: [%cr%/%cr_req%] State: [%state%]",
             info = {
                 "Recon: Good for players who don't use vehicles. Also good for capturing.",
                 "Level 1 - Default speed raised to 1.5x. Sprint duration is 200%.",
@@ -760,21 +762,30 @@ function Loadout:OnTick()
 
                             if (health < 1 and shield == 1) then
                                 v.time_until_regen_begin = v.time_until_regen_begin - time_scale
+
                                 if (v.time_until_regen_begin <= 0) and (not v.begin_regen) then
                                     v.time_until_regen_begin = current_class.levels[level].regen_delay
                                     v.begin_regen = true
                                 elseif (v.begin_regen) then
                                     v.regen_timer = v.regen_timer + time_scale
+                                    v.state = "healing: " .. math.round((health / 1) * 100, 2) .. "%%"
                                     if (v.regen_timer >= current_class.levels[level].regen_rate) then
                                         v.regen_timer = 0
                                         write_float(DyN + 0xE0, health + current_class.levels[level].increment)
                                     end
                                 end
                             elseif (v.begin_regen and health >= 1) then
+                                v.state = "Max Health 100%%"
                                 v.begin_regen = false
                                 v.regen_timer = 0
+                            elseif (health < 1 and shield < 1) then
+                                v.state = "health: " .. math.round((health / 1) * 100, 2) .. "%%"
+                            else
+                                v.state = "Max Health 100%%"
                             end
 
+                        elseif (v.class == "Armor Boost") then
+                            v.state = "Damage Resistance: " .. current_class.levels[level].damage_resistance .. "x"
                         elseif (v.class == "Cloak") then
 
                             local invisible = read_float(DyN + 0x37C)
@@ -787,17 +798,22 @@ function Loadout:OnTick()
                                     v.camo_pause = false
                                 end
                             else
+
                                 local case = (v.flashlight_state ~= flashlight_state and flashlight_state == 1)
                                 if (case) and (not v.active_camo) and (invisible == 0) then
                                     v.active_camo = true
                                 elseif (case) and (v.active_camo) and (invisible ~= 0) then
                                     self:ResetCamo(i)
                                 elseif (not case) and (v.active_camo) and (not v.camo_pause) then
-                                    execute_command("camo " .. i .. " 1")
+                                    execute_command("camo " .. i .. " 2")
                                     v.active_camo_timer = v.active_camo_timer + time_scale
+                                    v.state = "CLOAKING: " .. SecondsToClock(current_class.levels[level].duration - v.active_camo_timer)
                                     if (v.active_camo_timer >= current_class.levels[level].duration) then
+                                        v.state = "CLOAK: READY"
                                         self:ResetCamo(i)
                                     end
+                                else
+                                    v.state = "CLOAK: READY"
                                 end
                                 v.flashlight_state = flashlight_state
                             end
@@ -837,11 +853,8 @@ function Loadout:OnTick()
                                 -- apply speed:
                             elseif (key == 4 and v.key_released == 3) then
                                 v.speed_timer = v.speed_timer + time_scale
-
-                                if (not v.pause_speedboost_hud) then
-                                    local t = (current_class.levels[level].speed_duration - v.speed_timer)
-                                    self:PrintSpeedBoostHUD(i, t)
-                                end
+                                local t = SecondsToClock(current_class.levels[level].speed_duration - v.speed_timer)
+                                v.state = "Sprinting: " .. t
 
                                 -- Apply Speed:
                                 if (v.speed_timer <= current_class.levels[level].speed_duration) then
@@ -858,11 +871,8 @@ function Loadout:OnTick()
                             elseif (v.regen and v.speed_timer > 0) then
 
                                 v.speed_cooldown = v.speed_cooldown + time_scale
-
-                                if (not v.pause_speedboost_hud) then
-                                    local t = (current_class.levels[level].speed_duration - v.speed_timer)
-                                    self:PrintSpeedBoostHUD(i, t)
-                                end
+                                local t = SecondsToClock(current_class.levels[level].speed_duration - v.speed_timer)
+                                v.state = "Speed Regen: " .. t
 
                                 if (math.floor(v.speed_cooldown % 4) == 3) and (v.speed_timer > 0) then
                                     v.speed_timer = v.speed_timer - 1 / 30
@@ -870,13 +880,13 @@ function Loadout:OnTick()
                                         self:ResetSpeed(i)
                                     end
                                 end
+                            else
+                                v.state = "Sprint Ready"
                             end
                             if (key == 20) and (v.key_released == 3) then
                                 v.speed_timer = v.speed_timer + (time_scale * 3)
-                                if (not v.pause_speedboost_hud) then
-                                    local t = (current_class.levels[level].speed_duration - v.speed_timer)
-                                    self:PrintSpeedBoostHUD(i, t)
-                                end
+                                local t = SecondsToClock(current_class.levels[level].speed_duration - v.speed_timer)
+                                v.state = "Airborne Friction:  " .. t
                             end
                         end
 
@@ -892,13 +902,6 @@ function Loadout:OnTick()
                                 end
                             elseif (self.gamestarted) then
                                 self:PrintRank(i)
-                            end
-                        end
-                        if (v.pause_speedboost_hud) then
-                            v.pause_speedboost_hud_duration = v.pause_speedboost_hud_duration - time_scale
-                            if (v.pause_speedboost_hud_duration <= 0) then
-                                v.pause_speedboost_hud = false
-                                v.pause_speedboost_hud_duration = self.pause_speedboost_hud_duration
                             end
                         end
                         if (v.show_help and self.gamestarted) then
@@ -933,18 +936,6 @@ function Loadout:PauseHUD(Ply, Clear)
     p.rank_hud_pause_duration = self.rank_hud_pause_duration
 end
 
-function Loadout:PauseSpeedBoostHUD(Ply, Clear)
-
-    local ip = self:GetIP(Ply)
-    local p = self.players[ip]
-    if (Clear) then
-        self:cls(Ply, 25)
-    end
-
-    p.pause_speedboost_hud = true
-    p.pause_speedboost_hud_duration = self.pause_speedboost_hud_duration
-end
-
 function Loadout:PrintHelp(Ply, InfoTab)
     self:cls(Ply, 25)
     for i = 1, #InfoTab do
@@ -957,6 +948,10 @@ function Loadout:PrintSpeedBoostHUD(Ply, Time)
     self:Respond(Ply, "Boost Time: " .. SecondsToClock(Time), rprint, 10)
 end
 
+function math.round(n, d)
+    return tonumber(format("%." .. (d or 0) .. "f", n))
+end
+
 function Loadout:PrintRank(Ply)
 
     local ip = self:GetIP(Ply)
@@ -966,15 +961,15 @@ function Loadout:PrintRank(Ply)
         local info = self:GetLevelInfo(Ply)
 
         self:cls(Ply, 25)
-        local str = self.rank_hud
+
+        local str = self.classes[t.class].hud
 
         local words = {
-            ["%%credits%%"] = format("%02.f", info.credits),
+            ["%%cr%%"] = math.round(info.credits),
             ["%%lvl%%"] = info.level,
-            ["%%class%%"] = info.class,
-            ["%%req_exp%%"] = info.cr_req,
+            ["%%cr_req%%"] = info.cr_req,
+            ["%%state%%"] = info.state,
             ["%%total_levels%%"] = #self.classes[t.class].levels,
-            ["%%kills%%"] = get_var(Ply, "$kills"),
         }
         for k, v in pairs(words) do
             str = gsub(str, k, v)
@@ -1005,7 +1000,6 @@ function Loadout:OnServerCommand(Executor, Command)
         if (Executor > 0) then
             etab = self.players[eip]
             self:PauseHUD(Executor, true)
-            self:PauseSpeedBoostHUD(Executor, true)
         end
 
         for class, v in pairs(self.classes) do
@@ -1190,6 +1184,8 @@ function Loadout:InitPlayer(Ply)
     if (not self.players[ip]) then
         self.players[ip] = {
 
+            state = "",
+
             levels = { },
 
             bounty = 0,
@@ -1215,9 +1211,6 @@ function Loadout:InitPlayer(Ply)
 
             rank_hud_pause = false,
             rank_hud_pause_duration = self.rank_hud_pause_duration,
-
-            pause_speedboost_hud = false,
-            pause_speedboost_hud_duration = self.pause_speedboost_hud_duration,
         }
         for k, _ in pairs(self.classes) do
             self.players[ip].levels[k] = {
@@ -1451,7 +1444,7 @@ function Loadout:GetLevelInfo(Ply)
 
     local crR = self.classes[c].levels[l].until_next_level
 
-    return { class = c, level = l, credits = cr, cr_req = crR }
+    return { class = c, level = l, credits = cr, cr_req = crR, state = t.state }
 end
 
 function Loadout:UpdateLevel(Ply)
