@@ -72,6 +72,9 @@ local Loadout = {
     -- If true, a player will receive spawn protection after X death spree:
     death_sprees_bonus = true,
 
+    -- If true, this script will change a players armor based on their class (and team)
+    modify_armor_color = true,
+
     -- =========================== --
     -- SCORE LIMIT SETTINGS --
     -- =========================== --
@@ -1809,29 +1812,32 @@ end
 
 function Loadout:SetColor(Ply)
 
-    local ply_obj = get_player(Ply)
-    if (ply_obj ~= 0) then
+    if (self.modify_armor_color) then
 
-        local t = self:GetLevelInfo(Ply)
-        local class = t.class
-        if (t.switch_on_respawn[1]) then
-            class = t.switch_on_respawn[2]
-        end
+        local ply_obj = get_player(Ply)
+        if (ply_obj ~= 0) then
 
-        local color = "red"
-        local team = get_var(Ply, "$team")
-        if not IsTeamPlay() then
-            color = self.classes[class].color.ffa
-        else
-            color = self.classes[class].color.team[team]
-        end
-        safe_write(true)
-        for ColorName, ColorID in pairs(self.colors) do
-            if (ColorName == color) then
-                write_byte(ply_obj + 0x60, ColorID)
+            local t = self:GetLevelInfo(Ply)
+            local class = t.class
+            if (t.switch_on_respawn[1]) then
+                class = t.switch_on_respawn[2]
             end
+
+            local color = "red"
+            local team = get_var(Ply, "$team")
+            if not IsTeamPlay() then
+                color = self.classes[class].color.ffa
+            else
+                color = self.classes[class].color.team[team]
+            end
+            safe_write(true)
+            for ColorName, ColorID in pairs(self.colors) do
+                if (ColorName == color) then
+                    write_byte(ply_obj + 0x60, ColorID)
+                end
+            end
+            safe_write(false)
         end
-        safe_write(false)
     end
 end
 
