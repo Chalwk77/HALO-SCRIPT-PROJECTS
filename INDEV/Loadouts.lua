@@ -100,56 +100,72 @@ local Loadout = {
             levels = {
                 [1] = {
                     -- Health will start regenerating this many seconds after shields are full:
-                    regen_delay = 5,
+                    regen_delay = 0,
                     -- Amount of health regenerated. (1 is full health)
-                    increment = 0.0300,
+                    increment = 0.0200,
                     -- Time (in seconds) between each incremental increase in health:
                     regen_rate = 1,
                     -- Credits required to level up:
                     until_next_level = 200,
                     -- GRENADES | <frag/plasma> (set to nil to use default grenade settings)
                     grenades = { 2, 0 },
-                    -- WEAPONS | Slot 1, Slot 2 Slot 3, Slot 4
                     weapons = {
-                        [1] = { 5, 8 },
-                        [7] = { 10, 0 },
+                        -- [Weapon Index] {loaded, unloaded, Age}
+                        [1] = { nil, nil, nil }, -- pistol
+                        [7] = { nil, nil, nil }, -- assault rifle
                     },
                     shield_regen_delay = nil,
                 },
                 [2] = {
-                    regen_delay = 4,
-                    increment = 0.0550,
+                    regen_delay = 0,
+                    increment = 0.0350,
                     regen_rate = 1,
                     until_next_level = 500,
                     grenades = { 3, 0 },
-                    weapons = { 1, 7, 2, nil },
+                    weapons = {
+                        [1] = { nil, 60, nil }, -- pistol
+                        [7] = { nil, 240, nil }, -- assault rifle
+                        [2] = { nil, 12, nil }, -- sniper
+                    },
                     shield_regen_delay = nil,
                 },
                 [3] = {
-                    regen_delay = 3,
-                    increment = 0.750,
+                    regen_delay = 0,
+                    increment = 0.0450,
                     regen_rate = 1,
                     until_next_level = 1000,
                     grenades = { 3, 2 },
-                    weapons = { 1, 7, 2, nil },
+                    weapons = {
+                        [1] = { nil, 72, nil }, -- pistol
+                        [7] = { nil, 300, nil }, -- assault rifle
+                        [2] = { nil, 16, nil }, -- sniper
+                    },
                     shield_regen_delay = nil,
                 },
                 [4] = {
-                    regen_delay = 2,
-                    increment = 0.950,
+                    regen_delay = 0,
+                    increment = 0.0550,
                     regen_rate = 1,
                     until_next_level = 2000,
                     grenades = { 4, 4 },
-                    weapons = { 1, 7, 2, nil },
+                    weapons = {
+                        [1] = { nil, 84, nil }, -- pistol
+                        [7] = { nil, 360, nil }, -- assault rifle
+                        [2] = { nil, 20, nil }, -- sniper
+                    },
                     shield_regen_delay = nil,
                 },
                 [5] = {
                     regen_delay = 0,
-                    increment = 0.1100,
+                    increment = 0.1000,
                     regen_rate = 1,
                     until_next_level = nil,
                     grenades = { 5, 5 },
-                    weapons = { 1, 7, 2, nil },
+                    weapons = {
+                        [1] = { nil, 168, nil }, -- pistol
+                        [7] = { nil, 840, nil }, -- assault rifle
+                        [2] = { nil, 48, nil }, -- sniper
+                    },
                     shield_regen_delay = 50,
                 }
             },
@@ -174,7 +190,10 @@ local Loadout = {
                     fall_damage_immunity = false,
                     melee_damage_multiplier = 0,
                     grenades = { 2, 0 },
-                    weapons = { 1, 10, nil, nil },
+                    weapons = {
+                        [10] = { nil, nil, nil }, -- shotgun
+                        [1] = { nil, nil, nil }, -- pistol
+                    },
                 },
                 [2] = {
                     until_next_level = 500,
@@ -182,7 +201,11 @@ local Loadout = {
                     fall_damage_immunity = false,
                     melee_damage_multiplier = 0,
                     grenades = { 3, 0 },
-                    weapons = { 1, 10, 3, nil },
+                    weapons = {
+                        [1] = { nil, 60, nil }, -- pistol
+                        [7] = { nil, 240, nil }, -- assault rifle
+                        [8] = { nil, 300, nil }, -- flamethrower
+                    },
                 },
                 [3] = {
                     until_next_level = 1000,
@@ -190,7 +213,11 @@ local Loadout = {
                     fall_damage_immunity = false,
                     melee_damage_multiplier = 200,
                     grenades = { 3, 2 },
-                    weapons = { 1, 10, 3, nil },
+                    weapons = {
+                        [1] = { nil, 72, nil }, -- pistol
+                        [7] = { nil, 300, nil }, -- assault rifle
+                        [8] = { nil, 500, nil }, -- flamethrower
+                    },
                 },
                 [4] = {
                     until_next_level = 2000,
@@ -198,7 +225,11 @@ local Loadout = {
                     fall_damage_immunity = false,
                     melee_damage_multiplier = 200,
                     grenades = { 4, 4 },
-                    weapons = { 1, 10, 3, nil },
+                    weapons = {
+                        [1] = { nil, 84, nil }, -- pistol
+                        [7] = { nil, 360, nil }, -- assault rifle
+                        [8] = { nil, 700, nil }, -- flamethrower
+                    },
                 },
                 [5] = {
                     until_next_level = nil,
@@ -206,7 +237,11 @@ local Loadout = {
                     fall_damage_immunity = true,
                     melee_damage_multiplier = 200,
                     grenades = { 5, 5 },
-                    weapons = { 1, 10, 3, nil },
+                    weapons = {
+                        [1] = { nil, 168, nil }, -- pistol
+                        [7] = { nil, 720, nil }, -- assault rifle
+                        [8] = { nil, 1400, nil }, -- flamethrower
+                    },
                 }
             }
         },
@@ -227,35 +262,54 @@ local Loadout = {
                     reinitialize_delay = 8,
                     until_next_level = 200,
                     grenades = { 2, 0 },
-                    weapons = { 1, 10, nil, nil },
+                    weapons = {
+                        [1] = { nil, nil, nil }, -- pistol
+                        [10] = { nil, nil, nil }, -- shotgun
+                    },
                 },
                 [2] = {
                     duration = 15,
                     reinitialize_delay = 8,
                     until_next_level = 500,
                     grenades = { 3, 0 },
-                    weapons = { 10, 1, 8, nil },
+                    weapons = {
+                        [1] = { nil, 60, nil }, -- pistol
+                        [10] = { nil, 24, nil }, -- shotgun
+                        [8] = { nil, 300, nil }, -- flamethrower
+                    },
                 },
                 [3] = {
                     duration = 20,
                     reinitialize_delay = 8,
                     until_next_level = 1000,
                     grenades = { 3, 2 },
-                    weapons = { 10, 1, 8, nil },
+                    weapons = {
+                        [1] = { nil, 72, nil }, -- pistol
+                        [10] = { nil, 48, nil }, -- shotgun
+                        [8] = { nil, 500, nil }, -- flamethrower
+                    },
                 },
                 [4] = {
                     duration = 25,
                     reinitialize_delay = 0,
                     until_next_level = 2000,
                     grenades = { 4, 4 },
-                    weapons = { 10, 1, 8, nil },
+                    weapons = {
+                        [1] = { nil, 84, nil }, -- pistol
+                        [10] = { nil, 96, nil }, -- shotgun
+                        [8] = { nil, 700, nil }, -- flamethrower
+                    },
                 },
                 [5] = {
                     duration = 25,
                     reinitialize_delay = 0,
                     until_next_level = nil,
                     grenades = { 5, 5 },
-                    weapons = { 10, 1, 8, nil },
+                    weapons = {
+                        [1] = { nil, 168, nil }, -- pistol
+                        [10] = { nil, 192, nil }, -- shotgun
+                        [8] = { nil, 1400, nil }, -- flamethrower
+                    },
                 }
             }
         },
@@ -276,35 +330,54 @@ local Loadout = {
                     speed_duration = 10,
                     until_next_level = 200,
                     grenades = { 2, 0 },
-                    weapons = { 1, 7, nil, nil },
+                    weapons = {
+                        [1] = { nil, nil, nil }, -- pistol
+                        [7] = { nil, nil, nil }, -- assault rifle
+                    },
                 },
                 [2] = {
                     speed = 2,
                     speed_duration = 12,
                     until_next_level = 500,
                     grenades = { 3, 0 },
-                    weapons = { 1, 7, 10, nil },
+                    weapons = {
+                        [1] = { nil, 60, nil }, -- pistol
+                        [7] = { nil, 240, nil }, -- assault rifle
+                        [10] = { nil, 24, nil }, -- shotgun
+                    },
                 },
                 [3] = {
                     speed = 2,
                     speed_duration = 15,
                     until_next_level = 1000,
                     grenades = { 3, 2 },
-                    weapons = { 1, 7, 10, nil },
+                    weapons = {
+                        [1] = { nil, 72, nil }, -- pistol
+                        [7] = { nil, 300, nil }, -- assault rifle
+                        [10] = { nil, 48, nil }, -- shotgun
+                    },
                 },
                 [4] = {
                     speed = 2,
                     speed_duration = 18,
                     until_next_level = 2000,
                     grenades = { 4, 4 },
-                    weapons = { 1, 7, 10, nil },
+                    weapons = {
+                        [1] = { nil, 84, nil }, -- pistol
+                        [7] = { nil, 360, nil }, -- assault rifle
+                        [10] = { nil, 96, nil }, -- shotgun
+                    },
                 },
                 [5] = {
                     speed = 2.5,
                     speed_duration = 20,
                     until_next_level = nil,
                     grenades = { 5, 5 },
-                    weapons = { 1, 7, 10, nil },
+                    weapons = {
+                        [1] = { nil, 168, nil }, -- pistol
+                        [7] = { nil, 840, nil }, -- assault rifle
+                        [10] = { nil, 192, nil }, -- shotgun
+                    },
                 }
             }
         }
@@ -579,6 +652,45 @@ local function SecondsToClock(seconds)
     end
 end
 
+function SetAmmo(Ply)
+    local DyN = get_dynamic_player(Ply)
+    if (DyN ~= 0) then
+
+        local info = Loadout:GetLevelInfo(Ply)
+        local current_class = Loadout.classes[info.class]
+        local weapon_table = current_class.levels[info.level].weapons
+
+        for j = 0, 4 do
+            local WeaponID = read_dword(DyN + 0x2F8 + 0x4 * j)
+            if (WeaponID ~= 0xFFFFFFFF) then
+                local WeaponObject = get_object_memory(WeaponID)
+                if (WeaponObject ~= 0) then
+                    local tag = GetObjectTagName(WeaponObject)
+                    for WI, A in pairs(weapon_table) do
+                        if (tag == Loadout.weapon_tags[WI]) then
+                            safe_write(true)
+                            if (A[1]) then
+                                -- loaded
+                                write_word(WeaponObject + 0x2B8, A[1])
+                            end
+                            if (A[2]) then
+                                -- unloaded
+                                write_word(WeaponObject + 0x2B6, A[2])
+                            end
+                            if (A[5]) then
+                                -- battery
+                                write_float(WeaponObject + 0x240, A[5])
+                            end
+                            sync_ammo(WeaponID)
+                            safe_write(false)
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
 function Loadout:OnTick()
     for ip, v in pairs(self.players) do
         if (ip) then
@@ -624,7 +736,6 @@ function Loadout:OnTick()
                                     execute_command("wdel " .. i)
 
                                     local weapon_table = current_class.levels[level].weapons
-
                                     local index = 0
                                     for WI, _ in pairs(weapon_table) do
                                         index = index + 1
@@ -634,24 +745,7 @@ function Loadout:OnTick()
                                             timer(250, "DelaySecQuat", i, self.weapon_tags[WI], coords.x, coords.y, coords.z)
                                         end
                                     end
-
-                                    for j = 0, 3 do
-                                        local WeaponID = read_dword(DyN + 0x2F8 + 0x4 * j)
-                                        if (WeaponID ~= 0xFFFFFFFF) then
-                                            local Weapon = get_object_memory(WeaponID)
-                                            if (Weapon ~= 0) then
-                                                local tag = GetObjectTagName(Weapon)
-                                                for WI, A in pairs(weapon_table) do
-                                                    if (tag == self.weapon_tags[WI]) then
-                                                        local ammo, mag = A[1], A[2]
-                                                        execute_command_sequence("w8 1;mag " .. i .. " " .. mag)
-                                                        execute_command_sequence("w8 1;ammo " .. i .. " " .. ammo)
-                                                        execute_command_sequence("w8 1;battery " .. i .. " " .. mag)
-                                                    end
-                                                end
-                                            end
-                                        end
-                                    end
+                                    timer(1000, "SetAmmo", i)
                                 end
                             end
                         elseif (v.class == "Regeneration") then
