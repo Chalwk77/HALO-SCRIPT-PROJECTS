@@ -112,9 +112,9 @@ local Loadout = {
     classes = {
         ["Regeneration"] = {
             color = {
-                ffa = "red",
+                ffa = "purple",
                 team = {
-                    red = "red",
+                    red = "purple",
                     blue = "teal",
                 }
             },
@@ -743,43 +743,36 @@ local function SecondsToClock(seconds)
     end
 end
 
-function SetAmmo(Ply)
-    local DyN = get_dynamic_player(Ply)
-    if (DyN ~= 0) and player_alive(Ply) then
+function SetAmmo(Ply, DyN)
 
-        local info = Loadout:GetLevelInfo(Ply)
-        local current_class = Loadout.classes[info.class]
-        local weapon_table = current_class.levels[info.level].weapons
+    local info = Loadout:GetLevelInfo(Ply)
+    local current_class = Loadout.classes[info.class]
+    local weapon_table = current_class.levels[info.level].weapons
 
-        for j = 0, 4 do
-            local WeaponID = read_dword(DyN + 0x2F8 + 0x4 * j)
-            if (WeaponID ~= 0xFFFFFFFF) then
-                local WeaponObject = get_object_memory(WeaponID)
-                if (WeaponObject ~= 0) then
-                    local tag = GetObjectTagName(WeaponObject)
-                    if (tag) then
-                        safe_write(true)
-                        -- keep safe-write and sync functions out of the loop!
-                        for WI, A in pairs(weapon_table) do
-                            if (tag == Loadout.weapon_tags[WI]) then
-                                if (A[1]) then
-                                    -- loaded
-                                    write_word(WeaponObject + 0x2B8, A[1])
-                                end
-                                if (A[2]) then
-                                    -- unloaded
-                                    write_word(WeaponObject + 0x2B6, A[2])
-                                end
-                                if (A[5]) then
-                                    -- battery
-                                    write_float(WeaponObject + 0x240, A[5])
-                                end
+    for i = 0, 3 do
+        local WeaponID = read_dword(DyN + 0x2F8 + (i * 4))
+        if (WeaponID ~= 0xFFFFFFFF) then
+            local WeaponObject = get_object_memory(WeaponID)
+            if (WeaponObject ~= 0) then
+                local tag = GetObjectTagName(WeaponObject)
+                if (tag) then
+                    for WI, A in pairs(weapon_table) do
+                        if (tag == Loadout.weapon_tags[WI]) then
+                            if (A[1]) then
+                                -- loaded
+                                write_word(WeaponObject + 0x2B8, A[1])
+                            end
+                            if (A[2]) then
+                                -- unloaded
+                                write_word(WeaponObject + 0x2B6, A[2])
+                            end
+                            if (A[5]) then
+                                -- battery
+                                write_float(WeaponObject + 0x240, A[5])
                             end
                         end
-                        --
-                        sync_ammo(WeaponID)
-                        safe_write(false)
                     end
+                    sync_ammo(WeaponID)
                 end
             end
         end
@@ -844,7 +837,7 @@ function Loadout:OnTick()
                                             timer(250, "DelaySecQuat", i, self.weapon_tags[WI], coords.x, coords.y, coords.z)
                                         end
                                     end
-                                    timer(self.ammo_set_delay, "SetAmmo", i)
+                                    timer(self.ammo_set_delay, "SetAmmo", i, DyN)
                                 end
                             end
                         elseif (v.class == "Regeneration") then
@@ -1050,12 +1043,14 @@ end
 function Loadout:PauseHUD(Ply, Clear)
     local ip = self:GetIP(Ply)
     local p = self.players[ip]
-    if (Clear) then
-        self:cls(Ply, 25)
-    end
+    if (p) then
+        if (Clear) then
+            self:cls(Ply, 25)
+        end
 
-    p.hud_pause = true
-    p.hud_pause_duration = self.hud_pause_duration
+        p.hud_pause = true
+        p.hud_pause_duration = self.hud_pause_duration
+    end
 end
 
 function Loadout:PrintHelp(Ply, InfoTab)
@@ -1837,31 +1832,29 @@ function Loadout:SetColor(Ply)
 
     if (self.modify_armor_color) then
 
-        if player_alive(Ply) then
-            local ply_obj = get_player(Ply)
-            if (ply_obj ~= 0) then
+        local ply_obj = get_player(Ply)
+        if (ply_obj ~= 0) then
 
-                local t = self:GetLevelInfo(Ply)
-                local class = t.class
-                if (t.switch_on_respawn[1]) then
-                    class = t.switch_on_respawn[2]
-                end
-
-                local color = "red"
-                local team = get_var(Ply, "$team")
-                if not IsTeamPlay() then
-                    color = self.classes[class].color.ffa
-                else
-                    color = self.classes[class].color.team[team]
-                end
-                safe_write(true)
-                for ColorName, ColorID in pairs(self.colors) do
-                    if (ColorName == color) then
-                        write_byte(ply_obj + 0x60, ColorID)
-                    end
-                end
-                safe_write(false)
+            local t = self:GetLevelInfo(Ply)
+            local class = t.class
+            if (t.switch_on_respawn[1]) then
+                class = t.switch_on_respawn[2]
             end
+
+            local color = "red"
+            local team = get_var(Ply, "$team")
+            if not IsTeamPlay() then
+                color = self.classes[class].color.ffa
+            else
+                color = self.classes[class].color.team[team]
+            end
+            safe_write(true)
+            for ColorName, ColorID in pairs(self.colors) do
+                if (ColorName == color) then
+                    write_byte(ply_obj + 0x60, ColorID)
+                end
+            end
+            safe_write(false)
         end
     end
 end
