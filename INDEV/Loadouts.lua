@@ -134,21 +134,28 @@ local Loadout = {
             },
             levels = {
                 [1] = {
-                    -- Health will start regenerating this many seconds after shields are full:
+                    -- Health will start regenerating this many seconds after shields regenerate to full:
                     regen_delay = 0,
+
                     -- Amount of health regenerated. (1 is full health)
                     increment = 0.0200,
+
                     -- Time (in seconds) between each incremental increase in health:
                     regen_rate = 1,
+
                     -- Credits required to level up:
                     until_next_level = 200,
+
                     -- GRENADES | <frag/plasma> (set to nil to use default grenade settings)
                     grenades = { 2, 0 },
+
                     weapons = {
-                        -- [Weapon Index] {loaded, unloaded, Age}
+                        -- [Weapon Index] {ammo loaded, ammo unloaded, battery age}
                         [1] = { nil, nil, nil }, -- pistol
                         [7] = { nil, nil, nil }, -- assault rifle
                     },
+
+                    -- Nil = normal shield regen delay. (Set in milliseconds at or above 50)
                     shield_regen_delay = nil,
                 },
                 [2] = {
@@ -231,7 +238,9 @@ local Loadout = {
                     damage_resistance = 1.20,
                     -- Set to true to enable fall damage immunity:
                     fall_damage_immunity = false,
+                    -- Set to true to enable self-harm:
                     self_damage = true,
+                    -- Melee damage multiplier (1 = normal, 10 = insta-kill):
                     melee_damage_multiplier = 0,
                     grenades = { 2, 0 },
                     weapons = {
@@ -314,7 +323,9 @@ local Loadout = {
             },
             levels = {
                 [1] = {
+                    -- Time (in seconds) that camo lasts:
                     duration = 10,
+                    -- If you receive damage or fire your weapon, your camo is disabled and will reinitialize after this many seconds:
                     reinitialize_delay = 8,
                     until_next_level = 200,
                     grenades = { 2, 0 },
@@ -390,7 +401,9 @@ local Loadout = {
             },
             levels = {
                 [1] = {
+                    -- Speed boost multiplier (1 = normal speed):
                     speed = 2,
+                    -- Time (in seconds) speed boost lasts for:
                     speed_duration = 10,
                     until_next_level = 200,
                     grenades = { 2, 0 },
