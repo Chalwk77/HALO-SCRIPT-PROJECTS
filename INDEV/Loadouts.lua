@@ -465,7 +465,7 @@ local Loadout = {
         -- If true, players will receive bonus credits based on their victim's KDR
         use_pvp_bonus = true,
         pvp_bonus = function(EnemyKDR)
-            local cr = tonumber((10 * EnemyKDR))
+            local cr = tonumber((1 * EnemyKDR))
             return { cr, "+%credits% (PvP Bonus)" }
         end,
 
@@ -775,7 +775,7 @@ function Loadout:RegenCamo(Ply, v, current_class, level)
     v.camo_cooldown = v.camo_cooldown + time_scale
     local t = SecondsToClock(current_class.levels[level].duration - v.active_camo_timer)
     v.state = "Cloak Regen: " .. t
-    if (math.floor(v.camo_cooldown % 4) == 3) and (v.active_camo_timer > 0) then
+    if (math.floor(v.camo_cooldown % 2) == 0) and (v.active_camo_timer > 0) then
         v.active_camo_timer = v.active_camo_timer - 1 / 30
         if (v.active_camo_timer < 0) then
             self:ResetCamo(Ply)
