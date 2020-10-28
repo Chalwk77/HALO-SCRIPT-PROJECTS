@@ -453,10 +453,10 @@ local Loadout = {
         end,
 
         -- Bonus credits for killing the flag carrier
-        flag_carrier_kill_bonus = { 10, "+10cR (Flag Carrier Kill Bonus)" },
+        flag_carrier_kill_bonus = { 30, "+30cR (Flag Carrier Kill Bonus)" },
 
         -- Score (credits added):
-        score = { 100, "+25cR (Flag Cap)" },
+        score = { 100, "+100cR (Flag Cap)" },
 
         head_shot = { 5, "+5cR (head shot!)" },
 
@@ -641,6 +641,7 @@ local Loadout = {
 }
 
 local ls
+local ip_addresses = { }
 local time_scale = 1 / 30
 local floor, format = math.floor, string.format
 local gmatch, gsub = string.gmatch, string.gsub
@@ -744,7 +745,7 @@ end
 
 function SetAmmo(Ply)
     local DyN = get_dynamic_player(Ply)
-    if (DyN ~= 0) then
+    if (DyN ~= 0) and player_alive(Ply) then
 
         local info = Loadout:GetLevelInfo(Ply)
         local current_class = Loadout.classes[info.class]
@@ -756,27 +757,29 @@ function SetAmmo(Ply)
                 local WeaponObject = get_object_memory(WeaponID)
                 if (WeaponObject ~= 0) then
                     local tag = GetObjectTagName(WeaponObject)
-                    safe_write(true)
-                    -- keep safe-write and sync functions out of the loop!
-                    for WI, A in pairs(weapon_table) do
-                        if (tag == Loadout.weapon_tags[WI]) then
-                            if (A[1]) then
-                                -- loaded
-                                write_word(WeaponObject + 0x2B8, A[1])
-                            end
-                            if (A[2]) then
-                                -- unloaded
-                                write_word(WeaponObject + 0x2B6, A[2])
-                            end
-                            if (A[5]) then
-                                -- battery
-                                write_float(WeaponObject + 0x240, A[5])
+                    if (tag) then
+                        safe_write(true)
+                        -- keep safe-write and sync functions out of the loop!
+                        for WI, A in pairs(weapon_table) do
+                            if (tag == Loadout.weapon_tags[WI]) then
+                                if (A[1]) then
+                                    -- loaded
+                                    write_word(WeaponObject + 0x2B8, A[1])
+                                end
+                                if (A[2]) then
+                                    -- unloaded
+                                    write_word(WeaponObject + 0x2B6, A[2])
+                                end
+                                if (A[5]) then
+                                    -- battery
+                                    write_float(WeaponObject + 0x240, A[5])
+                                end
                             end
                         end
+                        --
+                        sync_ammo(WeaponID)
+                        safe_write(false)
                     end
-                    --
-                    sync_ammo(WeaponID)
-                    safe_write(false)
                 end
             end
         end
@@ -1074,9 +1077,7 @@ function Loadout:PrintHUD(Ply)
     if (not t.hud_pause) then
 
         local info = self:GetLevelInfo(Ply)
-
         self:cls(Ply, 25)
-
         local str = self.classes[t.class].hud
 
         local words = {
@@ -1347,6 +1348,7 @@ function Loadout:InitPlayer(Ply)
     self.players[ip].name = get_var(Ply, "$name")
     self.players[ip].disconnect_timer = self.disconnect_cooldown
     self:SetColor(Ply)
+    ip_addresses[Ply] = ip
 end
 
 function Loadout:OnPlayerSpawn(Ply)
@@ -1573,19 +1575,19 @@ function Loadout:OnPlayerDeath(VictimIndex, KillerIndex)
 end
 
 function Loadout:GetLevelInfo(Ply)
-
     local ip = self:GetIP(Ply)
     local t = self.players[ip]
-
-    local c = t.class
-    local l = t.levels[c].level
-    local cr = t.levels[c].credits
-    local crR = self.classes[c].levels[l].until_next_level
-    if (crR == nil) then
-        crR = "N/A"
+    if (t) then
+        local c = t.class
+        local l = t.levels[c].level
+        local cr = t.levels[c].credits
+        local crR = self.classes[c].levels[l].until_next_level
+        if (crR == nil) then
+            crR = "N/A"
+        end
+        return { class = c, level = l, credits = cr, cr_req = crR, state = t.state, switch_on_respawn = t.switch_on_respawn }
     end
-
-    return { class = c, level = l, credits = cr, cr_req = crR, state = t.state, switch_on_respawn = t.switch_on_respawn }
+    return { }
 end
 
 function Loadout:UpdateLevel(Ply)
@@ -1870,6 +1872,9 @@ function Loadout:GetIP(Ply)
     local IP = get_var(Ply, "$ip")
     if (self.ClientIndexType == 1) then
         IP = IP:match("%d+.%d+.%d+.%d+")
+    end
+    if (not player_present(Ply)) then
+        IP = ip_addresses[Ply]
     end
     return IP
 end
