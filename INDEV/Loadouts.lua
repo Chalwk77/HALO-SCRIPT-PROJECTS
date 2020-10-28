@@ -851,9 +851,9 @@ function Loadout:OnTick()
                                 write_word(DyN + 0x104, delay)
                             end
 
-                            if (health < 1 and shield > 1) then
+                            -- Begin regenerating when shield regenerates to full:
+                            if (health < 1 and shield >= 1) then
                                 v.time_until_regen_begin = v.time_until_regen_begin - time_scale
-
                                 if (v.time_until_regen_begin <= 0) and (not v.begin_regen) then
                                     v.time_until_regen_begin = current_class.levels[level].regen_delay
                                     v.begin_regen = true
@@ -1449,9 +1449,11 @@ function Loadout:InVehicle(Ply, CheckOnly)
                 return true
             else
                 local VehicleObject = get_object_memory(VehicleID)
-                local name = GetObjectTagName(VehicleObject)
-                if (name ~= nil) then
-                    return name
+                if (VehicleObject ~= 0) then
+                    local name = GetObjectTagName(VehicleObject)
+                    if (name ~= nil) then
+                        return name
+                    end
                 end
             end
         end
@@ -1519,6 +1521,7 @@ function Loadout:OnPlayerDeath(VictimIndex, KillerIndex)
             local enemy_deaths = tonumber(get_var(victim, "$deaths"))
             local krd = (enemy_kills / enemy_deaths)
             local pvp_bonus = self.credits.pvp_bonus(krd)
+            pvp_bonus[1] = math.round(pvp_bonus[1], 2)
             if (pvp_bonus[1] > 0) then
                 local str = gsub(pvp_bonus[2], "%%credits%%", pvp_bonus[1])
                 self:UpdateCredits(killer, { pvp_bonus[1], str })
@@ -1768,7 +1771,10 @@ function GetXYZ(DyN)
         x, y, z = read_vector3d(DyN + 0x5c)
     else
         coords.invehicle = true
-        x, y, z = read_vector3d(get_object_memory(VehicleID) + 0x5c)
+        local obj_mem = get_object_memory(VehicleID)
+        if (obj_mem ~= 0) then
+            x, y, z = read_vector3d(get_object_memory(VehicleID) + 0x5c)
+        end
     end
 
     coords.x, coords.y, coords.z = x, y, z
@@ -1814,29 +1820,31 @@ function Loadout:SetColor(Ply)
 
     if (self.modify_armor_color) then
 
-        local ply_obj = get_player(Ply)
-        if (ply_obj ~= 0) then
+        if player_alive(Ply) then
+            local ply_obj = get_player(Ply)
+            if (ply_obj ~= 0) then
 
-            local t = self:GetLevelInfo(Ply)
-            local class = t.class
-            if (t.switch_on_respawn[1]) then
-                class = t.switch_on_respawn[2]
-            end
-
-            local color = "red"
-            local team = get_var(Ply, "$team")
-            if not IsTeamPlay() then
-                color = self.classes[class].color.ffa
-            else
-                color = self.classes[class].color.team[team]
-            end
-            safe_write(true)
-            for ColorName, ColorID in pairs(self.colors) do
-                if (ColorName == color) then
-                    write_byte(ply_obj + 0x60, ColorID)
+                local t = self:GetLevelInfo(Ply)
+                local class = t.class
+                if (t.switch_on_respawn[1]) then
+                    class = t.switch_on_respawn[2]
                 end
+
+                local color = "red"
+                local team = get_var(Ply, "$team")
+                if not IsTeamPlay() then
+                    color = self.classes[class].color.ffa
+                else
+                    color = self.classes[class].color.team[team]
+                end
+                safe_write(true)
+                for ColorName, ColorID in pairs(self.colors) do
+                    if (ColorName == color) then
+                        write_byte(ply_obj + 0x60, ColorID)
+                    end
+                end
+                safe_write(false)
             end
-            safe_write(false)
         end
     end
 end
