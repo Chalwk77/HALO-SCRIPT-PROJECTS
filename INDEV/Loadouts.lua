@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Loadout (Alpha 1.3), for SAPP (PC & CE)
+Script Name: Loadout (Alpha 1.4), for SAPP (PC & CE)
 Description: N/A
 
 todo: add support for custom maps
@@ -16,6 +16,10 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.12.0.0"
 
 local Loadout = {
+
+    --=================================================================================--
+    -- CONFIGURATION STARTS --
+    --=================================================================================--
 
     -- This is the class players will start with when they join the server:
     default_class = "Regeneration",
@@ -483,6 +487,9 @@ local Loadout = {
 
         vehicle_kill = { 5, "+5cR (Vehicle Kill)" },
 
+        -- Bonus points for getting the first kill
+        first_blood = { 7, "+7cR (First Blood)" },
+
         -- {consecutive kills, xp rewarded, "message sent", bounty level added}
         spree = {
             { 5, 5, "+5cR (spree)", 1 },
@@ -532,7 +539,7 @@ local Loadout = {
             [9] = { "jpt!", "vehicles\\banshee\\mp_fuel rod explosion", 10, "+10cR (Banshee Fuel-Rod Explosion)" },
 
             -- WEAPON PROJECTILES --
-            [10] = { "jpt!", "weapons\\pistol\\bullet", 50, "+5cR (Pistol Bullet)" },
+            [10] = { "jpt!", "weapons\\pistol\\bullet", 5, "+5cR (Pistol Bullet)" },
             [11] = { "jpt!", "weapons\\shotgun\\pellet", 6, "+6cR (Shotgun Pallet)" },
             [12] = { "jpt!", "weapons\\plasma rifle\\bolt", 4, "+4cR (Plasma Rifle Bolt)" },
             [13] = { "jpt!", "weapons\\needler\\explosion", 8, "+8cR (Needler Explosion)" },
@@ -635,6 +642,10 @@ local Loadout = {
     server_prefix = "**SAPP**",
     --
 
+    --=================================================================================--
+    -- CONFIGURATION ENDS --
+    --=================================================================================--
+
     -- DO NOT TOUCH --
     players = { },
     ammo_set_delay = 300,
@@ -677,6 +688,8 @@ local function Init(reset)
                 end
             end
         end
+        Loadout.first_blood = { }
+        Loadout.first_blood.active = true
         Loadout.gamestarted = true
     end
 end
@@ -1481,6 +1494,27 @@ function Loadout:cls(Ply, Count)
     end
 end
 
+function Loadout:FirstBlood(Ply)
+    local kills = tonumber(get_var(Ply, "$kills"))
+    local count = 0
+    if (kills == 1) then
+        for i = 1, 16 do
+            if player_present(i) then
+                if (i ~= Ply) then
+                    if (self.first_blood[i]) then
+                        count = count + 1
+                    end
+                end
+            end
+        end
+    end
+    if (count == 1) then
+        self.first_blood = { }
+        self.first_blood.active = false
+        self:UpdateCredits(Ply, { self.credits.first_blood[1], self.credits.first_blood[2] })
+    end
+end
+
 function Loadout:OnPlayerDeath(VictimIndex, KillerIndex)
     local killer, victim = tonumber(KillerIndex), tonumber(VictimIndex)
 
@@ -1513,6 +1547,13 @@ function Loadout:OnPlayerDeath(VictimIndex, KillerIndex)
         end
 
         self:MultiKill(killer)
+
+        -- Check for first blood:
+        if (self.first_blood.active) then
+            self.first_blood[victim] = true
+            self:FirstBlood(killer)
+        end
+
         self:KillingSpree(killer)
 
         local DyN = get_dynamic_player(victim)
@@ -1611,8 +1652,10 @@ function Loadout:UpdateLevel(Ply)
 end
 
 function Loadout:UpdateCredits(Ply, Params)
+
     local ip = self:GetIP(Ply)
     local t = self.players[ip]
+
     t.levels[t.class].credits = t.levels[t.class].credits + Params[1]
 
     if (Params[2] ~= "") then
