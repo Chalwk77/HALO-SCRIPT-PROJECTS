@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Loadout (Alpha 1.0), for SAPP (PC & CE)
+Script Name: Loadout (Alpha 1.2), for SAPP (PC & CE)
 Description: N/A
 
 todo: add support for custom maps
@@ -1555,12 +1555,12 @@ function Loadout:OnPlayerDeath(VictimIndex, KillerIndex)
         local vehicle = self:InVehicle(killer)
         if (vehicle) then
             local t = self.credits.tags.vehicles
-            for _, Tab in pairs(t) do
+            for _, v in pairs(t) do
                 -- validate vehicle tag:
-                if (vehicle == Tab[2]) then
+                if (vehicle == v[2]) then
                     -- vehicle squash:
                     if (last_damage == GetTag(t.collision[1], t.collision[2])) then
-                        return self:UpdateCredits(killer, { Tab[3], Tab[4] })
+                        return self:UpdateCredits(killer, { v[3], v[4] })
                     else
                         -- vehicle weapon:
                         return self:UpdateCredits(killer, CheckDamageTag(last_damage))
