@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Loadout (Alpha 1.4), for SAPP (PC & CE)
+Script Name: Loadout (Alpha 1.5), for SAPP (PC & CE)
 Description: N/A
 
 todo: add support for custom maps
@@ -559,31 +559,33 @@ local Loadout = {
             [14] = { "jpt!", "weapons\\plasma pistol\\bolt", 4, "+4cR (Plasma Bolt)" },
             [15] = { "jpt!", "weapons\\assault rifle\\bullet", 5, "+5cR (Assault Rifle Bullet)" },
             [16] = { "jpt!", "weapons\\needler\\impact damage", 4, "+4cR (Needler Impact Damage)" },
-            [17] = { "jpt!", "weapons\\flamethrower\\explosion", 5, "+5cR (Flamethrower)" },
-            [18] = { "jpt!", "weapons\\rocket launcher\\explosion", 8, "+8cR (Rocket Launcher Explosion)" },
-            [19] = { "jpt!", "weapons\\needler\\detonation damage", 3, "+3cR (Needler Detonation Damage)" },
-            [20] = { "jpt!", "weapons\\plasma rifle\\charged bolt", 4, "+4cR (Plasma Rifle Bolt)" },
-            [21] = { "jpt!", "weapons\\sniper rifle\\sniper bullet", 6, "+6cR (Sniper Rifle Bullet)" },
-            [22] = { "jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_explosion", 8, "+8cR (Plasma Cannon Explosion)" },
+            [17] = { "jpt!", "weapons\\flamethrower\\explosion", 10, "+10cR (Flamethrower)" },
+            [18] = { "jpt!", "weapons\\flamethrower\\burning", 10, "+10cR (Flamethrower)" },
+            [19] = { "jpt!", "weapons\\flamethrower\\impact damage", 10, "+10cR (Flamethrower)" },
+            [20] = { "jpt!", "weapons\\rocket launcher\\explosion", 8, "+8cR (Rocket Launcher Explosion)" },
+            [21] = { "jpt!", "weapons\\needler\\detonation damage", 3, "+3cR (Needler Detonation Damage)" },
+            [22] = { "jpt!", "weapons\\plasma rifle\\charged bolt", 4, "+4cR (Plasma Rifle Bolt)" },
+            [23] = { "jpt!", "weapons\\sniper rifle\\sniper bullet", 6, "+6cR (Sniper Rifle Bullet)" },
+            [24] = { "jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_explosion", 8, "+8cR (Plasma Cannon Explosion)" },
 
             -- GRENADES --
-            [23] = { "jpt!", "weapons\\frag grenade\\explosion", 8, "+8cR (Frag Explosion)" },
-            [24] = { "jpt!", "weapons\\plasma grenade\\attached", 7, "+7cR (Plasma Grenade - attached)" },
-            [25] = { "jpt!", "weapons\\plasma grenade\\explosion", 5, "+5cR (Plasma Grenade explosion)" },
+            [25] = { "jpt!", "weapons\\frag grenade\\explosion", 8, "+8cR (Frag Explosion)" },
+            [26] = { "jpt!", "weapons\\plasma grenade\\attached", 7, "+7cR (Plasma Grenade - attached)" },
+            [27] = { "jpt!", "weapons\\plasma grenade\\explosion", 5, "+5cR (Plasma Grenade explosion)" },
 
             -- MELEE --
-            [26] = { "jpt!", "weapons\\flag\\melee", 5, "+5cR (Melee: Flag)" },
-            [27] = { "jpt!", "weapons\\ball\\melee", 5, "+5cR (Melee: Ball)" },
-            [28] = { "jpt!", "weapons\\pistol\\melee", 4, "+4cR (Melee: Pistol)" },
-            [29] = { "jpt!", "weapons\\needler\\melee", 4, "+4cR (Melee: Needler)" },
-            [30] = { "jpt!", "weapons\\shotgun\\melee", 5, "+5cR (Melee: Shotgun)" },
-            [31] = { "jpt!", "weapons\\flamethrower\\melee", 5, "+5cR (Melee: Flamethrower)" },
-            [32] = { "jpt!", "weapons\\sniper rifle\\melee", 5, "+5cR (Melee: Sniper Rifle)" },
-            [33] = { "jpt!", "weapons\\plasma rifle\\melee", 4, "+4cR (Melee: Plasma Rifle)" },
-            [34] = { "jpt!", "weapons\\plasma pistol\\melee", 4, "+4cR (Melee: Plasma Pistol)" },
-            [35] = { "jpt!", "weapons\\assault rifle\\melee", 4, "+4cR (Melee: Assault Rifle)" },
-            [36] = { "jpt!", "weapons\\rocket launcher\\melee", 10, "+10cR (Melee: Rocket Launcher)" },
-            [37] = { "jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_melee", 10, "+10cR (Melee: Plasma Cannon)" },
+            [28] = { "jpt!", "weapons\\flag\\melee", 5, "+5cR (Melee: Flag)" },
+            [29] = { "jpt!", "weapons\\ball\\melee", 5, "+5cR (Melee: Ball)" },
+            [30] = { "jpt!", "weapons\\pistol\\melee", 4, "+4cR (Melee: Pistol)" },
+            [31] = { "jpt!", "weapons\\needler\\melee", 4, "+4cR (Melee: Needler)" },
+            [32] = { "jpt!", "weapons\\shotgun\\melee", 5, "+5cR (Melee: Shotgun)" },
+            [33] = { "jpt!", "weapons\\flamethrower\\melee", 5, "+5cR (Melee: Flamethrower)" },
+            [34] = { "jpt!", "weapons\\sniper rifle\\melee", 5, "+5cR (Melee: Sniper Rifle)" },
+            [35] = { "jpt!", "weapons\\plasma rifle\\melee", 4, "+4cR (Melee: Plasma Rifle)" },
+            [36] = { "jpt!", "weapons\\plasma pistol\\melee", 4, "+4cR (Melee: Plasma Pistol)" },
+            [37] = { "jpt!", "weapons\\assault rifle\\melee", 4, "+4cR (Melee: Assault Rifle)" },
+            [38] = { "jpt!", "weapons\\rocket launcher\\melee", 10, "+10cR (Melee: Rocket Launcher)" },
+            [39] = { "jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_melee", 10, "+10cR (Melee: Plasma Cannon)" },
 
             -- VEHICLE COLLISION --
             vehicles = {
@@ -769,6 +771,18 @@ local function SecondsToClock(seconds)
     end
 end
 
+function Loadout:RegenCamo(Ply, v, current_class, level)
+    v.camo_cooldown = v.camo_cooldown + time_scale
+    local t = SecondsToClock(current_class.levels[level].duration - v.active_camo_timer)
+    v.state = "Cloak Regen: " .. t
+    if (math.floor(v.camo_cooldown % 4) == 3) and (v.active_camo_timer > 0) then
+        v.active_camo_timer = v.active_camo_timer - 1 / 30
+        if (v.active_camo_timer < 0) then
+            self:ResetCamo(Ply)
+        end
+    end
+end
+
 function SetAmmo(Ply, DyN)
 
     local info = Loadout:GetLevelInfo(Ply)
@@ -922,37 +936,32 @@ function Loadout:OnTick()
                                 v.camo_pause = false
                                 v.active_camo = true
                                 execute_command("camo " .. i .. " 1")
-                                -- TURN ON
+                                -- TURN ON MANUALLY
                             elseif (case) and (not v.active_camo) then
                                 v.active_camo = true
                                 v.camo_pause = false
-                                -- TURN OFF
+                                -- TURN OFF MANUALLY
                             elseif (case) and (v.active_camo) and (invisible ~= 0) and (not v.camo_pause) then
 
-                                v.shooting = 0
                                 v.active_camo = false
+                                v.regen_camo = true
                                 execute_command("camo " .. i .. " 1")
 
+                                -- Begin Cloaking...
                             elseif (not case) and (v.active_camo) and (not v.camo_pause) then
                                 execute_command("camo " .. i .. " 1")
                                 v.active_camo_timer = v.active_camo_timer + time_scale
                                 v.state = "CLOAKING: " .. SecondsToClock(current_class.levels[level].duration - v.active_camo_timer)
+
+                                -- Timer ran out, begin regen:
                                 if (v.active_camo_timer >= current_class.levels[level].duration) then
-                                    v.state = "CLOAK: READY"
-                                    self:ResetCamo(i)
+                                    v.regen_camo = true
+                                    v.active_camo = false
+                                    execute_command("camo " .. i .. " 1")
                                 end
-                            elseif (not case) and (not v.active_camo) and (v.active_camo_timer > 0) then
-
-                                v.camo_cooldown = v.camo_cooldown + time_scale
-                                local t = SecondsToClock(current_class.levels[level].duration - v.active_camo_timer)
-                                v.state = "Cloak Regen: " .. t
-
-                                if (math.floor(v.camo_cooldown % 4) == 3) and (v.active_camo_timer > 0) then
-                                    v.active_camo_timer = v.active_camo_timer - 1 / 30
-                                    if (v.active_camo_timer < 0) then
-                                        self:ResetCamo(i)
-                                    end
-                                end
+                                -- Regenerate Cloak
+                            elseif (v.regen_camo) then
+                                self:RegenCamo(i, v, current_class, level)
                             else
                                 v.state = "CLOAK: READY"
                             end
@@ -1330,8 +1339,10 @@ function Loadout:ResetCamo(Ply, SpawnTrigger)
     self.players[ip].camo_cooldown = 0
     self.players[ip].camo_pause = false
     self.players[ip].active_camo = false
+    self.players[ip].regen_camo = false
     self.players[ip].camo_pause_timer = 0
     self.players[ip].active_camo_timer = 0
+    self.players[ip].state = "CLOAK: READY"
     if (not SpawnTrigger) then
         execute_command("camo " .. Ply .. " 1")
     end
@@ -1358,6 +1369,7 @@ function Loadout:InitPlayer(Ply)
             deaths = 0,
 
             camo_pause = false,
+            regen_camo = false,
             camo_pause_timer = 0,
             camo_cooldown = 0,
 
@@ -1439,7 +1451,7 @@ local function CheckDamageTag(DamageMeta)
             return { d[3], d[4] }
         end
     end
-    return 0
+    return { 0, "" }
 end
 
 function Loadout:KillingSpree(Ply)
@@ -1687,7 +1699,7 @@ function Loadout:UpdateCredits(Ply, Params)
 end
 
 function Loadout:IsMelee(MetaID)
-    for i = 26, 37 do
+    for i = 28, 39 do
         local Type, Name = self.credits.tags[i][1], self.credits.tags[i][2]
         if (MetaID == GetTag(Type, Name)) then
             return true
@@ -1699,7 +1711,6 @@ end
 function Loadout:OnDamageApplication(VictimIndex, KillerIndex, MetaID, Damage, HitString, Backtap)
     local killer, victim = tonumber(KillerIndex), tonumber(VictimIndex)
     local hurt = true
-
     if player_present(victim) then
 
         local kip = self:GetIP(killer)
