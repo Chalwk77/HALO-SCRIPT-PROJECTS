@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Loadout (Alpha 1.2), for SAPP (PC & CE)
+Script Name: Loadout (Alpha 1.3), for SAPP (PC & CE)
 Description: N/A
 
 todo: add support for custom maps
