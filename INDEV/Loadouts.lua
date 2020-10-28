@@ -827,6 +827,10 @@ function Loadout:OnTick()
                                     v.assign_delay_timer = 1
                                     v.assign_delay = false
 
+                                    --=======================================================================--
+                                    -- WEAPON ASSIGNMENT LOGIC --
+                                    --=======================================================================--
+
                                     SetGrenades(DyN, current_class, level)
                                     execute_command("wdel " .. i)
 
@@ -1131,6 +1135,9 @@ function Loadout:OnServerCommand(Executor, Command)
             end
         end
 
+        --=======================================================================--
+        -- SET LEVEL COMMAND --
+        --=======================================================================--
         local lvl = tonumber(get_var(Executor, "$lvl"))
         if (Args[1] == self.level_cmd) then
             if (lvl >= self.level_cmd_permission or (Executor == 0)) then
@@ -1177,6 +1184,10 @@ function Loadout:OnServerCommand(Executor, Command)
                 self:Respond(Executor, self.messages[9], rprint, 10)
             end
             return false
+
+            --=======================================================================--
+            -- SET CREDITS COMMAND --
+            --=======================================================================--
         elseif (Args[1] == self.credits_cmd) then
             if (lvl >= self.credits_cmd_permission or (Executor == 0)) then
                 local pl = self:GetPlayers(Executor, Args)
@@ -1217,6 +1228,10 @@ function Loadout:OnServerCommand(Executor, Command)
                 self:Respond(Executor, self.messages[9], rprint, 10)
             end
             return false
+
+            --=======================================================================--
+            -- SET BOUNTY COMMAND --
+            --=======================================================================--
         elseif (Args[1] == self.bounty_cmd) then
             if (lvl >= self.bounty_cmd_permission or (Executor == 0)) then
                 local pl = self:GetPlayers(Executor, Args)
@@ -1254,6 +1269,7 @@ function Loadout:OnServerCommand(Executor, Command)
                     end
                 end
             else
+                -- Invalid Syntax:
                 self:Respond(Executor, self.messages[9], rprint, 10)
             end
             return false
@@ -1539,12 +1555,12 @@ function Loadout:OnPlayerDeath(VictimIndex, KillerIndex)
         local vehicle = self:InVehicle(killer)
         if (vehicle) then
             local t = self.credits.tags.vehicles
-            for _, v in pairs(t) do
+            for _, Tab in pairs(t) do
                 -- validate vehicle tag:
-                if (vehicle == v[2]) then
+                if (vehicle == Tab[2]) then
                     -- vehicle squash:
                     if (last_damage == GetTag(t.collision[1], t.collision[2])) then
-                        return self:UpdateCredits(killer, { v[3], v[4] })
+                        return self:UpdateCredits(killer, { Tab[3], Tab[4] })
                     else
                         -- vehicle weapon:
                         return self:UpdateCredits(killer, CheckDamageTag(last_damage))
@@ -1595,7 +1611,6 @@ function Loadout:UpdateLevel(Ply)
     local t = self.players[ip]
     local cr_req = self.classes[t.class].levels[t.levels[t.class].level].until_next_level
     if (cr_req ~= nil and t.levels[t.class].credits >= cr_req) then
-
         t.levels[t.class].level = t.levels[t.class].level + 1
     end
 end
@@ -1775,7 +1790,7 @@ function GetXYZ(DyN)
         coords.invehicle = true
         local obj_mem = get_object_memory(VehicleID)
         if (obj_mem ~= 0) then
-            x, y, z = read_vector3d(get_object_memory(VehicleID) + 0x5c)
+            x, y, z = read_vector3d(obj_mem + 0x5c)
         end
     end
 
