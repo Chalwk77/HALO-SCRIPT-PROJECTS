@@ -501,7 +501,7 @@ local Loadout = {
         vehicle_kill = { 5, "+5cR (Vehicle Kill)" },
 
         -- Bonus points for getting the first kill
-        first_blood = { 7, "+7cR (First Blood)" },
+        first_blood = { 30, "+30cR (First Blood)" },
 
         -- {consecutive kills, xp rewarded, "message sent", bounty level added}
         spree = {
