@@ -462,12 +462,31 @@ local Loadout = {
 
     credits = {
 
-        -- If true, players will receive bonus credits based on their victim's KDR
+        -- If true, players will receive a bonus based on the difference (percentage)
+        -- between your kdr and theirs (only awarded if the victim has a higher kdr than you).
         use_pvp_bonus = true,
-        pvp_bonus = function(EnemyKDR)
-            local cr = tonumber((1 * EnemyKDR))
-            return { cr, "+%credits% (PvP Bonus)" }
-        end,
+
+        --[[
+            Here is the formula I have come up with.
+
+            `ASSUME:` Victim KDR: (75 kills, 13 deaths)
+            KDR: 5.7
+
+            `ASSUME:` Killer KDR: (31 kills, 45 deaths)
+            KDR: 0.6
+
+            victim kdr `minus` killer kdr gives us the difference:
+            Difference = (victim kdr - killer kdr = 5.1)
+
+            We have a configurable so-called `offset` variable of 1.5 and a configurable flat-rate variable of 5.
+            CREDITS AWARDED = (difference/offset) * flat-rate = 38.25 credits in this scenario.
+
+            So basically, we are calculating how many multiples of the `offset`
+            are in the difference and multiplying that result by the flat rate (rounded).
+        ]]
+
+        -- {Flat-Rate, Offset, Message}
+        pvp_bonus = { 5, 1.5, "+%credits%cR (Show Stopper Bonus)" },
 
         -- Bonus credits for killing the flag carrier
         flag_carrier_kill_bonus = { 30, "+30cR (Flag Carrier Kill Bonus)" },
@@ -756,6 +775,21 @@ end
 
 function DelaySecQuat(Ply, Weapon, x, y, z)
     assign_weapon(spawn_object("weap", Weapon, x, y, z), Ply)
+end
+
+function Loadout:CompareKDR(k, v)
+    local KK, KD = get_var(k, "$kills"), get_var(k, "$deaths")
+    local VK, VD = get_var(v, "$kills"), get_var(v, "$deaths")
+    local VKDR, KKDR = tonumber(VK / VD), tonumber(KK / KD)
+    if (VKDR > KKDR) then
+
+        local s = self.credits.pvp_bonus
+        local difference = (VKDR - KKDR)
+        local result = math.round((difference / s[2]) * s[1])
+
+        local str = gsub(s[3], "%%credits%%", result)
+        self:UpdateCredits(k, { result, str })
+    end
 end
 
 local function SecondsToClock(seconds)
@@ -1596,15 +1630,7 @@ function Loadout:OnPlayerDeath(VictimIndex, KillerIndex)
 
         -- Calculate PvP Bonus:
         if (self.credits.use_pvp_bonus) then
-            local enemy_kills = tonumber(get_var(victim, "$kills"))
-            local enemy_deaths = tonumber(get_var(victim, "$deaths"))
-            local krd = (enemy_kills / enemy_deaths)
-            local pvp_bonus = self.credits.pvp_bonus(krd)
-            pvp_bonus[1] = math.round(pvp_bonus[1], 2)
-            if (pvp_bonus[1] > 0) then
-                local str = gsub(pvp_bonus[2], "%%credits%%", pvp_bonus[1])
-                self:UpdateCredits(killer, { pvp_bonus[1], str })
-            end
+            self:CompareKDR(killer, victim)
         end
 
         local VictimInVehicle = self:InVehicle(victim, true)
