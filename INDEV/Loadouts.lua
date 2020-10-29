@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Loadout (Alpha 1.5), for SAPP (PC & CE)
+Script Name: Loadout (Alpha 1.6), for SAPP (PC & CE)
 Description: N/A
 
 todo: add support for custom maps
@@ -466,24 +466,8 @@ local Loadout = {
         -- between your kdr and theirs (only awarded if the victim has a higher kdr than you).
         use_pvp_bonus = true,
 
-        --[[
-            Here is the formula I have come up with.
-
-            `ASSUME:` Victim KDR: (75 kills, 13 deaths)
-            KDR: 5.7
-
-            `ASSUME:` Killer KDR: (31 kills, 45 deaths)
-            KDR: 0.6
-
-            victim kdr `minus` killer kdr gives us the difference:
-            Difference = (victim kdr - killer kdr = 5.1)
-
-            We have a configurable so-called `offset` variable of 1.5 and a configurable flat-rate variable of 5.
-            CREDITS AWARDED = (difference/offset) * flat-rate = 38.25 credits in this scenario.
-
-            So basically, we are calculating how many multiples of the `offset`
-            are in the difference and multiplying that result by the flat rate (rounded).
-        ]]
+        -- PvP Bonus Formula:
+        -- victim kdr - killer kdr / offset * flat-rate
 
         -- {Flat-Rate, Offset, Message}
         pvp_bonus = { 5, 1.5, "+%credits%cR (Show Stopper Bonus)" },
@@ -517,6 +501,7 @@ local Loadout = {
         -- Bonus Credits per bounty level:
         bounty_bonus = 25,
 
+        -- Bonus credits for killing someone in a vehicle:
         vehicle_kill = { 5, "+5cR (Vehicle Kill)" },
 
         -- Bonus points for getting the first kill
