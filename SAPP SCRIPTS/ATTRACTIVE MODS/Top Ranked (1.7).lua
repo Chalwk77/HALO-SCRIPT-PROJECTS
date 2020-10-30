@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Top Ranked (v1.7), for SAPP (PC & CE)
+Script Name: Top Ranked (v1.8), for SAPP (PC & CE)
 Description: A fully integrated ranking system for SAPP servers.
 Players earn credits for killing, scoring and achievements, such as sprees, kill-combos and more.
 
@@ -25,6 +25,8 @@ local Rank = {
 
     dir = "ranks.json",
 
+    double_exp = false,
+
     -- Command Syntax: /check_rank_cmd [number: 1-16] | */all | me
     check_rank_cmd = "rank",
     check_rank_cmd_permission = -1,
@@ -41,6 +43,19 @@ local Rank = {
         footer = "--------------------------------------",
     },
 
+    -- Toggle t-bag on or off:
+    --
+    tbag = true,
+    -- Radius (in world units) a player must be to trigger a t-bag
+    tbag_trigger_radius = 0.5,
+
+    -- A player's death coordinates expire after this many seconds;
+    tbag_coordinate_expiration = 30,
+
+    -- A player must crouch over a victim's body this many times in order to trigger the t-bag scenario
+    tbag_crouch_count = 3,
+    --
+
     messages = {
         [1] = {
             "You are ranked %rank% out of %totalplayers%!",
@@ -52,6 +67,9 @@ local Rank = {
         },
         [3] = { "You do not have permission to execute this command." },
         [4] = { "You do not have permission to execute this command on other players" },
+
+        -- For T-Bagging:
+        [5] = "%name% is t-bagging %victim%",
     },
 
     credits = {
@@ -63,6 +81,8 @@ local Rank = {
             zombie_team = "blue",
             credits = { 25, "%credits% cR (Zombie-Bite)" },
         },
+
+        tbag = { 1, "+%credits% cR (T-Bagging)" },
 
         -- Score (credits added):
         score = { 25, "+%credits% cR (Flag Cap)" },
@@ -193,12 +213,15 @@ local Rank = {
     --
 }
 
+local time_scale = 1 / 30
 local len = string.len
+local sqrt = math.sqrt
 local gmatch, gsub = string.gmatch, string.gsub
 local lower, upper = string.lower, string.upper
 local json = (loadfile "json.lua")()
 
 function OnScriptLoad()
+    register_callback(cb["EVENT_TICK"], "OnTick")
     register_callback(cb["EVENT_DIE"], "OnPlayerDeath")
     register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
     register_callback(cb["EVENT_SCORE"], "OnPlayerScore")
@@ -208,7 +231,6 @@ function OnScriptLoad()
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
     if (get_var(0, "$gt") ~= "n/a") then
         Rank:CheckFile()
-
         for i = 1, 16 do
             if player_present(i) then
                 Rank:AddNewPlayer(i, true)
@@ -268,6 +290,58 @@ function OnGameEnd()
     end
 end
 
+local function GetRadius(pX, pY, pZ, X, Y, Z)
+    if (pX) then
+        return sqrt((pX - X) ^ 2 + (pY - Y) ^ 2 + (pZ - Z) ^ 2)
+    end
+    return nil
+end
+
+function Rank:OnTick()
+    if (self.tbag) then
+        for i = 1, 16 do
+            if player_present(i) then
+
+                for j, ply in pairs(self.players) do
+                    if (i ~= j and ply.coords) then
+
+                        local pos = self:GetXYZ(i)
+                        if (pos) and (not pos.invehicle) then
+                            local px, py, pz = pos.x, pos.y, pos.z
+
+                            for k, v in pairs(ply.coords) do
+                                v.timer = v.timer + time_scale
+                                if (v.timer >= self.tbag_coordinate_expiration) then
+                                    ply.coords[k] = nil
+                                else
+
+                                    local x, y, z = v.x, v.y, v.z
+                                    local distance = GetRadius(px, py, pz, x, y, z)
+                                    if (distance) and (distance <= self.tbag_trigger_radius) then
+
+                                        local crouch = read_bit(pos.DyN + 0x208, 0)
+                                        if (crouch ~= self.players[i].crouch_state and crouch == 1) then
+                                            self.players[i].crouch_count = self.players[i].crouch_count + 1
+
+                                        elseif (self.players[i].crouch_count >= self.tbag_crouch_count) then
+                                            ply.coords[k] = nil
+                                            self.players[i].crouch_count = 0
+                                            local str = gsub(gsub(self.messages[5], "%%name%%", self.players[i].name), "%%victim%%", ply.name)
+                                            Rank:Respond(_, str, say_all, 10)
+                                            self:UpdateCredits(i, { self.credits.tbag[1], self.credits.tbag[2] })
+                                        end
+                                        self.players[i].crouch_state = crouch
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
 function OnPlayerConnect(Ply)
     Rank:AddNewPlayer(Ply, false)
 end
@@ -315,6 +389,12 @@ function Rank:AddNewPlayer(Ply, ManualLoad)
             self.players[Ply].id = Ply
             self.players[Ply].name = name
             self.players[Ply].last_damage = nil
+
+            -- T-Bag Support:
+            self.players[Ply].coords = { }
+            self.players[Ply].crouch_state = 0
+            self.players[Ply].crouch_count = 0
+            --
 
             if (not ManualLoad) then
                 self:GetRank(Ply, IP)
@@ -499,19 +579,25 @@ function Rank:MultiKill(Ply)
     end
 end
 
-function Rank:InVehicle(Ply)
+function Rank:GetXYZ(Ply)
+    local coords, x, y, z = { }
     local DyN = get_dynamic_player(Ply)
     if (DyN ~= 0) then
         local VehicleID = read_dword(DyN + 0x11C)
-        if (VehicleID ~= 0xFFFFFFFF) then
+        if (VehicleID == 0xFFFFFFFF) then
+            coords.invehicle = false
+            x, y, z = read_vector3d(DyN + 0x5c)
+        else
             local VehicleObject = get_object_memory(VehicleID)
-            local name = GetVehicleTag(VehicleObject)
-            if (name ~= nil) then
-                return name
+            if (VehicleObject ~= 0) then
+                coords.invehicle = true
+                x, y, z = read_vector3d(VehicleObject + 0x5c)
+                coords.name = GetVehicleTag(VehicleObject)
             end
         end
+        coords.x, coords.y, coords.z, coords.DyN = x, y, z, DyN
     end
-    return false
+    return coords
 end
 
 function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
@@ -531,15 +617,29 @@ function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
 
         self:MultiKill(killer)
         self:KillingSpree(killer)
+
+        -- Killed from Grave:
         if (not player_alive(killer)) then
             self:UpdateCredits(killer, { self.credits.killed_from_the_grave[1], self.credits.killed_from_the_grave[2] })
         end
 
-        local vehicle = self:InVehicle(killer)
-        if (vehicle) then
+        if (self.tbag) then
+            -- T-Bag Support:
+            local vpos = self:GetXYZ(victim)
+            if (vpos) then
+                self.players[victim].coords[#self.players[victim].coords + 1] = {
+                    timer = 0, x = vpos.x, y = vpos.y, z = vpos.z,
+                }
+            end
+        end
+        --
+
+        -- Check if killer is in Vehicle:
+        local coords = self:GetXYZ(killer)
+        if (coords and coords.invehicle) then
             local t = self.credits.tags.vehicles
             for _, v in pairs(t) do
-                if (vehicle == v[2]) then
+                if (coords.name == v[2]) then
                     if (last_damage == GetTag(t.collision[1], t.collision[2])) then
                         return self:UpdateCredits(killer, { v[3], v[4] })
                     else
@@ -549,6 +649,7 @@ function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
             end
         end
 
+        -- Zombie Support:
         local case = (kteam == self.credits.zombies.zombie_team and vteam == self.credits.zombies.human_team)
         local zombie_infect = (self.credits.zombies.enabled) and (case)
         if (zombie_infect) then
@@ -573,6 +674,10 @@ end
 function Rank:UpdateCredits(Ply, Params)
 
     local cr = Params[1]
+    if (self.double_exp) then
+        cr = (cr * 2)
+    end
+
     local str = Params[2]
     self.players[Ply].credits = self.players[Ply].credits + cr
 
@@ -720,6 +825,10 @@ end
 
 function OnPlayerDeath(V, K)
     return Rank:OnPlayerDeath(V, K)
+end
+
+function OnTick()
+    return Rank:OnTick()
 end
 
 function GetVehicleTag(Vehicle)
