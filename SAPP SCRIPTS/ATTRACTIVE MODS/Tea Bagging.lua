@@ -38,6 +38,7 @@ function OnScriptLoad()
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
     if (get_var(0, "$gt") ~= "n/a") then
+        players = { }
         for i = 1, 16 do
             if player_present(i) then
                 InitPlayer(i, false)
