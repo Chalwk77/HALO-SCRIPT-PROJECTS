@@ -203,7 +203,7 @@ end
 
 function InitPlayer(PlayerIndex, Reset)
     if (Reset) then
-        players[PlayerIndex] = { }
+        players[PlayerIndex] = nil
     else
         players[PlayerIndex] = {
             strikes = 0, timer = 0,
