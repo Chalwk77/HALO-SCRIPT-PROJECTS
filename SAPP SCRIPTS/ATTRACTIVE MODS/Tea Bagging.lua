@@ -18,15 +18,14 @@ api_version = "1.12.0.0"
 
 local on_tbag = "%name% is t-bagging %victim%"
 
--- Radius (in world units) a player must be to trigger a t-bag
+-- Radius (in world units) a player must be from a victim's corpse to trigger a t-bag:
 local trigger_radius = 0.5
 
--- A player's death coordinates expire after this many seconds;
+-- A player's death coordinates expire after this many seconds:
 local coordinate_expiration = 30
 
--- A player must crouch over a victim's body this many times in order to trigger the t-bag scenario
+-- A player must crouch over a victim's corpse this many times in order to trigger the t-bag:
 local crouch_count = 3
-
 -- Configuration Ends --
 
 local players = { }
