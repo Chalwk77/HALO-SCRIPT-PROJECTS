@@ -1,7 +1,8 @@
 --[[
 --=====================================================================================================--
 Script Name: T-Bagging, for SAPP (PC & CE)
-Description: N/A
+Description: Humiliate your friends with this nifty little script.
+             Crouch over your vi tim corpse 3 times to trigger a funny message "name is t-bagging victim"
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
