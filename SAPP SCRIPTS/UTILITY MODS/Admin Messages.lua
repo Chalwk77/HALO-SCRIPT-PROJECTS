@@ -21,7 +21,6 @@ join_message[2] = { "[MODERATOR] ", " just showed up. Hold my beer!" }
 join_message[3] = { "[ADMIN] ", " just joined. Hide your bananas!" }
 join_message[4] = { "[SENIOR-ADMIN] ", " joined the server." }
 join_message.clan_leaders = {
-    ["72.222.168.191"] = { "[CLAN LEADER] ", " joined the server." },
     ["127.0.0.1"] = { "[CLAN LEADER] ", " joined the server." },
     ["192.168.1.1"] = { "[CLAN LEADER] ", " joined the server." },
     -- repeat structure to add more entries...,
