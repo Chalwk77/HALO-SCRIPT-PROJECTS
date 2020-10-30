@@ -15,7 +15,7 @@ api_version = "1.11.0.0"
 local join_message = {} -- do not touch!
 
 -- Configuration [starts]  ---------------------------------------------------------
--- output:          [prefix]            [message] (note: player name is automatically inserted between [prefix] and [message])
+-- output:          [prefix]        [message] (note: player name is automatically inserted between [prefix] and [message])
 join_message[1] = { "[TRIAL-MOD] ", " joined the server. Everybody hide!" }
 join_message[2] = { "[MODERATOR] ", " just showed up. Hold my beer!" }
 join_message[3] = { "[ADMIN] ", " just joined. Hide your bananas!" }
