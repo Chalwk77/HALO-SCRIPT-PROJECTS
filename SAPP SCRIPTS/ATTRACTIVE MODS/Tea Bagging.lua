@@ -48,7 +48,10 @@ function OnScriptLoad()
 end
 
 local function GetRadius(pX, pY, pZ, X, Y, Z)
-    return sqrt((pX - X) ^ 2 + (pY - Y) ^ 2 + (pZ - Z) ^ 2)
+    if (pX) then
+        return sqrt((pX - X) ^ 2 + (pY - Y) ^ 2 + (pZ - Z) ^ 2)
+    end
+    return nil
 end
 
 function OnTick()
@@ -69,7 +72,7 @@ function OnTick()
 
                                 local x, y, z = v.x, v.y, v.z
                                 local distance = GetRadius(px, py, pz, x, y, z)
-                                if (distance <= trigger_radius) then
+                                if (distance) and (distance <= trigger_radius) then
 
                                     local crouch = read_bit(pos.DyN + 0x208, 0)
                                     if (crouch ~= players[i].crouch_state and crouch == 1) then
