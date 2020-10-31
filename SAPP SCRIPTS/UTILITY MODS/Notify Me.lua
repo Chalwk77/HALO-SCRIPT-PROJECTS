@@ -4,6 +4,12 @@ Script Name: Notify Me (UTILITY), for SAPP (PC & CE)
 Description: A simple addon that notifies (via server terminal) of certain events.
 
              ====== Event Triggers ======
+             - OnScriptLoad
+             - OnScriptUnload
+             - OnPlayerChat
+             - OnServerCommand
+             - OnGameStart
+             - OnGameEnd
              - Pre Join
              - Join
              - Disconnect
@@ -20,9 +26,93 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.12.0.0"
 
+-- do not touch --
+local sub, gsub = string.sub, string.gsub
+local players = {}
+--------------------------------------------
+
 -- Config Starts ------------------------------------------------------------------------
 
+local on_chat = { -- Used for OnPlayerChat event.
+    -- {message, console color}
+    [0] = { "[GLOBAL] %name% ID: [%id%] IP: [%ip%]: %message%", 3 },
+    [1] = { "[TEAM] %name% ID: [%id%] IP: [%ip%]: %message%", 3 },
+    [2] = { "[VEHICLE] %name% ID: [%id%] IP: [%ip%]: %message%", 3 },
+    [3] = { "[UNKNOWN] %name% ID: [%id%] IP: [%ip%]: %message%", 3 },
+}
+
+local on_command = { -- Used for OnServerCommand event.
+    [1] = { "[RCON CMD] %name% ID: [%id%] IP: [%ip%]: %cmd%", 2 },
+    [2] = { "[CHAT CMD] %name% ID: [%id%] IP: [%ip%]: /%cmd%", 2 },
+}
+
 local events = {
+    ["OnServerCommand"] = {
+        enabled = true, -- Set to "false" to disable this notification
+        func = function(p)
+
+            local environment = p.command[2]
+            local cmd = on_command[environment]
+            local color = cmd[2] or 2
+
+            cmd = gsub(gsub(gsub(gsub(cmd[1],
+                    "%%name%%", p.name),
+                    "%%id%%", p.id),
+                    "%%ip%%", p.ip),
+                    "%%cmd%%", p.command[1])
+            cprint(cmd, color)
+            p.command = ""
+        end
+    },
+    ["OnPlayerChat"] = {
+        enabled = true, -- Set to "false" to disable this notification
+        func = function(p)
+            local type = p.message[2]
+            local msg = on_chat[type]
+            local color = on_chat[type][2] or 2
+            msg = gsub(gsub(gsub(gsub(msg[1],
+                    "%%name%%", p.name),
+                    "%%id%%", p.id),
+                    "%%ip%%", p.ip),
+                    "%%message%%", p.message[1])
+            cprint(msg, color)
+            p.message = ""
+        end
+    },
+    ["OnScriptLoad"] = {
+        enabled = true, -- Set to "false" to disable this notification
+        func = function(_)
+            local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
+            local servername = read_widestring(network_struct + 0x8, 0x42)
+            local timestamp = os.date("%A, %d %B %Y - %X")
+            cprint("================================================================================", 10)
+            cprint(timestamp, 6)
+            cprint("")
+            cprint("     '||'  '||'     |     '||'       ..|''||           ..|'''.| '||''''|  ", 12)
+            cprint("      ||    ||     |||     ||       .|'    ||        .|'     '   ||  .    ", 12)
+            cprint("      ||''''||    |  ||    ||       ||      ||       ||          ||''|    ", 12)
+            cprint("      ||    ||   .''''|.   ||       '|.     ||       '|.      .  ||       ", 12)
+            cprint("     .||.  .||. .|.  .||. .||.....|  ''|...|'         ''|....'  .||.....| ", 12)
+            cprint("               ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-", 7)
+            cprint("                             " .. servername, 10)
+            cprint("               ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-", 7)
+            cprint("")
+            cprint("================================================================================", 10)
+        end
+    },
+    ["OnGameStart"] = {
+        enabled = true, -- Set to "false" to disable this notification
+        func = function(_)
+            local mode, map = get_var(0, "$mode"), get_var(0, "$map")
+            cprint("A new game has started on " .. map .. " - " .. mode, 5)
+        end
+    },
+    ["OnGameEnd"] = {
+        enabled = true, -- Set to "false" to disable this notification
+        func = function(_)
+            cprint("Game Ended - Showing Post Game Carnage report", 5)
+        end
+    },
     ["OnPreJoin"] = {
         enabled = true, -- Set to "false" to disable this notification
         func = function(params)
@@ -73,7 +163,6 @@ local events = {
                     cprint(params.name .. " squashed by a vehicle", 8)
 
                 elseif (params.killer > 0) then
-
                     if (params.id ~= params.killer) then
                         local kname = get_var(params.killer, "$name")
                         local Vteam, Kteam = get_var(params.id, "$team"), get_var(params.killer, "$team")
@@ -95,16 +184,18 @@ local events = {
 
 -- Config Ends ------------------------------------------------------------------------
 
-local players = {}
-
 function OnScriptLoad()
     register_callback(cb["EVENT_TICK"], "OnTick")
     register_callback(cb["EVENT_DIE"], "OnPlayerDeath")
     register_callback(cb["EVENT_PREJOIN"], "OnPreJoin")
-    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
-    register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
-    register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
+    register_callback(cb["EVENT_CHAT"], "OnPlayerChat")
+    register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
     register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
+    register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
+    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
+    register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
+    register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
+    timer(50, "Notify", "", "OnScriptLoad")
     if (get_var(0, "$gt") ~= "n/a") then
         players = { }
         for i = 1, 16 do
@@ -118,27 +209,58 @@ end
 function OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
         players = { }
+        Notify(_, "OnGameStart")
     end
 end
 
-function OnPreJoin(PlayerIndex)
-    InitPlayer(PlayerIndex, false)
-    Notify(PlayerIndex, "OnPreJoin")
+function OnGameEnd()
+    if (get_var(0, "$gt") ~= "n/a") then
+        players = { }
+        Notify(_, "OnGameEnd")
+    end
 end
 
-function OnPlayerConnect(PlayerIndex)
-    Notify(PlayerIndex, "OnPlayerConnect")
+function OnServerCommand(Ply, CMD, Environment, _)
+    if (Ply > 0) then
+        players[Ply].command = { CMD, Environment }
+        Notify(Ply, "OnServerCommand")
+    end
 end
 
-function OnPlayerDisconnect(PlayerIndex)
-    players[PlayerIndex].ping = tonumber(get_var(PlayerIndex, "$ping"))
-    Notify(PlayerIndex, "OnPlayerDisconnect")
-    InitPlayer(PlayerIndex, true)
+local function isChatCommand(MSG)
+    if (sub(MSG, 1, 1) == "/" or sub(MSG, 1, 1) == "\\") then
+        return true
+    end
+    return false
 end
 
-function OnPlayerSpawn(PlayerIndex)
-    players[PlayerIndex].killer = nil
-    Notify(PlayerIndex, "OnPlayerSpawn")
+function OnPlayerChat(Ply, Msg, Type)
+    if (Ply and Type ~= 6) then
+        if (not isChatCommand(Msg)) then
+            players[Ply].message = { Msg, Type }
+            Notify(Ply, "OnPlayerChat")
+        end
+    end
+end
+
+function OnPreJoin(Ply)
+    InitPlayer(Ply, false)
+    Notify(Ply, "OnPreJoin")
+end
+
+function OnPlayerConnect(Ply)
+    Notify(Ply, "OnPlayerConnect")
+end
+
+function OnPlayerDisconnect(Ply)
+    players[Ply].ping = tonumber(get_var(Ply, "$ping"))
+    Notify(Ply, "OnPlayerDisconnect")
+    InitPlayer(Ply, true)
+end
+
+function OnPlayerSpawn(Ply)
+    players[Ply].killer = nil
+    Notify(Ply, "OnPlayerSpawn")
 end
 
 function OnPlayerDeath(VictimIndex, KillerIndex)
@@ -146,26 +268,26 @@ function OnPlayerDeath(VictimIndex, KillerIndex)
     Notify(VictimIndex, "OnPlayerDeath")
 end
 
-function Notify(PlayerIndex, Callback)
+function Notify(Ply, Callback)
     for Event, v in pairs(events) do
         if (Event == Callback) and (v.enabled) then
-            v.func(players[PlayerIndex])
+            v.func(players[Ply])
         end
     end
 end
 
-function InitPlayer(PlayerIndex, Reset)
+function InitPlayer(Ply, Reset)
     if (Reset) then
-        players[PlayerIndex] = { }
+        players[Ply] = { }
     else
-        players[PlayerIndex] = {
+        players[Ply] = {
             ping = 0,
             killer = nil,
-            ip = get_var(PlayerIndex, "$ip"),
-            name = get_var(PlayerIndex, "$name"),
-            hash = get_var(PlayerIndex, "$hash"),
-            id = tonumber(get_var(PlayerIndex, "$n")),
-            level = tonumber(get_var(PlayerIndex, "$lvl"))
+            ip = get_var(Ply, "$ip"),
+            name = get_var(Ply, "$name"),
+            hash = get_var(Ply, "$hash"),
+            id = tonumber(get_var(Ply, "$n")),
+            level = tonumber(get_var(Ply, "$lvl"))
         }
     end
 end
@@ -180,4 +302,16 @@ end
 
 function OnScriptUnload()
 
+end
+
+function read_widestring(address, length)
+    local count = 0
+    local byte_table = {}
+    for i = 1, length do
+        if read_byte(address + count) ~= 0 then
+            byte_table[i] = string.char(read_byte(address + count))
+        end
+        count = count + 2
+    end
+    return table.concat(byte_table)
 end
