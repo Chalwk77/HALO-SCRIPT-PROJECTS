@@ -84,7 +84,7 @@ manager.settings = {
     ["carousel"] = {
         use = true,
         { -- Scripts:
-            "",
+            "Loadout",
         }, -- Game Modes:
         "",
     },
