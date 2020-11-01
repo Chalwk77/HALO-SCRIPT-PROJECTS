@@ -45,8 +45,8 @@ local Alias = {
     -- Aliases are printed in columns of 5
     max_columns = 5,
 
-    -- Maximum results to load:
-    max_results = 50,
+    -- Max results to load per page:
+    results_per_page = 25,
 
     -- Spacing between names per column;
     spaces = 2,
@@ -96,9 +96,6 @@ local concat = table.concat
 local gmatch = string.gmatch
 local lower, upper = string.lower, string.upper
 local json = (loadfile "json.lua")()
-
-local startIndex, endIndex = 1, Alias.max_columns
-local initialStartIndex = startIndex
 
 function OnScriptLoad()
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
@@ -166,9 +163,17 @@ local function FormatTable(table, rowlen, space)
     return concat(rows)
 end
 
-local function getPageCount(total, max)
-    local pages = total / (max)
-    if ((pages) ~= math.floor(pages)) then
+function Alias:getPage(params)
+    local max_results = self.results_per_page
+    local start = (max_results) * params.page
+    local startpage = (start - max_results + 1)
+    local endpage = start
+    return startpage, endpage
+end
+
+function Alias:getPageCount(total)
+    local pages = (total / self.results_per_page)
+    if (pages) ~= math.floor(pages) then
         pages = math.floor(pages) + 1
     end
     return pages
@@ -180,28 +185,23 @@ function Alias:ShowResults(params)
     local page = tonumber(params.page)
 
     if (tab) and (#tab > 0) then
-        local total_pages = getPageCount(#tab, self.max_results)
+
+        local total_pages = Alias:getPageCount(#tab)
         if (page > 0 and page <= total_pages) then
 
-            while (endIndex < #tab + self.max_columns) do
-                local table, row = { }
-                for i = startIndex, endIndex do
-                    for k, v in pairs(tab) do
-                        if (k == i) then
-                            table[i] = v
-                            row = FormatTable(table, self.max_columns, self.spaces)
-                        end
+            local table, row = { }
+            local START, FINISH = self:getPage(params)
+            for i = START, FINISH do
+                for k, v in pairs(tab) do
+                    if (k == i) then
+                        table[i] = v
+                        row = FormatTable(table, self.max_columns, self.spaces)
                     end
                 end
-
-                startIndex = (endIndex + 1)
-                endIndex = (endIndex + (self.max_columns))
-                self:Respond(params.executor, row, 10)
             end
 
-            if (startIndex >= #tab) then
-                startIndex = initialStartIndex
-                endIndex = self.max_columns
+            if (row) then
+                self:Respond(params.executor, row, 10)
             end
 
             self:Respond(params.executor, '[Page ' .. page .. '/' .. total_pages .. '] Showing aliases for: "' .. params.artifact .. '"', 2 + 8)
@@ -328,7 +328,6 @@ function Alias:Respond(Ply, Message, Color)
     Color = Color or 10
     if (Ply == 0) then
         cprint(Message, Color)
-
     else
         rprint(Ply, Message)
     end
