@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Loadout (Alpha 1.7), for SAPP (PC & CE)
+Script Name: Loadout (Alpha 1.8), for SAPP (PC & CE)
 Description: N/A
 
 todo: add support for custom maps
@@ -1590,14 +1590,13 @@ function Loadout:OnPlayerDeath(VictimIndex, KillerIndex)
             v.bounty = 0
         end
 
-        self:MultiKill(killer)
-
         -- Check for first blood:
         if (self.first_blood.active) then
             self.first_blood[victim] = true
             self:FirstBlood(killer)
         end
 
+        self:MultiKill(killer)
         self:KillingSpree(killer)
 
         local DyN = get_dynamic_player(victim)
@@ -1640,7 +1639,6 @@ function Loadout:OnPlayerDeath(VictimIndex, KillerIndex)
                 end
             end
         end
-
         return self:UpdateCredits(killer, CheckDamageTag(last_damage))
 
     elseif (server) then
