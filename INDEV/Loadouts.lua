@@ -1573,7 +1573,7 @@ function Loadout:OnPlayerDeath(VictimIndex, KillerIndex)
     local guardians = (killer == nil)
     local suicide = (killer == victim)
     local pvp = ((killer > 0) and killer ~= victim) and (kteam ~= vteam)
-    local betrayal = ((killer > 0) and killer ~= victim) and (kteam == vteam)
+    local betrayal = ((killer > 0) and killer ~= victim) and (kteam == vteam) and IsTeamPlay()
 
     if (pvp) then
 
