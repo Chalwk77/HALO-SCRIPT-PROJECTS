@@ -305,8 +305,7 @@ function Alias:OnServerCommand(Executor, Command)
 
                     local params, error = { }
                     local player_id = (Args[2] ~= nil and Args[2]:match("^%d+$")) or 0
-
-                    local name_search = (Args[2] ~= nil and Args[2]:match("^.$")) or ""
+                    local name_search = (Args[2] ~= nil and Args[2]:match("^.$") and (Command:match("--search"))) or ""
 
                     if (not player_present(player_id) and player_id ~= 0) then
                         self:Respond(Executor, "Player #" .. player_id .. " is not online.")
@@ -329,8 +328,6 @@ function Alias:OnServerCommand(Executor, Command)
 
                     -- /alias <pid> <-hash> <opt page>
                     local player_hash_lookup = (player_id and Args[3] == "-hash")
-
-                    local name_lookup = (name_search and Args[3] == "-search")
 
                     if (ip_lookup) then
                         params.page = (Args[3] ~= nil and Args[3]:match("^%d+$") or 1)
