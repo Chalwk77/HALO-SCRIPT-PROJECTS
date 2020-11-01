@@ -18,6 +18,9 @@ To view a specific page of results, simply define the page id as shown in the co
 * /alias [hash] [opt page]"
 > Check aliases for a specific hash.
 
+* /alias [name] -search"
+> Look up names and retrieve the hashes/ip addresses they are linked to.
+
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -98,10 +101,12 @@ local Alias = {
 
 -- Configuration Ends --
 
+local len = string.len
+local sub = string.sub
 local floor = math.floor
 local json = (loadfile "json.lua")()
 local lower, upper = string.lower, string.upper
-local concat, gmatch = table.concat, string.gmatch
+local concat, gmatch, gsub = table.concat, string.gmatch, string.gsub
 
 function OnScriptLoad()
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
@@ -132,6 +137,19 @@ function Alias:GetIP(Ply)
         IP = IP:match("%d+.%d+.%d+.%d+")
     end
     return IP
+end
+
+function Alias:GetNames(Ply, t, name)
+    local count = 0
+    for Artifact, TAB in pairs(t) do
+        for _, NameRecord in pairs(TAB) do
+            if (NameRecord == name) then
+                count = count + 1
+                return count, self:Respond(Ply, "MATCH FOUND: [" .. Artifact .. "]: " .. NameRecord)
+            end
+        end
+    end
+    return count
 end
 
 function Alias:GetPage(page)
@@ -242,9 +260,9 @@ function Alias:ShowResults(params)
     end
 end
 
-function StrSplit(CMD)
+function StrSplit(CMD, Delimiter)
     local Args, index = { }, 1
-    for Params in gmatch(CMD, "([^%s]+)") do
+    for Params in gmatch(CMD, "([^" .. Delimiter .. "]+)") do
         Args[index] = Params
         index = index + 1
     end
@@ -261,16 +279,18 @@ function Alias:IsPirated(hash)
 end
 
 function Alias:CmdHelp(Executor)
-    self:Respond(Executor, "Invalid Command Syntax.")
+    self:Respond(Executor, "Invalid Command Syntax or Lookup Parameter.")
     self:Respond(Executor, "Usage:")
     self:Respond(Executor, "/" .. self.command .. " <pid> -ip <opt page>")
     self:Respond(Executor, "/" .. self.command .. " <pid> -hash <opt page>")
     self:Respond(Executor, "/" .. self.command .. " <ip> <opt page>")
-    self:Respond(Executor, "/" .. self.command .. " <hash> <opt page>")
+    self:Respond(Executor, "/" .. self.command .. " <32 char hash> <opt page>")
+    self:Respond(Executor, ".....................................................")
 end
 
 function Alias:OnServerCommand(Executor, Command)
-    local Args = StrSplit(Command)
+    local Args = StrSplit(Command, "%s")
+
     if (Args[1] == nil) then
         return
     else
@@ -285,6 +305,8 @@ function Alias:OnServerCommand(Executor, Command)
 
                     local params, error = { }
                     local player_id = (Args[2] ~= nil and Args[2]:match("^%d+$")) or 0
+
+                    local name_search = (Args[2] ~= nil and Args[2]:match("^.$")) or ""
 
                     if (not player_present(player_id) and player_id ~= 0) then
                         self:Respond(Executor, "Player #" .. player_id .. " is not online.")
@@ -307,6 +329,8 @@ function Alias:OnServerCommand(Executor, Command)
 
                     -- /alias <pid> <-hash> <opt page>
                     local player_hash_lookup = (player_id and Args[3] == "-hash")
+
+                    local name_lookup = (name_search and Args[3] == "-search")
 
                     if (ip_lookup) then
                         params.page = (Args[3] ~= nil and Args[3]:match("^%d+$") or 1)
@@ -331,6 +355,20 @@ function Alias:OnServerCommand(Executor, Command)
                         params.name = get_var(player_id, "$name")
                         params.artifact = get_var(player_id, "$hash")
                         params.pirated = self:IsPirated(hash_pattern)
+                    elseif (name_search) then
+
+                        local cmd_len = len(self.command)
+                        local cmd_to_replace = sub(Command, 1, cmd_len + 1)
+                        local name = gsub(gsub(Command, cmd_to_replace, ""), " --search", "")
+
+                        local records = self:CheckFile()
+                        local ip_count = Alias:GetNames(Executor, records.ip_addresses, name)
+                        local hash_count = Alias:GetNames(Executor, records.hashes, name)
+                        ip_count = ip_count + hash_count
+
+                        if (ip_count == 0) then
+                            self:Respond(Executor, "No records found for [ " .. name .. " ]")
+                        end
                     else
                         error = true
                         self:CmdHelp(Executor)
@@ -340,7 +378,7 @@ function Alias:OnServerCommand(Executor, Command)
                         return self:ShowResults(params)
                     end
 
-                    if (not error) then
+                    if (not error) and (not name_search) then
                         params.executor = Executor
                         timer(0, "T")
                     end
