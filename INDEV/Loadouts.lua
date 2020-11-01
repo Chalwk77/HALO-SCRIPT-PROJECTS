@@ -1717,7 +1717,8 @@ function Loadout:IsMelee(MetaID)
     return false
 end
 
-function Loadout:OnDamageApplication(VictimIndex, KillerIndex, MetaID, Damage, HitString, Backtap)
+function Loadout:OnDamageApplication(VictimIndex, KillerIndex, MetaID, Damage, HitString, _)
+
     local killer, victim = tonumber(KillerIndex), tonumber(VictimIndex)
     local hurt = true
     if player_present(victim) then

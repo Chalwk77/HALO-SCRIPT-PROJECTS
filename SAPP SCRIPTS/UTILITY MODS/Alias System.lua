@@ -50,7 +50,7 @@ local Alias = {
     max_columns = 5,
 
     -- Max results to load per page:
-    results_per_page = 25,
+    results_per_page = 50,
 
     -- Spacing between names per column;
     spaces = 2,
@@ -155,9 +155,7 @@ local function FormatTable(table, rowlen, space)
         end
     end
 
-    local rows = {}
-    local row = 1
-    local count = 1
+    local rows, row, count = {}, 1, 1
 
     for k, v in pairs(table) do
         if (count % rowlen == 0) or (k == #table) then
@@ -202,6 +200,7 @@ function Alias:ShowResults(params)
             local count = 0
             local table, row = { }
             local START, FINISH = self:getPage(params)
+
             for i = START, FINISH do
                 for k, v in pairs(tab) do
                     if (k == i) then
@@ -273,10 +272,16 @@ function Alias:OnServerCommand(Executor, Command)
 
                 if (Args[2] ~= nil) then
 
-                    local error
-                    local params = { }
+                    local params, error = { }
+                    local player_id = (Args[2] ~= nil and Args[2]:match("^%d+$")) or 0
 
-                    local player_id = Args[2]:match("^%d+$")
+                    if (not player_present(player_id) and player_id ~= 0) then
+                        self:Respond(Executor, "Player #" .. player_id .. " is not online.")
+                        return false
+                    elseif (Args[2] == "me") then
+                        player_id = Executor
+                    end
+
                     local ip_pattern = Args[2]:match("^%d+.%d+.%d+.%d+$")
                     local hash_pattern = Args[2]:match("^%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x$")
 
@@ -320,11 +325,14 @@ function Alias:OnServerCommand(Executor, Command)
                         self:CmdHelp(Executor)
                     end
 
-                    if (not error) then
-                        params.executor = Executor
-                        self:ShowResults(params)
+                    function T()
+                        return self:ShowResults(params)
                     end
 
+                    if (not error) then
+                        params.executor = Executor
+                        timer(0, "T")
+                    end
                 else
                     self:CmdHelp(Executor)
                 end
