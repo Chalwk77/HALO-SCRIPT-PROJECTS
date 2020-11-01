@@ -189,11 +189,13 @@ function Alias:ShowResults(params)
         local total_pages = Alias:getPageCount(#tab)
         if (page > 0 and page <= total_pages) then
 
+            local count = 0
             local table, row = { }
             local START, FINISH = self:getPage(params)
             for i = START, FINISH do
                 for k, v in pairs(tab) do
                     if (k == i) then
+                        count = count + 1
                         table[i] = v
                         row = FormatTable(table, self.max_columns, self.spaces)
                     end
@@ -204,7 +206,7 @@ function Alias:ShowResults(params)
                 self:Respond(params.executor, row, 10)
             end
 
-            self:Respond(params.executor, '[Page ' .. page .. '/' .. total_pages .. '] Showing aliases for: "' .. params.artifact .. '"', 2 + 8)
+            self:Respond(params.executor, '[Page ' .. page .. '/' .. total_pages .. '] Showing ' .. count .. '/' .. #tab .. ' aliases for: "' .. params.artifact .. '"', 2 + 8)
             if (params.pirated) then
                 if (params.name) then
                     self:Respond(params.executor, params.name .. ' is using a pirated copy of Halo.', 2 + 8)
