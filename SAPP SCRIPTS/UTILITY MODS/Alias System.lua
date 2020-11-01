@@ -1,13 +1,22 @@
 --[[
 --=====================================================================================================--
 Script Name: Alias System (remake), for SAPP (PC & CE)
-Description: An advanced player alias system.
+Description: Look up names linked to an IP address or hash.
 
--- COMMAND SYNTAX --
-/alias <pid> -ip <opt page>"
-/alias <pid> -hash <opt page>"
-/alias <ip> <opt page>"
-/alias <hash> <opt page>"
+Alias results are displayed in columns of 5 and rows of 10 per page.
+To view a specific page of results, simply define the page id as shown in the command syntax examples below.
+
+* /alias [pid] -ip [opt page]"
+> Check IP aliases for specific player id.
+
+* /alias [pid] -hash [opt page]"
+> Check HASH aliases for specific player id.
+
+* /alias [IP] [opt page]"
+> Check aliases for specific IP address.
+
+* /alias [hash] [opt page]"
+> Check aliases for a specific hash.
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -37,7 +46,7 @@ local Alias = {
     max_columns = 5,
 
     -- Maximum results to load:
-    max_results = 200,
+    max_results = 50,
 
     -- Spacing between names per column;
     spaces = 2,
