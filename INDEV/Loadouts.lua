@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Loadout (Alpha 1.6), for SAPP (PC & CE)
+Script Name: Loadout (Alpha 1.7), for SAPP (PC & CE)
 Description: N/A
 
 todo: add support for custom maps
@@ -256,9 +256,9 @@ local Loadout = {
                     melee_damage_multiplier = 300,
                     grenades = { 3, 0 },
                     weapons = {
+                        [10] = { nil, 24, nil }, -- shotgun
                         [1] = { nil, 60, nil }, -- pistol
-                        [7] = { nil, 240, nil }, -- assault rifle
-                        [8] = { nil, 300, nil }, -- flamethrower
+                        [3] = { nil, nil, 100 }, -- fuelrod
                     },
                 },
                 [3] = {
@@ -269,9 +269,9 @@ local Loadout = {
                     melee_damage_multiplier = 300,
                     grenades = { 3, 2 },
                     weapons = {
+                        [10] = { nil, 48, nil }, -- shotgun
                         [1] = { nil, 72, nil }, -- pistol
-                        [7] = { nil, 300, nil }, -- assault rifle
-                        [8] = { nil, 500, nil }, -- flamethrower
+                        [3] = { nil, nil, 100 }, -- fuelrod
                     },
                 },
                 [4] = {
@@ -282,9 +282,9 @@ local Loadout = {
                     melee_damage_multiplier = 400,
                     grenades = { 4, 4 },
                     weapons = {
+                        [10] = { nil, 96, nil }, -- shotgun
                         [1] = { nil, 84, nil }, -- pistol
-                        [7] = { nil, 360, nil }, -- assault rifle
-                        [8] = { nil, 700, nil }, -- flamethrower
+                        [3] = { nil, nil, 100 }, -- fuelrod
                     },
                 },
                 [5] = {
@@ -295,9 +295,9 @@ local Loadout = {
                     melee_damage_multiplier = 500,
                     grenades = { 5, 5 },
                     weapons = {
+                        [10] = { nil, 192, nil }, -- shotgun
                         [1] = { nil, 168, nil }, -- pistol
-                        [7] = { nil, 720, nil }, -- assault rifle
-                        [8] = { nil, 1400, nil }, -- flamethrower
+                        [3] = { nil, nil, 100 }, -- fuelrod
                     },
                 }
             }
