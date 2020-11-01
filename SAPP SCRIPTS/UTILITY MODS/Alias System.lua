@@ -390,8 +390,8 @@ function Alias:UpdateRecords(Ply)
         local file = assert(io.open(self.dir, "w"))
         if (file) then
             file:write(json:encode_pretty(records))
+            io.close(file)
         end
-        io.close(file)
     end
 end
 
@@ -402,8 +402,8 @@ function Alias:CheckFile(OnGameStart)
         local file = io.open(self.dir, "r")
         if (file) then
             content = file:read("*all")
+            io.close(file)
         end
-        io.close(file)
 
         local records = json:decode(content)
         if (not records) then
@@ -411,8 +411,8 @@ function Alias:CheckFile(OnGameStart)
             if (file) then
                 records = { hashes = {}, ip_addresses = {} }
                 file:write(json:encode_pretty(records))
+                io.close(file)
             end
-            io.close(file)
         end
 
         if (OnGameStart) then
