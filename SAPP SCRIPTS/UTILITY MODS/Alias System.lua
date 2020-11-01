@@ -45,12 +45,11 @@ local Alias = {
     -- Advanced users only:
     --
     --
+    -- Max results to load per page:
+    max_results = 50,
 
     -- Aliases are printed in columns of 5
     max_columns = 5,
-
-    -- Max results to load per page:
-    results_per_page = 50,
 
     -- Spacing between names per column;
     spaces = 2,
@@ -99,6 +98,7 @@ local Alias = {
 
 -- Configuration Ends --
 
+local floor = math.floor
 local json = (loadfile "json.lua")()
 local lower, upper = string.lower, string.upper
 local concat, gmatch = table.concat, string.gmatch
@@ -134,18 +134,34 @@ function Alias:GetIP(Ply)
     return IP
 end
 
-local function spacing(n)
-    local str, sep = "", ","
-    for i = 1, n do
-        if (i % n == 2) then
-            str = str .. ""
-        end
-        str = str .. " "
-    end
-    return sep .. str
+function Alias:GetPage(page)
+    local max = self.max_results
+    local start = (max) * page
+    local startpage = (start - max + 1)
+    local endpage = start
+    return startpage, endpage
 end
 
-local function FormatTable(table, rowlen, space)
+function Alias:getPageCount(total_names)
+    local pages = total_names / (self.max_results)
+    if ((pages) ~= floor(pages)) then
+        pages = floor(pages) + 1
+    end
+    return pages
+end
+
+local function spacing(n)
+    local String, Seperator = "", ","
+    for i = 1, n do
+        if i == math.floor(n / 2) then
+            String = String .. ""
+        end
+        String = String .. " "
+    end
+    return Seperator .. String
+end
+
+function Alias:FormatTable(table)
 
     local longest = 0
     for _, v in pairs(table) do
@@ -156,35 +172,18 @@ local function FormatTable(table, rowlen, space)
     end
 
     local rows, row, count = {}, 1, 1
-
     for k, v in pairs(table) do
-        if (count % rowlen == 0) or (k == #table) then
+        if (count % self.max_results == 0) or (k == #table) then
             rows[row] = (rows[row] or "") .. v
         else
-            rows[row] = (rows[row] or "") .. v .. spacing(longest - string.len(v) + space)
+            rows[row] = (rows[row] or "") .. v .. spacing(longest - string.len(v) + self.spaces)
         end
-        if (count % rowlen == 0) then
+        if (count % self.max_results == 0) then
             row = row + 1
         end
         count = count + 1
     end
     return concat(rows)
-end
-
-function Alias:getPage(params)
-    local max_results = self.results_per_page
-    local start = (max_results) * params.page
-    local startpage = (start - max_results + 1)
-    local endpage = start
-    return startpage, endpage
-end
-
-function Alias:getPageCount(total)
-    local pages = (total / self.results_per_page)
-    if (pages) ~= math.floor(pages) then
-        pages = math.floor(pages) + 1
-    end
-    return pages
 end
 
 function Alias:ShowResults(params)
@@ -194,28 +193,40 @@ function Alias:ShowResults(params)
 
     if (tab) and (#tab > 0) then
 
-        local total_pages = Alias:getPageCount(#tab)
+        local total_pages = self:getPageCount(#tab)
         if (page > 0 and page <= total_pages) then
 
-            local count = 0
-            local table, row = { }
-            local START, FINISH = self:getPage(params)
+            local startIndex, endIndex = 1, self.max_columns
+            local startpage, endpage = self:GetPage(page)
 
-            for i = START, FINISH do
-                for k, v in pairs(tab) do
-                    if (k == i) then
-                        count = count + 1
-                        table[i] = v
-                        row = FormatTable(table, self.max_columns, self.spaces)
-                    end
+            local results = { }
+            for page_num = startpage, endpage do
+                if tab[page_num] then
+                    results[#results + 1] = tab[page_num]
                 end
             end
 
-            if (row) then
-                self:Respond(params.executor, row, 10)
+            local function formatResults()
+                local tmp, row = { }
+
+                for i = startIndex, endIndex do
+                    tmp[i] = results[i]
+                    row = self:FormatTable(tmp)
+                end
+
+                if (row ~= nil and row ~= "" and row ~= " ") then
+                    self:Respond(params.executor, row, 10)
+                end
+
+                startIndex = (endIndex + 1)
+                endIndex = (endIndex + (self.max_columns))
             end
 
-            self:Respond(params.executor, '[Page ' .. page .. '/' .. total_pages .. '] Showing ' .. count .. '/' .. #tab .. ' aliases for: "' .. params.artifact .. '"', 2 + 8)
+            while (endIndex < #tab + self.max_columns) do
+                formatResults()
+            end
+
+            self:Respond(params.executor, '[Page ' .. page .. '/' .. total_pages .. '] Showing ' .. #results .. '/' .. #tab .. ' aliases for: "' .. params.artifact .. '"', 2 + 8)
             if (params.pirated) then
                 if (params.name) then
                     self:Respond(params.executor, params.name .. ' is using a pirated copy of Halo.', 2 + 8)
