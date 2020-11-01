@@ -1658,7 +1658,7 @@ function Loadout:OnPlayerDeath(VictimIndex, KillerIndex)
     elseif (betrayal) then
         self:UpdateCredits(killer, { self.credits.betrayal[1], self.credits.betrayal[2] })
     else
-        self:UpdateCredits(victim, CheckDamageTag(last_damage))
+        self:UpdateCredits(killer, CheckDamageTag(last_damage))
     end
 end
 
