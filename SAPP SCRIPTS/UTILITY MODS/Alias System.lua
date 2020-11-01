@@ -28,8 +28,12 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.12.0.0"
 
+-- Configuration Starts --
+
 local Alias = {
 
+
+    -- This is name of the alias database (saved to servers root directory).
     dir = "alias.json",
 
     command = "alias",
@@ -56,6 +60,8 @@ local Alias = {
     -- Set to 1 for IP-only indexing.
     ClientIndexType = 1,
 
+    -- List of all known pirated copies of halo.
+    -- If someone has a pirated copy of halo, it will tell you when you hash-alias them.
     known_pirated_hashes = {
         "388e89e69b4cc08b3441f25959f74103",
         "81f9c914b3402c2702a12dc1405247ee",
@@ -89,13 +95,13 @@ local Alias = {
         "a77ee0be91bd38a0635b65991bc4b686",
         "3126fab3615a94119d5fe9eead1e88c1",
     }
-    --------------------------------------------------------------------------
 }
 
-local concat = table.concat
-local gmatch = string.gmatch
-local lower, upper = string.lower, string.upper
+-- Configuration Ends --
+
 local json = (loadfile "json.lua")()
+local lower, upper = string.lower, string.upper
+local concat, gmatch = table.concat, string.gmatch
 
 function OnScriptLoad()
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
