@@ -1658,7 +1658,7 @@ function Loadout:OnPlayerDeath(VictimIndex, KillerIndex)
     elseif (betrayal) then
         self:UpdateCredits(killer, { self.credits.betrayal[1], self.credits.betrayal[2] })
     else
-        self:UpdateCredits(killer, CheckDamageTag(last_damage))
+        self:UpdateCredits(victim, CheckDamageTag(last_damage))
     end
 end
 
@@ -1728,6 +1728,8 @@ function Loadout:OnDamageApplication(VictimIndex, KillerIndex, MetaID, Damage, H
         local vip = self:GetIP(victim)
 
         local v = self.players[vip]
+        v.head_shot = false
+
         local v_info = self:GetLevelInfo(victim)
 
         if (killer > 0) then
@@ -1736,14 +1738,8 @@ function Loadout:OnDamageApplication(VictimIndex, KillerIndex, MetaID, Damage, H
             local k_info = self:GetLevelInfo(killer)
 
             local HeadShot = OnDamageLookup(victim, killer)
-            if (HeadShot ~= nil) then
-                if (HitString == "head") then
-                    v.head_shot = true
-                else
-                    v.head_shot = false
-                end
-            else
-                v.head_shot = false
+            if (HeadShot ~= nil and HitString == "head") then
+                v.head_shot = true
             end
 
             if (v.class == "Armor Boost") then
