@@ -19,7 +19,7 @@ To view a specific page of results, simply define the page id as shown in the co
 > Check aliases for a specific hash.
 
 * /alias [name] -search"
-> Look up names and retrieve the hashes/ip addresses they are linked to.
+> Lookup names and retrieve the hashes/IP addresses they are linked to.
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -145,7 +145,7 @@ function Alias:GetNames(Ply, t, name)
         for _, NameRecord in pairs(TAB) do
             if (NameRecord == name) then
                 count = count + 1
-                return count, self:Respond(Ply, "MATCH FOUND: [" .. Artifact .. "]: " .. NameRecord)
+                self:Respond(Ply, "MATCH FOUND: [" .. Artifact .. "]: " .. NameRecord)
             end
         end
     end
