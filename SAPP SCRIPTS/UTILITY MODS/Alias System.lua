@@ -6,19 +6,24 @@ Description: Look up names linked to an IP address or hash.
 Alias results are displayed in columns of 5 and rows of 10 per page.
 To view a specific page of results, simply define the page id as shown in the command syntax examples below.
 
-* /alias [pid] -ip [opt page]"
+* /alias [pid] -ip [opt page]
 > Check IP aliases for specific player id.
 
-* /alias [pid] -hash [opt page]"
+* /alias [pid] -hash [opt page]
 > Check HASH aliases for specific player id.
 
-* /alias [IP] [opt page]"
+* /alias [IP] [opt page]
 > Check aliases for specific IP address.
 
-* /alias [hash] [opt page]"
+* /alias [hash] [opt page]
 > Check aliases for a specific hash.
 
-* /alias [name] -search"
+* /alias [pid]
+> When executing /alias [pid] without specifying the look-up type,
+> the search will automatically look up names associated with their IP Address.
+> This can be edited in the config section among other settings.
+
+* /alias [name] -search
 > Lookup names and retrieve the hashes/IP addresses they are linked to.
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
@@ -61,6 +66,10 @@ local Alias = {
     -- The array index for each client will either be "IP", or "IP:PORT".
     -- Set to 1 for IP-only indexing.
     ClientIndexType = 1,
+
+    -- When executing /alias <pid> without specifying the look up type, what
+    -- should we look up? Names associated with their IP Address or Names associated with their Hash?
+    default_table = "ip_addresses", -- Valid Tables: "ip_addresses" or "hashes"
 
     -- List of all known pirated copies of halo.
     -- If someone has a pirated copy of halo, it will tell you when you hash-alias them.
@@ -328,10 +337,23 @@ function Alias:OnServerCommand(Executor, Command)
                     -- /alias <pid> <-hash> <opt page>
                     local player_hash_lookup = (player_id and Args[3] == "-hash")
 
+                    local player_lookup = (player_id and Args[3] == nil)
+
                     if (ip_lookup) then
                         params.page = (Args[3] ~= nil and Args[3]:match("^%d+$") or 1)
                         params.type = "ip_addresses"
                         params.artifact = ip_pattern
+
+                    elseif (player_lookup) then
+                        params.page = 1
+                        params.type = self.default_table
+                        params.name = get_var(player_id, "$name")
+                        if (self.default_table == "ip_addresses") then
+                            params.artifact = self:GetIP(player_id)
+                        else
+                            params.artifact = get_var(player_id, "$hash")
+                            params.pirated = self:IsPirated(hash_pattern)
+                        end
 
                     elseif (hash_lookup) then
                         params.page = (Args[3] ~= nil and Args[3]:match("^%d+$") or 1)
