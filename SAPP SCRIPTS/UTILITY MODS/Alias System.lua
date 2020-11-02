@@ -395,13 +395,9 @@ function Alias:OnServerCommand(Executor, Command)
                         self:CmdHelp(Executor)
                     end
 
-                    function T()
-                        return self:ShowResults(params)
-                    end
-
                     if (not error) and (not name_search) then
                         params.executor = Executor
-                        timer(0, "T")
+                        self:ShowResults(params)
                     end
                 else
                     self:CmdHelp(Executor)
