@@ -40,10 +40,10 @@ api_version = "1.12.0.0"
 
 local Alias = {
 
-
     -- This is name of the alias database (saved to servers root directory).
     dir = "alias.json",
 
+    -- The custom command;
     command = "alias",
 
     -- Minimum permission required to execute /command:
@@ -56,10 +56,10 @@ local Alias = {
     -- Max results to load per page:
     max_results = 50,
 
-    -- Aliases are printed in columns of 5
+    -- Aliases are printed in columns of 5:
     max_columns = 5,
 
-    -- Spacing between names per column;
+    -- Spacing between names per column:
     spaces = 2,
 
     -- Client data is saved as a json array.
@@ -72,7 +72,7 @@ local Alias = {
     default_table = "ip_addresses", -- Valid Tables: "ip_addresses" or "hashes"
 
     -- List of all known pirated copies of halo.
-    -- If someone has a pirated copy of halo, it will tell you when you hash-alias them.
+    -- If someone has a pirated copy of halo, it will tell you when you hash-alias them:
     known_pirated_hashes = {
         "388e89e69b4cc08b3441f25959f74103",
         "81f9c914b3402c2702a12dc1405247ee",
@@ -110,10 +110,8 @@ local Alias = {
 
 -- Configuration Ends --
 
-local len = string.len
-local sub = string.sub
-local floor = math.floor
-local json = (loadfile "json.lua")()
+local len, sub = string.len, string.sub
+local json, floor = (loadfile "json.lua")(), math.floor
 local concat, gmatch, gsub = table.concat, string.gmatch, string.gsub
 
 function OnScriptLoad()
