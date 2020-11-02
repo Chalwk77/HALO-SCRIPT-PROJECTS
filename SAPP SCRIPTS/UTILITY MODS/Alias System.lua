@@ -114,7 +114,6 @@ local len = string.len
 local sub = string.sub
 local floor = math.floor
 local json = (loadfile "json.lua")()
-local lower, upper = string.lower, string.upper
 local concat, gmatch, gsub = table.concat, string.gmatch, string.gsub
 
 function OnScriptLoad()
@@ -148,13 +147,18 @@ function Alias:GetIP(Ply)
     return IP
 end
 
-function Alias:GetNames(Ply, t, name)
+function Alias:GetNames(Ply, t, name, CheckPirated)
     local count = 0
     for Artifact, TAB in pairs(t) do
         for _, NameRecord in pairs(TAB) do
             if (NameRecord == name) then
                 count = count + 1
-                self:Respond(Ply, "MATCH FOUND: [" .. Artifact .. "]: " .. NameRecord)
+                if (CheckPirated) then
+                    local pirated = Alias:IsPirated(Artifact)
+                    self:Respond(Ply, "MATCH FOUND: [" .. Artifact .. "]: " .. NameRecord .. " [PIRATED: " .. tostring(pirated) .. "]")
+                else
+                    self:Respond(Ply, "MATCH FOUND: [" .. Artifact .. "]: " .. NameRecord)
+                end
             end
         end
     end
@@ -303,9 +307,8 @@ function Alias:OnServerCommand(Executor, Command)
         return
     else
 
-        Args[1] = lower(Args[1]) or upper(Args[1])
+        Command = Command:lower()
         local lvl = tonumber(get_var(Executor, "$lvl"))
-
         if (Args[1] == self.command) then
             if (lvl >= self.permission) or (Executor == 0) then
 
@@ -313,6 +316,7 @@ function Alias:OnServerCommand(Executor, Command)
 
                     local params, error = { }
                     local player_id = (Args[2] ~= nil and Args[2]:match("^%d+$")) or 0
+
                     local name_search = Command:match("--search")
 
                     if (not player_present(player_id) and player_id ~= 0) then
@@ -337,7 +341,8 @@ function Alias:OnServerCommand(Executor, Command)
                     -- /alias <pid> <-hash> <opt page>
                     local player_hash_lookup = (player_id and Args[3] == "-hash")
 
-                    local player_lookup = (player_id and Args[3] == nil)
+                    -- /alias <pid>
+                    local player_lookup = (player_id and Args[3] == nil) and (not hash_pattern)
 
                     if (ip_lookup) then
                         params.page = (Args[3] ~= nil and Args[3]:match("^%d+$") or 1)
@@ -350,9 +355,9 @@ function Alias:OnServerCommand(Executor, Command)
                         params.name = get_var(player_id, "$name")
                         if (self.default_table == "ip_addresses") then
                             params.artifact = self:GetIP(player_id)
-                        else
+                        elseif (self.default_table == "hashes") then
                             params.artifact = get_var(player_id, "$hash")
-                            params.pirated = self:IsPirated(hash_pattern)
+                            params.pirated = self:IsPirated(get_var(player_id, "$hash"))
                         end
 
                     elseif (hash_lookup) then
@@ -372,7 +377,8 @@ function Alias:OnServerCommand(Executor, Command)
                         params.page = (Args[4] ~= nil and Args[4]:match("^%d+$") or 1)
                         params.name = get_var(player_id, "$name")
                         params.artifact = get_var(player_id, "$hash")
-                        params.pirated = self:IsPirated(hash_pattern)
+                        params.pirated = self:IsPirated(get_var(player_id, "$hash"))
+
                     elseif (name_search) then
 
                         local cmd_len = len(self.command)
@@ -380,10 +386,9 @@ function Alias:OnServerCommand(Executor, Command)
                         local name = gsub(gsub(Command, cmd_to_replace, ""), " --search", "")
 
                         local records = self:CheckFile()
-                        local ip_count = Alias:GetNames(Executor, records.ip_addresses, name)
-                        local hash_count = Alias:GetNames(Executor, records.hashes, name)
+                        local ip_count = Alias:GetNames(Executor, records.ip_addresses, name, false)
+                        local hash_count = Alias:GetNames(Executor, records.hashes, name, true)
                         ip_count = ip_count + hash_count
-
                         if (ip_count == 0) then
                             self:Respond(Executor, "No records found for [ " .. name .. " ]")
                         end
