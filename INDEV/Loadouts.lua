@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Loadout (Alpha 1.8), for SAPP (PC & CE)
+Script Name: Loadout (Alpha 1.9), for SAPP (PC & CE)
 Description: N/A
 
 todo: add support for custom maps
@@ -22,7 +22,7 @@ local Loadout = {
     --=================================================================================--
 
     -- This is the class players will start with when they join the server:
-    default_class = "Regeneration",
+    default_class = "Armor Boost",
     -- This is the starting level for the above class:
     starting_level = 1,
 
@@ -53,7 +53,7 @@ local Loadout = {
     bounty_cmd_permission_others = 4,
     --==============================================================================================--
 
-    -- If true, a player's credits will be able to fall into the negatives.
+    -- If true, a player's credits and score will be able to fall into the negatives.
     allow_negatives = false,
 
     -- Enable or disable HUD:
@@ -86,8 +86,8 @@ local Loadout = {
         -- TEAM
         ["ctf"] = { 3 },
         -- FFA | TEAM
-        ["slayer"] = { 5000, 10000 },
-        ["race"] = { 3000, 6000 },
+        ["slayer"] = { 3000, 3500 },
+        ["race"] = { 2500, 3000 },
     },
 
     messages = {
@@ -111,6 +111,9 @@ local Loadout = {
         [8] = "Credits cannot be higher than %max%",
         [9] = "You do not have permission to execute this command.",
         [10] = "You do not have permission to execute this command on other players",
+
+        -- On Level Up:
+        [11] = "%name% is now level [%level%] %class%",
     },
 
     classes = {
@@ -123,7 +126,7 @@ local Loadout = {
                 }
             },
             command = "regen",
-            hud = "Class [Regen] Level: [%lvl%] Credits: [%cr%/%cr_req%] State: [%state%]",
+            hud = "Class: [Regen] Level: [%lvl%] Credits: [%cr%/%cr_req%] State: [%state%]",
             info = {
                 "Regeneration: Good for players who want the classic Halo experience. This is the Default.",
                 "Level 1 - Health regenerates 3 seconds after shields recharge, at 20%/second.",
@@ -222,7 +225,7 @@ local Loadout = {
                 }
             },
             command = "armor",
-            hud = "Class [Armor] Level: [%lvl%] Credits: [%cr%/%cr_req%] State: [%state%]",
+            hud = "Class: [Armor] Level: [%lvl%] Credits: [%cr%/%cr_req%] %state%",
             info = {
                 "Armor Boost: Good for players who engage vehicles or defend.",
                 "Level 1 - 1.20x durability.",
@@ -234,13 +237,19 @@ local Loadout = {
             levels = {
                 [1] = {
                     until_next_level = 200,
+
                     -- Set to 0 to use default damage resistance:
-                    damage_resistance = 1.20,
+                    -- Foot Resistance | Vehicle Resistance
+                    damage_resistance = { 1.20, 2.50 },
+
                     -- Set to true to enable fall damage immunity:
                     fall_damage_immunity = false,
+
                     -- Set to true to enable self-harm:
                     self_damage = true,
+
                     -- Melee damage multiplier (1 = normal, 10 = insta-kill):
+
                     melee_damage_multiplier = 0,
                     grenades = { 2, 0 },
                     weapons = {
@@ -250,7 +259,7 @@ local Loadout = {
                 },
                 [2] = {
                     until_next_level = 500,
-                    damage_resistance = 1.30,
+                    damage_resistance = { 1.30, 3.50 },
                     fall_damage_immunity = false,
                     self_damage = true,
                     melee_damage_multiplier = 300,
@@ -263,7 +272,7 @@ local Loadout = {
                 },
                 [3] = {
                     until_next_level = 1000,
-                    damage_resistance = 1.40,
+                    damage_resistance = { 1.40, 4.50 },
                     fall_damage_immunity = false,
                     self_damage = true,
                     melee_damage_multiplier = 300,
@@ -276,7 +285,7 @@ local Loadout = {
                 },
                 [4] = {
                     until_next_level = 2000,
-                    damage_resistance = 1.50,
+                    damage_resistance = { 1.50, 5.50 },
                     fall_damage_immunity = false,
                     self_damage = true,
                     melee_damage_multiplier = 400,
@@ -289,7 +298,7 @@ local Loadout = {
                 },
                 [5] = {
                     until_next_level = nil,
-                    damage_resistance = 1.55,
+                    damage_resistance = { 1.55, 6.50 },
                     fall_damage_immunity = true,
                     self_damage = false,
                     melee_damage_multiplier = 500,
@@ -312,7 +321,7 @@ local Loadout = {
                 }
             },
             command = "cloak",
-            hud = "Class [Cloak] Level: [%lvl%] Credits: [%cr%/%cr_req%] State: [%state%]",
+            hud = "Class: [Cloak] Level: [%lvl%] Credits: [%cr%/%cr_req%] State: [%state%]",
             info = {
                 "Partial Camo: Good for players who prefer stealth and quick kills or CQB.",
                 "Level 1 - Camo works until you fire your weapon or take damage. Reinitialize delays are 3s/Weapon, 5s/Damage",
@@ -390,7 +399,7 @@ local Loadout = {
                 }
             },
             command = "recon",
-            hud = "Class [Recon] Level: [%lvl%] Credits: [%cr%/%cr_req%] State: [%state%]",
+            hud = "Class: [Recon] Level: [%lvl%] Credits: [%cr%/%cr_req%] State: %state%",
             info = {
                 "Recon: Good for players who don't use vehicles. Also good for capturing.",
                 "Level 1 - Default speed raised to 1.5x. Sprint duration is 200%.",
@@ -473,7 +482,7 @@ local Loadout = {
         pvp_bonus = { 5, 1.5, "+%credits%cR (Show Stopper Bonus)" },
 
         -- Bonus credits for killing the flag carrier
-        flag_carrier_kill_bonus = { 30, "+30cR (Flag Carrier Kill Bonus)" },
+        flag_carrier_kill_bonus = { 100, "+30cR (Flag Carrier Kill Bonus)" },
 
         -- Score (credits added):
         score = { 100, "+100cR (Flag Cap)" },
@@ -935,7 +944,12 @@ function Loadout:OnTick()
                             end
 
                         elseif (v.class == "Armor Boost") then
-                            v.state = "Damage Resistance: " .. current_class.levels[level].damage_resistance .. "x"
+                            local VictimInVehicle = self:InVehicle(i, true)
+                            if (not VictimInVehicle) then
+                                v.state = "[On-Foot] Damage Resistance: " .. current_class.levels[level].damage_resistance[1] .. "x"
+                            else
+                                v.state = "[In-Vehicle] Damage Resistance: " .. current_class.levels[level].damage_resistance[2] .. "x"
+                            end
                         elseif (v.class == "Cloak") then
 
                             local invisible = read_float(DyN + 0x37C)
@@ -1095,9 +1109,11 @@ function Loadout:OnTick()
 end
 
 function Loadout:PauseHUD(Ply, Clear)
+
     local ip = self:GetIP(Ply)
     local p = self.players[ip]
     if (p) then
+
         if (Clear) then
             self:cls(Ply, 25)
         end
@@ -1492,6 +1508,7 @@ function Loadout:KillingSpree(Ply)
                         "%%name%%", self.players[ip].name),
                         "%%bounty%%", self.players[ip].bounty)
                 self:Respond(_, str, say_all, 10)
+                break
             end
         end
     end
@@ -1505,6 +1522,7 @@ function Loadout:MultiKill(Ply)
         for _, v in pairs(t) do
             if (k == v[1]) or (k >= t[#t][1] and k % 2 == 0) then
                 self:UpdateCredits(Ply, { v[2], v[3] })
+                break
             end
         end
     end
@@ -1681,7 +1699,15 @@ function Loadout:UpdateLevel(Ply)
     local t = self.players[ip]
     local cr_req = self.classes[t.class].levels[t.levels[t.class].level].until_next_level
     if (cr_req ~= nil and t.levels[t.class].credits >= cr_req) then
+
+        t.assign = true
         t.levels[t.class].level = t.levels[t.class].level + 1
+
+        local str = gsub(gsub(gsub(self.messages[11],
+                "%%name%%", t.name),
+                "%%class%%", t.class),
+                "%%level%%", t.levels[t.class].level)
+        self:Respond(Ply, str, say, 10, Ply, _)
     end
 end
 
@@ -1701,7 +1727,7 @@ function Loadout:UpdateCredits(Ply, Params)
 
     if (not self.allow_negatives) and (t.levels[t.class].credits < 0) then
         t.levels[t.class].credits = 0
-        if (tonumber(get_var(Ply, "$score")) < 0) then
+        if (tonumber(get_var(Ply, "$score")) <= 0) then
             execute_command('score ' .. Ply .. " 0")
         end
     end
@@ -1718,7 +1744,6 @@ function Loadout:IsMelee(MetaID)
 end
 
 function Loadout:OnDamageApplication(VictimIndex, KillerIndex, MetaID, Damage, HitString, _)
-
     local killer, victim = tonumber(KillerIndex), tonumber(VictimIndex)
     local hurt = true
     if player_present(victim) then
@@ -1742,12 +1767,19 @@ function Loadout:OnDamageApplication(VictimIndex, KillerIndex, MetaID, Damage, H
             end
 
             if (v.class == "Armor Boost") then
-                if (killer == victim) then
-                    if (not self.classes[v.class].levels[v_info.level].self_damage) then
-                        hurt = false
-                    end
+                -- Check if self inflicted damage should apply:
+                if (killer == victim and not self.classes[v.class].levels[v_info.level].self_damage) then
+                    hurt = false
+                    -- Calculate pvp damage resistance:
                 elseif (killer ~= victim) then
-                    Damage = Damage - (10 * self.classes[v.class].levels[v_info.level].damage_resistance)
+                    local VictimInVehicle = self:InVehicle(victim, true)
+                    if (not VictimInVehicle) then
+                        -- On-Foot damage resistance:
+                        Damage = Damage - (10 * self.classes[v.class].levels[v_info.level].damage_resistance[1])
+                    else
+                        -- In-Vehicle damage resistance:
+                        Damage = Damage - (self.classes[v.class].levels[v_info.level].damage_resistance[2] + 10)
+                    end
                     hurt = true
                 end
             end
@@ -1769,6 +1801,7 @@ function Loadout:OnDamageApplication(VictimIndex, KillerIndex, MetaID, Damage, H
                 if (v.active_camo) and (invisible ~= 0) then
                     v.camo_pause, v.active_camo = false, false
                     execute_command("camo " .. victim .. " 1")
+                    hurt = true
                 end
             end
         end
