@@ -1009,7 +1009,7 @@ function Loadout:OnTick()
                         elseif (v.class == "Recon") then
                             local key = read_byte(DyN + 0x2A3)
 
-                            local double_tap_delay = .13
+                            local double_tap_delay = .150
 
                             -- RESET CASE --
                             --
