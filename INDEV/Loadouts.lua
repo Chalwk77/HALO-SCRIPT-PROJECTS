@@ -22,7 +22,7 @@ local Loadout = {
     --=================================================================================--
 
     -- This is the class players will start with when they join the server:
-    default_class = "Armor Boost",
+    default_class = "Recon",
     -- This is the starting level for the above class:
     starting_level = 1,
 
@@ -1009,12 +1009,14 @@ function Loadout:OnTick()
                         elseif (v.class == "Recon") then
                             local key = read_byte(DyN + 0x2A3)
 
+                            local double_tap_delay = .13
+
                             -- RESET CASE --
                             --
                             local case1 = (key == 0 and v.key_released == 3)
-                            local case2 = (v.button_press_delay >= .13) and (key == 0 or key == 4)
-                            local case3 = (v.press_count == 1 and key == 0) and (v.button_press_delay >= .13)
-                            local case4 = (v.button_press_delay >= .13) and (key == 0 and v.key_released == 2)
+                            local case2 = (v.button_press_delay >= double_tap_delay) and (key == 0 or key == 4)
+                            local case3 = (v.press_count == 1 and key == 0) and (v.button_press_delay >= double_tap_delay)
+                            local case4 = (v.button_press_delay >= double_tap_delay) and (key == 0 and v.key_released == 2)
 
                             -- press 1:
                             if (key == 4 and v.press_count == 0 and v.key_released == 0) then
@@ -1025,11 +1027,11 @@ function Loadout:OnTick()
                                 v.key_released = 2
 
                                 -- checking for press 2:
-                            elseif (key == 0 and v.key_released == 2 and v.button_press_delay < .13) and (v.press_count == 1) then
+                            elseif (key == 0 and v.key_released == 2 and v.button_press_delay < double_tap_delay) and (v.press_count == 1) then
                                 v.button_press_delay = v.button_press_delay + time_scale
 
                                 -- press 2:
-                            elseif (key == 4 and v.key_released == 2 and v.button_press_delay < .13) and (v.press_count == 1) then
+                            elseif (key == 4 and v.key_released == 2 and v.button_press_delay < double_tap_delay) and (v.press_count == 1) then
                                 v.press_count = v.press_count + 1
                                 v.key_released = 3
 
@@ -1644,12 +1646,12 @@ function Loadout:OnPlayerDeath(VictimIndex, KillerIndex)
         local vehicle = self:InVehicle(killer)
         if (vehicle) then
             local t = self.credits.tags.vehicles
-            for _, v in pairs(t) do
+            for _, T in pairs(t) do
                 -- validate vehicle tag:
-                if (vehicle == v[2]) then
+                if (vehicle == T[2]) then
                     -- vehicle squash:
                     if (last_damage == GetTag(t.collision[1], t.collision[2])) then
-                        return self:UpdateCredits(killer, { v[3], v[4] })
+                        return self:UpdateCredits(killer, { T[3], T[4] })
                     else
                         -- vehicle weapon:
                         return self:UpdateCredits(killer, CheckDamageTag(last_damage))
