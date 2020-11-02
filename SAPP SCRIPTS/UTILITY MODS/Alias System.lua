@@ -183,9 +183,8 @@ function Alias:FormatTable(table)
 
     local longest = 0
     for _, v in pairs(table) do
-        local len = string.len(v)
-        if (len > longest) then
-            longest = len
+        if (len(v) > longest) then
+            longest = len(v)
         end
     end
 
@@ -194,7 +193,7 @@ function Alias:FormatTable(table)
         if (count % self.max_results == 0) or (k == #table) then
             rows[row] = (rows[row] or "") .. v
         else
-            rows[row] = (rows[row] or "") .. v .. spacing(longest - string.len(v) + self.spaces)
+            rows[row] = (rows[row] or "") .. v .. spacing(longest - len(v) + self.spaces)
         end
         if (count % self.max_results == 0) then
             row = row + 1
