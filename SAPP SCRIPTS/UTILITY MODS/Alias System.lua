@@ -305,7 +305,7 @@ function Alias:OnServerCommand(Executor, Command)
 
                     local params, error = { }
                     local player_id = (Args[2] ~= nil and Args[2]:match("^%d+$")) or 0
-                    local name_search = (Args[2] ~= nil and Args[2]:match("^.$") and (Command:match("--search"))) or ""
+                    local name_search = Command:match("--search")
 
                     if (not player_present(player_id) and player_id ~= 0) then
                         self:Respond(Executor, "Player #" .. player_id .. " is not online.")
