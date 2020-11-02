@@ -1727,10 +1727,16 @@ function Loadout:UpdateCredits(Ply, Params)
     local score = tonumber(get_var(Ply, "$score"))
     execute_command("score " .. Ply .. " " .. score + Params[1])
 
-    if (not self.allow_negatives) and (t.levels[t.class].credits < 0) then
-        t.levels[t.class].credits = 0
+    if (not self.allow_negatives) then
+
+        -- These must be separate if statements:
+
+        if (t.levels[t.class].credits < 0) then
+            t.levels[t.class].credits = 0
+        end
+
         if (tonumber(get_var(Ply, "$score")) <= 0) then
-            execute_command('score ' .. Ply .. " 0")
+            execute_command('score ' .. Ply .. ' 0')
         end
     end
 end
