@@ -22,7 +22,7 @@ local Loadout = {
     --=================================================================================--
 
     -- This is the class players will start with when they join the server:
-    default_class = "Recon",
+    default_class = "Regeneration",
     -- This is the starting level for the above class:
     starting_level = 1,
 
@@ -240,7 +240,7 @@ local Loadout = {
 
                     -- Set to 0 to use default damage resistance:
                     -- Foot Resistance | Vehicle Resistance
-                    damage_resistance = { 1.20, 2.50 },
+                    damage_resistance = { 1.20, 1.20 },
 
                     -- Set to true to enable fall damage immunity:
                     fall_damage_immunity = false,
@@ -259,7 +259,7 @@ local Loadout = {
                 },
                 [2] = {
                     until_next_level = 500,
-                    damage_resistance = { 1.30, 3.50 },
+                    damage_resistance = { 1.30, 1.30 },
                     fall_damage_immunity = false,
                     self_damage = true,
                     melee_damage_multiplier = 300,
@@ -272,7 +272,7 @@ local Loadout = {
                 },
                 [3] = {
                     until_next_level = 1000,
-                    damage_resistance = { 1.40, 4.50 },
+                    damage_resistance = { 1.40, 1.40 },
                     fall_damage_immunity = false,
                     self_damage = true,
                     melee_damage_multiplier = 300,
@@ -285,7 +285,7 @@ local Loadout = {
                 },
                 [4] = {
                     until_next_level = 2000,
-                    damage_resistance = { 1.50, 5.50 },
+                    damage_resistance = { 1.50, 1.50 },
                     fall_damage_immunity = false,
                     self_damage = true,
                     melee_damage_multiplier = 400,
@@ -298,7 +298,7 @@ local Loadout = {
                 },
                 [5] = {
                     until_next_level = nil,
-                    damage_resistance = { 1.55, 6.50 },
+                    damage_resistance = { 1.55, 1.60 },
                     fall_damage_immunity = true,
                     self_damage = false,
                     melee_damage_multiplier = 500,
@@ -1494,6 +1494,7 @@ end
 function Loadout:KillingSpree(Ply)
     local player = get_player(Ply)
     if (player ~= 0) then
+
         local t = self.credits.spree
         local k = read_word(player + 0x96)
 
@@ -1519,8 +1520,10 @@ end
 function Loadout:MultiKill(Ply)
     local player = get_player(Ply)
     if (player ~= 0) then
-        local k = read_word(player + 0x98)
+
         local t = self.credits.multi_kill
+        local k = read_word(player + 0x98)
+
         for _, v in pairs(t) do
             if (k == v[1]) or (k >= t[#t][1] and k % 2 == 0) then
                 self:UpdateCredits(Ply, { v[2], v[3] })
@@ -1786,7 +1789,7 @@ function Loadout:OnDamageApplication(VictimIndex, KillerIndex, MetaID, Damage, H
                         Damage = Damage - (10 * self.classes[v.class].levels[v_info.level].damage_resistance[1])
                     else
                         -- In-Vehicle damage resistance:
-                        Damage = Damage - (self.classes[v.class].levels[v_info.level].damage_resistance[2] + 10)
+                        Damage = Damage - (self.classes[v.class].levels[v_info.level].damage_resistance[2])
                     end
                     hurt = true
                 end
