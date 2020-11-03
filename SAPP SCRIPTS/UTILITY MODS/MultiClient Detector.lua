@@ -18,7 +18,7 @@ api_version = "1.12.0.0"
 local path = "sapp\\multiclients.txt"
 
 -- Players with common ports are not considered to be using a MultiClient.
--- MultiClient almost never generates a common port.
+-- MultiClient generates a port between 800-0xFFFF (800-65535)
 -- Min Range, Max Range
 local common_ports = { { 2300, 2400 } }
 
@@ -143,11 +143,11 @@ function SetProbability(PlayerIndex)
         -- If no match is made then it's likely that they are using a MultiClient.
         -- Most people don't frequently change their port number.
 
-        local DataOnFile = LoadClientData(params)
-        if (DataOnFile.port ~= params.port) then
+        local client = LoadClientData(params)
+        if (client.port ~= params.port) then
             probability[PlayerIndex] = probability[PlayerIndex] + 1
         end
-        if (DataOnFile.hash ~= params.hash) then
+        if (client.hash ~= params.hash) then
             probability[PlayerIndex] = probability[PlayerIndex] + 1
         end
         --
@@ -169,9 +169,11 @@ function SetProbability(PlayerIndex)
         -- Run some more checks:
         if (not common_port) then
             probability[PlayerIndex] = probability[PlayerIndex] + 1
+
             -- Statistically, most people do not use ports greater than 4 digits.
             -- This provides a greater indication that they are using multiclient.
             -- Statistics taken from 9 years of halo server logs.
+
             if (len(params.port) > 4) then
                 probability[PlayerIndex] = probability[PlayerIndex] + 1
             elseif (tonumber(params.port) >= min_range and tonumber(params.port) <= max_range) then
@@ -196,8 +198,8 @@ function SavePort(params)
             local contents = tostring(params.ip) .. "|" .. tostring(params.port) .. "-" .. tostring(params.hash)
             file:write(contents .. "\n")
         end
+        file:close()
     end
-    file:close()
 end
 
 function LoadClientData(params)
