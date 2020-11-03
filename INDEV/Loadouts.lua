@@ -1,11 +1,10 @@
 --[[
 --=====================================================================================================--
-Script Name: Loadout (Alpha 1.10), for SAPP (PC & CE)
+Script Name: Loadout (Alpha 1.11), for SAPP (PC & CE)
 Description: N/A
 
 ~ acknowledgements ~
 Concept credit goes to OSH Clan, a gaming community operating on Halo CE:
-
 website: https://oldschoolhalo.boards.net/
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
@@ -243,7 +242,7 @@ local Loadout = {
 
                     -- Set to 0 to use default damage resistance:
                     -- Foot Resistance | Vehicle Resistance
-                    damage_resistance = { 1.20, 1.20 },
+                    damage_resistance = { 1.25, 1.27 },
 
                     -- Set to true to enable fall damage immunity:
                     fall_damage_immunity = false,
@@ -251,9 +250,7 @@ local Loadout = {
                     -- Set to true to enable self-harm:
                     self_damage = true,
 
-                    -- Melee damage multiplier (1 = normal, 10 = insta-kill):
-
-                    melee_damage_multiplier = 0,
+                    melee_damage_multiplier = 1.20,
                     grenades = { 2, 0 },
                     weapons = {
                         [10] = { nil, nil, nil }, -- shotgun
@@ -262,10 +259,10 @@ local Loadout = {
                 },
                 [2] = {
                     until_next_level = 500,
-                    damage_resistance = { 1.30, 1.30 },
+                    damage_resistance = { 1.35, 1.37 },
                     fall_damage_immunity = false,
                     self_damage = true,
-                    melee_damage_multiplier = 300,
+                    melee_damage_multiplier = 1.25,
                     grenades = { 3, 0 },
                     weapons = {
                         [10] = { nil, 24, nil }, -- shotgun
@@ -275,10 +272,10 @@ local Loadout = {
                 },
                 [3] = {
                     until_next_level = 1000,
-                    damage_resistance = { 1.40, 1.40 },
+                    damage_resistance = { 1.45, 1.47 },
                     fall_damage_immunity = false,
                     self_damage = true,
-                    melee_damage_multiplier = 300,
+                    melee_damage_multiplier = 1.30,
                     grenades = { 3, 2 },
                     weapons = {
                         [10] = { nil, 48, nil }, -- shotgun
@@ -288,10 +285,10 @@ local Loadout = {
                 },
                 [4] = {
                     until_next_level = 2000,
-                    damage_resistance = { 1.50, 1.50 },
+                    damage_resistance = { 1.55, 1.57 },
                     fall_damage_immunity = false,
                     self_damage = true,
-                    melee_damage_multiplier = 400,
+                    melee_damage_multiplier = 1.45,
                     grenades = { 4, 4 },
                     weapons = {
                         [10] = { nil, 96, nil }, -- shotgun
@@ -301,10 +298,10 @@ local Loadout = {
                 },
                 [5] = {
                     until_next_level = nil,
-                    damage_resistance = { 1.55, 1.60 },
+                    damage_resistance = { 1.65, 1.67 },
                     fall_damage_immunity = true,
                     self_damage = false,
-                    melee_damage_multiplier = 500,
+                    melee_damage_multiplier = 1.50,
                     grenades = { 5, 5 },
                     weapons = {
                         [10] = { nil, 192, nil }, -- shotgun
@@ -555,7 +552,7 @@ local Loadout = {
             --
 
             -- FALL DAMAGE --
-            [1] = { "jpt!", "globals\\falling", -3, "-3cR (Fall Damage)" },
+            [1] = { "jpt!", "globals\\falling", -3, "-3cR (Fall Damage)", },
             [2] = { "jpt!", "globals\\distance", -4, "-4cR (Distance Damage)" },
 
             -- VEHICLE PROJECTILES --
@@ -1723,26 +1720,28 @@ function Loadout:UpdateCredits(Ply, Params)
 
     local ip = self:GetIP(Ply)
     local t = self.players[ip]
+    if (t) then
 
-    t.levels[t.class].credits = t.levels[t.class].credits + Params[1]
+        t.levels[t.class].credits = t.levels[t.class].credits + Params[1]
 
-    if (Params[2] ~= "") then
-        self:Respond(Ply, Params[2], say, 10)
-    end
-
-    local score = tonumber(get_var(Ply, "$score"))
-    execute_command("score " .. Ply .. " " .. score + Params[1])
-
-    if (not self.allow_negatives) then
-
-        -- These must be separate if statements:
-
-        if (t.levels[t.class].credits < 0) then
-            t.levels[t.class].credits = 0
+        if (Params[2] ~= "") then
+            self:Respond(Ply, Params[2], say, 10)
         end
 
-        if (tonumber(get_var(Ply, "$score")) <= 0) then
-            execute_command('score ' .. Ply .. ' 0')
+        local score = tonumber(get_var(Ply, "$score"))
+        execute_command("score " .. Ply .. " " .. score + Params[1])
+
+        if (not self.allow_negatives) then
+
+            -- These must be separate if statements:
+
+            if (t.levels[t.class].credits < 0) then
+                t.levels[t.class].credits = 0
+            end
+
+            if (tonumber(get_var(Ply, "$score")) <= 0) then
+                execute_command('score ' .. Ply .. ' 0')
+            end
         end
     end
 end
@@ -1760,6 +1759,7 @@ end
 function Loadout:OnDamageApplication(VictimIndex, KillerIndex, MetaID, Damage, HitString, _)
     local killer, victim = tonumber(KillerIndex), tonumber(VictimIndex)
     local hurt = true
+
     if player_present(victim) then
 
         local kip = self:GetIP(killer)
@@ -1784,25 +1784,25 @@ function Loadout:OnDamageApplication(VictimIndex, KillerIndex, MetaID, Damage, H
                 -- Check if self inflicted damage should apply:
                 if (killer == victim and not self.classes[v.class].levels[v_info.level].self_damage) then
                     hurt = false
+
                     -- Calculate pvp damage resistance:
-                elseif (killer ~= victim) then
+                elseif (killer ~= victim and not self:IsMelee(MetaID)) then
+
+                    local resistance = self.classes[v.class].levels[v_info.level].damage_resistance
                     local VictimInVehicle = self:InVehicle(victim, true)
+
                     if (not VictimInVehicle) then
-                        -- On-Foot damage resistance:
-                        Damage = Damage - (10 * self.classes[v.class].levels[v_info.level].damage_resistance[1])
+                        Damage = (Damage / resistance[1])
                     else
-                        -- In-Vehicle damage resistance:
-                        Damage = Damage - (self.classes[v.class].levels[v_info.level].damage_resistance[2])
+                        Damage = (Damage / resistance[2])
                     end
                     hurt = true
                 end
             end
 
-            if (k.class == "Armor Boost") then
-                if (self:IsMelee(MetaID)) then
-                    Damage = Damage + (self.classes[k.class].levels[k_info.level].melee_damage_multiplier)
-                    hurt = true
-                end
+            if (k.class == "Armor Boost" and self:IsMelee(MetaID)) then
+                Damage = Damage * (self.classes[k.class].levels[k_info.level].melee_damage_multiplier)
+                hurt = true
             end
 
             k.last_damage = MetaID
