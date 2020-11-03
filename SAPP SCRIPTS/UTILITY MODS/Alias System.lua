@@ -26,6 +26,10 @@ To view a specific page of results, simply define the page id as shown in the co
 * /alias [name] -search
 > Lookup names and retrieve the hashes/IP addresses they are linked to.
 
+1): This mod requires that the following json library is installed to your server:
+    Place "json.lua" in your servers root directory:
+    http://regex.info/blog/lua/json
+
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
