@@ -149,7 +149,7 @@ function Alias:GetNames(Ply, t, name, CheckPirated)
     local count = 0
     for Artifact, TAB in pairs(t) do
         for _, NameRecord in pairs(TAB) do
-            if (NameRecord == name) then
+            if (string.lower(NameRecord) == string.lower(name)) then
                 count = count + 1
                 if (CheckPirated) then
                     local pirated = Alias:IsPirated(Artifact)
