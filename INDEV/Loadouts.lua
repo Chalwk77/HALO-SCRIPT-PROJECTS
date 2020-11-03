@@ -1,11 +1,18 @@
 --[[
 --=====================================================================================================--
-Script Name: Loadout (Alpha 1.11), for SAPP (PC & CE)
+Script Name: Loadout (Alpha 1.10), for SAPP (PC & CE)
 Description: N/A
 
 ~ acknowledgements ~
 Concept credit goes to OSH Clan, a gaming community operating on Halo CE:
 website: https://oldschoolhalo.boards.net/
+
+Special thanks:
+xOSHx Yalda (script concept, alpha testing, bug reporting)
+xOSHx Adio (alpha testing, bug reporting)
+xOSHx djp1 (alpha testing, bug reporting)
+xOSHx Thus (alpha testing)
+community (playing during alpha)
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
