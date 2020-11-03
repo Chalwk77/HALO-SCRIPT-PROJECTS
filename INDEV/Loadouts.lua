@@ -3,7 +3,10 @@
 Script Name: Loadout (Alpha 1.10), for SAPP (PC & CE)
 Description: N/A
 
-todo: add support for custom maps
+~ acknowledgements ~
+Concept credit goes to OSH Clan, a gaming community operating on Halo CE:
+
+website: https://oldschoolhalo.boards.net/
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
