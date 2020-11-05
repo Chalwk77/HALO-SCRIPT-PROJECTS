@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Disable Grenades (V1), for SAPP (PC & CE)
+Script Name: Disable Grenades, for SAPP (PC & CE)
 Description: Simple script that will disable grenade assignments on a per-gamemode basis.
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
@@ -11,7 +11,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
-api_version "1.12.0.0."
+api_version = "1.12.0.0"
 
 -- config start:
 local game_modes = {
