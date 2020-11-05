@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Alias System (remake), for SAPP (PC & CE)
+Script Name: Alias System (v1.2), for SAPP (PC & CE)
 Description: Look up names linked to an IP address or hash.
 
 Alias results are displayed in columns of 5 and rows of 10 per page.
@@ -122,9 +122,7 @@ function OnScriptLoad()
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
-    if (get_var(0, "$gt") ~= "n/a") then
-        Alias:CheckFile()
-    end
+    Alias:CheckFile()
 end
 
 function OnScriptUnload()
@@ -132,9 +130,7 @@ function OnScriptUnload()
 end
 
 function OnGameStart()
-    if (get_var(0, "$gt") ~= "n/a") then
-        Alias:CheckFile(true)
-    end
+    Alias:CheckFile()
 end
 
 function OnPlayerConnect(Ply)
@@ -473,7 +469,7 @@ function Alias:UpdateRecords(Ply)
     end
 end
 
-function Alias:CheckFile(OnGameStart)
+function Alias:CheckFile()
     if (get_var(0, "$gt") ~= "n/a") then
 
         local content = ""
@@ -491,31 +487,6 @@ function Alias:CheckFile(OnGameStart)
                 file:write(json:encode_pretty(records))
                 io.close(file)
             end
-        end
-
-        if (OnGameStart) then
-
-            local hash_name_total, ip_address_name_total = 0, 0
-            local hash_total, ip_address_total = 0, 0
-
-            for _, hash in pairs(records.hashes) do
-                hash_total = hash_total + 1
-                for _, _ in pairs(hash) do
-                    hash_name_total = hash_name_total + 1
-                end
-            end
-
-            for _, ip in pairs(records.ip_addresses) do
-                ip_address_total = ip_address_total + 1
-                for _, _ in pairs(ip) do
-                    ip_address_name_total = ip_address_name_total + 1
-                end
-            end
-
-            cprint("----------------- ALIAS SYSTEM -----------------", 10)
-            cprint(hash_total .. " hashes and " .. hash_name_total .. " linked names are on record", 10)
-            cprint(ip_address_total .. " ip addresses and " .. ip_address_name_total .. " linked names are on record", 10)
-            cprint("------------------------------------------------", 10)
         end
 
         return records
