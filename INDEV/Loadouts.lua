@@ -2195,92 +2195,11 @@ function Loadout:IsMelee(MetaID)
     return false
 end
 
-local these_tags = {
-    "weapons\\sniper rifle\\melee",
-    "weapons\\sniper rifle\\melee_response",
-    "haloceripper.webs.com\\zteam\\vehicles\\hogs\\g_warthog\\gauss",
-    "weapons\\frag grenade\\shock wave",
-    "bourrin\\effects\\explosions\\medium\\gauss explosion",
-    "bourrin\\effects\\explosions\\medium\\gauss explosion falcon",
-    "altis\\weapons\\gauss_sniper\\trigger",
-    "weapons\\frag grenade\\explosion",
-    "altis\\scenery\\capsule2\\destroy",
-    "weapons\\assault rifle\\melee",
-    "weapons\\assault rifle\\melee_response",
-    "bourrin\\weapons\\masternoob's assault rifle\\bullet",
-    "weapons\\assault rifle\\trigger",
-    "weapons\\pistol\\melee",
-    "weapons\\pistol\\melee_response",
-    "weapons\\pistol\\bullet",
-    "weapons\\pistol\\trigger",
-    "vehicles\\warthog\\bullet",
-    "haloceripper.webs.com\\zteam\\vehicles\\hogs\\g_warthog\\gausshog warthog",
-    "bourrin\\effects\\explosions\\medium\\warthog gauss explosion",
-    "bourrin\\effects\\explosions\\medium\\warthog gauss explosion falcon",
-    "vehicles\\warthog\\trigger",
-    "altis\\effects\\fan_col",
-    "altis\\effects\\fan_col_cyborg",
-    "vehicles\\falcon\\bullet",
-    "altis\\effects\\missile_impact",
-    "bourrin\\effects\\explosions\\medium\\small exp",
-    "bourrin\\effects\\explosions\\medium\\small exp falcon",
-    "weapons\\rocket launcher\\falcon",
-    "weapons\\frag grenade\\falcon shock wave",
-    "vehicles\\scorpion\\bomb explosion",
-    "vehicles\\scorpion\\shell shock wave",
-    "vehicles\\scorpion\\bullet",
-    "h3\\objects\\vehicles\\warthog\\effects\\damage garbage",
-    "h3\\objects\\vehicles\\warthog\\effects\\destroy garbage",
-    "weapons\\shotgun\\melee",
-    "weapons\\shotgun\\melee_response",
-    "weapons\\shotgun\\pellet",
-    "weapons\\shotgun\\trigger",
-    "weapons\\sniper rifle\\sniper bullet",
-    "weapons\\sniper rifle\\trigger",
-    "weapons\\plasma rifle\\melee",
-    "weapons\\plasma rifle\\melee_response",
-    "zteam\\objects\\weapons\\single\\spartan_laser\\h3\\laser",
-    "bourrin\\halo3\\weapons\\spartan laser\\fire",
-    "bourrin\\weapons\\dmr\\bullet",
-    "bourrin\\weapons\\dmr\\effects\\trigger",
-    "cmt\\weapons\\human\\ma5k\\bullet",
-    "halo3\\weapons\\odst pistol\\bullet",
-    "halo3\\weapons\\odst pistol\\trigger",
-    "weapons\\rocket launcher\\melee",
-    "weapons\\rocket launcher\\melee_response",
-    "altis\\scenery\\capsule2\\bam",
-    "weapons\\rocket launcher\\explosion",
-    "weapons\\rocket launcher\\impact",
-    "weapons\\rocket launcher\\trigger",
-    "mexicans pls dont rip my stuff\\doom",
-    "h2\\weapons\\grenade\\fragmentation_grenade\\explosion",
-    "h2\\weapons\\grenade\\fragmentation_grenade\\explosion_shock_wave",
-    "weapons\\rocket launcher\\mine",
-    "weapons\\rocket launcher\\mine cyborg",
-    "weapons\\flag\\melee",
-    "weapons\\flag\\melee_response",
-    "weapons\\ball\\melee",
-    "weapons\\ball\\melee_response",
-    "globals\\falling",
-    "globals\\distance",
-    "globals\\vehicle_hit_environment",
-    "globals\\vehicle_killed_unit",
-    "globals\\vehicle_collision",
-    "globals\\flaming_death",
-}
-
 function Loadout:OnDamageApplication(VictimIndex, KillerIndex, MetaID, Damage, HitString, _)
     local killer, victim = tonumber(KillerIndex), tonumber(VictimIndex)
     local hurt = true
 
     if player_present(victim) then
-
-        -- DEBUGGING:
-        --for i = 1, #these_tags do
-        --    if (MetaID == GetTag("jpt!", these_tags[i])) then
-        --        print(these_tags[i])
-        --    end
-        --end
 
         local kip = self:GetIP(killer)
         local vip = self:GetIP(victim)
