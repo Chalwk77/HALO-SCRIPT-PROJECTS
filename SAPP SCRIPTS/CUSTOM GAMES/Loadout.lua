@@ -1162,7 +1162,6 @@ function OnGameStart()
         --        print(tag_name)
         --    end
         --end
-        cprint(datais)
     end
 end
 
@@ -2543,12 +2542,10 @@ function OnDamageLookup(ReceiverIndex, CauserIndex)
 end
 --
 
-function WriteLog(err)
+function WriteLog(str)
     local file = io.open("loadout.log", "a+")
     if (file) then
-        local timestamp = os.date("[%H:%M:%S - %d/%m/%Y]: ")
-        local line = string.format("%s\t%s\n", timestamp, tostring(err))
-        file:write(line)
+        file:write(str .. "\n")
         file:close()
     end
 end
@@ -2562,10 +2559,13 @@ function report(err)
     cprint("Script Version: " .. script_version, 7 + 8)
     cprint("--------------------------------------------------------", 5 + 8)
 
+    local timestamp = os.date("[%H:%M:%S - %d/%m/%Y]")
+    WriteLog(timestamp)
     WriteLog("Please report this error on github:")
     WriteLog("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues")
     WriteLog("Script Version: " .. tostring(script_version))
     WriteLog(err)
+    WriteLog("\n")
 end
 
 -- This function will return a string with a traceback of the stack call...
