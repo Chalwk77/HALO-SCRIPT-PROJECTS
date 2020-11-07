@@ -1,8 +1,7 @@
 --[[
 --=====================================================================================================--
-Script Name: Loadout (v1.0), for SAPP (PC & CE)
+Script Name: Loadout (v1.1), for SAPP (PC & CE)
 Description: Wiki Coming soon.
-
 
 ~ acknowledgements ~
 Concept credit goes to OSH Clan, a gaming community operating on Halo CE:
@@ -1095,6 +1094,7 @@ local Loadout = {
 local ls
 local ip_addresses = { }
 local time_scale = 1 / 30
+local script_version = 1.1
 local floor, format = math.floor, string.format
 local gmatch, gsub = string.gmatch, string.gsub
 local lower, upper = string.lower, string.upper
@@ -1162,6 +1162,7 @@ function OnGameStart()
         --        print(tag_name)
         --    end
         --end
+        cprint(datais)
     end
 end
 
@@ -1920,7 +1921,6 @@ end
 local function CheckDamageTag(DamageMeta, Params)
     local t = Loadout.credits.tags
     for _, tab in pairs(Params) do
-        print(tab)
         for _, d in pairs(t[tab]) do
             local tag = GetTag(d[1], d[2])
             if (tag ~= nil) and (tag == DamageMeta) then
@@ -2542,3 +2542,36 @@ function OnDamageLookup(ReceiverIndex, CauserIndex)
     return response
 end
 --
+
+function WriteLog(err)
+    local file = io.open("loadout.log", "a+")
+    if (file) then
+        local timestamp = os.date("[%H:%M:%S - %d/%m/%Y]: ")
+        local line = string.format("%s\t%s\n", timestamp, tostring(err))
+        file:write(line)
+        file:close()
+    end
+end
+
+-- In the event of an error, the script will trigger these two functions: OnError(), report()
+function report(err)
+    script_version = format("%0.2f", script_version)
+    cprint("--------------------------------------------------------", 5 + 8)
+    cprint("Please report this error on github:", 7 + 8)
+    cprint("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", 7 + 8)
+    cprint("Script Version: " .. script_version, 7 + 8)
+    cprint("--------------------------------------------------------", 5 + 8)
+
+    WriteLog("Please report this error on github:")
+    WriteLog("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues")
+    WriteLog("Script Version: " .. tostring(script_version))
+    WriteLog(err)
+end
+
+-- This function will return a string with a traceback of the stack call...
+-- ...and call function 'report' after 50 milliseconds.
+function OnError()
+    local err = debug.traceback()
+    cprint(err, 4 + 8)
+    timer(50, "report", err)
+end
