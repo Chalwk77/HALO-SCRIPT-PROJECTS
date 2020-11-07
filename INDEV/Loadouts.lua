@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Loadout (Alpha 1.11), for SAPP (PC & CE)
+Script Name: Loadout (Alpha 1.12), for SAPP (PC & CE)
 Description: N/A
 
 ~ acknowledgements ~
@@ -31,7 +31,7 @@ local Loadout = {
     --=================================================================================--
 
     -- This is the class players will start with when they join the server:
-    default_class = "Regeneration",
+    default_class = "Recon",
     -- This is the starting level for the above class:
     starting_level = 1,
 
@@ -158,17 +158,32 @@ local Loadout = {
                     -- Credits required to level up:
                     until_next_level = 200,
 
+                    -- Nil = normal shield regen delay. (Set in milliseconds at or above 50)
+                    shield_regen_delay = nil,
+
                     -- GRENADES | <frag/plasma> (set to nil to use default grenade settings)
                     grenades = { 2, 0 },
 
+                    -- Weapon Assignments:
                     weapons = {
-                        -- [Weapon Index] {ammo loaded, ammo unloaded, battery age}
-                        [1] = { nil, nil, nil }, -- pistol
-                        [7] = { nil, nil, nil }, -- assault rifle
-                    },
 
-                    -- Nil = normal shield regen delay. (Set in milliseconds at or above 50)
-                    shield_regen_delay = nil,
+                        -- [Weapon Index] {ammo loaded, ammo unloaded, battery age}
+                        stock_maps = {
+                            [1] = { nil, nil, nil }, -- pistol
+                            [7] = { nil, nil, nil }, -- assault rifle
+                        },
+
+                        custom_maps = {
+                            ["TSCE_MultiplayerV1"] = {
+                                [19] = { nil, nil, nil }, -- pistol
+                                [24] = { nil, nil, nil }, -- assault rifle
+                            },
+                            ["Bigassv2,104"] = {
+                                [33] = { nil, nil, nil }, -- magnum
+                                [32] = { nil, nil, nil }, -- assault rifle
+                            },
+                        }
+                    }
                 },
                 [2] = {
                     regen_delay = 0,
@@ -176,53 +191,109 @@ local Loadout = {
                     regen_rate = 1,
                     until_next_level = 500,
                     grenades = { 3, 0 },
-                    weapons = {
-                        [1] = { nil, 60, nil }, -- pistol
-                        [7] = { nil, 240, nil }, -- assault rifle
-                        [2] = { nil, 12, nil }, -- sniper
-                    },
                     shield_regen_delay = nil,
+                    weapons = {
+                        stock_maps = {
+                            [1] = { nil, 60, nil }, -- pistol
+                            [7] = { nil, 240, nil }, -- assault rifle
+                            [2] = { nil, 12, nil }, -- sniper
+                        },
+                        custom_maps = {
+                            ["TSCE_MultiplayerV1"] = {
+                                [19] = { nil, 60, nil }, -- pistol
+                                [24] = { nil, 240, nil }, -- assault rifle
+                                [26] = { nil, 108, nil }, -- battle rifle
+                            },
+                            ["Bigassv2,104"] = {
+                                [33] = { nil, 60, nil }, -- magnum
+                                [32] = { nil, 240, nil }, -- assault rifle
+                                [43] = { nil, 60, nil }, -- dmr
+                            },
+                        }
+                    }
                 },
                 [3] = {
                     regen_delay = 0,
                     increment = 0.0450,
                     regen_rate = 1,
                     until_next_level = 1000,
+                    shield_regen_delay = nil,
                     grenades = { 3, 2 },
                     weapons = {
-                        [1] = { nil, 72, nil }, -- pistol
-                        [7] = { nil, 300, nil }, -- assault rifle
-                        [2] = { nil, 16, nil }, -- sniper
-                    },
-                    shield_regen_delay = nil,
+                        stock_maps = {
+                            [1] = { nil, 72, nil }, -- pistol
+                            [7] = { nil, 300, nil }, -- assault rifle
+                            [2] = { nil, 16, nil }, -- sniper
+                        },
+                        custom_maps = {
+                            ["TSCE_MultiplayerV1"] = {
+                                [19] = { nil, 72, nil }, -- pistol
+                                [24] = { nil, 300, nil }, -- assault rifle
+                                [26] = { nil, 140, nil }, -- battle rifle
+                            },
+                            ["Bigassv2,104"] = {
+                                [33] = { nil, 72, nil }, -- magnum
+                                [32] = { nil, 300, nil }, -- assault rifle
+                                [43] = { nil, 72, nil }, -- dmr
+                            },
+                        }
+                    }
                 },
                 [4] = {
                     regen_delay = 0,
                     increment = 0.0550,
                     regen_rate = 1,
                     until_next_level = 2000,
+                    shield_regen_delay = nil,
                     grenades = { 4, 4 },
                     weapons = {
-                        [1] = { nil, 84, nil }, -- pistol
-                        [7] = { nil, 360, nil }, -- assault rifle
-                        [2] = { nil, 20, nil }, -- sniper
-                    },
-                    shield_regen_delay = nil,
+                        stock_maps = {
+                            [1] = { nil, 84, nil }, -- pistol
+                            [7] = { nil, 360, nil }, -- assault rifle
+                            [2] = { nil, 20, nil }, -- sniper
+                        },
+                        custom_maps = {
+                            ["TSCE_MultiplayerV1"] = {
+                                [19] = { nil, 84, nil }, -- pistol
+                                [24] = { nil, 360, nil }, -- assault rifle
+                                [26] = { nil, 172, nil }, -- battle rifle
+                            },
+                            ["Bigassv2,104"] = {
+                                [33] = { nil, 84, nil }, -- magnum
+                                [32] = { nil, 360, nil }, -- assault rifle
+                                [43] = { nil, 84, nil }, -- dmr
+                            },
+                        }
+                    }
                 },
                 [5] = {
                     regen_delay = 0,
                     increment = 0.1000,
                     regen_rate = 1,
                     until_next_level = nil,
+                    shield_regen_delay = 50,
                     grenades = { 5, 5 },
                     weapons = {
-                        [1] = { nil, 168, nil }, -- pistol
-                        [7] = { nil, 840, nil }, -- assault rifle
-                        [2] = { nil, 48, nil }, -- sniper
-                    },
-                    shield_regen_delay = 50,
+                        stock_maps = {
+                            [1] = { nil, 168, nil }, -- pistol
+                            [7] = { nil, 840, nil }, -- assault rifle
+                            [2] = { nil, 48, nil }, -- sniper
+                        },
+                        custom_maps = {
+                            ["TSCE_MultiplayerV1"] = {
+                                [19] = { nil, 168, nil }, -- pistol
+                                [24] = { nil, 840, nil }, -- assault rifle
+                                [26] = { nil, 344, nil }, -- battle rifle
+                            },
+                            ["Bigassv2,104"] = {
+                                [33] = { nil, 168, nil }, -- magnum
+                                [32] = { nil, 840, nil }, -- assault rifle
+                                [43] = { nil, 168, nil }, -- dmr
+                            },
+                        }
+                    }
                 }
-            },
+            }
         },
 
         ["Armor Boost"] = {
@@ -260,9 +331,21 @@ local Loadout = {
                     melee_damage_multiplier = 1.20,
                     grenades = { 2, 0 },
                     weapons = {
-                        [10] = { nil, nil, nil }, -- shotgun
-                        [1] = { nil, nil, nil }, -- pistol
-                    },
+                        stock_maps = {
+                            [10] = { nil, nil, nil }, -- shotgun
+                            [1] = { nil, nil, nil }, -- pistol
+                        },
+                        custom_maps = {
+                            ["TSCE_MultiplayerV1"] = {
+                                [19] = { nil, nil, nil }, -- pistol
+                                [21] = { nil, nil, nil }, -- shotgun
+                            },
+                            ["Bigassv2,104"] = {
+                                [33] = { nil, nil, nil }, -- magnum
+                                [40] = { nil, nil, nil }, -- shotgun
+                            },
+                        }
+                    }
                 },
                 [2] = {
                     until_next_level = 500,
@@ -272,10 +355,24 @@ local Loadout = {
                     melee_damage_multiplier = 1.25,
                     grenades = { 3, 0 },
                     weapons = {
-                        [10] = { nil, 24, nil }, -- shotgun
-                        [1] = { nil, 60, nil }, -- pistol
-                        [3] = { nil, nil, 100 }, -- fuelrod
-                    },
+                        stock_maps = {
+                            [10] = { nil, 24, nil }, -- shotgun
+                            [1] = { nil, 60, nil }, -- pistol
+                            [3] = { nil, nil, 100 }, -- fuelrod
+                        },
+                        custom_maps = {
+                            ["TSCE_MultiplayerV1"] = {
+                                [19] = { nil, 60, nil }, -- pistol
+                                [21] = { nil, 24, nil }, -- shotgun
+                                [23] = { nil, 60, nil }, -- dmr
+                            },
+                            ["Bigassv2,104"] = {
+                                [33] = { nil, 60, nil }, -- magnum
+                                [40] = { nil, 24, nil }, -- shotgun
+                                [42] = { nil, nil, 120 }, -- spartan laser
+                            },
+                        }
+                    }
                 },
                 [3] = {
                     until_next_level = 1000,
@@ -285,10 +382,24 @@ local Loadout = {
                     melee_damage_multiplier = 1.30,
                     grenades = { 3, 2 },
                     weapons = {
-                        [10] = { nil, 48, nil }, -- shotgun
-                        [1] = { nil, 72, nil }, -- pistol
-                        [3] = { nil, nil, 100 }, -- fuelrod
-                    },
+                        stock_maps = {
+                            [10] = { nil, 48, nil }, -- shotgun
+                            [1] = { nil, 72, nil }, -- pistol
+                            [3] = { nil, nil, 100 }, -- fuelrod
+                        },
+                        custom_maps = {
+                            ["TSCE_MultiplayerV1"] = {
+                                [19] = { nil, 72, nil }, -- pistol
+                                [21] = { nil, 48, nil }, -- shotgun
+                                [23] = { nil, 72, nil }, -- dmr
+                            },
+                            ["Bigassv2,104"] = {
+                                [33] = { nil, 72, nil }, -- magnum
+                                [40] = { nil, 48, nil }, -- shotgun
+                                [42] = { nil, nil, 140 }, -- spartan laser
+                            },
+                        }
+                    }
                 },
                 [4] = {
                     until_next_level = 2000,
@@ -298,10 +409,24 @@ local Loadout = {
                     melee_damage_multiplier = 1.45,
                     grenades = { 4, 4 },
                     weapons = {
-                        [10] = { nil, 96, nil }, -- shotgun
-                        [1] = { nil, 84, nil }, -- pistol
-                        [3] = { nil, nil, 100 }, -- fuelrod
-                    },
+                        stock_maps = {
+                            [10] = { nil, 96, nil }, -- shotgun
+                            [1] = { nil, 84, nil }, -- pistol
+                            [3] = { nil, nil, 100 }, -- fuelrod
+                        },
+                        custom_maps = {
+                            ["TSCE_MultiplayerV1"] = {
+                                [19] = { nil, 84, nil }, -- pistol
+                                [21] = { nil, 96, nil }, -- shotgun
+                                [23] = { nil, 84, nil }, -- dmr
+                            },
+                            ["Bigassv2,104"] = {
+                                [33] = { nil, 84, nil }, -- magnum
+                                [40] = { nil, 96, nil }, -- shotgun
+                                [42] = { nil, nil, 160 }, -- spartan laser
+                            },
+                        }
+                    }
                 },
                 [5] = {
                     until_next_level = nil,
@@ -311,10 +436,24 @@ local Loadout = {
                     melee_damage_multiplier = 1.50,
                     grenades = { 5, 5 },
                     weapons = {
-                        [10] = { nil, 192, nil }, -- shotgun
-                        [1] = { nil, 168, nil }, -- pistol
-                        [3] = { nil, nil, 100 }, -- fuelrod
-                    },
+                        stock_maps = {
+                            [10] = { nil, 192, nil }, -- shotgun
+                            [1] = { nil, 168, nil }, -- pistol
+                            [3] = { nil, nil, 100 }, -- fuelrod
+                        },
+                        custom_maps = {
+                            ["TSCE_MultiplayerV1"] = {
+                                [19] = { nil, 168, nil }, -- pistol
+                                [21] = { nil, 192, nil }, -- shotgun
+                                [23] = { nil, 168, nil }, -- dmr
+                            },
+                            ["Bigassv2,104"] = {
+                                [33] = { nil, 168, nil }, -- magnum
+                                [40] = { nil, 192, nil }, -- shotgun
+                                [42] = { nil, nil, 180 }, -- spartan laser
+                            },
+                        }
+                    }
                 }
             }
         },
@@ -346,9 +485,21 @@ local Loadout = {
                     until_next_level = 200,
                     grenades = { 2, 0 },
                     weapons = {
-                        [1] = { nil, nil, nil }, -- pistol
-                        [10] = { nil, nil, nil }, -- shotgun
-                    },
+                        stock_maps = {
+                            [1] = { nil, nil, nil }, -- pistol
+                            [10] = { nil, nil, nil }, -- shotgun
+                        },
+                        custom_maps = {
+                            ["TSCE_MultiplayerV1"] = {
+                                [21] = { nil, nil, nil }, -- shotgun
+                                [17] = { nil, nil, nil }, -- silenced battle rifle
+                            },
+                            ["Bigassv2,104"] = {
+                                [33] = { nil, nil, nil }, -- magnum
+                                [40] = { nil, nil, nil }, -- shotgun
+                            },
+                        }
+                    }
                 },
                 [2] = {
                     duration = 15,
@@ -356,10 +507,24 @@ local Loadout = {
                     until_next_level = 500,
                     grenades = { 3, 0 },
                     weapons = {
-                        [1] = { nil, 60, nil }, -- pistol
-                        [10] = { nil, 24, nil }, -- shotgun
-                        [8] = { nil, 300, nil }, -- flamethrower
-                    },
+                        stock_maps = {
+                            [1] = { nil, 60, nil }, -- pistol
+                            [10] = { nil, 24, nil }, -- shotgun
+                            [8] = { nil, 300, nil }, -- flamethrower
+                        },
+                        custom_maps = {
+                            ["TSCE_MultiplayerV1"] = {
+                                [21] = { nil, 24, nil }, -- shotgun
+                                [17] = { nil, 108, nil }, -- silenced battle rifle
+                                [18] = { nil, nil, 120 }, -- plasma rifle
+                            },
+                            ["Bigassv2,104"] = {
+                                [33] = { nil, 60, nil }, -- magnum
+                                [40] = { nil, 24, nil }, -- shotgun
+                                [43] = { nil, 60, nil }, -- dmr
+                            },
+                        }
+                    }
                 },
                 [3] = {
                     duration = 20,
@@ -367,10 +532,24 @@ local Loadout = {
                     until_next_level = 1000,
                     grenades = { 3, 2 },
                     weapons = {
-                        [1] = { nil, 72, nil }, -- pistol
-                        [10] = { nil, 48, nil }, -- shotgun
-                        [8] = { nil, 500, nil }, -- flamethrower
-                    },
+                        stock_maps = {
+                            [1] = { nil, 72, nil }, -- pistol
+                            [10] = { nil, 48, nil }, -- shotgun
+                            [8] = { nil, 500, nil }, -- flamethrower
+                        },
+                        custom_maps = {
+                            ["TSCE_MultiplayerV1"] = {
+                                [21] = { nil, 48, nil }, -- shotgun
+                                [17] = { nil, 144, nil }, -- silenced battle rifle
+                                [18] = { nil, nil, 140 }, -- plasma rifle
+                            },
+                            ["Bigassv2,104"] = {
+                                [33] = { nil, 72, nil }, -- magnum
+                                [40] = { nil, 48, nil }, -- shotgun
+                                [43] = { nil, 72, nil }, -- dmr
+                            },
+                        }
+                    }
                 },
                 [4] = {
                     duration = 25,
@@ -378,10 +557,24 @@ local Loadout = {
                     until_next_level = 2000,
                     grenades = { 4, 4 },
                     weapons = {
-                        [1] = { nil, 84, nil }, -- pistol
-                        [10] = { nil, 96, nil }, -- shotgun
-                        [8] = { nil, 700, nil }, -- flamethrower
-                    },
+                        stock_maps = {
+                            [1] = { nil, 84, nil }, -- pistol
+                            [10] = { nil, 96, nil }, -- shotgun
+                            [8] = { nil, 700, nil }, -- flamethrower
+                        },
+                        custom_maps = {
+                            ["TSCE_MultiplayerV1"] = {
+                                [21] = { nil, 96, nil }, -- shotgun
+                                [17] = { nil, 180, nil }, -- silenced battle rifle
+                                [18] = { nil, nil, 160 }, -- plasma rifle
+                            },
+                            ["Bigassv2,104"] = {
+                                [33] = { nil, 84, nil }, -- magnum
+                                [40] = { nil, 96, nil }, -- shotgun
+                                [43] = { nil, 84, nil }, -- dmr
+                            },
+                        }
+                    }
                 },
                 [5] = {
                     duration = 1000,
@@ -389,10 +582,24 @@ local Loadout = {
                     until_next_level = nil,
                     grenades = { 5, 5 },
                     weapons = {
-                        [1] = { nil, 168, nil }, -- pistol
-                        [10] = { nil, 192, nil }, -- shotgun
-                        [8] = { nil, 1400, nil }, -- flamethrower
-                    },
+                        stock_maps = {
+                            [1] = { nil, 168, nil }, -- pistol
+                            [10] = { nil, 192, nil }, -- shotgun
+                            [8] = { nil, 1400, nil }, -- flamethrower
+                        },
+                        custom_maps = {
+                            ["TSCE_MultiplayerV1"] = {
+                                [21] = { nil, 192, nil }, -- shotgun
+                                [17] = { nil, 360, nil }, -- silenced battle rifle
+                                [18] = { nil, nil, 320 }, -- plasma rifle
+                            },
+                            ["Bigassv2,104"] = {
+                                [33] = { nil, 168, nil }, -- magnum
+                                [40] = { nil, 192, nil }, -- shotgun
+                                [43] = { nil, 168, nil }, -- dmr
+                            },
+                        }
+                    }
                 }
             }
         },
@@ -424,9 +631,21 @@ local Loadout = {
                     until_next_level = 200,
                     grenades = { 2, 0 },
                     weapons = {
-                        [1] = { nil, nil, nil }, -- pistol
-                        [7] = { nil, nil, nil }, -- assault rifle
-                    },
+                        stock_maps = {
+                            [1] = { nil, nil, nil }, -- pistol
+                            [7] = { nil, nil, nil }, -- assault rifle
+                        },
+                        custom_maps = {
+                            ["TSCE_MultiplayerV1"] = {
+                                [24] = { nil, nil, nil }, -- assault rifle
+                                [27] = { nil, nil, nil }, -- covenant carbine (auto carbine)
+                            },
+                            ["Bigassv2,104"] = {
+                                [33] = { nil, nil, nil }, -- magnum
+                                [44] = { nil, nil, nil }, -- ma5k
+                            },
+                        }
+                    }
                 },
                 [2] = {
                     speed = 2,
@@ -434,10 +653,24 @@ local Loadout = {
                     until_next_level = 500,
                     grenades = { 3, 0 },
                     weapons = {
-                        [1] = { nil, 60, nil }, -- pistol
-                        [7] = { nil, 240, nil }, -- assault rifle
-                        [10] = { nil, 24, nil }, -- shotgun
-                    },
+                        stock_maps = {
+                            [1] = { nil, 60, nil }, -- pistol
+                            [7] = { nil, 240, nil }, -- assault rifle
+                            [10] = { nil, 24, nil }, -- shotgun
+                        },
+                        custom_maps = {
+                            ["TSCE_MultiplayerV1"] = {
+                                [24] = { nil, nil, nil }, -- assault rifle
+                                [27] = { nil, 72, nil }, -- covenant carbine (auto carbine)
+                                [21] = { nil, 24, nil }, -- shotgun
+                            },
+                            ["Bigassv2,104"] = {
+                                [33] = { nil, 60, nil }, -- magnum
+                                [44] = { nil, 90, nil }, -- ma5k
+                                [40] = { nil, 24, nil }, -- shotgun
+                            },
+                        }
+                    }
                 },
                 [3] = {
                     speed = 2,
@@ -448,7 +681,20 @@ local Loadout = {
                         [1] = { nil, 72, nil }, -- pistol
                         [7] = { nil, 300, nil }, -- assault rifle
                         [10] = { nil, 48, nil }, -- shotgun
+
                     },
+                    custom_maps = {
+                        ["TSCE_MultiplayerV1"] = {
+                            [24] = { nil, nil, nil }, -- assault rifle
+                            [27] = { nil, 90, nil }, -- covenant carbine (auto carbine)
+                            [21] = { nil, 48, nil }, -- shotgun
+                        },
+                        ["Bigassv2,104"] = {
+                            [33] = { nil, 72, nil }, -- magnum
+                            [44] = { nil, 120, nil }, -- ma5k
+                            [40] = { nil, 48, nil }, -- shotgun
+                        },
+                    }
                 },
                 [4] = {
                     speed = 2,
@@ -456,10 +702,24 @@ local Loadout = {
                     until_next_level = 2000,
                     grenades = { 4, 4 },
                     weapons = {
-                        [1] = { nil, 84, nil }, -- pistol
-                        [7] = { nil, 360, nil }, -- assault rifle
-                        [10] = { nil, 96, nil }, -- shotgun
-                    },
+                        stock_maps = {
+                            [1] = { nil, 84, nil }, -- pistol
+                            [7] = { nil, 360, nil }, -- assault rifle
+                            [10] = { nil, 96, nil }, -- shotgun
+                        },
+                        custom_maps = {
+                            ["TSCE_MultiplayerV1"] = {
+                                [24] = { nil, nil, nil }, -- assault rifle
+                                [27] = { nil, 108, nil }, -- covenant carbine (auto carbine)
+                                [21] = { nil, 96, nil }, -- shotgun
+                            },
+                            ["Bigassv2,104"] = {
+                                [33] = { nil, 84, nil }, -- magnum
+                                [44] = { nil, 150, nil }, -- ma5k
+                                [40] = { nil, nil, nil }, -- shotgun
+                            },
+                        }
+                    }
                 },
                 [5] = {
                     speed = 2.5,
@@ -467,15 +727,28 @@ local Loadout = {
                     until_next_level = nil,
                     grenades = { 5, 5 },
                     weapons = {
-                        [1] = { nil, 168, nil }, -- pistol
-                        [7] = { nil, 840, nil }, -- assault rifle
-                        [10] = { nil, 192, nil }, -- shotgun
-                    },
+                        stock_maps = {
+                            [1] = { nil, 168, nil }, -- pistol
+                            [7] = { nil, 840, nil }, -- assault rifle
+                            [10] = { nil, 192, nil }, -- shotgun
+                        },
+                        custom_maps = {
+                            ["TSCE_MultiplayerV1"] = {
+                                [24] = { nil, nil, nil }, -- assault rifle
+                                [27] = { nil, 216, nil }, -- covenant carbine (auto carbine)
+                                [21] = { nil, 192, nil }, -- shotgun
+                            },
+                            ["Bigassv2,104"] = {
+                                [33] = { nil, 168, nil }, -- magnum
+                                [44] = { nil, 300, nil }, -- ma5k
+                                [40] = { nil, 192, nil }, -- shotgun
+                            },
+                        }
+                    }
                 }
             }
         }
     },
-
     credits = {
 
         -- If true, players will receive a bonus based on the difference (percentage)
@@ -558,64 +831,159 @@ local Loadout = {
             -- tag {type, name, credits, message}
             --
 
-            -- FALL DAMAGE --
-            [1] = { "jpt!", "globals\\falling", -3, "-3cR (Fall Damage)", },
-            [2] = { "jpt!", "globals\\distance", -4, "-4cR (Distance Damage)" },
+            fall_damage = {
+                -- stock --
+                { "jpt!", "globals\\falling", -3, "-3cR (Fall Damage)", },
+                { "jpt!", "globals\\distance", -4, "-4cR (Distance Damage)" },
+                --
+            },
 
-            -- VEHICLE PROJECTILES --
-            [3] = { "jpt!", "vehicles\\ghost\\ghost bolt", 7, "+7cR (Ghost Bolt)" },
-            [4] = { "jpt!", "vehicles\\scorpion\\bullet", 6, "+6cR (Tank Bullet)" },
-            [5] = { "jpt!", "vehicles\\warthog\\bullet", 6, "+6cR (Warthog Bullet)" },
-            [6] = { "jpt!", "vehicles\\c gun turret\\mp bolt", 7, "+7cR (Turret Bolt)" },
-            [7] = { "jpt!", "vehicles\\banshee\\banshee bolt", 7, "+7cR (Banshee Bolt)" },
-            [8] = { "jpt!", "vehicles\\scorpion\\shell explosion", 10, "+10cR (Tank Shell)" },
-            [9] = { "jpt!", "vehicles\\banshee\\mp_fuel rod explosion", 10, "+10cR (Banshee Fuel-Rod Explosion)" },
+            vehicle_projectiles = {
+                -- stock --
+                { "jpt!", "vehicles\\ghost\\ghost bolt", 7, "+7cR (Ghost Bolt)" },
+                { "jpt!", "vehicles\\scorpion\\bullet", 6, "+6cR (Tank Bullet)" },
+                { "jpt!", "vehicles\\warthog\\bullet", 6, "+6cR (Warthog Bullet)" },
+                { "jpt!", "vehicles\\c gun turret\\mp bolt", 7, "+7cR (Turret Bolt)" },
+                { "jpt!", "vehicles\\banshee\\banshee bolt", 7, "+7cR (Banshee Bolt)" },
+                { "jpt!", "vehicles\\scorpion\\shell explosion", 10, "+10cR (Tank Shell)" },
+                { "jpt!", "vehicles\\banshee\\mp_fuel rod explosion", 10, "+10cR (Banshee Fuel-Rod Explosion)" },
+                --
+                -- TSCE_MultiplayerV1:
+                { "jpt!", "cmt\\vehicles\\evolved_h1-spirit\\ghost\\weapons\\ghost_cannon\\damage_effects\\ghost_cannon_bolt_impact", 7, "+7cR (Ghost Bolt)" },
+                { "jpt!", "cmt\\vehicles\\evolved_h1-spirit\\warthog\\weapons\\warthog_turret\\damage_effects\\warthog_turret_bullet_impact", 6, "+6cR (Warthog Bullet)" },
+                { "jpt!", "cmt\\vehicles\\evolved_h1-spirit\\scorpion\\weapons\\scorpion_cannon\\damage_effects\\scorpion_cannon_shell_explosion", 10, "+10cR (Tank Shell)" },
+                { "jpt!", "cmt\\vehicles\\evolved_h1-spirit\\scorpion\\weapons\\scorpion_chaingun\\damage_effects\\scorpion_chaingun_bullet_impact", 6, "+6cR (Tank Bullet)" },
+                --
+                -- Bigassv2,104:
+                { "jpt!", "altis\\effects\\missile_impact", 7, "+7cR (Falcon Missile)" },
+                { "jpt!", "vehicles\\scorpion\\bomb explosion", 10, "+10cR (Tank Shell)" },
+                { "jpt!", "bourrin\\effects\\explosions\\medium\\small exp", 7, "+7cR (Falcon Missile)" },
+                { "jpt!", "bourrin\\effects\\explosions\\medium\\warthog gauss explosion", 7, "+7cR (Gauss Hog)" },
+            },
 
-            -- WEAPON PROJECTILES --
-            [10] = { "jpt!", "weapons\\pistol\\bullet", 5, "+5cR (Pistol Bullet)" },
-            [11] = { "jpt!", "weapons\\shotgun\\pellet", 6, "+6cR (Shotgun Pallet)" },
-            [12] = { "jpt!", "weapons\\plasma rifle\\bolt", 4, "+4cR (Plasma Rifle Bolt)" },
-            [13] = { "jpt!", "weapons\\needler\\explosion", 8, "+8cR (Needler Explosion)" },
-            [14] = { "jpt!", "weapons\\plasma pistol\\bolt", 4, "+4cR (Plasma Bolt)" },
-            [15] = { "jpt!", "weapons\\assault rifle\\bullet", 5, "+5cR (Assault Rifle Bullet)" },
-            [16] = { "jpt!", "weapons\\needler\\impact damage", 4, "+4cR (Needler Impact Damage)" },
-            [17] = { "jpt!", "weapons\\flamethrower\\explosion", 10, "+10cR (Flamethrower)" },
-            [18] = { "jpt!", "weapons\\flamethrower\\burning", 10, "+10cR (Flamethrower)" },
-            [19] = { "jpt!", "weapons\\flamethrower\\impact damage", 10, "+10cR (Flamethrower)" },
-            [20] = { "jpt!", "weapons\\rocket launcher\\explosion", 8, "+8cR (Rocket Launcher Explosion)" },
-            [21] = { "jpt!", "weapons\\needler\\detonation damage", 3, "+3cR (Needler Detonation Damage)" },
-            [22] = { "jpt!", "weapons\\plasma rifle\\charged bolt", 4, "+4cR (Plasma Rifle Bolt)" },
-            [23] = { "jpt!", "weapons\\sniper rifle\\sniper bullet", 6, "+6cR (Sniper Rifle Bullet)" },
-            [24] = { "jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_explosion", 8, "+8cR (Plasma Cannon Explosion)" },
+            weapon_projectiles = {
+                -- stock --
+                { "jpt!", "weapons\\pistol\\bullet", 5, "+5cR (Pistol Bullet)" },
+                { "jpt!", "weapons\\shotgun\\pellet", 6, "+6cR (Shotgun Pallet)" },
+                { "jpt!", "weapons\\plasma rifle\\bolt", 4, "+4cR (Plasma Rifle Bolt)" },
+                { "jpt!", "weapons\\needler\\explosion", 8, "+8cR (Needler Explosion)" },
+                { "jpt!", "weapons\\plasma pistol\\bolt", 4, "+4cR (Plasma Bolt)" },
+                { "jpt!", "weapons\\assault rifle\\bullet", 5, "+5cR (Assault Rifle Bullet)" },
+                { "jpt!", "weapons\\needler\\impact damage", 4, "+4cR (Needler Impact Damage)" },
+                { "jpt!", "weapons\\flamethrower\\explosion", 10, "+10cR (Flamethrower)" },
+                { "jpt!", "weapons\\flamethrower\\burning", 10, "+10cR (Flamethrower)" },
+                { "jpt!", "weapons\\flamethrower\\impact damage", 10, "+10cR (Flamethrower)" },
+                { "jpt!", "weapons\\rocket launcher\\explosion", 8, "+8cR (Rocket Launcher Explosion)" },
+                { "jpt!", "weapons\\needler\\detonation damage", 3, "+3cR (Needler Detonation Damage)" },
+                { "jpt!", "weapons\\plasma rifle\\charged bolt", 4, "+4cR (Plasma Rifle Bolt)" },
+                { "jpt!", "weapons\\sniper rifle\\sniper bullet", 6, "+6cR (Sniper Rifle Bullet)" },
+                { "jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_explosion", 8, "+8cR (Plasma Cannon Explosion)" },
+                --
+                -- TSCE_MultiplayerV1:
+                { "jpt!", "cmt\\weapons\\evolved_h1-spirit\\rocket_launcher\\damage_effects\\rocket_launcher_rocket_explosion", 8, "+8cR (Rocket Launcher Explosion)" },
+                { "jpt!", "cmt\\weapons\\evolved_h1-spirit\\needler\\damage_effects\\needler_needle_explosion", 3, "+3cR (Needler)" },
+                { "jpt!", "cmt\\weapons\\evolved_h1-spirit\\needler\\damage_effects\\needler_needle_detonation", 3, "+3cR (Needler)" },
+                { "jpt!", "cmt\\weapons\\evolved_h1-spirit\\needler\\damage_effects\\needler_needle_impact", 3, "+3cR (Needler)" },
+                { "jpt!", "cmt\\weapons\\evolved\\human\\battle_rifle\\damage_effects\\battle_rifle_bullet_impact silent", 5, "+5cR (Battle Rifle)" },
+                { "jpt!", "cmt\\weapons\\evolved\\human\\battle_rifle\\damage_effects\\battle_rifle_bullet_impact", 5, "+5cR (Battle Rifle)" },
+                { "jpt!", "cmt\\weapons\\evolved_h1-spirit\\plasma_rifle\\damage_effects\\plasma_rifle_bolt_impact", 4, "+4cR (Plasma Rifle Bolt)" },
+                { "jpt!", "cmt\\weapons\\evolved_h1-spirit\\pistol\\damage_effects\\pistol_bullet_impact", 5, "+5cR (Pistol Bullet)" },
+                { "jpt!", "cmt\\weapons\\covenant\\brute_plasma_rifle\\bolt", 4, "+4cR (Brute Plasma Rifle Bolt)" },
+                { "jpt!", "cmt\\weapons\\evolved_h1-spirit\\shotgun\\damage_effects\\shotgun_pellet_impact", 6, "+6cR (Shotgun)" },
+                { "jpt!", "cmt\\weapons\\evolved_h1-spirit\\sniper_rifle\\damage_effects\\sniper_rifle_bullet_impact", 6, "+6cR (Sniper Rifle Bullet)" },
+                { "jpt!", "cmt\\weapons\\evolved\\human\\dmr\\damage_effects\\dmr_bullet_impact", 5, "+5cR (DMR Bullet)" },
+                { "jpt!", "cmt\\weapons\\evolved_h1-spirit\\assault_rifle\\damage_effects\\assault_rifle_bullet", 5, "+5cR (Assault Rifle Bullet)" },
+                { "jpt!", "cmt\\weapons\\evolved\\human\\rocket_launcher\\damage_effects\\rocket_launcher_rocket_explosion", 8, "+8cR (Rocket Launcher Explosion)" },
+                { "jpt!", "cmt\\weapons\\evolved\\human\\battle_rifle\\damage_effects\\battle_rifle_bullet_impact h2a", 5, "+5cR (DMR Bullet)" },
+                { "jpt!", "cmt\\weapons\\evolved\\covenant\\carbine\\damage_effects\\carbine_bolt_impact", 8, "+8cR (Carbine Bullet)" },
+                { "jpt!", "zteam\\objects\\weapons\\single\\battle_rifle\\h2\\bullet", 5, "+5cR (Battle Rifle)" },
+                --
+                -- Bigassv2,104:
+                { "jpt!", "weapons\\pistol\\bullet", 5, "+5cR (Pistol Bullet)" },
+                { "jpt!", "altis\\scenery\\capsule2\\bam", 7, "+5cR (Capsule)" },
+                { "jpt!", "bourrin\\weapons\\dmr\\bullet", 5, "+5cR (DMR Bullet)" },
+                { "jpt!", "cmt\\weapons\\human\\ma5k\\bullet", 5, "+5cR (MA5K Bullet)" },
+                { "jpt!", "weapons\\sniper rifle\\sniper bullet", 6, "+6cR (Sniper Rifle)" },
+                { "jpt!", "halo3\\weapons\\odst pistol\\bullet", 5, "+5cR (Pistol Bullet)" },
+                { "jpt!", "bourrin\\weapons\\masternoob's assault rifle\\bullet", 5, "+5cR (Assault Rifle)" },
+                { "jpt!", "zteam\\objects\\weapons\\single\\spartan_laser\\h3\\laser", 10, "+10cR (Spartan Lazer)" },
+            },
 
-            -- GRENADES --
-            [25] = { "jpt!", "weapons\\frag grenade\\explosion", 8, "+8cR (Frag Explosion)" },
-            [26] = { "jpt!", "weapons\\plasma grenade\\attached", 7, "+7cR (Plasma Grenade - attached)" },
-            [27] = { "jpt!", "weapons\\plasma grenade\\explosion", 5, "+5cR (Plasma Grenade explosion)" },
+            grenades = {
+                -- stock --
+                { "jpt!", "weapons\\frag grenade\\explosion", 8, "+8cR (Frag Explosion)" },
+                { "jpt!", "weapons\\plasma grenade\\attached", 7, "+7cR (Plasma Grenade - attached)" },
+                { "jpt!", "weapons\\plasma grenade\\explosion", 5, "+5cR (Plasma Grenade explosion)" },
+                --
+                -- TSCE_MultiplayerV1:
+                { "jpt!", "cmt\\weapons\\evolved_h1-spirit\\frag_grenade\\damage_effects\\frag_grenade_explosion", 8, "+8cR (Frag Explosion)" },
+                { "jpt!", "cmt\\weapons\\evolved\\human\\frag_grenade\\damage_effects\\frag_grenade_explosion", 8, "+8cR (Frag Explosion)" },
+                { "jpt!", "cmt\\weapons\\evolved\\human\\frag_grenade\\damage_effects\\frag_grenade_bounce", 4, "+4cR (Frag Bounce)" },
+                { "jpt!", "cmt\\weapons\\evolved_h1-spirit\\plasma_grenade\\damage_effects\\plasma_grenade_explosion", 5, "+5cR (Frag Explosion)" },
+                { "jpt!", "cmt\\weapons\\evolved\\covenant\\plasma_grenade\\damage_effects\\plasma_grenade_explosion", 5, "+5cR (Frag Explosion)" },
+                { "jpt!", "cmt\\weapons\\evolved\\covenant\\plasma_grenade\\damage_effects\\plasma_grenade_attached", 7, "+7cR (Plasma Stick)" },
+                { "jpt!", "cmt\\weapons\\evolved\\covenant\\plasma_grenade\\damage_effects\\plasma_grenade_stick_flash", 7, "+7cR (Plasma Stick Flash)" },
+                { "jpt!", "cmt\\weapons\\evolved\\covenant\\plasma_grenade\\damage_effects\\plasma_grenade_stick_hunter", 7, "+7cR (Plasma Stick hunter)" },
+                --
+                -- Bigassv2,104:
+                { "jpt!", "h2\\weapons\\grenade\\fragmentation_grenade\\explosion", 8, "+8cR (Frag Explosion)" },
+                { "jpt!", "weapons\\rocket launcher\\mine", 8, "+8cR (Mine)" },
+            },
 
-            -- MELEE --
-            [28] = { "jpt!", "weapons\\flag\\melee", 5, "+5cR (Melee: Flag)" },
-            [29] = { "jpt!", "weapons\\ball\\melee", 5, "+5cR (Melee: Ball)" },
-            [30] = { "jpt!", "weapons\\pistol\\melee", 4, "+4cR (Melee: Pistol)" },
-            [31] = { "jpt!", "weapons\\needler\\melee", 4, "+4cR (Melee: Needler)" },
-            [32] = { "jpt!", "weapons\\shotgun\\melee", 5, "+5cR (Melee: Shotgun)" },
-            [33] = { "jpt!", "weapons\\flamethrower\\melee", 5, "+5cR (Melee: Flamethrower)" },
-            [34] = { "jpt!", "weapons\\sniper rifle\\melee", 5, "+5cR (Melee: Sniper Rifle)" },
-            [35] = { "jpt!", "weapons\\plasma rifle\\melee", 4, "+4cR (Melee: Plasma Rifle)" },
-            [36] = { "jpt!", "weapons\\plasma pistol\\melee", 4, "+4cR (Melee: Plasma Pistol)" },
-            [37] = { "jpt!", "weapons\\assault rifle\\melee", 4, "+4cR (Melee: Assault Rifle)" },
-            [38] = { "jpt!", "weapons\\rocket launcher\\melee", 10, "+10cR (Melee: Rocket Launcher)" },
-            [39] = { "jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_melee", 10, "+10cR (Melee: Plasma Cannon)" },
+            melee = {
+                -- stock --
+                { "jpt!", "weapons\\flag\\melee", 5, "+5cR (Melee: Flag)" },
+                { "jpt!", "weapons\\ball\\melee", 5, "+5cR (Melee: Ball)" },
+                { "jpt!", "weapons\\pistol\\melee", 4, "+4cR (Melee: Pistol)" },
+                { "jpt!", "weapons\\needler\\melee", 4, "+4cR (Melee: Needler)" },
+                { "jpt!", "weapons\\shotgun\\melee", 5, "+5cR (Melee: Shotgun)" },
+                { "jpt!", "weapons\\flamethrower\\melee", 5, "+5cR (Melee: Flamethrower)" },
+                { "jpt!", "weapons\\sniper rifle\\melee", 5, "+5cR (Melee: Sniper Rifle)" },
+                { "jpt!", "weapons\\plasma rifle\\melee", 4, "+4cR (Melee: Plasma Rifle)" },
+                { "jpt!", "weapons\\plasma pistol\\melee", 4, "+4cR (Melee: Plasma Pistol)" },
+                { "jpt!", "weapons\\assault rifle\\melee", 4, "+4cR (Melee: Assault Rifle)" },
+                { "jpt!", "weapons\\rocket launcher\\melee", 10, "+10cR (Melee: Rocket Launcher)" },
+                { "jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_melee", 10, "+10cR (Melee: Plasma Cannon)" },
+                --
+                -- TSCE_MultiplayerV1:
+                { "jpt!", "cmt\\weapons\\evolved\\melee\\rifle\\melee", 5, "+5cR (Melee)" },
+                { "jpt!", "cmt\\weapons\\evolved_h1-spirit\\melee\\melee", 5, "+5cR (Melee)" },
+            },
 
             -- VEHICLE COLLISION --
             vehicles = {
                 collision = { "jpt!", "globals\\vehicle_collision" },
+                -- stock --
                 { "vehi", "vehicles\\ghost\\ghost_mp", 5, "+5cR (Vehicle Squash: GHOST)" },
                 { "vehi", "vehicles\\rwarthog\\rwarthog", 6, "+6cR (Vehicle Squash: R-Hog)" },
                 { "vehi", "vehicles\\warthog\\mp_warthog", 7, "+7cR (Vehicle Squash: Warthog)" },
                 { "vehi", "vehicles\\banshee\\banshee_mp", 8, "+8cR (Vehicle Squash: Banshee)" },
                 { "vehi", "vehicles\\scorpion\\scorpion_mp", 10, "+10cR (Vehicle Squash: Tank)" },
                 { "vehi", "vehicles\\c gun turret\\c gun turret_mp", 1000, "+1000R (Vehicle Squash: Turret)" },
+                --
+                -- TSCE_MultiplayerV1:
+                { "vehi", "cmt\\vehicles\\evolved_h1-spirit\\ghost\\_ghost_mp\\ghost_mp", 5, "+5cR (Vehicle Squash: GHOST)" },
+                { "vehi", "cmt\\vehicles\\evolved_h1-spirit\\warthog\\_warthog_mp\\warthog_mp", 7, "+7cR (Vehicle Squash: Warthog)" },
+                { "vehi", "cmt\\vehicles\\evolved_h1-spirit\\warthog\\_warthog_rocket\\warthog_rocket", 6, "+6cR (Vehicle Squash: R-Hog)" },
+                { "vehi", "soi\\vehicles\\scorpion\\scorpion", 10, "+10cR (Vehicle Squash: Tank)" },
+                --
+                -- Bigassv2,104:
+                { "vehi", "bourrin\\halo reach\\vehicles\\warthog\\h2 mp_warthog", 5, "+5cR (Vehicle Squash: Warthog)" },
+                { "vehi", "bourrin\\halo reach\\vehicles\\warthog\\reach gauss hog", 5, "+5cR (Vehicle Squash: Gauss Hog)" },
+                { "vehi", "vehicles\\falcon\\falcon", 4, "+4cR (Vehicle Squash: Falcon)" },
+                { "vehi", "altis\\vehicles\\spade\\spade", 3, "+3cR (Vehicle Squash: Spade)" },
+                { "vehi", "halo reach\\objects\\vehicles\\human\\civilian\\military_truck\\military truck", 4, "+4cR (Vehicle Squash: Truck)" },
+                { "vehi", "vehicles\\falcon_destroyed\\falcon_destroyed", 5, "+5cR (Vehicle Squash: Falcon)" },
+                { "vehi", "bourrin\\halo reach\\vehicles\\warthog\\rocket warthog", 4, "+4cR (Vehicle Squash: RHog)" },
+                { "vehi", "altis\\vehicles\\scorpion_destroyed\\scorpion_destroyed", 7, "+7cR (Vehicle Squash: Tank)" },
+                { "vehi", "altis\\vehicles\\scorpion\\scorpion", 6, "+6cR (Vehicle Squash: Tank)" },
+                { "vehi", "altis\\vehicles\\mongoose\\mongoose", 6, "+6cR (Vehicle Squash: Mongoose)" },
+                { "vehi", "altis\\vehicles\\truck_destroyed\\truck_destroyed", 3, "+3cR (Vehicle Squash: Truck)" },
+                { "vehi", "altis\\vehicles\\truck_destroyed\\wheel\\wheel", 2, "+2cR (Vehicle Squash: Wheel)" },
+                { "vehi", "altis\\vehicles\\mongoose\\mongoose_spin", 4, "+4cR (Vehicle Squash: Mongoose)" },
+                { "vehi", "vehicles\\falcon_destroyed\\left_wing\\left_wing", 3, "+3cR (Vehicle Squash: Left Wing)" },
+                { "vehi", "vehicles\\falcon_destroyed\\right_wing\\right_wing", 3, "+3cR (Vehicle Squash: Right Wing)" },
+                { "vehi", "vehicles\\falcon_destroyed\\tail\\tail", 3, "+3cR (Vehicle Squash: Tail)" },
             }
         }
     },
@@ -639,10 +1007,47 @@ local Loadout = {
         [10] = "weapons\\shotgun\\shotgun",
 
         -- ============= [ CUSTOM WEAPONS ] ============= --
-        [11] = "some_random\\epic\\weapon",
-
-        -- repeat the structure to add more weapon tags:
-        [12] = "a tag\\will go\\here",
+        -- TSCE_MultiplayerV1:
+        [11] = "cmt\\vehicles\\evolved_h1-spirit\\warthog\\weapons\\warthog_turret\\warthog_turret",
+        [12] = "cmt\\vehicles\\evolved_h1-spirit\\warthog\\_warthog_rocket\\weapons\\warthog_rocket_turret\\warthog_rocket_turret",
+        [13] = "cmt\\vehicles\\evolved_h1-spirit\\ghost\\_ghost_mp\\weapons\\ghost_mp_cannon\\ghost_mp_cannon",
+        [14] = "soi\\vehicles\\scorpion\\scorpion cannon",
+        [15] = "altis\\weapons\\sprint\\sprint",
+        [16] = "cmt\\weapons\\evolved_h1-spirit\\needler\\_needler_mp\\needler_mp",
+        [17] = "cmt\\weapons\\evolved\\human\\battle_rifle\\_battle_rifle_specops\\battle_rifle_specops",
+        [18] = "cmt\\weapons\\evolved_h1-spirit\\plasma_rifle\\_plasma_rifle_mp\\plasma_rifle_mp",
+        [19] = "cmt\\weapons\\evolved_h1-spirit\\pistol\\_pistol_mp\\pistol_mp",
+        [20] = "cmt\\weapons\\covenant\\brute_plasma_rifle\\reload\\brute plasma rifle",
+        [21] = "cmt\\weapons\\evolved_h1-spirit\\shotgun\\shotgun",
+        [22] = "cmt\\weapons\\evolved_h1-spirit\\sniper_rifle\\sniper_rifle",
+        [23] = "cmt\\weapons\\evolved\\human\\dmr\\dmr",
+        [24] = "cmt\\weapons\\evolved_h1-spirit\\assault_rifle\\assault_rifle",
+        [25] = "cmt\\weapons\\evolved_h1-spirit\\rocket_launcher\\rocket_launcher",
+        [26] = "dreamweb\\weapons\\human\\battle_rifle\\_h2a\\battle_rifle",
+        [27] = "cmt\\weapons\\evolved\\covenant\\carbine\\carbine",
+        [28] = "cmt\\weapons\\evolved\\human\\battle_rifle\\battle_rifle",
+        [29] = "cmt\\globals\\_shared\\empty_objects\\empty_weapon",
+        --
+        -- Bigassv2,104:
+        [30] = "weapons\\gauss sniper\\gauss sniper",
+        [31] = "altis\\weapons\\binoculars\\gauss spawner\\create gauss",
+        [32] = "bourrin\\weapons\\masternoob's assault rifle\\assault rifle",
+        [33] = "reach\\objects\\weapons\\pistol\\magnum\\magnum",
+        [34] = "vehicles\\warthog\\warthog gun",
+        [35] = "bourrin\\halo reach\\vehicles\\warthog\\gauss\\gauss gun",
+        [36] = "vehicles\\le_falcon\\weapon",
+        [37] = "bourrin\\halo reach\\vehicles\\warthog\\rocket\\rocket",
+        [38] = "vehicles\\scorpion\\scorpion cannon_heat",
+        [39] = "altis\\weapons\\smoke\\smoke",
+        [40] = "cmt\\weapons\\human\\shotgun\\shotgun",
+        [41] = "cmt\\weapons\\human\\stealth_sniper\\sniper rifle",
+        [42] = "halo reach\\objects\\weapons\\support_high\\spartan_laser\\spartan laser",
+        [43] = "bourrin\\weapons\\dmr\\dmr",
+        [44] = "bourrin\\weapons\\ma5k\\cmt's ma5k reloaded",
+        [45] = "halo3\\weapons\\odst pistol\\odst pistol",
+        [56] = "altis\\weapons\\binoculars\\binoculars",
+        [47] = "weapons\\rocket launcher\\rocket launcher test",
+        [48] = "my_weapons\\trip-mine\\trip-mine",
     },
 
     -- Color Table --
@@ -726,6 +1131,7 @@ local function Init(reset)
         Loadout.first_blood = { }
         Loadout.first_blood.active = true
         Loadout.gamestarted = true
+        Loadout.map = get_var(0, "$map")
     end
 end
 
@@ -743,6 +1149,18 @@ end
 function OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
         Init()
+
+        -- DEBUGGING:
+        --local tag_address = read_dword(0x40440000)
+        --local tag_count = read_dword(0x4044000C)
+        --for i = 0, tag_count - 1 do
+        --    local tag = tag_address + 0x20 * i
+        --    local tag_name = read_string(read_dword(tag + 0x10))
+        --    local tag_class = read_dword(tag)
+        --    if (tag_class == 1986357353) then
+        --        print(tag_name)
+        --    end
+        --end
     end
 end
 
@@ -819,11 +1237,6 @@ function Loadout:RegenCamo(Ply, v, current_class, level)
 end
 
 function SetAmmo(Ply, DyN)
-
-    local info = Loadout:GetLevelInfo(Ply)
-    local current_class = Loadout.classes[info.class]
-    local weapon_table = current_class.levels[info.level].weapons
-
     for i = 0, 3 do
         local WeaponID = read_dword(DyN + 0x2F8 + (i * 4))
         if (WeaponID ~= 0xFFFFFFFF) then
@@ -831,19 +1244,21 @@ function SetAmmo(Ply, DyN)
             if (WeaponObject ~= 0) then
                 local tag = GetObjectTagName(WeaponObject)
                 if (tag) then
-                    for WI, A in pairs(weapon_table) do
+                    local weapons = Loadout:GetWeaponTable(Ply)
+                    for WI, A in pairs(weapons) do
                         if (tag == Loadout.weapon_tags[WI]) then
+                            -- loaded:
                             if (A[1]) then
-                                -- loaded
                                 write_word(WeaponObject + 0x2B8, A[1])
                             end
+                            -- unloaded:
                             if (A[2]) then
-                                -- unloaded
                                 write_word(WeaponObject + 0x2B6, A[2])
                             end
-                            if (A[5]) then
-                                -- battery
-                                write_float(WeaponObject + 0x240, A[5])
+                            -- battery:
+                            if (A[3]) then
+                                -- write_float(WeaponObject + 0x240, A[3])
+                                execute_command_sequence("w8 1;battery " .. Ply .. " " .. A[3] .. " " .. i)
                             end
                         end
                     end
@@ -852,6 +1267,17 @@ function SetAmmo(Ply, DyN)
             end
         end
     end
+end
+
+function Loadout:GetWeaponTable(Ply)
+    local info = self:GetLevelInfo(Ply)
+    local weapon_table = self.classes[info.class].levels[info.level].weapons
+    for map, tab in pairs(weapon_table.custom_maps) do
+        if (map == self.map) then
+            return tab
+        end
+    end
+    return weapon_table.stock_maps
 end
 
 function Loadout:OnTick()
@@ -902,9 +1328,10 @@ function Loadout:OnTick()
                                     SetGrenades(DyN, current_class, level)
                                     execute_command("wdel " .. i)
 
-                                    local weapon_table = current_class.levels[level].weapons
                                     local index = 0
-                                    for WI, _ in pairs(weapon_table) do
+                                    local weapons = self:GetWeaponTable(i)
+
+                                    for WI, _ in pairs(weapons) do
                                         index = index + 1
                                         if (index == 1 or index == 2) then
                                             assign_weapon(spawn_object("weap", self.weapon_tags[WI], coords.x, coords.y, coords.z), i)
@@ -912,6 +1339,7 @@ function Loadout:OnTick()
                                             timer(250, "DelaySecQuat", i, self.weapon_tags[WI], coords.x, coords.y, coords.z)
                                         end
                                     end
+
                                     timer(self.ammo_set_delay, "SetAmmo", i, DyN)
                                 end
                             end
@@ -1488,11 +1916,15 @@ local function GetTag(ObjectType, ObjectName)
     end
 end
 
-local function CheckDamageTag(DamageMeta)
-    for _, d in pairs(Loadout.credits.tags) do
-        local tag = GetTag(d[1], d[2])
-        if (tag ~= nil) and (tag == DamageMeta) then
-            return { d[3], d[4] }
+local function CheckDamageTag(DamageMeta, Params)
+    local t = Loadout.credits.tags
+    for _, tab in pairs(Params) do
+        print(tab)
+        for _, d in pairs(t[tab]) do
+            local tag = GetTag(d[1], d[2])
+            if (tag ~= nil) and (tag == DamageMeta) then
+                return { d[3], d[4] }
+            end
         end
     end
     return { 0, "" }
@@ -1657,25 +2089,26 @@ function Loadout:OnPlayerDeath(VictimIndex, KillerIndex)
         if (vehicle) then
             local t = self.credits.tags.vehicles
             for _, T in pairs(t) do
-                -- validate vehicle tag:
                 if (vehicle == T[2]) then
                     -- vehicle squash:
                     if (last_damage == GetTag(t.collision[1], t.collision[2])) then
                         return self:UpdateCredits(killer, { T[3], T[4] })
                     else
                         -- vehicle weapon:
-                        return self:UpdateCredits(killer, CheckDamageTag(last_damage))
+                        return self:UpdateCredits(killer, CheckDamageTag(last_damage, { "vehicle_projectiles" }))
                     end
                 end
             end
         end
-        return self:UpdateCredits(killer, CheckDamageTag(last_damage))
+        return self:UpdateCredits(killer, CheckDamageTag(last_damage, {
+            "weapon_projectiles",
+            "grenades",
+            "melee" }))
 
     elseif (server) then
-        if (last_damage == GetTag(self.credits.tags[1][1], self.credits.tags[1][2])) then
-            self:UpdateCredits(victim, { self.credits.tags[1][3], self.credits.tags[1][4] })
-        elseif (last_damage == GetTag(self.credits.tags[2][1], self.credits.tags[2][2])) then
-            self:UpdateCredits(victim, { self.credits.tags[2][3], self.credits.tags[2][4] })
+        local falldamage = self:isFallDamage(last_damage)
+        if (falldamage) then
+            self:UpdateCredits(victim, { falldamage[1], falldamage[2] })
         else
             self:UpdateCredits(victim, { self.credits.server[1], self.credits.server[2] })
         end
@@ -1685,8 +2118,6 @@ function Loadout:OnPlayerDeath(VictimIndex, KillerIndex)
         self:UpdateCredits(victim, { self.credits.suicide[1], self.credits.suicide[2] })
     elseif (betrayal) then
         self:UpdateCredits(killer, { self.credits.betrayal[1], self.credits.betrayal[2] })
-    else
-        self:UpdateCredits(killer, CheckDamageTag(last_damage))
     end
 end
 
@@ -1754,8 +2185,9 @@ function Loadout:UpdateCredits(Ply, Params)
 end
 
 function Loadout:IsMelee(MetaID)
-    for i = 28, 39 do
-        local Type, Name = self.credits.tags[i][1], self.credits.tags[i][2]
+    local t = self.credits.tags.melee
+    for i = 1, #t do
+        local Type, Name = t[i][1], t[i][2]
         if (MetaID == GetTag(Type, Name)) then
             return true
         end
@@ -1763,11 +2195,92 @@ function Loadout:IsMelee(MetaID)
     return false
 end
 
+local these_tags = {
+    "weapons\\sniper rifle\\melee",
+    "weapons\\sniper rifle\\melee_response",
+    "haloceripper.webs.com\\zteam\\vehicles\\hogs\\g_warthog\\gauss",
+    "weapons\\frag grenade\\shock wave",
+    "bourrin\\effects\\explosions\\medium\\gauss explosion",
+    "bourrin\\effects\\explosions\\medium\\gauss explosion falcon",
+    "altis\\weapons\\gauss_sniper\\trigger",
+    "weapons\\frag grenade\\explosion",
+    "altis\\scenery\\capsule2\\destroy",
+    "weapons\\assault rifle\\melee",
+    "weapons\\assault rifle\\melee_response",
+    "bourrin\\weapons\\masternoob's assault rifle\\bullet",
+    "weapons\\assault rifle\\trigger",
+    "weapons\\pistol\\melee",
+    "weapons\\pistol\\melee_response",
+    "weapons\\pistol\\bullet",
+    "weapons\\pistol\\trigger",
+    "vehicles\\warthog\\bullet",
+    "haloceripper.webs.com\\zteam\\vehicles\\hogs\\g_warthog\\gausshog warthog",
+    "bourrin\\effects\\explosions\\medium\\warthog gauss explosion",
+    "bourrin\\effects\\explosions\\medium\\warthog gauss explosion falcon",
+    "vehicles\\warthog\\trigger",
+    "altis\\effects\\fan_col",
+    "altis\\effects\\fan_col_cyborg",
+    "vehicles\\falcon\\bullet",
+    "altis\\effects\\missile_impact",
+    "bourrin\\effects\\explosions\\medium\\small exp",
+    "bourrin\\effects\\explosions\\medium\\small exp falcon",
+    "weapons\\rocket launcher\\falcon",
+    "weapons\\frag grenade\\falcon shock wave",
+    "vehicles\\scorpion\\bomb explosion",
+    "vehicles\\scorpion\\shell shock wave",
+    "vehicles\\scorpion\\bullet",
+    "h3\\objects\\vehicles\\warthog\\effects\\damage garbage",
+    "h3\\objects\\vehicles\\warthog\\effects\\destroy garbage",
+    "weapons\\shotgun\\melee",
+    "weapons\\shotgun\\melee_response",
+    "weapons\\shotgun\\pellet",
+    "weapons\\shotgun\\trigger",
+    "weapons\\sniper rifle\\sniper bullet",
+    "weapons\\sniper rifle\\trigger",
+    "weapons\\plasma rifle\\melee",
+    "weapons\\plasma rifle\\melee_response",
+    "zteam\\objects\\weapons\\single\\spartan_laser\\h3\\laser",
+    "bourrin\\halo3\\weapons\\spartan laser\\fire",
+    "bourrin\\weapons\\dmr\\bullet",
+    "bourrin\\weapons\\dmr\\effects\\trigger",
+    "cmt\\weapons\\human\\ma5k\\bullet",
+    "halo3\\weapons\\odst pistol\\bullet",
+    "halo3\\weapons\\odst pistol\\trigger",
+    "weapons\\rocket launcher\\melee",
+    "weapons\\rocket launcher\\melee_response",
+    "altis\\scenery\\capsule2\\bam",
+    "weapons\\rocket launcher\\explosion",
+    "weapons\\rocket launcher\\impact",
+    "weapons\\rocket launcher\\trigger",
+    "mexicans pls dont rip my stuff\\doom",
+    "h2\\weapons\\grenade\\fragmentation_grenade\\explosion",
+    "h2\\weapons\\grenade\\fragmentation_grenade\\explosion_shock_wave",
+    "weapons\\rocket launcher\\mine",
+    "weapons\\rocket launcher\\mine cyborg",
+    "weapons\\flag\\melee",
+    "weapons\\flag\\melee_response",
+    "weapons\\ball\\melee",
+    "weapons\\ball\\melee_response",
+    "globals\\falling",
+    "globals\\distance",
+    "globals\\vehicle_hit_environment",
+    "globals\\vehicle_killed_unit",
+    "globals\\vehicle_collision",
+    "globals\\flaming_death",
+}
+
 function Loadout:OnDamageApplication(VictimIndex, KillerIndex, MetaID, Damage, HitString, _)
     local killer, victim = tonumber(KillerIndex), tonumber(VictimIndex)
     local hurt = true
 
     if player_present(victim) then
+
+        -- DEBUGGING:
+        --for i = 1, #these_tags do
+        --    if (MetaID == GetTag("jpt!", these_tags[i])) then
+        --        print(these_tags[i])
+        --    end
+        --end
 
         local kip = self:GetIP(killer)
         local vip = self:GetIP(victim)
@@ -1827,11 +2340,8 @@ function Loadout:OnDamageApplication(VictimIndex, KillerIndex, MetaID, Damage, H
             end
         end
 
-        local FD = GetTag(self.credits.tags[1][1], self.credits.tags[1][2])
-        local DD = GetTag(self.credits.tags[2][1], self.credits.tags[2][2])
-
         if (v.class == "Armor Boost") and (self.classes[v.class].levels[v_info.level].fall_damage_immunity) then
-            if (MetaID == FD or MetaID == DD) then
+            if Loadout:isFallDamage(MetaID) then
                 hurt = false
             end
         end
@@ -1841,6 +2351,17 @@ function Loadout:OnDamageApplication(VictimIndex, KillerIndex, MetaID, Damage, H
     end
 
     return hurt, Damage
+end
+
+function Loadout:isFallDamage(MetaID)
+    local t = self.credits.tags.fall_damage
+    for i = 1, #t do
+        local Type, Name = t[i][1], t[i][2]
+        if (MetaID == GetTag(Type, Name)) then
+            return { t[i][3], t[i][4] }
+        end
+    end
+    return false
 end
 
 function Loadout:Respond(Ply, Message, Type, Color, Exclude, HUD)
@@ -2019,13 +2540,13 @@ function RegisterSAPPEvents()
     if (gt == "ctf") or (gt == "slayer") or (gt == "race") then
         LSS(true)
         register_callback(cb["EVENT_TICK"], "OnTick")
-        register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
-        register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
         register_callback(cb["EVENT_DIE"], "OnPlayerDeath")
+        register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
         register_callback(cb["EVENT_SCORE"], "OnPlayerScore")
         register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
-        register_callback(cb["EVENT_PRESPAWN"], "OnPlayerPreSpawn")
+        register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
         register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
+        register_callback(cb["EVENT_PRESPAWN"], "OnPlayerPreSpawn")
         register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
         return true
     else
