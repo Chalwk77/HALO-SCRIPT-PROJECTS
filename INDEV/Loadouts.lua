@@ -31,7 +31,7 @@ local Loadout = {
     --=================================================================================--
 
     -- This is the class players will start with when they join the server:
-    default_class = "Recon",
+    default_class = "Regeneration",
     -- This is the starting level for the above class:
     starting_level = 1,
 
