@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Loadout (Alpha 1.12), for SAPP (PC & CE)
+Script Name: Loadout (Alpha 1.13), for SAPP (PC & CE)
 Description: N/A
 
 ~ acknowledgements ~
@@ -495,7 +495,7 @@ local Loadout = {
                                 [17] = { nil, nil, nil }, -- silenced battle rifle
                             },
                             ["Bigassv2,104"] = {
-                                [33] = { nil, nil, nil }, -- magnum
+                                [45] = { nil, nil, nil }, -- magnum
                                 [40] = { nil, nil, nil }, -- shotgun
                             },
                         }
@@ -519,7 +519,7 @@ local Loadout = {
                                 [18] = { nil, nil, 120 }, -- plasma rifle
                             },
                             ["Bigassv2,104"] = {
-                                [33] = { nil, 60, nil }, -- magnum
+                                [45] = { nil, 60, nil }, -- magnum
                                 [40] = { nil, 24, nil }, -- shotgun
                                 [43] = { nil, 60, nil }, -- dmr
                             },
@@ -544,7 +544,7 @@ local Loadout = {
                                 [18] = { nil, nil, 140 }, -- plasma rifle
                             },
                             ["Bigassv2,104"] = {
-                                [33] = { nil, 72, nil }, -- magnum
+                                [45] = { nil, 72, nil }, -- magnum
                                 [40] = { nil, 48, nil }, -- shotgun
                                 [43] = { nil, 72, nil }, -- dmr
                             },
@@ -569,7 +569,7 @@ local Loadout = {
                                 [18] = { nil, nil, 160 }, -- plasma rifle
                             },
                             ["Bigassv2,104"] = {
-                                [33] = { nil, 84, nil }, -- magnum
+                                [45] = { nil, 84, nil }, -- magnum
                                 [40] = { nil, 96, nil }, -- shotgun
                                 [43] = { nil, 84, nil }, -- dmr
                             },
@@ -594,7 +594,7 @@ local Loadout = {
                                 [18] = { nil, nil, 320 }, -- plasma rifle
                             },
                             ["Bigassv2,104"] = {
-                                [33] = { nil, 168, nil }, -- magnum
+                                [45] = { nil, 168, nil }, -- magnum
                                 [40] = { nil, 192, nil }, -- shotgun
                                 [43] = { nil, 168, nil }, -- dmr
                             },
