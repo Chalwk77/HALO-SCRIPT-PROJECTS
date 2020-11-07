@@ -1,7 +1,8 @@
 --[[
 --=====================================================================================================--
-Script Name: Loadout (Alpha 1.13), for SAPP (PC & CE)
-Description: N/A
+Script Name: Loadout (v1.0), for SAPP (PC & CE)
+Description: Wiki Coming soon.
+
 
 ~ acknowledgements ~
 Concept credit goes to OSH Clan, a gaming community operating on Halo CE:
