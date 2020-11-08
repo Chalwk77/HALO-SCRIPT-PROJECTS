@@ -8,6 +8,8 @@ Command Syntax:
 /give [item] [opt pid/* or "all"] [opt -amount]
 /spawn [item] [opt pid/* or "all"] [opt -amount]
 /enter [item] [opt pid/* or "all"] [opt -amount/-seat/-gd]
+/clean [pid/* or "all"] [type]
+
 Command Examples:
 
 Give sniper to yourself:
@@ -48,6 +50,13 @@ Enter player 1 into passengers seat of 10 warthogs at their current position:
 
 Enter player 1 into gunner seat and driver seat of 10 warthogs at their current position:
 /enter hog 1 -gd -amount 10
+
+Clean Item Spawn Objects for player 1:
+/clean 1 1
+Clean Vehicle Spawn Objects for player 1:
+/clean 1 2
+Clean Vehicle Spawn & Item Spawn Objects for player 1:
+/clean 1 2
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
