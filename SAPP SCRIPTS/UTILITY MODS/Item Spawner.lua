@@ -134,13 +134,13 @@ local Mod = {
         { "weap", "weapons\\plasma pistol\\plasma pistol", "a Plasma Pistol", { "ppistol", "plasmapistol" } },
         { "weap", "weapons\\assault rifle\\assault rifle", "an Assault Rifle", { "arifle", "assaultrifle", "rifle" } },
         { "weap", "weapons\\sniper rifle\\sniper rifle", "Sniper Rifle", { "sniper", "snipe", "sniperrifle", "srifle" } },
-        { "weap", "weapons\\rocket launcher\\rocket launcher", "a Rocket Launcher", { "rocket", "rocketlauncher", "rlauncher" } },
+        { "weap", "weapons\\rocket launcher\\rocket launcher", "a Rocket Launcher", { "rocketl", "rocketlauncher", "rlauncher" } },
 
         -- Projectiles: (spawn)
         { "proj", "weapons\\flamethrower\\flame", "Flames", { "flame", "flameproj" } },
         { "proj", "weapons\\needler\\mp_needle", "Needler Needle", { "needle", "needlerproj" } },
         { "proj", "vehicles\\ghost\\ghost bolt", "Ghost Bolt", { "ghostbolt", "gbolt", "ghostproj" } },
-        { "proj", "weapons\\rocket launcher\\rocket", "Rocket", { "rocketproj", "rocket", "rocketproj" } },
+        { "proj", "weapons\\rocket launcher\\rocket", "Rocket", { "rocketproj", "rocket" } },
         { "proj", "vehicles\\c gun turret\\mp gun turret", "Turret Bolt", { "turretbolt", "turretprooj" } },
         { "proj", "weapons\\pistol\\bullet", "Pistol Bullet", { "pistolbullet", "pbullet", "pistolproj" } },
         { "proj", "vehicles\\scorpion\\bullet", "Tank Bullet", { "tankbullet", "tbullet", "tankbulletproj" } },
