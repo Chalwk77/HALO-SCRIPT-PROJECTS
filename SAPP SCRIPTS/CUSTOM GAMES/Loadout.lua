@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Loadout (v1.1), for SAPP (PC & CE)
+Script Name: Loadout (v1.2), for SAPP (PC & CE)
 Description: Wiki Coming soon.
 
 ~ acknowledgements ~
@@ -2551,8 +2551,10 @@ function WriteLog(str)
 end
 
 -- In the event of an error, the script will trigger these two functions: OnError(), report()
-function report(err)
-    script_version = format("%0.2f", script_version)
+function report(StackTrace, Error)
+
+    cprint(StackTrace, 4 + 8)
+
     cprint("--------------------------------------------------------", 5 + 8)
     cprint("Please report this error on github:", 7 + 8)
     cprint("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", 7 + 8)
@@ -2564,14 +2566,14 @@ function report(err)
     WriteLog("Please report this error on github:")
     WriteLog("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues")
     WriteLog("Script Version: " .. tostring(script_version))
-    WriteLog(err)
+    WriteLog(Error)
+    WriteLog(StackTrace)
     WriteLog("\n")
 end
 
 -- This function will return a string with a traceback of the stack call...
 -- ...and call function 'report' after 50 milliseconds.
-function OnError()
-    local err = debug.traceback()
-    cprint(err, 4 + 8)
-    timer(50, "report", err)
+function OnError(Error)
+    local StackTrace = debug.traceback()
+    timer(50, "report", StackTrace, Error)
 end
