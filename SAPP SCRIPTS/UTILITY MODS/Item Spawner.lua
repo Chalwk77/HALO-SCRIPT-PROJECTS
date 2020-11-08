@@ -1,42 +1,53 @@
 --[[
 --=====================================================================================================--
 Script Name: Item Spawner, for SAPP (PC & CE)
-Description: An advanced item spawn mod.
+Description: An advanced item spawner mod.
+Give yourself (or others) weapons, vehicles and equipment.
 
 Command Syntax:
 /give [item] [opt pid/* or "all"] [opt -amount]
 /spawn [item] [opt pid/* or "all"] [opt -amount]
 /enter [item] [opt pid/* or "all"] [opt -amount/-seat/-gd]
-
 Command Examples:
-> Give sniper to yourself:
-* /give sniper
-> Give sniper to player 1:
-* /give sniper 1
-> Give 5 sniper rifles to player 1:
-* /give sniper 1 5
 
-> Spawn tank at your location:
-* /spawn tank
-> Spawn Tank at player 1's position:
-* /spawn tank 1
-> Spawn 5 tanks at player 1's position:
-* /spawn tank 1 -amount 5
+Give sniper to yourself:
+/give sniper
 
-> Enter warthog at your current location:
-* /enter hog
-> Enter player 1 into a warthog at their current position:
-* /enter hog 1
-> Enter player 1 into 5 warthogs at their current position:
-* /enter hog 1 -amount 5
-> Enter player 1 into passengers seat of warthog at their current position:
-* /enter hog 1 -seat 3
-> Enter player 1 into gunner seat and driver seat of warthog at their current position:
-* /enter hog 1 -gd
-> Enter player 1 into passengers seat of 10 warthogs at their current position:
-* /enter hog 1 -seat 3 -amount 10
-> Enter player 1 into gunner seat and driver seat of 10 warthogs at their current position:
-* /enter hog 1 -gd -amount 10
+Give sniper to player 1:
+/give sniper 1
+
+Give 5 sniper rifles to player 1:
+/give sniper 1 5
+
+Spawn tank at your location:
+/spawn tank
+
+Spawn Tank at player 1's position:
+/spawn tank 1
+
+Spawn 5 tanks at player 1's position:
+/spawn tank 1 -amount 5
+
+Enter warthog at your current location:
+/enter hog
+
+Enter player 1 into a warthog at their current position:
+/enter hog 1
+
+Enter player 1 into 5 warthogs at their current position:
+/enter hog 1 -amount 5
+
+Enter player 1 into passengers seat of warthog at their current position:
+/enter hog 1 -seat 3
+
+Enter player 1 into gunner seat and driver seat of warthog at their current position:
+/enter hog 1 -gd
+
+Enter player 1 into passengers seat of 10 warthogs at their current position:
+/enter hog 1 -seat 3 -amount 10
+
+Enter player 1 into gunner seat and driver seat of 10 warthogs at their current position:
+/enter hog 1 -gd -amount 10
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -82,6 +93,9 @@ local Mod = {
 
     items = {
 
+        -- {tag type, tag name, item name, {list of commands to trigger}}
+
+
         { "bipd", "characters\\cyborg_mp\\cyborg_mp", "a Cyborg", { "cyborg" } },
 
         -- Equipment: (give/spawn)
@@ -113,7 +127,7 @@ local Mod = {
         { "weap", "weapons\\shotgun\\shotgun", "a Shotgun", { "shotgun" } },
         { "weap", "weapons\\sniper rifle\\sniper rifle", "Sniper Rifle", { "sniper", "snipe" } },
 
-        -- Projectiles:
+        -- Projectiles: (spawn)
         { "proj", "vehicles\\banshee\\banshee bolt", "Banshee Bolt", { "sheebolt" } },
         { "proj", "vehicles\\banshee\\mp_banshee fuel rod", "Banshee Fuel Rod", { "sheerod" } },
         { "proj", "vehicles\\c gun turret\\mp gun turret", "Turret Bolt", { "turretbolt" } },
