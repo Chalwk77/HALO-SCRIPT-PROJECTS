@@ -1,31 +1,11 @@
 --[[
 --=====================================================================================================--
-Script Name: Color Changer, for SAPP (PC & CE)
+Script Name: Color Changer (v.1.2), for SAPP (PC & CE)
 Description: Change any player's armor color on demand.
 
-Command Syntax: 
+Command Syntax:
     * /setcolor [player id | me | */all] [color id]
     "me" can be used in place of your own player id
-
-    Valid Color IDS:
-    white or 0
-    black or 1
-    red or 2
-    blue or 3
-    gray or 4
-    yellow or 5
-    green or 6
-    pink or 7
-    purple or 8
-    cyan or 9
-    cobalt or 10
-    orange or 11
-    teal or 12
-    sage or 13
-    brown or 14
-    tan or 15
-    maroon or 16
-    salmon or 17
 
 Copyright (c) 2019-2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -39,187 +19,65 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.12.0.0"
 
--- configuration [starts]
-local color = {
-    command = "setcolor",
+local Mod = {
+
+    -- config start
+    list_command = "colors",
+    command_aliases = { "color", "setcolor" },
     permission = 1,
-    permission_other = 4,
+    permission_others = 4,
+    colors = {
+        ["white"] = 0,
+        ["black"] = 1,
+        ["red"] = 2,
+        ["blue"] = 3,
+        ["gray"] = 4,
+        ["yellow"] = 5,
+        ["green"] = 6,
+        ["pink"] = 7,
+        ["purple"] = 8,
+        ["cyan"] = 9,
+        ["cobalt"] = 10,
+        ["orange"] = 11,
+        ["teal"] = 12,
+        ["sage"] = 13,
+        ["brown"] = 14,
+        ["tan"] = 15,
+        ["maroon"] = 16,
+        ["salmon"] = 17,
+    },
+    -- config end
+
+    -- Do Not Touch --
+    players = { }
 }
--- configuration [ends]
+
+local ls
+local gsub, lower, gmatch = string.gsub, string.lower, string.gmatch
 
 function OnScriptLoad()
-    register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
     register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
+    register_callback(cb['EVENT_GAME_START'], "OnGameStart")
+    register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
+    OverrideTeamColors(true)
+end
+
+function OnGameStart()
+    OverrideTeamColors(true)
 end
 
 function OnScriptUnload()
-    --
+    OverrideTeamColors(false)
 end
 
-local function checkAccess(e)
-    if (e ~= -1 and e >= 1 and e < 16) then
-        if (tonumber(get_var(e, "$lvl"))) >= privilege_level then
-            return true
-        else
-            rprint(e, "Command failed. Insufficient Permission.")
-            return false
+function Mod:OnPlayerSpawn(Ply)
+    local DyN = get_dynamic_player(Ply)
+    if (DyN ~= 0) then
+        local t = self.players[Ply]
+        if (t) then
+            write_vector3d(DyN + 0x5C, t.x, t.y, t.z)
+            self.players[Ply] = nil
         end
-    else
-        cprint("You cannot execute this command from the console.", 4 + 8)
-        return false
-    end
-end
-
-local function isOnline(t, e)
-    if (t) then
-        if (t > 0 and t < 17) then
-            if player_present(t) then
-                return true
-            else
-                rprint(e, "Command failed. Player not online.")
-                return false
-            end
-        else
-            rprint(e, "Invalid player id. Please enter a number between 1-16")
-        end
-    end
-end
-
-function OnServerCommand(PlayerIndex, CMD)
-    local Args = CMDSplit(CMD)
-
-    if (command == lower(base_command)) then
-        if (checkAccess(executor)) then
-            if not isTeamPlay() then
-                if (args[1] ~= nil) then
-                    is_error = false
-                    validate_params()
-                    if not (target_all_players) then
-                        if not (is_error) and isOnline(TargetID, executor) then
-                            color:change(players)
-                        end
-                    end
-                else
-                    rprint(executor, "Invalid syntax. Usage: /" .. base_command .. " [player id] [color id]")
-                end
-            else
-                rprint(executor, "This command doesn't work on Team-Based games.")
-            end
-        end
-        return false
-    end
-end
-
-function color:change(params)
-    local params = params or {}
-
-    local executor_id = params.eid or nil
-    local target_id = params.tid or nil
-    local target_name = params.tn or nil
-
-    local color = params.color or nil
-
-    local function getplayer(PlayerIndex)
-        if tonumber(PlayerIndex) then
-            if tonumber(PlayerIndex) ~= 0 then
-                local m_player = get_player(PlayerIndex)
-                if m_player ~= 0 then
-                    return m_player
-                end
-            end
-        end
-        return nil
-    end
-
-    if player_alive(target_id) then
-        local player_object = get_dynamic_player(target_id)
-        local player_obj_id = read_dword(get_player(target_id) + 0x34)
-        local m_player = getplayer(target_id)
-        if player_object then
-            local ERROR
-            local x, y, z = read_vector3d(player_object + 0x5C)
-            if color == "white" or color == "0" then
-                write_byte(m_player + 0x60, 0)
-            elseif color == "black" or color == "1" then
-                write_byte(m_player + 0x60, 1)
-            elseif color == "red" or color == "2" then
-                write_byte(m_player + 0x60, 2)
-            elseif color == "blue" or color == "3" then
-                write_byte(m_player + 0x60, 3)
-            elseif color == "gray" or color == "4" then
-                write_byte(m_player + 0x60, 4)
-            elseif color == "yellow" or color == "5" then
-                write_byte(m_player + 0x60, 5)
-            elseif color == "green" or color == "6" then
-                write_byte(m_player + 0x60, 6)
-            elseif color == "pink" or color == "7" then
-                write_byte(m_player + 0x60, 7)
-            elseif color == "purple" or color == "8" then
-                write_byte(m_player + 0x60, 8)
-            elseif color == "cyan" or color == "9" then
-                write_byte(m_player + 0x60, 9)
-            elseif color == "cobalt" or color == "10" then
-                write_byte(m_player + 0x60, 10)
-            elseif color == "orange" or color == "11" then
-                write_byte(m_player + 0x60, 11)
-            elseif color == "teal" or color == "12" then
-                write_byte(m_player + 0x60, 12)
-            elseif color == "sage" or color == "13" then
-                write_byte(m_player + 0x60, 13)
-            elseif color == "brown" or color == "14" then
-                write_byte(m_player + 0x60, 14)
-            elseif color == "tan" or color == "15" then
-                write_byte(m_player + 0x60, 15)
-            elseif color == "maroon" or color == "16" then
-                write_byte(m_player + 0x60, 16)
-            elseif color == "salmon" or color == "17" then
-                write_byte(m_player + 0x60, 17)
-            else
-                rprint(executor_id, "Invalid Color")
-                ERROR = true
-            end
-            if not (ERROR) then
-                if (player_obj_id ~= nil) then
-                    rprint(executor_id, target_name .. " had their color changed to " .. color)
-                    destroy_object(player_obj_id)
-                    if colorspawn == nil then
-                        colorspawn = { }
-                    end
-                    if colorspawn[target_id] == nil then
-                        colorspawn[target_id] = { }
-                    end
-                    colorspawn[target_id][1], colorspawn[target_id][2], colorspawn[target_id][3] = x, y, z
-                end
-            end
-        end
-    else
-        rprint(executor_id, get_var(target_id, "$name") .. " is not alive!")
-    end
-end
-
-function OnPlayerSpawn(PlayerIndex)
-    local player_object = get_dynamic_player(PlayerIndex)
-    if player_object then
-        if colorspawn == nil then
-            colorspawn = { }
-        end
-        if colorspawn[PlayerIndex] == nil then
-            colorspawn[PlayerIndex] = { }
-        end
-        if (player_object ~= 0) then
-            if colorspawn[PlayerIndex][1] then
-                write_vector3d(get_dynamic_player(PlayerIndex) + 0x5C, colorspawn[PlayerIndex][1], colorspawn[PlayerIndex][2], colorspawn[PlayerIndex][3])
-                colorspawn[PlayerIndex] = { }
-            end
-        end
-    end
-end
-
-function isTeamPlay()
-    if get_var(0, "$ffa") == "0" then
-        return true
-    else
-        return false
     end
 end
 
@@ -233,21 +91,118 @@ local function CMDSplit(CMD)
     return Args
 end
 
-function Mod:GetPlayers(Executor, Args, Pos)
+function Mod:InvalidSyntax(Ply)
+    self:Respond(Ply, "Invalid Color Parameter.", 10)
+    self:Respond(Ply, "Please enter a number between 0-17 or the name of the desired color.", 10)
+end
+
+function Mod:OnServerCommand(Executor, CMD)
+    local Args = CMDSplit(CMD)
+    if (Args == nil) then
+        return
+    end
+    for _, cmd in pairs(self.command_aliases) do
+        if (Args[1] == cmd) then
+            local lvl = tonumber(get_var(Executor, "$lvl"))
+            if (lvl >= self.permission or Executor == 0) then
+                if (Args[3] ~= nil) then
+                    local pl = self:GetPlayers(Executor, Args)
+                    if (pl) then
+                        for i = 1, #pl do
+                            local TargetID = tonumber(pl[i])
+                            if (TargetID ~= Executor and lvl < self.permission_others) then
+                                self:Respond(Executor, "You lack permission to execute this command on other players", 10)
+                            else
+                                self:SetColor(Executor, TargetID, Args[3])
+                            end
+                        end
+                    end
+                else
+                    self:InvalidSyntax(Executor)
+                end
+            else
+                self:Respond(Executor, "Insufficient Permission", 10)
+            end
+            return false
+        elseif (Args[1] == self.list_command) then
+            local lvl = tonumber(get_var(Executor, "$lvl"))
+            if (lvl >= self.permission or Executor == 0) then
+                for k, v in pairs(self.colors) do
+                    self:Respond(Executor, k .. " | " .. v, 10)
+                end
+            else
+                self:Respond(Executor, "Insufficient Permission", 10)
+            end
+            return false
+        end
+    end
+end
+
+function Mod:SetColor(Executor, TargetID, Color)
+    local name = get_var(TargetID, "$name")
+    if player_alive(TargetID) then
+        local player = get_player(TargetID)
+        if (player) then
+            for ColorName, ID in pairs(Mod.colors) do
+
+                if (tostring(Color) == ColorName or tonumber(Color) == ID) then
+                    write_byte(player + 0x60, ID)
+                    local coords = Mod:GetXYZ(TargetID)
+                    if (coords) then
+                        self.players[TargetID] = { x = coords.x, y = coords.y, z = coords.z }
+                        self:Respond(Executor, name .. " has their color changed to " .. ColorName)
+                        return destroy_object(read_dword(get_player(TargetID) + 0x34))
+                    else
+                        return self:Respond(Executor, "Something went wrong! Please try again.")
+                    end
+                end
+            end
+            self:InvalidSyntax(Executor)
+        end
+    else
+        return self:Respond(Executor, name .. " is dead. Please wait until they respawn.")
+    end
+end
+
+function Mod:Respond(Ply, Message, Color)
+    Color = Color or 10
+    if (Ply == 0) then
+        cprint(Message, Color)
+    else
+        rprint(Ply, Message)
+    end
+end
+
+function Mod:GetXYZ(Ply)
+    local coords, x, y, z = { }
+    local DyN = get_dynamic_player(Ply)
+    if (DyN ~= 0) then
+        local VehicleID = read_dword(DyN + 0x11C)
+        if (VehicleID == 0xFFFFFFFF) then
+            x, y, z = read_vector3d(DyN + 0x5c)
+        else
+            x, y, z = read_vector3d(get_object_memory(VehicleID) + 0x5c)
+        end
+    end
+    coords.x, coords.y, coords.z = x, y, z
+    return coords
+end
+
+function Mod:GetPlayers(Executor, Args)
     local pl = { }
-    if (Args[Pos] == nil or Args[Pos] == "me" or Args[Pos] == "-gd" or Args[Pos] == "-seat" or Args[Pos] == "-amount") then
+    if (Args[2] == nil or Args[2] == "me") then
         if (Executor ~= 0) then
             table.insert(pl, Executor)
         else
             self:Respond(Executor, "Please enter a valid player id", 10)
         end
-    elseif (Args[Pos] ~= nil) and (Args[Pos]:match("^%d+$")) then
-        if player_present(Args[Pos]) then
-            table.insert(pl, Args[Pos])
+    elseif (Args[2] ~= nil) and (Args[2]:match("^%d+$")) then
+        if player_present(Args[2]) then
+            table.insert(pl, Args[2])
         else
-            self:Respond(Executor, "Player #" .. Args[Pos] .. " is not online", 10)
+            self:Respond(Executor, "Player #" .. Args[2] .. " is not online", 10)
         end
-    elseif (Args[Pos] == "all" or Args[Pos] == "*") then
+    elseif (Args[2] == "all" or Args[2] == "*") then
         for i = 1, 16 do
             if player_present(i) then
                 table.insert(pl, i)
@@ -262,25 +217,37 @@ function Mod:GetPlayers(Executor, Args, Pos)
     return pl
 end
 
---[[
-    Valid Color IDS:
-    
-    white or 0
-    black or 1
-    red or 2
-    blue or 3
-    gray or 4
-    yellow or 5
-    green or 6
-    pink or 7
-    purple or 8
-    cyan or 9
-    cobalt or 10
-    orange or 11
-    teal or 12
-    sage or 13
-    brown or 14
-    tan or 15
-    maroon or 16
-    salmon 17
-]]
+function LSS(state)
+    if (state) then
+        ls = sig_scan("741F8B482085C9750C")
+        if (ls == 0) then
+            ls = sig_scan("EB1F8B482085C9750C")
+        end
+        safe_write(true)
+        write_char(ls, 235)
+        safe_write(false)
+    else
+        if (ls == 0) then
+            return
+        end
+        safe_write(true)
+        write_char(ls, 116)
+        safe_write(false)
+    end
+end
+
+function OverrideTeamColors(Override)
+    if (get_var(0, "$gt") ~= "n/a") then
+        LSS(Override)
+    end
+end
+
+function OnServerCommand(P, C)
+    return Mod:OnServerCommand(P, C)
+end
+function OnPlayerSpawn(P)
+    return Mod:OnPlayerSpawn(P)
+end
+function OnTick()
+    return Mod:OnTick()
+end
