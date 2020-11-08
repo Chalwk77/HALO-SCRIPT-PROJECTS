@@ -8,27 +8,31 @@ Command Syntax:
 /give [item] [opt pid/* or "all"] [opt -amount]
 /spawn [item] [opt pid/* or "all"] [opt -amount]
 /enter [item] [opt pid/* or "all"] [opt -amount/-seat/-gd]
+/enter [seat] [opt pid/* or "all"]
+/enter
 /clean [pid/* or "all"] [type]
 
 Command Examples:
 
 Command | Description
-/give sniper                        Give sniper to yourself
-/give sniper 1                      Give sniper to player 1
-/give sniper 1 -amount 5            Give 5 sniper rifles to player 1
-/spawn tank                         Spawn tank at your location
-/spawn tank 1                       Spawn Tank at player 1's position
-/spawn tank 1 -amount 5             Spawn 5 tanks at player 1's position
-/enter hog                          Enter warthog at your current location
-/enter hog 1                        Enter player 1 into a warthog at their current position
-/enter hog 1 -amount 5              Enter player 1 into 5 warthogs at their current position
-/enter hog 1 -seat 3                Enter player 1 into passengers seat of warthog at their current position
-/enter hog 1 -gd                    Enter player 1 into gunner seat and driver seat of warthog at their current position
-/enter hog 1 -seat 3 -amount 10     Enter player 1 into passengers seat of 10 warthogs at their current position
-/enter hog 1 -gd -amount 10         Enter player 1 into gunner seat and driver seat of 10 warthogs at their current position
-/clean 1 1                          Clean Item Spawn Objects for player 1
-/clean 1 2                          Clean Vehicle Spawn Objects for player 1
-/clean 1 2                          Clean Vehicle Spawn & Item Spawn Objects for player 1
+/give sniper                        Give sniper to yourself.
+/give sniper 1                      Give sniper to player 1.
+/give sniper 1 -amount 5            Give 5 sniper rifles to player 1.
+/spawn tank                         Spawn tank at your location.
+/spawn tank 1                       Spawn Tank at player 1's position.
+/spawn tank 1 -amount 5             Spawn 5 tanks at player 1's position.
+/enter hog                          Enter warthog at your current location.
+/enter hog 1                        Enter player 1 into a warthog at their current position.
+/enter hog 1 -amount 5              Enter player 1 into 5 warthogs at their current position.
+/enter hog 1 -seat 3                Enter player 1 into passengers seat of warthog at their current position.
+/enter hog 1 -gd                    Enter player 1 into gunner seat and driver seat of warthog at their current position.
+/enter hog 1 -seat 3 -amount 10     Enter player 1 into passengers seat of 10 warthogs at their current position.
+/enter hog 1 -gd -amount 10         Enter player 1 into gunner seat and driver seat of 10 warthogs at their current position.
+/enter 1 1                          Force player 1 into seat 1 of the vehicle you're looking at.
+/enter                              Enter the driver seat of the vehicle you're looking at.
+/clean 1 1                          Clean Item Spawn Objects for player 1.
+/clean 1 2                          Clean Vehicle Spawn Objects for player 1.
+/clean 1 2                          Clean Vehicle Spawn & Item Spawn Objects for player 1.
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -58,6 +62,7 @@ local Mod = {
         },
         ["enter"] = {
             permission = 1,
+            aim_enter = true,
             permission_other = 4,
             func = function(params)
                 return Enter(params)
@@ -89,7 +94,7 @@ local Mod = {
         -- Vehicles: (enter/spawn)
         { "vehi", "vehicles\\ghost\\ghost_mp", "Ghost", { "ghost", "ghost_mp" } },
         { "vehi", "vehicles\\rwarthog\\rwarthog", "R-Hog", { "rhog", "rwarthog" } },
-        { "vehi", "vehicles\\banshee\\banshee_mp", "Banshee", { "banshee", "banshee_mp" } },
+        { "vehi", "vehicles\\banshee\\banshee_mp", "Banshee", { "banshee", "banshee_mp", "bansh" } },
         { "vehi", "vehicles\\c gun turret\\c gun turret_mp", "Turret", { "turret", "cgun" } },
         { "vehi", "vehicles\\warthog\\mp_warthog", "Warthog", { "hog", "mp_warthog", "warthog" } },
         { "vehi", "vehicles\\scorpion\\scorpion_mp", "Tank", { "tank", "scorpion", "scorpion_mp" } },
@@ -148,7 +153,10 @@ function Mod:Init()
 end
 
 function OnScriptLoad()
+    register_callback(cb["EVENT_TICK"], "OnTick")
     register_callback(cb["EVENT_DIE"], "OnPlayerDeath")
+    register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
+    register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
@@ -164,6 +172,15 @@ function OnPlayerDeath(P)
     Mod:ClearObjects(P, "vehicle")
 end
 
+function OnPlayerConnect(p)
+    Mod.players[p] = { vehicle = { }, item = { }, enter = false, seat = 0 }
+end
+
+function OnPlayerSpawn(p)
+    Mod.players[p].seat = 0
+    Mod.players[p].enter = false
+end
+
 function OnScriptUnload()
     for i = 1, 16 do
         if player_present(i) then
@@ -173,9 +190,77 @@ function OnScriptUnload()
     end
 end
 
+function Mod:DriverSeatOccupied(Ply, Vehicle, Seat)
+    for i = 1, 16 do
+        if (player_present(i) and i ~= Ply) then
+            local DyN = get_dynamic_player(i)
+            if (DyN ~= 0) then
+                local VehicleID = read_dword(DyN + 0x11C)
+                local VehicleObject = get_object_memory(VehicleID)
+                if (VehicleID ~= 0xFFFFFFFF and VehicleObject == Vehicle) then
+                    local seat = tonumber(read_word(DyN + 0x2F0))
+                    if (seat == 0) and (Seat == 0) then
+                        return true, self:Respond(Ply, "Driver seat is occupied by " .. get_var(i, "$name"))
+                    elseif (seat == 1) and (Seat == 1) then
+                        return true, self:Respond(Ply, "Passenger seat is occupied by " .. get_var(i, "$name"))
+                    elseif (seat == 2) and (Seat == 2) then
+                        return true, self:Respond(Ply, "Gunner seat is occupied by " .. get_var(i, "$name"))
+                    elseif (seat == 3) and (Seat == 3) then
+                        return true, self:Respond(Ply, "Passenger seat is occupied by " .. get_var(i, "$name"))
+                    elseif (seat == 4) and (Seat == 4) then
+                        return true, self:Respond(Ply, "Passenger seat is occupied by " .. get_var(i, "$name"))
+                    else
+                        return true, self:Respond(Ply, "Vehicle is occupied by " .. get_var(i, "$name"))
+                    end
+                end
+            end
+        end
+    end
+    return false
+end
+
+function Mod:OnTick()
+    for i, v in pairs(self.players) do
+        if (v.enter) then
+            local coords = self:GetXYZ(v.command_executor)
+            if (coords) then
+
+                local InVehicle = self:GetXYZ(i)
+                if (not InVehicle.invehicle) then
+
+                    local x, y, z = read_float(coords.dyn + 0x230), read_float(coords.dyn + 0x234), read_float(coords.dyn + 0x238)
+                    local couching = read_float(coords.dyn + 0x50C)
+                    local px, py, pz = read_vector3d(coords.dyn + 0x5c)
+                    if (couching == 0) then
+                        pz = pz + 0.65
+                    else
+                        pz = pz + (0.35 * couching)
+                    end
+                    local ignore_player = read_dword(get_player(i) + 0x34)
+                    local success, _, _, _, target = intersect(px, py, pz, x * 1000, y * 1000, z * 1000, ignore_player)
+                    local VehicleObject = get_object_memory(target)
+                    if (VehicleObject ~= 0) and (success == true and target ~= nil) and (v.enter) then
+                        local occupied = self:DriverSeatOccupied(i, VehicleObject, v.seat)
+                        if (not occupied) then
+                            enter_vehicle(target, i, v.seat)
+                            self:Respond(v.command_executor, "Entering Vehicle.....")
+                        end
+                        v.enter = false
+                    elseif (v.enter) then
+                        v.enter = false
+                        self:Respond(v.command_executor, "You were not looking at a vehicle!")
+                    end
+                else
+                    v.enter = false
+                    self:Respond(v.command_executor, "You were not looking at a vehicle!")
+                end
+            end
+        end
+    end
+end
+
 function Mod:ClearObjects(Ply, Type, Params)
     if (self.players[Ply]) then
-
         local count = #self.players[Ply][Type]
         for k, v in pairs(self.players[Ply][Type]) do
             if (k) then
@@ -215,11 +300,13 @@ function Mod:ValidateItem(Ply, ITEM)
             end
         end
     end
-    return self:Respond(Ply, 'Computer says no! Invalid object.', 10)
+    self:Respond(Ply, 'Computer says no! Invalid object.', 10)
+    return {}
 end
 
 local function CMDSplit(CMD)
     local Args, index = { }, 1
+    CMD = gsub(CMD, '"', "")
     for Params in gmatch(CMD, "([^%s]+)") do
         Args[index] = lower(Params)
         index = index + 1
@@ -232,7 +319,7 @@ local function GetTag(Type, Name)
     return Tag ~= 0 and read_dword(Tag + 0xC) or nil
 end
 
-local function GetXYZ(Ply)
+function Mod:GetXYZ(Ply)
     local coords, x, y, z = { }
     local DyN = get_dynamic_player(Ply)
     if (DyN ~= 0) then
@@ -261,6 +348,7 @@ function Mod:OnServerCommand(Executor, C, _, _)
 
                 local lvl = tonumber(get_var(Executor, "$lvl"))
                 if (lvl >= Param.permission or Executor == 0) then
+
                     if (Args[2] ~= nil) then
 
                         local params = {}
@@ -302,55 +390,57 @@ function Mod:OnServerCommand(Executor, C, _, _)
                             end
                         else
 
-                            local item = self:ValidateItem(Executor, Args[2])
-                            if (item) then
+                            -- Check if player has specified a seat:
+                            local seat = C:match("--seat")
+                            if (seat) then
+                                seat = gsub(C:match(seat .. "( %d+)"), "%s", "")
+                            end
+                            params.seat = tonumber(seat) or 0
 
-                                params.err = false
+                            if (not Args[2]:match("^%d+$")) then
+                                local item = self:ValidateItem(Executor, Args[2])
                                 params.item_name = item[3]
                                 params.item = { item[1], item[2] }
+                            else
+                                params.seat = tonumber(Args[2])
+                                params.enter_desired_vehicle = true
+                            end
 
-                                -- Check if player wants to enter driver seat and gunner seat simultaneously
-                                params.gunner_driver = C:match("--gd")
+                            params.err = false
 
-                                -- Check if player has specified a seat:
-                                local seat = C:match("--seat")
-                                if (seat) then
-                                    seat = gsub(C:match(seat .. "( %d+)"), "%s", "")
-                                end
-                                params.seat = tonumber(seat) or 0
+                            -- Check if player wants to enter driver seat and gunner seat simultaneously
+                            params.gunner_driver = C:match("--gd")
 
-                                -- Check if player has specified an amount of the object to deal with:
-                                local amount = C:match("--amount")
-                                if (amount) then
-                                    amount = gsub(C:match(amount .. "( %d+)"), "%s", "")
-                                end
-                                params.amount = tonumber(amount) or 1
+                            -- Check if player has specified an amount of the object to deal with:
+                            local amount = C:match("--amount")
+                            if (amount) then
+                                amount = gsub(C:match(amount .. "( %d+)"), "%s", "")
+                            end
+                            params.amount = tonumber(amount) or 1
 
-                                local pl = self:GetPlayers(Executor, Args, 3)
-                                if (pl) then
-                                    for i = 1, #pl do
-
-                                        local tid = tonumber(pl[i])
-                                        local tname = get_var(tid, "$name")
-
-                                        if player_alive(tid) then
-                                            local coords = GetXYZ(tid)
-                                            if (coords) then
-                                                params.tid = tid
-                                                params.tname = tname
-                                                params.coords = coords
-                                                Param.func(params)
-                                            end
-                                        else
-                                            self:Respond(Executor, tname .. " is not alive!", 12)
+                            local pl = self:GetPlayers(Executor, Args, 3)
+                            if (pl) then
+                                for i = 1, #pl do
+                                    local tid = tonumber(pl[i])
+                                    local tname = get_var(tid, "$name")
+                                    if player_alive(tid) then
+                                        local coords = self:GetXYZ(tid)
+                                        if (coords) then
+                                            params.tid = tid
+                                            params.tname = tname
+                                            params.coords = coords
+                                            params.command_executor = Executor
+                                            Param.func(params)
                                         end
+                                    else
+                                        self:Respond(Executor, tname .. " is not alive!", 12)
                                     end
                                 end
                             end
                         end
+                    elseif (Param.aim_enter) then
+                        self.players[Executor].enter = true
                     end
-                else
-                    self:Respond(Executor, "Please specify an item!", 12)
                 end
                 return false
             end
@@ -380,7 +470,6 @@ function Mod:SpawnItem(params)
                 z = z + 0.3 * sin(z_aim) + 0.5
                 local obj = spawn_object(Type, Name, x, y, z)
 
-                self.players[Ply] = self.players[Ply] or { vehicle = { }, item = { } }
                 if (params.type == "spawn") then
                     self.players[Ply].item[#self.players[Ply].item + 1] = obj
                 elseif (params.type == "enter") then
@@ -463,7 +552,13 @@ function Mod:Enter(params)
     local tname = params.tname
     local ename = params.ename
     local object = params.item
-    if (object[1] == "vehi") and (not params.error) then
+    if (params.enter_desired_vehicle) then
+        self.players[tid].enter = true
+        self.players[tid].seat = params.seat
+        self.players[tid].command_executor = params.command_executor
+
+        return true
+    elseif (object[1] == "vehi") and (not params.error) then
         params.type = "enter"
         local success = self:SpawnItem(params)
         if (success) then
@@ -521,6 +616,9 @@ function Mod:GetPlayers(Executor, Args, Pos)
     return pl
 end
 
+function OnTick()
+    return Mod:OnTick()
+end
 function Give(Params)
     return Mod:Give(Params)
 end
