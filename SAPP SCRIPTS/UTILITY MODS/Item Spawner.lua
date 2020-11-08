@@ -32,7 +32,7 @@ Command | Description
 /enter                              Enter the driver seat of the vehicle you're looking at.
 /clean 1 1                          Clean Item Spawn Objects for player 1.
 /clean 1 2                          Clean Vehicle Spawn Objects for player 1.
-/clean 1 2                          Clean Vehicle Spawn & Item Spawn Objects for player 1.
+/clean 1 *                          Clean Vehicle Spawn & Item Spawn Objects for player 1.
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
