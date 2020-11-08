@@ -192,6 +192,7 @@ function OnScriptUnload()
 end
 
 function Mod:DriverSeatOccupied(Ply, Vehicle, Seat)
+    local team = get_var(Ply, "$team")
     for i = 1, 16 do
         if (player_present(i) and i ~= Ply) then
             local DyN = get_dynamic_player(i)
@@ -199,6 +200,7 @@ function Mod:DriverSeatOccupied(Ply, Vehicle, Seat)
                 local VehicleID = read_dword(DyN + 0x11C)
                 local VehicleObject = get_object_memory(VehicleID)
                 if (VehicleID ~= 0xFFFFFFFF and VehicleObject == Vehicle) then
+                    team = get_var(i, "$team")
                     local seat = tonumber(read_word(DyN + 0x2F0))
                     if (seat == 0) and (Seat == 0) then
                         return true, self:Respond(Ply, "Driver seat is occupied by " .. get_var(i, "$name"))
@@ -210,14 +212,12 @@ function Mod:DriverSeatOccupied(Ply, Vehicle, Seat)
                         return true, self:Respond(Ply, "Passenger seat is occupied by " .. get_var(i, "$name"))
                     elseif (seat == 4) and (Seat == 4) then
                         return true, self:Respond(Ply, "Passenger seat is occupied by " .. get_var(i, "$name"))
-                    else
-                        return true, self:Respond(Ply, "Vehicle is occupied by " .. get_var(i, "$name"))
                     end
                 end
             end
         end
     end
-    return false
+    return false, team
 end
 
 function Mod:OnTick()
@@ -239,10 +239,12 @@ function Mod:OnTick()
                     local success, _, _, _, target = intersect(px, py, pz, x * 1000, y * 1000, z * 1000, ignore_player)
                     local VehicleObject = get_object_memory(target)
                     if (VehicleObject ~= 0) and (success == true and target ~= nil) and (v.enter) then
-                        local occupied = self:DriverSeatOccupied(i, VehicleObject, v.seat)
-                        if (not occupied) then
+                        local occupied, Team = self:DriverSeatOccupied(i, VehicleObject, v.seat)
+                        local team = get_var(v.command_executor, "$team")
+                        if (team ~= Team) then
+                            self:Respond(v.command_executor, "Vehicle is occupied by someone on the opposite team!")
+                        elseif (not occupied) then
                             enter_vehicle(target, i, v.seat)
-                            self.players[i].vehicle[#self.players[i].vehicle + 1] = target
                             self:Respond(v.command_executor, "Entering Vehicle.....")
                         end
                         v.enter = false

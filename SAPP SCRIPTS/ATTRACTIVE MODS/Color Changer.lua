@@ -6,10 +6,28 @@ Description: Change any player's armor color on demand.
 Command Syntax: 
     * /setcolor [player id | me | */all] [color id]
     "me" can be used in place of your own player id
-    
-    See color ID table at the bottom of the script.
 
-Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
+    Valid Color IDS:
+    white or 0
+    black or 1
+    red or 2
+    blue or 3
+    gray or 4
+    yellow or 5
+    green or 6
+    pink or 7
+    purple or 8
+    cyan or 9
+    cobalt or 10
+    orange or 11
+    teal or 12
+    sage or 13
+    brown or 14
+    tan or 15
+    maroon or 16
+    salmon or 17
+
+Copyright (c) 2019-2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
@@ -22,13 +40,12 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.12.0.0"
 
 -- configuration [starts]
-local base_command = "setcolor"
--- Minimum privilege level required to execute /base_command.
-local privilege_level = 4
+local color = {
+    command = "setcolor",
+    permission = 1,
+    permission_other = 4,
+}
 -- configuration [ends]
-
-local color = { }
-local lower = string.lower
 
 function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
@@ -68,57 +85,8 @@ local function isOnline(t, e)
     end
 end
 
-function OnServerCommand(PlayerIndex, Command)
-    local command, args = cmdsplit(Command)
-    local executor = tonumber(PlayerIndex)
-
-    local players, TargetID, target_all_players = { }, { }
-
-    local function validate_params()
-
-        local function getplayers(arg, executor)
-            local pl = { }
-            if arg == "me" then
-                TargetID = executor
-                table.insert(pl, executor)
-            elseif arg:match("%d+") then
-                TargetID = tonumber(args[1])
-                table.insert(pl, arg)
-            elseif arg == "*" or (arg == "all") then
-                for i = 1, 16 do
-                    if player_present(i) then
-                        target_all_players = true
-                        table.insert(pl, i)
-                    end
-                end
-            else
-                rprint(executor, "Invalid command parameter")
-                is_error = true
-                return false
-            end
-            if pl[1] then
-                return pl
-            end
-            pl = nil
-            return false
-        end
-
-        local pl = getplayers(args[1], executor)
-        if pl then
-            for i = 1, #pl do
-                if pl[i] == nil then
-                    break
-                end
-                players.eid = tonumber(get_var(executor, "$n"))
-                players.tid = tonumber(get_var(pl[i], "$n"))
-                players.tn = get_var(pl[i], "$name")
-                players.color = args[2]
-                if (target_all_players) then
-                    color:change(players)
-                end
-            end
-        end
-    end
+function OnServerCommand(PlayerIndex, CMD)
+    local Args = CMDSplit(CMD)
 
     if (command == lower(base_command)) then
         if (checkAccess(executor)) then
@@ -255,61 +223,43 @@ function isTeamPlay()
     end
 end
 
-function cmdsplit(str)
-    local subs = {}
-    local sub = ""
-    local ignore_quote, inquote, endquote
-    for i = 1, string.len(str) do
-        local bool
-        local char = string.sub(str, i, i)
-        if char == " " then
-            if (inquote and endquote) or (not inquote and not endquote) then
-                bool = true
-            end
-        elseif char == "\\" then
-            ignore_quote = true
-        elseif char == "\"" then
-            if not ignore_quote then
-                if not inquote then
-                    inquote = true
-                else
-                    endquote = true
-                end
-            end
-        end
-
-        if char ~= "\\" then
-            ignore_quote = false
-        end
-
-        if bool then
-            if inquote and endquote then
-                sub = string.sub(sub, 2, string.len(sub) - 1)
-            end
-
-            if sub ~= "" then
-                table.insert(subs, sub)
-            end
-            sub = ""
-            inquote = false
-            endquote = false
-        else
-            sub = sub .. char
-        end
-
-        if i == string.len(str) then
-            if string.sub(sub, 1, 1) == "\"" and string.sub(sub, string.len(sub), string.len(sub)) == "\"" then
-                sub = string.sub(sub, 2, string.len(sub) - 1)
-            end
-            table.insert(subs, sub)
-        end
+local function CMDSplit(CMD)
+    local Args, index = { }, 1
+    CMD = gsub(CMD, '"', "")
+    for Params in gmatch(CMD, "([^%s]+)") do
+        Args[index] = lower(Params)
+        index = index + 1
     end
+    return Args
+end
 
-    local cmd = subs[1]
-    local args = subs
-    table.remove(args, 1)
-
-    return cmd, args
+function Mod:GetPlayers(Executor, Args, Pos)
+    local pl = { }
+    if (Args[Pos] == nil or Args[Pos] == "me" or Args[Pos] == "-gd" or Args[Pos] == "-seat" or Args[Pos] == "-amount") then
+        if (Executor ~= 0) then
+            table.insert(pl, Executor)
+        else
+            self:Respond(Executor, "Please enter a valid player id", 10)
+        end
+    elseif (Args[Pos] ~= nil) and (Args[Pos]:match("^%d+$")) then
+        if player_present(Args[Pos]) then
+            table.insert(pl, Args[Pos])
+        else
+            self:Respond(Executor, "Player #" .. Args[Pos] .. " is not online", 10)
+        end
+    elseif (Args[Pos] == "all" or Args[Pos] == "*") then
+        for i = 1, 16 do
+            if player_present(i) then
+                table.insert(pl, i)
+            end
+        end
+        if (#pl == 0) then
+            self:Respond(Executor, "There are no players online!", 10)
+        end
+    else
+        self:Respond(Executor, "Invalid Command Syntax. Please try again!", 10)
+    end
+    return pl
 end
 
 --[[
