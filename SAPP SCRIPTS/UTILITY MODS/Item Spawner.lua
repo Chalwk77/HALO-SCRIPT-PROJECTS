@@ -32,7 +32,7 @@ Command | Description
 /enter                              Enter the driver seat of the vehicle you're looking at.
 /clean 1 1                          Clean Item Spawn Objects for player 1.
 /clean 1 2                          Clean Vehicle Spawn Objects for player 1.
-/clean 1 *                          Clean Vehicle Spawn & Item Spawn Objects for player 1.
+/clean 1 2                          Clean Vehicle Spawn & Item Spawn Objects for player 1.
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -173,12 +173,13 @@ function OnPlayerDeath(P)
 end
 
 function OnPlayerConnect(p)
-    Mod.players[p] = { vehicle = { }, item = { }, enter = false, seat = 0 }
+    Mod.players[p] = { vehicle = { }, item = { }, enter = false, seat = 0, command_executor = p, name = get_var(p, "$name") }
 end
 
 function OnPlayerSpawn(p)
     Mod.players[p].seat = 0
     Mod.players[p].enter = false
+    Mod.players[p].command_executor = p
 end
 
 function OnScriptUnload()
@@ -224,10 +225,8 @@ function Mod:OnTick()
         if (v.enter) then
             local coords = self:GetXYZ(v.command_executor)
             if (coords) then
-
                 local InVehicle = self:GetXYZ(i)
                 if (not InVehicle.invehicle) then
-
                     local x, y, z = read_float(coords.dyn + 0x230), read_float(coords.dyn + 0x234), read_float(coords.dyn + 0x238)
                     local couching = read_float(coords.dyn + 0x50C)
                     local px, py, pz = read_vector3d(coords.dyn + 0x5c)
@@ -243,6 +242,7 @@ function Mod:OnTick()
                         local occupied = self:DriverSeatOccupied(i, VehicleObject, v.seat)
                         if (not occupied) then
                             enter_vehicle(target, i, v.seat)
+                            self.players[i].vehicle[#self.players[i].vehicle + 1] = target
                             self:Respond(v.command_executor, "Entering Vehicle.....")
                         end
                         v.enter = false
@@ -252,7 +252,7 @@ function Mod:OnTick()
                     end
                 else
                     v.enter = false
-                    self:Respond(v.command_executor, "You were not looking at a vehicle!")
+                    self:Respond(v.command_executor, v.name .. " is already in a vehicle")
                 end
             end
         end
@@ -464,10 +464,18 @@ function Mod:SpawnItem(params)
 
                 local x_aim = read_float(params.coords.dyn + 0x230)
                 local y_aim = read_float(params.coords.dyn + 0x234)
-                local z_aim = read_float(params.coords.dyn + 0x238)
-                x = x + self.distance_from_player * sin(x_aim)
-                y = y + self.distance_from_player * sin(y_aim)
-                z = z + 0.3 * sin(z_aim) + 0.5
+
+                if (params.type == "spawn") then
+                    local z_aim = read_float(params.coords.dyn + 0x238)
+                    x = x + self.distance_from_player * sin(x_aim)
+                    y = y + self.distance_from_player * sin(y_aim)
+                    z = z + 0.3 * sin(z_aim) + 0.5
+                else
+                    x = x + x_aim * self.distance_from_player
+                    y = y + y_aim * self.distance_from_player
+                    z = z + 0.3
+                end
+
                 local obj = spawn_object(Type, Name, x, y, z)
 
                 if (params.type == "spawn") then
@@ -556,7 +564,6 @@ function Mod:Enter(params)
         self.players[tid].enter = true
         self.players[tid].seat = params.seat
         self.players[tid].command_executor = params.command_executor
-
         return true
     elseif (object[1] == "vehi") and (not params.error) then
         params.type = "enter"
