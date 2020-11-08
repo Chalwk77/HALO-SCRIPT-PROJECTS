@@ -19,7 +19,7 @@ Give sniper to player 1:
 /give sniper 1
 
 Give 5 sniper rifles to player 1:
-/give sniper 1 5
+/give sniper 1 -amount 5
 
 Spawn tank at your location:
 /spawn tank
