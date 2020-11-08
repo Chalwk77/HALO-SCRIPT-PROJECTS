@@ -12,51 +12,23 @@ Command Syntax:
 
 Command Examples:
 
-Give sniper to yourself:
-/give sniper
-
-Give sniper to player 1:
-/give sniper 1
-
-Give 5 sniper rifles to player 1:
-/give sniper 1 -amount 5
-
-Spawn tank at your location:
-/spawn tank
-
-Spawn Tank at player 1's position:
-/spawn tank 1
-
-Spawn 5 tanks at player 1's position:
-/spawn tank 1 -amount 5
-
-Enter warthog at your current location:
-/enter hog
-
-Enter player 1 into a warthog at their current position:
-/enter hog 1
-
-Enter player 1 into 5 warthogs at their current position:
-/enter hog 1 -amount 5
-
-Enter player 1 into passengers seat of warthog at their current position:
-/enter hog 1 -seat 3
-
-Enter player 1 into gunner seat and driver seat of warthog at their current position:
-/enter hog 1 -gd
-
-Enter player 1 into passengers seat of 10 warthogs at their current position:
-/enter hog 1 -seat 3 -amount 10
-
-Enter player 1 into gunner seat and driver seat of 10 warthogs at their current position:
-/enter hog 1 -gd -amount 10
-
-Clean Item Spawn Objects for player 1:
-/clean 1 1
-Clean Vehicle Spawn Objects for player 1:
-/clean 1 2
-Clean Vehicle Spawn & Item Spawn Objects for player 1:
-/clean 1 2
+Command | Description
+/give sniper                        Give sniper to yourself
+/give sniper 1                      Give sniper to player 1
+/give sniper 1 -amount 5            Give 5 sniper rifles to player 1
+/spawn tank                         Spawn tank at your location
+/spawn tank 1                       Spawn Tank at player 1's position
+/spawn tank 1 -amount 5             Spawn 5 tanks at player 1's position
+/enter hog                          Enter warthog at your current location
+/enter hog 1                        Enter player 1 into a warthog at their current position
+/enter hog 1 -amount 5              Enter player 1 into 5 warthogs at their current position
+/enter hog 1 -seat 3                Enter player 1 into passengers seat of warthog at their current position
+/enter hog 1 -gd                    Enter player 1 into gunner seat and driver seat of warthog at their current position
+/enter hog 1 -seat 3 -amount 10     Enter player 1 into passengers seat of 10 warthogs at their current position
+/enter hog 1 -gd -amount 10         Enter player 1 into gunner seat and driver seat of 10 warthogs at their current position
+/clean 1 1                          Clean Item Spawn Objects for player 1
+/clean 1 2                          Clean Vehicle Spawn Objects for player 1
+/clean 1 2                          Clean Vehicle Spawn & Item Spawn Objects for player 1
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
