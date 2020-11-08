@@ -302,8 +302,7 @@ function Mod:ValidateItem(Ply, ITEM)
             end
         end
     end
-    self:Respond(Ply, 'Computer says no! Invalid object.', 10)
-    return {}
+    return {}, self:Respond(Ply, 'Computer says no! Invalid object.', 10)
 end
 
 local function CMDSplit(CMD)
@@ -350,9 +349,7 @@ function Mod:OnServerCommand(Executor, C, _, _)
 
                 local lvl = tonumber(get_var(Executor, "$lvl"))
                 if (lvl >= Param.permission or Executor == 0) then
-
                     if (Args[2] ~= nil) then
-
                         local params = {}
                         params.eid = Executor
                         params.ename = get_var(Executor, "$name")
@@ -401,8 +398,12 @@ function Mod:OnServerCommand(Executor, C, _, _)
 
                             if (not Args[2]:match("^%d+$")) then
                                 local item = self:ValidateItem(Executor, Args[2])
-                                params.item_name = item[3]
-                                params.item = { item[1], item[2] }
+                                if (#item > 0) then
+                                    params.item_name = item[3]
+                                    params.item = { item[1], item[2] }
+                                else
+                                    return false
+                                end
                             else
                                 params.seat = tonumber(Args[2])
                                 params.enter_desired_vehicle = true
@@ -443,6 +444,8 @@ function Mod:OnServerCommand(Executor, C, _, _)
                     elseif (Param.aim_enter) then
                         self.players[Executor].enter = true
                     end
+                else
+                    self:Respond(Executor, "Insufficient Permission", 12)
                 end
                 return false
             end
