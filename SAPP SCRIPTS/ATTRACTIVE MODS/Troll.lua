@@ -200,14 +200,14 @@ local Troll = {
                     { "weapons\\plasma_cannon\\effects\\plasma_cannon_explosion", others = { 7, 10 }, you = { 10, 10 }, { 1, 2 } },
                 },
 
-                vehicle_collision = {
-                    "globals\\vehicle_collision", others = { 7, 10 }, you = { 10, 10 }, { 1, 3 }
-                },
-
                 fall_damage = {
                     { "globals\\falling", you = { 10, 10 }, chance = { 1, 3 } },
                     { "globals\\distance", you = { 10, 10 }, chance = { 1, 3 } },
                 },
+
+                vehicle_collision = {
+                    "globals\\vehicle_collision", others = { 7, 10 }, you = { 10, 10 }, { 1, 3 }
+                }
             }
         },
 
@@ -1455,25 +1455,27 @@ function OnDamageApplication(VictimIndex, CauserIndex, MetaID, Damage, _, _)
 
                 for Table, _ in pairs(t.multipliers) do
                     for _, Tag in pairs(t.multipliers[Table]) do
-                        if (MetaID == GetTag("jpt!", Tag[1])) then
+                        if (Tag[1] ~= nil) then
 
-                            local SelfHarm = (VictimIndex == CauserIndex)
-                            math.randomseed(os.clock())
+                            if (MetaID == GetTag("jpt!", Tag[1])) then
 
-                            if (SelfHarm) and TrollPlayer(VictimIndex, t) then
-                                Damage = (Damage + math.random(Tag.you[1], Tag.you[2]))
-                                cprint("[TROLL] " .. players[VictimIndex].name .. " units of damage was modified!", 5 + 8)
+                                local SelfHarm = (VictimIndex == CauserIndex)
+                                math.randomseed(os.clock())
 
-                            elseif (not SelfHarm) and TrollPlayer(CauserIndex, t) then
-                                cprint("[TROLL] " .. players[CauserIndex].name .. " units of damage was modified!", 5 + 8)
-                                if (Table == "vehicle_collision" or Table == "grenades" or Table == "projectiles") then
-                                    Damage = Damage - math.random(Tag.others[1], Tag.others[2])
-                                else
-                                    Damage = -math.random(Tag[2], Tag[3])
+                                if (SelfHarm) and TrollPlayer(VictimIndex, t) then
+                                    Damage = (Damage + math.random(Tag.you[1], Tag.you[2]))
+                                    cprint("[TROLL] " .. players[VictimIndex].name .. " units of damage was modified!", 5 + 8)
+
+                                elseif (not SelfHarm) and TrollPlayer(CauserIndex, t) then
+                                    cprint("[TROLL] " .. players[CauserIndex].name .. " units of damage was modified!", 5 + 8)
+                                    if (Table == "vehicle_collision" or Table == "grenades" or Table == "projectiles") then
+                                        Damage = Damage - math.random(Tag.others[1], Tag.others[2])
+                                    else
+                                        Damage = -math.random(Tag[2], Tag[3])
+                                    end
                                 end
+                                return true, Damage
                             end
-
-                            return true, Damage
                         end
                     end
                 end
