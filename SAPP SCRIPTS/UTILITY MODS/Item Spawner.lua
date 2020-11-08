@@ -77,36 +77,36 @@ local Mod = {
         -- {tag type, tag name, item name, {list of commands to trigger}}
 
 
-        { "bipd", "characters\\cyborg_mp\\cyborg_mp", "a Cyborg", { "cyborg" } },
+        { "bipd", "characters\\cyborg_mp\\cyborg_mp", "Cyborg", { "cyborg" } },
 
         -- Equipment: (give/spawn)
-        { "eqip", "powerups\\health pack", "a Health Pack", { "health", "hp", "hpack" } },
-        { "eqip", "powerups\\active camouflage", "a Camouflage", { "camo", "cam", "camouflage" } },
-        { "eqip", "powerups\\over shield", "an Over Shield", { "overshield", "os", "oshield", "sh" } },
-        { "eqip", "weapons\\frag grenade\\frag grenade", "a Frag Grenade", { "frag", "grenade", "fraggrenade", "fnade" } },
-        { "eqip", "weapons\\plasma grenade\\plasma grenade", "a Plasma Grenade", { "plasma", "plasmagrenade", "psnade" } },
+        { "eqip", "powerups\\health pack", "Health Pack", { "health", "hp", "hpack" } },
+        { "eqip", "powerups\\active camouflage", "Camouflage", { "camo", "cam", "camouflage" } },
+        { "eqip", "powerups\\over shield", "Over Shield", { "overshield", "os", "oshield", "sh" } },
+        { "eqip", "weapons\\frag grenade\\frag grenade", "Frag Grenade", { "frag", "grenade", "fraggrenade", "fnade" } },
+        { "eqip", "weapons\\plasma grenade\\plasma grenade", "Plasma Grenade", { "plasma", "plasmagrenade", "psnade" } },
 
         -- Vehicles: (enter/spawn)
-        { "vehi", "vehicles\\ghost\\ghost_mp", "a Ghost", { "ghost", "ghost_mp" } },
-        { "vehi", "vehicles\\rwarthog\\rwarthog", "an R-Hog", { "rhog", "rwarthog" } },
-        { "vehi", "vehicles\\banshee\\banshee_mp", "a Banshee", { "banshee", "banshee_mp" } },
-        { "vehi", "vehicles\\c gun turret\\c gun turret_mp", "a Turret", { "turret", "cgun" } },
-        { "vehi", "vehicles\\warthog\\mp_warthog", "a Warthog", { "hog", "mp_warthog", "warthog" } },
-        { "vehi", "vehicles\\scorpion\\scorpion_mp", "a Tank", { "tank", "scorpion", "scorpion_mp" } },
+        { "vehi", "vehicles\\ghost\\ghost_mp", "Ghost", { "ghost", "ghost_mp" } },
+        { "vehi", "vehicles\\rwarthog\\rwarthog", "R-Hog", { "rhog", "rwarthog" } },
+        { "vehi", "vehicles\\banshee\\banshee_mp", "Banshee", { "banshee", "banshee_mp" } },
+        { "vehi", "vehicles\\c gun turret\\c gun turret_mp", "Turret", { "turret", "cgun" } },
+        { "vehi", "vehicles\\warthog\\mp_warthog", "Warthog", { "hog", "mp_warthog", "warthog" } },
+        { "vehi", "vehicles\\scorpion\\scorpion_mp", "Tank", { "tank", "scorpion", "scorpion_mp" } },
 
         -- Weapons: (give/spawn)
-        { "weap", "weapons\\flag\\flag", "a Flag", { "flag" } },
-        { "weap", "weapons\\ball\\ball", "a Skull", { "ball", "skull" } },
-        { "weap", "weapons\\pistol\\pistol", "a Pistol", { "pistol", "pist" } },
-        { "weap", "weapons\\shotgun\\shotgun", "a Shotgun", { "shotgun", "shotty" } },
-        { "weap", "weapons\\needler\\mp_needler", "a Needler", { "needler", "need" } },
-        { "weap", "weapons\\plasma rifle\\plasma rifle", "a Plasma Rifle", { "prifle", "plasmarifle" } },
-        { "weap", "weapons\\flamethrower\\flamethrower", "a Flamethrower", { "flamethrower", "fthrower" } },
-        { "weap", "weapons\\plasma_cannon\\plasma_cannon", "a Plasma Cannon", { "pcannon", "plasmacannon" } },
-        { "weap", "weapons\\plasma pistol\\plasma pistol", "a Plasma Pistol", { "ppistol", "plasmapistol" } },
-        { "weap", "weapons\\assault rifle\\assault rifle", "an Assault Rifle", { "arifle", "assaultrifle", "rifle" } },
+        { "weap", "weapons\\flag\\flag", "Flag", { "flag" } },
+        { "weap", "weapons\\ball\\ball", "Skull", { "ball", "skull" } },
+        { "weap", "weapons\\pistol\\pistol", "Pistol", { "pistol", "pist" } },
+        { "weap", "weapons\\shotgun\\shotgun", "Shotgun", { "shotgun", "shotty" } },
+        { "weap", "weapons\\needler\\mp_needler", "Needler", { "needler", "need" } },
+        { "weap", "weapons\\plasma rifle\\plasma rifle", "Plasma Rifle", { "prifle", "plasmarifle" } },
+        { "weap", "weapons\\flamethrower\\flamethrower", "Flamethrower", { "flamethrower", "fthrower" } },
+        { "weap", "weapons\\plasma_cannon\\plasma_cannon", "Plasma Cannon", { "pcannon", "plasmacannon" } },
+        { "weap", "weapons\\plasma pistol\\plasma pistol", "Plasma Pistol", { "ppistol", "plasmapistol" } },
+        { "weap", "weapons\\assault rifle\\assault rifle", "Assault Rifle", { "arifle", "assaultrifle", "rifle" } },
         { "weap", "weapons\\sniper rifle\\sniper rifle", "Sniper Rifle", { "sniper", "snipe", "sniperrifle", "srifle" } },
-        { "weap", "weapons\\rocket launcher\\rocket launcher", "a Rocket Launcher", { "rocketl", "rocketlauncher", "rlauncher" } },
+        { "weap", "weapons\\rocket launcher\\rocket launcher", "Rocket Launcher", { "rocketl", "rocketlauncher", "rlauncher" } },
 
         -- Projectiles: (spawn)
         { "proj", "weapons\\flamethrower\\flame", "Flames", { "flame", "flameproj" } },
