@@ -38,8 +38,8 @@ local log_directory = "serverlog.txt"
         %total%     = Total number of players currently online.
 ]]
 
-local on_join = "[JOIN]    Name: %name%    ID: [%id%]    IP: [%ip%]    CD-Key Hash: [%hash%]    Total Players: [%total%/16]"
-local on_quit = "[QUIT]    Name: %name%    ID: [%id%]    IP: [%ip%]    CD-Key Hash: [%hash%]    Total Players: [%total%/16]"
+local on_join = "[JOIN] Name: [%name%] ID: [%id%] IP: [%ip%] CD-Key Hash: [%hash%] Total Players: [%total%/16]"
+local on_quit = "[QUIT] Name: [%name%] ID: [%id%] IP: [%ip%] CD-Key Hash: [%hash%] Total Players: [%total%/16]"
 
 local on_load = "[SCRIPT LOAD] Server Logger was loaded"
 local on_reload = "[SERVER] SAPP Was Reloaded"
@@ -73,7 +73,7 @@ local censored_content = {
 -- Configuration Ends --
 
 local players = {}
-local lower, find = string.lower, string.find
+local find = string.find
 local gsub, gmatch, sub = string.gsub, string.gmatch, string.sub
 
 function OnScriptLoad()
@@ -217,7 +217,7 @@ function SaveClientData(Ply)
     }
 end
 
-function Write(Content, Path)
+function Write(Content)
     local file = io.open(log_directory, "a+")
     if (file) then
         local timestamp = os.date("[%d/%m/%Y - %H:%M:%S]")
