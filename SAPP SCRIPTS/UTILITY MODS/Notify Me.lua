@@ -215,7 +215,6 @@ end
 
 function OnGameEnd()
     if (get_var(0, "$gt") ~= "n/a") then
-        players = { }
         Notify(_, "OnGameEnd")
     end
 end
