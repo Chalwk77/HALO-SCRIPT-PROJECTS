@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Loadout (v1.2), for SAPP (PC & CE)
+Script Name: Loadout (v1.3), for SAPP (PC & CE)
 Description: Wiki Coming soon.
 
 ~ acknowledgements ~
@@ -99,6 +99,19 @@ local Loadout = {
         ["race"] = { 2500, 3000 },
     },
 
+    -- Toggle t-bag on or off:
+    --
+    tbag = true,
+    -- Radius (in world units) a player must be to trigger a t-bag
+    tbag_trigger_radius = 2,
+
+    -- A player's death coordinates expire after this many seconds;
+    tbag_coordinate_expiration = 30,
+
+    -- A player must crouch over a victim's body this many times in order to trigger the t-bag scenario
+    tbag_crouch_count = 3,
+    --
+
     messages = {
         [1] = "%name% has a bounty of +%bounty% cR! - Kill to claim!",
         [2] = "%name% collected the bounty of %bounty% credits on %victim%!",
@@ -123,6 +136,9 @@ local Loadout = {
 
         -- On Level Up:
         [11] = "%name% is now level [%level%] %class%",
+
+        -- For T-Bagging:
+        [12] = "%name% is t-bagging %victim%",
     },
 
     classes = {
@@ -772,6 +788,8 @@ local Loadout = {
         -- Killed by Server (credits deducted):
         server = { -0, "" },
 
+        tbag = { 5, "5+cR (T-Bagging)" },
+
         -- killed by guardians (credits deducted):
         guardians = { -5, "-5cR (Killed by Guardians)" },
 
@@ -1095,9 +1113,9 @@ local ls
 local ip_addresses = { }
 local time_scale = 1 / 30
 local script_version = 1.1
-local floor, format = math.floor, string.format
 local gmatch, gsub = string.gmatch, string.gsub
 local lower, upper = string.lower, string.upper
+local floor, sqrt, format = math.floor, math.sqrt, string.format
 
 local function IsTeamPlay()
     if (get_var(0, "$ffa") == "0") then
@@ -1258,7 +1276,6 @@ function SetAmmo(Ply, DyN)
                             end
                             -- battery:
                             if (A[3]) then
-                                -- write_float(WeaponObject + 0x240, A[3])
                                 execute_command_sequence("w8 1;battery " .. Ply .. " " .. A[3] .. " " .. i)
                             end
                         end
@@ -1274,11 +1291,18 @@ function Loadout:GetWeaponTable(Ply)
     local info = self:GetLevelInfo(Ply)
     local weapon_table = self.classes[info.class].levels[info.level].weapons
     for map, tab in pairs(weapon_table.custom_maps) do
-        if (map == self.map) then
+        if (lower(map) == lower(self.map)) then
             return tab
         end
     end
     return weapon_table.stock_maps
+end
+
+local function GetRadius(pX, pY, pZ, X, Y, Z)
+    if (pX) then
+        return sqrt((pX - X) ^ 2 + (pY - Y) ^ 2 + (pZ - Z) ^ 2)
+    end
+    return nil
 end
 
 function Loadout:OnTick()
@@ -1293,6 +1317,42 @@ function Loadout:OnTick()
                     local DyN = get_dynamic_player(i)
                     if (DyN ~= 0) then
 
+                        --
+                        -- t-bag Support:
+                        --
+                        if (self.tbag) then
+                            for _, ply in pairs(self.players) do
+                                local j = ply.id
+                                if (i ~= j and ply.death_coords) then
+                                    local pos = GetXYZ(i)
+                                    if (pos) and (not pos.invehicle) then
+                                        for k, tbag in pairs(ply.death_coords) do
+                                            tbag.timer = tbag.timer + time_scale
+                                            if (tbag.timer >= self.tbag_coordinate_expiration) then
+                                                ply.death_coords[k] = nil
+                                            else
+                                                local distance = GetRadius(pos.x, pos.y, pos.z, tbag.x, tbag.y, tbag.z)
+                                                if (distance) and (distance <= self.tbag_trigger_radius) then
+                                                    local crouch = read_bit(pos.dyn + 0x208, 0)
+                                                    if (crouch ~= v.crouch_state and crouch == 1) then
+                                                        v.crouch_count = v.crouch_count + 1
+                                                    elseif (v.crouch_count >= self.tbag_crouch_count) then
+                                                        ply.death_coords[k] = nil
+                                                        v.crouch_count = 0
+                                                        local str = gsub(gsub(self.messages[12], "%%name%%", v.name), "%%victim%%", ply.name)
+                                                        self:Respond(i, str, say, 10, i, _)
+                                                        self:UpdateCredits(i, { self.credits.tbag[1], self.credits.tbag[2] })
+                                                    end
+                                                    v.crouch_state = crouch
+                                                end
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                        --
+                        --
                         -- Check for level up:
                         self:UpdateLevel(i)
 
@@ -1300,7 +1360,7 @@ function Loadout:OnTick()
                         local current_class = self.classes[v.class]
 
                         if (v.assign) then
-                            local coords = GetXYZ(DyN)
+                            local coords = GetXYZ(i)
                             if (not coords.invehicle) then
 
                                 local flag = self:hasObjective(DyN)
@@ -1869,6 +1929,13 @@ function Loadout:InitPlayer(Ply)
     self.players[ip].id = Ply
     self.players[ip].name = get_var(Ply, "$name")
     self.players[ip].disconnect_timer = self.disconnect_cooldown
+
+    -- T-Bag Support:
+    self.players[ip].death_coords = { }
+    self.players[ip].crouch_state = 0
+    self.players[ip].crouch_count = 0
+    --
+
     self:SetColor(Ply)
     ip_addresses[Ply] = ip
 end
@@ -2037,9 +2104,16 @@ function Loadout:OnPlayerDeath(VictimIndex, KillerIndex)
     local pvp = ((killer > 0) and killer ~= victim) and (kteam ~= vteam)
     local betrayal = ((killer > 0) and killer ~= victim) and (kteam == vteam) and IsTeamPlay()
 
+    if (self.tbag) then
+        local v = self.players[vip]
+        local pos = GetXYZ(victim)
+        if (pos) then
+            v.death_coords[#v.death_coords + 1] = { timer = 0, x = pos.x, y = pos.y, z = pos.z }
+        end
+    end
+
     if (pvp) then
 
-        local v = self.players[vip]
         local k = self.players[kip]
 
         k.deaths = 0
@@ -2341,22 +2415,25 @@ function Loadout:GetPlayers(Executor, Args)
     return pl
 end
 
-function GetXYZ(DyN)
+function GetXYZ(Ply)
     local coords, x, y, z = { }
+    local DyN = get_dynamic_player(Ply)
+    if (DyN ~= 0) then
 
-    local VehicleID = read_dword(DyN + 0x11C)
-    if (VehicleID == 0xFFFFFFFF) then
-        coords.invehicle = false
-        x, y, z = read_vector3d(DyN + 0x5c)
-    else
-        coords.invehicle = true
-        local obj_mem = get_object_memory(VehicleID)
-        if (obj_mem ~= 0) then
-            x, y, z = read_vector3d(obj_mem + 0x5c)
+        local VehicleID = read_dword(DyN + 0x11C)
+        if (VehicleID == 0xFFFFFFFF) then
+            coords.invehicle = false
+            x, y, z = read_vector3d(DyN + 0x5c)
+        else
+            local obj_mem = get_object_memory(VehicleID)
+            if (obj_mem ~= 0) then
+                coords.invehicle = true
+                x, y, z = read_vector3d(obj_mem + 0x5c)
+            end
         end
     end
 
-    coords.x, coords.y, coords.z = x, y, z
+    coords.x, coords.y, coords.z, coords.dyn = x, y, z, DyN
     return coords
 end
 
