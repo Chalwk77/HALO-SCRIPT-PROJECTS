@@ -35,15 +35,15 @@ local players = {}
 
 local on_chat = { -- Used for OnPlayerChat event.
     -- {message, console color}
-    [0] = { "[GLOBAL] %name% ID: [%id%] IP: [%ip%]: %message%", 3 },
-    [1] = { "[TEAM] %name% ID: [%id%] IP: [%ip%]: %message%", 3 },
-    [2] = { "[VEHICLE] %name% ID: [%id%] IP: [%ip%]: %message%", 3 },
-    [3] = { "[UNKNOWN] %name% ID: [%id%] IP: [%ip%]: %message%", 3 },
+    [0] = { "[GLOBAL] %name% ID: [%id%]: %message%", 3 },
+    [1] = { "[TEAM] %name% ID: [%id%]: %message%", 3 },
+    [2] = { "[VEHICLE] %name% ID: [%id%]: %message%", 3 },
+    [3] = { "[UNKNOWN] %name% ID: [%id%]: %message%", 3 },
 }
 
 local on_command = { -- Used for OnServerCommand event.
-    [1] = { "[RCON CMD] %name% ID: [%id%] IP: [%ip%]: %cmd%", 2 },
-    [2] = { "[CHAT CMD] %name% ID: [%id%] IP: [%ip%]: /%cmd%", 2 },
+    [1] = { "[RCON CMD] %name% ID: [%id%]: %cmd%", 2 },
+    [2] = { "[CHAT CMD] %name% ID: [%id%]: /%cmd%", 2 },
 }
 
 local events = {
