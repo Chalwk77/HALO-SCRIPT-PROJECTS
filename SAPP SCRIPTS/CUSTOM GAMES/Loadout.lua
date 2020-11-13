@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Loadout (v1.3), for SAPP (PC & CE)
+Script Name: Loadout (v1.4), for SAPP (PC & CE)
 Description: Wiki Coming soon.
 
 ~ acknowledgements ~
@@ -1112,7 +1112,7 @@ local Loadout = {
 local ls
 local ip_addresses = { }
 local time_scale = 1 / 30
-local script_version = 1.1
+local script_version = 1.4
 local gmatch, gsub = string.gmatch, string.gsub
 local lower, upper = string.lower, string.upper
 local floor, sqrt, format = math.floor, math.sqrt, string.format
@@ -2104,8 +2104,8 @@ function Loadout:OnPlayerDeath(VictimIndex, KillerIndex)
     local pvp = ((killer > 0) and killer ~= victim) and (kteam ~= vteam)
     local betrayal = ((killer > 0) and killer ~= victim) and (kteam == vteam) and IsTeamPlay()
 
+    local v = self.players[vip]
     if (self.tbag) then
-        local v = self.players[vip]
         local pos = GetXYZ(victim)
         if (pos) then
             v.death_coords[#v.death_coords + 1] = { timer = 0, x = pos.x, y = pos.y, z = pos.z }

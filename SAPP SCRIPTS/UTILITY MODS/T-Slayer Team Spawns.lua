@@ -13,7 +13,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.12.0.0"
 
-local spawns = { }
+local spawns = {}
 
 local function Init()
     spawns = { red = { }, blue = { } }
@@ -95,6 +95,7 @@ function GetRadius(X1, Y1, Z1, X2, Y2, Z2)
 end
 
 function LoadSpawns()
+
     local tag_array = read_dword(0x40440000)
     local scenario_tag_index = read_word(0x40440004)
     local scenario_tag = tag_array + scenario_tag_index * 0x20
@@ -108,6 +109,7 @@ function LoadSpawns()
         local starting_location = starting_location_address + 52 * i
         local x, y, z = read_vector3d(starting_location)
         local team = read_word(starting_location + 0x10)
+
         if (team == 1) then
             spawns.blue[#spawns.blue + 1] = { x = x, y = y, z = z }
         elseif (team == 0) then

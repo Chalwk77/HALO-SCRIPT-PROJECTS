@@ -6658,6 +6658,7 @@ function OnWeaponDrop(PlayerIndex)
 end
 
 function TeleportPlayer(ObjectID, x, y, z)
+
     if (get_object_memory(ObjectID) ~= 0) then
         local veh_obj = get_object_memory(read_dword(get_object_memory(ObjectID) + 0x11C))
         write_vector3d((veh_obj ~= 0 and veh_obj or get_object_memory(ObjectID)) + 0x5C, x, y, z)
