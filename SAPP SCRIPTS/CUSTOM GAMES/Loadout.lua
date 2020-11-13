@@ -1975,8 +1975,11 @@ function Loadout:OnPlayerSpawn(Ply)
 end
 
 local function GetTag(ObjectType, ObjectName)
-    local Tag = lookup_tag(ObjectType, ObjectName)
-    return Tag ~= 0 and read_dword(Tag + 0xC) or nil
+    if type(ObjectType == "string") then
+        local Tag = lookup_tag(ObjectType, ObjectName)
+        return Tag ~= 0 and read_dword(Tag + 0xC) or nil
+    end
+    return nil
 end
 
 local function CheckDamageTag(DamageMeta, Params)
@@ -1989,7 +1992,7 @@ local function CheckDamageTag(DamageMeta, Params)
             end
         end
     end
-    return { 0, "" }
+    return { 0, "Rank System: Invalid Tag Address Damage Meta" }
 end
 
 function Loadout:KillingSpree(Ply)
