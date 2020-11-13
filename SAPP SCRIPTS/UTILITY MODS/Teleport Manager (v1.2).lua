@@ -187,9 +187,9 @@ function TeleportManager:SetWarp(Ply, Args)
                     end
 
                     records[map][Args[2]] = {
-                        x = format("%0.3f", pos.x),
-                        y = format("%0.3f", pos.y),
-                        z = format("%0.3f", pos.z),
+                        x = x,
+                        y = y,
+                        z = z,
                     }
 
                     file:write(json:encode_pretty(records))
@@ -287,13 +287,8 @@ function TeleportManager:CheckFile(init)
         end
 
         local map = get_var(0, "$map")
-        local records = json:decode(content)
+        local records = json:decode(content) or { }
         if (not records or records[map] == nil) then
-
-            if (records == nil) then
-                records = { }
-            end
-
             file = assert(io.open(self.dir, "w"))
             if (file) then
                 records[map] = { }
