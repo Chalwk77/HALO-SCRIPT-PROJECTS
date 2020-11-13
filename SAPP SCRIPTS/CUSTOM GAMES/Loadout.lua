@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Loadout (v1.4), for SAPP (PC & CE)
+Script Name: Loadout (v1.5), for SAPP (PC & CE)
 Description: Wiki Coming soon.
 
 ~ acknowledgements ~
@@ -1109,10 +1109,9 @@ local Loadout = {
     ammo_set_delay = 300,
 }
 
-local ls
 local ip_addresses = { }
 local time_scale = 1 / 30
-local script_version = 1.4
+local script_version = 1.5
 local gmatch, gsub = string.gmatch, string.gsub
 local lower, upper = string.lower, string.upper
 local floor, sqrt, format = math.floor, math.sqrt, string.format
@@ -1976,12 +1975,8 @@ function Loadout:OnPlayerSpawn(Ply)
 end
 
 local function GetTag(ObjectType, ObjectName)
-    if type(ObjectType) == "string" then
-        local Tag = lookup_tag(ObjectType, ObjectName)
-        return Tag ~= 0 and read_dword(Tag + 0xC) or nil
-    else
-        return nil
-    end
+    local Tag = lookup_tag(ObjectType, ObjectName)
+    return Tag ~= 0 and read_dword(Tag + 0xC) or nil
 end
 
 local function CheckDamageTag(DamageMeta, Params)
@@ -2112,7 +2107,7 @@ function Loadout:OnPlayerDeath(VictimIndex, KillerIndex)
         end
     end
 
-    if (pvp) then
+    if (pvp and not betrayal) then
 
         local k = self.players[kip]
 
@@ -2562,6 +2557,7 @@ function RegisterSAPPEvents()
 end
 
 function LSS(state)
+    local ls
     if (state) then
         ls = sig_scan("741F8B482085C9750C")
         if (ls == 0) then

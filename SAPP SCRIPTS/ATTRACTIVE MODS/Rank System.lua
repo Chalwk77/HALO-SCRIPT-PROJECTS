@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Top Ranked (v1.9), for SAPP (PC & CE)
+Script Name: Rank System (v1.10), for SAPP (PC & CE)
 Description: A fully integrated ranking system for SAPP servers.
 Players earn credits for killing, scoring and achievements, such as sprees, kill-combos and more.
 
@@ -79,7 +79,7 @@ local Rank = {
 
         -- Generic Zombie Mod support:
         zombies = {
-            enabled = true,
+            enabled = false,
             human_team = "red",
             zombie_team = "blue",
             credits = { 25, "+25 %currency_symbol% (Zombie-Bite)" },
@@ -162,6 +162,8 @@ local Rank = {
             { "jpt!", "weapons\\assault rifle\\bullet", 5, "+5 %currency_symbol% (Assault Rifle Bullet)" },
             { "jpt!", "weapons\\needler\\impact damage", 4, "+4 %currency_symbol% (Needler Impact Damage)" },
             { "jpt!", "weapons\\flamethrower\\explosion", 5, "+5 %currency_symbol% (Flamethrower)" },
+            { "jpt!", "weapons\\flamethrower\\burning", 5, "+5 %currency_symbol% (Flamethrower)" },
+            { "jpt!", "weapons\\flamethrower\\impact damage", 5, "+5 %currency_symbol% (Flamethrower)" },
             { "jpt!", "weapons\\rocket launcher\\explosion", 8, "+8 %currency_symbol% (Rocket Launcher Explosion)" },
             { "jpt!", "weapons\\needler\\detonation damage", 3, "+3 %currency_symbol% (Needler Detonation Damage)" },
             { "jpt!", "weapons\\plasma rifle\\charged bolt", 4, "+4 %currency_symbol% (Plasma Rifle Bolt)" },
@@ -218,8 +220,8 @@ local Rank = {
 }
 
 local time_scale = 1 / 30
-local len = string.len
-local sqrt = math.sqrt
+local script_version = 1.10
+local sqrt, len = math.sqrt, string.len
 local gmatch, gsub = string.gmatch, string.gsub
 local lower, upper = string.lower, string.upper
 local json = (loadfile "json.lua")()
@@ -233,8 +235,8 @@ function OnScriptLoad()
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
+    Rank:CheckFile()
     if (get_var(0, "$gt") ~= "n/a") then
-        Rank:CheckFile()
         for i = 1, 16 do
             if player_present(i) then
                 Rank:AddNewPlayer(i, true)
@@ -248,9 +250,7 @@ function OnScriptUnload()
 end
 
 function OnGameStart()
-    if (get_var(0, "$gt") ~= "n/a") then
-        Rank:CheckFile()
-    end
+    Rank:CheckFile()
 end
 
 function OnGameEnd()
@@ -519,38 +519,35 @@ end
 
 function Rank:CheckFile()
     self.players = { }
-    local FA = io.open(self.dir, "a")
-    if (FA) then
-        io.close(FA)
-    end
-    local content = ""
-    local FB = io.open(self.dir, "r")
-    if (FB) then
-        content = FB:read("*all")
-        io.close(FB)
-    end
-    if (len(content) == 0) then
-        local FC = assert(io.open(self.dir, "w"))
-        if (FC) then
-            FC:write("{\n}")
-            io.close(FC)
+    if (get_var(0, "$gt") ~= "n/a") then
+
+        local content = ""
+        local file = io.open(self.dir, "r")
+        if (file) then
+            content = file:read("*all")
+            io.close(file)
+        end
+
+        local records = json:decode(content)
+        if (not records) then
+            file = assert(io.open(self.dir, "w"))
+            if (file) then
+                file:write(json:encode_pretty({}))
+                io.close(file)
+            end
         end
     end
 end
 
 local function GetTag(ObjectType, ObjectName)
-    if type(ObjectType) == "string" then
-        local Tag = lookup_tag(ObjectType, ObjectName)
-        return Tag ~= 0 and read_dword(Tag + 0xC) or nil
-    else
-        return nil
-    end
+    local Tag = lookup_tag(ObjectType, ObjectName)
+    return Tag ~= 0 and read_dword(Tag + 0xC) or nil
 end
 
 local function CheckDamageTag(DamageMeta)
     for _, d in pairs(Rank.credits.tags) do
         local tag = GetTag(d[1], d[2])
-        if (tag ~= nil) and (tag == DamageMeta) then
+        if (tag ~= nil and tag == DamageMeta) then
             return { d[3], d[4] }
         end
     end
@@ -617,7 +614,7 @@ function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
     local pvp = ((killer > 0) and killer ~= victim)
     local betrayal = ((kteam == vteam) and killer ~= victim)
 
-    if (pvp) then
+    if (pvp and not betrayal) then
 
         self:MultiKill(killer)
         self:KillingSpree(killer)
@@ -627,8 +624,8 @@ function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
             self:UpdateCredits(killer, { self.credits.killed_from_the_grave[1], self.credits.killed_from_the_grave[2] })
         end
 
+        -- T-Bag Support:
         if (self.tbag) then
-            -- T-Bag Support:
             local vpos = self:GetXYZ(victim)
             if (vpos) then
                 self.players[victim].coords[#self.players[victim].coords + 1] = {
@@ -669,14 +666,13 @@ function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
     elseif (suicide) then
         self:UpdateCredits(victim, { self.credits.suicide[1], self.credits.suicide[2] })
     elseif (betrayal) then
-        self:UpdateCredits(victim, { self.credits.betrayal[1], self.credits.betrayal[2] })
+        self:UpdateCredits(killer, { self.credits.betrayal[1], self.credits.betrayal[2] })
     else
         self:UpdateCredits(victim, CheckDamageTag(last_damage))
     end
 end
 
 function Rank:UpdateCredits(Ply, Params)
-
     local cr = Params[1]
     if (self.double_exp) then
         cr = (cr * 2)
@@ -840,4 +836,40 @@ function GetVehicleTag(Vehicle)
         return read_string(read_dword(read_word(Vehicle) * 32 + 0x40440038))
     end
     return nil
+end
+
+function WriteLog(str)
+    local file = io.open("Rank System.log", "a+")
+    if (file) then
+        file:write(str .. "\n")
+        file:close()
+    end
+end
+
+-- In the event of an error, the script will trigger these two functions: OnError(), report()
+function report(StackTrace, Error)
+
+    cprint(StackTrace, 4 + 8)
+
+    cprint("--------------------------------------------------------", 5 + 8)
+    cprint("Please report this error on github:", 7 + 8)
+    cprint("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", 7 + 8)
+    cprint("Script Version: " .. script_version, 7 + 8)
+    cprint("--------------------------------------------------------", 5 + 8)
+
+    local timestamp = os.date("[%H:%M:%S - %d/%m/%Y]")
+    WriteLog(timestamp)
+    WriteLog("Please report this error on github:")
+    WriteLog("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues")
+    WriteLog("Script Version: " .. tostring(script_version))
+    WriteLog(Error)
+    WriteLog(StackTrace)
+    WriteLog("\n")
+end
+
+-- This function will return a string with a traceback of the stack call...
+-- ...and call function 'report' after 50 milliseconds.
+function OnError(Error)
+    local StackTrace = debug.traceback()
+    timer(50, "report", StackTrace, Error)
 end
