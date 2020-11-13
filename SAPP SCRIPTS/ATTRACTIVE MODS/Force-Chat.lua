@@ -44,12 +44,10 @@ local ForceChat = {
 
     -- Message format based on message type:
     specific_format = {
-
-        -- [-command parameter trigger] "message format"
-
-        ["-global"] = "%name%: %message%",
-        ["-team"] = "[%name%]: %message%",
-        ["-vehicle"] = "[%name%]: %message%",
+        -- [-keyword] {"message format", message type}
+        ["-global"] = { "%name%: %message%", 1 },
+        ["-team"] = { "[%name%]: %message%", 2 },
+        ["-vehicle"] = { "[%name%]: %message%", 3 },
     },
 
     -- A message relay function temporarily removes the server prefix
@@ -80,15 +78,41 @@ local function CMDSplit(CMD)
     return Args
 end
 
-function ForceChat:SendMessage(MSG, Type, Team)
+function InVehicle(Ply)
+    local DyN = get_dynamic_player(Ply)
+    if (DyN ~= 0) then
+        local vehicle = read_dword(DyN + 0x11C)
+        if (vehicle ~= 0xFFFFFFFF) then
+            return true
+        end
+    end
+    return false
+end
+
+function ForceChat:SendMessage(MSG, Type, Team, Executor, TargetID)
     execute_command("msg_prefix \"\"")
     if (Type == 1) then
         say_all(MSG)
     elseif (Type == 2 or Type == 3) then
         for i = 1, 16 do
             if player_present(i) then
-                if (i and get_var(i, "$team") == Team) then
+                if (Type == 2 and get_var(i, "$team") == Team) then
                     say(i, MSG)
+                elseif (Type == 3) then
+                    if InVehicle(TargetID) then
+                        if (TargetID == i) then
+                            say(TargetID, MSG)
+                        else
+                            local i_team = get_var(i, "$team")
+                            if (i_team == Team and InVehicle(i, Team)) then
+                                say(i, MSG)
+                            end
+                        end
+                    else
+                        local name = get_var(TargetID, "$name")
+                        self:Respond(Executor, name .. " is not in a vehicle!", 10)
+                        break
+                    end
                 end
             end
         end
@@ -104,35 +128,38 @@ function ForceChat:OnServerCommand(Executor, Command, _, _)
 
         local lvl = tonumber(get_var(Executor, "$lvl"))
         if (lvl >= self.permission or Executor == 0) then
-            if (Args[2] ~= nil and tonumber(Args[2]:match("^%d+$"))) then
-                if player_present(Args[2]) then
-                    if (Args[2] ~= Executor) then
+
+            if (Args[2] ~= nil and Args[2]:match("^%d+$")) then
+                local TargetID = tonumber(Args[2])
+                if player_present(TargetID) then
+
+                    if (TargetID ~= Executor) then
 
                         local str_format = self.default
                         local cmd_len = len(self.command)
                         local cmd_to_replace = sub(Command, 1, cmd_len + 1)
                         local message = Command:match(cmd_to_replace .. "[%s%d+%s](.*)")
 
-                        local name = get_var(Args[2], "$name")
-                        local team = get_var(Args[2], "$team")
+                        local name = get_var(TargetID, "$name")
+                        local team = get_var(TargetID, "$team")
 
-                        local index = 0
+                        local index = 1
                         for k, v in pairs(self.specific_format) do
-                            index = index + 1
                             if (Command:match(k)) then
-                                str_format = gsub(gsub(v, "%%name%%", name), "%%message%%", message)
+                                index = v[2]
+                                str_format = gsub(gsub(v[1], "%%name%%", name), "%%message%%", message)
                                 message = gsub(str_format, k, "")
-                                return self:SendMessage(message, index, team)
+                                return false, self:SendMessage(message, index, team, Executor, TargetID)
                             end
                         end
 
                         message = gsub(gsub(str_format, "%%name%%", name), "%%message%%", message)
-                        self:SendMessage(message, index, team)
+                        self:SendMessage(message, index, team, Executor, TargetID)
                     else
                         self:Respond(Executor, "You cannot execute this command on yourself!", 10)
                     end
                 else
-                    self:Respond(Executor, "Player #" .. Args[2] .. " is not online.", 10)
+                    self:Respond(Executor, "Player #" .. TargetID .. " is not online.", 10)
                 end
             else
                 self:Respond(Executor, "Please enter a valid player id: [1-16]", 10)
