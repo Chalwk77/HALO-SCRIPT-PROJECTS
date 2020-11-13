@@ -17,7 +17,7 @@ Command Syntax:
 /delwarp [warp name]
 > Delete the specified warp
 
-/warplist
+/warplist [opt page #]
 > View a list of all warps linked to the current map.
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
@@ -33,6 +33,18 @@ api_version = "1.12.0.0"
 -- Configuration Starts -
 local TeleportManager = {
     dir = "teleports.json",
+    --
+    -- When viewing the warp list, results are split up into pages:
+    -- Max results to load per page:
+    max_results = 50,
+
+    -- Aliases are printed in columns of 5:
+    max_columns = 5,
+
+    -- Spacing between names per column:
+    spaces = 2,
+    --
+    --
     commands = {
         ["warp"] = {
             permission = 1,
@@ -59,6 +71,7 @@ local TeleportManager = {
 -- Configuration Ends -
 
 local json = (loadfile "json.lua")()
+local len, floor, concat = string.len, math.floor, table.concat
 local gmatch, lower, format = string.gmatch, string.lower, string.format
 
 function OnScriptLoad()
@@ -227,16 +240,108 @@ function TeleportManager:DeleteWarp(Ply, Args)
     end
 end
 
+local function spacing(n)
+    local Str, Sep = "", ","
+    for i = 1, n do
+        if i == math.floor(n / 2) then
+            Str = Str .. ""
+        end
+        Str = Str .. " "
+    end
+    return Sep .. Str
+end
+
+function TeleportManager:FormatTable(t)
+    local longest = 0
+    for _, v in pairs(t) do
+        if (len(v) > longest) then
+            longest = len(v)
+        end
+    end
+    local rows, row, count = {}, 1, 1
+    for k, v in pairs(t) do
+        if (count % self.max_results == 0) or (k == #t) then
+            rows[row] = (rows[row] or "") .. v
+        else
+            rows[row] = (rows[row] or "") .. v .. spacing(longest - len(v) + self.spaces)
+        end
+        if (count % self.max_results == 0) then
+            row = row + 1
+        end
+        count = count + 1
+    end
+    return concat(rows)
+end
+
+function TeleportManager:GetPage(page)
+    local max = self.max_results
+    local start = (max) * page
+    local startpage = (start - max + 1)
+    local endpage = start
+    return startpage, endpage
+end
+
+function TeleportManager:getPageCount(total_names)
+    local pages = total_names / (self.max_results)
+    if ((pages) ~= floor(pages)) then
+        pages = floor(pages) + 1
+    end
+    return pages
+end
+
 function TeleportManager:WarpList(Ply, Args)
+
+    local tab = { }
     local map = get_var(0, "$map")
     local records = self:CheckFile()
-    if (records[map]) then
-        self:Respond(Ply, "---------------- WARPS FOR " .. map .. " ----------------")
-        for k, v in pairs(records[map]) do
-            self:Respond(Ply, k .. " X: " .. v.x .. ", Y: " .. v.y .. ", Z: " .. v.z)
+
+    for k, _ in pairs(records[map]) do
+        tab[#tab + 1] = k
+    end
+
+    if (#tab > 0) then
+
+        local page = Args[2] ~= nil and Args[2]:match("^%d+$") or 1
+        local total_pages = self:getPageCount(#tab)
+
+        if (page > 0 and page <= total_pages) then
+
+            local startIndex, endIndex = 1, self.max_columns
+            local startpage, endpage = self:GetPage(page)
+
+            local results = { }
+            for page_num = startpage, endpage do
+                if tab[page_num] then
+                    results[#results + 1] = tab[page_num]
+                end
+            end
+
+            local function formatResults()
+                local tmp, row = { }
+
+                for i = startIndex, endIndex do
+                    tmp[i] = results[i]
+                    row = self:FormatTable(tmp)
+                end
+
+                if (row ~= nil and row ~= "" and row ~= " ") then
+                    self:Respond(Ply, row, 10)
+                end
+
+                startIndex = (endIndex + 1)
+                endIndex = (endIndex + (self.max_columns))
+            end
+
+            while (endIndex < #tab + self.max_columns) do
+                formatResults()
+            end
+
+            self:Respond(Ply, '[Page ' .. page .. '/' .. total_pages .. ']', 2 + 8)
+        else
+            self:Respond(Ply, 'Invalid Page ID. Please type a page between 1-' .. total_pages)
         end
     else
-        self:Respond(Ply, "There are no warps saved for [" .. map .. "]")
+        self:Respond(Ply, 'No warps on record for [' .. map .. ']')
     end
 end
 
