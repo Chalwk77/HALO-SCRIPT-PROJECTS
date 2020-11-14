@@ -80,25 +80,11 @@ function VoteKick:OnTick()
             if (not player_present(v.id) and v.cooldown) then
                 v.cooldown = v.cooldown + time_scale
                 if (v.cooldown >= self.cooldown_period) then
-                    self.players[ip] = nil
+                    self.votes[ip] = nil
                 end
             end
         end
     end
-end
-
-function VoteKick:PeriodicAnnouncement()
-    local player_count = self:GetPlayerCount()
-    if (player_count >= self.minimum_player_count) then
-        local votes_required = math.floor((self.vote_percentage * player_count / 100))
-        local vote = "vote"
-        if (votes_required > 1) then
-            vote = vote .. "s"
-        end
-        self:Respond(_, "Vote Kick Enabled.")
-        self:Respond(_, "[" .. votes_required .. " " .. vote .. " to kick] at " .. self.vote_percentage .. "% of the current server population")
-    end
-    return true
 end
 
 function OnGameStart()
@@ -132,9 +118,23 @@ function VoteKick:InitPlayer(Ply, Reset)
     end
 end
 
+function VoteKick:PeriodicAnnouncement()
+    local player_count = self:GetPlayerCount()
+    if (player_count >= self.minimum_player_count) then
+        local votes_required = math.floor((self.vote_percentage * player_count / 100))
+        local vote = "vote"
+        if (votes_required > 1) then
+            vote = vote .. "s"
+        end
+        self:Respond(_, "Vote Kick Enabled.")
+        self:Respond(_, "[" .. votes_required .. " " .. vote .. " to kick] at " .. self.vote_percentage .. "% of the current server population")
+    end
+    return true
+end
+
 function VoteKick:Check(Ply, IP, PlayerCount)
-    local vote_percentage = self:VotesRequired(PlayerCount, self.votes[IP].votes)
-    if (vote_percentage >= self.vote_percentage) then
+    local votes_required = math.floor((self.vote_percentage * PlayerCount / 100))
+    if (self.votes[IP].votes >= votes_required) then
         local msg = format("Vote passed to kick %s", self.votes[IP].name) .. " [Kicking]"
         self:Respond(_, msg, 12)
         return true, self:Kick(Ply)
@@ -277,7 +277,7 @@ function VoteKick:GetIP(Ply)
         IP = IP:match("%d+.%d+.%d+.%d+")
     end
     if (not player_present(Ply)) then
-        IP = self.players[Ply].ip
+        IP = self.votes[IP].ip
     end
     return IP
 end
