@@ -50,7 +50,7 @@ local Rank = {
     --
     tbag = true,
     -- Radius (in world units) a player must be to trigger a t-bag
-    tbag_trigger_radius = 0.5,
+    tbag_trigger_radius = 2,
 
     -- A player's death coordinates expire after this many seconds;
     tbag_coordinate_expiration = 30,
