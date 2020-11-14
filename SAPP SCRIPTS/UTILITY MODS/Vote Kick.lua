@@ -132,15 +132,6 @@ function VoteKick:InitPlayer(Ply, Reset)
     end
 end
 
-local function CMDSplit(CMD)
-    local Args, index = { }, 1
-    for Params in gmatch(CMD, "([^%s]+)") do
-        Args[index] = Params
-        index = index + 1
-    end
-    return Args
-end
-
 function VoteKick:Check(Ply, IP, PlayerCount)
     local vote_percentage = self:VotesRequired(PlayerCount, self.votes[IP].votes)
     if (vote_percentage >= self.vote_percentage) then
@@ -149,6 +140,15 @@ function VoteKick:Check(Ply, IP, PlayerCount)
         return true, self:Kick(Ply)
     end
     return false
+end
+
+local function CMDSplit(CMD)
+    local Args, index = { }, 1
+    for Params in gmatch(CMD, "([^%s]+)") do
+        Args[index] = Params
+        index = index + 1
+    end
+    return Args
 end
 
 function VoteKick:OnServerCommand(Executor, Command)
