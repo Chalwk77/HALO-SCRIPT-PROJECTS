@@ -26,8 +26,8 @@ local commands_to_hide = {
 
 api_version = "1.12.0.0"
 
-local gmatch = string.gmatch
-local gsub = string.gsub
+local lower = string.lower
+local gmatch, gsub = string.gmatch, string.gsub
 
 function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
@@ -36,7 +36,7 @@ end
 local function CMDSplit(Str)
     local Args, index = { }, 1
     for Params in gmatch(Str, "([^%s]+)") do
-        Args[index] = Params
+        Args[index] = lower(Params)
         index = index + 1
     end
     return Args
@@ -45,11 +45,7 @@ end
 function OnServerCommand(Ply, Command, _, _)
 
     local CMD = CMDSplit(Command)
-    if (#CMD == 0) then
-        return
-    else
-
-        CMD[1] = CMD[1]:lower()
+    if (#CMD > 0) then
 
         for i = 1, #commands_to_hide do
             if (CMD[1] == commands_to_hide[i]) then
@@ -57,17 +53,18 @@ function OnServerCommand(Ply, Command, _, _)
             end
         end
 
-        local pLvL = tonumber(get_var(Ply, "$lvl"))
-        if (pLvL == -1) then
-            local name = get_var(Ply, "$name")
+        local name = get_var(Ply, "$name")
+        local alvl = tonumber(get_var(Ply, "$lvl"))
+        if (alvl == -1) then
             for i = 1, 16 do
+
                 if player_present(i) and (i ~= Ply) then
-                    local aLvL = tonumber(get_var(i, "$lvl"))
-                    if (aLvL >= 1) then
+                    local bLvL = tonumber(get_var(i, "$lvl"))
+                    if (bLvL >= 1) then
 
                         local cmd = ''
-                        for i = 1, #CMD do
-                            cmd = cmd .. CMD[i] .. " "
+                        for j = 1, #CMD do
+                            cmd = cmd .. CMD[j] .. " "
                         end
 
                         local str = gsub(gsub(output_format, "%%name%%", name), "%%cmd%%", cmd)
