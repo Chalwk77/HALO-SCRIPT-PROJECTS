@@ -30,7 +30,7 @@ local VoteKick = {
     -- Time (in seconds) between each announcement:
     -- The announcer informs how many votes are required to kick a player.
     -- The required votes is a calculation of the vote_percentage * player count / 100
-    announcement_period = 2
+    announcement_period = 120
 }
 -- Configuration Ends ---------------------------------------------
 
