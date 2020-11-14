@@ -3,8 +3,8 @@
 Script Name: Vote Kick, for SAPP (PC & CE)
 Description: Vote to kick a disruptive player from the server.
 
-    Command Syntax: /votekick [pid]
-    Typing /votekick by itself will show you a list of player names and their Index ID's (pid)
+Command Syntax: /votekick [pid]
+Typing /votekick by itself will show you a list of player names and their Index ID's (PID)
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -18,13 +18,13 @@ api_version = "1.12.0.0"
 -- Configuration Starts -------------------------------------------
 local VoteKick = {
 
-    -- Custom Command used to cast a vote or view player list:
+    -- Custom command used to cast a vote or view player list:
     command = "votekick",
 
-    -- Minimum players required to be online in order to vote.
+    -- Minimum players required to be online in order to vote:
     minimum_player_count = 3,
 
-    -- percentage of online players needed to pass a vote.
+    -- Percentage of online players needed to kick a player:
     vote_percentage = 60,
 }
 -- Configuration Ends ---------------------------------------------
