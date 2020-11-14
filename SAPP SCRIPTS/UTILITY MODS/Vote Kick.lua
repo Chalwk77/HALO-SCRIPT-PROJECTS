@@ -49,8 +49,7 @@ local VoteKick = {
 }
 -- Configuration Ends ---------------------------------------------
 
-local time_scale = 1 / 30
-local gmatch, format = string.gmatch, string.format
+local time_scale, gmatch = 1 / 30, string.gmatch
 function VoteKick:Init()
     if (get_var(0, "$gt") ~= "n/a") then
         self.votes = { }
