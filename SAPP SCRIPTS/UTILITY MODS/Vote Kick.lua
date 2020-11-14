@@ -148,12 +148,13 @@ end
 function VoteKick:ShowPlayerList(Executor)
     local player_count = self:GetPlayerCount()
     if (player_count > 0) then
-        self:Respond(Executor, "[ ID.    -    Name. ]", 13)
+        self:Respond(Executor, "[ ID.    -    Name.    -    Immune]", 13)
         for i = 1, 16 do
             if player_present(i) then
-                self:Respond(Executor, "[" .. i .. "]: " .. get_var(i, "$name") .. "          IMMUNE: " .. tostring(VoteKick:IsAdmin(i)), 13)
+                self:Respond(Executor, "[" .. i .. "]   [" .. get_var(i, "$name") .. "]   [" .. tostring(VoteKick:IsAdmin(i)) .. "]", 13)
             end
         end
+        self:Respond(Executor, " ")
         self:Respond(Executor, "Command Usage: /" .. self.command .. " [pid]")
     else
         self:Respond(Executor, "There are no players online", 13)
