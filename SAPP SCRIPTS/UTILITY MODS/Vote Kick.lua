@@ -26,6 +26,11 @@ local VoteKick = {
 
     -- Percentage of online players needed to kick a player:
     vote_percentage = 60,
+
+    -- Time (in seconds) between each announcement:
+    -- The announcer informs how many votes are required to kick a player.
+    -- The required votes is a calculation of the vote_percentage * player count / 100
+    announcement_period = 2
 }
 -- Configuration Ends ---------------------------------------------
 
@@ -38,6 +43,7 @@ function VoteKick:Init()
                 self:InitPlayer(i, false)
             end
         end
+        timer(1000 * self.announcement_period, "PeriodicAnnouncement")
     end
 end
 
@@ -47,6 +53,20 @@ function OnScriptLoad()
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
     VoteKick:Init()
+end
+
+function VoteKick:PeriodicAnnouncement()
+    local player_count = self:GetPlayerCount()
+    if (player_count >= self.minimum_player_count) then
+        local votes_required = math.floor((self.vote_percentage * player_count / 100))
+        self:Respond(_, "Vote Kick Enabled.")
+        local vote = "vote"
+        if (votes_required > 1) then
+            vote = vote .. "s"
+        end
+        self:Respond(_, "[" .. votes_required .. " " .. vote .. " to kick] at " .. self.vote_percentage .. "% of the current server population")
+    end
+    return true
 end
 
 function OnGameStart()
@@ -187,6 +207,10 @@ function VoteKick:Respond(Ply, Message, Color)
             end
         end
     end
+end
+
+function PeriodicAnnouncement()
+    return VoteKick:PeriodicAnnouncement()
 end
 
 function OnServerCommand(P, C)
