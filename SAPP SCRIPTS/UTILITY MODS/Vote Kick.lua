@@ -135,8 +135,7 @@ end
 function VoteKick:Check(Ply, IP, PlayerCount)
     local votes_required = math.floor((self.vote_percentage * PlayerCount / 100))
     if (self.votes[IP].votes >= votes_required) then
-        local msg = format("Vote passed to kick %s", self.votes[IP].name) .. " [Kicking]"
-        self:Respond(_, msg, 12)
+        self:Respond(_, "Vote passed to kick " .. self.votes[IP].name .. " [Kicking]", 12)
         return true, self:Kick(Ply)
     end
     return false
