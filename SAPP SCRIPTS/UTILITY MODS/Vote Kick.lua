@@ -27,8 +27,12 @@ local VoteKick = {
     -- Percentage of online players needed to kick a player:
     vote_percentage = 60,
 
-    -- Time (in seconds) between each announcement:
-    -- The announcer informs how many votes are required to kick a player.
+    --
+    -- Periodic Announcer:
+    --
+    -- This script will periodically broadcast a message every 120 seconds
+    -- informing players about vote kick and the current votes needed to kick a player.
+    -- This feature is only enabled while there are equal to or greater than minimum_player_count players online.
     -- The required votes is a calculation of the vote_percentage * player count / 100
     announcement_period = 120
 }
