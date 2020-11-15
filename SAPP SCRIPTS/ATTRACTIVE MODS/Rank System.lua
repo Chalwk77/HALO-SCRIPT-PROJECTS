@@ -30,6 +30,10 @@ local Rank = {
 
     double_exp = false,
 
+    starting_rank = "Recruit",
+    starting_grade = 1,
+    starting_credits = 0,
+
     -- Command Syntax: /check_rank_cmd [number: 1-16] | */all | me
     check_rank_cmd = "rank",
     check_rank_cmd_permission = -1,
@@ -73,6 +77,9 @@ local Rank = {
 
         -- For T-Bagging:
         [5] = "%name% is t-bagging %victim%",
+
+        [6] = "%name% is now [%rank%] grade [%grade%]",
+        [7] = "%name% has completed all ranks!"
     },
 
     credits = {
@@ -198,6 +205,117 @@ local Rank = {
                 { "vehi", "vehicles\\banshee\\banshee_mp", 8, "+8 %currency_symbol% (Vehicle Squash: Banshee)" },
                 { "vehi", "vehicles\\scorpion\\scorpion_mp", 10, "+10 %currency_symbol% (Vehicle Squash: Tank)" },
                 { "vehi", "vehicles\\c gun turret\\c gun turret_mp", 1000, "+1000 %currency_symbol% (Vehicle Squash: Turret)" },
+            }
+        }
+    },
+
+    ranks = {
+        [1] = {
+            rank = "Recruit",
+            grade = {
+                [1] = 0,
+            }
+        },
+        [2] = {
+            rank = "Apprentice",
+            grade = {
+                [1] = 500,
+                [2] = 1000,
+            }
+        },
+        [3] = {
+            rank = "Private",
+            grade = {
+                [1] = 1100,
+                [2] = 1200,
+            }
+        },
+        [4] = {
+            rank = "Corporal",
+            grade = {
+                [1] = 1300,
+                [2] = 1400,
+            }
+        },
+        [5] = {
+            rank = "Sergeant",
+            grade = {
+                [1] = 1500,
+                [2] = 1600,
+                [3] = 1700,
+                [4] = 1800,
+            }
+        },
+        [6] = {
+            rank = "Gunnery Sergeant",
+            grade = {
+                [1] = 1900,
+                [2] = 2000,
+                [3] = 2100,
+                [4] = 2200,
+            }
+        },
+        [7] = {
+            rank = "Lieutenant",
+            grade = {
+                [1] = 2300,
+                [2] = 2400,
+                [3] = 2500,
+                [4] = 2600,
+            }
+        },
+        [8] = {
+            rank = "Captain",
+            grade = {
+                [1] = 2700,
+                [2] = 2800,
+                [3] = 2900,
+                [4] = 3000,
+            }
+        },
+        [9] = {
+            rank = "Major",
+            grade = {
+                [1] = 3100,
+                [2] = 3200,
+                [3] = 3300,
+                [4] = 3400,
+            }
+        },
+        [10] = {
+            rank = "Commander",
+            grade = {
+                [1] = 3500,
+                [2] = 3600,
+                [3] = 3700,
+                [4] = 3800,
+            }
+        },
+        [11] = {
+            rank = "Colonel",
+            grade = {
+                [1] = 3900,
+                [2] = 4000,
+                [3] = 4100,
+                [4] = 4200,
+            }
+        },
+        [12] = {
+            rank = "Brigadier",
+            grade = {
+                [1] = 4300,
+                [2] = 4400,
+                [3] = 4500,
+                [4] = 4600,
+            }
+        },
+        [13] = {
+            rank = "General",
+            grade = {
+                [1] = 4700,
+                [2] = 4800,
+                [3] = 4900,
+                [4] = 5000,
             }
         }
     },
@@ -331,7 +449,7 @@ function Rank:OnTick()
                                             ply.coords[k] = nil
                                             self.players[i].crouch_count = 0
                                             local str = gsub(gsub(self.messages[5], "%%name%%", self.players[i].name), "%%victim%%", ply.name)
-                                            Rank:Respond(_, str, say_all, 10)
+                                            self:Respond(i, str, say, 10, true)
                                             self:UpdateCredits(i, { self.credits.tbag[1], self.credits.tbag[2] })
                                         end
                                         self.players[i].crouch_state = crouch
@@ -378,10 +496,13 @@ function Rank:AddNewPlayer(Ply, ManualLoad)
 
             if (pl[IP] == nil) then
                 pl[IP] = {
+                    ip = IP,
+                    id = Ply,
                     name = name,
-                    credits = 0,
                     last_damage = nil,
-                    ip = IP, id = Ply
+                    rank = self.starting_rank,
+                    grade = self.starting_grade,
+                    credits = self.starting_credits,
                 }
             end
 
@@ -490,7 +611,7 @@ function Rank:GetRank(Ply, IP, CMD)
                                 "%%name%%", v.name),
                                 "%%credits%%", v.credits),
                                 "%%totalplayers%%", #results)
-                        Rank:Respond(Ply, str, say, 10)
+                        self:Respond(Ply, str, say, 10)
                     end
                 end
                 if (CMD) then
@@ -502,7 +623,7 @@ function Rank:GetRank(Ply, IP, CMD)
                 else
                     PrintMsg(1)
                     local str = v.name .. " connected -> Rank " .. k .. " out of " .. #results .. " with " .. v.credits .. " credits."
-                    Rank:Respond(Ply, str, say, 10, true)
+                    self:Respond(Ply, str, say, 10, true)
                 end
             end
         end
@@ -676,6 +797,7 @@ function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
 end
 
 function Rank:UpdateCredits(Ply, Params)
+
     local cr = Params[1]
     if (self.double_exp) then
         cr = (cr * 2)
@@ -687,8 +809,39 @@ function Rank:UpdateCredits(Ply, Params)
     str = gsub(str, "%%currency_symbol%%", self.currency_symbol)
     self:Respond(Ply, str, rprint, 10)
 
+    self:UpdateRank(Ply)
+
     if (self.players[Ply].credits < 0) then
         self.players[Ply].credits = 0
+    end
+end
+
+function Rank:UpdateRank(Ply)
+
+    local t = self.players[Ply].credits
+    local cr, name = t.credits, t.name
+
+    for i, stats in pairs(self.ranks) do
+        for k, v in pairs(stats.grade) do
+
+            local next_grade = (stats.grade[k + 1] ~= nil)
+            local case1 = (next_grade and cr >= v and cr < stats.grade[k + 1])
+            local case2 = (cr == stats.grade[#stats.grade]) and (cr == v)
+
+            if (cr > stats.grade[#stats.grade] and self.ranks[i + 1] == nil) then
+                local str = self.messages[7]
+                str = gsub(str, "%%name%%", name)
+                self:Respond(_, str, say_all, 10)
+                self.players[Ply].rank, self.players[Ply].grade = stats.rank, k
+                return
+            elseif (case1) or (case2) then
+                local str = self.messages[6]
+                str = gsub(gsub(str, "%%name%%", name), "%%grade%%", k)
+                self:Respond(_, str, say_all, 10)
+                self.players[Ply].rank, self.players[Ply].grade = stats.rank, k
+                return
+            end
+        end
     end
 end
 
@@ -758,7 +911,7 @@ function Rank:OnServerCommand(Executor, Command)
             return false
         elseif (Args[1] == self.toplist_cmd) then
             if (lvl >= self.toplist_cmd_permission) then
-                local ranks = Rank:GetRanks()
+                local ranks = self:GetRanks()
                 if (ranks ~= nil) then
                     local results = SortRanks()
                     for i, v in pairs(results) do
