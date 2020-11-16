@@ -883,11 +883,13 @@ function Rank:UpdateRank(Ply, Silent)
 
                 local next_rank = self.ranks[i + 1]
                 local next_grade = (stats.grade[k + 1] ~= nil)
-                local case1 = (next_grade and cr >= v and cr < stats.grade[k + 1])
-                local case2 = (cr == stats.grade[#stats.grade]) and (cr == v)
-                local case3 = (next_rank ~= nil and (cr > stats.grade[#stats.grade] and cr < next_rank.grade[1]))
 
-                if (cr > stats.grade[#stats.grade] and next_rank == nil) then
+                local case1 = (cr > stats.grade[#stats.grade] and next_rank == nil)
+                local case2 = (next_grade and cr >= v and cr < stats.grade[k + 1])
+                local case3 = (cr == stats.grade[#stats.grade]) and (cr == v)
+                local case4 = (next_rank ~= nil and (cr > stats.grade[#stats.grade] and cr < next_rank.grade[1]))
+
+                if (case1) then
                     self.players[Ply].rank, self.players[Ply].grade = stats.rank, #stats.grade
                     self.players[Ply].done[i][k] = true
                     if (not Silent) then
@@ -896,7 +898,7 @@ function Rank:UpdateRank(Ply, Silent)
                         self:Respond(_, str, say_all, 10)
                     end
                     return
-                elseif (case1) or (case2) or (case3) then
+                elseif (case2) or (case3) or (case4) then
                     self.players[Ply].rank, self.players[Ply].grade = stats.rank, k
                     self.players[Ply].done[i][k] = true
                     if (not Silent) then
