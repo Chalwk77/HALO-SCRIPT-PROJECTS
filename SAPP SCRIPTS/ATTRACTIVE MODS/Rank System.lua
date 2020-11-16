@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Rank System (v1.11), for SAPP (PC & CE)
+Script Name: Rank System (v1.12), for SAPP (PC & CE)
 Description: A fully integrated ranking system for SAPP servers.
 Players earn credits for killing, scoring and achievements, such as sprees, kill-combos and more.
 
@@ -78,8 +78,9 @@ local Rank = {
         -- For T-Bagging:
         [5] = "%name% is t-bagging %victim%",
 
-        [6] = "%name% is now [%rank%] grade [%grade%]",
-        [7] = "%name% has completed all ranks!"
+        [6] = "%name% is now rank [%rank%] grade [%grade%]",
+        [7] = "%name% has completed all ranks!",
+        [8] = "%name% was downgraded and is now rank [%rank%] grade [%grade%]",
     },
 
     credits = {
@@ -219,103 +220,103 @@ local Rank = {
         [2] = {
             rank = "Apprentice",
             grade = {
-                [1] = 500,
-                [2] = 1000
+                [1] = 3000,
+                [2] = 6000
             }
         },
         [3] = {
             rank = "Private",
             grade = {
-                [1] = 1100,
-                [2] = 1200
+                [1] = 9000,
+                [2] = 12000
             }
         },
         [4] = {
             rank = "Corporal",
             grade = {
-                [1] = 1300,
-                [2] = 1400
+                [1] = 13000,
+                [2] = 14000
             }
         },
         [5] = {
             rank = "Sergeant",
             grade = {
-                [1] = 1500,
-                [2] = 1600,
-                [3] = 1700,
-                [4] = 1800
+                [1] = 15000,
+                [2] = 16000,
+                [3] = 17000,
+                [4] = 18000
             }
         },
         [6] = {
             rank = "Gunnery Sergeant",
             grade = {
-                [1] = 1900,
-                [2] = 2000,
-                [3] = 2100,
-                [4] = 2200
+                [1] = 19000,
+                [2] = 20000,
+                [3] = 21000,
+                [4] = 22000
             }
         },
         [7] = {
             rank = "Lieutenant",
             grade = {
-                [1] = 2300,
-                [2] = 2400,
-                [3] = 2500,
-                [4] = 2600
+                [1] = 23000,
+                [2] = 24000,
+                [3] = 25000,
+                [4] = 26000
             }
         },
         [8] = {
             rank = "Captain",
             grade = {
-                [1] = 2700,
-                [2] = 2800,
-                [3] = 2900,
-                [4] = 3000
+                [1] = 27000,
+                [2] = 28000,
+                [3] = 29000,
+                [4] = 30000
             }
         },
         [9] = {
             rank = "Major",
             grade = {
-                [1] = 3100,
-                [2] = 3200,
-                [3] = 3300,
-                [4] = 3400
+                [1] = 31000,
+                [2] = 32000,
+                [3] = 33000,
+                [4] = 34000
             }
         },
         [10] = {
             rank = "Commander",
             grade = {
-                [1] = 3500,
-                [2] = 3600,
-                [3] = 3700,
-                [4] = 3800
+                [1] = 35000,
+                [2] = 36000,
+                [3] = 37000,
+                [4] = 38000
             }
         },
         [11] = {
             rank = "Colonel",
             grade = {
-                [1] = 3900,
-                [2] = 4000,
-                [3] = 4100,
-                [4] = 4200
+                [1] = 39000,
+                [2] = 40000,
+                [3] = 41000,
+                [4] = 42000
             }
         },
         [12] = {
             rank = "Brigadier",
             grade = {
-                [1] = 4300,
-                [2] = 4400,
-                [3] = 4500,
-                [4] = 4600
+                [1] = 43000,
+                [2] = 44000,
+                [3] = 45000,
+                [4] = 46000
             }
         },
         [13] = {
             rank = "General",
             grade = {
-                [1] = 4700,
-                [2] = 4800,
-                [3] = 4900,
-                [4] = 5000
+                [1] = 47000,
+                [2] = 48000,
+                [3] = 49000,
+                [4] = 50000
             }
         }
     },
@@ -338,7 +339,7 @@ local Rank = {
 }
 
 local time_scale = 1 / 30
-local script_version = 1.10
+local script_version = 1.12
 local lower = string.lower
 local sqrt, len = math.sqrt, string.len
 local gmatch, gsub = string.gmatch, string.gsub
@@ -883,9 +884,9 @@ function Rank:UpdateRank(Ply, Silent)
 
     local t = self.players[Ply]
     local cr, name = t.credits, t.name
-
     for i, stats in pairs(self.ranks) do
         for k, v in pairs(stats.grade) do
+
             if (not self.players[Ply].done[i][k]) then
 
                 local next_rank = self.ranks[i + 1]
@@ -914,6 +915,27 @@ function Rank:UpdateRank(Ply, Silent)
                         self:Respond(_, str, say_all, 10)
                     end
                     return
+                end
+            elseif (k == t.grade and stats.rank == t.rank) then
+
+                local previous_rank = self.ranks[i - 1]
+                local previous_grade = stats.grade[k - 1]
+
+                if (cr < v) and (cr > 0) then
+                    if (previous_grade) then
+                        self.players[Ply].rank, self.players[Ply].grade = stats.rank, k - 1
+                    elseif (previous_rank) then
+                        self.players[Ply].rank, self.players[Ply].grade = previous_rank.rank, #previous_rank.grade
+                    end
+                    self.players[Ply].done[i][k] = false
+                    if (not Silent) then
+                        local str = self.messages[8]
+                        str = gsub(gsub(gsub(str,
+                                "%%name%%", name),
+                                "%%grade%%", self.players[Ply].grade),
+                                "%%rank%%", self.players[Ply].rank)
+                        self:Respond(_, str, say_all, 10)
+                    end
                 end
             end
         end
