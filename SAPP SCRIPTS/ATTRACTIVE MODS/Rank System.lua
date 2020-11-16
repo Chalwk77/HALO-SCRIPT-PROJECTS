@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Rank System (v1.10), for SAPP (PC & CE)
+Script Name: Rank System (v1.11), for SAPP (PC & CE)
 Description: A fully integrated ranking system for SAPP servers.
 Players earn credits for killing, scoring and achievements, such as sprees, kill-combos and more.
 
@@ -37,7 +37,7 @@ local Rank = {
     -- Command Syntax: /check_rank_cmd [number: 1-16] | */all | me
     check_rank_cmd = "rank",
     check_rank_cmd_permission = -1,
-    check_rank_cmd_permission_other = 4,
+    check_rank_cmd_permission_other = -1,
 
     -- Command Syntax: /toplist_cmd
     toplist_cmd = "toplist",
@@ -65,7 +65,7 @@ local Rank = {
 
     messages = {
         [1] = {
-            "You are ranked %rank% out of %totalplayers%!",
+            "You are rank [%rank%] Grade [%grade%] Position: [%pos%/%totalplayers%]",
             "Credits: %credits%",
         },
         [2] = {
@@ -213,28 +213,28 @@ local Rank = {
         [1] = {
             rank = "Recruit",
             grade = {
-                [1] = 0,
+                [1] = 0
             }
         },
         [2] = {
             rank = "Apprentice",
             grade = {
                 [1] = 500,
-                [2] = 1000,
+                [2] = 1000
             }
         },
         [3] = {
             rank = "Private",
             grade = {
                 [1] = 1100,
-                [2] = 1200,
+                [2] = 1200
             }
         },
         [4] = {
             rank = "Corporal",
             grade = {
                 [1] = 1300,
-                [2] = 1400,
+                [2] = 1400
             }
         },
         [5] = {
@@ -243,7 +243,7 @@ local Rank = {
                 [1] = 1500,
                 [2] = 1600,
                 [3] = 1700,
-                [4] = 1800,
+                [4] = 1800
             }
         },
         [6] = {
@@ -252,7 +252,7 @@ local Rank = {
                 [1] = 1900,
                 [2] = 2000,
                 [3] = 2100,
-                [4] = 2200,
+                [4] = 2200
             }
         },
         [7] = {
@@ -261,7 +261,7 @@ local Rank = {
                 [1] = 2300,
                 [2] = 2400,
                 [3] = 2500,
-                [4] = 2600,
+                [4] = 2600
             }
         },
         [8] = {
@@ -270,7 +270,7 @@ local Rank = {
                 [1] = 2700,
                 [2] = 2800,
                 [3] = 2900,
-                [4] = 3000,
+                [4] = 3000
             }
         },
         [9] = {
@@ -279,7 +279,7 @@ local Rank = {
                 [1] = 3100,
                 [2] = 3200,
                 [3] = 3300,
-                [4] = 3400,
+                [4] = 3400
             }
         },
         [10] = {
@@ -288,7 +288,7 @@ local Rank = {
                 [1] = 3500,
                 [2] = 3600,
                 [3] = 3700,
-                [4] = 3800,
+                [4] = 3800
             }
         },
         [11] = {
@@ -297,7 +297,7 @@ local Rank = {
                 [1] = 3900,
                 [2] = 4000,
                 [3] = 4100,
-                [4] = 4200,
+                [4] = 4200
             }
         },
         [12] = {
@@ -306,7 +306,7 @@ local Rank = {
                 [1] = 4300,
                 [2] = 4400,
                 [3] = 4500,
-                [4] = 4600,
+                [4] = 4600
             }
         },
         [13] = {
@@ -315,7 +315,7 @@ local Rank = {
                 [1] = 4700,
                 [2] = 4800,
                 [3] = 4900,
-                [4] = 5000,
+                [4] = 5000
             }
         }
     },
@@ -339,9 +339,9 @@ local Rank = {
 
 local time_scale = 1 / 30
 local script_version = 1.10
+local lower = string.lower
 local sqrt, len = math.sqrt, string.len
 local gmatch, gsub = string.gmatch, string.gsub
-local lower, upper = string.lower, string.upper
 local json = (loadfile "json.lua")()
 
 function OnScriptLoad()
@@ -494,6 +494,23 @@ function Rank:AddNewPlayer(Ply, ManualLoad)
             local IP = self:GetIP(Ply)
             local name = get_var(Ply, "$name")
 
+            local function Completed()
+                local done = { }
+                for i, stats in pairs(Rank.ranks) do
+                    for k, _ in pairs(stats.grade) do
+                        done[i] = done[i] or { }
+                        if (done[i][k] == nil) then
+                            if (i == 1 and #stats.grade == 1) then
+                                done[i][k] = true
+                            else
+                                done[i][k] = false
+                            end
+                        end
+                    end
+                end
+                return done
+            end
+
             if (pl[IP] == nil) then
                 pl[IP] = {
                     ip = IP,
@@ -503,7 +520,13 @@ function Rank:AddNewPlayer(Ply, ManualLoad)
                     rank = self.starting_rank,
                     grade = self.starting_grade,
                     credits = self.starting_credits,
+                    done = Completed()
                 }
+                -- Support to update pre v1.11 databases:
+            elseif (not pl[IP].rank) then
+                pl[IP].rank = self.starting_rank
+                pl[IP].grade = self.starting_grade
+                pl[IP].done = Completed()
             end
 
             file:write(json:encode_pretty(pl))
@@ -585,16 +608,19 @@ end
 function SortRanks()
     local ranks = Rank:GetRanks()
     if (ranks ~= nil) then
-
         local results = { }
         for _, v in pairs(ranks) do
-            results[#results + 1] = { ["ip"] = v.ip, ["credits"] = v.credits, ["name"] = v.name }
+            results[#results + 1] = {
+                ["ip"] = v.ip,
+                ["credits"] = v.credits,
+                ["name"] = v.name,
+                ["rank"] = v.rank,
+                ["grade"] = v.grade
+            }
         end
-
         table.sort(results, function(a, b)
             return a.credits > b.credits
         end)
-
         return results
     end
 end
@@ -602,12 +628,38 @@ end
 function Rank:GetRank(Ply, IP, CMD)
     local results = SortRanks()
     if (#results > 0) then
+
+        local t = self.players[Ply]
+        local rank = t.rank
+
+        local credits = t.credits
+        local required = credits
+
+        local next_rank = ""
+        for i, stats in pairs(self.ranks) do
+            if (stats.rank == rank) then
+                for k, _ in pairs(stats.grade) do
+                    if (stats.grade[k + 1] ~= nil) then
+                        required = stats.grade[k + 1]
+                        next_rank = "Next Rank: [" .. stats.rank .. " Grade " .. k + 1 .. "] [Credits: " .. credits .. "/" .. required .. "]"
+                    elseif (self.ranks[i + 1] ~= nil) then
+                        required = self.ranks[i + 1].grade[1]
+                        next_rank = "Next Rank: [" .. self.ranks[i + 1].rank .. " Grade 1] [Credits: " .. credits .. "/" .. required .. "]"
+                    else
+                        next_rank = "Next Rank: FINISHED"
+                    end
+                end
+            end
+        end
+
         for k, v in pairs(results) do
             if (IP == v.ip) then
                 local function PrintMsg(I)
                     for i = 1, #self.messages[2] do
-                        local str = gsub(gsub(gsub(gsub(self.messages[I][i],
-                                "%%rank%%", k),
+                        local str = gsub(gsub(gsub(gsub(gsub(gsub(self.messages[I][i],
+                                "%%pos%%", k),
+                                "%%rank%%", v.rank),
+                                "%%grade%%", v.grade),
                                 "%%name%%", v.name),
                                 "%%credits%%", v.credits),
                                 "%%totalplayers%%", #results)
@@ -617,12 +669,13 @@ function Rank:GetRank(Ply, IP, CMD)
                 if (CMD) then
                     if (self:GetIP(Ply) == IP) then
                         PrintMsg(1)
+                        self:Respond(Ply, next_rank, say, 10)
                     else
                         PrintMsg(2)
                     end
                 else
                     PrintMsg(1)
-                    local str = v.name .. " connected -> Rank " .. k .. " out of " .. #results .. " with " .. v.credits .. " credits."
+                    local str = v.name .. " connected -> Rank [" .. v.rank .. "] Grade [" .. v.grade .. "] Position: " .. k .. " of " .. #results .. " with " .. v.credits .. " credits."
                     self:Respond(Ply, str, say, 10, true)
                 end
             end
@@ -818,28 +871,34 @@ end
 
 function Rank:UpdateRank(Ply)
 
-    local t = self.players[Ply].credits
+    local t = self.players[Ply]
     local cr, name = t.credits, t.name
 
     for i, stats in pairs(self.ranks) do
         for k, v in pairs(stats.grade) do
+            if (not self.players[Ply].done[i][k]) then
 
-            local next_grade = (stats.grade[k + 1] ~= nil)
-            local case1 = (next_grade and cr >= v and cr < stats.grade[k + 1])
-            local case2 = (cr == stats.grade[#stats.grade]) and (cr == v)
+                local next_rank = self.ranks[i + 1]
+                local next_grade = (stats.grade[k + 1] ~= nil)
+                local case1 = (next_grade and cr >= v and cr < stats.grade[k + 1])
+                local case2 = (cr == stats.grade[#stats.grade]) and (cr == v)
+                local case3 = (next_rank ~= nil and (cr > stats.grade[#stats.grade] and cr < next_rank.grade[1]))
 
-            if (cr > stats.grade[#stats.grade] and self.ranks[i + 1] == nil) then
-                local str = self.messages[7]
-                str = gsub(str, "%%name%%", name)
-                self:Respond(_, str, say_all, 10)
-                self.players[Ply].rank, self.players[Ply].grade = stats.rank, k
-                return
-            elseif (case1) or (case2) then
-                local str = self.messages[6]
-                str = gsub(gsub(str, "%%name%%", name), "%%grade%%", k)
-                self:Respond(_, str, say_all, 10)
-                self.players[Ply].rank, self.players[Ply].grade = stats.rank, k
-                return
+                if (cr > stats.grade[#stats.grade] and next_rank == nil) then
+                    self.players[Ply].done[i][k] = true
+                    local str = self.messages[7]
+                    str = gsub(str, "%%name%%", name)
+                    self:Respond(_, str, say_all, 10)
+                    self.players[Ply].rank, self.players[Ply].grade = stats.rank, k
+                    return
+                elseif (case1) or (case2) or (case3) then
+                    self.players[Ply].done[i][k] = true
+                    local str = self.messages[6]
+                    str = gsub(gsub(gsub(str, "%%name%%", name), "%%grade%%", k), "%%rank%%", stats.rank)
+                    self:Respond(_, str, say_all, 10)
+                    self.players[Ply].rank, self.players[Ply].grade = stats.rank, k
+                    return
+                end
             end
         end
     end
@@ -879,7 +938,7 @@ end
 local function CMDSplit(CMD)
     local Args, index = { }, 1
     for Params in gmatch(CMD, "([^%s]+)") do
-        Args[index] = Params
+        Args[index] = lower(Params)
         index = index + 1
     end
     return Args
@@ -890,7 +949,6 @@ function Rank:OnServerCommand(Executor, Command)
     if (Args == nil) then
         return
     else
-        Args[1] = lower(Args[1]) or upper(Args[1])
         local lvl = tonumber(get_var(Executor, "$lvl"))
         if (Args[1] == self.check_rank_cmd) then
             if (lvl >= self.check_rank_cmd_permission) then
