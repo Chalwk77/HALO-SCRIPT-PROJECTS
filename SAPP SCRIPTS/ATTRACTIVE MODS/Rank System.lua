@@ -1,8 +1,11 @@
 --[[
 --=====================================================================================================--
 Script Name: Rank System (v1.13), for SAPP (PC & CE)
-Description: A fully integrated ranking system for SAPP servers.
+Description: Rank System is fully integrated halo 3 style ranking system for SAPP servers.
+
 Players earn credits for killing, scoring and achievements, such as sprees, kill-combos and more.
+The higher your credit score, the higher your rank.
+Stats are permanently saved to a database saved in the servers root directory.
 
 Credits vary for individual weapons.
 For example, you will earn 6 credits for killing someone with the sniper rifle, however, only 4 credits with the plasma pistol.
