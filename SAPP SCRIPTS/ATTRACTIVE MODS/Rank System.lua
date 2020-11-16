@@ -542,6 +542,9 @@ function Rank:AddNewPlayer(Ply, ManualLoad)
             self.players[Ply].id = Ply
             self.players[Ply].name = name
             self.players[Ply].last_damage = nil
+            if (self.players[Ply].credits < 0) then
+                self.players[Ply].credits = 0
+            end
 
             -- T-Bag Support:
             self.players[Ply].coords = { }
