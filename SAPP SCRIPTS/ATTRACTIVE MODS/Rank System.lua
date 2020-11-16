@@ -879,11 +879,11 @@ function Rank:UpdateCredits(Ply, Params)
     str = gsub(str, "%%currency_symbol%%", self.currency_symbol)
     self:Respond(Ply, str, rprint, 10)
 
-    self:UpdateRank(Ply)
-
     if (self.players[Ply].credits < 0) then
         self.players[Ply].credits = 0
     end
+
+    self:UpdateRank(Ply)
 end
 
 function Rank:UpdateRank(Ply, Silent)
