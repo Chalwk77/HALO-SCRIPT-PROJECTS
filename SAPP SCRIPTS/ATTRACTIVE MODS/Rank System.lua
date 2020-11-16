@@ -352,6 +352,7 @@ function OnScriptLoad()
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
+    register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
     Rank:CheckFile()
     if (get_var(0, "$gt") ~= "n/a") then
