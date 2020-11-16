@@ -69,7 +69,7 @@ local Rank = {
             "Credits: %credits%",
         },
         [2] = {
-            "%name% is ranked %rank% out of %totalplayers%!",
+            "%name% is rank [%rank%] Grade [%grade%] Position: [%pos%/%totalplayers%]",
             "Credits: %credits%",
         },
         [3] = { "You do not have permission to execute this command." },
