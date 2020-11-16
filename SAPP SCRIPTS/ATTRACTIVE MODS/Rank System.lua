@@ -67,11 +67,11 @@ local Rank = {
     --
 
     messages = {
-        [1] = {
+        [1] = {-- on join
             "You are rank [%rank%] Grade [%grade%] Position: [%pos%/%totalplayers%]",
             "Credits: %credits%",
         },
-        [2] = {
+        [2] = { -- /rank command output (other player)
             "%name% is rank [%rank%] Grade [%grade%] Position: [%pos%/%totalplayers%]",
             "Credits: %credits%",
         },
@@ -84,6 +84,14 @@ local Rank = {
         [6] = "%name% is now rank [%rank%] grade [%grade%]",
         [7] = "%name% has completed all ranks!",
         [8] = "%name% was downgraded and is now rank [%rank%] grade [%grade%]",
+
+        [9] = { -- /rank command output (self)
+            "You are rank [%rank%] Grade [%grade%] Position: [%pos%/%totalplayers%]",
+            "Credits: %credits%",
+            " ",
+            "Next Rank: [%next_rank% Grade %next_grade%]",
+            "[Credits Required: %req%]"
+        }
     },
 
     credits = {
@@ -621,10 +629,10 @@ function SortRanks()
         for _, v in pairs(ranks) do
             results[#results + 1] = {
                 ["ip"] = v.ip,
-                ["credits"] = v.credits,
                 ["name"] = v.name,
                 ["rank"] = v.rank,
-                ["grade"] = v.grade
+                ["grade"] = v.grade,
+                ["credits"] = v.credits
             }
         end
         table.sort(results, function(a, b)
@@ -634,57 +642,59 @@ function SortRanks()
     end
 end
 
+function Rank:PrintRank(Ply, Pos, Stats, Total, I, NextRank, NextGrade, Required)
+    local replace = {
+        ["%%pos%%"] = Pos,
+        ["%%req%%"] = Required,
+        ["%%name%%"] = Stats.name,
+        ["%%rank%%"] = Stats.rank,
+        ["%%next_grade%%"] = NextGrade,
+        ["%%grade%%"] = Stats.grade,
+        ["%%totalplayers%%"] = Total,
+        ["%%next_rank%%"] = NextRank,
+        ["%%credits%%"] = Stats.credits,
+    }
+    for _, str in pairs(self.messages[I]) do
+        for key, value in pairs(replace) do
+            str = gsub(str, key, value)
+        end
+        self:Respond(Ply, str, say, 10)
+    end
+end
+
 function Rank:GetRank(Ply, IP, CMD)
     local results = SortRanks()
     if (#results > 0) then
-
         for k, v in pairs(results) do
             if (IP == v.ip) then
-                local function PrintMsg(I)
-                    for i = 1, #self.messages[2] do
-                        local str = gsub(gsub(gsub(gsub(gsub(gsub(self.messages[I][i],
-                                "%%pos%%", k),
-                                "%%rank%%", v.rank),
-                                "%%grade%%", v.grade),
-                                "%%name%%", v.name),
-                                "%%credits%%", v.credits),
-                                "%%totalplayers%%", #results)
-                        self:Respond(Ply, str, say, 10)
-                    end
-                end
 
                 if (CMD) then
                     if (self:GetIP(Ply) == IP) then
-                        PrintMsg(1)
 
                         local t = self.players[Ply]
-                        local rank = t.rank
-
-                        local credits = t.credits
-                        local required = credits
-                        local next_rank = ""
+                        local grade, credits = t.grade, t.credits
 
                         for i, stats in pairs(self.ranks) do
-                            if (stats.rank == rank) then
-                                for j, _ in pairs(stats.grade) do
-                                    if (stats.grade[j + 1] ~= nil) then
-                                        required = stats.grade[j + 1]
-                                        next_rank = "Next Rank: [" .. stats.rank .. " Grade " .. j + 1 .. "] [Credits: " .. credits .. "/" .. required .. "]"
+                            if (stats.rank == t.rank) then
+                                for _, _ in pairs(stats.grade) do
+                                    if (stats.grade[grade + 1] ~= nil) then
+                                        self:PrintRank(Ply, k, v, #results, 9, stats.rank, grade + 1, stats.grade[grade + 1] - credits)
+                                        break
                                     elseif (self.ranks[i + 1] ~= nil) then
-                                        required = self.ranks[i + 1].grade[1]
-                                        next_rank = "Next Rank: [" .. self.ranks[i + 1].rank .. " Grade 1] [Credits: " .. credits .. "/" .. required .. "]"
+                                        self:PrintRank(Ply, k, v, #results, 9, self.ranks[i + 1].rank, 1, self.ranks[i + 1].grade[1] - credits)
+                                        break
                                     else
-                                        next_rank = "Next Rank: FINISHED"
+                                        self:Respond(Ply, "COMPLETED ALL RANKS", say, 10)
+                                        break
                                     end
                                 end
                             end
                         end
-                        self:Respond(Ply, next_rank, say, 10)
                     else
-                        PrintMsg(2)
+                        self:PrintRank(Ply, k, v, #results, 2)
                     end
                 else
-                    PrintMsg(1)
+                    self:PrintRank(Ply, k, v, #results, 1)
                     local str = v.name .. " connected -> Rank [" .. v.rank .. "] Grade [" .. v.grade .. "] Position: " .. k .. " of " .. #results .. " with " .. v.credits .. " credits."
                     self:Respond(Ply, str, say, 10, true)
                 end
