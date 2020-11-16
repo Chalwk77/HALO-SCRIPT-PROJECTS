@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Rank System (v1.14), for SAPP (PC & CE)
+Script Name: Rank System (v1.15), for SAPP (PC & CE)
 Description: Rank System is fully integrated halo 3 style ranking system for SAPP servers.
 
 Players earn credits for killing, scoring and achievements, such as sprees, kill-combos and more.
@@ -123,6 +123,9 @@ local Rank = {
 
         -- Killed from the grave (credits added to killer)
         killed_from_the_grave = { 5, "+5 %currency_symbol% (Killed From Grave)" },
+
+        -- Bonus points for getting the first kill
+        first_blood = { 30, "+30cR (First Blood)" },
 
         -- {consecutive kills, xp rewarded}
         spree = {
@@ -350,7 +353,7 @@ local Rank = {
 }
 
 local time_scale = 1 / 30
-local script_version = 1.14
+local script_version = 1.15
 local lower = string.lower
 local sqrt, len = math.sqrt, string.len
 local gmatch, gsub = string.gmatch, string.gsub
@@ -703,6 +706,27 @@ function Rank:GetRank(Ply, IP, CMD)
     end
 end
 
+function Rank:FirstBlood(Ply)
+    local kills = tonumber(get_var(Ply, "$kills"))
+    local count = 0
+    if (kills == 1) then
+        for i = 1, 16 do
+            if player_present(i) then
+                if (i ~= Ply) then
+                    if (self.first_blood[i]) then
+                        count = count + 1
+                    end
+                end
+            end
+        end
+    end
+    if (count == 1) then
+        self.first_blood = { }
+        self.first_blood.active = false
+        self:UpdateCredits(Ply, { self.credits.first_blood[1], self.credits.first_blood[2] })
+    end
+end
+
 function Rank:GetIP(Ply)
     local IP = get_var(Ply, "$ip")
     if (self.ClientIndexType == 1) then
@@ -714,6 +738,9 @@ end
 function Rank:CheckFile()
     self.players = { }
     if (get_var(0, "$gt") ~= "n/a") then
+
+        self.first_blood = { }
+        self.first_blood.active = true
 
         local content = ""
         local file = io.open(self.dir, "r")
@@ -826,6 +853,12 @@ function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
         -- Killed from Grave:
         if (not player_alive(killer)) then
             self:UpdateCredits(killer, { self.credits.killed_from_the_grave[1], self.credits.killed_from_the_grave[2] })
+        end
+
+        -- Check for first blood:
+        if (self.first_blood.active) then
+            self.first_blood[victim] = true
+            self:FirstBlood(killer)
         end
 
         -- T-Bag Support:
