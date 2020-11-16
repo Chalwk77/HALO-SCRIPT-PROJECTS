@@ -888,7 +888,7 @@ function Rank:UpdateRank(Ply, Silent)
                 local case3 = (next_rank ~= nil and (cr > stats.grade[#stats.grade] and cr < next_rank.grade[1]))
 
                 if (cr > stats.grade[#stats.grade] and next_rank == nil) then
-                    self.players[Ply].rank, self.players[Ply].grade = stats.rank, k
+                    self.players[Ply].rank, self.players[Ply].grade = stats.rank, #stats.grade
                     self.players[Ply].done[i][k] = true
                     if (not Silent) then
                         local str = self.messages[7]
