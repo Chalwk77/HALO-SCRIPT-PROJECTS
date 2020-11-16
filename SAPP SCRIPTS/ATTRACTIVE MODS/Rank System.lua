@@ -799,8 +799,8 @@ function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
     local guardians = (killer == nil)
     local suicide = (killer == victim)
     local pvp = ((killer > 0) and killer ~= victim)
-    local betrayal = ((kteam == vteam) and killer ~= victim) and TeamPlay()
-
+    local team_play = TeamPlay()
+    local betrayal = (kteam == vteam and killer ~= victim and team_play)
     if (pvp and not betrayal) then
 
         self:MultiKill(killer)
