@@ -781,6 +781,13 @@ function Rank:GetXYZ(Ply)
     return coords
 end
 
+local function TeamPlay()
+    if (get_var(0, "$ffa") == "0") then
+        return true
+    end
+    return false
+end
+
 function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
     local killer, victim = tonumber(KillerIndex), tonumber(VictimIndex)
 
@@ -792,7 +799,7 @@ function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
     local guardians = (killer == nil)
     local suicide = (killer == victim)
     local pvp = ((killer > 0) and killer ~= victim)
-    local betrayal = ((kteam == vteam) and killer ~= victim)
+    local betrayal = ((kteam == vteam) and killer ~= victim) and (not TeamPlay())
 
     if (pvp and not betrayal) then
 
@@ -889,7 +896,7 @@ function Rank:UpdateRank(Ply, Silent)
                 local case3 = (cr == stats.grade[#stats.grade]) and (cr == v)
                 local case4 = (next_rank ~= nil and (cr > stats.grade[#stats.grade] and cr < next_rank.grade[1]))
 
-                if (case1) and (self.players[Ply].done[i][#stats.grade]) then
+                if (case1) and (not self.players[Ply].done[i][#stats.grade]) then
                     self.players[Ply].rank, self.players[Ply].grade = stats.rank, #stats.grade
                     self.players[Ply].done[i][#stats.grade] = true
                     if (not Silent) then
