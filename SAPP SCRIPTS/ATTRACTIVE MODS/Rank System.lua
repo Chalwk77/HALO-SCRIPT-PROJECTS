@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Rank System (v1.12), for SAPP (PC & CE)
+Script Name: Rank System (v1.11), for SAPP (PC & CE)
 Description: A fully integrated ranking system for SAPP servers.
 Players earn credits for killing, scoring and achievements, such as sprees, kill-combos and more.
 
@@ -338,7 +338,7 @@ local Rank = {
 }
 
 local time_scale = 1 / 30
-local script_version = 1.12
+local script_version = 1.10
 local lower = string.lower
 local sqrt, len = math.sqrt, string.len
 local gmatch, gsub = string.gmatch, string.gsub
@@ -799,7 +799,7 @@ function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
     local guardians = (killer == nil)
     local suicide = (killer == victim)
     local pvp = ((killer > 0) and killer ~= victim)
-    local betrayal = ((kteam == vteam) and killer ~= victim) and (not TeamPlay())
+    local betrayal = ((kteam == vteam) and killer ~= victim) and TeamPlay()
 
     if (pvp and not betrayal) then
 
