@@ -545,6 +545,7 @@ function Rank:AddNewPlayer(Ply, ManualLoad)
             --
 
             if (not ManualLoad) then
+                self:UpdateRank(Ply, true)
                 self:GetRank(Ply, IP)
             end
         end
@@ -629,29 +630,6 @@ function Rank:GetRank(Ply, IP, CMD)
     local results = SortRanks()
     if (#results > 0) then
 
-        local t = self.players[Ply]
-        local rank = t.rank
-
-        local credits = t.credits
-        local required = credits
-
-        local next_rank = ""
-        for i, stats in pairs(self.ranks) do
-            if (stats.rank == rank) then
-                for k, _ in pairs(stats.grade) do
-                    if (stats.grade[k + 1] ~= nil) then
-                        required = stats.grade[k + 1]
-                        next_rank = "Next Rank: [" .. stats.rank .. " Grade " .. k + 1 .. "] [Credits: " .. credits .. "/" .. required .. "]"
-                    elseif (self.ranks[i + 1] ~= nil) then
-                        required = self.ranks[i + 1].grade[1]
-                        next_rank = "Next Rank: [" .. self.ranks[i + 1].rank .. " Grade 1] [Credits: " .. credits .. "/" .. required .. "]"
-                    else
-                        next_rank = "Next Rank: FINISHED"
-                    end
-                end
-            end
-        end
-
         for k, v in pairs(results) do
             if (IP == v.ip) then
                 local function PrintMsg(I)
@@ -666,9 +644,33 @@ function Rank:GetRank(Ply, IP, CMD)
                         self:Respond(Ply, str, say, 10)
                     end
                 end
+
                 if (CMD) then
                     if (self:GetIP(Ply) == IP) then
                         PrintMsg(1)
+
+                        local t = self.players[Ply]
+                        local rank = t.rank
+
+                        local credits = t.credits
+                        local required = credits
+                        local next_rank = ""
+
+                        for i, stats in pairs(self.ranks) do
+                            if (stats.rank == rank) then
+                                for j, _ in pairs(stats.grade) do
+                                    if (stats.grade[j + 1] ~= nil) then
+                                        required = stats.grade[j + 1]
+                                        next_rank = "Next Rank: [" .. stats.rank .. " Grade " .. j + 1 .. "] [Credits: " .. credits .. "/" .. required .. "]"
+                                    elseif (self.ranks[i + 1] ~= nil) then
+                                        required = self.ranks[i + 1].grade[1]
+                                        next_rank = "Next Rank: [" .. self.ranks[i + 1].rank .. " Grade 1] [Credits: " .. credits .. "/" .. required .. "]"
+                                    else
+                                        next_rank = "Next Rank: FINISHED"
+                                    end
+                                end
+                            end
+                        end
                         self:Respond(Ply, next_rank, say, 10)
                     else
                         PrintMsg(2)
@@ -869,7 +871,7 @@ function Rank:UpdateCredits(Ply, Params)
     end
 end
 
-function Rank:UpdateRank(Ply)
+function Rank:UpdateRank(Ply, Silent)
 
     local t = self.players[Ply]
     local cr, name = t.credits, t.name
@@ -885,18 +887,22 @@ function Rank:UpdateRank(Ply)
                 local case3 = (next_rank ~= nil and (cr > stats.grade[#stats.grade] and cr < next_rank.grade[1]))
 
                 if (cr > stats.grade[#stats.grade] and next_rank == nil) then
-                    self.players[Ply].done[i][k] = true
-                    local str = self.messages[7]
-                    str = gsub(str, "%%name%%", name)
-                    self:Respond(_, str, say_all, 10)
                     self.players[Ply].rank, self.players[Ply].grade = stats.rank, k
+                    self.players[Ply].done[i][k] = true
+                    if (not Silent) then
+                        local str = self.messages[7]
+                        str = gsub(str, "%%name%%", name)
+                        self:Respond(_, str, say_all, 10)
+                    end
                     return
                 elseif (case1) or (case2) or (case3) then
-                    self.players[Ply].done[i][k] = true
-                    local str = self.messages[6]
-                    str = gsub(gsub(gsub(str, "%%name%%", name), "%%grade%%", k), "%%rank%%", stats.rank)
-                    self:Respond(_, str, say_all, 10)
                     self.players[Ply].rank, self.players[Ply].grade = stats.rank, k
+                    self.players[Ply].done[i][k] = true
+                    if (not Silent) then
+                        local str = self.messages[6]
+                        str = gsub(gsub(gsub(str, "%%name%%", name), "%%grade%%", k), "%%rank%%", stats.rank)
+                        self:Respond(_, str, say_all, 10)
+                    end
                     return
                 end
             end
@@ -1065,11 +1071,11 @@ function report(StackTrace, Error)
 
     cprint(StackTrace, 4 + 8)
 
-    cprint("---------------------------------------------------------", 5 + 8)
+    cprint("--------------------------------------------------------", 5 + 8)
     cprint("Please report this error on github:", 7 + 8)
     cprint("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", 7 + 8)
     cprint("Script Version: " .. script_version, 7 + 8)
-    cprint("---------------------------------------------------------", 5 + 8)
+    cprint("--------------------------------------------------------", 5 + 8)
 
     local timestamp = os.date("[%H:%M:%S - %d/%m/%Y]")
     WriteLog(timestamp)
