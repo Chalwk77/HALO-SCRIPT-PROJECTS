@@ -1065,11 +1065,11 @@ function report(StackTrace, Error)
 
     cprint(StackTrace, 4 + 8)
 
-    cprint("--------------------------------------------------------", 5 + 8)
+    cprint("---------------------------------------------------------", 5 + 8)
     cprint("Please report this error on github:", 7 + 8)
     cprint("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", 7 + 8)
     cprint("Script Version: " .. script_version, 7 + 8)
-    cprint("--------------------------------------------------------", 5 + 8)
+    cprint("---------------------------------------------------------", 5 + 8)
 
     local timestamp = os.date("[%H:%M:%S - %d/%m/%Y]")
     WriteLog(timestamp)
