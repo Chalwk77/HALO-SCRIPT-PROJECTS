@@ -482,6 +482,23 @@ function OnPlayerScore(Ply)
     Rank:UpdateCredits(Ply, { Rank.credits.score[1], Rank.credits.score[2] })
 end
 
+local function Completed()
+    local done = { }
+    for i, stats in pairs(Rank.ranks) do
+        for k, _ in pairs(stats.grade) do
+            done[i] = done[i] or { }
+            if (done[i][k] == nil) then
+                if (i == 1 and #stats.grade == 1) then
+                    done[i][k] = true
+                else
+                    done[i][k] = false
+                end
+            end
+        end
+    end
+    return done
+end
+
 function Rank:AddNewPlayer(Ply, ManualLoad)
 
     local content = ""
@@ -498,23 +515,6 @@ function Rank:AddNewPlayer(Ply, ManualLoad)
             local pl = json:decode(content)
             local IP = self:GetIP(Ply)
             local name = get_var(Ply, "$name")
-
-            local function Completed()
-                local done = { }
-                for i, stats in pairs(Rank.ranks) do
-                    for k, _ in pairs(stats.grade) do
-                        done[i] = done[i] or { }
-                        if (done[i][k] == nil) then
-                            if (i == 1 and #stats.grade == 1) then
-                                done[i][k] = true
-                            else
-                                done[i][k] = false
-                            end
-                        end
-                    end
-                end
-                return done
-            end
 
             if (pl[IP] == nil) then
                 pl[IP] = {
