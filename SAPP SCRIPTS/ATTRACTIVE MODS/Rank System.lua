@@ -889,9 +889,9 @@ function Rank:UpdateRank(Ply, Silent)
                 local case3 = (cr == stats.grade[#stats.grade]) and (cr == v)
                 local case4 = (next_rank ~= nil and (cr > stats.grade[#stats.grade] and cr < next_rank.grade[1]))
 
-                if (case1) then
+                if (case1) and (self.players[Ply].done[i][#stats.grade]) then
                     self.players[Ply].rank, self.players[Ply].grade = stats.rank, #stats.grade
-                    self.players[Ply].done[i][k] = true
+                    self.players[Ply].done[i][#stats.grade] = true
                     if (not Silent) then
                         local str = self.messages[7]
                         str = gsub(str, "%%name%%", name)
