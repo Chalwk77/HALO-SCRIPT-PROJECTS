@@ -52,6 +52,7 @@ local VoteKick = {
 local time_scale, gmatch = 1 / 30, string.gmatch
 function VoteKick:Init()
     if (get_var(0, "$gt") ~= "n/a") then
+        self.timer = 0
         self.votes = { }
         self.game_started = true
         for i = 1, 16 do
@@ -59,7 +60,6 @@ function VoteKick:Init()
                 self:InitPlayer(i, false)
             end
         end
-        timer(1000 * self.announcement_period, "PeriodicAnnouncement")
     end
 end
 
@@ -82,6 +82,11 @@ function VoteKick:OnTick()
                     self.votes[ip] = nil
                 end
             end
+        end
+        self.timer = self.timer + time_scale
+        if (self.timer >= self.announcement_period) then
+            self.timer = 0
+            self:PeriodicAnnouncement()
         end
     end
 end
@@ -128,7 +133,6 @@ function VoteKick:PeriodicAnnouncement()
         self:Respond(_, "Vote Kick Enabled.")
         self:Respond(_, "[" .. votes_required .. " " .. vote .. " to kick] at " .. self.vote_percentage .. "% of the current server population")
     end
-    return true
 end
 
 function VoteKick:Check(Ply, IP, PlayerCount)
@@ -278,10 +282,6 @@ function VoteKick:GetIP(Ply)
         IP = self.votes[IP].ip
     end
     return IP
-end
-
-function PeriodicAnnouncement()
-    return VoteKick:PeriodicAnnouncement()
 end
 
 function OnServerCommand(P, C)
