@@ -9,7 +9,7 @@ local CaptureTheFlag = {
     respawn_time = 15,
 
     -- Points awarded on capture:
-    score_on_capture = 25,
+    score_on_capture = 5,
 
     -- Enable this if you are using my Rank System script
     rank_system_support = true,

@@ -107,7 +107,7 @@ local Rank = {
         tbag = { 1, "+1 %currency_symbol% (T-Bagging)" },
 
         -- Score (credits added):
-        score = { 25, "+25 %currency_symbol% (Flag Cap)" },
+        score = { 5, "+5 %currency_symbol% (Flag Cap)" },
 
         -- Killed by Server (credits deducted):
         server = { -0, "-0 %currency_symbol% (Server)" },
@@ -353,7 +353,7 @@ local Rank = {
 }
 
 local time_scale = 1 / 30
-local script_version = 1.15
+local script_version = 1.16
 local lower = string.lower
 local sqrt, len = math.sqrt, string.len
 local gmatch, gsub = string.gmatch, string.gsub
