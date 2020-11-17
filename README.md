@@ -2,6 +2,11 @@
 
 - - - - 
 
+>If you love the work I do, please consider donating:
+>❤️ Support Me️ ❤️
+* [DONATE TO ME](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=X6VNRT8N4JEPS&source=url)
+- - - - 
+
 * [SAPP SCRIPTS](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/SAPP%20SCRIPTS)
 * [PHASOR SCRIPTS](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/PHASOR%20SCRIPTS)
 * [CHIMERA SCRIPTS](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/CHIMERA/GLOBAL)
