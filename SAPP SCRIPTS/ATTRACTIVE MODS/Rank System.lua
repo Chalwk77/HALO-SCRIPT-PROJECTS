@@ -583,7 +583,7 @@ function Rank:UpdateJSON(Ply)
             end
         end
     end
-    Rank.players[Ply] = nil
+    self.players[Ply] = nil
 end
 
 function Rank:UpdateALL()
