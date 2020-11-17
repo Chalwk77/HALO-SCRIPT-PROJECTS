@@ -1,7 +1,7 @@
 ![Logo](https://i.imgur.com/t0W5aJe.png)
 
 - - - - 
-❤️ Support Me️ ❤
+❤️ SUPPORT ME️ ❤
 >If you love the work I do, please consider donating:
 * [DONATE TO ME](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=X6VNRT8N4JEPS&source=url)
 - - - - 
