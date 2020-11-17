@@ -9,7 +9,11 @@ local CaptureTheFlag = {
     respawn_time = 15,
 
     -- Points awarded on capture:
-    score_on_capture = 5,
+    score_on_capture = 25,
+
+    -- Enable this if you are using my Rank System script
+    rank_system_support = true,
+    rank_script = "Rank System",
 
     flag_object = { "weap", "weapons\\flag\\flag" },
 
@@ -345,16 +349,21 @@ function CaptureTheFlag:MonitorFlag(Ply)
                     end
                 end
 
-                if self:GetRadius(pos.x, pos.y, pos.z) then
+                if self:GetRadius(pos.x, pos.y, pos.z) and (flag) then
 
                     local score = tonumber(get_var(Ply, "$score"))
-                    score = score + self.score_on_capture
+                    if (self.rank_system_support) then
+                        execute_command('lua_call "' .. self.rank_script .. '" OnPlayerScore ' .. Ply)
+                    end
 
+                    score = score + self.score_on_capture
                     execute_command("s " .. Ply .. " 1")
                     execute_command("score " .. Ply .. " " .. score)
+
                     self.players[Ply].captures = self.players[Ply].captures + 1
                     self:Respond(_, gsub(gsub(self.on_capture, "%%name%%", name), "%%captures%%", self.players[Ply].captures))
                     self:SpawnFlag()
+                    break
                 end
             end
         end

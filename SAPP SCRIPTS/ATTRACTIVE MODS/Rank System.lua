@@ -490,7 +490,7 @@ function OnPlayerDisconnect(Ply)
 end
 
 function OnPlayerScore(Ply)
-    Rank:UpdateCredits(Ply, { Rank.credits.score[1], Rank.credits.score[2] })
+    Rank:UpdateCredits(tonumber(Ply), { Rank.credits.score[1], Rank.credits.score[2] })
 end
 
 local function Completed()
