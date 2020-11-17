@@ -1,9 +1,9 @@
 --[[
 --=====================================================================================================--
 Script Name: Disable Fall Damage, for SAPP (PC & CE)
-Description: This mod will allow you to disable fall damage on a per-map basis.
+Description: This mod will allow you to disable fall damage on a per-map, per-gamemode basis.
 
-Copyright (c) 2019-2020, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
@@ -14,39 +14,50 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.12.0.0"
 
 local FallDamage = { }
+local lower = string.lower
 function FallDamage:Init()
+    self.disable = false
     if (get_var(0, "$gt") ~= "n/a") then
 
         -- Configuration [starts] -----------------------------------------------------
-        FallDamage.maps = {
+        self.maps = {
 
-            -- (true = fall damage enabled, false = fall damage disabled):
+            -- {map enabled/disabled}, {game mode 1, gamemode 2 ...}
 
-            ["putput"] = false,
-            ["wizard"] = false,
-            ["longest"] = false,
-            ["ratrace"] = false,
-            ["carousel"] = false,
-            ["infinity"] = false,
-            ["chillout"] = false,
-            ["prisoner"] = false,
-            ["damnation"] = true,
-            ["icefields"] = false,
-            ["bloodgulch"] = false,
-            ["hangemhigh"] = false,
-            ["sidewinder"] = false,
-            ["timberland"] = false,
-            ["beavercreek"] = false,
-            ["deathisland"] = false,
-            ["dangercanyon"] = false,
-            ["gephyrophobia"] = false,
-            ["boardingaction"] = false,
+            ["putput"] = { true, { "rocketz", "ffa shottys" } },
+            ["wizard"] = { true, { "rocketz", "ffa shottys" } },
+            ["longest"] = { true, { "rocketz", "ffa shottys" } },
+            ["ratrace"] = { true, { "rocketz", "ffa shottys" } },
+            ["carousel"] = { true, { "rocketz", "ffa shottys" } },
+            ["infinity"] = { true, { "rocketz", "ffa shottys" } },
+            ["chillout"] = { true, { "rocketz", "ffa shottys" } },
+            ["prisoner"] = { true, { "rocketz", "ffa shottys" } },
+            ["damnation"] = { true, { "rocketz", "ffa shottys" } },
+            ["icefields"] = { true, { "rocketz", "ffa shottys" } },
+            ["bloodgulch"] = { true, { "rocketz", "ffa shottys" } },
+            ["hangemhigh"] = { true, { "rocketz", "ffa shottys" } },
+            ["sidewinder"] = { true, { "rocketz", "ffa shottys" } },
+            ["timberland"] = { true, { "rocketz", "ffa shottys" } },
+            ["beavercreek"] = { true, { "rocketz", "ffa shottys" } },
+            ["deathisland"] = { true, { "rocketz", "ffa shottys" } },
+            ["dangercanyon"] = { true, { "rocketz", "ffa shottys" } },
+            ["gephyrophobia"] = { true, { "rocketz", "ffa shottys" } },
+            ["boardingaction"] = { true, { "rocketz", "ffa shottys" } },
         }
         -- Configuration [ends] -----------------------------------------------------
 
-        self.map = get_var(0, "$map")
         self.falling = GetTag("jpt!", "globals\\falling")
         self.distance = GetTag("jpt!", "globals\\distance")
+
+        local map = get_var(0, "$map")
+        if (self.maps[map] and self.maps[map][1]) then
+            local cur_gammode = get_var(0, "$mode")
+            for _, gamemode in pairs(self.maps[map][2]) do
+                if (lower(cur_gammode) == lower(gamemode)) then
+                    self.disable = true
+                end
+            end
+        end
     end
 end
 
@@ -61,8 +72,8 @@ function OnGameStart()
 end
 
 function OnDamageApplication(_, _, MetaID, _, _, _)
-    if (MetaID == FallDamage.falling or MetaID == FallDamage.distance) then
-        if (not FallDamage.maps[FallDamage.map]) then
+    if (FallDamage.disable) then
+        if (MetaID == FallDamage.falling or MetaID == FallDamage.distance) then
             return false
         end
     end
