@@ -34,7 +34,7 @@ local VoteKick = {
     -- informing players about vote kick and the current votes needed to kick a player.
     -- This feature is only enabled while there are equal to or greater than minimum_player_count players online.
     -- The required votes is a calculation of the vote_percentage * player count / 100
-    announcement_period = 120,
+    announcement_period = 180,
 
     -- If a player disconnects and returns within this amount of time (in seconds), votes against them will remain.
     cooldown_period = 30,
