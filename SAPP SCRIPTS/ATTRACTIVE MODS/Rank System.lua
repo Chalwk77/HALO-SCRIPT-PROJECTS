@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Rank System (v1.16), for SAPP (PC & CE)
+Script Name: Rank System (v1.15), for SAPP (PC & CE)
 Description: Rank System is fully integrated halo 3 style ranking system for SAPP servers.
 
 Players earn credits for killing, scoring and achievements, such as sprees, kill-combos and more.
@@ -353,7 +353,7 @@ local Rank = {
 }
 
 local time_scale = 1 / 30
-local script_version = 1.16
+local script_version = 1.15
 local lower = string.lower
 local sqrt, len = math.sqrt, string.len
 local gmatch, gsub = string.gmatch, string.gsub
@@ -457,7 +457,7 @@ function Rank:OnTick()
                                     local distance = GetRadius(px, py, pz, x, y, z)
                                     if (distance) and (distance <= self.tbag_trigger_radius) then
 
-                                        local crouch = read_bit(pos.DyN + 0x208, 0)
+                                        local crouch = read_bit(pos.dyn + 0x208, 0)
                                         if (crouch ~= self.players[i].crouch_state and crouch == 1) then
                                             self.players[i].crouch_count = self.players[i].crouch_count + 1
 
@@ -486,7 +486,6 @@ end
 
 function OnPlayerDisconnect(Ply)
     Rank:UpdateJSON(Ply)
-    Rank.players[Ply] = nil
 end
 
 function OnPlayerScore(Ply)
@@ -532,7 +531,7 @@ function Rank:AddNewPlayer(Ply, ManualLoad)
                     ip = IP,
                     id = Ply,
                     name = name,
-                    last_damage = nil,
+                    last_damage = 0,
                     rank = self.starting_rank,
                     grade = self.starting_grade,
                     credits = self.starting_credits,
@@ -552,7 +551,7 @@ function Rank:AddNewPlayer(Ply, ManualLoad)
             self.players[Ply] = pl[IP]
             self.players[Ply].id = Ply
             self.players[Ply].name = name
-            self.players[Ply].last_damage = nil
+            self.players[Ply].last_damage = 0
             if (self.players[Ply].credits < 0) then
                 self.players[Ply].credits = 0
             end
@@ -573,14 +572,18 @@ end
 
 function Rank:UpdateJSON(Ply)
     local ranks = self:GetRanks()
-    if (ranks) then
-        local file = assert(io.open(self.dir, "w"))
-        if (file) then
-            ranks[self.players[Ply].ip] = self.players[Ply]
-            file:write(json:encode_pretty(ranks))
-            io.close(file)
+    if (ranks) and (self.players[Ply] ~= nil) then
+        local IP = self.players[Ply].ip
+        if (IP) then
+            local file = assert(io.open(self.dir, "w"))
+            if (file) then
+                ranks[IP] = self.players[Ply]
+                file:write(json:encode_pretty(ranks))
+                io.close(file)
+            end
         end
     end
+    Rank.players[Ply] = nil
 end
 
 function Rank:UpdateALL()
@@ -820,7 +823,7 @@ function Rank:GetXYZ(Ply)
                 coords.name = GetVehicleTag(VehicleObject)
             end
         end
-        coords.x, coords.y, coords.z, coords.DyN = x, y, z, DyN
+        coords.x, coords.y, coords.z, coords.dyn = x, y, z, DyN
     end
     return coords
 end
