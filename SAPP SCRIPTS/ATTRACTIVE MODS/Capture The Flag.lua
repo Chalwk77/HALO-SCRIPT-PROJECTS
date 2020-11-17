@@ -191,31 +191,37 @@ local sqrt, floor = math.sqrt, math.floor
 
 function CaptureTheFlag:Init()
     if (get_var(0, "$gt") ~= "n/a") then
-        self.flag = { }
-        self.players = { }
-        self.game_started = true
-        for i = 1, 16 do
-            if player_present(i) then
-                self:InitPlayer(i, false)
+        if (get_var(0, "$gt") ~= "ctf") then
+            self.game_started = true
+            self.players, self.flag = { }, { }
+            for i = 1, 16 do
+                if player_present(i) then
+                    self:InitPlayer(i, false)
+                end
             end
-        end
-        for k, v in pairs(self.maps) do
-            if (k == get_var(0, "$map")) then
-                self.params = v
+            for k, v in pairs(self.maps) do
+                if (k == get_var(0, "$map")) then
+                    self.params = v
+                end
             end
-        end
 
-        self:SpawnFlag()
+            self:SpawnFlag()
+
+            register_callback(cb["EVENT_TICK"], "OnTick")
+            register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
+            register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
+            register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
+        else
+            unregister_callback(cb["EVENT_TICK"])
+            unregister_callback(cb["EVENT_JOIN"])
+            unregister_callback(cb["EVENT_LEAVE"])
+            unregister_callback(cb["EVENT_GAME_END"])
+        end
     end
 end
 
 function OnScriptLoad()
-    register_callback(cb["EVENT_TICK"], "OnTick")
-    register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
-    register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
-    register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
-    register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
     CaptureTheFlag:Init()
 end
 
