@@ -1064,7 +1064,10 @@ function Rank:OnServerCommand(Executor, Command)
                     local results = SortRanks()
                     for i, v in pairs(results) do
                         if (i > 0 and i < 11) then
-                            local str = gsub(gsub(gsub(self.toplist_format, "%%pos%%", i), "%%name%%", v.name), "%%cr%%", v.credits)
+                            local str = gsub(gsub(gsub(self.toplist_format,
+                                    "%%pos%%", i),
+                                    "%%name%%", v.name),
+                                    "%%cr%%", v.credits)
                             self:Respond(Executor, str, rprint, 10)
                         end
                     end

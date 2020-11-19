@@ -11,50 +11,47 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
-api_version = "1.12.0.0"
+api_version = \"1.12.0.0\"
 
 local FallDamage = { }
 local lower = string.lower
 function FallDamage:Init()
-    self.disable = false
-    if (get_var(0, "$gt") ~= "n/a") then
+
+    if (get_var(0, \"$gt\") ~= \"n/a\") then
 
         -- Configuration [starts] -----------------------------------------------------
         self.maps = {
 
             -- {map enabled/disabled}, {game mode 1, gamemode 2 ...}
 
-            ["putput"] = { true, { "rocketz", "ffa shottys" } },
-            ["wizard"] = { true, { "rocketz", "ffa shottys" } },
-            ["longest"] = { true, { "rocketz", "ffa shottys" } },
-            ["ratrace"] = { true, { "rocketz", "ffa shottys" } },
-            ["carousel"] = { true, { "rocketz", "ffa shottys" } },
-            ["infinity"] = { true, { "rocketz", "ffa shottys" } },
-            ["chillout"] = { true, { "rocketz", "ffa shottys" } },
-            ["prisoner"] = { true, { "rocketz", "ffa shottys" } },
-            ["damnation"] = { true, { "rocketz", "ffa shottys" } },
-            ["icefields"] = { true, { "rocketz", "ffa shottys" } },
-            ["bloodgulch"] = { true, { "rocketz", "ffa shottys" } },
-            ["hangemhigh"] = { true, { "rocketz", "ffa shottys" } },
-            ["sidewinder"] = { true, { "rocketz", "ffa shottys" } },
-            ["timberland"] = { true, { "rocketz", "ffa shottys" } },
-            ["beavercreek"] = { true, { "rocketz", "ffa shottys" } },
-            ["deathisland"] = { true, { "rocketz", "ffa shottys" } },
-            ["dangercanyon"] = { true, { "rocketz", "ffa shottys" } },
-            ["gephyrophobia"] = { true, { "rocketz", "ffa shottys" } },
-            ["boardingaction"] = { true, { "rocketz", "ffa shottys" } },
+            [\"putput\"] = { true, { \"Loadout-SlayerFFA\", \"ffa shottys\" } },
+            [\"wizard\"] = { true, { \"Loadout-SlayerFFA\", \"ffa shottys\" } },
+            [\"longest\"] = { true, { \"Loadout-SlayerFFA\", \"ffa shottys\" } },
+            [\"ratrace\"] = { true, { \"Loadout-SlayerFFA\", \"ffa shottys\" } },
+            [\"carousel\"] = { true, { \"Loadout-SlayerFFA\", \"ffa shottys\" } },
+            [\"infinity\"] = { true, { \"Loadout-SlayerFFA\", \"ffa shottys\" } },
+            [\"chillout\"] = { true, { \"Loadout-SlayerFFA\", \"ffa shottys\" } },
+            [\"prisoner\"] = { true, { \"Loadout-SlayerFFA\", \"ffa shottys\" } },
+            [\"damnation\"] = { true, { \"Loadout-SlayerFFA\", \"ffa shottys\" } },
+            [\"icefields\"] = { true, { \"Loadout-SlayerFFA\", \"ffa shottys\" } },
+            [\"bloodgulch\"] = { true, { \"Loadout-SlayerFFA\", \"ffa shottys\" } },
+            [\"hangemhigh\"] = { true, { \"Loadout-SlayerFFA\", \"ffa shottys\" } },
+            [\"sidewinder\"] = { true, { \"Loadout-SlayerFFA\", \"ffa shottys\" } },
+            [\"timberland\"] = { true, { \"Loadout-SlayerFFA\", \"ffa shottys\" } },
+            [\"beavercreek\"] = { true, { \"Loadout-SlayerFFA\", \"ffa shottys\" } },
+            [\"deathisland\"] = { true, { \"Loadout-SlayerFFA\", \"ffa shottys\" } },
+            [\"dangercanyon\"] = { true, { \"Loadout-SlayerFFA\", \"ffa shottys\" } },
+            [\"gephyrophobia\"] = { true, { \"Loadout-SlayerFFA\", \"ffa shottys\" } },
+            [\"boardingaction\"] = { true, { \"Loadout-SlayerFFA\", \"ffa shottys\" } },
         }
         -- Configuration [ends] -----------------------------------------------------
 
-        self.falling = GetTag("jpt!", "globals\\falling")
-        self.distance = GetTag("jpt!", "globals\\distance")
-
-        local map = get_var(0, "$map")
+        local map = get_var(0, \"$map\")
         if (self.maps[map] and self.maps[map][1]) then
-            local cur_gammode = get_var(0, "$mode")
+            local cur_gammode = get_var(0, \"$mode\")
             for _, gamemode in pairs(self.maps[map][2]) do
                 if (lower(cur_gammode) == lower(gamemode)) then
-                    self.disable = true
+					execute_command(\"cheat_jetpack true\")
                 end
             end
         end
@@ -62,26 +59,12 @@ function FallDamage:Init()
 end
 
 function OnScriptLoad()
-    register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
-    register_callback(cb['EVENT_GAME_START'], "OnGameStart")
+    register_callback(cb['EVENT_GAME_START'], \"OnGameStart\")
     FallDamage:Init()
 end
 
 function OnGameStart()
     FallDamage:Init()
-end
-
-function OnDamageApplication(_, _, MetaID, _, _, _)
-    if (FallDamage.disable) then
-        if (MetaID == FallDamage.falling or MetaID == FallDamage.distance) then
-            return false
-        end
-    end
-end
-
-function GetTag(Type, Name)
-    local Tag = lookup_tag(Type, Name)
-    return Tag ~= 0 and read_dword(Tag + 0xC) or nil
 end
 
 function OnScriptUnload()
