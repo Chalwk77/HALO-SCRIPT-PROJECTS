@@ -6,9 +6,19 @@ Description: Vote to kick a disruptive player from the server.
 Command Syntax: /votekick [pid]
 Typing /votekick by itself will show you a list of player names and their Index ID's (PID)
 
-The number of votes required to kick a player is dynamic and changes depending on how many players are currently on the server.
+---------- FEATURES ----------
+
+* The number of votes required to kick a player is dynamic and changes depending on how many players are currently on the server.
 By default, the ratio of players needed to cast a player out of the server is 60% of the servers current population.
-The formula is the ratio multiplied by current player count divided by 100 (r*p/100). The ratio is configurable, of course.
+The formula is the ratio multiplied by current player count divided by 100 (r*p/100). This ratio is configurable, of course.
+However, I do not recommend setting the ratio below 60%.
+
+* If a player disconnects and returns within 30 seconds, votes against them will remain.
+* Votes are reset when a new game begins.
+
+* Vote-Kicker also has a built in periodic announcer.
+This feature will periodically broadcast a message informing players about vote kick and the current votes needed to kick a player.
+The default interval is 180 seconds between announcements.
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
