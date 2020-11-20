@@ -6,6 +6,10 @@ Description: Vote to kick a disruptive player from the server.
 Command Syntax: /votekick [pid]
 Typing /votekick by itself will show you a list of player names and their Index ID's (PID)
 
+The number of votes required to kick a player is dynamic and changes depending on how many players are currently on the server.
+By default, the ratio of players needed to cast a player out of the server is 60% of the servers current population.
+The formula is the ratio multiplied by current player count divided by 100 (r*p/100).
+
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
