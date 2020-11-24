@@ -1,20 +1,35 @@
--- Console Text Override for SAPP, by Chalwk
--- This library will print defined messages for a specified period of time.
+--[[
+--=====================================================================================================--
+Script Name: Console Text Override, for SAPP (PC & CE)
+Description: This library will print defined messages for a specified period of time.
+Important: This library MUST be placed inside your servers root directory (the same directory where sapp.dll is located).
+Ensure the file name matches exactly "Console Text Library.lua".
 
--- Usage:
--- 1). Init library like so:
--- local ConsoleText = (loadfile "Console Text Library.lua")()
+Initialize this library like so:
+1). Place this at the top of your script:
+local ConsoleText = (loadfile "Console Text Library.lua")()
 
--- 2). Put ConsoleText:GameTick() inside of your EVENT_TICK function.
+2). Place this inside the function registered to EVENT_TICK.
+ConsoleText:GameTick()
 
--- 3). Create a new message like so:
--- ConsoleText:NewMessage(PID, "MESSAGE STRING", 10, "|l", true)
--- ConsoleText:NewMessage expects 5 parameters:
--- . Target Player ID
--- . Message String
--- . Message Duration
--- . Message Alignment ("|l", "|r", "|c", "|t" = Left, Right, Center, Tab)
--- . Console-Clear boolean (true/false)
+Creating a new message:
+ConsoleText:NewMessage(PID, "MESSAGE STRING", 10, "|l", true)
+
+
+ConsoleText:NewMessage expects 5 parameters:
+Target Player ID
+Message String
+Message Duration
+Message Alignment ("|l", "|r", "|c", "|t" = Left, Right, Center, Tab)
+Console-Clear boolean (true/false)
+
+Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
+* Notice: You can use this document subject to the following conditions:
+https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
+
+* Written by Jericho Crosby (Chalwk)
+--=====================================================================================================--
+]]--
 
 local ConsoleText = { messages = {} }
 local time_scale = 1 / 30
