@@ -521,7 +521,6 @@ function MuteSystem:CheckFile()
                 file:write(json:encode_pretty({}))
                 io.close(file)
             end
-            return
         end
 
         for ip, _ in pairs(mutes) do
