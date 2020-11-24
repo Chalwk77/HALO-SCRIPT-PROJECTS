@@ -44,7 +44,7 @@ local MuteSystem = {
         -- Syntax: /mutelist <-online/-offline>
         -- This command will display the mute-list table for players currently online by default.
         -- You can request to view mutes for offline players by invoking -offline parameter.
-        [3] = { "mutelist", 1 }
+        [3] = { "mutes", 1 }
     },
 
     -- If true, muted players will only be able to execute the commands in this list:
@@ -142,9 +142,9 @@ local MuteSystem = {
 }
 
 api_version = "1.12.0.0"
-
 local floor = math.floor
 local time_scale = 1 / 30
+local script_version = 1.2
 local json = (loadfile "json.lua")()
 local gsub, sub = string.gsub, string.sub
 local gmatch, format, lower = string.gmatch, string.format, string.lower
@@ -161,7 +161,7 @@ function OnScriptLoad()
 end
 
 function OnScriptUnload()
-
+    -- N/A
 end
 
 function OnGameStart()
@@ -521,6 +521,7 @@ function MuteSystem:CheckFile()
                 file:write(json:encode_pretty({}))
                 io.close(file)
             end
+            return
         end
 
         for ip, _ in pairs(mutes) do
@@ -608,6 +609,42 @@ function OnTick()
 end
 function OnPlayerChat(P, M, T)
     return MuteSystem:OnPlayerChat(P, M, T)
+end
+
+function WriteLog(str)
+    local file = io.open("Mute System.log", "a+")
+    if (file) then
+        file:write(str .. "\n")
+        file:close()
+    end
+end
+
+-- In the event of an error, the script will trigger these two functions: OnError(), report()
+function report(StackTrace, Error)
+
+    cprint(StackTrace, 4 + 8)
+
+    cprint("--------------------------------------------------------", 5 + 8)
+    cprint("Please report this error on github:", 7 + 8)
+    cprint("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", 7 + 8)
+    cprint("Script Version: " .. script_version, 7 + 8)
+    cprint("--------------------------------------------------------", 5 + 8)
+
+    local timestamp = os.date("[%H:%M:%S - %d/%m/%Y]")
+    WriteLog(timestamp)
+    WriteLog("Please report this error on github:")
+    WriteLog("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues")
+    WriteLog("Script Version: " .. tostring(script_version))
+    WriteLog(Error)
+    WriteLog(StackTrace)
+    WriteLog("\n")
+end
+
+-- This function will return a string with a traceback of the stack call...
+-- ...and call function 'report' after 50 milliseconds.
+function OnError(Error)
+    local StackTrace = debug.traceback()
+    timer(50, "report", StackTrace, Error)
 end
 
 return MuteSystem
