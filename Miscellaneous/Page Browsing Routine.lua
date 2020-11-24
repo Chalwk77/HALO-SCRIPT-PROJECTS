@@ -1,114 +1,108 @@
 -- Page Browsing Routine by Chalwk
-api_version = "1.12.0.0"
 
--- Configuration [starts]
-local max_results_per_page = 5
-local page = 1
-local seperator = "|"
-local input_data = {
-    "Onion",
-    "Kale (recipe)",
-    "Japanese (satsuma) sweet potatoes",
-    "Red/green cabbage",
-    "Carrots",
-    "Celery",
-    "Lemons",
-    "Organic ground beef",
-    "Canned tomatoes",
-    "Avocado",
-    "Oranges",
-    "Canned black beans",
-    "French green lentils",
-    "Fennel",
-    "Parmesan cheese",
-    "Quinoa flakes",
-    "Arugula",
-    "Organic eggs",
-    "Apples",
-    "Beets",
-}
--- Configuration [ends]
+local PageBrowser = { }
 
-local gmatch = string.gmatch
-local getPage = function(params)
-    local params = params or {}
-    local page = tonumber(params.page) or nil
-    local max_results = max_results_per_page
-    local start = (max_results) * page
-    local startpage = (start - max_results + 1)
+local len = string.len
+local floor = math.floor
+local concat = table.concat
+
+local function GetPage(Page, MaxResults)
+    local start = (MaxResults) * Page
+    local startpage = (start - MaxResults + 1)
     local endpage = start
-    if (page) then
-        return startpage, endpage
+    return startpage, endpage
+end
+
+local function getPageCount(Total, MaxResults)
+    local pages = Total / (MaxResults)
+    if ((pages) ~= floor(pages)) then
+        pages = floor(pages) + 1
+    end
+    return pages
+end
+
+local function spacing(n)
+    local String, Seperator = "", ","
+    for i = 1, n do
+        if i == math.floor(n / 2) then
+            String = String .. ""
+        end
+        String = String .. " "
+    end
+    return Seperator .. String
+end
+
+local function FormatTable(t, MaxResults, Spaces)
+
+    local longest = 0
+    for _, v in pairs(t) do
+        if (len(v) > longest) then
+            longest = len(v)
+        end
+    end
+
+    local rows, row, count = {}, 1, 1
+    for k, v in pairs(t) do
+        if (count % MaxResults == 0) or (k == #t) then
+            rows[row] = (rows[row] or "") .. v
+        else
+            rows[row] = (rows[row] or "") .. v .. spacing(longest - len(v) + Spaces)
+        end
+        if (count % MaxResults == 0) then
+            row = row + 1
+        end
+        count = count + 1
+    end
+    return concat(rows)
+end
+
+local function Respond(Executor, Content)
+    if (Executor == 0) then
+        cprint(Content)
+    else
+        rprint(Executor, Content)
     end
 end
 
-function OnScriptLoad()
-    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
+function PageBrowser:ShowResults(Executor, Page, MaxResults, MaxColumns, Spaces, Table)
+    local total_pages = getPageCount(#Table, MaxResults)
+
+    if (Page > 0 and Page <= total_pages) then
+
+        local startIndex, endIndex = 1, MaxColumns
+        local startpage, endpage = GetPage(Page, MaxResults)
+
+        local results = { }
+        for page_num = startpage, endpage do
+            if Table[page_num] then
+                results[#results + 1] = Table[page_num]
+            end
+        end
+
+        local function formatResults()
+            local t, row = { }
+
+            for i = startIndex, endIndex do
+                t[i] = results[i]
+                row = FormatTable(t, MaxResults, Spaces)
+            end
+
+            if (row ~= nil and row ~= "" and row ~= " ") then
+                Respond(Executor, row)
+            end
+
+            startIndex = (endIndex + 1)
+            endIndex = (endIndex + (MaxColumns))
+        end
+
+        while (endIndex < #Table + MaxColumns) do
+            formatResults()
+        end
+
+        Respond(Executor, '[Page ' .. Page .. '/' .. total_pages .. '] Showing ' .. #results .. '/' .. #Table .. ' results', 2 + 8)
+    else
+        Respond(Executor, 'Invalid Page ID. Please type a page between 1-' .. total_pages)
+    end
 end
 
-function OnScriptUnload()
-    --
-end
-
-function OnGameStart()
-	local p, table = { }, { }
-	p.page = page
-
-	local startpage, endpage = getPage(p)
-
-	local count = 0
-	local t = {}
-	for _, v in pairs(input_data) do
-		t[#t + 1] = v
-		count = count + 1
-	end
-
-	if (#t > 0) then
-		for page_num = startpage, endpage do
-			if (t[page_num]) then
-				for k, v in pairs(t) do
-					if (k == page_num) then
-						table[#table + 1] = (t[page_num] .. tostring(seperator) .. k)
-					end
-				end
-			end
-		end
-	end
-
-	if (#table > 0) then
-
-		local function stringSplit(inp, sep)
-			if (sep == nil) then
-				sep = "%s"
-			end
-			local t, i = {}, 1
-			for str in gmatch(inp, "([^" .. sep .. "]+)") do
-				t[i] = str
-				i = i + 1
-			end
-			return t
-		end
-
-		for _, v in pairs(table) do
-			local data = stringSplit(v, tostring(seperator))
-			if (data) then
-				local result, i = { }, 1
-				for j = 1, 2 do
-					if (data[j] ~= nil) then
-						result[i] = data[j]
-						i = i + 1
-					end
-				end
-				if (result ~= nil) then
-					local item_name = result[1]
-					local index = result[2]
-					print("[#" .. index .. "] " .. item_name)
-				end
-			end
-		end
-
-		print("Viewing Page (" .. page .. "). Total Results: " .. count)
-	else
-		print("Nothing to show")
-	end
-end
+return PageBrowser
