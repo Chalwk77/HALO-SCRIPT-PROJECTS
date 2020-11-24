@@ -1,4 +1,55 @@
--- Page Browsing Routine by Chalwk
+--[[
+--=====================================================================================================--
+Script Name: Page Browsing Routine, for SAPP (PC & CE)
+
+**Important:** This library MUST be placed inside your servers root directory (the same directory where sapp.dll is located).
+Ensure the file name matches exactly *"Page Browsing Library.lua"*.
+
+### Initialize this library like so:
+* Place this at the top of your script:
+local PageBrowser = (loadfile "Page Browsing Library.lua")()
+
+### Calling the Page Browser Routine:
+PageBrowser:ShowResults(Executor, tonumber(Page), 10, 1, 2, array)
+
+#### PageBrowser:ShowResults expects 6 parameters:
+- Target Player ID
+- Page Number (optional - this will default to page 1 if not specified)
+- Maximum results per page
+- Max columns
+- Spacing between array elements
+- Target Array
+
+The Target Array must be a number-key-indexed array.
+For example:
+* these arrays are all valid:
+local array = {"a", "b", "c", "d"} 
+local array = {10603, 100, 6, 1}
+local array = {[1] = "string", "hello", 1}
+
+-- THESE ARE NOT VALID:
+local array = {["127.0.0.1"] = {name = Chalwk}, [1] = function print('hi')end}
+
+**Each index element must also either be a string or number.**
+
+Example Usage:
+local names = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"}
+Assume the target player's index id is 1:
+Assume the desired page number is 2:
+PageBrowser:ShowResults(TargetPlayer, tonumber(Page), 10, 5, 2, names)
+
+#### Output: 
+> K,  L,  M,  N,  O
+> P,  Q,  R,  S,  T,
+> [Page 2/3] Showing 10/26 results
+
+Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
+* Notice: You can use this document subject to the following conditions:
+https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
+
+* Written by Jericho Crosby (Chalwk)
+--=====================================================================================================--
+]] --
 
 local PageBrowser = { }
 
