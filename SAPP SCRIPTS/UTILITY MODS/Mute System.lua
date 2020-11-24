@@ -1,15 +1,12 @@
 --[[
 --=====================================================================================================--
 Script Name: Mute System, for SAPP (PC & CE)
-Description: Custom Mute System.
+Description: A completely custom mute system for SAPP servers.
 
-NOTE: This mod requires that you download and install a file called "json.lua".
-Place "json.lua" in the server's root directory - not inside the Lua Folder.
-It's crucial that the file name is exactly "json.lua".
+NOTE: This mod requires that you download and install two files.
+You can download them from link below and follow the instructions on this page:
+https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/tag/1.0
 
-Download Link:
-https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/Miscellaneous/json.lua
---------------------------------------------------------------------------------------
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -23,7 +20,7 @@ local MuteSystem = {
 
     -- Mute System Configuration --
 
-    dir = "mutes.txt",
+    dir = "mutes.json",
     prefix = "[Mute System]",
 
     default_mute_time = 525600,
@@ -146,6 +143,7 @@ local floor = math.floor
 local time_scale = 1 / 30
 local script_version = 1.2
 local json = (loadfile "json.lua")()
+local PageBrowser = (loadfile "Page Browsing Library.lua")()
 local gsub, sub = string.gsub, string.sub
 local gmatch, format, lower = string.gmatch, string.format, string.lower
 
@@ -274,7 +272,7 @@ function MuteSystem:OnServerCommand(Executor, Command)
                                 self:Respond(Executor, "Invalid Mute Index")
                             end
                         elseif (k == 3) then
-                            self:MuteList(Executor)
+                            self:MuteList(Executor, Args)
                         end
                     end
                 else
@@ -350,7 +348,7 @@ function MuteSystem:Mute(Executor, TIP, Time)
                     "%%time%%", self:SecondsToClock(Time))
             self:Respond(_, msg, 10)
         end
-        self:UpdateDatabase(TIP, false, false)
+        self:UpdateDatabase(TIP, false, true)
     end
 end
 
@@ -364,7 +362,7 @@ function MuteSystem:UnMute(Executor, MuteIndex)
                     admin = "SERVER"
                 end
                 local msg = gsub(gsub(s, "%%name%%", v.name), "%%admin%%", admin)
-                self:UpdateDatabase(IP, true)
+                self:UpdateDatabase(IP, true, false)
                 return self:Respond(_, msg, 10)
             elseif (Executor) then
                 return self:Respond(Executor, v.name .. " is not muted!", 10)
@@ -374,27 +372,27 @@ function MuteSystem:UnMute(Executor, MuteIndex)
     return self:Respond(Executor, "Mute Index not found!", 10)
 end
 
-function MuteSystem:MuteList(Executor)
+function MuteSystem:MuteList(Executor, Args)
+
+    local Page = (Args[2] ~= nil and Args[2]:match("^%d+$") or 1)
+
     local pl = { }
     local count = 0
-    for ip, v in pairs(self.players) do
+
+    local s = self.messages.mute_list
+    self:Respond(Executor, s.header)
+
+    for IP, v in pairs(self.players) do
         if (v.time) then
             count = count + 1
-            pl[ip] = self.players[ip]
+            pl[count] = gsub(gsub(gsub(s.content, "%%name%%", v.name), "%%ip%%", IP), "%%mute_index%%", v.mute_index)
         end
     end
+
     if (count == 0) then
         self:Respond(Executor, "There are no active mutes!", 10)
     else
-        local s = self.messages.mute_list
-        self:Respond(Executor, s.header)
-        for IP, v in pairs(pl) do
-            local msg = gsub(gsub(gsub(s.content,
-                    "%%name%%", v.name),
-                    "%%ip%%", IP),
-                    "%%mute_index%%", v.mute_index)
-            self:Respond(Executor, msg, 10)
-        end
+        PageBrowser:ShowResults(Executor, tonumber(Page), 10, 1, 2, pl)
     end
 end
 
@@ -404,6 +402,8 @@ function MuteSystem:UpdateMuteIndex()
         if (v.time) then
             index = index + 1
             v.mute_index = index
+        else
+            v.mute_index = nil
         end
     end
 end
@@ -412,16 +412,18 @@ function MuteSystem:UpdateDatabase(IP, UnMute, CleanArray)
     if (self.players[IP].time) then
         local mutes = self:GetMutes()
         if (mutes) then
+
+            if (CleanArray) then
+                self.players[IP].id = nil
+                self.players[IP].spam = nil
+            end
+
             local file = assert(io.open(self.dir, "w"))
             if (file) then
                 if (UnMute) then
                     mutes[IP] = nil
                     self.players[IP].time = nil
                 else
-                    if (CleanArray) then
-                        self.players[IP].id = nil
-                        self.players[IP].spam = nil
-                    end
                     mutes[IP] = self.players[IP]
                 end
                 self:UpdateMuteIndex()
