@@ -8,13 +8,13 @@
 -- 2). Put ConsoleText:GameTick() inside of your EVENT_TICK function.
 
 -- 3). Create a new message like so:
--- ConsoleText:NewMessage(Player, "your message here", 10, "|l", true)
+-- ConsoleText:NewMessage(PID, "MESSAGE STRING", 10, "|l", true)
 -- ConsoleText:NewMessage expects 5 parameters:
 -- . Target Player ID
 -- . Message String
 -- . Message Duration
--- . Message Alignment
--- . Console-Clear boolean
+-- . Message Alignment ("|l", "|r", "|c", "|t" = Left, Right, Center, Tab)
+-- . Console-Clear boolean (true/false)
 
 local ConsoleText = { messages = {} }
 local time_scale = 1 / 30
