@@ -1,7 +1,8 @@
 --[[
 --=====================================================================================================--
 Script Name: Disable Grenades, for SAPP (PC & CE)
-Description: Simple script that will disable grenade assignments on a per-gamemode basis.
+Description: This script will prevent players from spawning with grenades (on per game mode basis).
+             Note: This does not prevent players from picking them up.
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -15,44 +16,39 @@ api_version = "1.12.0.0"
 
 -- config start:
 local game_modes = {
-
-    -- [Game Mode], false = Grenades Disabled, true = grenades enabled
-    ["FFA SWAT"] = false,
-
-    -- Repeat the structure to add more entries:
-    ["game mode here"] = false,
+    -- Simply list all of the game modes you want this script to disable grenades on.
+    "FFA Swat",
+    "put game mode here",
 }
 -- config ends
 
-local disabled
 local function DisableGrenades()
     if (get_var(0, '$gt') ~= 'n/a') then
-        local mode = get_var(0, "$mode")
-        for k, enabled in pairs(game_modes) do
-            if (mode == k) and (not enabled) then
+        local current_mode = string.lower(get_var(0, "$mode"))
+        for _, mode in pairs(game_modes) do
+            if (current_mode == string.lower(mode)) then
+                register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
                 return true
             end
         end
     end
+    unregister_callback(cb["EVENT_SPAWN"])
     return false
 end
 
 function OnScriptLoad()
-    register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
-    disabled = DisableGrenades()
+    DisableGrenades()
 end
 
 function OnGameStart()
-    disabled = DisableGrenades()
+    DisableGrenades()
 end
 
 function OnPlayerSpawn(Ply)
-    if (disabled) then
-        local DyN = get_dynamic_player(Ply)
-        if (DyN ~= 0) then
-            write_word(DyN + 0x31E, 0)
-            write_word(DyN + 0x31F, 0)
-        end
+    local DyN = get_dynamic_player(Ply)
+    if (DyN ~= 0) then
+        write_word(DyN + 0x31E, 0)
+        write_word(DyN + 0x31F, 0)
     end
 end
