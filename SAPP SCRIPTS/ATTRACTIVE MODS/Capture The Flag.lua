@@ -114,8 +114,8 @@ local CaptureTheFlag = {
             flag_coordinates = { 1.392, 4.700, 3.108 },
             flag_runner_speed = 1.5,
             capture_points = {
-                { -4.677, 7.972, 0.512 },
-                { -7.508, 9.750, 0.100 }
+                { 7.488, -4.491, 2.500 },
+                { -7.509, 9.750, 0.100 }
             }
         },
         ["damnation"] = {
@@ -178,8 +178,8 @@ local CaptureTheFlag = {
             flag_coordinates = { -5.035, -5.064, -2.750 },
             flag_runner_speed = 1.5,
             capture_points = {
-                { -9.245, 9.333, -2.599 },
-                { 9.182, -9.180, -2.599 }
+                { 9.183, -9.181, -2.600 },
+                { -9.246, 9.334, -2.600 }
             }
         }
     }

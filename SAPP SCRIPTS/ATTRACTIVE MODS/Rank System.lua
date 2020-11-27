@@ -355,7 +355,7 @@ local Rank = {
 local time_scale = 1 / 30
 local script_version = 1.18
 local lower = string.lower
-local sqrt, len = math.sqrt, string.len
+local sqrt = math.sqrt
 local gmatch, gsub = string.gmatch, string.gsub
 local json = (loadfile "json.lua")()
 
@@ -370,17 +370,10 @@ function OnScriptLoad()
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
     Rank:CheckFile()
-    if (get_var(0, "$gt") ~= "n/a") then
-        for i = 1, 16 do
-            if player_present(i) then
-                Rank:AddNewPlayer(i, true)
-            end
-        end
-    end
 end
 
 function OnScriptUnload()
-    Rank:UpdateALL()
+    Rank:UpdateJSON()
 end
 
 function OnGameStart()
@@ -388,16 +381,18 @@ function OnGameStart()
 end
 
 function OnGameEnd()
-    Rank:UpdateALL()
+    Rank:ShowEndResults()
+    Rank:UpdateJSON()
+end
 
+function Rank:ShowEndResults()
     if tonumber(get_var(0, "$pn")) > 0 then
         local results = { }
         for i = 1, 16 do
             if player_present(i) then
-                results[i] = Rank.players[i]
+                results[i] = self.players[i]
             end
         end
-
         if (#results > 0) then
             local t = { }
             for _, v in pairs(results) do
@@ -407,7 +402,7 @@ function OnGameEnd()
                 return a.credits > b.credits
             end)
 
-            Rank:Respond(_, Rank.topplayers.header, say_all, 10)
+            self:Respond(_, self.topplayers.header, say_all, 10)
             for i, v in pairs(t) do
                 if (i > 0 and i < 4) then
 
@@ -419,11 +414,14 @@ function OnGameEnd()
                         i = "3rd"
                     end
 
-                    local str = gsub(gsub(gsub(Rank.topplayers.txt, "%%pos%%", i), "%%name%%", v.name), "%%cr%%", v.credits)
-                    Rank:Respond(_, str, say_all, 10)
+                    local str = gsub(gsub(gsub(self.topplayers.txt,
+                            "%%pos%%", i),
+                            "%%name%%", v.name),
+                            "%%cr%%", v.credits)
+                    self:Respond(_, str, say_all, 10)
                 end
             end
-            Rank:Respond(_, Rank.topplayers.footer, say_all, 10)
+            self:Respond(_, self.topplayers.footer, say_all, 10)
         end
     end
 end
@@ -528,9 +526,7 @@ function Rank:AddNewPlayer(Ply, ManualLoad)
         if (pl[IP] == nil) then
             pl[IP] = {
                 ip = IP,
-                id = Ply,
                 name = name,
-                last_damage = 0,
                 rank = self.starting_rank,
                 grade = self.starting_grade,
                 credits = self.starting_credits,
@@ -543,7 +539,6 @@ function Rank:AddNewPlayer(Ply, ManualLoad)
 
         self.players[Ply] = { }
         self.players[Ply] = pl[IP]
-        self.players[Ply].id = Ply
         self.players[Ply].name = name
         self.players[Ply].last_damage = 0
         if (self.players[Ply].credits < 0) then
@@ -564,7 +559,7 @@ function Rank:AddNewPlayer(Ply, ManualLoad)
 end
 
 function Rank:UpdateJSON(Ply)
-    local ranks = self:GetRanks()
+    local ranks = self:GetRanks(true)
     if (ranks) then
         local file = assert(io.open(self.dir, "w"))
         if (file) then
@@ -572,23 +567,11 @@ function Rank:UpdateJSON(Ply)
             io.close(file)
         end
     end
-    self.players[Ply] = nil
+
+    self.players[Ply ~= nil and Ply] = nil
 end
 
-function Rank:UpdateALL()
-    if (get_var(0, "$gt") ~= "n/a") then
-        local ranks = self:GetRanks()
-        if (ranks) then
-            local file = assert(io.open(self.dir, "w"))
-            if (file) then
-                file:write(json:encode_pretty(ranks))
-                io.close(file)
-            end
-        end
-    end
-end
-
-function Rank:GetRanks()
+function Rank:GetRanks(QUIT)
     local file, ranks = io.open(self.dir, "r")
     if (file) then
         local data = file:read("*all")
@@ -596,6 +579,12 @@ function Rank:GetRanks()
         if (ranks) then
             for i = 1, 16 do
                 if player_present(i) then
+                    if (QUIT) then
+                        self.players[i].coords = nil
+                        self.players[i].last_damage = nil
+                        self.players[i].crouch_count = nil
+                        self.players[i].crouch_state = nil
+                    end
                     ranks[self:GetIP(i)] = self.players[i]
                 end
             end
@@ -720,8 +709,11 @@ end
 
 function Rank:CheckFile()
     self.players = { }
+    self.game_started = false
+
     if (get_var(0, "$gt") ~= "n/a") then
 
+        self.game_started = true
         self.first_blood = { }
         self.first_blood.active = true
 
@@ -738,6 +730,12 @@ function Rank:CheckFile()
             if (file) then
                 file:write(json:encode_pretty({}))
                 io.close(file)
+            end
+        end
+
+        for i = 1, 16 do
+            if player_present(i) then
+                self:AddNewPlayer(i, true)
             end
         end
     end
@@ -974,13 +972,15 @@ function Rank:UpdateRank(Ply, Silent)
     end
 end
 
-function OnDamageApplication(VictimIndex, KillerIndex, MetaID, _, _, _)
-    local k, v = tonumber(KillerIndex), tonumber(VictimIndex)
-    if player_present(v) then
-        if (k > 0) then
-            Rank.players[k].last_damage = MetaID
+function Rank:OnDamageApplication(VictimIndex, KillerIndex, MetaID, _, _, _)
+    if (self.game_started) then
+        local k, v = tonumber(KillerIndex), tonumber(VictimIndex)
+        if player_present(v) then
+            if (k > 0) then
+                self.players[k].last_damage = MetaID
+            end
+            self.players[v].last_damage = MetaID
         end
-        Rank.players[v].last_damage = MetaID
     end
 end
 
@@ -1089,21 +1089,19 @@ function Rank:GetPlayers(Executor, Args)
 end
 
 -- SUPPORT FOR MY RAGE QUIT SCRIPT:
-function UpdateRageQuit(ip, amount)
-    local ranks = Rank:GetRanks()
-    if (ranks) then
+function UpdateRageQuit(IP, Amount)
+    local ranks = Rank:GetRanks(true)
+    if (ranks and ranks[IP]) then
         local file = assert(io.open(Rank.dir, "w"))
         if (file) then
-            if (ranks[ip] ~= nil) then
-                ranks[ip].credits = ranks[ip].credits - amount
-                local name = ranks[ip].name
-                local str = name .. " was penalized " .. amount .. "x credits for rage-quitting"
-                Rank:Respond(_, str, say_all, 10)
-                Rank:Respond(0, str, "n/a", 10)
-            end
+            ranks[IP].credits = ranks[IP].credits - Amount
+            local name = ranks[IP].name
+            local str = name .. " was penalized " .. Amount .. "x credits for rage-quitting"
+            Rank:Respond(_, str, say_all, 10)
+            Rank:Respond(0, str, "n/a", 10)
             file:write(json:encode_pretty(ranks))
-            io.close(file)
         end
+        io.close(file)
     end
 end
 
@@ -1113,6 +1111,10 @@ end
 
 function OnPlayerDeath(V, K)
     return Rank:OnPlayerDeath(V, K)
+end
+
+function OnDamageApplication(V, K, M, _, _, _)
+    return Rank:OnDamageApplication(V, K, M, _, _, _)
 end
 
 function OnTick()
