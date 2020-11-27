@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Rank System (v1.17), for SAPP (PC & CE)
+Script Name: Rank System (v1.18), for SAPP (PC & CE)
 Description: Rank System is fully integrated halo 3 style ranking system for SAPP servers.
 
 Players earn credits for killing, scoring and achievements, such as sprees, kill-combos and more.
@@ -353,7 +353,7 @@ local Rank = {
 }
 
 local time_scale = 1 / 30
-local script_version = 1.17
+local script_version = 1.18
 local lower = string.lower
 local sqrt, len = math.sqrt, string.len
 local gmatch, gsub = string.gmatch, string.gsub
@@ -518,69 +518,63 @@ function Rank:AddNewPlayer(Ply, ManualLoad)
         io.close(File)
     end
 
-    if (len(content) > 0) then
-        local file = assert(io.open(self.dir, "w"))
-        if (file) then
+    local file = assert(io.open(self.dir, "w"))
+    if (file) then
 
-            local pl = json:decode(content)
-            local IP = self:GetIP(Ply)
-            local name = get_var(Ply, "$name")
+        local pl = json:decode(content)
+        local IP = self:GetIP(Ply)
+        local name = get_var(Ply, "$name")
 
-            if (pl[IP] == nil) then
-                pl[IP] = {
-                    ip = IP,
-                    id = Ply,
-                    name = name,
-                    last_damage = 0,
-                    rank = self.starting_rank,
-                    grade = self.starting_grade,
-                    credits = self.starting_credits,
-                    done = Completed()
-                }
-                -- Support to update pre v1.11 databases:
-            elseif (not pl[IP].rank) then
-                pl[IP].rank = self.starting_rank
-                pl[IP].grade = self.starting_grade
-                pl[IP].done = Completed()
-            end
+        if (pl[IP] == nil) then
+            pl[IP] = {
+                ip = IP,
+                id = Ply,
+                name = name,
+                last_damage = 0,
+                rank = self.starting_rank,
+                grade = self.starting_grade,
+                credits = self.starting_credits,
+                done = Completed()
+            }
+            -- Support to update pre v1.11 databases:
+        elseif (not pl[IP].rank) then
+            pl[IP].rank = self.starting_rank
+            pl[IP].grade = self.starting_grade
+            pl[IP].done = Completed()
+        end
 
-            file:write(json:encode_pretty(pl))
-            io.close(file)
+        file:write(json:encode_pretty(pl))
+        io.close(file)
 
-            self.players[Ply] = { }
-            self.players[Ply] = pl[IP]
-            self.players[Ply].id = Ply
-            self.players[Ply].name = name
-            self.players[Ply].last_damage = 0
-            if (self.players[Ply].credits < 0) then
-                self.players[Ply].credits = 0
-            end
+        self.players[Ply] = { }
+        self.players[Ply] = pl[IP]
+        self.players[Ply].id = Ply
+        self.players[Ply].name = name
+        self.players[Ply].last_damage = 0
+        if (self.players[Ply].credits < 0) then
+            self.players[Ply].credits = 0
+        end
 
-            -- T-Bag Support:
-            self.players[Ply].coords = { }
-            self.players[Ply].crouch_state = 0
-            self.players[Ply].crouch_count = 0
-            --
+        -- T-Bag Support:
+        self.players[Ply].coords = { }
+        self.players[Ply].crouch_state = 0
+        self.players[Ply].crouch_count = 0
+        --
 
-            if (not ManualLoad) then
-                self:UpdateRank(Ply, true)
-                self:GetRank(Ply, IP)
-            end
+        if (not ManualLoad) then
+            self:UpdateRank(Ply, true)
+            self:GetRank(Ply, IP)
         end
     end
 end
 
 function Rank:UpdateJSON(Ply)
     local ranks = self:GetRanks()
-    if (ranks) and (self.players[Ply] ~= nil) then
-        local IP = self.players[Ply].ip
-        if (IP) then
-            local file = assert(io.open(self.dir, "w"))
-            if (file) then
-                ranks[IP] = self.players[Ply]
-                file:write(json:encode_pretty(ranks))
-                io.close(file)
-            end
+    if (ranks) then
+        local file = assert(io.open(self.dir, "w"))
+        if (file) then
+            file:write(json:encode_pretty(ranks))
+            io.close(file)
         end
     end
     self.players[Ply] = nil
@@ -599,27 +593,15 @@ function Rank:UpdateALL()
     end
 end
 
-local function GetAllIP()
-    local p = { }
-    for i = 1, 16 do
-        if player_present(i) then
-            p[i] = Rank:GetIP(i)
-        end
-    end
-    return p
-end
-
 function Rank:GetRanks()
-    local ranks
-    local file = io.open(self.dir, "r")
+    local file, ranks = io.open(self.dir, "r")
     if (file) then
         local data = file:read("*all")
-        if (len(data) > 0) then
-            ranks = json:decode(data)
-            local p = GetAllIP()
-            if (#p > 0) then
-                for i, ip in pairs(p) do
-                    ranks[ip] = self.players[i]
+        ranks = json:decode(data)
+        if (ranks) then
+            for i = 1, 16 do
+                if player_present(i) then
+                    ranks[self:GetIP(i)] = self.players[i]
                 end
             end
         end
@@ -630,7 +612,7 @@ end
 
 function SortRanks()
     local ranks = Rank:GetRanks()
-    if (ranks ~= nil) then
+    if (ranks) then
         local results = { }
         for _, v in pairs(ranks) do
             results[#results + 1] = {
@@ -732,6 +714,9 @@ end
 
 function Rank:GetIP(Ply)
     local IP = get_var(Ply, "$ip")
+    IP = IP or self.players[Ply].ip
+    -- todo: add support for Halo PC (retail)
+    -- todo: self.players[Ply] is nullified when a player disconnects.
     if (self.ClientIndexType == 1) then
         IP = IP:match("%d+.%d+.%d+.%d+")
     end
@@ -1059,9 +1044,8 @@ function Rank:OnServerCommand(Executor, Command)
             return false
         elseif (Args[1] == self.toplist_cmd) then
             if (lvl >= self.toplist_cmd_permission) then
-                local ranks = self:GetRanks()
-                if (ranks ~= nil) then
-                    local results = SortRanks()
+                local results = SortRanks()
+                if (#results > 0) then
                     for i, v in pairs(results) do
                         if (i > 0 and i < 11) then
                             local str = gsub(gsub(gsub(self.toplist_format,
@@ -1071,6 +1055,8 @@ function Rank:OnServerCommand(Executor, Command)
                             self:Respond(Executor, str, rprint, 10)
                         end
                     end
+                else
+                    self:Respond(Executor, "Nothing to show!", rprint, 10)
                 end
             end
             return false
