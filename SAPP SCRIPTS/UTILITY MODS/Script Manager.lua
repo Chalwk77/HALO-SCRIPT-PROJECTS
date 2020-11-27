@@ -1,7 +1,7 @@
 --[[
 --=====================================================================================================--
 Script Name: Script Manager (v1.1), for SAPP (PC & CE)
-Description: N/A
+Description: This utility mod will enable you to load scripts on a per map-per game mode basis.
 
 Copyright (c) 2019-2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
