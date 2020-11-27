@@ -536,11 +536,6 @@ function Rank:AddNewPlayer(Ply, ManualLoad)
                 credits = self.starting_credits,
                 done = Completed()
             }
-            -- Support to update pre v1.11 databases:
-        elseif (not pl[IP].rank) then
-            pl[IP].rank = self.starting_rank
-            pl[IP].grade = self.starting_grade
-            pl[IP].done = Completed()
         end
 
         file:write(json:encode_pretty(pl))
