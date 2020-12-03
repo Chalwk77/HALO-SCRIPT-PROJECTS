@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Rank System (v1.19), for SAPP (PC & CE)
+Script Name: Rank System (v1.20), for SAPP (PC & CE)
 Description: Rank System is fully integrated halo 3 style ranking system for SAPP servers.
 
 Players earn credits for killing, scoring and achievements, such as sprees, kill-combos and more.
@@ -57,7 +57,7 @@ local Rank = {
     --
     tbag = true,
     -- Radius (in world units) a player must be to trigger a t-bag
-    tbag_trigger_radius = 2,
+    tbag_trigger_radius = 2.5,
 
     -- A player's death coordinates expire after this many seconds;
     tbag_coordinate_expiration = 30,
@@ -353,7 +353,7 @@ local Rank = {
 }
 
 local time_scale = 1 / 30
-local script_version = 1.19
+local script_version = 1.20
 local lower = string.lower
 local sqrt = math.sqrt
 local gmatch, gsub = string.gmatch, string.gsub
@@ -435,38 +435,34 @@ end
 
 function Rank:OnTick()
     if (self.tbag) then
-        for i = 1, 16 do
+        for i, ply1 in pairs(self.players) do
             if player_present(i) then
-
-                for j, ply in pairs(self.players) do
-                    if (i ~= j and ply.coords) then
-
+                for j, ply2 in pairs(self.players) do
+                    if (i ~= j and ply1.crouch_count and ply2.coords) then
                         local pos = self:GetXYZ(i)
                         if (pos) and (not pos.invehicle) then
-                            local px, py, pz = pos.x, pos.y, pos.z
-
-                            for k, v in pairs(ply.coords) do
+                            for k, v in pairs(ply2.coords) do
                                 v.timer = v.timer + time_scale
                                 if (v.timer >= self.tbag_coordinate_expiration) then
-                                    ply.coords[k] = nil
+                                    ply2.coords[k] = nil
                                 else
-
                                     local x, y, z = v.x, v.y, v.z
+                                    local px, py, pz = pos.x, pos.y, pos.z
                                     local distance = GetRadius(px, py, pz, x, y, z)
                                     if (distance) and (distance <= self.tbag_trigger_radius) then
 
                                         local crouch = read_bit(pos.dyn + 0x208, 0)
-                                        if (crouch ~= self.players[i].crouch_state and crouch == 1) then
-                                            self.players[i].crouch_count = self.players[i].crouch_count + 1
+                                        if (crouch ~= ply1.crouch_state and crouch == 1) then
+                                            ply1.crouch_count = ply1.crouch_count + 1
 
-                                        elseif (self.players[i].crouch_count >= self.tbag_crouch_count) then
-                                            ply.coords[k] = nil
-                                            self.players[i].crouch_count = 0
-                                            local str = gsub(gsub(self.messages[5], "%%name%%", self.players[i].name), "%%victim%%", ply.name)
+                                        elseif (ply1.crouch_count >= self.tbag_crouch_count) then
+                                            ply2.coords[k] = nil
+                                            ply1.crouch_count = 0
+                                            local str = gsub(gsub(self.messages[5], "%%name%%", ply1.name), "%%victim%%", ply2.name)
                                             self:Respond(i, str, say, 10, true)
                                             self:UpdateCredits(i, { self.credits.tbag[1], self.credits.tbag[2] })
                                         end
-                                        self.players[i].crouch_state = crouch
+                                        ply1.crouch_state = crouch
                                     end
                                 end
                             end
@@ -845,7 +841,7 @@ function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
         -- T-Bag Support:
         if (self.tbag) then
             local vpos = self:GetXYZ(victim)
-            if (vpos) then
+            if (vpos and self.players[victim].coords) then
                 self.players[victim].coords[#self.players[victim].coords + 1] = {
                     timer = 0, x = vpos.x, y = vpos.y, z = vpos.z,
                 }
