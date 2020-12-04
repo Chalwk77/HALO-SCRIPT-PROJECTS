@@ -1263,23 +1263,25 @@ function SetAmmo(Ply, DyN)
                 local tag = GetObjectTagName(WeaponObject)
                 if (tag) then
                     local weapons = Loadout:GetWeaponTable(Ply)
-                    for WI, A in pairs(weapons) do
-                        if (tag == Loadout.weapon_tags[WI]) then
-                            -- loaded:
-                            if (A[1]) then
-                                write_word(WeaponObject + 0x2B8, A[1])
-                            end
-                            -- unloaded:
-                            if (A[2]) then
-                                write_word(WeaponObject + 0x2B6, A[2])
-                            end
-                            -- battery:
-                            if (A[3]) then
-                                execute_command_sequence("w8 1;battery " .. Ply .. " " .. A[3] .. " " .. i)
+                    if (weapons) then
+                        for WI, A in pairs(weapons) do
+                            if (tag == Loadout.weapon_tags[WI]) then
+                                -- loaded:
+                                if (A[1]) then
+                                    write_word(WeaponObject + 0x2B8, A[1])
+                                end
+                                -- unloaded:
+                                if (A[2]) then
+                                    write_word(WeaponObject + 0x2B6, A[2])
+                                end
+                                -- battery:
+                                if (A[3]) then
+                                    execute_command_sequence("w8 1;battery " .. Ply .. " " .. A[3] .. " " .. i)
+                                end
                             end
                         end
+                        sync_ammo(WeaponID)
                     end
-                    sync_ammo(WeaponID)
                 end
             end
         end
@@ -1288,13 +1290,16 @@ end
 
 function Loadout:GetWeaponTable(Ply)
     local info = self:GetLevelInfo(Ply)
-    local weapon_table = self.classes[info.class].levels[info.level].weapons
-    for map, tab in pairs(weapon_table.custom_maps) do
-        if (lower(map) == lower(self.map)) then
-            return tab
+    if (info and info.class and info.level) then
+        local weapon_table = self.classes[info.class].levels[info.level].weapons
+        for map, tab in pairs(weapon_table.custom_maps) do
+            if (lower(map) == lower(self.map)) then
+                return tab
+            end
         end
+        return weapon_table.stock_maps
     end
-    return weapon_table.stock_maps
+    return nil
 end
 
 local function GetRadius(pX, pY, pZ, X, Y, Z)
@@ -1388,19 +1393,19 @@ function Loadout:OnTick()
                                     SetGrenades(DyN, current_class, level)
                                     execute_command("wdel " .. i)
 
-                                    local index = 0
                                     local weapons = self:GetWeaponTable(i)
-
-                                    for WI, _ in pairs(weapons) do
-                                        index = index + 1
-                                        if (index == 1 or index == 2) then
-                                            assign_weapon(spawn_object("weap", self.weapon_tags[WI], coords.x, coords.y, coords.z), i)
-                                        elseif (index == 3 or index == 4) then
-                                            timer(250, "DelaySecQuat", i, self.weapon_tags[WI], coords.x, coords.y, coords.z)
+                                    if (weapons) then
+                                        local index = 0
+                                        for WI, _ in pairs(weapons) do
+                                            index = index + 1
+                                            if (index == 1 or index == 2) then
+                                                assign_weapon(spawn_object("weap", self.weapon_tags[WI], coords.x, coords.y, coords.z), i)
+                                            elseif (index == 3 or index == 4) then
+                                                timer(250, "DelaySecQuat", i, self.weapon_tags[WI], coords.x, coords.y, coords.z)
+                                            end
                                         end
+                                        timer(self.ammo_set_delay, "SetAmmo", i, DyN)
                                     end
-
-                                    timer(self.ammo_set_delay, "SetAmmo", i, DyN)
                                 end
                             end
                         elseif (v.class == "Regeneration") then
