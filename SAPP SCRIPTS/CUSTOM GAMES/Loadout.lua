@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Loadout (v1.5), for SAPP (PC & CE)
+Script Name: Loadout (v1.6), for SAPP (PC & CE)
 Description: Wiki Coming soon.
 
 ~ acknowledgements ~
@@ -1111,7 +1111,7 @@ local Loadout = {
 
 local ip_addresses = { }
 local time_scale = 1 / 30
-local script_version = 1.5
+local script_version = 1.6
 local gmatch, gsub = string.gmatch, string.gsub
 local lower, upper = string.lower, string.upper
 local floor, sqrt, format = math.floor, math.sqrt, string.format
