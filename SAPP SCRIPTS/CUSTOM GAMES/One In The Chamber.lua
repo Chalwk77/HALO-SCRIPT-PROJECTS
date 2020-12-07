@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: One In The Chamber (v1.2), for SAPP (PC & CE)
+Script Name: One In The Chamber (v1.3), for SAPP (PC & CE)
 Description: Each player is given a pistol - and only a pistol - with one bullet.
              Use it wisely. Every shot kills.
              If you miss, you're limited to Melee-Combat.
@@ -126,18 +126,7 @@ function OnScriptLoad()
     register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
     register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
-
-    if (get_var(0, "$gt") ~= "n/a") then
-
-        OITC.players = { }
-        OITC.game_over = false
-
-        for i = 1, 16 do
-            if player_present(i) then
-                OITC.players[i] = { assign = false }
-            end
-        end
-    end
+    OnGameStart()
 end
 
 function OnGameStart()
@@ -145,6 +134,12 @@ function OnGameStart()
 
         OITC.players = { }
         OITC.game_over = false
+
+        for i = 1, 16 do
+            if player_present(i) then
+                OITC.players[i] = { assign = true }
+            end
+        end
 
         -- Disable all vehicles
         if (OITC.disable_vehicles) then
@@ -228,14 +223,9 @@ function OITC:OnTick()
 end
 
 function OITC:OnPlayerKill(VictimIndex, KillerIndex)
-
     if (not self.game_over) then
-
         local k, v = tonumber(KillerIndex), tonumber(VictimIndex)
-        local KT, VT = get_var(k, "$team"), get_var(v, "$team")
-        local pvp = ((k > 0) and k ~= v) and (KT ~= VT)
-
-        if (pvp) then
+        if (k > 0 and k ~= v) then
             local ammo = OITC:GetAmmo(k, "loaded") + (self.ammo_per_kill)
             self:SetAmmo(k, "loaded", ammo)
         end
@@ -263,7 +253,7 @@ end
 function OnPlayerSpawn(Ply)
     local DyN = get_dynamic_player(Ply)
     if (DyN ~= 0) then
-        OITC.players[Ply] = { assign = true }
+        OITC.players[i] = { assign = true }
         if (OITC.remove_grenades_on_spawn) then
             write_byte(DyN + 0x31E, OITC.starting_frags)
             write_byte(DyN + 0x31F, OITC.starting_plasmas)
