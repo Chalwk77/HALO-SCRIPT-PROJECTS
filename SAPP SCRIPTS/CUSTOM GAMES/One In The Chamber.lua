@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: One In The Chamber (v1.3), for SAPP (PC & CE)
+Script Name: One In The Chamber (v1.2), for SAPP (PC & CE)
 Description: Each player is given a pistol - and only a pistol - with one bullet.
              Use it wisely. Every shot kills.
              If you miss, you're limited to Melee-Combat.
@@ -253,7 +253,7 @@ end
 function OnPlayerSpawn(Ply)
     local DyN = get_dynamic_player(Ply)
     if (DyN ~= 0) then
-        OITC.players[i] = { assign = true }
+        OITC.players[Ply] = { assign = true }
         if (OITC.remove_grenades_on_spawn) then
             write_byte(DyN + 0x31E, OITC.starting_frags)
             write_byte(DyN + 0x31F, OITC.starting_plasmas)
