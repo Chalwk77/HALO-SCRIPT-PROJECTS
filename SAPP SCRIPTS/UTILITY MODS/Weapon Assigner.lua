@@ -1,8 +1,11 @@
 --[[
 --=====================================================================================================--
-Script Name: Weapon Assigner (v1.1), for SAPP (PC & CE)
+Script Name: Weapon Assigner, for SAPP (PC & CE)
 
-Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
+** Change Log **
+- [12/12/20] Complete rewrite
+
+Copyright (c) 2019-2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
@@ -11,171 +14,164 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]]--
 
 api_version = "1.12.0.0"
+local MOD = {}
+function MOD:Init()
 
-local mod = {}
-function mod:init()
+    self.players = { }
+    self.weapons = nil
 
-    local weapon = mod:GetTag()
+    -- CONFIGURATION STARTS -->> ---------------------------------------------------
+    self.ammo_set_delay = 300 -- in milliseconds
+    if (get_var(0, "$gt") ~= "n/a") then
+        local weapons = {
 
-    mod.weapons = {
+            --[[
 
-        -- Set the weapon index to the corresponding tag number (see function mod:GetTag() on line 85)
-        -- You can spawn with up to 4 weapons.
-        -- Warning: The 4th slot is reserved for the objective (flag & oddball)
-        -- If this slot is taken up, you wont be able to pick up the flag or oddball but you'll still spawn with 4 weapons.
+            [weapon index] = {primary ammo, secondary ammo, battery}
 
-        -- To disable a slot, set it to nil:
-        -- Example: ["mymap"] = {weapon[1], nil, nil, nil},
-        -- In the above example, you will only spawn with the pistol on the map "mymap"
-
-        -- =========== [ STOCK MAPS ] =========== --
-        -- PRIMARY | SECONDARY | TERTIARY | QUATERNARY
+            ]]
 
 
-        -- weapon[1] = pistol
-        -- weapon[2] = sniper
-        -- etc...
-        ["beavercreek"] = { weapon[1], weapon[2], nil, nil },
-        ["bloodgulch"] = { weapon[2], weapon[1], weapon[9], weapon[5] },
-        ["boardingaction"] = { weapon[10], weapon[1], nil, nil },
-        ["carousel"] = { weapon[2], weapon[1], weapon[10], nil },
-        ["dangercanyon"] = { weapon[1], weapon[4], weapon[7], nil },
-        ["deathisland"] = { weapon[2], weapon[1], weapon[7], nil },
-        ["gephyrophobia"] = { weapon[2], weapon[1], weapon[4], nil },
-        ["icefields"] = { weapon[1], weapon[7], nil, nil },
-        ["infinity"] = { weapon[1], weapon[2], weapon[4], nil },
-        ["sidewinder"] = { weapon[1], weapon[4], weapon[3], weapon[2] },
-        ["timberland"] = { weapon[1], weapon[7], weapon[9], nil },
-        ["hangemhigh"] = { weapon[1], weapon[10], nil, nil },
-        ["ratrace"] = { weapon[7], weapon[1], weapon[9], nil },
-        ["damnation"] = { weapon[7], weapon[1], nil, nil },
-        ["putput"] = { weapon[5], weapon[6], weapon[3], weapon[8] },
-        ["prisoner"] = { weapon[1], weapon[4], nil, nil },
-        ["wizard"] = { weapon[1], weapon[2], nil, nil },
-
-        -- =========== [ CUSTOM MAPS ] =========== --
-        ["bigassv2,104"] = { weapon[16], weapon[20], weapon[18], weapon[19] },
-        -- Repeat the structure to add more entries
-        ["mapname"] = { weapon[0], weapon[0], weapon[0], weapon[0] },
-    }
-
-
-
-    --# Do Not Touch #--
-    mod.players = { }
-    mod.map = get_var(0, "$map")
-    mod.weapons_table = nil
-
-    local weapons = mod.weapons
-    local count = 0
-    local map = weapons[mod.map]
-    if (map) then
-        for _, Weapon in pairs(map) do
-            if (Weapon ~= nil) then
-                count = count + 1
-            end
+            ["beavercreek"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [2] = { nil, 12, nil }, -- sniper
+            },
+            ["bloodgulch"] = {
+                [2] = { nil, 12, nil }, -- sniper
+                [1] = { nil, 60, nil }, -- pistol
+                [9] = { nil, 120, nil }, -- needler
+                [5] = { nil, nil, 100 }, -- plasma pistol
+            },
+            ["boardingaction"] = {
+                [10] = { nil, 24, nil }, -- shotgun
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["carousel"] = {
+                [2] = { nil, 12, nil }, -- sniper
+                [1] = { nil, 60, nil }, -- pistol
+                [10] = { nil, 24, nil }, -- shotgun
+            },
+            ["dangercanyon"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [4] = { nil, 8, nil }, -- rocket launcher
+                [7] = { nil, 240, nil }, -- assault rifle
+            },
+            ["deathisland"] = {
+                [2] = { nil, 12, nil }, -- sniper
+                [1] = { nil, 60, nil }, -- pistol
+                [7] = { nil, 240, nil }, -- assault rifle
+            },
+            ["gephyrophobia"] = {
+                [2] = { nil, 12, nil }, -- sniper
+                [1] = { nil, 60, nil }, -- pistol
+                [4] = { nil, 8, nil }, -- rocket launcher
+            },
+            ["icefields"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [7] = { nil, 240, nil }, -- assault rifle
+            },
+            ["infinity"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [2] = { nil, 12, nil }, -- sniper
+                [4] = { nil, 8, nil }, -- rocket launcher
+            },
+            ["sidewinder"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [4] = { nil, 8, nil }, -- rocket launcher
+                [3] = { nil, nil, 100 }, -- plasma cannon
+                [2] = { nil, 12, nil }, -- sniper
+            },
+            ["timberland"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [7] = { nil, 240, nil }, -- assault rifle
+                [9] = { nil, 120, nil }, -- needler
+            },
+            ["hangemhigh"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [10] = { nil, 24, nil }, -- shotgun
+            },
+            ["ratrace"] = {
+                [7] = { nil, 240, nil }, -- assault rifle
+                [1] = { nil, 60, nil }, -- pistol
+                [9] = { nil, 120, nil }, -- needler
+            },
+            ["damnation"] = {
+                [7] = { nil, 240, nil }, -- assault rifle
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["putput"] = {
+                [5] = { nil, nil, 100 }, -- plasma pistol
+                [6] = { nil, nil, 100 }, -- plasma rifle
+                [3] = { nil, nil, 100 }, -- plasma cannon
+                [8] = { nil, 300, nil }, -- flamethrower
+            },
+            ["prisoner"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [4] = { nil, 8, nil }, -- rocket launcher
+            },
+            ["wizard"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [2] = { nil, 12, nil }, -- sniper
+            },
+        }
+        self.tags = {
+            [1] = "weapons\\pistol\\pistol",
+            [2] = "weapons\\sniper rifle\\sniper rifle",
+            [3] = "weapons\\plasma_cannon\\plasma_cannon",
+            [4] = "weapons\\rocket launcher\\rocket launcher",
+            [5] = "weapons\\plasma pistol\\plasma pistol",
+            [6] = "weapons\\plasma rifle\\plasma rifle",
+            [7] = "weapons\\assault rifle\\assault rifle",
+            [8] = "weapons\\flamethrower\\flamethrower",
+            [9] = "weapons\\needler\\mp_needler",
+            [10] = "weapons\\shotgun\\shotgun",
+        }
+        -- CONFIGURATION ENDS << -------------------------------------------------
+        --
+        --
+        --
+        -- DO NOT TOUCH BELOW THIS POINT --
+        local map = get_var(0, "$map")
+        self.weapons = weapons[map]
+        if (self.weapons) then
+            register_callback(cb["EVENT_TICK"], "OnTick")
+            register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
+            register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
+            register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
+        else
+            unregister_callback(cb["EVENT_TICK"])
+            unregister_callback(cb["EVENT_JOIN"])
+            unregister_callback(cb["EVENT_SPAWN"])
+            unregister_callback(cb["EVENT_LEAVE"])
         end
     end
-    if (count > 0) then
-        mod.weapons_table = map
-    end
-    ----------------------------
-end
-
-function mod:GetTag()
-    return {
-
-        -- ============= [ STOCK WEAPONS ] ============= --
-        [1] = "weapons\\pistol\\pistol",
-        [2] = "weapons\\sniper rifle\\sniper rifle",
-        [3] = "weapons\\plasma_cannon\\plasma_cannon",
-        [4] = "weapons\\rocket launcher\\rocket launcher",
-        [5] = "weapons\\plasma pistol\\plasma pistol",
-        [6] = "weapons\\plasma rifle\\plasma rifle",
-        [7] = "weapons\\assault rifle\\assault rifle",
-        [8] = "weapons\\flamethrower\\flamethrower",
-        [9] = "weapons\\needler\\mp_needler",
-        [10] = "weapons\\shotgun\\shotgun",
-
-        -- ============= [ CUSTOM WEAPONS ] ============= --
-
-        -- Weapon indexes 11-30 belong to bigassv2,104
-        [11] = "altis\\weapons\\binoculars\\binoculars",
-        [12] = "altis\\weapons\\binoculars\\gauss spawner\\create gauss",
-        [13] = "altis\\weapons\\smoke\\smoke",
-        [14] = "bourrin\\halo reach\\vehicles\\warthog\\gauss\\gauss gun",
-        [15] = "bourrin\\halo reach\\vehicles\\warthog\\rocket\\rocket",
-        [16] = "bourrin\\weapons\\dmr\\dmr",
-        [17] = "bourrin\\weapons\\ma5k\\cmt's ma5k reloaded",
-        [18] = "bourrin\\weapons\\masternoob's assault rifle\\assault rifle",
-        [19] = "cmt\\weapons\\human\\shotgun\\shotgun",
-        [20] = "cmt\\weapons\\human\\stealth_sniper\\sniper rifle",
-        [21] = "halo reach\\objects\\weapons\\support_high\\spartan_laser\\spartan laser",
-        [22] = "halo3\\weapons\\odst pistol\\odst pistol",
-        [23] = "my_weapons\\trip-mine\\trip-mine",
-        [24] = "reach\\objects\\weapons\\pistol\\magnum\\magnum",
-        [25] = "vehicles\\le_falcon\\weapon",
-        [26] = "vehicles\\scorpion\\scorpion cannon_heat",
-        [27] = "weapons\\ball\\ball",
-        [28] = "weapons\\flag\\flag",
-        [29] = "weapons\\gauss sniper\\gauss sniper",
-        [30] = "weapons\\rocket launcher\\rocket launcher test",
-
-        -- repeat the structure to add more weapon tags:
-        [31] = "tag_goes_here",
-    }
 end
 
 function OnScriptLoad()
-    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
-    if (get_var(0, "$gt") ~= "n/a") then
-        mod:init()
-        if (mod.weapons_table ~= nil) then
-            RegisterSAPPEvents(true)
-            for i = 1, 16 do
-                if player_present(i) then
-                    mod:initPlayer(i, true)
-                end
-            end
-        end
-    end
+    register_callback(cb["EVENT_GAME_START"], "Init")
+    MOD:Init()
 end
 
-function OnGameStart()
-    if (get_var(0, "$gt") ~= "n/a") then
-        mod:init()
-        if (mod.weapons_table ~= nil) then
-            RegisterSAPPEvents(true)
-        end
-    end
-end
-
-function OnGameEnd()
-    for i = 1, 16 do
-        if player_present(i) then
-            mod:initPlayer(i, false)
-        end
-    end
-    RegisterSAPPEvents(false)
-end
-
-function OnTick()
-    for i, player in pairs(mod.players) do
+function MOD:OnTick()
+    for i, player in pairs(self.players) do
         if (i) and player_alive(i) then
             if (player.assign) then
-
-                local player_object = get_dynamic_player(i)
-                local coords = mod:getXYZ(i, player_object)
-
-                if (not coords.invehicle) then
-                    player.assign = false
-                    execute_command("wdel " .. i)
-                    for Slot, Weapon in pairs(mod.weapons_table) do
-                        if (Slot == 1 or Slot == 2) then
-                            assign_weapon(spawn_object("weap", Weapon, coords.x, coords.y, coords.z), i)
-                        elseif (Slot == 3 or Slot == 4) then
-                            timer(250, "DelaySecQuat", i, Weapon, coords.x, coords.y, coords.z)
+                local DyN = get_dynamic_player(i)
+                if (DyN ~= 0) then
+                    local pos = MOD:GetXYZ(DyN)
+                    if (not pos.invehicle) then
+                        player.assign = false
+                        execute_command("wdel " .. i)
+                        local index = 0
+                        for WI, _ in pairs(self.weapons) do
+                            index = index + 1
+                            if (index == 1 or index == 2) then
+                                assign_weapon(spawn_object("weap", self.tags[WI], pos.x, pos.y, pos.z), i)
+                            elseif (index == 3 or index == 4) then
+                                timer(250, "DelaySecQuat", i, self.tags[WI], pos.x, pos.y, pos.z)
+                            end
                         end
+                        timer(self.ammo_set_delay, "SetAmmo", i, DyN)
                     end
                 end
             end
@@ -183,78 +179,89 @@ function OnTick()
     end
 end
 
-function OnPlayerSpawn(PlayerIndex)
-    for index, player in pairs(mod.players) do
-        if (index == PlayerIndex) then
-            player.assign = true
-        end
+function OnPlayerSpawn(Ply)
+    MOD.players[Ply].assign = true
+end
+
+function OnPlayerConnect(Ply)
+    MOD:InitPlayer(Ply, false)
+end
+
+function OnPlayerDisconnect(Ply)
+    MOD:InitPlayer(Ply, true)
+end
+
+function MOD:InitPlayer(Ply, Reset)
+    if (not Reset) then
+        self.players[Ply] = { assign = false }
+    else
+        self.players[Ply] = nil
     end
 end
 
-function OnPlayerConnect(PlayerIndex)
-    mod:initPlayer(PlayerIndex, true)
+function DelaySecQuat(Ply, Weapon, x, y, z)
+    assign_weapon(spawn_object("weap", Weapon, x, y, z), Ply)
 end
 
-function OnPlayerDisconnect(PlayerIndex)
-    mod:initPlayer(PlayerIndex, false)
-end
-
-function OnScriptUnload()
-    --
-end
-
-function mod:initPlayer(PlayerIndex, Init)
-    local players = mod.players
-
-    if (Init) then
-        players[PlayerIndex] = {
-            assign = false
-        }
+function MOD:GetXYZ(DyN)
+    local pos, x, y, z = { }
+    local VehicleID = read_dword(DyN + 0x11C)
+    if (VehicleID == 0xFFFFFFFF) then
+        pos.invehicle = false
+        x, y, z = read_vector3d(DyN + 0x5c)
     else
-        for index, _ in pairs(players) do
-            if (index == PlayerIndex) then
-                players[index] = nil
+        pos.invehicle = true
+        x, y, z = read_vector3d(get_object_memory(VehicleID) + 0x5c)
+    end
+    pos.x, pos.y, pos.z = x, y, z
+    return pos
+end
+
+local function GetObjectTagName(TAG)
+    if (TAG ~= nil and TAG ~= 0) then
+        return read_string(read_dword(read_word(TAG) * 32 + 0x40440038))
+    end
+    return nil
+end
+
+function SetAmmo(Ply, DyN)
+    for i = 0, 3 do
+        local WeaponID = read_dword(DyN + 0x2F8 + (i * 4))
+        if (WeaponID ~= 0xFFFFFFFF) then
+            local WeaponObject = get_object_memory(WeaponID)
+            if (WeaponObject ~= 0) then
+                local tag = GetObjectTagName(WeaponObject)
+                if (tag) then
+                    for WI, A in pairs(MOD.weapons) do
+                        if (tag == MOD.tags[WI]) then
+                            -- loaded:
+                            if (A[1]) then
+                                write_word(WeaponObject + 0x2B8, A[1])
+                            end
+                            -- unloaded:
+                            if (A[2]) then
+                                write_word(WeaponObject + 0x2B6, A[2])
+                            end
+                            -- battery:
+                            if (A[3]) then
+                                execute_command_sequence("w8 1;battery " .. Ply .. " " .. A[3] .. " " .. i)
+                            end
+                        end
+                    end
+                    sync_ammo(WeaponID)
+                end
             end
         end
     end
 end
 
-function DelaySecQuat(PlayerIndex, Weapon, x, y, z)
-    assign_weapon(spawn_object("weap", Weapon, x, y, z), PlayerIndex)
+function OnTick()
+    return MOD:OnTick()
+end
+function Init()
+    return MOD:Init()
 end
 
-function mod:getXYZ(PlayerIndex, PlayerObject)
-    local coords, x, y, z = { }
-
-    local VehicleID = read_dword(PlayerObject + 0x11C)
-    if (VehicleID == 0xFFFFFFFF) then
-        coords.invehicle = false
-        x, y, z = read_vector3d(PlayerObject + 0x5c)
-    else
-        coords.invehicle = true
-        x, y, z = read_vector3d(get_object_memory(VehicleID) + 0x5c)
-    end
-
-    if (coords.invehicle) then
-        z = z + 1
-    end
-
-    coords.x, coords.y, coords.z = x, y, z
-    return coords
-end
-
-function RegisterSAPPEvents(Init)
-    if (Init) then
-        register_callback(cb["EVENT_TICK"], "OnTick")
-        register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
-        register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
-        register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
-        register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
-    else
-        unregister_callback(cb['EVENT_TICK'])
-        unregister_callback(cb["EVENT_JOIN"])
-        unregister_callback(cb["EVENT_LEAVE"])
-        unregister_callback(cb['EVENT_SPAWN'])
-        unregister_callback(cb['EVENT_GAME_END'])
-    end
+function OnScriptUnload()
+    -- N/A
 end
