@@ -1,7 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Loadout (v1.6), for SAPP (PC & CE)
-Description: Wiki Coming soon.
+Script Name: Loadout (v1.7), for SAPP (PC & CE)
 
 ~ acknowledgements ~
 Concept credit goes to OSH Clan, a gaming community operating on Halo CE:
@@ -1111,7 +1110,7 @@ local Loadout = {
 
 local ip_addresses = { }
 local time_scale = 1 / 30
-local script_version = 1.6
+local script_version = 1.7
 local gmatch, gsub = string.gmatch, string.gsub
 local lower, upper = string.lower, string.upper
 local floor, sqrt, format = math.floor, math.sqrt, string.format
@@ -1292,9 +1291,11 @@ function Loadout:GetWeaponTable(Ply)
     local info = self:GetLevelInfo(Ply)
     if (info and info.class and info.level) then
         local weapon_table = self.classes[info.class].levels[info.level].weapons
-        for map, tab in pairs(weapon_table.custom_maps) do
-            if (lower(map) == lower(self.map)) then
-                return tab
+        if (weapon_table.custom_maps) then
+            for map, tab in pairs(weapon_table.custom_maps) do
+                if (lower(map) == lower(self.map)) then
+                    return tab
+                end
             end
         end
         return weapon_table.stock_maps
@@ -2647,6 +2648,8 @@ function report(StackTrace, Error)
     WriteLog("Please report this error on github:")
     WriteLog("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues")
     WriteLog("Script Version: " .. tostring(script_version))
+    WriteLog("MAP: " .. get_var(0, "$map"))
+    WriteLog("MODE: " .. get_var(0, "$mode"))
     WriteLog(Error)
     WriteLog(StackTrace)
     WriteLog("\n")
