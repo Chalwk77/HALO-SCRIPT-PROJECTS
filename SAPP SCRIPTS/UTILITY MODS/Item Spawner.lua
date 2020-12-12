@@ -85,6 +85,7 @@ local Mod = {
         { "bipd", "characters\\cyborg_mp\\cyborg_mp", "Cyborg", { "cyborg" } },
 
         -- Equipment: (give/spawn)
+        { "eqip", "powerups\\full-spectrum vision", "Vision Spectrum Cube", { "vscube", "vcube" } },
         { "eqip", "powerups\\health pack", "Health Pack", { "health", "hp", "hpack" } },
         { "eqip", "powerups\\active camouflage", "Camouflage", { "camo", "cam", "camouflage" } },
         { "eqip", "powerups\\over shield", "Over Shield", { "overshield", "os", "oshield", "sh" } },
@@ -100,13 +101,14 @@ local Mod = {
         { "vehi", "vehicles\\scorpion\\scorpion_mp", "Tank", { "tank", "scorpion", "scorpion_mp" } },
 
         -- Weapons: (give/spawn)
+        { "weap", "weapons\\gravity rifle\\gravity rifle", "Gravity Gun", { "ggun", "gravgun", "gravitygun" } },
         { "weap", "weapons\\flag\\flag", "Flag", { "flag" } },
         { "weap", "weapons\\ball\\ball", "Skull", { "ball", "skull" } },
         { "weap", "weapons\\pistol\\pistol", "Pistol", { "pistol", "pist" } },
         { "weap", "weapons\\shotgun\\shotgun", "Shotgun", { "shotgun", "shotty" } },
         { "weap", "weapons\\needler\\mp_needler", "Needler", { "needler", "need" } },
         { "weap", "weapons\\plasma rifle\\plasma rifle", "Plasma Rifle", { "prifle", "plasmarifle" } },
-        { "weap", "weapons\\flamethrower\\flamethrower", "Flamethrower", { "flamethrower", "fthrower" } },
+        { "weap", "weapons\\flamethrower\\flamethrower", "Flamethrower", { "flame", "flamethrower", "fthrower" } },
         { "weap", "weapons\\plasma_cannon\\plasma_cannon", "Plasma Cannon", { "pcannon", "plasmacannon" } },
         { "weap", "weapons\\plasma pistol\\plasma pistol", "Plasma Pistol", { "ppistol", "plasmapistol" } },
         { "weap", "weapons\\assault rifle\\assault rifle", "Assault Rifle", { "arifle", "assaultrifle", "rifle" } },
@@ -114,7 +116,7 @@ local Mod = {
         { "weap", "weapons\\rocket launcher\\rocket launcher", "Rocket Launcher", { "rocketl", "rocketlauncher", "rlauncher" } },
 
         -- Projectiles: (spawn)
-        { "proj", "weapons\\flamethrower\\flame", "Flames", { "flame", "flameproj" } },
+        { "proj", "weapons\\flamethrower\\flame", "Flames", { "flames", "flameproj" } },
         { "proj", "weapons\\needler\\mp_needle", "Needler Needle", { "needle", "needlerproj" } },
         { "proj", "vehicles\\ghost\\ghost bolt", "Ghost Bolt", { "ghostbolt", "gbolt", "ghostproj" } },
         { "proj", "weapons\\rocket launcher\\rocket", "Rocket", { "rocketproj", "rocket" } },
@@ -281,9 +283,9 @@ function Mod:ClearObjects(Ply, Type, Params)
                 self:Respond(Params.tid, "Your " .. Type .. " objects were cleaned up by " .. Params.ename)
             end
         end
-    elseif (Ply == Params.eid) then
+    elseif (Params and Ply == Params.eid) then
         self:Respond(Ply, "Nothing to clean up!")
-    else
+    elseif (Params) then
         self:Respond(Params.eid, Params.tname .. " has nothing to clean up!", 12)
     end
 end
@@ -315,7 +317,7 @@ local function CMDSplit(CMD)
     return Args
 end
 
-local function GetTag(Type, Name)
+function GetTag(Type, Name)
     local Tag = lookup_tag(Type, Name)
     return Tag ~= 0 and read_dword(Tag + 0xC) or nil
 end

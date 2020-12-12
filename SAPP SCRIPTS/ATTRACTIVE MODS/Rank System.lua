@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Rank System (v1.20), for SAPP (PC & CE)
+Script Name: Rank System (v1.21), for SAPP (PC & CE)
 Description: Rank System is fully integrated halo 3 style ranking system for SAPP servers.
 
 Players earn credits for killing, scoring and achievements, such as sprees, kill-combos and more.
@@ -353,7 +353,7 @@ local Rank = {
 }
 
 local time_scale = 1 / 30
-local script_version = 1.20
+local script_version = 1.21
 local lower = string.lower
 local sqrt = math.sqrt
 local gmatch, gsub = string.gmatch, string.gsub
@@ -435,43 +435,43 @@ end
 
 function Rank:OnTick()
     if (self.tbag) then
-        for i, ply1 in pairs(self.players) do
-            if player_present(i) then
-                for j, ply2 in pairs(self.players) do
-                    if (i ~= j and ply1.crouch_count and ply2.coords) then
-                        local pos = self:GetXYZ(i)
-                        if (pos) and (not pos.invehicle) then
-                            for k, v in pairs(ply2.coords) do
-                                v.timer = v.timer + time_scale
-                                if (v.timer >= self.tbag_coordinate_expiration) then
-                                    ply2.coords[k] = nil
-                                else
-                                    local x, y, z = v.x, v.y, v.z
-                                    local px, py, pz = pos.x, pos.y, pos.z
-                                    local distance = GetRadius(px, py, pz, x, y, z)
-                                    if (distance) and (distance <= self.tbag_trigger_radius) then
+		for i, ply1 in pairs(self.players) do
+			if player_present(i) then
+				for j, ply2 in pairs(self.players) do
+					if (i ~= j and ply1.crouch_count and ply2.coords) then
+						local pos = self:GetXYZ(i)
+						if (pos) and (not pos.invehicle) then
+							for k, v in pairs(ply2.coords) do
+								v.timer = v.timer + time_scale
+								if (v.timer >= self.tbag_coordinate_expiration) then
+									ply2.coords[k] = nil
+								else
+									local x, y, z = v.x, v.y, v.z
+									local px, py, pz = pos.x, pos.y, pos.z
+									local distance = GetRadius(px, py, pz, x, y, z)
+									if (distance) and (distance <= self.tbag_trigger_radius) then
 
-                                        local crouch = read_bit(pos.dyn + 0x208, 0)
-                                        if (crouch ~= ply1.crouch_state and crouch == 1) then
-                                            ply1.crouch_count = ply1.crouch_count + 1
+										local crouch = read_bit(pos.dyn + 0x208, 0)
+										if (crouch ~= ply1.crouch_state and crouch == 1) then
+											ply1.crouch_count = ply1.crouch_count + 1
 
-                                        elseif (ply1.crouch_count >= self.tbag_crouch_count) then
-                                            ply2.coords[k] = nil
-                                            ply1.crouch_count = 0
-                                            local str = gsub(gsub(self.messages[5], "%%name%%", ply1.name), "%%victim%%", ply2.name)
-                                            self:Respond(i, str, say, 10, true)
-                                            self:UpdateCredits(i, { self.credits.tbag[1], self.credits.tbag[2] })
-                                        end
-                                        ply1.crouch_state = crouch
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-        end
-    end
+										elseif (ply1.crouch_count >= self.tbag_crouch_count) then
+											ply2.coords[k] = nil
+											ply1.crouch_count = 0
+											local str = gsub(gsub(self.messages[5], "%%name%%", ply1.name), "%%victim%%", ply2.name)
+											self:Respond(i, str, say, 10, true)
+											self:UpdateCredits(i, { self.credits.tbag[1], self.credits.tbag[2] })
+										end
+										ply1.crouch_state = crouch
+									end
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+	end
 end
 
 function OnPlayerConnect(Ply)
@@ -574,7 +574,7 @@ function Rank:GetRanks(QUIT)
         ranks = json:decode(data)
         if (ranks) then
             for i = 1, 16 do
-                if player_present(i) then
+                if player_present(i) and (self.players[i]) then
                     if (QUIT) then
                         self.players[i].coords = nil
                         self.players[i].last_damage = nil

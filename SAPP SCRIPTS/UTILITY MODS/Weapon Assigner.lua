@@ -31,7 +31,6 @@ function MOD:Init()
 
             ]]
 
-
             ["beavercreek"] = {
                 [1] = { nil, 60, nil }, -- pistol
                 [2] = { nil, 12, nil }, -- sniper
