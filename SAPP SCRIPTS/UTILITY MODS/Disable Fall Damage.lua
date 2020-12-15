@@ -17,6 +17,10 @@ local FallDamage = {
     maps = {
         -- Configuration [starts] -----------------------------------------------------
         -- {map enabled/disabled}, {game mode 1, game mode 2 ...}
+
+        -- true = prevent damage
+        -- false = allow damage
+
         ["putput"] = { true, { "game_mode_here"} },
         ["wizard"] = { true, { "game_mode_here"} },
         ["longest"] = { true, { "game_mode_here"} },
