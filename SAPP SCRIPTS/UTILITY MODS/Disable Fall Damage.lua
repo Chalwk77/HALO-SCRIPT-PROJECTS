@@ -3,8 +3,6 @@
 Script Name: Disable Fall Damage, for SAPP (PC & CE)
 Description: This script will allow you to disable fall damage on a per-map-per-game mode basis.
 
--- Hello, CyferX
-
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -19,25 +17,25 @@ local FallDamage = {
     maps = {
         -- Configuration [starts] -----------------------------------------------------
         -- {map enabled/disabled}, {game mode 1, game mode 2 ...}
-        ["putput"] = { true, { "rocketz", "ffa shottys" } },
-        ["wizard"] = { true, { "rocketz", "ffa shottys", "FFA SWAT" } },
-        ["longest"] = { true, { "rocketz", "ffa shottys" } },
-        ["ratrace"] = { true, { "rocketz", "ffa shottys" } },
-        ["carousel"] = { true, { "rocketz", "ffa shottys" } },
-        ["infinity"] = { true, { "rocketz", "ffa shottys" } },
-        ["chillout"] = { true, { "rocketz", "ffa shottys", "FFA SWAT" } },
-        ["prisoner"] = { true, { "rocketz", "ffa shottys", "FFA SWAT" } },
-        ["damnation"] = { true, { "rocketz", "ffa shottys" } },
-        ["icefields"] = { true, { "rocketz", "ffa shottys" } },
-        ["bloodgulch"] = { true, { "rocketz", "ffa shottys" } },
-        ["hangemhigh"] = { true, { "rocketz", "ffa shottys" } },
-        ["sidewinder"] = { true, { "rocketz", "ffa shottys" } },
-        ["timberland"] = { true, { "rocketz", "ffa shottys" } },
-        ["beavercreek"] = { true, { "rocketz", "ffa shottys", "FFA SWAT" } },
-        ["deathisland"] = { true, { "rocketz", "ffa shottys" } },
-        ["dangercanyon"] = { true, { "rocketz", "ffa shottys" } },
-        ["gephyrophobia"] = { true, { "rocketz", "ffa shottys" } },
-        ["boardingaction"] = { true, { "rocketz", "ffa shottys" } }
+        ["putput"] = { true, { "game_mode_here"} },
+        ["wizard"] = { true, { "game_mode_here"} },
+        ["longest"] = { true, { "game_mode_here"} },
+        ["ratrace"] = { true, { "game_mode_here"} },
+        ["carousel"] = { true, { "game_mode_here"} },
+        ["infinity"] = { true, { "game_mode_here"} },
+        ["chillout"] = { true, { "game_mode_here"} },
+        ["prisoner"] = { true, { "game_mode_here"} },
+        ["damnation"] = { true, { "game_mode_here"} },
+        ["icefields"] = { true, { "game_mode_here"} },
+        ["bloodgulch"] = { true, { "game_mode_here"} },
+        ["hangemhigh"] = { true, { "game_mode_here"} },
+        ["sidewinder"] = { true, { "game_mode_here"} },
+        ["timberland"] = { true, { "game_mode_here"} },
+        ["beavercreek"] = { true, { "game_mode_here"} },
+        ["deathisland"] = { true, { "game_mode_here"} },
+        ["dangercanyon"] = { true, { "game_mode_here"} },
+        ["gephyrophobia"] = { true, { "game_mode_here"} },
+        ["boardingaction"] = { true, { "game_mode_here"} }
         -- Configuration [ends] -----------------------------------------------------
     }
 }
