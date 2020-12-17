@@ -363,7 +363,7 @@ function TeleportManager:GetXYZ(Ply)
         local VehicleObj = get_object_memory(VehicleID)
         if (VehicleID == 0xFFFFFFFF) then
             x, y, z = read_vector3d(DyN + 0x5c)
-        else
+        elseif (VehicleObj ~= 0) then
             x, y, z = read_vector3d(VehicleObj + 0x5c)
         end
         pos.x, pos.y, pos.z, pos.dyn, pos.obj = x, y, z, DyN, VehicleObj
