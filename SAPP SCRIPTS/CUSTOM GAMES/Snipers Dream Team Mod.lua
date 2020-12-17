@@ -25,7 +25,10 @@ function SDTM:Init()
     -- CONFIGURATION STARTS -->> ---------------------------------------------------
 
     if (get_var(0, "$gt") ~= "n/a") then
-
+        --
+        -- SCORE LIMIT:
+        local score_limit = 10
+        --
         -- Flag Settings --
         self.flag_runner_speed = 1.5
         self.on_flag_pickup = {
@@ -36,7 +39,7 @@ function SDTM:Init()
             }
         }
         --
-
+        --
         self.maps = {
 
             ["bloodgulch"] = {
@@ -91,13 +94,14 @@ function SDTM:Init()
                 objects = {
                     -- blue vehicles
                     { "vehi", "vehicles\\banshee\\banshee_mp", 70.078, -62.626, 3.758, "Blue Banshee", 10.2 },
-                    { "vehi", "vehicles\\c gun turret\\c gun turret_mp", 29.544, -53.628, 3.302, "Blue Turret", 124.5 },
+                    { "vehi", "vehicles\\c gun turret\\c gun turret_mp", 29.540, -53.623, 2.820, "Blue Turret", 124.5 },
                     { "vehi", "vehicles\\scorpion\\scorpion_mp", 23.598, -102.343, 2.163, "Blue Tank [Ramp]", 90 },
-                    { "vehi", "vehicles\\scorpion\\scorpion_mp", 38.119, -64.898, 0.617, "Blue Tank [Immediate Rear of Base]", 90 },
-                    { "vehi", "vehicles\\scorpion\\scorpion_mp", 51.349, -61.517, 1.759, "Blue Tank [Rear-Right of Base]", 90 },
+                    { "vehi", "vehicles\\scorpion\\scorpion_mp", 38.119, -64.898, 0.617, "Blue Tank [Immediate Rear of Base]", 92 },
+                    { "vehi", "vehicles\\scorpion\\scorpion_mp", 51.349, -61.517, 1.759, "Blue Tank [Rear-Right of Base]", 24 },
                     { "vehi", "vehicles\\rwarthog\\rwarthog", 50.655, -87.787, 0.079, "Blue Rocket Hog [Front-Right of Base]", -90 },
-                    { "vehi", "vehicles\\rwarthog\\rwarthog", 62.745, -72.406, 1.031, "Blue Rocket Hog [Far-Right of Base]", 90 },
-                    { "vehi", "vehicles\\warthog\\mp_warthog", 28.854, -90.193, 0.434, "Blue Chain Gun Hog [Front-Left of Base]", 90 },
+                    { "vehi", "vehicles\\rwarthog\\rwarthog", 62.745, -72.406, 1.031, "Blue Rocket Hog [Far-Right of Base]", 111 },
+                    { "vehi", "vehicles\\warthog\\mp_warthog", 28.854, -90.193, 0.434, "Blue Chain Gun Hog [Front-Left of Base]", 30 },
+                    { "vehi", "vehicles\\warthog\\mp_warthog", 43.559, -64.809, 1.113, "Red Chain Gun Hog [Immediate Rear of Base]", 30 },
 
                     -- red vehicles
                     { "vehi", "vehicles\\banshee\\banshee_mp", 64.178, -176.802, 3.960, "Red Banshee", 120 },
@@ -106,13 +110,10 @@ function SDTM:Init()
                     { "vehi", "vehicles\\scorpion\\scorpion_mp", 97.117, -173.132, 0.744, "Red Tank [Immediate Rear of Base]", 90 },
                     { "vehi", "vehicles\\scorpion\\scorpion_mp", 81.150, -169.359, 0.158, "Red Tank [Rear-Right of Base]", 90 },
                     { "vehi", "vehicles\\rwarthog\\rwarthog", 106.885, -169.245, 0.091, "Red Rocket Hog [Left-Rear of Base]", 90 },
-                    { "vehi", "vehicles\\warthog\\mp_warthog", 67.961, -171.002, 1.428, "Red Chain Gun Hog [Far Right of Base]", 90 },
-                    { "vehi", "vehicles\\warthog\\mp_warthog", 102.312, -144.626, 0.580, "Red Chain Gun Hog [Front-Left of Base]", 90 },
-                    { "vehi", "vehicles\\warthog\\mp_warthog", 43.559, -64.809, 1.113, "Red Chain Gun Hog [Immediate Rear of Base]", 90 },
 
                     -- other vehicles
                     { "vehi", "vehicles\\ghost\\ghost_mp", 59.294, -116.212, 1.797, "Ghost [Mid-Field]", 90 },
-                    { "vehi", "vehicles\\c gun turret\\c gun turret_mp", 51.315, -154.075, 21.561, "Cliff Turret", 90 }
+                    { "vehi", "vehicles\\c gun turret\\c gun turret_mp", 51.594, -154.070, 21.356, "Cliff Turret", 90 }
                 }
             }
         }
@@ -153,6 +154,9 @@ function SDTM:Init()
 
             -- Set Plasma Count: [int]:
             self.plasma_count = self.maps[map].plasma_count
+
+            -- Set the scorelimit: [int]
+            execute_command('scorelimit ' .. score_limit)
 
             -- Spawn map objects:
             for _, v in pairs(self.maps[map].objects) do
