@@ -36,7 +36,9 @@ local MOD = {
     -- simply enter ONE valid vehicle tag address per custom map in the tags array below.
 
     -- {tag, loop iterations}
-    -- Only change the loop iterations if you know what you're doing.
+    -- Only change the loop iteration setting if you know what you're doing.
+    -- Do not set higher than 2000.
+
     tags = {
 
         -- WARNING: Do not set loop iterations higher than 20 for stock maps.
