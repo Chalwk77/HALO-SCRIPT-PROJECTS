@@ -4,7 +4,7 @@ Script Name: Client Crasher, for SAPP (PC & CE)
 Description: Crash any player's game client on demand.
 
 Command Syntax:
-    * /crash [player id | me | */all] [color id]
+    * /crash [player id | me | */all] [player id]
     "me" can be used in place of your own player id
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
