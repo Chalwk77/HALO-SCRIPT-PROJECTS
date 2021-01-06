@@ -7,7 +7,6 @@ Command Syntax:
     * /crash [player id | me | */all]
     "me" can be used in place of your own player id
 
-
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
