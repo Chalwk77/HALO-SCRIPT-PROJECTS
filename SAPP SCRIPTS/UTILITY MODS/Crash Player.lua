@@ -102,8 +102,17 @@ function OnTick()
     end
 end
 
+local function CmdSplit(Cmd)
+    local t, i = {}, 1
+    for Args in gmatch(Cmd, "([^%s]+)") do
+        t[i] = lower(Args)
+        i = i + 1
+    end
+    return t
+end
+
 function OnServerCommand(PlayerIndex, Command)
-    local command, args = cmdsplit(Command)
+    local command, args = CmdSplit(Command)
     local executor = tonumber(PlayerIndex)
 
     local players = { }
@@ -144,7 +153,7 @@ function mod:CommandCrash(params)
     else
         rprint(eid, "Error. Crash does not work on this map!")
     end
-end
+end 
 
 function Crash(target, name)
     local player_object = get_dynamic_player(target)
@@ -198,59 +207,41 @@ function OnPlayerPrejoin(PlayerIndex)
     end
 end
 
-function cmdsplit(str)
-    local subs = {}
-    local sub = ""
-    local ignore_quote, inquote, endquote
-    for i = 1, string.len(str) do
-        local bool
-        local char = string.sub(str, i, i)
-        if char == " " then
-            if (inquote and endquote) or (not inquote and not endquote) then
-                bool = true
-            end
-        elseif char == "\\" then
-            ignore_quote = true
-        elseif char == "\"" then
-            if not ignore_quote then
-                if not inquote then
-                    inquote = true
-                else
-                    endquote = true
-                end
-            end
-        end
-
-        if char ~= "\\" then
-            ignore_quote = false
-        end
-
-        if bool then
-            if inquote and endquote then
-                sub = string.sub(sub, 2, string.len(sub) - 1)
-            end
-
-            if sub ~= "" then
-                table.insert(subs, sub)
-            end
-            sub = ""
-            inquote = false
-            endquote = false
+function GetPlayers(Executor, Args)
+    local pl = { }
+    if (Args[2] == "me") then
+        if (Executor ~= 0) then
+            table.insert(pl, Executor)
         else
-            sub = sub .. char
+            Respond(Executor, "I am not a player!", "rprint", 12)
         end
-
-        if i == string.len(str) then
-            if string.sub(sub, 1, 1) == "\"" and string.sub(sub, string.len(sub), string.len(sub)) == "\"" then
-                sub = string.sub(sub, 2, string.len(sub) - 1)
+    elseif (Args[2]:match("%d+")) then
+        if player_present(Args[2]) then
+            table.insert(pl, Args[2])
+        else
+            local str = gsub(settings.messages[5], "%%target_id%%", Args[2])
+            Respond(Executor, str, "rprint", 12)
+        end
+    elseif (Args[2] == "all" or Args[2] == "*") then
+        for i = 1, 16 do
+            if player_present(i) then
+                table.insert(pl, i)
             end
-            table.insert(subs, sub)
         end
+        if (#pl == 0) then
+            Respond(Executor, settings.messages[6], "rprint", 12)
+        end
+    else
+        local str = gsub(settings.messages[4], "%%cmd%%", Args[1])
+        Respond(Executor, str, "rprint", 12)
     end
+    return pl
+end
 
-    local cmd = subs[1]
-    local args = subs
-    table.remove(args, 1)
-
-    return cmd, args
+local function GetTag(ObjectType, ObjectName)
+    if type(ObjectType) == "string" then
+        local Tag = lookup_tag(ObjectType, ObjectName)
+        return Tag ~= 0 and read_dword(Tag + 0xC) or nil
+    end
+    return nil
 end
