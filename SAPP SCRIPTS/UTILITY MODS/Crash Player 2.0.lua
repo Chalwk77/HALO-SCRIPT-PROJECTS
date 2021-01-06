@@ -4,8 +4,9 @@ Script Name: Client Crasher, for SAPP (PC & CE)
 Description: Crash any player's game client on demand.
 
 Command Syntax:
-    * /crash [player id | me | */all] [player id]
+    * /crash [player id | me | */all]
     "me" can be used in place of your own player id
+
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -36,6 +37,7 @@ local MOD = {
     -- simply enter ONE valid vehicle tag address per custom map in the tags array below.
 
     -- {tag, loop iterations}
+    -- Only change the loop iterations if you know what you're doing.
     tags = {
 
         -- WARNING: Do not set loop iterations higher than 20 for stock maps.
@@ -102,7 +104,7 @@ function MOD:OnServerCommand(Executor, CMD)
                     self:Respond(Executor, "==================================================================", 10)
                 end
             else
-                self:Respond(Executor, "Invalid Syntax. Usage: /" .. self.command .. " [player id | me | */all] [color id]", 10)
+                self:Respond(Executor, "Invalid Syntax. Usage: /" .. self.command .. " [player id | me | */all]", 10)
             end
         else
             self:Respond(Executor, "Insufficient Permission", 10)
@@ -132,10 +134,23 @@ function MOD:CrashClient(Executor, TargetID)
         local vehicle = spawn_object("vehi", self.vehicle_tag, x, y, z)
         local object = get_object_memory(vehicle)
         if (object ~= 0) then
+            --
+            -- Initialize a for-loop starting at 0 (first iteration):
+            --
             for seat = 0, self.iterations do
+                --
+                -- Enter player into the seat number of the current loop iteration.
+                --
                 enter_vehicle(vehicle, TargetID, seat)
+                --
+                -- Force player out of vehicle.
+                --
                 exit_vehicle(TargetID)
             end
+            --
+            -- Approx 50 milliseconds later:
+            -- Destroy vehicle after for-loop has finished executing
+            --
             destroy_object(vehicle)
         end
         self:Respond(Executor, "Crashed " .. name .. "'s game client", 10)
