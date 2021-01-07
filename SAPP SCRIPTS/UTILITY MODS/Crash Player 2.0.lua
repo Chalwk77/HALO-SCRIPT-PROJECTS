@@ -22,7 +22,7 @@ api_version = "1.12.0.0"
 
 local MOD = {
     -- This is the custom command used to crash players
-    command = "crash",
+    command = "kapow",
 
     -- Minimum permission level needed to crash a player:
     permission = 1,
@@ -153,8 +153,10 @@ function MOD:CrashClient(Executor, TargetID)
             -- Destroy vehicle after for-loop has finished executing
             --
             destroy_object(vehicle)
+            self:Respond(Executor, "Crashed " .. name .. "'s game client", 10)
+        else
+            self:Respond(Executor, "Something went wrong! Try again.", 10)
         end
-        self:Respond(Executor, "Crashed " .. name .. "'s game client", 10)
     else
         return self:Respond(Executor, name .. " is dead. Please wait until they respawn.")
     end
@@ -208,6 +210,7 @@ function MOD:SetCrashVehicle()
     self.iterations = nil
     if (get_var(0, "$gt") ~= "n/a") then
         for _, v in pairs(self.tags) do
+            -- The first valid vehicle tag address found will be used:
             if self:GetTag("vehi", v[1]) then
                 self.vehicle_tag = v[1]
                 self.iterations = v[2]
