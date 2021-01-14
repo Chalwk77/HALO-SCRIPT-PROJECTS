@@ -49,7 +49,7 @@ function SDTM:Init()
                 plasma_count = 4,
 
                 -- respawn time --
-                respawn_time = 0,
+                respawn_time = 3,
 
                 -- weapon load out --
                 weapons = {
@@ -1114,7 +1114,8 @@ end
 
 function SDTM:OnPlayerDeath(Ply)
     local player = get_player(Ply)
-    write_dword(player ~= 0 and player + 0x2C, self.respawn_time * 1 / 30)
+	local respawn_time = tonumber(self.respawn_time * 33)
+    write_dword(player ~= 0 and player + 0x2C, respawn_time)
 end
 
 function SDTM:Respond(Ply, Message, Color, Exclude)

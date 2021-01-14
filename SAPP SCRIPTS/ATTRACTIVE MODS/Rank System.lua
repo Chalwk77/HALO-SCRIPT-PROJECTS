@@ -354,9 +354,10 @@ local Rank = {
 
 local time_scale = 1 / 30
 local script_version = 1.22
+local lower = string.lower
 local sqrt = math.sqrt
+local gmatch, gsub = string.gmatch, string.gsub
 local json = (loadfile "json.lua")()
-local gmatch, gsub, lower = string.gmatch, string.gsub, string.lower
 
 function OnScriptLoad()
     register_callback(cb["EVENT_TICK"], "OnTick")
@@ -386,16 +387,13 @@ end
 
 function Rank:ShowEndResults()
     if tonumber(get_var(0, "$pn")) > 0 then
-
         local results = { }
         for i = 1, 16 do
             if player_present(i) then
                 results[i] = self.players[i]
             end
         end
-
         if (#results > 0) then
-
             local t = { }
             for _, v in pairs(results) do
                 t[#t + 1] = { ["ip"] = v.ip, ["credits"] = v.credits, ["name"] = v.name }
@@ -437,45 +435,43 @@ end
 
 function Rank:OnTick()
     if (self.tbag) then
-        for i, ply1 in pairs(self.players) do
-            if player_present(i) then
-                for j, ply2 in pairs(self.players) do
-                    if (i ~= j and ply1.crouch_count and ply2.coords) then
-                        local pos = self:GetXYZ(i)
-                        if (pos) and (not pos.invehicle) then
-                            for k, v in pairs(ply2.coords) do
-                                v.timer = v.timer + time_scale
-                                if (v.timer >= self.tbag_coordinate_expiration) then
-                                    ply2.coords[k] = nil
-                                else
+		for i, ply1 in pairs(self.players) do
+			if player_present(i) then
+				for j, ply2 in pairs(self.players) do
+					if (i ~= j and ply1.crouch_count and ply2.coords) then
+						local pos = self:GetXYZ(i)
+						if (pos) and (not pos.invehicle) then
+							for k, v in pairs(ply2.coords) do
+								v.timer = v.timer + time_scale
+								if (v.timer >= self.tbag_coordinate_expiration) then
+									ply2.coords[k] = nil
+								else
+									local x, y, z = v.x, v.y, v.z
+									local px, py, pz = pos.x, pos.y, pos.z
+									local distance = GetRadius(px, py, pz, x, y, z)
+									if (distance) and (distance <= self.tbag_trigger_radius) then
 
-                                    local x, y, z = v.x, v.y, v.z
-                                    local px, py, pz = pos.x, pos.y, pos.z
-                                    local distance = GetRadius(px, py, pz, x, y, z)
+										local crouch = read_bit(pos.dyn + 0x208, 0)
+										if (crouch ~= ply1.crouch_state and crouch == 1) then
+											ply1.crouch_count = ply1.crouch_count + 1
 
-                                    if (distance) and (distance <= self.tbag_trigger_radius) then
-
-                                        local crouch = read_bit(pos.dyn + 0x208, 0)
-                                        if (crouch ~= ply1.crouch_state and crouch == 1) then
-                                            ply1.crouch_count = ply1.crouch_count + 1
-
-                                        elseif (ply1.crouch_count >= self.tbag_crouch_count) then
-                                            ply2.coords[k] = nil
-                                            ply1.crouch_count = 0
-                                            local str = gsub(gsub(self.messages[5], "%%name%%", ply1.name), "%%victim%%", ply2.name)
-                                            self:Respond(i, str, say, 10, true)
-                                            self:UpdateCredits(i, { self.credits.tbag[1], self.credits.tbag[2] })
-                                        end
-                                        ply1.crouch_state = crouch
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-        end
-    end
+										elseif (ply1.crouch_count >= self.tbag_crouch_count) then
+											ply2.coords[k] = nil
+											ply1.crouch_count = 0
+											local str = gsub(gsub(self.messages[5], "%%name%%", ply1.name), "%%victim%%", ply2.name)
+											self:Respond(i, str, say, 10, true)
+											self:UpdateCredits(i, { self.credits.tbag[1], self.credits.tbag[2] })
+										end
+										ply1.crouch_state = crouch
+									end
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+	end
 end
 
 function OnPlayerConnect(Ply)
@@ -490,9 +486,9 @@ function OnPlayerScore(Ply)
     Rank:UpdateCredits(tonumber(Ply), { Rank.credits.score[1], Rank.credits.score[2] })
 end
 
-function Rank:Completed()
+local function Completed()
     local done = { }
-    for i, stats in pairs(self.ranks) do
+    for i, stats in pairs(Rank.ranks) do
         for k, _ in pairs(stats.grade) do
             done[i] = done[i] or { }
             if (done[i][k] == nil) then
@@ -520,41 +516,43 @@ function Rank:AddNewPlayer(Ply, ManualLoad)
     if (file) then
 
         local pl = json:decode(content)
-        local IP = self:GetIP(Ply)
-        local name = get_var(Ply, "$name")
+		if (pl) then
+			local IP = self:GetIP(Ply)
+			local name = get_var(Ply, "$name")
 
-        if (pl[IP] == nil) then
-            pl[IP] = {
-                ip = IP,
-                name = name,
-                rank = self.starting_rank,
-                grade = self.starting_grade,
-                credits = self.starting_credits,
-                done = self:Completed()
-            }
-        end
+			if (pl[IP] == nil) then
+				pl[IP] = {
+					ip = IP,
+					name = name,
+					rank = self.starting_rank,
+					grade = self.starting_grade,
+					credits = self.starting_credits,
+					done = Completed()
+				}
+			end
 
-        file:write(json:encode_pretty(pl))
-        io.close(file)
+			file:write(json:encode_pretty(pl))
+			io.close(file)
 
-        self.players[Ply] = { }
-        self.players[Ply] = pl[IP]
-        self.players[Ply].name = name
-        self.players[Ply].last_damage = 0
-        if (self.players[Ply].credits < 0) then
-            self.players[Ply].credits = 0
-        end
+			self.players[Ply] = { }
+			self.players[Ply] = pl[IP]
+			self.players[Ply].name = name
+			self.players[Ply].last_damage = 0
+			if (self.players[Ply].credits < 0) then
+				self.players[Ply].credits = 0
+			end
 
-        -- T-Bag Support:
-        self.players[Ply].coords = { }
-        self.players[Ply].crouch_state = 0
-        self.players[Ply].crouch_count = 0
-        --
+			-- T-Bag Support:
+			self.players[Ply].coords = { }
+			self.players[Ply].crouch_state = 0
+			self.players[Ply].crouch_count = 0
+			--
 
-        if (not ManualLoad) then
-            self:UpdateRank(Ply, true)
-            self:GetRank(Ply, IP)
-        end
+			if (not ManualLoad) then
+				self:UpdateRank(Ply, true)
+				self:GetRank(Ply, IP)
+			end
+		end
     end
 end
 
@@ -708,7 +706,6 @@ function Rank:GetIP(Ply)
 end
 
 function Rank:CheckFile()
-
     self.players = { }
     self.game_started = false
 
@@ -788,18 +785,19 @@ end
 
 function Rank:GetXYZ(Ply)
     local coords, x, y, z = { }
-
     local DyN = get_dynamic_player(Ply)
     if (DyN ~= 0) then
         local VehicleID = read_dword(DyN + 0x11C)
-        local VehicleObject = get_object_memory(VehicleID)
         if (VehicleID == 0xFFFFFFFF) then
             coords.invehicle = false
             x, y, z = read_vector3d(DyN + 0x5c)
-        elseif (VehicleObject ~= 0) then
-            coords.invehicle = true
-            x, y, z = read_vector3d(VehicleObject + 0x5c)
-            coords.name = GetVehicleTag(VehicleObject)
+        else
+            local VehicleObject = get_object_memory(VehicleID)
+            if (VehicleObject ~= 0) then
+                coords.invehicle = true
+                x, y, z = read_vector3d(VehicleObject + 0x5c)
+                coords.name = GetVehicleTag(VehicleObject)
+            end
         end
         coords.x, coords.y, coords.z, coords.dyn = x, y, z, DyN
     end
@@ -977,9 +975,13 @@ function Rank:OnDamageApplication(VictimIndex, KillerIndex, MetaID, _, _, _)
         local k, v = tonumber(KillerIndex), tonumber(VictimIndex)
         if player_present(v) then
             if (k > 0) then
-                self.players[k].last_damage = MetaID
+				if (self.players and self.players[k]) then
+					self.players[k].last_damage = MetaID
+				end
             end
-            self.players[v].last_damage = MetaID
+			if (self.players and self.players[v]) then
+				self.players[v].last_damage = MetaID
+			end
         end
     end
 end

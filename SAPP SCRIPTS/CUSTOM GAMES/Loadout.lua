@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Loadout (v1.7), for SAPP (PC & CE)
+Script Name: Loadout (v1.8), for SAPP (PC & CE)
 
 ~ acknowledgements ~
 Concept credit goes to OSH Clan, a gaming community operating on Halo CE:
@@ -1110,7 +1110,7 @@ local Loadout = {
 
 local ip_addresses = { }
 local time_scale = 1 / 30
-local script_version = 1.7
+local script_version = 1.8
 local gmatch, gsub = string.gmatch, string.gsub
 local lower, upper = string.lower, string.upper
 local floor, sqrt, format = math.floor, math.sqrt, string.format
@@ -1291,13 +1291,13 @@ function Loadout:GetWeaponTable(Ply)
     local info = self:GetLevelInfo(Ply)
     if (info and info.class and info.level) then
         local weapon_table = self.classes[info.class].levels[info.level].weapons
-        if (weapon_table.custom_maps) then
-            for map, tab in pairs(weapon_table.custom_maps) do
-                if (lower(map) == lower(self.map)) then
-                    return tab
-                end
-            end
-        end
+		if (weapon_table.custom_maps) then
+			for map, tab in pairs(weapon_table.custom_maps) do
+				if (lower(map) == lower(self.map)) then
+					return tab
+				end
+			end
+		end
         return weapon_table.stock_maps
     end
     return nil
@@ -1669,7 +1669,7 @@ end
 local function CMDSplit(CMD)
     local Args, index = { }, 1
     for Params in gmatch(CMD, "([^%s]+)") do
-        Args[index] = Params
+        Args[index] = lower(Params)
         index = index + 1
     end
     return Args
@@ -1681,7 +1681,6 @@ function Loadout:OnServerCommand(Executor, Command)
         return
     else
 
-        Args[1] = lower(Args[1]) or upper(Args[1])
         local etab
         local eip = self:GetIP(Executor)
 
