@@ -435,43 +435,43 @@ end
 
 function Rank:OnTick()
     if (self.tbag) then
-		for i, ply1 in pairs(self.players) do
-			if player_present(i) then
-				for j, ply2 in pairs(self.players) do
-					if (i ~= j and ply1.crouch_count and ply2.coords) then
-						local pos = self:GetXYZ(i)
-						if (pos) and (not pos.invehicle) then
-							for k, v in pairs(ply2.coords) do
-								v.timer = v.timer + time_scale
-								if (v.timer >= self.tbag_coordinate_expiration) then
-									ply2.coords[k] = nil
-								else
-									local x, y, z = v.x, v.y, v.z
-									local px, py, pz = pos.x, pos.y, pos.z
-									local distance = GetRadius(px, py, pz, x, y, z)
-									if (distance) and (distance <= self.tbag_trigger_radius) then
+        for i, ply1 in pairs(self.players) do
+            if player_present(i) then
+                for j, ply2 in pairs(self.players) do
+                    if (i ~= j and ply1.crouch_count and ply2.coords) then
+                        local pos = self:GetXYZ(i)
+                        if (pos) and (not pos.invehicle) then
+                            for k, v in pairs(ply2.coords) do
+                                v.timer = v.timer + time_scale
+                                if (v.timer >= self.tbag_coordinate_expiration) then
+                                    ply2.coords[k] = nil
+                                else
+                                    local x, y, z = v.x, v.y, v.z
+                                    local px, py, pz = pos.x, pos.y, pos.z
+                                    local distance = GetRadius(px, py, pz, x, y, z)
+                                    if (distance) and (distance <= self.tbag_trigger_radius) then
 
-										local crouch = read_bit(pos.dyn + 0x208, 0)
-										if (crouch ~= ply1.crouch_state and crouch == 1) then
-											ply1.crouch_count = ply1.crouch_count + 1
+                                        local crouch = read_bit(pos.dyn + 0x208, 0)
+                                        if (crouch ~= ply1.crouch_state and crouch == 1) then
+                                            ply1.crouch_count = ply1.crouch_count + 1
 
-										elseif (ply1.crouch_count >= self.tbag_crouch_count) then
-											ply2.coords[k] = nil
-											ply1.crouch_count = 0
-											local str = gsub(gsub(self.messages[5], "%%name%%", ply1.name), "%%victim%%", ply2.name)
-											self:Respond(i, str, say, 10, true)
-											self:UpdateCredits(i, { self.credits.tbag[1], self.credits.tbag[2] })
-										end
-										ply1.crouch_state = crouch
-									end
-								end
-							end
-						end
-					end
-				end
-			end
-		end
-	end
+                                        elseif (ply1.crouch_count >= self.tbag_crouch_count) then
+                                            ply2.coords[k] = nil
+                                            ply1.crouch_count = 0
+                                            local str = gsub(gsub(self.messages[5], "%%name%%", ply1.name), "%%victim%%", ply2.name)
+                                            self:Respond(i, str, say, 10, true)
+                                            self:UpdateCredits(i, { self.credits.tbag[1], self.credits.tbag[2] })
+                                        end
+                                        ply1.crouch_state = crouch
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
 end
 
 function OnPlayerConnect(Ply)
@@ -512,47 +512,48 @@ function Rank:AddNewPlayer(Ply, ManualLoad)
         io.close(File)
     end
 
-    local file = assert(io.open(self.dir, "w"))
-    if (file) then
+    local pl = json:decode(content)
+    if (pl) then
 
-        local pl = json:decode(content)
-		if (pl) then
-			local IP = self:GetIP(Ply)
-			local name = get_var(Ply, "$name")
+        local file = assert(io.open(self.dir, "w"))
+        if (file) then
 
-			if (pl[IP] == nil) then
-				pl[IP] = {
-					ip = IP,
-					name = name,
-					rank = self.starting_rank,
-					grade = self.starting_grade,
-					credits = self.starting_credits,
-					done = Completed()
-				}
-			end
+            local IP = self:GetIP(Ply)
+            local name = get_var(Ply, "$name")
 
-			file:write(json:encode_pretty(pl))
-			io.close(file)
+            if (pl[IP] == nil) then
+                pl[IP] = {
+                    ip = IP,
+                    name = name,
+                    rank = self.starting_rank,
+                    grade = self.starting_grade,
+                    credits = self.starting_credits,
+                    done = Completed()
+                }
+            end
 
-			self.players[Ply] = { }
-			self.players[Ply] = pl[IP]
-			self.players[Ply].name = name
-			self.players[Ply].last_damage = 0
-			if (self.players[Ply].credits < 0) then
-				self.players[Ply].credits = 0
-			end
+            file:write(json:encode_pretty(pl))
+            io.close(file)
 
-			-- T-Bag Support:
-			self.players[Ply].coords = { }
-			self.players[Ply].crouch_state = 0
-			self.players[Ply].crouch_count = 0
-			--
+            self.players[Ply] = { }
+            self.players[Ply] = pl[IP]
+            self.players[Ply].name = name
+            self.players[Ply].last_damage = 0
+            if (self.players[Ply].credits < 0) then
+                self.players[Ply].credits = 0
+            end
 
-			if (not ManualLoad) then
-				self:UpdateRank(Ply, true)
-				self:GetRank(Ply, IP)
-			end
-		end
+            -- T-Bag Support:
+            self.players[Ply].coords = { }
+            self.players[Ply].crouch_state = 0
+            self.players[Ply].crouch_count = 0
+            --
+
+            if (not ManualLoad) then
+                self:UpdateRank(Ply, true)
+                self:GetRank(Ply, IP)
+            end
+        end
     end
 end
 
@@ -975,13 +976,13 @@ function Rank:OnDamageApplication(VictimIndex, KillerIndex, MetaID, _, _, _)
         local k, v = tonumber(KillerIndex), tonumber(VictimIndex)
         if player_present(v) then
             if (k > 0) then
-				if (self.players and self.players[k]) then
-					self.players[k].last_damage = MetaID
-				end
+                if (self.players and self.players[k]) then
+                    self.players[k].last_damage = MetaID
+                end
             end
-			if (self.players and self.players[v]) then
-				self.players[v].last_damage = MetaID
-			end
+            if (self.players and self.players[v]) then
+                self.players[v].last_damage = MetaID
+            end
         end
     end
 end
