@@ -56,6 +56,9 @@ local AdminChat = {
 
         -- This message is sent to (you) when there is a command syntax error.
         [8] = "Invalid Syntax: Usage: /%command% on|off [me | id | */all]",
+
+        -- If command executors permission level is < permission_others, send this message:
+        [9] = "You lack permission to execute this command on other players",
     },
 
 
@@ -81,6 +84,13 @@ function OnScriptLoad()
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
+    if (get_var(0, "$gt") ~= "n/a") then
+        for i = 1, 16 do
+            if player_present(i) then
+                AdminChat:InitPlayer(i, false)
+            end
+        end
+    end
 end
 
 function OnScriptUnload()
@@ -97,7 +107,6 @@ end
 
 local function STRSplit(CMD)
     local Args, index = { }, 1
-    CMD = gsub(CMD, '"', "")
     for Params in gmatch(gsub(CMD, '"', ""), "([^%s]+)") do
         Args[index] = lower(Params)
         index = index + 1
@@ -149,8 +158,8 @@ function AdminChat:OnServerCommand(Executor, CMD)
                     local params = { }
                     for i = 1, #pl do
                         local TargetID = tonumber(pl[i])
-                        if (TargetID ~= Executor and lvl < self.permission_others) then
-                            self:Respond(Executor, "You lack permission to execute this command on other players", 10)
+                        if (TargetID ~= Executor and lvl < self.permission_others and Executor ~= 0) then
+                            self:Respond(Executor, self.messages[9], 10)
                         else
                             params.state = Args[2]
                             params.eid, params.en = Executor, get_var(Executor, '$name')
