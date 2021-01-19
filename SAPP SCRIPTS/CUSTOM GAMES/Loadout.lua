@@ -1112,7 +1112,7 @@ local ip_addresses = { }
 local time_scale = 1 / 30
 local script_version = 1.8
 local gmatch, gsub = string.gmatch, string.gsub
-local lower, upper = string.lower, string.upper
+local lower = string.lower
 local floor, sqrt, format = math.floor, math.sqrt, string.format
 
 local function IsTeamPlay()
@@ -1888,6 +1888,7 @@ end
 function Loadout:InitPlayer(Ply)
 
     local ip = self:GetIP(Ply)
+    ip_addresses[Ply] = ip
     if (not self.players[ip]) then
         self.players[ip] = {
 
