@@ -7,7 +7,7 @@ Description: This is a utility mod that allows you to chat privately with other 
              When Admin Chat is enabled your messages will appear in the rcon console environment.
              Only admins will see these messages.
 
-Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
@@ -21,7 +21,7 @@ api_version = "1.12.0.0"
 local AdminChat = {
 
 
-    -- Custom Command:
+    -- Custom command used to toggle admin chat on/off:
     command = "achat",
 
     -- Minimum permission needed to execute the custom command:
@@ -30,6 +30,7 @@ local AdminChat = {
     -- Minimum permission needed to execute the custom command on others players:
     permission_others = 4,
 
+    -- Fully customizable messages:
     messages = {
 
         -- Admin Chat output format:
@@ -61,10 +62,8 @@ local AdminChat = {
         [9] = "You lack permission to execute this command on other players",
     },
 
-
     -- Should A-Chat be restored for returning players? (if previously activated)
     restore = true,
-
 
     --
     -- Advanced users only:
@@ -84,6 +83,7 @@ function OnScriptLoad()
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
+
     if (get_var(0, "$gt") ~= "n/a") then
         for i = 1, 16 do
             if player_present(i) then
@@ -132,7 +132,6 @@ function AdminChat:InitPlayer(Ply, Disconnecting)
 
         if (not Disconnecting) then
 
-            self.ip_addresses = ip
             self[ip] = self[ip] or nil
 
             -- Restores this player Admin Chat:
@@ -142,7 +141,7 @@ function AdminChat:InitPlayer(Ply, Disconnecting)
 
             -- Disable Admin Chat:
         elseif (not self.restore) or (not self[ip]) then
-            self[ip], self.ip_addresses[Ply] = nil, nil
+            self[ip] = nil
         end
     end
 end
@@ -150,8 +149,11 @@ end
 function AdminChat:OnServerCommand(Executor, CMD)
     local Args = STRSplit(CMD)
     if (Args ~= nil and Args[1] == self.command) then
-        local IsAdmin, lvl = self:IsAdmin(Executor, true)
-        if (IsAdmin) then
+
+        -- Admin [boolean], lvl [int]
+        local Admin, lvl = self:IsAdmin(Executor, true)
+
+        if (Admin) then
             if (Args[2] ~= nil) then
                 local pl = self:GetPlayers(Executor, Args[3])
                 if (pl) then
@@ -161,7 +163,7 @@ function AdminChat:OnServerCommand(Executor, CMD)
                         if (TargetID ~= Executor and lvl < self.permission_others and Executor ~= 0) then
                             self:Respond(Executor, self.messages[9], 10)
                         else
-                            params.state = Args[2]
+                            params.state = Args[2] -- on|off
                             params.eid, params.en = Executor, get_var(Executor, '$name')
                             params.tid, params.tn, params.tip = TargetID, get_var(TargetID, '$name'), self:GetIP(TargetID)
                             self:Toggle(params)
@@ -202,6 +204,7 @@ function AdminChat:Toggle(params)
 
     local state = self:ActivationState(eid, params.state)
     if (state) then
+
         self[tip] = self[tip] or nil
 
         local already_activated = (self[tip] == true)
@@ -257,21 +260,21 @@ function AdminChat:Toggle(params)
     end
 end
 
-function AdminChat:GetPlayers(Executor, CMD)
+function AdminChat:GetPlayers(Executor, Param)
     local pl = { }
-    if (CMD == nil or CMD == "me") then
+    if (Param == nil or Param == "me") then
         if (Executor ~= 0) then
             table.insert(pl, Executor)
         else
             self:Respond(Executor, "Please enter a valid player id", 10)
         end
-    elseif (CMD ~= nil) and (CMD:match("^%d+$")) then
-        if player_present(CMD) then
-            table.insert(pl, CMD)
+    elseif (Param ~= nil) and (Param:match("^%d+$")) then
+        if player_present(Param) then
+            table.insert(pl, Param)
         else
-            self:Respond(Executor, "Player #" .. CMD .. " is not online", 10)
+            self:Respond(Executor, "Player #" .. Param .. " is not online", 10)
         end
-    elseif (CMD == "all" or CMD == "*") then
+    elseif (Param == "all" or Param == "*") then
         for i = 1, 16 do
             if player_present(i) then
                 table.insert(pl, i)
@@ -300,10 +303,6 @@ function AdminChat:GetIP(Ply)
 
     if (self.ClientIndexType == 1) then
         IP = IP:match("%d+.%d+.%d+.%d+")
-    end
-
-    if (not player_present(Ply)) then
-        IP = self.ip_addresses[Ply]
     end
 
     return IP
