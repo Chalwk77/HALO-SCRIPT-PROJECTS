@@ -1,9 +1,7 @@
--- Script Name: IP LOOK UP, for SAPP (PC & CE)
-
 api_version = "1.12.0.0"
 local vpn_blocker = {
-    ip = "127.0.0.1",
-    api_key = "nZLmnd32Z4aRybTpaIKWA7JuBnuU6d6v",
+    ip = "ip_address_here",
+    api_key = "YOUR_API_KEY",
     checks = {
         is_crawler = true,
         vpn = true,
