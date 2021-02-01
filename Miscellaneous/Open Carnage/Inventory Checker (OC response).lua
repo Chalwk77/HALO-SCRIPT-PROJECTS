@@ -1,3 +1,6 @@
+-- This is not a SAPP SCRIPT.
+-- These functions serve as EXAMPLES ONLY.
+
 local function GetTagName(TAG)
     if (TAG ~= nil and TAG ~= 0) then
         return read_string(read_dword(read_word(TAG) * 32 + 0x40440038))
