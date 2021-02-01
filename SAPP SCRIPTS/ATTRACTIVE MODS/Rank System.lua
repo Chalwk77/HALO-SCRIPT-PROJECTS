@@ -10,11 +10,14 @@ Stats are permanently saved to a database saved in the servers root directory.
 Credits vary for individual weapons.
 For example, you will earn 6 credits for killing someone with the sniper rifle, however, only 4 credits with the plasma pistol.
 
+NOTE: At this time, there is no reward for ranking up beyond just being a "FLEX".
+Rank Specific rewards like a Flak Jacker that can absorb explosion damage will come in a future update!
+
 1): This mod requires that the following json library is installed to your server:
     Place "json.lua" in your servers root directory:
     http://regex.info/blog/lua/json
 
-Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2020-2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
