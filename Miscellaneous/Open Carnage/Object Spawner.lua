@@ -3,7 +3,7 @@
 Script Name: Object Spawner, for SAPP (PC & CE)
 Description: Easily define custom object spawns /w rotation 
 
-Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
