@@ -31,7 +31,8 @@ function GetBackpackWeapon(Ply, TAG)
     if (DyN ~= 0) then
         for i = 0, 3 do
             local weapon_id = read_dword(DyN + 0x2F8 + (i * 4))
-            if (weapon_id ~= 0xFFFFFFFFF) then -- returns 0xFFFFFFFFF if the slot is unused
+            -- weapon_id will return 0xFFFFFFFFF if the slot is unused
+            if (weapon_id ~= 0xFFFFFFFFF) then
                 local weapon_object = get_object_memory(weapon_id)
                 local weapon = GetObjectName(weapon_object)
                 if (weapon == TAG) then
