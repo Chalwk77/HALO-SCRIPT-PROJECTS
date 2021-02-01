@@ -5,7 +5,7 @@ Description: Description: Humiliate your friends with this nifty little script.
 Crouch over your victims corpse 3 times to trigger a funny message "name is t-bagging victim".
 T-bag any corpse within 30 seconds after they die.
 
-Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2020-2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
@@ -17,13 +17,14 @@ api_version = "1.12.0.0"
 
 -- Configuration Starts --
 
-local on_tbag = "%name% is t-bagging %victim%"
+-- Output: "Chalwk is dancing on FIG-Noob's body!"
+local on_tbag = "%name% is dancing on %victim%'s body!"
 
 -- Radius (in world units) a player must be from a victim's corpse to trigger a t-bag:
-local trigger_radius = 0.5
+local trigger_radius = 2
 
 -- A player's death coordinates expire after this many seconds:
-local coordinate_expiration = 30
+local coordinate_expiration = 60
 
 -- A player must crouch over a victim's corpse this many times in order to trigger the t-bag:
 local crouch_count = 3
