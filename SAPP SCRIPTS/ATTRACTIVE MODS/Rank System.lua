@@ -11,7 +11,7 @@ Credits vary for individual weapons.
 For example, you will earn 6 credits for killing someone with the sniper rifle, however, only 4 credits with the plasma pistol.
 
 NOTE: At this time, there is no reward for ranking up beyond just being a "FLEX".
-Rank Specific rewards like a Flak Jacker that can absorb explosion damage will come in a future update!
+Rank Specific rewards like a Flak Jacket that can absorb explosion damage will come in a future update!
 
 1): This mod requires that the following json library is installed to your server:
     Place "json.lua" in your servers root directory:
@@ -34,6 +34,7 @@ local Rank = {
     -- Suggestions: cR, $, Points, Candy
     currency_symbol = "cR",
 
+    -- Set to true to enable double exp (great for weekend hype)
     double_exp = false,
 
     starting_rank = "Recruit",
