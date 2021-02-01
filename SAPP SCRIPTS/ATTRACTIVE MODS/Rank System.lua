@@ -1,17 +1,19 @@
 --[[
 --=====================================================================================================--
 Script Name: Rank System (v1.23), for SAPP (PC & CE)
-Description: Rank System is fully integrated halo 3 style ranking system for SAPP servers.
-
-Players earn credits for killing, scoring and achievements, such as sprees, kill-combos and more.
-The higher your credit score, the higher your rank.
-Stats are permanently saved to a database saved in the servers root directory.
+Description: A fully integrated ranking system for SAPP servers.
+Players earn credits for killing, scoring and achievements, such as sprees, kill-combos and more!
+Stats are permanently saved to a database stored in the servers root directory called ranks.json.
 
 Credits vary for individual weapons.
 For example, you will earn 6 credits for killing someone with the sniper rifle, however, only 4 credits with the plasma pistol.
 
-NOTE: At this time, there is no reward for ranking up beyond just being a "FLEX".
-Rank Specific rewards like a Flak Jacket that can absorb explosion damage will come in a future update!
+NOTE: At this time, there is no reward for ranking up beyond just being a FLEX.
+Rank Specific rewards like a Flak Jacket that can absorb explosion damage will come in a future update so stay tuned!
+
+Additional Support:
+This script supports generic zombie mods and it has a built-in t-bagging feature.
+Players will earn +25cR for infecting a human on zombies, and earn +1cR for t-bagging someone.
 
 1): This mod requires that the following json library is installed to your server:
     Place "json.lua" in your servers root directory:
