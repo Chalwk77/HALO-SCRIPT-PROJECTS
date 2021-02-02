@@ -15,7 +15,7 @@ api_version = "1.12.0.0"
 
 -- config starts --
 -- The script will pick a new server name every 15 seconds:
-local interval = 15 -- in seconds
+local interval = 1000 * 15 -- in milliseconds (1000*1 = 1 second)
 local server_names = {
     "My Cool Server",
     "A server!",
@@ -28,7 +28,7 @@ local server_names = {
 local network_struct
 function OnScriptLoad()
     network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
-    timer(1000 * interval, "ChangeServerName")
+    timer(interval, "ChangeServerName")
 end
 
 local index = 1
