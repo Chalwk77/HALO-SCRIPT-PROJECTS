@@ -14,14 +14,14 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.12.0.0"
 
 -- config starts --
-local interval = 15 -- in seconds
 -- The script will pick a new server name every 15 seconds:
+local interval = 15 -- in seconds
 local server_names = {
-    "Name 1",
-    "Name 2",
-    "Name 3",
-    "Name 4",
-    "Name 5", -- repeat the structure to add more entries.
+    "My Cool Server",
+    "A server!",
+    " ", -- blank
+    "Ya mom!",
+    "CoronaVirus", -- repeat the structure to add more entries.
 }
 -- config ends --
 
