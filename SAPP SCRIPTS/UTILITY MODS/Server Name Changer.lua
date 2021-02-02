@@ -27,22 +27,18 @@ local server_names = {
 
 local network_struct
 function OnScriptLoad()
-    register_callback(cb["EVENT_TICK"], "OnTick")
     network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
+    timer(1000 * interval, "ChangeServerName")
 end
 
-local time_scale = 1 / 30
-local counter, index = 0, 1
-
-function OnTick()
-    counter = counter + time_scale
-    if (counter >= interval) then
-        write_widestring(network_struct + 0x8, server_names[index], 0x42)
-        counter, index = 0, index + 1
-        if (index > #server_names) then
-            index = 1
-        end
+local index = 1
+function ChangeServerName()
+    write_widestring(network_struct + 0x8, server_names[index], 0x42)
+    index = index + 1
+    if (index > #server_names) then
+        index = 1
     end
+    return true
 end
 
 ----------------------------------------------
