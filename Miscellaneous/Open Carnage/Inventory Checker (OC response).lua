@@ -9,7 +9,7 @@ local function GetTagName(TAG)
 end
 
 
--- CHECKING FOR SPECIFIC IN-HAND --
+-- CHECKING FOR SPECIFIC WEAPON IN-HAND --
 -- Make a call to InHand() and pass Player Index [int] and Weapon Tag Name [string] as function arguments.
 --
 -- It's probably better practise to check if the weapon id doesn't evaluate to 0 in the same function, 
@@ -27,7 +27,7 @@ function InHand(Ply, TAG)
     return false
 end
 
--- CHECKING FOR SPECIFIC IN-BACKPACK (checks entire inventory) --
+-- CHECKING FOR SPECIFIC WEAPON IN THE BACKPACK (checks entire inventory) --
 -- Make a call to GetBackpackWeapon() and pass Player Index [int] and Weapon Tag Name [string] as function arguments.
 function GetBackpackWeapon(Ply, TAG)
     local DyN = get_dynamic_player(Ply)
