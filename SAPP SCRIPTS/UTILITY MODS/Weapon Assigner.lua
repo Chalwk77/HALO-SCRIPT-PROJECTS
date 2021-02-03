@@ -113,6 +113,7 @@ function MOD:Init()
                 [2] = { nil, 12, nil }, -- sniper
             },
         }
+		
         self.tags = {
             [1] = "weapons\\pistol\\pistol",
             [2] = "weapons\\sniper rifle\\sniper rifle",

@@ -795,16 +795,14 @@ function Rank:GetXYZ(Ply)
     local DyN = get_dynamic_player(Ply)
     if (DyN ~= 0) then
         local VehicleID = read_dword(DyN + 0x11C)
+        local VehicleObject = get_object_memory(VehicleID)
         if (VehicleID == 0xFFFFFFFF) then
             coords.invehicle = false
             x, y, z = read_vector3d(DyN + 0x5c)
-        else
-            local VehicleObject = get_object_memory(VehicleID)
-            if (VehicleObject ~= 0) then
-                coords.invehicle = true
-                x, y, z = read_vector3d(VehicleObject + 0x5c)
-                coords.name = GetVehicleTag(VehicleObject)
-            end
+        elseif (VehicleObject ~= 0) then
+            coords.invehicle = true
+            x, y, z = read_vector3d(VehicleObject + 0x5c)
+            coords.name = GetVehicleTag(VehicleObject)
         end
         coords.x, coords.y, coords.z, coords.dyn = x, y, z, DyN
     end
@@ -829,8 +827,10 @@ function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
     local guardians = (killer == nil)
     local suicide = (killer == victim)
     local pvp = ((killer > 0) and killer ~= victim)
+
     local team_play = TeamPlay()
     local betrayal = (kteam == vteam and killer ~= victim and team_play)
+
     if (pvp and not betrayal) then
 
         self:MultiKill(killer)
