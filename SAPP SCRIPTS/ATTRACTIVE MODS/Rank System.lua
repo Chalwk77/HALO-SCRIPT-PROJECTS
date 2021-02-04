@@ -1,25 +1,20 @@
 --[[
 --=====================================================================================================--
-Script Name: Rank System (v1.23), for SAPP (PC & CE)
-Description: A fully integrated ranking system for SAPP servers.
-Players earn credits for killing, scoring and achievements, such as sprees, kill-combos and more!
-Stats are permanently saved to a database stored in the servers root directory called ranks.json.
+Script Name: Rank System (v1.24), for SAPP (PC & CE)
+Description: Rank System is fully integrated halo 3 style ranking system for SAPP servers.
+
+Players earn credits for killing, scoring and achievements, such as sprees, kill-combos and more.
+The higher your credit score, the higher your rank.
+Stats are permanently saved to a database saved in the servers root directory.
 
 Credits vary for individual weapons.
 For example, you will earn 6 credits for killing someone with the sniper rifle, however, only 4 credits with the plasma pistol.
-
-NOTE: At this time, there is no reward for ranking up beyond just being a FLEX.
-Rank Specific rewards like a Flak Jacket that can absorb explosion damage will come in a future update so stay tuned!
-
-Additional Support:
-This script supports generic zombie mods and it has a built-in t-bagging feature.
-Players will earn +25cR for infecting a human on zombies, and earn +1cR for t-bagging someone.
 
 1): This mod requires that the following json library is installed to your server:
     Place "json.lua" in your servers root directory:
     http://regex.info/blog/lua/json
 
-Copyright (c) 2020-2021, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
@@ -36,7 +31,6 @@ local Rank = {
     -- Suggestions: cR, $, Points, Candy
     currency_symbol = "cR",
 
-    -- Set to true to enable double exp (great for weekend hype)
     double_exp = false,
 
     starting_rank = "Recruit",
@@ -359,7 +353,7 @@ local Rank = {
 }
 
 local time_scale = 1 / 30
-local script_version = 1.23
+local script_version = 1.24
 local lower = string.lower
 local sqrt = math.sqrt
 local gmatch, gsub = string.gmatch, string.gsub
@@ -601,8 +595,8 @@ end
 
 function SortRanks()
     local ranks = Rank:GetRanks()
+    local results = { }
     if (ranks) then
-        local results = { }
         for _, v in pairs(ranks) do
             results[#results + 1] = {
                 ["ip"] = v.ip,
@@ -615,8 +609,8 @@ function SortRanks()
         table.sort(results, function(a, b)
             return a.credits > b.credits
         end)
-        return results
     end
+    return results
 end
 
 function Rank:PrintRank(Ply, Pos, Stats, Total, I, NextRank, NextGrade, Required)
@@ -827,10 +821,8 @@ function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
     local guardians = (killer == nil)
     local suicide = (killer == victim)
     local pvp = ((killer > 0) and killer ~= victim)
-
     local team_play = TeamPlay()
     local betrayal = (kteam == vteam and killer ~= victim and team_play)
-
     if (pvp and not betrayal) then
 
         self:MultiKill(killer)
