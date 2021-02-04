@@ -1,3 +1,17 @@
+--[[
+--=====================================================================================================--
+Script Name: Capture the Flag, for SAPP (PC & CE)
+Description: This script brings Capture the Flag game mechanics to any mode.
+A single flag will spawn in the middle of the map. Return it to any base (red or blue) to score.
+
+Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
+* Notice: You can use this document subject to the following conditions:
+https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
+
+* Written by Jericho Crosby (Chalwk)
+--=====================================================================================================--
+]]--
+
 api_version = "1.12.0.0"
 
 local CaptureTheFlag = {
@@ -185,52 +199,49 @@ local CaptureTheFlag = {
     }
 }
 
-local gsub = string.gsub
 local time_scale = 1 / 30
+
+local gsub = string.gsub
 local sqrt, floor = math.sqrt, math.floor
 
 function CaptureTheFlag:Init()
-    if (get_var(0, "$gt") ~= "n/a") then
-        if (get_var(0, "$gt") ~= "ctf") then
-            self.game_started = true
-            self.players, self.flag = { }, { }
-            for i = 1, 16 do
-                if player_present(i) then
-                    self:InitPlayer(i, false)
-                end
-            end
-            for k, v in pairs(self.maps) do
-                if (k == get_var(0, "$map")) then
-                    self.params = v
-                end
-            end
+    if (get_var(0, "$gt") ~= "n/a") and (get_var(0, "$gt") ~= "ctf") then
 
-            self:SpawnFlag()
+        self.game_started = true
+        self.players, self.flag = { }, { }
 
-            register_callback(cb["EVENT_TICK"], "OnTick")
-            register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
-            register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
-            register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
-        else
-            unregister_callback(cb["EVENT_TICK"])
-            unregister_callback(cb["EVENT_JOIN"])
-            unregister_callback(cb["EVENT_LEAVE"])
-            unregister_callback(cb["EVENT_GAME_END"])
+        for i = 1, 16 do
+            if player_present(i) then
+                self:InitPlayer(i, false)
+            end
         end
+
+        for k, v in pairs(self.maps) do
+            if (k == get_var(0, "$map")) then
+                self.params = v
+            end
+        end
+
+        self:SpawnFlag()
+
+        register_callback(cb["EVENT_TICK"], "OnTick")
+        register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
+        register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
+        register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
+    else
+        unregister_callback(cb["EVENT_TICK"])
+        unregister_callback(cb["EVENT_JOIN"])
+        unregister_callback(cb["EVENT_LEAVE"])
+        unregister_callback(cb["EVENT_GAME_END"])
     end
 end
 
 function OnScriptLoad()
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
-    CaptureTheFlag:Init()
 end
 
 function OnScriptUnload()
 
-end
-
-function OnGameStart()
-    CaptureTheFlag:Init()
 end
 
 function OnGameEnd()
@@ -256,11 +267,6 @@ end
 
 function CaptureTheFlag:OnTick()
     if (self.game_started) then
-        for i, _ in pairs(self.players) do
-            if player_present(i) then
-                self:MonitorFlag(i)
-            end
-        end
         for flag, v in pairs(self.flag) do
             if (flag) and self:FlagDropped() then
                 if (v.held_by ~= nil) then
@@ -286,11 +292,8 @@ function CaptureTheFlag:OnTick()
 end
 
 function CaptureTheFlag:GetRadius(pX, pY, pZ)
-    for _, f in pairs(self.params.capture_points) do
-        local X, Y, Z = f[1], f[2], f[3]
-        if sqrt((pX - X) ^ 2 + (pY - Y) ^ 2 + (pZ - Z) ^ 2) <= self.trigger_radius then
-            return true
-        end
+    for _, c in pairs(self.params.capture_points) do
+        return sqrt((pX - c[1]) ^ 2 + (pY - c[2]) ^ 2 + (pZ - c[3]) ^ 2) <= self.trigger_radius
     end
     return false
 end
@@ -318,11 +321,10 @@ end
 function CaptureTheFlag:FlagDropped()
     for i, _ in pairs(self.players) do
         if player_present(i) then
+            self:MonitorFlag(i)
             local DyN = get_dynamic_player(i)
-            if (DyN ~= 0) then
-                if self:hasObjective(DyN) then
-                    return false
-                end
+            if (DyN ~= 0 and self:hasObjective(DyN)) then
+                return false
             end
         end
     end
@@ -333,72 +335,71 @@ function CaptureTheFlag:MonitorFlag(Ply)
     for flag, v in pairs(self.flag) do
         if (flag) then
 
-            local pos = self:GetXYZ(Ply)
-            if (pos and self:hasObjective(pos.dyn)) then
+            local DyN = get_dynamic_player(Ply)
+            if (DyN ~= 0) then
 
-                v.held_by = Ply
+                local pos = self:GetXYZ(DyN)
+                if (pos and self:hasObjective(DyN)) then
 
-                local name, speed = self.players[Ply].name, self.params.flag_runner_speed
+                    v.held_by = Ply
 
-                if (v.broadcast) then
-                    v.broadcast = false
-                    execute_command("s " .. Ply .. " " .. speed)
-                    for k, msg in pairs(self.on_flag_pickup) do
-                        for i = 1, #msg do
-                            local str = gsub(gsub(msg[i], "%%name%%", name), "%%speed%%", speed)
-                            if (k == 1) then
-                                self:Respond(Ply, str, 10, true)
-                            else
-                                self:Respond(Ply, str)
+                    local name, speed = self.players[Ply].name, self.params.flag_runner_speed
+
+                    if (v.broadcast) then
+                        v.broadcast = false
+                        execute_command("s " .. Ply .. " " .. speed)
+                        for k, msg in pairs(self.on_flag_pickup) do
+                            for i = 1, #msg do
+                                local str = gsub(gsub(msg[i], "%%name%%", name), "%%speed%%", speed)
+                                if (k == 1) then
+                                    self:Respond(Ply, str, 10, true)
+                                else
+                                    self:Respond(Ply, str)
+                                end
                             end
                         end
                     end
-                end
 
-                if self:GetRadius(pos.x, pos.y, pos.z) and (flag) then
+                    if self:GetRadius(pos.x, pos.y, pos.z) then
 
-                    local score = tonumber(get_var(Ply, "$score"))
-                    if (self.rank_system_support) then
-                        execute_command('lua_call "' .. self.rank_script .. '" OnPlayerScore ' .. Ply)
+                        if (self.rank_system_support) then
+                            execute_command('lua_call "' .. self.rank_script .. '" OnPlayerScore ' .. Ply)
+                        end
+
+                        local score = tonumber(get_var(Ply, "$score"))
+                        score = score + self.score_on_capture
+                        execute_command("s " .. Ply .. " 1")
+                        execute_command("score " .. Ply .. " " .. score)
+
+                        self.players[Ply].captures = self.players[Ply].captures + 1
+                        self:Respond(_, gsub(gsub(self.on_capture, "%%name%%", name), "%%captures%%", self.players[Ply].captures))
+                        self:SpawnFlag()
+                        break
                     end
-
-                    score = score + self.score_on_capture
-                    execute_command("s " .. Ply .. " 1")
-                    execute_command("score " .. Ply .. " " .. score)
-
-                    self.players[Ply].captures = self.players[Ply].captures + 1
-                    self:Respond(_, gsub(gsub(self.on_capture, "%%name%%", name), "%%captures%%", self.players[Ply].captures))
-                    self:SpawnFlag()
-                    break
                 end
             end
         end
     end
 end
 
-function CaptureTheFlag:GetXYZ(Ply)
-    local DyN = get_dynamic_player(Ply)
-    if (DyN ~= 0) then
-        local VehicleID = read_dword(DyN + 0x11C)
-        if (VehicleID == 0xFFFFFFFF) then
-            local x, y, z = read_vector3d(DyN + 0x5c)
-            return { x = x, y = y, z = z, dyn = DyN }
-        end
+function CaptureTheFlag:GetXYZ(DyN)
+    local VehicleID = read_dword(DyN + 0x11C)
+    if (VehicleID == 0xFFFFFFFF) then
+        local x, y, z = read_vector3d(DyN + 0x5c)
+        return { x = x, y = y, z = z, dyn = DyN }
     end
     return nil
 end
 
-local function GetObjectTagName(TAG)
-    return read_string(read_dword(read_word(TAG) * 32 + 0x40440038))
-end
-
 function CaptureTheFlag:hasObjective(DyN)
     for i = 0, 3 do
-        local WeaponID = read_dword(DyN + 0x2F8 + (i * 4))
-        if (WeaponID ~= 0xFFFFFFFF) then
-            local WeaponObject = get_object_memory(WeaponID)
+        local weapon = read_dword(DyN + 0x2F8 + 4 * i)
+        if (weapon ~= 0xFFFFFFFFF) then
+            local WeaponObject = get_object_memory(weapon)
             if (WeaponObject ~= 0) then
-                if (GetObjectTagName(WeaponObject) == self.flag_object[2]) then
+                local tag_address = read_word(WeaponObject)
+                local tag_data = read_dword(read_dword(0x40440000) + tag_address * 0x20 + 0x14)
+                if (read_bit(tag_data + 0x308, 3) == 1) then
                     return true
                 end
             end
@@ -429,4 +430,7 @@ end
 
 function OnTick()
     return CaptureTheFlag:OnTick()
+end
+function OnGameStart()
+    return CaptureTheFlag:Init()
 end
