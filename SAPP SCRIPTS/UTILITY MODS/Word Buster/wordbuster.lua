@@ -2,39 +2,43 @@
 --=====================================================================================================--
 Script Name: Word Buster, for SAPP (PC & CE)
 
---- Description ---
+----- [ Description ] -----
 Advanced profanity filter mod that automatically censors, replaces or blocks chat messages containing profanity.
 
---- Features ---
+
+----- [ Features ] -----
 * Pattern matching algorithm to detect variations of words, like "asshole", for example, "a$$hole", "assH0l3" or "a55h01e.
-* Censor, Block or Replace bad words (optionally mute players)
+* Censor, Block or Replace bad words, (optionally mute players)
 * Supports multiple languages
 * Warning System + Grace Period
 * Customizable messages
 
--------------- [ INSTALLING LANGUAGE FILES ] ------------
-1). Create a new folder in your servers Root directory and call it "WordBuster_database".
-2). Download language files here: https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/SAPP%20SCRIPTS/UTILITY%20MODS/Word%20Buster/WordBuster_database
-3). Place these files in the folder you created in step 1.
 
-SUPPORTED LANGUAGES:
+-------------- [ INSTALLING LANGUAGE FILES ] ------------
+Please see the following page for install instructions:
+https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/tag/1.6
+
+
+----- [ SUPPORTED LANGUAGES ] -----
 Chinese, Czech, Danish, Dutch, English, Esperanto
 French, German, Hungry, Italian, Japanese
 Korean, Norwegian, Polish, Portuguese, Russian
 Spanish, Swedish, Thai, Turkish, Vietnamese
-
 -------------------------------------------------------------------
-MUTE SUPPORT INFORMATION:
-If "WordBuster.punishment" is set to "mute", you will need to download and install my custom
-Mute System and a file called "json.lua".
+
+
+----- [ MUTE SUPPORT INFORMATION ] -----
+If punishment setting is set to "mute", you will need to download and install my custom
+Mute System and a file called "json.lua"; see links below.
 
 Place "json.lua" in the server's root directory - not inside the Lua Folder.
 It's crucial that the file names are "json.lua" and "Mute System.lua".
 Ensure "Mute System.lua" is initialized.
+---------------------------------------------------------------------------------------------
 
 Download Links:
-MUTE SYSTEM: https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/SAPP%20SCRIPTS/UTILITY%20MODS/Mute%20System%20(rewrite).lua
 JSON FILE: https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/Miscellaneous/json.lua
+MUTE SYSTEM: https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/SAPP%20SCRIPTS/UTILITY%20MODS/Mute%20System.lua
 -------------------------------------------------------------------
 
 Copyright (c) 2020-2021, Jericho Crosby <jericho.crosby227@gmail.com>
