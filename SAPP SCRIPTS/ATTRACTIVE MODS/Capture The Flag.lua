@@ -293,7 +293,9 @@ end
 
 function CaptureTheFlag:GetRadius(pX, pY, pZ)
     for _, c in pairs(self.params.capture_points) do
-        return sqrt((pX - c[1]) ^ 2 + (pY - c[2]) ^ 2 + (pZ - c[3]) ^ 2) <= self.trigger_radius
+        if sqrt((pX - c[1]) ^ 2 + (pY - c[2]) ^ 2 + (pZ - c[3]) ^ 2) <= self.trigger_radius then
+            return true
+        end
     end
     return false
 end
@@ -431,6 +433,7 @@ end
 function OnTick()
     return CaptureTheFlag:OnTick()
 end
+
 function OnGameStart()
     return CaptureTheFlag:Init()
 end
