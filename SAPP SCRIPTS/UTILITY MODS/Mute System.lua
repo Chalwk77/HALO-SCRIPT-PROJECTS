@@ -221,10 +221,9 @@ function OnPlayerDisconnect(Ply)
 end
 
 local function CMDSplit(CMD)
-    local Args, i = { }, 1
+    local Args = { }
     for Params in gmatch(CMD, "([^%s]+)") do
-        Args[i] = lower(Params)
-        i = i + 1
+        Args[#Args+1] = lower(Params)
     end
     return Args
 end
