@@ -25,7 +25,20 @@ If my work has helped you in any way, show your support and buy me a coffee :)
 
 #### Recommended Communities:
 > Open Carnage: [weblink](https://opencarnage.net/)
-> * Discord: https://discord.gg/9HMDFa
+* Discord: https://discord.gg/9HMDFa
+
+> Chimera: [weblink](https://opencarnage.net/index.php?/topic/6916-chimera-download-source-code-and-discord/)
+* Discord: https://discord.gg/ZwQeBE2
+
+> Halo Net: [weblink](http://halonet.net//)
+* Discord: https://discord.gg/fJc4hbvg
+
+> XG (Extreme Gaming): [weblink](https://www.xgclan.com//)
+* Discord: https://discord.gg/
+
+> JeriCraft (Network): [weblink](https://discord.gg/mEjbFJWpe5)
+* Discord: http://jericraft.enjin.com/
+
 
 ##### Contributors: [weblink](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/CONTRIBUTING.md)
 > Contributors are those whom have directly contributed code or allowed me to use portions of their code from existing projects. 
