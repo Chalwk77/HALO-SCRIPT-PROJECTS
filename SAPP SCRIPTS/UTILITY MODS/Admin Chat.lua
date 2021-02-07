@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Admin Cha, for SAPP (PC & CE)
+Script Name: Admin Chat, for SAPP (PC & CE)
 Description: This is a utility mod that allows you to chat privately with other admins.
              Command Syntax: /achat on|off [me | id | */all]
 
