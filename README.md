@@ -25,19 +25,23 @@ If my work has helped you in any way, show your support and buy me a coffee :)
 
 #### Recommended Communities:
 [Open Carnage](https://opencarnage.net)
-> [Discord](https://discord.gg/9HMDFa)
+[Discord](https://discord.gg/9HMDFa)
+
 
 [Chimera](https://opencarnage.net/index.php?/topic/6916-chimera-download-source-code-and-discord/)
-> [Discord](https://discord.gg/ZwQeBE2)
+[Discord](https://discord.gg/ZwQeBE2)
+
 
 [Halo Net](https://opencarnage.net)
-> [Discord](https://discord.gg/9HMDFa)
+[Discord](https://discord.gg/9HMDFa)
+
 
 [XG Gaming](https://www.xgclan.com)
-> [Discord](https://discord.gg/djqM24x8)
+[Discord](https://discord.gg/djqM24x8)
+
 
 [JeriCraft](https://discord.gg/mEjbFJWpe5)
-> [Discord](http://jericraft.enjin.com)
+[Discord](http://jericraft.enjin.com)
 
 
 ##### Contributors: [weblink](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/CONTRIBUTING.md)
