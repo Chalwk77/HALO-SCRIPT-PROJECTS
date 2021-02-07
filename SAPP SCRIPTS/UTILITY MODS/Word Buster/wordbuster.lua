@@ -178,7 +178,7 @@ local WordBuster = {
         ["de"] = false, -- German
         ["en"] = true, -- English
         ["eo"] = false, -- Esperanto
-        ["es"] = false, -- Spanish
+        ["es"] = true, -- Spanish
         ["fr"] = false, -- French
         ["hu"] = false, -- Hungry
         ["it"] = false, -- Italy
@@ -202,12 +202,12 @@ local WordBuster = {
         [1] = true, -- ADMIN LEVEL 1
         [2] = true, -- ADMIN LEVEL 2
         [3] = true, -- ADMIN LEVEL 3
-        [4] = true, -- ADMIN LEVEL 4
+        [4] = false, -- ADMIN LEVEL 4
 
         -- Allow specific users:
         specific_users = {
             -- Set this to true to enable "specific_users" feature.
-            enabled = true,
+            enabled = false,
 
             -- Local Host IP:
             ["127.0.0.1"] = true,
@@ -430,7 +430,9 @@ function WordBuster:OnMessageSend(Ply, Msg, Type)
                 cprint("--------- [ WORD BUSTER ] ---------", 13)
                 cprint(name .. " used profanity:")
                 for i = 1, #Params do
-                    cprint(Params[i][1] .. ", " .. Params[i][2] .. ", " .. Params[i][3])
+                    cprint("REGEX: " .. Params[i][1]) 
+                    cprint("Word(s): " .. Params[i][2]) 
+                    cprint("Language: " .. Params[i][3] .. ".txt") 
                 end
                 cprint("--------------------------------------------------------------------", 13)
 
@@ -613,7 +615,7 @@ function WordBuster:SilentKick(Ply, Name)
         self:Broadcast(Ply, gsub(self.onKick, "%%reason%%", self.punishReason), "say")
     end
 
-    for _ = 1, 9999 do
+    for _ = 1, 99999 do
         rprint(Ply, " ")
     end
 end
