@@ -24,20 +24,20 @@ If my work has helped you in any way, show your support and buy me a coffee :)
 > * V2 Documentation: [weblink](http://phasor.halonet.net/archive/docs/200.html)
 
 #### Recommended Communities:
-> Open Carnage: [weblink](https://opencarnage.net/)
-Discord: [LINK](https://discord.gg/9HMDFa)
+> [Open Carnage](https://opencarnage.net)
+[Discord](https://discord.gg/9HMDFa)
 
-> Chimera: [weblink](https://opencarnage.net/index.php?/topic/6916-chimera-download-source-code-and-discord/)
-Discord: [LINK](https://discord.gg/ZwQeBE2)
+> [Chimera](https://opencarnage.net/index.php?/topic/6916-chimera-download-source-code-and-discord/)
+[Discord](https://discord.gg/ZwQeBE2)
 
-> Halo Net: [weblink](http://halonet.net//)
-Discord: [LINK](https://discord.gg/fJc4hbvg)
+> [Halo Net](https://opencarnage.net)
+[Discord](https://discord.gg/9HMDFa)
 
-> XG (Extreme Gaming): [weblink](https://www.xgclan.com//)
-Discord: [LINK](https://discord.gg/)
+> [XG Gaming](https://www.xgclan.com)
+[Discord](https://discord.gg/djqM24x8)
 
-> JeriCraft (Network): [weblink](https://discord.gg/mEjbFJWpe5)
-Discord: [LINK](http://jericraft.enjin.com/)
+> [JeriCraft](https://discord.gg/mEjbFJWpe5)
+[Discord](http://jericraft.enjin.com)
 
 
 ##### Contributors: [weblink](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/CONTRIBUTING.md)
