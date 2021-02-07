@@ -1,11 +1,9 @@
 --[[
 --=====================================================================================================--
 Script Name: Weapon Assigner, for SAPP (PC & CE)
+Description: Easily assign up to 4 weapons on a per-map basis.
 
-** Change Log **
-- [12/12/20] Complete rewrite
-
-Copyright (c) 2019-2020, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2019-2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
@@ -14,7 +12,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]]--
 
 api_version = "1.12.0.0"
-local MOD = {}
+local MOD = { }
 function MOD:Init()
 
     self.players = { }
@@ -113,7 +111,7 @@ function MOD:Init()
                 [2] = { nil, 12, nil }, -- sniper
             },
         }
-		
+
         self.tags = {
             [1] = "weapons\\pistol\\pistol",
             [2] = "weapons\\sniper rifle\\sniper rifle",
@@ -152,22 +150,31 @@ function OnScriptLoad()
     MOD:Init()
 end
 
-function MOD:OnTick()
+local function GetXYZ(DyN)
+    local pos = { }
+    local vehicle = read_dword(DyN + 0x11C)
+    if (vehicle == 0xFFFFFFFF) then
+        pos.x, pos.y, pos.z = read_vector3d(DyN + 0x5c)
+    end
+    return pos
+end
+
+function MOD:GameUpdate()
     for i, player in pairs(self.players) do
         if (i) and player_alive(i) then
             if (player.assign) then
                 local DyN = get_dynamic_player(i)
                 if (DyN ~= 0) then
-                    local pos = MOD:GetXYZ(DyN)
-                    if (not pos.invehicle) then
+                    local pos = GetXYZ(DyN)
+                    if (pos) then
                         player.assign = false
                         execute_command("wdel " .. i)
-                        local index = 0
+                        local weapon_index = 0
                         for WI, _ in pairs(self.weapons) do
-                            index = index + 1
-                            if (index == 1 or index == 2) then
+                            weapon_index = weapon_index + 1
+                            if (weapon_index == 1 or weapon_index == 2) then
                                 assign_weapon(spawn_object("weap", self.tags[WI], pos.x, pos.y, pos.z), i)
-                            elseif (index == 3 or index == 4) then
+                            elseif (weapon_index == 3 or weapon_index == 4) then
                                 timer(250, "DelaySecQuat", i, self.tags[WI], pos.x, pos.y, pos.z)
                             end
                         end
@@ -203,21 +210,7 @@ function DelaySecQuat(Ply, Weapon, x, y, z)
     assign_weapon(spawn_object("weap", Weapon, x, y, z), Ply)
 end
 
-function MOD:GetXYZ(DyN)
-    local pos, x, y, z = { }
-    local VehicleID = read_dword(DyN + 0x11C)
-    if (VehicleID == 0xFFFFFFFF) then
-        pos.invehicle = false
-        x, y, z = read_vector3d(DyN + 0x5c)
-    else
-        pos.invehicle = true
-        x, y, z = read_vector3d(get_object_memory(VehicleID) + 0x5c)
-    end
-    pos.x, pos.y, pos.z = x, y, z
-    return pos
-end
-
-local function GetObjectTagName(TAG)
+local function GetTagName(TAG)
     if (TAG ~= nil and TAG ~= 0) then
         return read_string(read_dword(read_word(TAG) * 32 + 0x40440038))
     end
@@ -229,34 +222,32 @@ function SetAmmo(Ply, DyN)
         local WeaponID = read_dword(DyN + 0x2F8 + (i * 4))
         if (WeaponID ~= 0xFFFFFFFF) then
             local WeaponObject = get_object_memory(WeaponID)
-            if (WeaponObject ~= 0) then
-                local tag = GetObjectTagName(WeaponObject)
-                if (tag) then
-                    for WI, A in pairs(MOD.weapons) do
-                        if (tag == MOD.tags[WI]) then
-                            -- loaded:
-                            if (A[1]) then
-                                write_word(WeaponObject + 0x2B8, A[1])
-                            end
-                            -- unloaded:
-                            if (A[2]) then
-                                write_word(WeaponObject + 0x2B6, A[2])
-                            end
-                            -- battery:
-                            if (A[3]) then
-                                execute_command_sequence("w8 1;battery " .. Ply .. " " .. A[3] .. " " .. i)
-                            end
+            local tag = GetTagName(WeaponObject)
+            if (tag) then
+                for WI, A in pairs(MOD.weapons) do
+                    if (tag == MOD.tags[WI]) then
+                        -- loaded:
+                        if (A[1]) then
+                            write_word(WeaponObject + 0x2B8, A[1])
+                        end
+                        -- unloaded:
+                        if (A[2]) then
+                            write_word(WeaponObject + 0x2B6, A[2])
+                        end
+                        -- battery:
+                        if (A[3]) then
+                            execute_command_sequence("w8 1;battery " .. Ply .. " " .. A[3] .. " " .. i)
                         end
                     end
-                    sync_ammo(WeaponID)
                 end
+                sync_ammo(WeaponID)
             end
         end
     end
 end
 
 function OnTick()
-    return MOD:OnTick()
+    return MOD:GameUpdate()
 end
 function Init()
     return MOD:Init()
