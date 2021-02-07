@@ -145,7 +145,7 @@ function AutoMessage:Show(TAB)
         end
         for i = 1, 16 do
             if player_present(i) then
-                rprint(i, Msg)
+                self:Respond(i, Msg, 10)
             end
         end
     end
