@@ -202,7 +202,7 @@ local WordBuster = {
         [1] = true, -- ADMIN LEVEL 1
         [2] = true, -- ADMIN LEVEL 2
         [3] = true, -- ADMIN LEVEL 3
-        [4] = false, -- ADMIN LEVEL 4
+        [4] = true, -- ADMIN LEVEL 4
 
         -- Allow specific users:
         specific_users = {
