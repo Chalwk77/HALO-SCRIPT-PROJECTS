@@ -174,18 +174,18 @@ function AutoMessage:OnServerCommand(Ply, Command, _, _)
         if (Args[1] == self.command) then
             local lvl = tonumber(get_var(Ply, "$lvl"))
             if (lvl >= self.permission or Ply == 0) then
-
                 local invalid
                 if (Args[2] ~= nil) then
-
                     if (Args[2] == Args[2]:match("list")) then
+                        self:Respond(Ply, "[Broadcast ID] [Line Number]", 12)
+                        self:Respond(Ply, "--------------------------------------------------------------------------------", 12)
                         local t = self.announcements
                         for i = 1, #t do
-                            for _, v in pairs(t[i]) do
-                                self:Respond(Ply, "[" .. i .. "] " .. v)
+                            for j, v in pairs(t[i]) do
+                                self:Respond(Ply, "[" .. i .. "] [" .. j .. "] " .. v)
                             end
                         end
-
+                        self:Respond(Ply, "--------------------------------------------------------------------------------", 12)
                     elseif (Args[2]:match("^%d+$") and Args[3] == nil) then
                         local n = tonumber(Args[2])
                         if (self.announcements[n]) then
