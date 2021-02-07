@@ -3,13 +3,7 @@
 Script Name: Dynamic Scoring (utility), for SAPP (PC & CE)
 Description: Scorelimit changes automatically, depending on number of players currently online.
 
-* Updated 6/09/19
-- Scoring is now set on a per-gametype/per-gamemode basis.
-
-* Updated 28/10/19
-- Fixed a bug prevent script from loading when you execute the /reload command.
-
-Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2019-2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 Inspiration taken from a mod made by {OZ}Shadow.
@@ -17,189 +11,134 @@ Inspiration taken from a mod made by {OZ}Shadow.
 --=====================================================================================================--
 ]]--
 
--- Configuration [starts] ----------------------------------------
 api_version = "1.12.0.0"
-local scorelimit, scoreTable = { }
 
--- CAPTURE THE FLAG ----------------------------------------------------
-scorelimit.ctf = {
-    [1] = 3, -- 4 players or less
-    [2] = 3, -- 4-8 players
-    [3] = 3, -- 8-12 players
-    [4] = 3, -- 12-16 players
-    txt = "Score limit changed to: %scorelimit%",
-}
+local ScoreLimit = {
 
--- SLAYER ----------------------------------------------------
-scorelimit.slayer = {
-    {   -- FFA:
-        [1] = 15, -- 4 players or less
-        [2] = 25, -- 4-8 players
-        [3] = 45, -- 8-12 players
-        [4] = 50, -- 12-16 players
-        txt = "Score limit changed to: %scorelimit%"
+    -- Configuration [starts] -----------------------------------
+
+    -- CAPTURE THE FLAG -------------------------------------
+    ctf = {
+        { 1, 4, 1 }, -- 4 players or less
+        { 5, 8, 2 }, -- 4-8 players
+        { 9, 12, 3 }, -- 8-12 players
+        { 13, 16, 4 }, -- 12-16 players
+        txt = "Score limit changed to: %limit%",
     },
-    {   -- TEAM:
-        [1] = 25, -- 4 players or less
-        [2] = 35, -- 4-8 players
-        [3] = 45, -- 8-12 players
-        [4] = 50, -- 12-16 players
-        txt = "Score limit changed to: %scorelimit%"
+
+    -- SLAYER -----------------------------------------------
+    slayer = {
+        {   -- FFA:
+            [1] = { 1, 4, 15 }, -- 4 players or less
+            [2] = { 5, 8, 25 }, -- 4-8 players
+            [3] = { 9, 12, 45 }, -- 8-12 players
+            [4] = { 13, 16, 50 }, -- 12-16 players
+            txt = "Score limit changed to: %limit%"
+        },
+        {   -- TEAM:
+            [1] = { 1, 4, 25 }, -- 4 players or less
+            [2] = { 5, 8, 35 }, -- 4-8 players
+            [3] = { 9, 12, 45 }, -- 8-12 players
+            [4] = { 13, 16, 50 }, -- 12-16 players
+            txt = "Score limit changed to: %limit%"
+        }
+    },
+
+    -- KING OF THE HILL -------------------------------------
+    king = {
+        {   -- FFA
+
+            [1] = { 1, 4, 2 }, -- 4 players or less
+            [2] = { 5, 8, 3 }, -- 4-8 players
+            [3] = { 9, 12, 4 }, -- 8-12 players
+            [4] = { 13, 16, 5 }, -- 12-16 players
+            txt = "Score limit changed to: %limit% minute%s%"
+        },
+        {   -- TEAM
+            [1] = { 1, 4, 3 }, -- 4 players or less
+            [2] = { 5, 8, 4 }, -- 4-8 players
+            [3] = { 9, 12, 5 }, -- 8-12 players
+            [4] = { 13, 16, 6 }, -- 12-16 players
+            txt = "Score limit changed to: %limit% minute%s%"
+        }
+    },
+
+    -- ODDBALL ----------------------------------------------
+    oddball = {
+        {   -- FFA
+            [1] = { 1, 4, 2 }, -- 4 players or less
+            [2] = { 5, 8, 3 }, -- 4-8 players
+            [3] = { 9, 12, 4 }, -- 8-12 players
+            [4] = { 13, 16, 5 }, -- 12-16 players
+            txt = "Score limit changed to: %limit% minute%s%"
+
+        },
+        {   -- TEAM
+            [1] = { 1, 4, 3 }, -- 4 players or less
+            [2] = { 5, 8, 4 }, -- 4-8 players
+            [3] = { 9, 12, 5 }, -- 8-12 players
+            [4] = { 13, 16, 6 }, -- 12-16 players
+            txt = "Score limit changed to: %limit% minute%s%"
+
+        }
+    },
+
+    -- RACE -------------------------------------------------
+    race = {
+        {   -- FFA
+            [1] = { 1, 4, 4 }, -- 4 players or less
+            [2] = { 5, 8, 4 }, -- 4-8 players
+            [3] = { 9, 12, 5 }, -- 8-12 players
+            [4] = { 13, 16, 6 }, -- 12-16 players
+            txt = "Score limit changed to: %limit% lap%s%"
+        },
+        {   -- TEAM
+            [1] = { 1, 4, 4 }, -- 4 players or less
+            [2] = { 5, 8, 5 }, -- 4-8 players
+            [3] = { 9, 12, 6 }, -- 8-12 players
+            [4] = { 13, 16, 7 }, -- 12-16 players
+            txt = "Score limit changed to: %limit% lap%s%"
+        }
     }
 }
-
--- KING OF THE HILL ----------------------------------------------------
-scorelimit.king = {
-    {   -- FFA
-        [1] = 2, -- 4 players or less
-        [2] = 3, -- 4-8 players
-        [3] = 4, -- 8-12 players
-        [4] = 5, -- 12-16 players
-        txt = "Score limit changed to: %scorelimit% minute%s%"
-    },
-    {   -- TEAM
-        [1] = 3, -- 4 players or less
-        [2] = 4, -- 4-8 players
-        [3] = 5, -- 8-12 players
-        [4] = 6, -- 12-16 players
-        txt = "Score limit changed to: %scorelimit% minute%s%"
-    }
-}
-
--- ODDBALL ----------------------------------------------------
-scorelimit.oddball = {
-    {   -- FFA
-        [1] = 2, -- 4 players or less
-        [2] = 3, -- 4-8 players
-        [3] = 4, -- 8-12 players
-        [4] = 5, -- 12-16 players
-        txt = "Score limit changed to: %scorelimit% minute%s%"
-
-    },
-    {   -- TEAM
-        [1] = 3, -- 4 players or less
-        [2] = 4, -- 4-8 players
-        [3] = 5, -- 8-12 players
-        [4] = 6, -- 12-16 players
-        txt = "Score limit changed to: %scorelimit% minute%s%"
-
-    }
-}
-
--- RACE ----------------------------------------------------
-scorelimit.race = {
-    {   -- FFA
-        [1] = 3, -- 4 players or less
-        [2] = 4, -- 4-8 players
-        [3] = 5, -- 8-12 players
-        [4] = 6, -- 12-16 players
-        txt = "Score limit changed to: %scorelimit% lap%s%"
-    },
-    {   -- TEAM
-        [1] = 4, -- 4 players or less
-        [2] = 5, -- 4-8 players
-        [3] = 6, -- 8-12 players
-        [4] = 7, -- 12-16 players
-        txt = "Score limit changed to: %scorelimit% lap%s%"
-    }
-}
-
 -- Configuration [ends] ----------------------------------------
 
-local current_players, current_scorelimit = nil, nil
-
-function scorelimit.Reset()
-    current_players, current_scorelimit = 0, 0
-end
-
 function OnScriptLoad()
-    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
-    register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
-    register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
-    register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
 
-    scorelimit.Reset()
+    ScoreLimit:Reset()
 
     if (get_var(0, "$gt") ~= "n/a") then
         for i = 1, 16 do
             if player_present(i) then
-                current_players = current_players + 1
+                self.players = self.players + 1
             end
         end
-        if (scorelimit.setScoreTable()) then
-            scorelimit.Modify()
-        end
+
+        OnGameStart()
+    end
+
+    register_callback(cb["EVENT_GAME_END"], "Reset")
+    register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
+    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
+    register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
+end
+
+function OnScriptUnload()
+    -- N/A
+end
+
+--
+-- Returns true if team based game:
+--
+local function isTeamPlay()
+    if (get_var(0, "$ffa") == "0") then
+        return true
     end
 end
 
-function scorelimit.setScoreTable()
-
-    -- Returns TRUE if team based gamemode.
-    local function isTeamPlay()
-        if (get_var(0, "$ffa") == "0") then
-            return true
-        end
-    end
-
-    -- Returns the current game type:
-    local gametype = get_var(0, "$gt")
-
-    -- Determine what scorelimit table to use:
-    if (gametype == "ctf") then
-        scoreTable = scorelimit.ctf
-    elseif (gametype == "slayer") then
-        if isTeamPlay() then
-            scoreTable = scorelimit.slayer[1]
-        else
-            scoreTable = scorelimit.slayer[2]
-        end
-    elseif (gametype == "king") then
-        if isTeamPlay() then
-            scoreTable = scorelimit.king[1]
-        else
-            scoreTable = scorelimit.king[2]
-        end
-    elseif (gametype == "oddball") then
-        if isTeamPlay() then
-            scoreTable = scorelimit.oddball[1]
-        else
-            scoreTable = scorelimit.oddball[2]
-        end
-    elseif (gametype == "race") then
-        if isTeamPlay() then
-            scoreTable = scorelimit.race[1]
-        else
-            scoreTable = scorelimit.race[2]
-        end
-    end
-    return true
-end
-
-function OnGameStart()
-    if (get_var(0, "$gt") ~= "n/a") then
-        if (scorelimit.setScoreTable()) then
-            scorelimit.Set(scoreTable[1])
-        end
-    end
-end
-
-function OnGameEnd()
-    scorelimit.Reset()
-end
-
-function OnPlayerConnect(PlayerIndex)
-    -- Increment player count by 1
-    current_players = current_players + 1
-    scorelimit.Modify()
-end
-
-function OnPlayerDisconnect(PlayerIndex)
-    -- Decrement player count by 1
-    current_players = current_players - 1
-    scorelimit.Modify()
-end
-
--- Determine whether to pluralize 'lap' or 'minute' input (text) from scoreTable.txt:
+--
+-- Determine whether to pluralize 'lap' or 'minute' input text from ScoreLimit.scoretable.txt:
+--
 local function getChar(input)
     local char = ""
     if (tonumber(input) > 1) then
@@ -210,41 +149,109 @@ local function getChar(input)
     return char
 end
 
--- Update the current scorelimit (based on current player count)
-function scorelimit.Modify()
-    local gsub = string.gsub
-    if (current_players <= 4 and current_scorelimit ~= scoreTable[1]) then
-        scorelimit.Set(scoreTable[1])
+--
+-- Determine what score table to use:
+--
+function ScoreLimit:SetScoreTable()
 
-        local char = getChar(scoreTable[1])
-        say_all(gsub(gsub(scoreTable.txt, "%%scorelimit%%", scoreTable[1]), "%%s%%", char))
+    local mode = get_var(0, "$gt")
 
-    elseif (current_players > 4 and current_players <= 8 and current_scorelimit ~= scoreTable[2]) then
-        scorelimit.Set(scoreTable[2])
-
-        local char = getChar(scoreTable[2])
-        say_all(gsub(gsub(scoreTable.txt, "%%scorelimit%%", scoreTable[2]), "%%s%%", char))
-
-    elseif (current_players > 9 and current_players <= 12 and current_scorelimit ~= scoreTable[3]) then
-        scorelimit.Set(scoreTable[3])
-
-        local char = getChar(scoreTable[3])
-        say_all(gsub(gsub(scoreTable.txt, "%%scorelimit%%", scoreTable[3]), "%%s%%", char))
-
-    elseif (current_players > 12 and current_scorelimit ~= scoreTable[4]) then
-        scorelimit.Set(scoreTable[4])
-
-        local char = getChar(scoreTable[4])
-        say_all(gsub(gsub(scoreTable.txt, "%%scorelimit%%", scoreTable[4]), "%%s%%", char))
+    if (mode == "ctf") then
+        self.scoretable = self.ctf
+    elseif (mode == "slayer") then
+        if isTeamPlay() then
+            self.scoretable = self.slayer[1]
+        else
+            self.scoretable = self.slayer[2]
+        end
+    elseif (mode == "king") then
+        if isTeamPlay() then
+            self.scoretable = self.king[1]
+        else
+            self.scoretable = self.king[2]
+        end
+    elseif (mode == "oddball") then
+        if isTeamPlay() then
+            self.scoretable = self.oddball[1]
+        else
+            self.scoretable = self.oddball[2]
+        end
+    elseif (mode == "race") then
+        if isTeamPlay() then
+            self.scoretable = self.race[1]
+        else
+            self.scoretable = self.race[2]
+        end
     end
 end
 
--- Execute SAPP command 'scorelimit' to change the current scorelimit
-function scorelimit.Set(score)
-    current_scorelimit = score
-    execute_command("scorelimit " .. score)
+--
+-- Set up score table to use for this game:
+--
+function OnGameStart()
+    if (get_var(0, "$gt") ~= "n/a") then
+        ScoreLimit:SetScoreTable()
+        ScoreLimit:Modify()
+    end
 end
 
-function OnScriptUnload()
-    -- not used
+--
+-- Increment player count by 1
+--
+function OnPlayerConnect(_)
+    ScoreLimit.players = ScoreLimit.players + 1
+    ScoreLimit:Modify()
 end
+
+--
+-- Decrement player count by 1
+--
+function OnPlayerDisconnect(_)
+    ScoreLimit.players = ScoreLimit.players - 1
+    ScoreLimit:Modify()
+end
+
+--
+-- Updates the current score limit (based on current player count)
+--
+local gsub = string.gsub
+function ScoreLimit:Modify()
+    for _, v in pairs(self.scoretable) do
+        if (type(v) == "table") then
+            local min, max, limit = v[1], v[2], v[3]
+            if (self.players >= min and self.players <= max or self.players == 0) and (limit ~= self.limit) then
+
+                ScoreLimit:Set(limit)
+
+                local txt = self.scoretable.txt
+                local str = gsub(gsub(txt, "%%limit%%", limit), "%%s%%", getChar(limit))
+                say_all(str)
+
+                cprint("---------------------------", 10)
+                cprint(str, 10)
+                cprint("---------------------------", 10)
+
+                break
+            end
+        end
+    end
+end
+
+--
+-- Execute SAPP command 'scorelimit' to change the current scorelimit
+--
+function ScoreLimit:Set(s)
+    self.limit = s
+    execute_command("scorelimit " .. s)
+end
+
+function ScoreLimit:Reset()
+    ScoreLimit.scoretable = { }
+    ScoreLimit.players, ScoreLimit.limit = 0, 0
+end
+
+function Reset()
+    return ScoreLimit:Reset()
+end
+
+return ScoreLimit
