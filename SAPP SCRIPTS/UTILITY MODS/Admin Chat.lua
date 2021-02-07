@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Admin Chat (v3), for SAPP (PC & CE)
+Script Name: Admin Cha, for SAPP (PC & CE)
 Description: This is a utility mod that allows you to chat privately with other admins.
              Command Syntax: /achat on|off [me | id | */all]
 
@@ -27,7 +27,7 @@ local AdminChat = {
     -- Minimum permission needed to execute the custom command:
     permission = 1,
 
-    -- Minimum permission needed to execute the custom command on others players:
+    -- Minimum permission needed to toggle admin chat for other players:
     permission_others = 4,
 
     -- Fully customizable messages:
@@ -56,7 +56,7 @@ local AdminChat = {
         [7] = "Your Admin Chat is Enabled! (auto-restore)",
 
         -- This message is sent to (you) when there is a command syntax error.
-        [8] = "Invalid Syntax: Usage: /%command% on|off [me | id | */all]",
+        [8] = "Invalid Syntax: Usage: /%cmd% on|off [me | id | */all]",
 
         -- If command executors permission level is < permission_others, send this message:
         [9] = "You lack permission to execute this command on other players",
@@ -106,19 +106,20 @@ function OnPlayerDisconnect(Ply)
 end
 
 local function STRSplit(CMD)
-    local Args, index = { }, 1
+    local Args = { }
     for Params in gmatch(gsub(CMD, '"', ""), "([^%s]+)") do
-        Args[index] = lower(Params)
-        index = index + 1
+        Args[#Args + 1] = lower(Params)
     end
     return Args
 end
 
 function AdminChat:IsAdmin(Ply, CMD)
+
     local lvl = tonumber(get_var(Ply, "$lvl"))
     if (lvl >= self.permission) or (Ply == 0) then
         return true, lvl
     end
+
     -- Return false if player is not admin.
     -- Send player Insufficient Permission message if callback came from OnServerCommand()
     return false, (CMD ~= nil and self:Respond(Ply, "Insufficient Permission", 10))
@@ -129,7 +130,6 @@ function AdminChat:InitPlayer(Ply, Disconnecting)
     if (self:IsAdmin(Ply)) then
 
         local ip = self:GetIP(Ply)
-
         if (not Disconnecting) then
 
             self[ip] = self[ip] or nil
@@ -184,8 +184,7 @@ function AdminChat:ActivationState(Executor, State)
     elseif (State == "off") or (State == "0") or (State == "false") then
         return 0
     else
-        local feedback = gsub(self.messages[8], "%%command%%", self.command)
-        return false, self:Respond(Executor, feedback, 12)
+        return false, self:Respond(Executor, gsub(self.messages[8], "%%cmd%%", self.command), 12)
     end
 end
 
@@ -312,7 +311,7 @@ function AdminChat:SendMessage(Ply, Msg, Type)
     if (Type ~= 6) then
 
         local args = STRSplit(Msg)
-        if (args ~= nil) then
+        if (args) then
 
             local ip = self:GetIP(Ply)
 
