@@ -20,14 +20,46 @@ local AutoMessage = {
 
     -- ANNOUNCEMENTS ARRAY --
     announcements = {
-        { "Message 1 (line 1)", "Message 1 (line 2)" }, -- message 1
-        { "Like us on Facebook | facebook.com/page_id" }, -- message 2
-        { "Follow us on Twitter | twitter.com/twitter_id" }, -- message 3
-        { "We are recruiting. Sign up on our website | website url" }, -- message 4
-        { "Rules / Server Information" }, -- message 5
-        { "announcement 6" }, -- message 6
-        { "other information here" }, -- message 7
+
+        { -- message 1
+            "Multi-Line Support | Message 1, line 1",
+            "Message 1, line 2"
+        },
+
+
+        { -- message 2
+            "Like us on Facebook | facebook.com/page_id"
+        },
+
+
+        { -- message 3
+            "Follow us on Twitter | twitter.com/twitter_id"
+        },
+
+
+        {  -- message 4
+            "We are recruiting. Sign up on our website | website url"
+        },
+
+
+        {  -- message 5
+            "Rules / Server Information"
+        },
+
+
+        {  -- message 6
+            "announcement 6"
+        },
+
+
+        {  -- message 7
+            "other information here"
+        },
+
+        -- repeat the structure to add more entries --
     },
+    --
+    ------------------------------------------------------------------------------
 
     -- Time (in seconds) between message announcements:
     interval = 300,
