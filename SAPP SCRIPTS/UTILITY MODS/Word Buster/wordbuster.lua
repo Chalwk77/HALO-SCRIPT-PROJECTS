@@ -36,7 +36,7 @@ ___
 
 -------------- [ MUTE SUPPORT INFORMATION ] ------------
 If "wordBuster.punishment" is set to "mute", you will need to download and install my custom
-Mute System and a file called "json.lua".
+Mute System and a file called "json.lua"; see download links below.
 
 Place "json.lua" in the server's root directory - not inside the Lua Folder.
 It's crucial that the file names are "json.lua" and "Mute System.lua".
@@ -62,7 +62,7 @@ local WordBuster = {
     -- Word Buster Configuration --
 
     -- Version: Current version of Word Buster
-    version = 1.5,
+    version = 1.6,
 
     -- Censor Words: Censor words with "censor" character?
     censorWords = true,
