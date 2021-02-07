@@ -1,6 +1,6 @@
 # Chalwk's Recommended Mods:
-* > [Admin Chat](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/SAPP%20SCRIPTS/UTILITY%20MODS/Admin%20Chat%20(v2).lua)
-* > [Alias System](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/SAPP%20SCRIPTS/UTILITY%20MODS/Alias%20System.lua)
+* > [Admin Chat](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/SAPP%20SCRIPTS/UTILITY%20MODS/Admin%20Chat.lua)
+* > [Alias System](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/SAPP%20SCRIPTS/UTILITY%20MODS/Alias%20System%201.2.lua)
 * > [Auto Message](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/SAPP%20SCRIPTS/UTILITY%20MODS/Auto%20Message.lua)
 * > [Command Spy](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/SAPP%20SCRIPTS/UTILITY%20MODS/Command-Spy%20(utility).lua)
 * > [Custom Player List](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/SAPP%20SCRIPTS/UTILITY%20MODS/List%20Players.lua)

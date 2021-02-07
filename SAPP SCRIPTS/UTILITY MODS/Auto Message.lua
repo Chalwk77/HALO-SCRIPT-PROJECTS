@@ -1,24 +1,14 @@
 --[[
 --=====================================================================================================--
-Script Name: Auto Message (utility), for SAPP (PC & CE)
-Description: This script will cycle (in order from first-to-last) through a list of pre-defined
-             custom messages and broadcast them every x seconds.
+Script Name: Auto Message, for SAPP (PC & CE)
+Description: This script will periodically announce defined messages from an announcements array.
+You can manually broadcast a message from this array with a simple command (see below).
 
-You can broadcast a message on demand with /broadcast [id].
-Command Syntax: 
-    /broadcast list
-        * Output Format:
-        -------- MESSAGES --------
-        [1] line 1
-        [2] line 2
-        [3] etc...
-    /broadcast [id]
+Command Syntax:
+/broadcast list (view list of available announcements)
+/broadcast [message id] (force immediate announcement broadcast)
 
-    Messages can be printed to CHAT or RCON.
-    NOTE: Keep multi-Line messages limited to 6 lines as Halo Chat only supports 6 lines in the buffer.
-    
-
-Copyright (c) 2019-2020, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
@@ -26,173 +16,171 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
-api_version = "1.12.0.0"
+local AutoMessage = {
 
--- Configuration [starts] --------------------------------------------
+    -- ANNOUNCEMENTS ARRAY --
+    announcements = {
+        { "Message 1 (line 1)", "Message 1 (line 2)" }, -- message 1
+        { "Like us on Facebook | facebook.com/page_id" }, -- message 2
+        { "Follow us on Twitter | twitter.com/twitter_id" }, -- message 3
+        { "We are recruiting. Sign up on our website | website url" }, -- message 4
+        { "Rules / Server Information" }, -- message 5
+        { "announcement 6" }, -- message 6
+        { "other information here" }, -- message 7
+    },
 
--- Custom broadcast command:
-local base_command = "broadcast"
+    -- Time (in seconds) between message announcements:
+    interval = 300,
 
--- Minimum admin level required to use /base_command
-local privilege_level = 1
+    -- Set to false to send messages to player console:
+    show_announcements_in_chat = true,
 
--- #Messages
-local announcements = {
+    -- If true, messages will also be printed to server console terminal (in pink):
+    show_announcements_on_console = true,
 
-    -- [new] -- MULTI-LINE SUPPORT (separate lines with a comma - messages must be encapsulated in quotes)
-    { "Message 1 (line 1)", "Message 1 (line 2)" }, -- message 1
+    -- Custom command used to view or broadcast announcements:
+    command = "broadcast",
 
-    { "Like us on Facebook | facebook.com/page_id" }, -- message 2
-    { "Follow us on Twitter | twitter.com/twitter_id" }, -- message 3
-    { "We are recruiting. Sign up on our website | website url" }, -- message 4
-    { "Rules / Server Information" }, -- message 5
-    { "announcement 5" }, -- message 6
-    { "other information here" }, -- message 7
-    -- Repeat the structure to add more entries.
+    -- Minimum permission level required to execute custom broadcast command:
+    permission = 1,
+
+    -- A message relay function temporarily removes the server prefix
+    -- and will restore it to this when the relay is finished:
+    server_prefix = "**SAPP**"
+    --
 }
 
--- How often should messages be displayed? (in seconds)
-local time_between_messages = 300 -- 300 = 5 minutes
+api_version = "1.12.0.0"
 
--- Set to 'false' to print messages to player rcon.
-local show_announcements_in_chat = true
-
--- If true, messages will also be printed to server console terminal (in pink).
-local show_announcements_on_console = true
-
-local server_prefix = "**SERVER**"
--- Configuration [ends] --------------------------------------------
-
-local match, gmatch = string.match, string.gmatch
-local time_scale = 0.03333333333333333
+local time_scale = 1 / 30
+local lower, gmatch = string.lower, string.gmatch
 
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
     register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
-    if (get_var(0, "$gt") ~= "n/a") then
-        StartStopTimer(true)
-    end
+    AutoMessage:Timer(true)
 end
 
-function OnScriptUnload()
-    --
+function AutoMessage:Timer(START)
+    if (get_var(0, "$gt") ~= "n/a") then
+        self.index, self.timer = 1, 0
+        if (START) then
+            self.init = true
+        else
+            self.init = false
+        end
+    end
 end
 
 function OnNewGame()
-    StartStopTimer(true)
+    AutoMessage:Timer(true)
 end
 
 function OnGameEnd()
-    StartStopTimer(false)
+    AutoMessage:Timer(false)
+end
+
+function AutoMessage:GameTick()
+    if (self.init) then
+        self.timer = self.timer + time_scale
+        if (self.timer >= self.interval) then
+            self.timer = 0
+
+            for _ = 1, #self.announcements do
+                if (self.index == #self.announcements + 1) then
+                    self.index = 1
+                end
+            end
+
+            self:Show(self.announcements[self.index])
+            self.index = self.index + 1
+        end
+    end
+end
+
+function AutoMessage:Show(TAB)
+    for _, Msg in pairs(TAB) do
+        if (self.show_announcements_on_console) then
+            cprint(Msg, 13)
+        end
+        if (self.show_announcements_in_chat) then
+            execute_command("msg_prefix \"\"")
+            say_all(Msg)
+            execute_command("msg_prefix \" **" .. self.server_prefix .. "**\"")
+            return
+        end
+        for i = 1, 16 do
+            if player_present(i) then
+                rprint(i, Msg)
+            end
+        end
+    end
+end
+
+function AutoMessage:Respond(Ply, Msg, Color)
+    Color = Color or 10
+    if (Ply == 0) then
+        cprint(Msg, Color)
+    else
+        rprint(Ply, Msg)
+    end
+end
+
+local function CMDSplit(CMD)
+    local Args = { }
+    for Params in gmatch(CMD, "([^%s]+)") do
+        Args[#Args + 1] = lower(Params)
+    end
+    return Args
+end
+
+function AutoMessage:OnServerCommand(Ply, Command, _, _)
+    local Args = CMDSplit(Command)
+    if (Args) then
+        if (Args[1] == self.command) then
+            local lvl = tonumber(get_var(Ply, "$lvl"))
+            if (lvl >= self.permission or Ply == 0) then
+
+                local invalid
+                if (Args[2] ~= nil) then
+
+                    if (Args[2] == Args[2]:match("list")) then
+                        local t = self.announcements
+                        for i = 1, #t do
+                            for _, v in pairs(t[i]) do
+                                self:Respond(Ply, "[" .. i .. "] " .. v)
+                            end
+                        end
+
+                    elseif (Args[2]:match("^%d+$") and Args[3] == nil) then
+                        local n = tonumber(Args[2])
+                        if (self.announcements[n]) then
+                            self:Show(self.announcements[n])
+                        else
+                            self:Respond(Ply, "Invalid Broadcast ID", 12)
+                            self:Respond(Ply, "Please enter a number between 1-" .. #self.announcements, 12)
+                        end
+                    else
+                        invalid = true
+                    end
+                else
+                    invalid = true
+                end
+                if (invalid) then
+                    self:Respond(Ply, "Invalid Command Syntax. Please try again!", 12)
+                end
+            end
+            return false
+        end
+    end
 end
 
 function OnTick()
-    if (announcements.init_timer) then
-        announcements.countdown = announcements.countdown + time_scale
-        if (announcements.countdown >= (time_between_messages)) then
-            announcements.countdown = 0
-            GetNext()
-        end
-    end
+    return AutoMessage:GameTick()
 end
 
-function StartStopTimer(Begin)
-    announcements.message_index = 1
-    announcements.countdown = 0
-    if (Begin) then
-        announcements.init_timer = true
-    else
-        announcements.init_timer = false
-    end
-end
-
-function GetNext()
-    for _ = 1, #announcements do
-        if (announcements.message_index == #announcements + 1) then
-            announcements.message_index = 1
-        end
-    end
-    Show(announcements[announcements.message_index])
-    announcements.message_index = announcements.message_index + 1
-end
-
-function OnServerCommand(PlayerIndex, Command, Environment, Password)
-    local args = CmdSplit(Command)
-    if (args[1] == base_command) then
-        local invalid_command = false
-        if hasPermission(PlayerIndex) then
-            if (args[2] ~= nil) then
-                if (args[2] == args[2]:match("list")) then
-                    Respond(PlayerIndex, "-------- MESSAGES --------")
-                    for i = 1, #announcements do
-                        for _, v in pairs(announcements[i]) do
-                            Respond(PlayerIndex, "[" .. i .. "] " .. v)
-                        end
-                    end
-                elseif (args[2] == match(args[2], "^%d+$") and args[3] == nil) then
-                    Show(announcements[tonumber(args[2])])
-                else
-                    invalid_command = true
-                end
-            else
-                invalid_command = true
-            end
-        else
-            rprint(PlayerIndex, "Insufficient Permission!")
-        end
-
-        if (invalid_command) then
-            Respond(PlayerIndex, "Invalid Syntax. Usage: /" .. base_command .. " list|id")
-        end
-
-        return false
-    end
-end
-
-function Respond(PlayerIndex, Message)
-    if (PlayerIndex == 0) then
-        cprint(Message)
-    else
-        rprint(PlayerIndex, Message)
-    end
-end
-
-function Show(Tab)
-    for _, Message in pairs(Tab) do
-        if (show_announcements_on_console) then
-            cprint(Message, 5 + 8)
-        end
-        if (show_announcements_in_chat) then
-            execute_command("msg_prefix \"\"")
-            say_all(Message)
-            execute_command("msg_prefix \" **" .. server_prefix .. "**\"")
-        else
-            for i = 1, 16 do
-                if player_present(i) then
-                    rprint(i, Message)
-                end
-            end
-        end
-    end
-end
-
-function hasPermission(PlayerIndex)
-    local is_console = (PlayerIndex == 0)
-    local level = tonumber(get_var(PlayerIndex, "$lvl"))
-    if (level >= privilege_level or is_console) then
-        return true
-    else
-        return false
-    end
-end
-
-function CmdSplit(CMD)
-    local t, i = { }, 1;
-    for Args in gmatch(CMD, '([^%s]+)') do
-        t[i] = Args
-        i = i + 1
-    end
-    return t
+function OnServerCommand(P, C, _, _)
+    return AutoMessage:OnServerCommand(P, C, _, _)
 end
