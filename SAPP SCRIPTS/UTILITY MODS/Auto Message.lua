@@ -216,3 +216,6 @@ end
 function OnServerCommand(P, C, _, _)
     return AutoMessage:OnServerCommand(P, C, _, _)
 end
+
+-- For a future update ...
+return AutoMessage
