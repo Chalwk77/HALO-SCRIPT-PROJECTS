@@ -17,29 +17,33 @@ local ScoreLimit = {
 
     -- Configuration [starts] -----------------------------------
 
+    --
+    -- { min players, max players, score limit }
+    --
+
     -- CAPTURE THE FLAG -------------------------------------
     ctf = {
-        { 1, 4, 1 }, -- 4 players or less
-        { 5, 8, 2 }, -- 4-8 players
-        { 9, 12, 3 }, -- 8-12 players
-        { 13, 16, 4 }, -- 12-16 players
+        { 1, 4, 1 }, -- 1-4 players
+        { 5, 8, 2 }, -- 5-8 players
+        { 9, 12, 3 }, -- 9-12 players
+        { 13, 16, 4 }, -- 13-16 players
         txt = "Score limit changed to: %limit%",
     },
 
     -- SLAYER -----------------------------------------------
     slayer = {
         {   -- FFA:
-            [1] = { 1, 4, 15 }, -- 4 players or less
-            [2] = { 5, 8, 25 }, -- 4-8 players
-            [3] = { 9, 12, 45 }, -- 8-12 players
-            [4] = { 13, 16, 50 }, -- 12-16 players
+            [1] = { 1, 4, 15 }, -- 1-4 players
+            [2] = { 5, 8, 25 }, -- 5-8 players
+            [3] = { 9, 12, 45 }, -- 9-12 players
+            [4] = { 13, 16, 50 }, -- 13-16 players
             txt = "Score limit changed to: %limit%"
         },
         {   -- TEAM:
-            [1] = { 1, 4, 25 }, -- 4 players or less
-            [2] = { 5, 8, 35 }, -- 4-8 players
-            [3] = { 9, 12, 45 }, -- 8-12 players
-            [4] = { 13, 16, 50 }, -- 12-16 players
+            [1] = { 1, 4, 25 }, -- 1-4 players
+            [2] = { 5, 8, 35 }, -- 5-8 players
+            [3] = { 9, 12, 45 }, -- 9-12 players
+            [4] = { 13, 16, 50 }, -- 13-16 players
             txt = "Score limit changed to: %limit%"
         }
     },
@@ -48,17 +52,17 @@ local ScoreLimit = {
     king = {
         {   -- FFA
 
-            [1] = { 1, 4, 2 }, -- 4 players or less
-            [2] = { 5, 8, 3 }, -- 4-8 players
-            [3] = { 9, 12, 4 }, -- 8-12 players
-            [4] = { 13, 16, 5 }, -- 12-16 players
+            [1] = { 1, 4, 2 }, -- 1-4 players
+            [2] = { 5, 8, 3 }, -- 5-8 players
+            [3] = { 9, 12, 4 }, -- 9-12 players
+            [4] = { 13, 16, 5 }, -- 13-16 players
             txt = "Score limit changed to: %limit% minute%s%"
         },
         {   -- TEAM
-            [1] = { 1, 4, 3 }, -- 4 players or less
-            [2] = { 5, 8, 4 }, -- 4-8 players
-            [3] = { 9, 12, 5 }, -- 8-12 players
-            [4] = { 13, 16, 6 }, -- 12-16 players
+            [1] = { 1, 4, 3 }, -- 1-4 players
+            [2] = { 5, 8, 4 }, -- 5-8 players
+            [3] = { 9, 12, 5 }, -- 9-12 players
+            [4] = { 13, 16, 6 }, -- 13-16 players
             txt = "Score limit changed to: %limit% minute%s%"
         }
     },
@@ -66,18 +70,18 @@ local ScoreLimit = {
     -- ODDBALL ----------------------------------------------
     oddball = {
         {   -- FFA
-            [1] = { 1, 4, 2 }, -- 4 players or less
-            [2] = { 5, 8, 3 }, -- 4-8 players
-            [3] = { 9, 12, 4 }, -- 8-12 players
-            [4] = { 13, 16, 5 }, -- 12-16 players
+            [1] = { 1, 4, 2 }, -- 1-4 players
+            [2] = { 5, 8, 3 }, -- 5-8 players
+            [3] = { 9, 12, 4 }, -- 9-12 players
+            [4] = { 13, 16, 5 }, -- 13-16 players
             txt = "Score limit changed to: %limit% minute%s%"
 
         },
         {   -- TEAM
-            [1] = { 1, 4, 3 }, -- 4 players or less
-            [2] = { 5, 8, 4 }, -- 4-8 players
-            [3] = { 9, 12, 5 }, -- 8-12 players
-            [4] = { 13, 16, 6 }, -- 12-16 players
+            [1] = { 1, 4, 3 }, -- 1-4 players
+            [2] = { 5, 8, 4 }, -- 5-8 players
+            [3] = { 9, 12, 5 }, -- 9-12 players
+            [4] = { 13, 16, 6 }, -- 13-16 players
             txt = "Score limit changed to: %limit% minute%s%"
 
         }
@@ -86,17 +90,17 @@ local ScoreLimit = {
     -- RACE -------------------------------------------------
     race = {
         {   -- FFA
-            [1] = { 1, 4, 4 }, -- 4 players or less
-            [2] = { 5, 8, 4 }, -- 4-8 players
-            [3] = { 9, 12, 5 }, -- 8-12 players
-            [4] = { 13, 16, 6 }, -- 12-16 players
+            [1] = { 1, 4, 4 }, -- 1-4 players
+            [2] = { 5, 8, 4 }, -- 5-8 players
+            [3] = { 9, 12, 5 }, -- 9-12 players
+            [4] = { 13, 16, 6 }, -- 13-16 players
             txt = "Score limit changed to: %limit% lap%s%"
         },
         {   -- TEAM
-            [1] = { 1, 4, 4 }, -- 4 players or less
-            [2] = { 5, 8, 5 }, -- 4-8 players
-            [3] = { 9, 12, 6 }, -- 8-12 players
-            [4] = { 13, 16, 7 }, -- 12-16 players
+            [1] = { 1, 4, 4 }, -- 1-4 players
+            [2] = { 5, 8, 5 }, -- 5-8 players
+            [3] = { 9, 12, 6 }, -- 9-12 players
+            [4] = { 13, 16, 7 }, -- 13-16 players
             txt = "Score limit changed to: %limit% lap%s%"
         }
     }
