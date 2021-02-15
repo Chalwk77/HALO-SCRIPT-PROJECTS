@@ -40,7 +40,7 @@ local Rank = {
     -- When should we update the file database (ranks.json)?
     -- It's not recommended to save stats to file during player join & quit as this
     -- may cause undesirable (albeit temporary) lag.
-    updated_file_database = {
+    update_file_database = {
         ["OnGameEnd"] = true,
         ["OnPlayerConnect"] = false,
         ["OnPlayerDisconnect"] = false
