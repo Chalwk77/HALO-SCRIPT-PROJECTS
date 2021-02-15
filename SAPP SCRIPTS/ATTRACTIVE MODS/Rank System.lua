@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Rank System (v1.24), for SAPP (PC & CE)
+Script Name: Rank System (v1.25), for SAPP (PC & CE)
 Description: Rank System is fully integrated halo 3 style ranking system for SAPP servers.
 
 Players earn credits for killing, scoring and achievements, such as sprees, kill-combos and more.
@@ -13,8 +13,8 @@ For example, you will earn 6 credits for killing someone with the sniper rifle, 
 1): This mod requires that the following json library is installed to your server:
     Place "json.lua" in your servers root directory:
     http://regex.info/blog/lua/json
-
-Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
+	
+Copyright (c) 2020-2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
@@ -36,6 +36,15 @@ local Rank = {
     starting_rank = "Recruit",
     starting_grade = 1,
     starting_credits = 0,
+
+    -- When should we update the file database (ranks.json)?
+    -- It's not recommended to save stats to file during player join & quit as this
+    -- may cause undesirable (albeit temporary) lag.
+    updated_file_database = {
+        ["OnGameEnd"] = true,
+        ["OnPlayerConnect"] = false,
+        ["OnPlayerDisconnect"] = false
+    },
 
     -- Command Syntax: /check_rank_cmd [number: 1-16] | */all | me
     check_rank_cmd = "rank",
@@ -353,10 +362,12 @@ local Rank = {
 }
 
 local time_scale = 1 / 30
-local script_version = 1.24
+local script_version = 1.25
+
 local lower = string.lower
 local sqrt = math.sqrt
 local gmatch, gsub = string.gmatch, string.gsub
+
 local json = (loadfile "json.lua")()
 
 function OnScriptLoad()
@@ -369,7 +380,7 @@ function OnScriptLoad()
     register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
-    Rank:CheckFile()
+    Rank:CheckFile(true)
 end
 
 function OnScriptUnload()
@@ -382,7 +393,20 @@ end
 
 function OnGameEnd()
     Rank:ShowEndResults()
-    Rank:UpdateJSON()
+    self:UpdateJSON("OnGameEnd")
+end
+
+function Rank:UpdateJSON(TYPE)
+    if (self.updated_file_database[TYPE]) then
+        local ranks = self:GetRanks(true)
+        if (ranks) then
+            local file = assert(io.open(self.dir, "w"))
+            if (file) then
+                file:write(json:encode_pretty(ranks))
+                io.close(file)
+            end
+        end
+    end
 end
 
 function Rank:ShowEndResults()
@@ -479,7 +503,8 @@ function OnPlayerConnect(Ply)
 end
 
 function OnPlayerDisconnect(Ply)
-    Rank:UpdateJSON(Ply)
+    Rank:UpdateJSON("OnPlayerDisconnect")
+    Rank.players[Ply ~= nil and Ply] = nil
 end
 
 function OnPlayerScore(Ply)
@@ -505,98 +530,67 @@ end
 
 function Rank:AddNewPlayer(Ply, ManualLoad)
 
-    local content = ""
-    local File = io.open(self.dir, "r")
-    if (File) then
-        content = File:read("*all")
-        io.close(File)
+    local IP = self:GetIP(Ply)
+    local name = get_var(Ply, "$name")
+
+    local pl = self.database
+    if (pl[IP] == nil) then
+        pl[IP] = {
+            ip = IP,
+            name = name,
+            rank = self.starting_rank,
+            grade = self.starting_grade,
+            credits = self.starting_credits,
+            done = Completed()
+        }
+        self.database = pl
     end
 
-    local pl = json:decode(content)
-    if (pl) then
+    self.players[Ply] = { }
+    self.players[Ply] = pl[IP]
+    self.players[Ply].name = name
+    self.players[Ply].last_damage = 0
 
-        local file = assert(io.open(self.dir, "w"))
-        if (file) then
-
-            local IP = self:GetIP(Ply)
-            local name = get_var(Ply, "$name")
-
-            if (pl[IP] == nil) then
-                pl[IP] = {
-                    ip = IP,
-                    name = name,
-                    rank = self.starting_rank,
-                    grade = self.starting_grade,
-                    credits = self.starting_credits,
-                    done = Completed()
-                }
-            end
-
-            file:write(json:encode_pretty(pl))
-            io.close(file)
-
-            self.players[Ply] = { }
-            self.players[Ply] = pl[IP]
-            self.players[Ply].name = name
-            self.players[Ply].last_damage = 0
-            if (self.players[Ply].credits < 0) then
-                self.players[Ply].credits = 0
-            end
-
-            -- T-Bag Support:
-            self.players[Ply].coords = { }
-            self.players[Ply].crouch_state = 0
-            self.players[Ply].crouch_count = 0
-            --
-
-            if (not ManualLoad) then
-                self:UpdateRank(Ply, true)
-                self:GetRank(Ply, IP)
-            end
-        end
-    end
-end
-
-function Rank:UpdateJSON(Ply)
-    local ranks = self:GetRanks(true)
-    if (ranks) then
-        local file = assert(io.open(self.dir, "w"))
-        if (file) then
-            file:write(json:encode_pretty(ranks))
-            io.close(file)
-        end
+    if (self.players[Ply].credits < 0) then
+        self.players[Ply].credits = 0
     end
 
-    self.players[Ply ~= nil and Ply] = nil
+    -- T-Bag Support:
+    self.players[Ply].coords = { }
+    self.players[Ply].crouch_state = 0
+    self.players[Ply].crouch_count = 0
+    --
+
+    if (not ManualLoad) then -- false when called from OnPlayerConnect()
+        self:UpdateJSON("OnPlayerConnect")
+        self:GetRank(Ply, IP)
+    end
 end
 
 function Rank:GetRanks(QUIT)
-    local file, ranks = io.open(self.dir, "r")
-    if (file) then
-        local data = file:read("*all")
-        ranks = json:decode(data)
-        if (ranks) then
-            for i = 1, 16 do
-                if player_present(i) and (self.players[i]) then
-                    if (QUIT) then
-                        self.players[i].coords = nil
-                        self.players[i].last_damage = nil
-                        self.players[i].crouch_count = nil
-                        self.players[i].crouch_state = nil
-                    end
-                    ranks[self:GetIP(i)] = self.players[i]
+
+    local ranks = self.database
+    if (ranks) then
+        for i = 1, 16 do
+            if player_present(i) and (self.players[i]) then
+                if (QUIT) then
+                    self.players[i].coords = nil
+                    self.players[i].last_damage = nil
+                    self.players[i].crouch_count = nil
+                    self.players[i].crouch_state = nil
                 end
+                ranks[self:GetIP(i)] = self.players[i]
             end
         end
-        file:close()
     end
+
     return ranks
 end
 
 function SortRanks()
     local ranks = Rank:GetRanks()
-    local results = { }
     if (ranks) then
+        local results = { }
         for _, v in pairs(ranks) do
             results[#results + 1] = {
                 ["ip"] = v.ip,
@@ -609,8 +603,8 @@ function SortRanks()
         table.sort(results, function(a, b)
             return a.credits > b.credits
         end)
+        return results
     end
-    return results
 end
 
 function Rank:PrintRank(Ply, Pos, Stats, Total, I, NextRank, NextGrade, Required)
@@ -706,35 +700,45 @@ function Rank:GetIP(Ply)
     return IP
 end
 
-function Rank:CheckFile()
-    self.players = { }
+function Rank:CheckFile(INIT)
+
+    if (INIT) then
+        self.database = nil
+    end
+
     self.game_started = false
 
     if (get_var(0, "$gt") ~= "n/a") then
+        if (self.database == nil) then
 
-        self.game_started = true
-        self.first_blood = { }
-        self.first_blood.active = true
+            self.players = { }
+            self.first_blood = { }
+            self.game_started = true
+            self.first_blood.active = true
 
-        local content = ""
-        local file = io.open(self.dir, "r")
-        if (file) then
-            content = file:read("*all")
-            io.close(file)
-        end
-
-        local records = json:decode(content)
-        if (not records) then
-            file = assert(io.open(self.dir, "w"))
+            local content = ""
+            local file = io.open(self.dir, "r")
             if (file) then
-                file:write(json:encode_pretty({}))
+                content = file:read("*all")
                 io.close(file)
             end
-        end
 
-        for i = 1, 16 do
-            if player_present(i) then
-                self:AddNewPlayer(i, true)
+            local records = json:decode(content)
+            if (not records) then
+                file = assert(io.open(self.dir, "w"))
+                if (file) then
+                    records = { }
+                    file:write(json:encode_pretty(records))
+                    io.close(file)
+                end
+            end
+
+            self.database = records
+
+            for i = 1, 16 do
+                if player_present(i) then
+                    self:AddNewPlayer(i, true)
+                end
             end
         end
     end
@@ -797,6 +801,7 @@ function Rank:GetXYZ(Ply)
             coords.invehicle = true
             x, y, z = read_vector3d(VehicleObject + 0x5c)
             coords.name = GetVehicleTag(VehicleObject)
+
         end
         coords.x, coords.y, coords.z, coords.dyn = x, y, z, DyN
     end
@@ -1007,19 +1012,16 @@ function Rank:Respond(Ply, Message, Type, Color, Exclude)
 end
 
 local function CMDSplit(CMD)
-    local Args, index = { }, 1
+    local Args = { }
     for Params in gmatch(CMD, "([^%s]+)") do
-        Args[index] = lower(Params)
-        index = index + 1
+        Args[#Args + 1] = lower(Params)
     end
     return Args
 end
 
 function Rank:OnServerCommand(Executor, Command)
     local Args = CMDSplit(Command)
-    if (Args == nil) then
-        return
-    else
+    if (Args) then
         local lvl = tonumber(get_var(Executor, "$lvl"))
         if (Args[1] == self.check_rank_cmd) then
             if (lvl >= self.check_rank_cmd_permission) then
@@ -1089,20 +1091,16 @@ function Rank:GetPlayers(Executor, Args)
     return pl
 end
 
--- SUPPORT FOR MY RAGE QUIT SCRIPT:
+-- SUPPORT FOR MY RAGE QUIT SCRIPT --
 function UpdateRageQuit(IP, Amount)
     local ranks = Rank:GetRanks(true)
+
     if (ranks and ranks[IP]) then
-        local file = assert(io.open(Rank.dir, "w"))
-        if (file) then
-            ranks[IP].credits = ranks[IP].credits - Amount
-            local name = ranks[IP].name
-            local str = name .. " was penalized " .. Amount .. "x credits for rage-quitting"
-            Rank:Respond(_, str, say_all, 10)
-            Rank:Respond(0, str, "n/a", 10)
-            file:write(json:encode_pretty(ranks))
-        end
-        io.close(file)
+        ranks[IP].credits = ranks[IP].credits - Amount
+        local name = ranks[IP].name
+        local str = name .. " was penalized " .. Amount .. "x credits for rage-quitting"
+        Rank:Respond(_, str, say_all, 10)
+        Rank:Respond(0, str, "n/a", 10)
     end
 end
 
@@ -1161,6 +1159,6 @@ end
 -- This function will return a string with a traceback of the stack call...
 -- ...and call function 'report' after 50 milliseconds.
 function OnError(Error)
-    local StackTrace = debug.traceback()
-    timer(50, "report", StackTrace, Error)
+    -- local StackTrace = debug.traceback()
+    -- timer(50, "report", StackTrace, Error)
 end
