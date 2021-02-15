@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Rank System (v1.25), for SAPP (PC & CE)
+Script Name: Rank System (v1.26), for SAPP (PC & CE)
 Description: Rank System is fully integrated halo 3 style ranking system for SAPP servers.
 
 Players earn credits for killing, scoring and achievements, such as sprees, kill-combos and more.
@@ -362,7 +362,7 @@ local Rank = {
 }
 
 local time_scale = 1 / 30
-local script_version = 1.25
+local script_version = 1.26
 
 local lower = string.lower
 local sqrt = math.sqrt
@@ -397,7 +397,7 @@ function OnGameEnd()
 end
 
 function Rank:UpdateJSON(TYPE)
-    if (self.updated_file_database[TYPE]) then
+    if (self.update_file_database[TYPE]) then
         local ranks = self:GetRanks(true)
         if (ranks) then
             local file = assert(io.open(self.dir, "w"))
@@ -561,7 +561,8 @@ function Rank:AddNewPlayer(Ply, ManualLoad)
     self.players[Ply].crouch_count = 0
     --
 
-    if (not ManualLoad) then -- false when called from OnPlayerConnect()
+    if (not ManualLoad) then
+        -- false when called from OnPlayerConnect()
         self:UpdateJSON("OnPlayerConnect")
         self:GetRank(Ply, IP)
     end
@@ -670,21 +671,8 @@ end
 
 function Rank:FirstBlood(Ply)
     local kills = tonumber(get_var(Ply, "$kills"))
-    local count = 0
     if (kills == 1) then
-        for i = 1, 16 do
-            if player_present(i) then
-                if (i ~= Ply) then
-                    if (self.first_blood[i]) then
-                        count = count + 1
-                    end
-                end
-            end
-        end
-    end
-    if (count == 1) then
-        self.first_blood = { }
-        self.first_blood.active = false
+        self.first_blood = false
         self:UpdateCredits(Ply, { self.credits.first_blood[1], self.credits.first_blood[2] })
     end
 end
@@ -700,21 +688,21 @@ function Rank:GetIP(Ply)
     return IP
 end
 
-function Rank:CheckFile(INIT)
+function Rank:CheckFile(ScriptLoad)
 
-    if (INIT) then
+    if (ScriptLoad) then
         self.database = nil
     end
 
+    self.players = { }
     self.game_started = false
 
     if (get_var(0, "$gt") ~= "n/a") then
-        if (self.database == nil) then
 
-            self.players = { }
-            self.first_blood = { }
-            self.game_started = true
-            self.first_blood.active = true
+        self.game_started = true
+        self.first_blood = true
+
+        if (self.database == nil) then
 
             local content = ""
             local file = io.open(self.dir, "r")
@@ -839,10 +827,10 @@ function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
         end
 
         -- Check for first blood:
-        if (self.first_blood.active) then
-            self.first_blood[victim] = true
+        if (self.first_blood) then
             self:FirstBlood(killer)
         end
+        --
 
         -- T-Bag Support:
         if (self.tbag) then
