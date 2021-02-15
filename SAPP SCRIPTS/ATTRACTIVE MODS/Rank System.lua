@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Rank System (v1.26), for SAPP (PC & CE)
+Script Name: Rank System (v1.27), for SAPP (PC & CE)
 Description: Rank System is fully integrated halo 3 style ranking system for SAPP servers.
 
 Players earn credits for killing, scoring and achievements, such as sprees, kill-combos and more.
@@ -362,7 +362,7 @@ local Rank = {
 }
 
 local time_scale = 1 / 30
-local script_version = 1.26
+local script_version = 1.27
 
 local lower = string.lower
 local sqrt = math.sqrt
@@ -393,7 +393,7 @@ end
 
 function OnGameEnd()
     Rank:ShowEndResults()
-    self:UpdateJSON("OnGameEnd")
+    Rank:UpdateJSON("OnGameEnd")
 end
 
 function Rank:UpdateJSON(TYPE)
