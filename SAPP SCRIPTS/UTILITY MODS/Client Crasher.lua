@@ -22,7 +22,7 @@ api_version = "1.12.0.0"
 
 local MOD = {
     -- This is the custom command used to crash players
-    command = "kapow",
+    command = "crash",
 
     -- Minimum permission level needed to crash a player:
     permission = 1,
@@ -69,11 +69,10 @@ end
 local gsub = string.gsub
 local lower, gmatch = string.lower, string.gmatch
 local function CMDSplit(CMD)
-    local Args, index = { }, 1
+    local Args = { }
     CMD = gsub(CMD, '"', "")
     for Params in gmatch(CMD, "([^%s]+)") do
-        Args[index] = lower(Params)
-        index = index + 1
+        Args[#Args+1] = lower(Params)
     end
     return Args
 end

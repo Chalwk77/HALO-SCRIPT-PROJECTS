@@ -37,7 +37,7 @@ I M P O R T A N T
 D I S C L A I M E R
 -------------------
 Some genuine players use a VPN to protect their privacy online and also game while using one. 
-VPN Blocker cannot differentiate between good and bad intentions 
+VPN Blocker cannot differentiate between good and bad intentions
 and will, therefore, kick or ban on sight if their IP is on the VPN Blocker database.
 --
 

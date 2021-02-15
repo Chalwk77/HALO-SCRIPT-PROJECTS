@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Alias System (v1.2), for SAPP (PC & CE)
+Script Name: Alias System (v1.3), for SAPP (PC & CE)
 Description: Look up names linked to an IP address or hash.
 
 Alias results are displayed in columns of 5 and rows of 10 per page.
@@ -115,6 +115,7 @@ local Alias = {
 -- Configuration Ends --
 
 local len, sub = string.len, string.sub
+local lower = string.lower
 local json, floor = (loadfile "json.lua")(), math.floor
 local concat, gmatch, gsub = table.concat, string.gmatch, string.gsub
 
@@ -122,7 +123,7 @@ function OnScriptLoad()
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
-    Alias:CheckFile()
+    Alias:CheckFile(true)
 end
 
 function OnScriptUnload()
@@ -149,7 +150,7 @@ function Alias:GetNames(Ply, t, name, CheckPirated)
     local count = 0
     for Artifact, TAB in pairs(t) do
         for _, NameRecord in pairs(TAB) do
-            if (string.lower(NameRecord) == string.lower(name)) then
+            if (lower(NameRecord) == lower(name)) then
                 count = count + 1
                 if (CheckPirated) then
                     local pirated = Alias:IsPirated(Artifact)
@@ -439,6 +440,7 @@ function Alias:UpdateRecords(Ply)
 
     -- Check if name on file for this hash:
     if (records.hashes[hash] == nil) then
+
         records.hashes[hash] = {}
         table.insert(records.hashes[hash], name)
         update = true
@@ -451,6 +453,7 @@ function Alias:UpdateRecords(Ply)
     -- Check if name on record for this ip:
     if (records.ip_addresses[ip] == nil) then
         records.ip_addresses[ip] = {}
+
         table.insert(records.ip_addresses[ip], name)
         update = true
         -- Add it:
@@ -461,6 +464,8 @@ function Alias:UpdateRecords(Ply)
 
     -- If hash or ip record needs updating, do it:
     if (update) then
+
+        self.database = records
         local file = assert(io.open(self.dir, "w"))
         if (file) then
             file:write(json:encode_pretty(records))
@@ -469,27 +474,36 @@ function Alias:UpdateRecords(Ply)
     end
 end
 
-function Alias:CheckFile()
+function Alias:CheckFile(INIT)
+
+    if (INIT) then
+        self.database = nil
+    end
+
     if (get_var(0, "$gt") ~= "n/a") then
+        if (self.database == nil) then
 
-        local content = ""
-        local file = io.open(self.dir, "r")
-        if (file) then
-            content = file:read("*all")
-            io.close(file)
-        end
-
-        local records = json:decode(content)
-        if (not records) then
-            file = assert(io.open(self.dir, "w"))
+            local content = ""
+            local file = io.open(self.dir, "r")
             if (file) then
-                records = { hashes = {}, ip_addresses = {} }
-                file:write(json:encode_pretty(records))
+                content = file:read("*all")
                 io.close(file)
             end
+
+            local records = json:decode(content)
+            if (not records) then
+                file = assert(io.open(self.dir, "w"))
+                if (file) then
+                    records = { hashes = {}, ip_addresses = {} }
+                    file:write(json:encode_pretty(records))
+                    io.close(file)
+                end
+            end
+
+            self.database = records
         end
 
-        return records
+        return self.database
     end
 end
 
