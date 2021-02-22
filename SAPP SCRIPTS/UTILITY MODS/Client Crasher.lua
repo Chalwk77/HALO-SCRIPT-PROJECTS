@@ -3,10 +3,17 @@
 Script Name: Client Crasher, for SAPP (PC & CE)
 Description: Causes client segmentation fault automatically or on demand.
 
-This script adds a custom command to your server:
-Command Syntax:
-    /crash [player id | me | */all]
-    "me" can be used in place of your own player id
+The auto-crash function is this scripts Primary feature:
+There is an array in the config section of the script that you can configure
+with the names, hashes or IP addresses of the clients you wish to punish.
+
+When a player joins, their hash, IP and name is cross-examined against those lists.
+If a match is made, their client will be crashed.
+
+The second feature is a custom command that you can use to crash someone's game client on-demand,
+Syntax:
+/crash [player id | me | */all]
+"me" can be used in place of your own player id
 
 Copyright (c) 2020-2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
