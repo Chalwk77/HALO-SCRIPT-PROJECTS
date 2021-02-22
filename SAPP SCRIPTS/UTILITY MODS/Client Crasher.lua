@@ -142,6 +142,8 @@ end
 
 function MOD:CrashOnJoin(Ply)
 
+    -- If any of these return true, the player will be crashed.
+
     local hash = get_var(Ply, "hash")
     local name = get_var(Ply, "$name")
     local ip = get_var(Ply, "$ip"):match("%d+.%d+.%d+.%d+")
