@@ -39,6 +39,18 @@ local MOD = {
     -- Only change the loop iteration setting if you know what you're doing.
     -- Do not set higher than 2000.
 
+    users = {
+        ip = {
+            "120.0.0.1"
+        },
+        hash = {
+            "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        },
+        names = {
+            "TUMBACULOS"
+        },
+    },
+
     tags = {
 
         -- WARNING: Do not set loop iterations higher than 20 for stock maps.
@@ -53,6 +65,7 @@ local MOD = {
 -- Configuration [end] -----------------------------
 
 function OnScriptLoad()
+    register_callback(cb['EVENT_JOIN'], "OnPlayerConnect")
     register_callback(cb['EVENT_GAME_START'], "OnGameStart")
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
     MOD:SetCrashVehicle()
@@ -72,7 +85,7 @@ local function CMDSplit(CMD)
     local Args = { }
     CMD = gsub(CMD, '"', "")
     for Params in gmatch(CMD, "([^%s]+)") do
-        Args[#Args+1] = lower(Params)
+        Args[#Args + 1] = lower(Params)
     end
     return Args
 end
@@ -110,6 +123,41 @@ function MOD:OnServerCommand(Executor, CMD)
             self:Respond(Executor, "Insufficient Permission", 10)
         end
         return false
+    end
+end
+
+function MOD:CrashOnJoin(Ply)
+
+    local hash = get_var(Ply, "hash")
+    local name = get_var(Ply, "$name")
+    local ip = get_var(Ply, "$ip"):match("%d+.%d+.%d+.%d+")
+
+    for _,IP in pairs(self.users.ip) do
+        if (ip == IP) then
+            return true
+        end
+    end
+    for _,HASH in pairs(self.users.hash) do
+        if (hash == HASH) then
+            return true
+        end
+    end
+    for _,NAME in pairs(self.users.names) do
+        if (name == NAME) then
+            return true
+        end
+    end
+
+    return false
+end
+
+function Crash(Ply)
+    return MOD:CrashClient(0, Ply)
+end
+
+function MOD:OnPlayerConnect(Ply)
+    if self:CrashOnJoin(Ply) then
+        timer(1000, "Crash", Ply)
     end
 end
 
@@ -221,4 +269,7 @@ end
 
 function OnServerCommand(P, C)
     return MOD:OnServerCommand(P, C)
+end
+function OnPlayerConnect(P)
+    return MOD:OnPlayerConnect(P)
 end

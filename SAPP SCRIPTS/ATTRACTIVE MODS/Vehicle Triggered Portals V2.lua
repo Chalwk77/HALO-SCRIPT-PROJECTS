@@ -18,7 +18,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 ]]--
 
 api_version = "1.12.0.0"
-coordiantes = { }
+local coordiantes = { }
 gamesettings = {
     -- Removes the vehicle once exited.
     -- Note, once removed, they will not respawn!
@@ -56,7 +56,7 @@ function OnScriptUnload()
 end
 
 function OnNewGame()
-    mapname = get_var(0, "$map")
+    mapname = get_var(0, "$map") 
 end
 
 function OnVehicleEntry(PlayerIndex)
