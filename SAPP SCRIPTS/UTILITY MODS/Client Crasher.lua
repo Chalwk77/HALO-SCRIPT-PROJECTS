@@ -5,7 +5,7 @@ Description: Causes client segmentation fault automatically or on demand.
 
 The auto-crash function is this scripts Primary feature:
 There is an array in the config section of the script that you can configure
-with the names, hashes or IP addresses of the clients you wish to punish.
+with the names, hashes or IP addresses of the halo clients you wish to punish.
 
 When a player joins, their hash, IP and name is cross-examined against those lists.
 If a match is made, their client will be crashed.
