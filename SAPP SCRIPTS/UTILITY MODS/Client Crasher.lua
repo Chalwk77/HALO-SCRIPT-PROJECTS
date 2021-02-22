@@ -1,13 +1,14 @@
 --[[
 --=====================================================================================================--
 Script Name: Client Crasher, for SAPP (PC & CE)
-Description: Crash any player's game client on demand.
+Description: Causes client segmentation fault automatically or on demand.
 
+This script adds a custom command to your server:
 Command Syntax:
-    * /crash [player id | me | */all]
+    /crash [player id | me | */all]
     "me" can be used in place of your own player id
 
-Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2020-2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
@@ -21,6 +22,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.12.0.0"
 
 local MOD = {
+
     -- This is the custom command used to crash players
     command = "crash",
 
@@ -30,28 +32,40 @@ local MOD = {
     -- Should the command executor be able to crash their own game client?
     crash_self = false,
 
-    --===================================================--
-    -- This mod uses a vehicle to crash the client.
-    -- If you want this script to work on custom maps that don't have stock tags,
-    -- simply enter ONE valid vehicle tag address per custom map in the tags array below.
-
-    -- {tag, loop iterations}
-    -- Only change the loop iteration setting if you know what you're doing.
-    -- Do not set higher than 2000.
-
+    --
+    -- New USERS ARRAY feature (as of 23/02/21) --
+    -- I have added a new users array from which you can specify
+    -- the ip address, hash or names of anyone you want this script to crash when they join.
+    -- Be careful about basing this on hash and ensure that it's not illegitimate.
     users = {
         ip = {
-            "120.0.0.1"
+            "120.0.0.1",
+            "168.192.1.2",
         },
         hash = {
-            "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+            "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", -- hash 1
+            "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", -- hash 2
+            "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", -- hash 3
+            "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", -- hash 4
         },
         names = {
-            "TUMBACULOS"
+            "TUMBACULOS",
+            "A55hol3",
         },
     },
+    ------------------------------------------------
 
     tags = {
+
+        --======================================================================================--
+        -- This mod uses a vehicle to crash the client.
+        -- If you want this script to work on custom maps that don't have stock tags,
+        -- simply enter ONE valid vehicle tag address per custom map in the tags array below.
+
+        -- {tag, loop iterations}
+        -- Only change the loop iteration setting if you know what you're doing.
+        -- Do not set higher than 2000.
+        --======================================================================================--
 
         -- WARNING: Do not set loop iterations higher than 20 for stock maps.
         -- For custom maps, if you're experiencing a problem where the command executes fine but all it does
@@ -132,17 +146,17 @@ function MOD:CrashOnJoin(Ply)
     local name = get_var(Ply, "$name")
     local ip = get_var(Ply, "$ip"):match("%d+.%d+.%d+.%d+")
 
-    for _,IP in pairs(self.users.ip) do
+    for _, IP in pairs(self.users.ip) do
         if (ip == IP) then
             return true
         end
     end
-    for _,HASH in pairs(self.users.hash) do
+    for _, HASH in pairs(self.users.hash) do
         if (hash == HASH) then
             return true
         end
     end
-    for _,NAME in pairs(self.users.names) do
+    for _, NAME in pairs(self.users.names) do
         if (name == NAME) then
             return true
         end
