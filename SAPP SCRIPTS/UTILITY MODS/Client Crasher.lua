@@ -28,7 +28,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 -- Configuration [start] -----------------------------
 api_version = "1.12.0.0"
 
-local MOD = {
+local Crash = {
 
     -- This is the custom command used to crash players
     command = "crash",
@@ -89,7 +89,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_JOIN'], "OnPlayerConnect")
     register_callback(cb['EVENT_GAME_START'], "OnGameStart")
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
-    MOD:SetCrashVehicle()
+    Crash:SetCrashVehicle()
 end
 
 function OnScriptUnload()
@@ -97,7 +97,7 @@ function OnScriptUnload()
 end
 
 function OnGameStart()
-    MOD:SetCrashVehicle()
+    Crash:SetCrashVehicle()
 end
 
 local gsub = string.gsub
@@ -111,7 +111,7 @@ local function CMDSplit(CMD)
     return Args
 end
 
-function MOD:OnServerCommand(Executor, CMD)
+function Crash:OnServerCommand(Executor, CMD)
     local Args = CMDSplit(CMD)
     if (Args ~= nil and Args[1] == self.command) then
         local lvl = tonumber(get_var(Executor, "$lvl"))
@@ -147,7 +147,7 @@ function MOD:OnServerCommand(Executor, CMD)
     end
 end
 
-function MOD:CrashOnJoin(Ply)
+function Crash:CrashOnJoin(Ply)
 
     -- If any of these return true, the player will be crashed.
 
@@ -174,17 +174,20 @@ function MOD:CrashOnJoin(Ply)
     return false
 end
 
-function Crash(Ply)
-    return MOD:CrashClient(0, Ply)
+function DelayCrash(Ply)
+    return Crash:CrashClient(0, Ply)
 end
 
-function MOD:OnPlayerConnect(Ply)
+function Crash:OnPlayerConnect(Ply)
     if self:CrashOnJoin(Ply) then
-        timer(1000, "Crash", Ply)
+
+        -- Player must be alive in order to crash them.
+        -- Delay crash by 1000ms:
+        timer(1000, "DelayCrash", Ply)
     end
 end
 
-function MOD:GetXYZ(Ply)
+local function GetXYZ(Ply)
     local x, y, z
     local DyN = get_dynamic_player(Ply)
     if (DyN ~= 0) then
@@ -198,13 +201,16 @@ function MOD:GetXYZ(Ply)
     return x, y, z
 end
 
-function MOD:CrashClient(Executor, TargetID)
+function Crash:CrashClient(Executor, TargetID)
     local name = get_var(TargetID, "$name")
     if player_alive(TargetID) then
-        local x, y, z = self:GetXYZ(TargetID)
+
+        local x, y, z = GetXYZ(TargetID)
         local vehicle = spawn_object("vehi", self.vehicle_tag, x, y, z)
         local object = get_object_memory(vehicle)
+
         if (object ~= 0) then
+
             --
             -- Initialize a for-loop starting at 0 (first iteration):
             --
@@ -232,7 +238,7 @@ function MOD:CrashClient(Executor, TargetID)
     end
 end
 
-function MOD:Respond(Ply, Message, Color)
+function Crash:Respond(Ply, Message, Color)
     Color = Color or 10
     if (Ply == 0) then
         cprint(Message, Color)
@@ -241,7 +247,7 @@ function MOD:Respond(Ply, Message, Color)
     end
 end
 
-function MOD:GetPlayers(Executor, Args)
+function Crash:GetPlayers(Executor, Args)
     local pl = { }
     if (Args[2] == nil or Args[2] == "me") then
         if (Executor ~= 0) then
@@ -270,18 +276,18 @@ function MOD:GetPlayers(Executor, Args)
     return pl
 end
 
-function MOD:GetTag(Type, Name)
+local function GetTag(Type, Name)
     local Tag = lookup_tag(Type, Name)
     return Tag ~= 0 and read_dword(Tag + 0xC) or nil
 end
 
-function MOD:SetCrashVehicle()
+function Crash:SetCrashVehicle()
     self.vehicle_tag = nil
     self.iterations = nil
     if (get_var(0, "$gt") ~= "n/a") then
         for _, v in pairs(self.tags) do
             -- The first valid vehicle tag address found will be used:
-            if self:GetTag("vehi", v[1]) then
+            if GetTag("vehi", v[1]) then
                 self.vehicle_tag = v[1]
                 self.iterations = v[2]
                 break
@@ -291,8 +297,10 @@ function MOD:SetCrashVehicle()
 end
 
 function OnServerCommand(P, C)
-    return MOD:OnServerCommand(P, C)
+    return Crash:OnServerCommand(P, C)
 end
 function OnPlayerConnect(P)
-    return MOD:OnPlayerConnect(P)
+    return Crash:OnPlayerConnect(P)
 end
+
+return Crash
