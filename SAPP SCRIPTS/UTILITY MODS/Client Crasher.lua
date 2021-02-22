@@ -68,7 +68,7 @@ local Crash = {
         -- Do not set higher than 2000.
         --======================================================================================--
 
-        -- WARNING: Do not set loop iterations higher than 20 for stock maps.
+        -- WARNING: Do not set loop iterations higher than 100 for stock maps.
         -- For custom maps, if you're experiencing a problem where the command executes fine but all it does
         -- is kill the player, try setting the iterations higher.
 
