@@ -128,7 +128,7 @@ function Crash:OnServerCommand(Executor, CMD)
                 else
                     self:Respond(Executor, "==================================================================", 10)
                     self:Respond(Executor, "Command does not work on this map.", 10)
-                    self:Respond(Executor, "Please contact Chalwk (github.com/chalwk77/halo-script-projects)", 10)
+                    self:Respond(Executor, "Please contact Chalwk on discord: Chalwk#9284", 10)
                     self:Respond(Executor, "==================================================================", 10)
                 end
             else
@@ -174,7 +174,6 @@ end
 
 function Crash:OnPlayerConnect(Ply)
     if self:CrashOnJoin(Ply) then
-
         -- Player must be alive in order to crash them.
         -- Delay crash by 1000ms:
         timer(1000, "DelayCrash", Ply)
@@ -232,7 +231,16 @@ function Crash:CrashClient(Executor, TargetID)
     end
 end
 
+local function WriteLog(str)
+    local file = io.open("Client Crasher.log", "a+")
+    if (file) then
+        file:write(str .. "\n")
+        file:close()
+    end
+end
+
 function Crash:Respond(Ply, Message, Color)
+    WriteLog(os.date("[%H:%M:%S - %d/%m/%Y]") .. ": " .. Message)
     Color = Color or 10
     if (Ply == 0) then
         cprint(Message, Color)
