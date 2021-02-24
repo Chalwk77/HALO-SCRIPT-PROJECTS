@@ -13,6 +13,13 @@ The second feature is a custom command that you can use to crash someone's game 
 Syntax: /crash [player id | me | */all]
 "me" can be used in place of your own player id
 
+
+This script works by exploiting a halo bug:
+1). We spawn a vehicle (chain gun warthog in the case of vanilla maps).
+2). Initialise a for-loop & enter player into the seat of the current loop iteration index.
+3). Execute 50 to 1000 iterations within 100th of a second. 
+4). Once loop has finished executing we destroy the vehicle object and this will cause the client to crash.
+
 Copyright (c) 2020-2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -57,8 +64,7 @@ local Crash = {
     ------------------------------------------------
 
     tags = {
-
-        --======================================================================================--
+        --==================================================================================================--
         -- This mod uses a vehicle to crash the client.
         -- If you want this script to work on custom maps that don't have stock tags,
         -- simply enter ONE valid vehicle tag address per custom map in the tags array below.
@@ -66,13 +72,13 @@ local Crash = {
         -- {tag, loop iterations}
         -- Only change the loop iteration setting if you know what you're doing.
         -- Do not set higher than 2000.
-        --======================================================================================--
+        --==================================================================================================--
 
         -- WARNING: Do not set loop iterations higher than 100 for stock maps.
         -- For custom maps, if you're experiencing a problem where the command executes fine but all it does
         -- is kill the player, try setting the iterations higher.
 
-        { "vehicles\\warthog\\mp_warthog", 20 }, -- this tag is sufficient for all stock maps.
+        { "vehicles\\warthog\\mp_warthog", 100 }, -- this tag is sufficient for all stock maps.
         { "bourrin\\halo reach\\vehicles\\warthog\\rocket warthog", 2000 }, -- this is for bigassv2,104
     }
     --===================================================--
@@ -80,9 +86,11 @@ local Crash = {
 -- Configuration [end] -----------------------------
 
 function OnScriptLoad()
+    register_callback(cb['EVENT_TICK'], "OnTick")
     register_callback(cb['EVENT_JOIN'], "OnPlayerConnect")
     register_callback(cb['EVENT_GAME_START'], "OnGameStart")
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
+    register_callback(cb['EVENT_LEAVE'], "OnPlayerDisconnect")
     Crash:SetCrashVehicle()
 end
 
@@ -168,15 +176,28 @@ function Crash:CrashOnJoin(Ply)
     return false
 end
 
-function DelayCrash(Ply)
-    return Crash:CrashClient(0, Ply)
+function Crash:OnTick()
+    for i = 1, 16 do
+        local DyN = get_dynamic_player(i)
+        if (DyN ~= 0) and player_present(i) and player_alive(i) then
+            if (self.players[i] and self.players[i][1]) then
+                self.players[i][1] = false
+                self:CrashClient(0, i)
+            end
+        end
+    end
 end
 
-function Crash:OnPlayerConnect(Ply)
-    if self:CrashOnJoin(Ply) then
-        -- Player must be alive in order to crash them.
-        -- Delay crash by 1000ms:
-        timer(1000, "DelayCrash", Ply)
+function OnPlayerConnect(Ply)
+    if Crash:CrashOnJoin(Ply) then
+        Crash.players[Ply] = {}
+        Crash.players[Ply][1] = true
+    end
+end
+
+function OnPlayerDisconnect(Ply)
+    if (Crash.players[Ply]) then
+        Crash.players[Ply] = nil
     end
 end
 
@@ -284,14 +305,20 @@ local function GetTag(Type, Name)
 end
 
 function Crash:SetCrashVehicle()
+
+    self.players = { }
+
+    self.delay = nil
     self.vehicle_tag = nil
     self.iterations = nil
+
     if (get_var(0, "$gt") ~= "n/a") then
         for _, v in pairs(self.tags) do
             -- The first valid vehicle tag address found will be used:
             if GetTag("vehi", v[1]) then
                 self.vehicle_tag = v[1]
                 self.iterations = v[2]
+                self.delay = v[3]
                 break
             end
         end
@@ -301,8 +328,9 @@ end
 function OnServerCommand(P, C)
     return Crash:OnServerCommand(P, C)
 end
-function OnPlayerConnect(P)
-    return Crash:OnPlayerConnect(P)
+
+function OnTick()
+    return Crash:OnTick()
 end
 
 return Crash
