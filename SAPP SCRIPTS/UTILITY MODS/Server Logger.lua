@@ -66,6 +66,7 @@ local censored_content = {
     censor_character = "*****",
     "login",
     "admin_add",
+    "sv_password",
     "change_password",
     "admin_change_pw",
     "admin_add_manually",
