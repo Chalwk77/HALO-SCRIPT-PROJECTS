@@ -60,6 +60,7 @@ local function takeAction(id, name)
 end
 
 function OnPlayerConnect(PlayerIndex)
+
     local name = get_var(PlayerIndex, "$name")
     local hash = get_var(PlayerIndex, "$hash")
     local index = get_var(PlayerIndex, "$n")

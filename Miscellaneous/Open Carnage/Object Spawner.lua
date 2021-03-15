@@ -20,7 +20,7 @@ local objects = {
     ["bloodgulch"] = {
         --
         -- Format as follows: tag type, tag name, x, y, z, rotation
-        -- Make sure the object rotation is in RADIANS not DEGREES
+        -- Make sure object rotation coordinates are in radians not degrees.
         --
         -- This weapon will spawn on top of Red Base by the ramp
         { "weap", "weapons\\sniper rifle\\sniper rifle", 90.899, -159.633, 1.704, 1.587 },

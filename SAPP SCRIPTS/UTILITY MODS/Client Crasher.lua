@@ -47,8 +47,8 @@ local Crash = {
     -- Be careful about basing this on hash and ensure that it's not illegitimate.
     users = {
         ip = {
-            "120.0.0.1",
-            "168.192.1.2",
+            --"120.0.0.1",
+            --"168.192.1.2",
         },
         hash = {
             "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", -- hash 1

@@ -42,9 +42,8 @@ Place "json.lua" in the server's root directory - not inside the Lua Folder.
 It's crucial that the file names are "json.lua" and "Mute System.lua".
 Ensure "Mute System.lua" is initialized.
 
-Download Links:
-[JSON FILE] https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/Miscellaneous/json.lua
-[MUTE SYSTEM] https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/SAPP%20SCRIPTS/UTILITY%20MODS/Mute%20System.lua
+Download Mute System dependencies here:
+https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/tag/v1.0-Mute-System-Dependencies
 ___
 
 Copyright (c) 2020-2021, Jericho Crosby <jericho.crosby227@gmail.com>
@@ -62,7 +61,7 @@ local WordBuster = {
     -- Word Buster Configuration --
 
     -- Version: Current version of Word Buster
-    version = 1.6,
+    version = 1.7,
 
     -- Censor Words: Censor words with "censor" character?
     censorWords = true,

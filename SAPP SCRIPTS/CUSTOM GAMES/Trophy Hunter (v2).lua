@@ -143,6 +143,8 @@ local current_scorelimit
 -- Game Tables: 
 local trophies, console_messages = { }, { }
 local ip_table = { }
+
+local time_scale = 1/30
 -- ...
 
 function OnScriptLoad()
@@ -278,7 +280,7 @@ function OnTick()
     if (#console_messages > 0) then
         for k, v in pairs(console_messages) do
             if v.player and player_present(v.player) then
-                v.time = v.time + 0.03333333333333333
+                v.time = v.time + time_scale
 
                 mod:cls(v.player)
                 if type(v.message) == "table" then
@@ -304,7 +306,7 @@ function OnTick()
         for k, v in pairs(trophies) do
             if (k) then
                 if (v.despawn_trigger) then
-                    v.time = v.time + 0.03333333333333333
+                    v.time = v.time + time_scale
                     if (v.time >= v.duration) then
                         names[#names + 1] = v.vn
                         trophies[k] = nil
@@ -712,11 +714,11 @@ function mod:modifyScorelimit()
         mod:SetScorelimit(scoreTable[2])
         msg = gsub(gsub(scoreTable.txt, "%%scorelimit%%", scoreTable[2]), "%%s%%", mod:getChar(scoreTable[2]))
 
-    elseif (player_count > 9 and player_count <= 12 and current_scorelimit ~= scoreTable[3]) then
+    elseif (player_count >= 9 and player_count <= 12 and current_scorelimit ~= scoreTable[3]) then
         mod:SetScorelimit(scoreTable[3])
         msg = gsub(gsub(scoreTable.txt, "%%scorelimit%%", scoreTable[3]), "%%s%%", mod:getChar(scoreTable[3]))
 
-    elseif (player_count > 12 and current_scorelimit ~= scoreTable[4]) then
+    elseif (player_count >= 13 and current_scorelimit ~= scoreTable[4]) then
         mod:SetScorelimit(scoreTable[4])
         msg = gsub(gsub(scoreTable.txt, "%%scorelimit%%", scoreTable[4]), "%%s%%", mod:getChar(scoreTable[4]))
     end
