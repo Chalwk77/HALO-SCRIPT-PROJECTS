@@ -41,6 +41,7 @@ function MOD:Init()
                     [2] = { nil, 12, nil }, -- sniper
                 },
             },
+
             ["bloodgulch"] = {
                 ["red"] = {
                     [2] = { nil, 12, nil }, -- sniper
@@ -61,6 +62,7 @@ function MOD:Init()
                     [5] = { nil, nil, 100 }, -- plasma pistol
                 }
             },
+
             ["boardingaction"] = {
                 ["red"] = {
                     [10] = { nil, 24, nil }, -- shotgun
@@ -75,6 +77,7 @@ function MOD:Init()
                     [1] = { nil, 60, nil }, -- pistol
                 }
             },
+
             ["carousel"] = {
                 ["red"] = {
                     [2] = { nil, 12, nil }, -- sniper
@@ -92,6 +95,7 @@ function MOD:Init()
                     [10] = { nil, 24, nil }, -- shotgun
                 }
             },
+
             ["dangercanyon"] = {
                 ["red"] = {
                     [1] = { nil, 60, nil }, -- pistol
@@ -109,6 +113,7 @@ function MOD:Init()
                     [7] = { nil, 240, nil }, -- assault rifle
                 }
             },
+
             ["deathisland"] = {
                 ["red"] = {
                     [2] = { nil, 12, nil }, -- sniper
@@ -126,6 +131,7 @@ function MOD:Init()
                     [7] = { nil, 240, nil }, -- assault rifle
                 }
             },
+
             ["gephyrophobia"] = {
                 ["red"] = {
                     [2] = { nil, 12, nil }, -- sniper
@@ -143,6 +149,7 @@ function MOD:Init()
                     [4] = { nil, 8, nil }, -- rocket launcher
                 }
             },
+
             ["icefields"] = {
                 ["red"] = {
                     [1] = { nil, 60, nil }, -- pistol
@@ -157,6 +164,7 @@ function MOD:Init()
                     [7] = { nil, 240, nil }, -- assault rifle
                 }
             },
+
             ["infinity"] = {
                 ["red"] = {
                     [1] = { nil, 60, nil }, -- pistol
@@ -174,6 +182,7 @@ function MOD:Init()
                     [4] = { nil, 8, nil }, -- rocket launcher
                 }
             },
+
             ["sidewinder"] = {
                 ["red"] = {
                     [1] = { nil, 60, nil }, -- pistol
@@ -194,6 +203,7 @@ function MOD:Init()
                     [2] = { nil, 12, nil }, -- sniper
                 }
             },
+
             ["timberland"] = {
                 ["red"] = {
                     [1] = { nil, 60, nil }, -- pistol
@@ -211,6 +221,7 @@ function MOD:Init()
                     [9] = { nil, 120, nil }, -- needler
                 }
             },
+
             ["hangemhigh"] = {
                 ["red"] = {
                     [1] = { nil, 60, nil }, -- pistol
@@ -225,6 +236,7 @@ function MOD:Init()
                     [10] = { nil, 24, nil }, -- shotgun
                 }
             },
+
             ["ratrace"] = {
                 ["red"] = {
                     [7] = { nil, 240, nil }, -- assault rifle
@@ -242,6 +254,7 @@ function MOD:Init()
                     [9] = { nil, 120, nil }, -- needler
                 }
             },
+
             ["damnation"] = {
                 ["red"] = {
                     [7] = { nil, 240, nil }, -- assault rifle
@@ -256,6 +269,7 @@ function MOD:Init()
                     [1] = { nil, 60, nil }, -- pistol
                 }
             },
+
             ["putput"] = {
                 ["red"] = {
                     [5] = { nil, nil, 100 }, -- plasma pistol
@@ -276,6 +290,7 @@ function MOD:Init()
                     [8] = { nil, 300, nil }, -- flamethrower
                 }
             },
+
             ["prisoner"] = {
                 ["red"] = {
                     [1] = { nil, 60, nil }, -- pistol
@@ -290,6 +305,7 @@ function MOD:Init()
                     [4] = { nil, 8, nil }, -- rocket launcher
                 }
             },
+
             ["wizard"] = {
                 ["red"] = {
                     [1] = { nil, 60, nil }, -- pistol
@@ -303,20 +319,9 @@ function MOD:Init()
                     [1] = { nil, 60, nil }, -- pistol
                     [2] = { nil, 12, nil }, -- sniper
                 }
-            },
-            ["ratrace_rm"] = {
-                ["red"] = {
-                    [1] = { nil, 60, nil }, -- pistol
-                    [7] = { nil, 240, nil }, -- assault rifle
-                    [10] = { nil, 24, nil }, -- shotgun
-                },
-                ["blue"] = {
-                    [11] = { nil, nil, nil }, -- sword
-                },
-                ["ffa"] = {
-                    [9] = { nil, 120, nil }, -- needler
-                }
             }
+
+            -- Repeat the structure to add more maps:
         }
 
         self.tags = {
