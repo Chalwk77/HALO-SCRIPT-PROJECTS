@@ -2,10 +2,7 @@
 --=====================================================================================================--
 Script Name: Spawn From Sky, for SAPP (PC & CE)
 Description: Read the title!
-
              The height above the ground can be edited on a per-map basis.
-             All vanilla maps have a custom height.
-             Maps not listed have a default height above ground of 20 world units.
 
 Copyright (c) 2016-2021, Jericho Crosby <jericho.crosby227@gmail.com>
 Notice: You can use this document subject to the following conditions:
@@ -16,12 +13,10 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 api_version = "1.12.0.0"
 -- config begins --
 
--- This is the height used if the current map is not listed below:
-local default_height = 20
-
--- Height above ground:
 local maps = {
-    ["bloodgulch"] = 35,
+
+    -- Height above ground:
+    ["bloodgulch"] = 50,
     ["deathisland"] = 35,
     ["icefields"] = 35,
     ["infinity"] = 35,
@@ -39,7 +34,7 @@ local maps = {
     ["prisoner"] = 35,
     ["putput"] = 35,
     ["ratrace"] = 35,
-    ["wizard"] = 35,
+    ["ratrace"] = 35,
 
     -- repeat the structure to add more maps (see example below)
     ["your_map_name_here"] = 10,
@@ -50,16 +45,11 @@ local rx, ry, rz
 local bx, by, bz
 
 local players = { }
-local height, ctf_globals
+local ctf_globals, height
 
 function OnScriptLoad()
-    register_callback(cb["EVENT_TICK"], "OnTick")
-    register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
-    register_callback(cb['EVENT_SPAWN'], 'OnPlayerSpawn')
-    register_callback(cb['EVENT_PRESPAWN'], 'OnPreSpawn')
-    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
-    register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
 
+    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     local globals = sig_scan("8B3C85????????3BF9741FE8????????8B8E2C0200008B4610") + 3
     if (globals == 3) then
         return
@@ -69,26 +59,20 @@ function OnScriptLoad()
     OnGameStart()
 end
 
-function OnTick()
-    for i, v in pairs(players) do
-        if (i and v.init) then
-            local DyN = get_dynamic_player(i)
-            if (DyN ~= 0) then
-                local state = read_byte(DyN + 0x2A3)
-                if (state == 21 or state == 22) then
-                    v.init = false
-                    execute_command("ungod " .. i)
-                end
-            end
-        end
-    end
-end
+local function RegisterSAPPEvents(Load)
 
-local function InitPlayer(Ply, Reset)
-    if (not Reset) then
-        players[Ply] = { init = true }
+    players = { }
+
+    if (Load) then
+        register_callback(cb["EVENT_TICK"], "OnTick")
+        register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
+        register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
+        register_callback(cb['EVENT_PRESPAWN'], "OnPreSpawn")
     else
-        players[Ply] = nil
+        unregister_callback(cb["EVENT_TICK"])
+        unregister_callback(cb["EVENT_JOIN"])
+        unregister_callback(cb['EVENT_SPAWN'])
+        unregister_callback(cb['EVENT_PRESPAWN'])
     end
 end
 
@@ -97,39 +81,51 @@ function OnGameStart()
 
         local map = get_var(0, "$map")
         height = maps[map]
-        if (not height) then
-            height = default_height
+        if (height) then
+
+            RegisterSAPPEvents(true)
+
+            rx, ry, rz = read_vector3d(read_dword(ctf_globals))
+            bx, by, bz = read_vector3d(read_dword(ctf_globals + 4))
+        else
+            RegisterSAPPEvents(false)
+            cprint("[Spawn From Sky] " .. map .. " is not listed!", 12)
         end
-
-        players = { }
-        for i = 1, 16 do
-            if player_present(i) then
-                InitPlayer(i, false)
-            end
-        end
-
-        rx, ry, rz = read_vector3d(read_dword(ctf_globals))
-        bx, by, bz = read_vector3d(read_dword(ctf_globals + 4))
-
     end
 end
 
-function OnPlayerJoin(Ply)
-    InitPlayer(Ply, false)
+function OnTick()
+    for i, _ in pairs(players) do
+        if (i) then
+            local DyN = get_dynamic_player(i)
+            if (DyN ~= 0) then
+                local state = read_byte(DyN + 0x2A3)
+                if (state == 21 or state == 22) then
+                    execute_command("ungod " .. i)
+                    write_word(DyN + 0x104, 0)
+                    players[i] = nil
+                end
+            end
+        end
+    end
 end
 
-function OnPlayerDisconnect(Ply)
-    InitPlayer(Ply, true)
+local function InitPlayer(Ply)
+    players[Ply] = true
+end
+
+function OnPlayerJoin(Ply)
+    InitPlayer(Ply)
 end
 
 function OnPlayerSpawn(Ply)
-    if (players[Ply].init) then
+    if (players[Ply]) then
         execute_command("god " .. Ply)
     end
 end
 
 function OnPreSpawn(Ply)
-    if (players[Ply].init) then
+    if (players[Ply]) then
 
         local DyN = get_dynamic_player(Ply)
         if (DyN ~= 0) then
