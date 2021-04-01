@@ -45,7 +45,7 @@ function LoadTables()
         "xxx.xxx.xxx.xxx:0000",
         "121.74.21.53:2305",
         "204.147.144.85:2309",
-        "ip-not-used" "ip-not-used" "ip-not-used"
+        "ip-not-used",
     }
 end
 

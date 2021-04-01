@@ -373,8 +373,10 @@ local function GetXYZ(DyN)
 end
 
 function MOD:WeaponTable(Ply)
+
     local ffa = (get_var(0, "$ffa") == "1")
     local team = get_var(Ply, "$team")
+
     if (ffa) then
         return self.weapons["ffa"]
     else
