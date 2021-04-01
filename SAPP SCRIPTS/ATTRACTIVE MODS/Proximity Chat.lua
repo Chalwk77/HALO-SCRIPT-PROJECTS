@@ -20,7 +20,7 @@ local permission_level = 1
 -- If the map is not listed below, the script will use this range:
 local default_range = 8
 
--- Set the default range on a per-map basis.
+-- Set the default range on a per-map basis:
 local maps = {
     ["beavercreek"] = 8,
     ["bloodgulch"] = 8,
@@ -41,6 +41,8 @@ local maps = {
     ["sidewinder"] = 8,
     ["timberland"] = 8,
     ["wizard"] = 8,
+
+    -- repeat the structure to add more entries:
 }
 
 
@@ -135,6 +137,7 @@ local function GetPlayers(Talker, Type)
 
     -- Team Chat -> Team Play [0]
     local case1 = (Type == 1 and team_play)
+
     -- Vehicle Chat -> Team Play [1]
     local case2 = (Type == 2 and team_play)
 
