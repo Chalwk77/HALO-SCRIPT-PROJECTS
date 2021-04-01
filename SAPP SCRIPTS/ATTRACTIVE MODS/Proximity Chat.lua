@@ -1,7 +1,7 @@
 --[[
 --=====================================================================================================--
 Script Name: Proximity Chat, for SAPP (PC & CE)
-Description: Players can only chat with people within a certain range (see config)
+Description: You can only chat with players who are within a certain range from you (see config)
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -16,8 +16,33 @@ local command = "chatrange"
 -- Minimum permission level required to execute /command (see above).
 local permission_level = 1
 
--- 1 world unit = 10 feet or ~3.048 meters:
+-- 1 world unit = 10 feet or ~3.048 meters.
+-- If the map is not listed below, the script will use this range:
 local default_range = 8
+
+-- Set the default range on a per-map basis.
+local maps = {
+    ["beavercreek"] = 8,
+    ["bloodgulch"] = 8,
+    ["boardingaction"] = 8,
+    ["carousel"] = 8,
+    ["chillout"] = 8,
+    ["damnation"] = 8,
+    ["dangercanyon"] = 8,
+    ["deathisland"] = 8,
+    ["gephyrophobia"] = 8,
+    ["hangemhigh"] = 8,
+    ["icefields"] = 8,
+    ["infinity"] = 8,
+    ["longest"] = 8,
+    ["prisoner"] = 8,
+    ["putput"] = 8,
+    ["ratrace"] = 8,
+    ["sidewinder"] = 8,
+    ["timberland"] = 8,
+    ["wizard"] = 8,
+}
+
 
 -- Allow dead players to talk?
 -- Note: Players who are dead have infinite range.
@@ -58,12 +83,13 @@ function OnScriptLoad()
     register_callback(cb["EVENT_CHAT"], "OnPlayerChat")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
-    current_range = default_range
+    OnGameStart()
 end
 
-local function Respond(Ply, Str)
+local function Respond(Ply, Str, Color)
+    Color = Color or 12
     if (Ply == 0) then
-        cprint(Str)
+        cprint(Str, Color)
     else
         say(Ply, Str)
     end
@@ -79,6 +105,9 @@ end
 function OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
         team_play = TeamPlay()
+
+        local map = get_var(0, "$map")
+        current_range = maps[map] or default_range
     end
 end
 
@@ -207,19 +236,24 @@ end
 
 function OnServerCommand(Ply, CMD)
     local Args = CMDSplit(CMD)
+
     if (Args) and (Args[1] == command) then
         local lvl = tonumber(get_var(Ply, "$lvl"))
         if (lvl >= permission_level or Ply == 0) then
-
             if (Args[2]) then
-                if (Args[2]:match("%d+")) then
+
+                local range = tonumber(Args[2]:match("%d+"))
+
+                if (range and range > 1) then
                     current_range = Args[2]
-                    Respond(Ply, "New Chat Range: " .. Args[2])
+                    Respond(Ply, "New Chat Range: " .. Args[2], 10)
+                elseif (range and range <= 1) then
+                    Respond(Ply, "Please enter a range greater than 1", 12)
                 else
-                    Respond(Ply, "Invalid syntax. Usage: /" .. command .. " [range]")
+                    Respond(Ply, "Invalid syntax. Usage: /" .. command ..  " [range (number)]",12)
                 end
             else
-                Respond(Ply, "Current Range: " .. current_range .. " | Default Range: " .. default_range)
+                Respond(Ply, "Current Range: " .. current_range .. " | Default Range: " .. default_range, 10)
             end
         else
             Respond(Ply, "You do not have permission to execute this command.")
