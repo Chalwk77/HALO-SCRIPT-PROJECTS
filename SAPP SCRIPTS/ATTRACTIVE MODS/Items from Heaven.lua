@@ -1,7 +1,7 @@
 --[[
 Script Name: Items from Heaven, for SAPP (PC & CE)
 Description: This script will spawn a random weapon or vehicle
-             at a random pre-defined map coordinate,.
+             at a random pre-defined map coordinate.
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
