@@ -48,8 +48,9 @@ local ignore_admins = true
 local min_level = 1
 -- config ends -
 
-local players = { }
-local time_scale, game_started = 1 / 30
+local players
+local game_started
+local time_scale = 1 / 30
 local floor, gsub = math.floor, string.gsub
 
 function OnScriptLoad()
@@ -59,6 +60,7 @@ end
 
 function OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
+        players = { }
         if RegisterSAPPEvents() then
             for i = 1, 16 do
                 if player_present(i) then
@@ -94,42 +96,53 @@ local function InitPlayer(Ply, Reset)
     end
 end
 
+local function InVehicle(Ply)
+    local DyN = get_dynamic_player(Ply)
+    if (DyN ~= 0) then
+        local VehicleID = read_dword(DyN + 0x11C)
+        if (VehicleID == 0xFFFFFFFF) then
+            return false
+        elseif (players[Ply].warn) then
+            players[Ply].seconds = 0
+        end
+        return true
+    end
+    return false
+end
+
 function OnTick()
     if (game_started) then
         for i, v in pairs(players) do
-            if player_present(i) then
-                local DyN = get_dynamic_player(i)
-                if (DyN ~= 0) then
-                    if not InVehicle(i, DyN) then
 
-                        if (v.init) then
-                            v.seconds = v.seconds + time_scale
-                            if (v.seconds > time_until_warn) and (v.warn) then
-                                v.warn = false
-                                v.warnings = v.warnings - 1
+            if not InVehicle(i) then
 
-                                local _, action = GetAction()
-                                local time_remaining = floor((time_until_kill - v.seconds)) + 1
-                                local msg = gsub(gsub(gsub(action.warning,
-                                        "%%seconds%%", time_remaining),
-                                        "%%current%%", v.warnings),
-                                        "%%total%%", warnings)
+                if (v.init) then
+                    v.seconds = v.seconds + time_scale
+                    if (v.seconds > time_until_warn and v.warn) then
 
-                                say(i, msg)
-                            elseif (v.seconds >= time_until_kill) then
-                                local Type, action = GetAction()
-                                if (Type == "kill") then
-                                    execute_command("kill " .. i)
-                                elseif (Type == "take_weapons") then
-                                    execute_command("wdel " .. i)
-                                end
-                                v.init = false
-                                if (v.warnings <= 0 and severe_punishment) then
-                                    execute_command(tostring(punishment) .. " " .. i)
-                                else
-                                    say(i, action.on_action)
-                                end
-                            end
+                        v.warn = false
+                        v.warnings = v.warnings - 1
+
+                        local _, action = GetAction()
+                        local time_remaining = floor((time_until_kill - v.seconds)) + 1
+                        local msg = gsub(gsub(gsub(action.warning,
+                                "%%seconds%%", time_remaining),
+                                "%%current%%", v.warnings),
+                                "%%total%%", warnings)
+
+                        say(i, msg)
+                    elseif (v.seconds >= time_until_kill) then
+                        v.init = false
+                        local Type, action = GetAction()
+                        if (Type == "kill") then
+                            execute_command("kill " .. i)
+                        elseif (Type == "take_weapons") then
+                            execute_command("wdel " .. i)
+                        end
+                        if (v.warnings <= 0 and severe_punishment) then
+                            execute_command(punishment .. " " .. i)
+                        else
+                            say(i, action.on_action)
                         end
                     end
                 end
@@ -159,19 +172,6 @@ end
 
 function OnPlayerDisconnect(Ply)
     InitPlayer(Ply, true)
-end
-
-function InVehicle(Ply, DyN)
-    local VehicleID = read_dword(DyN + 0x11C)
-    if (VehicleID == 0xFFFFFFFF) then
-        return false
-    else
-        if (players[Ply].warn) then
-            players[Ply].seconds = 0
-        end
-        return true
-    end
-    return false
 end
 
 function OnWeaponPickup(Ply, _, _)
