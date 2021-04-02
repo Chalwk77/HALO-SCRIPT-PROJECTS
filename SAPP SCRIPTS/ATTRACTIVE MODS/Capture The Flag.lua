@@ -312,10 +312,10 @@ function CTF:OnTick()
                         if (v.warn) then
                             v.warn = false
                             local msg = gsub(self.on_respawn_trigger, "%%time%%", self.respawn_time / 2)
-                            self:Respond(_, msg)
+                            self:Respond(nil, msg, nil)
                         end
                     elseif (time <= 0) then
-                        self:Respond(_, self.on_respawn)
+                        self:Respond(nil, self.on_respawn, nil)
                         self:SpawnFlag()
                     end
                 end
@@ -377,11 +377,9 @@ end
 
 function CTF:FlagDropped()
     for i, _ in pairs(self.players) do
-        if player_present(i) then
-            local has_flag = self:MonitorFlag(i)
-            if (has_flag) then
-                return false
-            end
+        local has_flag = self:MonitorFlag(i)
+        if (has_flag) then
+            return false
         end
     end
     return true
@@ -422,7 +420,7 @@ function CTF:MonitorFlag(Ply)
                             if (k == 1) then
                                 self:Respond(Ply, str, true)
                             else
-                                self:Respond(Ply, str)
+                                self:Respond(Ply, str, nil)
                             end
                         end
                     end
@@ -445,28 +443,25 @@ function CTF:MonitorFlag(Ply)
                             "%%captures%%",
                             self.players[Ply].captures)
 
-                    self:Respond(_, str)
+                    self:Respond(nil, str, nil)
                     self:SpawnFlag()
                     break
                 end
             end
-
         end
     end
     return has_flag
 end
 
-function CTF:Respond(Ply, Message, Exclude)
+function CTF:Respond(Ply, Str, Exclude)
 
     if (Ply and not Exclude) then
-        return rprint(Ply, Message)
+        return rprint(Ply, Str)
     end
 
-    for i = 1, 16 do
-        if player_present(i) then
-            if (Exclude and i ~= Ply) or (not Ply) then
-                rprint(i, Message)
-            end
+    for i, _ in pairs(self.players) do
+        if (Exclude and i ~= Ply) or (not Ply) then
+            rprint(i, Str)
         end
     end
 end
