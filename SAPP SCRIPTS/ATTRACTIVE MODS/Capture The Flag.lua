@@ -14,12 +14,15 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.12.0.0"
 
+-- configuration starts --
+
 local CTF = {
 
     -- Radius (in world units) a player must be from the capture point to score:
+    -- 1 world unit = 10 feet or ~3.048 meters.
     trigger_radius = 1.1,
 
-    -- Time (in seconds) the flag will respawn if it is dropped
+    -- Time (in seconds) until the flag will respawn if it is dropped:
     respawn_time = 15,
 
     -- Points awarded on capture:
@@ -201,17 +204,29 @@ local CTF = {
         }
     }
 }
+-- configuration ends --
 
 local time_scale = 1 / 30
 
 local gsub = string.gsub
 local sqrt, floor = math.sqrt, math.floor
 
-function CTF:Init()
-    if (get_var(0, "$gt") ~= "n/a") and (get_var(0, "$gt") ~= "ctf") then
+function CTF:Init(Unload)
+
+    local gt = (get_var(0, "$gt") ~= "n/a") and (get_var(0, "$gt") ~= "ctf")
+
+    if (gt and not Unload) then
+
+        local map = get_var(0, "$map")
+        if (not self.maps[map]) then
+            return self:Init(true)
+        end
 
         self.game_started = true
+        self.params = self.maps[map]
         self.players, self.flag = { }, { }
+
+        self:SpawnFlag()
 
         for i = 1, 16 do
             if player_present(i) then
@@ -219,23 +234,19 @@ function CTF:Init()
             end
         end
 
-        for k, v in pairs(self.maps) do
-            if (k == get_var(0, "$map")) then
-                self.params = v
-            end
-        end
-
-        self:SpawnFlag()
-
         register_callback(cb["EVENT_TICK"], "OnTick")
         register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
         register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
         register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
-    else
+
+    elseif (not gt or Unload) then
         unregister_callback(cb["EVENT_TICK"])
         unregister_callback(cb["EVENT_JOIN"])
         unregister_callback(cb["EVENT_LEAVE"])
         unregister_callback(cb["EVENT_GAME_END"])
+        if (Unload) then
+            cprint("[Capture The Flag] This map is not configured for this script.", 12)
+        end
     end
 end
 
@@ -306,7 +317,7 @@ function CTF:GetRadius(pX, pY, pZ)
     return false
 end
 
-function CTF:DestroyFlag(Unload)
+function CTF:DestroyFlag()
 
     -- Destroy any existing flags
     -- Reset previous flag holders speed
@@ -318,9 +329,7 @@ function CTF:DestroyFlag(Unload)
         destroy_object(flag)
     end
 
-    if (not Unload) then
-        self.flag = { }
-    end
+    self.flag = { }
 end
 
 function CTF:SpawnFlag()
@@ -389,7 +398,6 @@ function CTF:MonitorFlag(Ply)
                 if (x and has_flag) then
 
                     v.held_by = Ply
-
                     local name, speed = self.players[Ply].name, self.params.flag_runner_speed
 
                     if (v.broadcast) then
