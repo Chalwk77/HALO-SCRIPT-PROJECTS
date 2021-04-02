@@ -8,8 +8,6 @@ Description: This script will monitor all players and ensure they are all racing
              Players get a maximum of 5 warnings by default.
              If their warnings are depleted the player will be punished (kicked by default)
 
-             Note: "time_until_warn" and "time_until_kill" can be edited in the config section.
-
 Copyright (c) 2020-2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
