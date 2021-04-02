@@ -42,8 +42,8 @@ local CTF = {
     on_flag_pickup = {
         [1] = { "%name% has the flag!" },
         [2] = {
-            "Return the flag to a base to score.",
-            "%speed%x speed boost."
+            "Return the flag to ANY base to score!",
+            ">>> %speed%x speed boost <<<"
         }
     },
 
