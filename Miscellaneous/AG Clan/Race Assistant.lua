@@ -42,7 +42,7 @@ local time_until_warn = 90 -- In seconds
 local time_until_kill = 180 -- In seconds
 
 -- If true admins will be exempt from action taken against them (including warnings)
-local ignore_admins = false
+local ignore_admins = true
 
 -- Admins who are this level (or above) will be exempt (ignore_admins must be enabled)
 local min_level = 1
