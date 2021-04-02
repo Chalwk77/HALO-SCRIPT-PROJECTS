@@ -33,8 +33,8 @@ local CTF = {
     rank_script = "Rank System",
 
     on_respawn = "The flag respawned!",
-    on_capture = "%name% captured a flag and has [%captures%] captures",
-    on_respawn_trigger = "The flag was dropped and will respawn in %time% seconds",
+    on_capture = "%name% captured a flag and has [%captures%] capture%s%",
+    on_respawn_trigger = "The flag was dropped and will respawn in %time% second%s%",
 
     -- Default running speed:
     default_runner_speed = 1,
@@ -298,6 +298,13 @@ function OnPlayerDisconnect(Ply)
     CTF:InitPlayer(Ply, true)
 end
 
+local function Plural(n)
+    if (n > 1) then
+        return "s"
+    end
+    return ""
+end
+
 function CTF:OnTick()
     if (self.game_started) then
         for flag, v in pairs(self.flag) do
@@ -311,7 +318,9 @@ function CTF:OnTick()
                     if (time == floor(self.respawn_time / 2)) then
                         if (v.warn) then
                             v.warn = false
-                            local msg = gsub(self.on_respawn_trigger, "%%time%%", self.respawn_time / 2)
+                            local msg = gsub(gsub(self.on_respawn_trigger,
+                                    "%%time%%", self.respawn_time / 2),
+                                    "%%s%%", Plural(self.respawn_time / 2))
                             self:Respond(nil, msg, nil)
                         end
                     elseif (time <= 0) then
@@ -438,10 +447,10 @@ function CTF:MonitorFlag(Ply)
 
                     self.players[Ply].captures = self.players[Ply].captures + 1
 
-                    local str = gsub(gsub(self.on_capture,
+                    local str = gsub(gsub(gsub(self.on_capture,
                             "%%name%%", name),
-                            "%%captures%%",
-                            self.players[Ply].captures)
+                            "%%captures%%", self.players[Ply].captures),
+                            "%%s%%", Plural(self.players[Ply].captures))
 
                     self:Respond(nil, str, nil)
                     self:SpawnFlag()
