@@ -42,16 +42,25 @@ local time_until_warn = 90 -- In seconds
 local time_until_kill = 180 -- In seconds
 
 -- If true admins will be exempt from action taken against them (including warnings)
-local ignore_admins = true
+local ignore_admins = false
 
 -- Admins who are this level (or above) will be exempt (ignore_admins must be enabled)
 local min_level = 1
--- config ends -
+-- config ends --
 
 local players
 local game_started
 local time_scale = 1 / 30
 local floor, gsub = math.floor, string.gsub
+
+local function GetAction()
+    for k, v in pairs(actions) do
+        if (v.enabled) then
+            return k, v
+        end
+    end
+end
+local AType, ATable = GetAction()
 
 function OnScriptLoad()
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
@@ -60,8 +69,11 @@ end
 
 function OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
+
         players = { }
-        if RegisterSAPPEvents() then
+        game_started = RegisterSAPPEvents()
+
+        if (game_started) then
             for i = 1, 16 do
                 if player_present(i) then
                     CheckIgnore(i)
@@ -75,14 +87,6 @@ function OnGameEnd()
     game_started = false
 end
 
-local function GetAction()
-    for k, v in pairs(actions) do
-        if (v.enabled) then
-            return k, v
-        end
-    end
-end
-
 local function InitPlayer(Ply, Reset)
     if (not Reset) then
         players[Ply] = {
@@ -91,7 +95,7 @@ local function InitPlayer(Ply, Reset)
             warn = true,
             warnings = warnings
         }
-    else
+    elseif (players[Ply]) then
         players[Ply] = nil
     end
 end
@@ -114,36 +118,30 @@ function OnTick()
     if (game_started) then
         for i, v in pairs(players) do
 
-            if not InVehicle(i) then
+            if (not InVehicle(i)) then
+                v.seconds = v.seconds + time_scale
+                if (v.seconds > time_until_warn and v.warn) then
 
-                if (v.init) then
-                    v.seconds = v.seconds + time_scale
-                    if (v.seconds > time_until_warn and v.warn) then
+                    v.warn = false
+                    v.warnings = v.warnings - 1
 
-                        v.warn = false
-                        v.warnings = v.warnings - 1
+                    local time_remaining = floor((time_until_kill - v.seconds)) + 1
+                    local msg = gsub(gsub(gsub(ATable.warning,
+                            "%%seconds%%", time_remaining),
+                            "%%current%%", v.warnings),
+                            "%%total%%", warnings)
 
-                        local _, action = GetAction()
-                        local time_remaining = floor((time_until_kill - v.seconds)) + 1
-                        local msg = gsub(gsub(gsub(action.warning,
-                                "%%seconds%%", time_remaining),
-                                "%%current%%", v.warnings),
-                                "%%total%%", warnings)
-
-                        say(i, msg)
-                    elseif (v.seconds >= time_until_kill) then
-                        v.init = false
-                        local Type, action = GetAction()
-                        if (Type == "kill") then
-                            execute_command("kill " .. i)
-                        elseif (Type == "take_weapons") then
-                            execute_command("wdel " .. i)
-                        end
-                        if (v.warnings <= 0 and severe_punishment) then
-                            execute_command(punishment .. " " .. i)
-                        else
-                            say(i, action.on_action)
-                        end
+                    say(i, msg)
+                elseif (v.seconds >= time_until_kill) then
+                    if (AType == "kill") then
+                        execute_command("kill " .. i)
+                    elseif (AType == "take_weapons") then
+                        execute_command("wdel " .. i)
+                    end
+                    if (v.warnings <= 0 and severe_punishment) then
+                        execute_command(punishment .. " " .. i)
+                    else
+                        say(i, ATable.on_action)
                     end
                 end
             end
@@ -165,7 +163,6 @@ end
 function OnPlayerSpawn(Ply)
     if (players[Ply]) then
         players[Ply].seconds = 0
-        players[Ply].init = true
         players[Ply].warn = true
     end
 end
@@ -175,14 +172,14 @@ function OnPlayerDisconnect(Ply)
 end
 
 function OnWeaponPickup(Ply, _, _)
-    if (not players[Ply].init and GetAction() == "take_weapons") then
+    local case = (players[Ply] and players[Ply].seconds >= time_until_warn)
+    if (case) and (AType == "take_weapons") then
         execute_command("wdel " .. Ply)
     end
 end
 
 function RegisterSAPPEvents()
     if (get_var(0, "$gt") == "race") then
-        game_started = true
         register_callback(cb["EVENT_TICK"], "OnTick")
         register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
         register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
@@ -191,7 +188,6 @@ function RegisterSAPPEvents()
         register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
         return true
     else
-        game_started = false
         unregister_callback(cb['EVENT_TICK'])
         unregister_callback(cb['EVENT_JOIN'])
         unregister_callback(cb['EVENT_SPAWN'])
