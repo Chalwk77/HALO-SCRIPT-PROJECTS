@@ -73,21 +73,13 @@ local uber = {
 }
 
 local floor = math.floor
-local lower, upper, gsub = string.lower, string.upper, string.gsub
-local time_scale = 0.03333333333333333
+local time_scale = 1 / 30
 local players, vehicles = {}
+local lower, upper, gsub = string.lower, string.upper, string.gsub
 
 function OnScriptLoad()
     register_callback(cb['EVENT_GAME_START'], "OnGameStart")
-    if (get_var(0, "$gt") ~= "n/a") then
-        if RegisterSAPPEvents() then
-            for i = 1, 16 do
-                if player_present(i) then
-                    uber:InitPlayer(i, true)
-                end
-            end
-        end
-    end
+    OnGameStart()
 end
 
 function OnScriptUnload()
@@ -96,7 +88,13 @@ end
 
 function OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
-        RegisterSAPPEvents()
+        if RegisterSAPPEvents() then
+            for i = 1, 16 do
+                if player_present(i) then
+                    uber:InitPlayer(i, true)
+                end
+            end
+        end
     end
 end
 
@@ -402,18 +400,17 @@ function uber:CheckForReset()
     end
 end
 
-function StrSplit(Str)
-    local t, i = {}, 1
-    for Args in Str:gmatch("([^%s]+)") do
-        t[i] = Args
-        i = i + 1
+function StrSplit(STR)
+   local Args = { }
+    for Param in STR:gmatch("([^%s]+)") do
+        Args[#Args+1] = Param
     end
-    return t
+    return Args
 end
 
-function uber:InitPlayer(PlayerIndex, Init)
-    if (Init) then
-        players[PlayerIndex] = {
+function uber:InitPlayer(Ply, Reset)
+    if (Reset) then
+        players[Ply] = {
             cooldown = false,
             cooldown_timer = 0,
             crouch_state = 0,
@@ -422,7 +419,7 @@ function uber:InitPlayer(PlayerIndex, Init)
             eject_timer = 0
         }
     else
-        players[PlayerIndex] = {}
+        players[Ply] = nil
     end
 end
 
@@ -435,8 +432,10 @@ end
 function uber:ValidateVehicle(VehicleObjectMemory)
     local vehicle = read_string(read_dword(read_word(VehicleObjectMemory) * 32 + 0x40440038))
     local keywords = {
-        "hog", "hawg", "civi", "civvi", "vulcan", "puma", "scorpion",
-        "lav", "sult", "rancher", "walton", "snow_civ", "glendale", "jeep", "mesa", "spectre"
+        "hog", "hawg", "civi", "civvi", "vulcan",
+        "puma", "scorpion", "lav", "sult", "rancher",
+        "walton", "snow_civ", "glendale", "jeep",
+        "mesa", "spectre"
     }
     for _, word in pairs(keywords) do
         if (vehicle:find(word)) then
@@ -455,10 +454,8 @@ function RegisterSAPPEvents()
             local tag = tag_address + 0x20 * i
             local tag_name = read_string(read_dword(tag + 0x10))
             local tag_class = read_dword(tag)
-            if (tag_class == 1885895027) then
-                if (tag_name:find("protected")) then
-                    uber.protected = true
-                end
+            if (tag_class == 1885895027 and tag_name:find("protected")) then
+                uber.protected = true
             end
         end
 

@@ -87,9 +87,11 @@ end
 function InitiateStrike(x, y, z)
     for _ = min_proj, max_proj do
         -- projectile x,y,z velocity
+		
         local projectile_x_vel = math.random(min_x_vel, max_x_vel)
         local projectile_y_vel = math.random(min_y_vel, max_y_vel)
         local projectile_z_vel = math.random(min_z_vel, max_z_vel)
+		
         -- height the projectile is spawned from the ground
         local height = math.random(min_height, max_height)
         -- spawn projectile and update velocity
