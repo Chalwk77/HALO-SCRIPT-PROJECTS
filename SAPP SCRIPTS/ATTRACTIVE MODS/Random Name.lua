@@ -22,7 +22,7 @@ local names = {
     -- If someone joins with the name "Tumbaculos",
     -- the script force them to use 1 of 20 random names:
 
-    ["Chalwk"] = {
+    ["Tumbaculos"] = {
 
         -- Max 11 Characters only!
 
