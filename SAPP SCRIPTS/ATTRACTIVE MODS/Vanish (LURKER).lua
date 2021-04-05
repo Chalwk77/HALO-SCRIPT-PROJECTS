@@ -50,6 +50,7 @@ local vanish = {}
 
 -- Base Command: 
 vanish.command = "vanish" -- /command on|off [me | id | */all] <cmd_flag>
+
 vanish.cmd_flags = { "-c", "-h", "-ch" } -- Command flag parameters.
 -- If '-c' (short for camouflage) command parameter is specified, you will only have camo!
 -- If '-h' (short for hidden) command parameter is specified, you will only be hidden!
