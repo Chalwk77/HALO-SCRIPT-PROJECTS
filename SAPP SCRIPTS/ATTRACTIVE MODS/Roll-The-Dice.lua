@@ -43,6 +43,15 @@ local RTD = {
             --
             -- time (in seconds) insta-shield lasts:
             interval = 30
+        },
+
+        [5] = { -- Launch Player into the air
+            enabled = true,
+
+            -- How many world-units should we launch the player into the air?
+            -- 1 w/unit = 10 feet or ~3.048 meters
+            height = 25,
+            msg = "Weeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
         }
 
     },
@@ -110,11 +119,15 @@ local function GetXYZ(DyN)
     local VehicleID = read_dword(DyN + 0x11C)
     local VehicleObject = get_object_memory(VehicleID)
 
+    pos.dyn = DyN
+    pos.obj = nil
+
     if (VehicleID == 0xFFFFFFFF) then
         pos.invehicle = false
         pos.x, pos.y, pos.z = read_vector3d(DyN + 0x5c)
     elseif (VehicleObject ~= 0) then
         pos.invehicle = true
+        pos.obj = VehicleObject
         pos.x, pos.y, pos.z = read_vector3d(VehicleObject + 0x5c)
     end
     return pos
@@ -234,6 +247,14 @@ local function DeleteWeapons(Ply, Tab)
     end
 end
 
+local function Launch(Pos, Height)
+    local obj = (Pos.obj ~= 0 and Pos.obj or Pos.dyn)
+    if (Pos.obj) then
+        write_float(Pos.obj + 0x94, 0.75)
+    end
+    write_vector3d((obj) + 0x5C, Pos.x, Pos.y, (obj and Pos.z + Height))
+end
+
 function RTD:RollTheRice(Ply)
 
     math.randomseed(os.clock())
@@ -241,16 +262,18 @@ function RTD:RollTheRice(Ply)
     math.random();
     math.random();
 
-    local n = math.random(1, 4)
+    local n = math.random(1, #self.features)
+
+    n = 5
 
     local feature = self.features[n]
     if (feature.enabled) then
 
+        local DyN = get_dynamic_player(Ply)
+        local pos = GetXYZ(DyN)
+
         -- enter player into random vehicle:
         if (n == 1) then
-
-            local DyN = get_dynamic_player(Ply)
-            local pos = GetXYZ(DyN)
 
             if (pos and not pos.invehicle) then
                 local t = self.vehicles[math.random(1, #self.vehicles)]
@@ -289,6 +312,15 @@ function RTD:RollTheRice(Ply)
             self.players[Ply].insta_shield = true
 
             InstaShield(Ply)
+            return
+            --
+
+
+
+            -- Launch player into the air:
+        elseif (n == 5) then
+            Respond(Ply, feature.msg)
+            Launch(pos, feature.height)
             return
         end
     end
