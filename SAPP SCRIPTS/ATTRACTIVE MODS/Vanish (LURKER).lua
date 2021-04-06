@@ -87,8 +87,7 @@ vanish.hide = true
 -- Despite the fact that players wont be able to see you anyway, this feature doubles as a visual reminder to the player that they are vanished.
 vanish.camouflage = true
 
--- If this is true, vanish will be auto-disabled (for all players) when the game ends, thus, players will not be in vanish when the next game begins.
--- They will have to turn it back on.
+-- If this is true, vanish will be auto-disabled (for all players) when the game ends, thus, players will not be in vanish when the next game begins, They will have to turn it back on.
 vanish.auto_off = false
 
 -- If this is true, your vehicle will disappear too!
