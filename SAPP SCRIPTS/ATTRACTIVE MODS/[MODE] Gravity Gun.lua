@@ -31,6 +31,10 @@ gravity_mode = {}
 weapon_status = {}
 holding_object = {}
 bool = {}
+
+local lower = string.lower
+local gmatch = string.gmatch
+
 function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
     register_callback(cb['EVENT_OBJECT_SPAWN'], "OnObjectSpawn")
@@ -113,9 +117,18 @@ function OnObjectSpawn(PlayerIndex, MapID)
     end
 end
 
-function OnServerCommand(PlayerIndex, Command)
+local function CMDSplit(Str)
+	local Args = { }
+	for Params in gmatch(Str, '([^%s]+)') do
+		Args[#Args+1] = lower(Params)
+	end
+	return Args
+end
+
+function OnServerCommand(PlayerIndex, CMD)
     local UnknownCMD
-    local t = tokenizestring(Command)
+	
+    local t = CMDSplit(CMD)
     if t[1] ~= nil then
         if (t[1] == string.lower(command1) or t[1] == string.lower(command2)) then
             if tonumber(get_var(PlayerIndex, "$lvl")) >= permission_level then
@@ -145,17 +158,4 @@ end
 function TagInfo(obj_type, obj_name)
     local tag_id = lookup_tag(obj_type, obj_name)
     return tag_id ~= 0 and read_dword(tag_id + 0xC) or nil
-end
-
-function tokenizestring(inputstr, sep)
-    if sep == nil then
-        sep = "%s"
-    end
-    local t = { };
-    i = 1
-    for str in string.gmatch(inputstr, '([^' .. sep .. ']+)') do
-        t[i] = str
-        i = i + 1
-    end
-    return t
 end
