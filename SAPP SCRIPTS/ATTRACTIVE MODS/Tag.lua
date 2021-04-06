@@ -1,7 +1,18 @@
+--[[
+--=====================================================================================================--
+Script Name: Tag (v1.0), for SAPP (PC & CE)
+Description:
+
+Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
+* Notice: You can use this document subject to the following conditions:
+https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
+--=====================================================================================================--
+]]--
+
 local Tag = {
 
-    -- Tagger turn timer:
-    turn_timer = 15,
+    -- Tagger turn timer (in seconds):
+    turn_timer = 60,
     --
 
     -- Messages omitted when a new tagger is selected:
@@ -15,7 +26,7 @@ local Tag = {
     --
 
     -- Min players required to start a game of tag:
-    players_required = 1,
+    players_required = 2,
     --
 
     -- When a tagger quits, should we select a new random tagger?
@@ -44,7 +55,9 @@ local Tag = {
 }
 
 local gsub = string.gsub
+
 local time_scale = 1 / 30
+local script_version = 1.0
 
 api_version = "1.12.0.0"
 
@@ -312,4 +325,39 @@ end
 
 function OnScriptUnload()
     -- N/A
+end
+
+local function WriteLog(str)
+    local file = io.open("Tag.errors", "a+")
+    if (file) then
+        file:write(str .. "\n")
+        file:close()
+    end
+end
+
+-- In the event of an error, the script will trigger these two functions: OnError(), report()
+function report(StackTrace, Error)
+
+    cprint(StackTrace, 4 + 8)
+
+    cprint("--------------------------------------------------------", 5 + 8)
+    cprint("Please report this error on github:", 7 + 8)
+    cprint("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", 7 + 8)
+    cprint("Script Version: " .. script_version, 7 + 8)
+    cprint("--------------------------------------------------------", 5 + 8)
+
+    local timestamp = os.date("[%H:%M:%S - %d/%m/%Y]")
+    WriteLog(timestamp)
+    WriteLog("Please report this error on github:")
+    WriteLog("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues")
+    WriteLog("Script Version: " .. script_version)
+    WriteLog(Error)
+    WriteLog(StackTrace)
+    WriteLog("\n")
+end
+
+-- This function will return a string with a traceback of the stack call...
+-- ...and call function 'report' after 50 milliseconds.
+function OnError(Error)
+    timer(50, "report", debug.traceback(), Error)
 end
