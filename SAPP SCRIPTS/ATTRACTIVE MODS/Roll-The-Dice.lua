@@ -120,7 +120,6 @@ local function GetXYZ(DyN)
     local VehicleObject = get_object_memory(VehicleID)
 
     pos.dyn = DyN
-    pos.obj = nil
 
     if (VehicleID == 0xFFFFFFFF) then
         pos.invehicle = false
