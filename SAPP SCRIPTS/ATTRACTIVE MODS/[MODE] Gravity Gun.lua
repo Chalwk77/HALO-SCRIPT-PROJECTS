@@ -1,7 +1,7 @@
 --[[
 --=====================================================================================================--
 Script Name: Gravity Gun, for SAPP (PC & CE)
-Description: N/A
+Description: Does this really need a description?
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -15,14 +15,18 @@ local GGun = {
     base_command = "ggun", -- short for gravity gun
 
     -- Minimum permission required to execute /base_command for yourself
-    permission = 1,
+    permission = -1,
 
     -- Minimum permission required to toggle GGUN on/off for other players:
     permission_other = 4,
 
     -- Distance (in world units) a vehicle will be suspended in front of player:
     -- 1 w/unit = 10 feet or ~3.048 meters
-    distance = 10,
+    distance = 5,
+
+    -- If true, gravity gun will be disabled on death:
+    disable_on_death = false,
+    --
 }
 -- config ends --
 
@@ -32,6 +36,7 @@ local gmatch, lower = string.gmatch, string.lower
 
 function OnScriptLoad()
     register_callback(cb["EVENT_TICK"], "OnTick")
+    register_callback(cb["EVENT_DIE"], "OnPlayerDeath")
     register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerQuit")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
@@ -58,57 +63,66 @@ function GGun:OnTick()
         if (v.enabled) then
 
             local DyN = get_dynamic_player(i)
-            local px, py, pz
             if (DyN ~= 0) then
 
+                -- Player camera x,y,z
                 local xAim = read_float(DyN + 0x230)
                 local yAim = read_float(DyN + 0x234)
                 local zAim = read_float(DyN + 0x238)
 
+                local px, py, pz
+
+                local VehicleID = read_dword(DyN + 0x11C)
+                local VehicleObject = get_object_memory(VehicleID)
+                if (VehicleID == 0xFFFFFFFF) then
+                    px, py, pz = read_vector3d(DyN + 0x5c)
+                elseif (VehicleObject ~= 0) then
+                    px, py, pz = read_vector3d(VehicleObject + 0x5c)
+                end
+
+                -- Account for Z-Coordinate change when crouching:
                 local couching = read_float(DyN + 0x50C)
-                px, py, pz = read_vector3d(DyN + 0x5c)
                 if (couching == 0) then
                     pz = pz + 0.65
                 else
                     pz = pz + (0.35 * couching)
                 end
 
-                local ignore_player = read_dword(get_player(i) + 0x34)
-                local success, _, _, _, target = intersect(px, py, pz, xAim * 1000, yAim * 1000, zAim * 1000, ignore_player)
+                if (not v.target_object) then
 
-                -- test for successful intersect and make sure vehicle is not occupied:
-                if (success and target ~= 0xFFFFFFFF) then
-
-                    local shot_fired = read_float(DyN + 0x490)
-                    if (shot_fired ~= v.weapon_state and shot_fired == 1) then
-                        v.target_object = get_object_memory(target)
+                    -- test for successful intersect and make sure vehicle is not occupied:
+                    local ignore_player = read_dword(get_player(i) + 0x34)
+                    local success, _, _, _, target = intersect(px, py, pz, xAim * 1000, yAim * 1000, zAim * 1000, ignore_player)
+                    if (success and target ~= 0xFFFFFFFF) then
+                        local shot_fired = read_float(DyN + 0x490)
+                        if (shot_fired ~= v.weapon_state and shot_fired == 1) then
+                            v.target_object = get_object_memory(target)
+                        end
+                        v.weapon_state = shot_fired
                     end
-                    v.weapon_state = shot_fired
-                end
+                    --
 
-                local vehicle = v.target_object
-                if (vehicle) then
+                else
 
                     -- Distance from player:
                     local distance = self.distance
-                    --
 
                     -- Write to vehicle x,y,z coordinates:
-                    write_float(vehicle + 0x5C, px + distance * math.sin(xAim))
-                    write_float(vehicle + 0x60, py + distance * math.sin(yAim))
-                    write_float(vehicle + 0x64, pz + distance * math.sin(zAim))
+                    write_float(v.target_object + 0x5C, px + distance * math.sin(xAim))
+                    write_float(v.target_object + 0x60, py + distance * math.sin(yAim))
+                    write_float(v.target_object + 0x64, pz + distance * math.sin(zAim))
 
                     -- Update vehicle velocities:
-                    write_float(vehicle + 0x68, 0) -- x vel
-                    write_float(vehicle + 0x6C, 0) -- y vel
-                    write_float(vehicle + 0x70, 0.01285) -- z vel
-                    write_float(vehicle + 0x90, 0.15) -- yaw
-                    write_float(vehicle + 0x8C, 0.15) -- pitch
-                    write_float(vehicle + 0x94, 0.15) -- roll
+                    write_float(v.target_object + 0x68, 0) -- x vel
+                    write_float(v.target_object + 0x6C, 0) -- y vel
+                    write_float(v.target_object + 0x70, 0.01285) -- z vel
+                    write_float(v.target_object + 0x90, 0.15) -- yaw
+                    write_float(v.target_object + 0x8C, 0.15) -- pitch
+                    write_float(v.target_object + 0x94, 0.15) -- roll
 
                     -- Update vehicle physics:
-                    write_bit(vehicle + 0x10, 0, 0) -- Unset noCollisions bit.
-                    write_bit(vehicle + 0x10, 5, 0) -- Unset ignorePhysics.
+                    write_bit(v.target_object + 0x10, 0, 0) -- Unset noCollisions bit.
+                    write_bit(v.target_object + 0x10, 5, 0) -- Unset ignorePhysics.
                 end
             end
         end
@@ -123,9 +137,30 @@ local function CMDSplit(CMD)
     return Args
 end
 
-local function InvalidSyntax(Ply)
-    Respond(Ply, "Invalid Player ID")
-    Respond(Ply, "Usage: /" .. GGun.base_command .. " on/off me|all|*|[1-16]")
+function GGun:OnServerCommand(Ply, CMD, _, _)
+    local Args = CMDSplit(CMD)
+    local case = (Args and Args[1])
+    if (case and Args[1] == self.base_command) then
+
+        local lvl = tonumber(get_var(Ply, "$lvl"))
+        if (lvl >= self.permission) then
+
+            local pl = GetPlayers(Ply, Args)
+            if (pl) then
+                for i = 1, #pl do
+                    local TargetID = tonumber(pl[i])
+                    if (lvl < self.permission_other and TargetID ~= Ply) then
+                        Respond(Ply, "Cannot toggle for other players! (no permission)")
+                    else
+                        self:ToggleGravityGun(Ply, TargetID, Args)
+                    end
+                end
+            end
+        else
+            Respond(Ply, "You do not have permission to execute that command")
+        end
+        return false
+    end
 end
 
 function GGun:ToggleGravityGun(Ply, TargetID, Args)
@@ -165,37 +200,18 @@ function GGun:ToggleGravityGun(Ply, TargetID, Args)
             Respond(Ply, name .. "'s Gravity Gun is already " .. state)
         end
     elseif (state) then
+
         if (Ply == TargetID) then
             Respond(Ply, "Gravity Gun " .. state)
         else
             Respond(Ply, "Gravity Gun " .. state .. " for " .. name)
         end
+
+        self.players[TargetID].target_object = nil
         self.players[TargetID].enabled = (state == "disabled" and false) or (state == "enabled" and true)
     else
-        InvalidSyntax(Ply)
-    end
-end
-
-function GGun:OnServerCommand(Ply, CMD, _, _)
-    local Args = CMDSplit(CMD)
-    local case = (Args and Args[1])
-    if (case and Args[1] == self.base_command) then
-
-        local lvl = tonumber(get_var(Ply, "$lvl"))
-        if (lvl >= self.permission) then
-
-            local pl = GetPlayers(Ply, Args)
-
-            if (pl) then
-                for i = 1, #pl do
-                    local TargetID = tonumber(pl[i])
-                    self:ToggleGravityGun(Ply, TargetID, Args)
-                end
-            end
-        else
-            Respond(Ply, "You do not have permission to execute that command")
-        end
-        return false
+        Respond(Ply, "Invalid Command Parameter.")
+        Respond(Ply, 'Usage: "on", "1", "true", "off", "0" or "false"')
     end
 end
 
@@ -203,6 +219,7 @@ function GetPlayers(Ply, Args)
 
     local players = { }
     local TargetID = Args[3]
+
     if (TargetID == nil) or (TargetID == "me") then
         table.insert(players, Ply)
     elseif (TargetID == "all" or TargetID == "*") then
@@ -218,19 +235,31 @@ function GetPlayers(Ply, Args)
             Respond(Ply, "Player #" .. TargetID .. " is not online!")
         end
     else
-        InvalidSyntax(Ply)
+        Respond(Ply, "Invalid Target ID Parameter")
+        Respond(Ply, 'Usage: "me", "all", "*" or [pid between 1-16]')
     end
 
     return players
+end
+
+function OnPlayerDeath(V)
+    if (GGun.disable_on_death) then
+        if (GGun.players[V].enabled) then
+            GGun.players[V].enabled = false
+        end
+    end
 end
 
 function GGun:InitPlayer(Ply, Reset)
 
     if (not Reset) then
         self.players[Ply] = {
+
+            -- Used to keep track of the gravity gun's "state" (on or off):
             enabled = false,
+            --
+
             weapon_state = nil,
-            target_object = nil,
             name = get_var(Ply, "$name"),
         }
         return
@@ -243,7 +272,7 @@ function OnPlayerJoin(Ply)
     GGun:InitPlayer(Ply, false)
 end
 
-function OnPlayerQuitOnPlayerQuit(Ply)
+function OnPlayerQuit(Ply)
     GGun:InitPlayer(Ply, true)
 end
 
