@@ -57,11 +57,11 @@ local Tag = {
     speed = { 1.5, 1 },
 
     -- If enabled, the tagger will slow down a bit, when receiving damage
-    tagger_speed_reduce = true,
+    tagger_speed_reduce = false,
     --
 
     -- Time (in seconds) that a tagger's speed will be reduced:
-    speed_reduce_interval = 1,
+    speed_reduce_interval = 0.50,
 
     -- The taggers speed will be reduced by this amount:
     -- (Tagger speed - speed_reduction)
@@ -77,6 +77,7 @@ local Tag = {
 
 -- configuration ends --
 ---=========================================================================---
+---
 ---
 local gsub = string.gsub
 local time_scale = 1 / 30
@@ -108,9 +109,8 @@ end
 function Tag:Init()
     if (get_var(0, "$gt") ~= "n/a") then
 
-        if (self.score_limit) then
-            execute_command("scorelimit " .. self.score_limit)
-        end
+        -- Set the score limit:
+        execute_command("scorelimit " .. self.score_limit or "")
 
         Tag.players = { }
         Tag:Stop()
@@ -132,9 +132,17 @@ function Tag:Init()
     end
 end
 
+function Tag:IsTagger(Ply)
+
+    if (Ply) then
+        return (Ply == self.tagger)
+    end
+
+    return self.tagger
+end
+
 function Tag:SetTagger(Tagger)
-    self.it = Tagger
-    self.players[Tagger].it = true
+    self.tagger = Tagger
     self:Start()
 end
 
@@ -147,20 +155,24 @@ function Tag:PickNewTagger()
         return
     end
 
+    local t = { }
+    local excluded = self:IsTagger()
+    self:Stop()
+
     -- set candidates:
-    local t, excluded = { }
     for i, v in pairs(self.players) do
-        if (not v.it and i ~= excluded) then
-            t[#t + 1] = i
-        elseif (v.it) then
-            excluded = i
-            v.it = false
+
+        -- ignore previous tagger --
+        if (i == excluded) then
             v.speed_timer = nil
+        else
+            -- add player:
+            t[#t + 1] = i
         end
     end
     --
 
-    -- Pick random candidate:
+    -- Pick random candidate from candidates-array:
     if (#t > 0) then
 
         math.randomseed(os.clock())
@@ -179,10 +191,6 @@ function Tag:InitPlayer(Ply, Reset)
         -- init new array for this player:
         self.players[Ply] = {
             score = 0,
-
-            -- this table property is used for tracking
-            -- whether this player is the tagger.
-            it = false,
             --
             -- Store a copy of this players name (store once, access whenever)
             name = get_var(Ply, "$name")
@@ -192,14 +200,14 @@ function Tag:InitPlayer(Ply, Reset)
 
 
         -- Player disconnected. Pick a new tagger:
-    elseif (self.players[Ply].it and self.new_tagger_on_quit) then
+    elseif (self:IsTagger(Ply) and self.new_tagger_on_quit) then
         self:PickNewTagger()
         --
 
 
         -- Tagger disconnected (setting: new_tagger_on_quit is false)
         -- Reset tagger variables:
-    elseif (self.players[Ply].it) then
+    elseif (self:IsTagger(Ply)) then
         self:Stop()
     end
     --
@@ -227,14 +235,16 @@ function Tag:SetNav()
     for i, _ in pairs(self.players) do
 
         local p1 = get_player(i)
-        local p2 = get_player(self.it)
+        local p2 = get_player(self.tagger)
+
+        -- Set slayer target indicator:
 
         if (p1 ~= p2) then
-            -- Set slayer target indicator for tagger:
-            write_word(p1 + 0x88, to_real_index(self.it))
+            write_word(p1 + 0x88, to_real_index(self.tagger))
         else
             write_word(p1 + 0x88, to_real_index(i))
         end
+        ---
     end
 end
 
@@ -243,7 +253,7 @@ function Tag:Start()
 end
 
 function Tag:Stop()
-    self.it = nil
+    self.tagger = nil
     self.delta_time = 0
     self.init = false
 end
@@ -262,7 +272,7 @@ function Tag:SetSpeed(Ply, Tab)
                     goto reset_speed
                 end
 
-                -- Reduce speed:
+                -- Reduce Tagger speed:
                 execute_command("s " .. Ply .. " " .. self.speed[1] - self.speed_reduction)
                 return
             end
@@ -270,7 +280,6 @@ function Tag:SetSpeed(Ply, Tab)
 
         :: reset_speed ::
         -- tagger:
-
         execute_command("s " .. Ply .. " " .. self.speed[1])
 
     else
@@ -300,7 +309,7 @@ function Tag:OnTick()
 
             -- loop through all players who are not "it"
             local case = (self.score_limit ~= nil and v.score >= self.score_limit)
-            if (case and player_alive(i) and not v.it) then
+            if (case and player_alive(i) and not self:IsTagger(i)) then
 
                 v.timer = v.timer + time_scale
 
@@ -332,7 +341,7 @@ function OnPlayerDeath(V, K)
         execute_command("score " .. k .. " " .. score)
 
         if (Tag.new_tagger_on_death) then
-            return Tag.players[v].it and Tag:PickNewTagger()
+            return Tag:IsTagger(v) and Tag:PickNewTagger()
         end
     end
 end
@@ -349,10 +358,6 @@ function Tag:IsMelee(MetaID)
         end
     end
     return false
-end
-
-function Tag:IsTagger(Ply)
-    return (self.players[Ply].it)
 end
 
 function Tag:OnDamage(Victim, Causer, MetaID, _, _)
