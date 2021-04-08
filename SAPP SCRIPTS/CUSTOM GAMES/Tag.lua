@@ -4,8 +4,7 @@ Script Name: Tag (v1.0), for SAPP (PC & CE)
 Description: Tag, you're it!
 
              This script brings you TAG, a game involving two or more players.
-             A game of tag is initiated by meleeing anyone.
-             The target player will become "it" (the tagger).
+             A game of tag is initiated by meleeing a player - that player will become "it" (the tagger).
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -13,6 +12,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
+-- configuration starts  -------------------------------------------
 local Tag = {
 
     -- Tagger turn timer (in seconds):
@@ -51,8 +51,23 @@ local Tag = {
     points_per = 100,
     --
 
+
+    ---------------- Player Speed Logic ----------------
     -- {tagger speed, runner speed)
     speed = { 1.5, 1 },
+
+    -- If enabled, the tagger will slow down a bit, when receiving damage
+    tagger_speed_reduce = true,
+    --
+
+    -- Time (in seconds) that a tagger's speed will be reduced:
+    speed_reduce_interval = 1,
+
+    -- The taggers speed will be reduced by this amount:
+    -- (Tagger speed - speed_reduction)
+    speed_reduction = 1.2,
+    ------------------------------------------------------------------
+
 
     -- A message relay function temporarily removes the server prefix
     -- and will restore it to this when the relay is finished
@@ -60,6 +75,9 @@ local Tag = {
     --
 }
 
+-- configuration ends --
+---=========================================================================---
+---
 local gsub = string.gsub
 local time_scale = 1 / 30
 
@@ -137,6 +155,7 @@ function Tag:PickNewTagger()
         elseif (v.it) then
             excluded = i
             v.it = false
+            v.speed_timer = nil
         end
     end
     --
@@ -160,7 +179,12 @@ function Tag:InitPlayer(Ply, Reset)
         -- init new array for this player:
         self.players[Ply] = {
             score = 0,
+
+            -- this table property is used for tracking
+            -- whether this player is the tagger.
             it = false,
+            --
+            -- Store a copy of this players name (store once, access whenever)
             name = get_var(Ply, "$name")
         }
         return
@@ -224,16 +248,39 @@ function Tag:Stop()
     self.init = false
 end
 
-function Tag:SetSpeed(Ply)
-    if (self.players[Ply].it) then
+function Tag:SetSpeed(Ply, Tab)
+
+    if (self:IsTagger(Ply)) then
+
+        if (self.tagger_speed_reduce) then
+            if (Tab.speed_timer) then
+                Tab.speed_timer = Tab.speed_timer + time_scale
+
+                -- Reset speed:
+                if (Tab.speed_timer >= self.speed_reduce_interval) then
+                    Tab.speed_timer = nil
+                    goto reset_speed
+                end
+
+                -- Reduce speed:
+                execute_command("s " .. Ply .. " " .. self.speed[1] - self.speed_reduction)
+                return
+            end
+        end
+
+        :: reset_speed ::
         -- tagger:
+
         execute_command("s " .. Ply .. " " .. self.speed[1])
+
     else
         -- runner:
         execute_command("s " .. Ply .. " " .. self.speed[2])
     end
 end
 
+
+-- This function is called every 1/30th of a second:
 function Tag:OnTick()
     if (self.init) then
 
@@ -248,7 +295,7 @@ function Tag:OnTick()
         for i, v in pairs(self.players) do
 
             -- Calling this every 1/30th second is probably not the best thing!
-            self:SetSpeed(i)
+            self:SetSpeed(i, v)
             --
 
             -- loop through all players who are not "it"
@@ -304,9 +351,16 @@ function Tag:IsMelee(MetaID)
     return false
 end
 
+function Tag:IsTagger(Ply)
+    return (self.players[Ply].it)
+end
+
 function Tag:OnDamage(Victim, Causer, MetaID, _, _)
+
+    -- Check if PvP and not suicide:
     if (Causer > 0 and Victim ~= Causer) then
 
+        -- Store victim/causer names:
         local cname = self.players[Causer].name
         local vname = self.players[Victim].name
 
@@ -322,7 +376,7 @@ function Tag:OnDamage(Victim, Causer, MetaID, _, _)
             self:SetTagger(Victim)
 
             -- Game already running, player was tagged:
-        elseif (self.players[Causer].it and self:IsMelee(MetaID)) then
+        elseif (self:IsTagger(Causer) and self:IsMelee(MetaID)) then
 
             local str = gsub(gsub(self.on_tag,
                     "%%victim%%", vname),
@@ -331,7 +385,11 @@ function Tag:OnDamage(Victim, Causer, MetaID, _, _)
 
             self:Stop()
             self.players[Causer].it = false
+            self.players[Causer].speed_timer = nil
+
             self:SetTagger(Victim)
+        elseif self:IsTagger(Victim) then
+            self.players[Victim].speed_timer = 0
         end
     end
 end
