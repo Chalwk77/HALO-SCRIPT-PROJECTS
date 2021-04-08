@@ -14,27 +14,39 @@ local GGun = {
 
     base_command = "ggun", -- short for gravity gun
 
+
     -- Minimum permission required to execute /base_command for yourself
     permission = -1,
+
 
     -- Minimum permission required to toggle GGUN on/off for other players:
     permission_other = 4,
 
+
     -- Distance (in world units) a vehicle will be suspended in front of player:
     -- 1 w/unit = 10 feet or ~3.048 meters
     distance = 5,
+    --
 
-    -- Vehicle launch velocity:
-    launch_velocity = 0.6,
 
     -- If true, gravity gun will be disabled on death:
     disable_on_death = false,
     --
+
+
+    -- vehicle velocities --
+    --
+    -- initial launch velocity --
+    launch_velocity = 0.6,
+
+    -- Suspended yaw, pitch & roll velocities:
+    yaw = 0.1, pitch = 0.1, roll = 0.1,
 }
 -- config ends --
 
 api_version = "1.12.0.0"
 
+local sin = math.sin
 local gmatch, lower = string.gmatch, string.lower
 
 function OnScriptLoad()
@@ -121,9 +133,9 @@ function GGun:OnTick()
                     -- Distance from player:
                     local distance = self.distance
 
-                    local newX = px + distance * math.sin(xAim)
-                    local newY = py + distance * math.sin(yAim)
-                    local newZ = pz + distance * math.sin(zAim)
+                    local newX = px + distance * sin(xAim)
+                    local newY = py + distance * sin(yAim)
+                    local newZ = pz + distance * sin(zAim)
 
                     -- Write to vehicle x,y,z coordinates:
                     write_float(obj + 0x5C, newX)
@@ -134,9 +146,10 @@ function GGun:OnTick()
                     write_float(obj + 0x68, 0) -- x vel
                     write_float(obj + 0x6C, 0) -- y vel
                     write_float(obj + 0x70, 0.01285) -- z vel
-                    write_float(obj + 0x90, 0.15) -- yaw
-                    write_float(obj + 0x8C, 0.15) -- pitch
-                    write_float(obj + 0x94, 0.15) -- roll
+
+                    write_float(obj + 0x90, self.yaw) -- yaw
+                    write_float(obj + 0x8C, self.pitch) -- pitch
+                    write_float(obj + 0x94, self.roll) -- roll
 
                     -- Update vehicle physics:
                     write_bit(obj + 0x10, 0, 0) -- Unset noCollisions bit.
@@ -147,9 +160,9 @@ function GGun:OnTick()
 
                         local vel = self.launch_velocity
 
-                        write_float(obj + 0x68, vel * math.sin(xAim))
-                        write_float(obj + 0x6C, vel * math.sin(yAim))
-                        write_float(obj + 0x70, vel * math.sin(zAim))
+                        write_float(obj + 0x68, vel * sin(xAim)) -- x vel
+                        write_float(obj + 0x6C, vel * sin(yAim)) -- y vel
+                        write_float(obj + 0x70, vel * sin(zAim)) -- z vel
 
                         v.target_object = nil
                         break
