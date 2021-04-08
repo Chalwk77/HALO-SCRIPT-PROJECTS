@@ -1,7 +1,11 @@
 --[[
 --=====================================================================================================--
 Script Name: Tag (v1.0), for SAPP (PC & CE)
-Description:
+Description: Tag, you're it!
+
+             This script brings you TAG, a game involving two or more players.
+             A game of tag is initiated by meleeing anyone.
+             The target player will become "it" (the tagger).
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -31,19 +35,21 @@ local Tag = {
 
     -- When a tagger quits, should we select a new random tagger?
     new_tagger_on_quit = true,
+    --
 
     -- Should we pick a new tagger if the current tagger dies?
     new_tagger_on_death = false,
     --
 
     -- SCORING --
+    -- Set to nil to disabled the score limit
     score_limit = 10000,
 
-    -- Add "points_per_minute" points per "alive_threshold" seconds
-    alive_threshold = 5,
-    points_per_minute = 100,
+    -- Runners will accumulate points while.
+    -- Add "points_per_interval" points per "runner_time" seconds
+    runner_time = 5,
+    points_per = 100,
     --
-    ---------------------------
 
     -- {tagger speed, runner speed)
     speed = { 1.5, 1 },
@@ -55,13 +61,17 @@ local Tag = {
 }
 
 local gsub = string.gsub
-
 local time_scale = 1 / 30
+
+-- Used for error reporting; See function report()
 local script_version = 1.0
 
+-- SAPP Lua API Version:
 api_version = "1.12.0.0"
 
 function OnScriptLoad()
+
+    -- register needed event callbacks --
     register_callback(cb["EVENT_TICK"], "OnTick")
 
     register_callback(cb["EVENT_DIE"], "OnPlayerDeath")
@@ -80,7 +90,9 @@ end
 function Tag:Init()
     if (get_var(0, "$gt") ~= "n/a") then
 
-        execute_command("scorelimit 999")
+        if (self.score_limit) then
+            execute_command("scorelimit " .. self.score_limit)
+        end
 
         Tag.players = { }
         Tag:Stop()
@@ -144,17 +156,32 @@ end
 
 function Tag:InitPlayer(Ply, Reset)
     if (not Reset) then
+
+        -- init new array for this player:
         self.players[Ply] = {
             score = 0,
             it = false,
             name = get_var(Ply, "$name")
         }
         return
+        --
+
+
+        -- Player disconnected. Pick a new tagger:
     elseif (self.players[Ply].it and self.new_tagger_on_quit) then
         self:PickNewTagger()
+        --
+
+
+        -- Tagger disconnected (setting: new_tagger_on_quit is false)
+        -- Reset tagger variables:
     elseif (self.players[Ply].it) then
         self:Stop()
     end
+    --
+
+
+    -- Clear the array for this player (garbage collection)
     self.players[Ply] = nil
 end
 
@@ -170,6 +197,8 @@ function OnPlayerQuit(Ply)
     Tag:InitPlayer(Ply, true)
 end
 
+-- This function is responsible for setting the nav marker
+-- above the taggers head:
 function Tag:SetNav()
     for i, _ in pairs(self.players) do
 
@@ -177,6 +206,7 @@ function Tag:SetNav()
         local p2 = get_player(self.it)
 
         if (p1 ~= p2) then
+            -- Set slayer target indicator for tagger:
             write_word(p1 + 0x88, to_real_index(self.it))
         else
             write_word(p1 + 0x88, to_real_index(i))
@@ -196,10 +226,10 @@ end
 
 function Tag:SetSpeed(Ply)
     if (self.players[Ply].it) then
-        -- tagger
+        -- tagger:
         execute_command("s " .. Ply .. " " .. self.speed[1])
     else
-        -- runner
+        -- runner:
         execute_command("s " .. Ply .. " " .. self.speed[2])
     end
 end
@@ -217,25 +247,29 @@ function Tag:OnTick()
 
         for i, v in pairs(self.players) do
 
-
-            -- todo: think of another way to do this?
-            -- Calling this every 1/30th second is not the best thing!
+            -- Calling this every 1/30th second is probably not the best thing!
             self:SetSpeed(i)
             --
 
             -- loop through all players who are not "it"
-            if (player_alive(i) and not v.it) then
+            local case = (self.score_limit ~= nil and v.score >= self.score_limit)
+            if (case and player_alive(i) and not v.it) then
 
                 v.timer = v.timer + time_scale
-                if (v.timer >= self.alive_threshold) then
-                    v.score = v.score + self.points_per_minute
+
+                -- Increment their score by "points_per"
+                if (v.timer >= self.runner_time) then
+                    v.score = v.score + self.points_per
                     v.timer = 0
                     execute_command("score " .. i .. " " .. v.score)
                 end
+
+                -- Check if we need to end the game:
                 if (v.score >= self.score_limit) then
                     self:Say(v.name .. " won the game!")
                     execute_command("sv_map_next")
                 end
+                --
             end
         end
     end
@@ -281,7 +315,9 @@ function Tag:OnDamage(Victim, Causer, MetaID, _, _)
 
             local t = self.on_game_start
             for i = 1, #t do
-                self:Say(gsub(gsub(t[i], "%%cname%%", cname), "%%vname%%", vname))
+                self:Say(gsub(gsub(t[i],
+                        "%%cname%%", cname),
+                        "%%vname%%", vname))
             end
             self:SetTagger(Victim)
 
