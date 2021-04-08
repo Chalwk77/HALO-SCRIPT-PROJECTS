@@ -1,10 +1,10 @@
 --[[
 --=====================================================================================================--
-Script Name: Tag (v1.0), for SAPP (PC & CE)
-Description: Tag, you're it!
+Script Name: Gravity Gun, for SAPP (PC & CE)
+Description: Does this really need a description?
 
-             This script brings you TAG, a game involving two or more players.
-             A game of tag is initiated by meleeing a player - that player will become "it" (the tagger).
+todo: object launch logic
+
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -12,474 +12,308 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
--- configuration starts  -------------------------------------------
-local Tag = {
+-- config starts --
+local GGun = {
 
-    -- Tagger turn timer (in seconds):
-    turn_timer = 60,
-    --
+    base_command = "ggun", -- short for gravity gun
 
-    -- Messages omitted when a new tagger is selected:
-    on_tag = "%victim% was tagged by %tagger%!",
+    -- Minimum permission required to execute /base_command for yourself
+    permission = -1,
 
-    -- Messages omitted when a NEW game of tag begins:
-    on_game_start = {
-        "%cname% has initialised a game of tag!",
-        "%vname% is it!"
-    },
-    --
+    -- Minimum permission required to toggle GGUN on/off for other players:
+    permission_other = 4,
 
-    -- Min players required to start a game of tag:
-    players_required = 2,
-    --
+    -- Distance (in world units) a vehicle will be suspended in front of player:
+    -- 1 w/unit = 10 feet or ~3.048 meters
+    distance = 5,
 
-    -- When a tagger quits, should we select a new random tagger?
-    new_tagger_on_quit = true,
-    --
+    -- Vehicle launch velocity:
+    launch_velocity = 0.6,
 
-    -- Should we pick a new tagger if the current tagger dies?
-    new_tagger_on_death = false,
-    --
-
-    -- SCORING --
-    -- Set to nil to disabled the score limit
-    score_limit = 10000,
-
-    -- Runners will accumulate points while a game of tag is in play.
-    -- Add "points_per_interval" points per "runner_time" seconds
-    runner_time = 5,
-    points_per = 100,
-    --
-
-
-    ---------------- Player Speed Logic ----------------
-    -- {tagger speed, runner speed)
-    speed = { 1.5, 1 },
-
-    -- If enabled, the tagger will slow down a bit, when receiving damage
-    tagger_speed_reduce = false,
-    --
-
-    -- Time (in seconds) that a tagger's speed will be reduced:
-    speed_reduce_interval = 0.50,
-
-    -- The taggers speed will be reduced by this amount:
-    -- (Tagger speed - speed_reduction)
-    speed_reduction = 1.2,
-    ------------------------------------------------------------------
-
-
-    -- A message relay function temporarily removes the server prefix
-    -- and will restore it to this when the relay is finished
-    server_prefix = "**SAPP**"
+    -- If true, gravity gun will be disabled on death:
+    disable_on_death = false,
     --
 }
+-- config ends --
 
--- configuration ends --
----=========================================================================---
----
----
-local gsub = string.gsub
-local time_scale = 1 / 30
-
--- Used for error reporting; See function report()
-local script_version = 1.0
-
--- SAPP Lua API Version:
 api_version = "1.12.0.0"
 
+local gmatch, lower = string.gmatch, string.lower
+
 function OnScriptLoad()
-
-    -- register needed event callbacks --
     register_callback(cb["EVENT_TICK"], "OnTick")
-
     register_callback(cb["EVENT_DIE"], "OnPlayerDeath")
-    register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
-
     register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerQuit")
-
-    register_callback(cb["EVENT_GAME_END"], "GameEnd")
-    register_callback(cb["EVENT_GAME_START"], "GameStart")
-
-    register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamage")
-    Tag:Init()
+    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
+    register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
 end
 
-function Tag:Init()
+function OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
-
-        -- Set the score limit:
-        execute_command("scorelimit " .. self.score_limit or "")
-
-        Tag.players = { }
-        Tag:Stop()
-
-        Tag.melee = {
-            { "jpt!", "weapons\\flag\\melee" },
-            { "jpt!", "weapons\\ball\\melee" },
-            { "jpt!", "weapons\\pistol\\melee" },
-            { "jpt!", "weapons\\needler\\melee" },
-            { "jpt!", "weapons\\shotgun\\melee" },
-            { "jpt!", "weapons\\flamethrower\\melee" },
-            { "jpt!", "weapons\\sniper rifle\\melee" },
-            { "jpt!", "weapons\\plasma rifle\\melee" },
-            { "jpt!", "weapons\\plasma pistol\\melee" },
-            { "jpt!", "weapons\\assault rifle\\melee" },
-            { "jpt!", "weapons\\rocket launcher\\melee" },
-            { "jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_melee" },
-        }
-    end
-end
-
-function Tag:IsTagger(Ply)
-
-    -- Returns true if Ply is the tagger:
-    if (Ply) then
-        return (Ply == self.tagger)
-    end
-
-    -- Returns the tagger's index id:
-    return self.tagger
-    --
-end
-
-function Tag:SetTagger(Tagger)
-    self.tagger = Tagger
-    self:Start()
-end
-
-function Tag:PickNewTagger()
-
-    local req = self.players_required
-    if tonumber(get_var(0, "$pn")) < req then
-        return
-    end
-
-    --
-    -- Get the index id of the current tagger if one exists:
-    local excluded = self:IsTagger()
-    --
-
-    -- Only reset timer variables once we have
-    -- established who the current tagger is (excluded):
-    self:Stop()
-    --
-
-    -- set candidates:
-    local t = { }
-    for i, v in pairs(self.players) do
-
-        -- ignore previous tagger
-        if (i == excluded) then
-            v.speed_timer = nil
-        else
-            -- add player:
-            t[#t + 1] = i
+        GGun.players = { }
+        for i = 1, 16 do
+            if player_present(i) then
+                GGun:InitPlayer(i, false)
+            end
         end
     end
-    --
+end
 
-    -- Pick random candidate:
-    if (#t > 0) then
+local function Respond(Ply, Msg)
+    rprint(Ply, Msg)
+end
 
-        math.randomseed(os.clock())
-        math.random();
-        math.random();
-        math.random();
+function GGun:ShotFired(DyN, PT)
+    local shot_fired = read_float(DyN + 0x490)
+    if (shot_fired ~= PT.weapon_state and shot_fired == 1) then
+        PT.weapon_state = shot_fired
+        return true
+    end
+    PT.weapon_state = shot_fired
+    return false
+end
 
-        local i = t[math.random(1, #t)]
-        self:SetTagger(i)
+function GGun:OnTick()
+    for i, v in pairs(self.players) do
+        if (v.enabled) then
+
+            local DyN = get_dynamic_player(i)
+            if (DyN ~= 0) then
+
+                -- Player camera x,y,z
+                local xAim = read_float(DyN + 0x230)
+                local yAim = read_float(DyN + 0x234)
+                local zAim = read_float(DyN + 0x238)
+
+                local px, py, pz
+                local VehicleID = read_dword(DyN + 0x11C)
+                local VehicleObject = get_object_memory(VehicleID)
+
+                if (VehicleID == 0xFFFFFFFF) then
+                    px, py, pz = read_vector3d(DyN + 0x5c)
+                elseif (VehicleObject ~= 0) then
+                    px, py, pz = read_vector3d(VehicleObject + 0x5c)
+                end
+
+                -- Update Z-Coordinate change when crouching:
+                local couching = read_float(DyN + 0x50C)
+                if (couching == 0) then
+                    pz = pz + 0.65
+                else
+                    pz = pz + (0.35 * couching)
+                end
+
+                local shot_fired = self:ShotFired(DyN, v)
+
+                if (not v.target_object) then
+
+                    -- test for successful intersect and make sure vehicle is not occupied:
+                    local ignore_player = read_dword(get_player(i) + 0x34)
+                    local success, _, _, _, target = intersect(px, py, pz, xAim * 1000, yAim * 1000, zAim * 1000, ignore_player)
+                    if (success and target ~= 0xFFFFFFFF and shot_fired) then
+                        v.target_object = get_object_memory(target)
+                    end
+                    --
+                    break
+
+                else
+
+                    local obj = v.target_object
+
+                    -- Distance from player:
+                    local distance = self.distance
+
+                    local newX = px + distance * math.sin(xAim)
+                    local newY = py + distance * math.sin(yAim)
+                    local newZ = pz + distance * math.sin(zAim)
+
+                    -- Write to vehicle x,y,z coordinates:
+                    write_float(obj + 0x5C, newX)
+                    write_float(obj + 0x60, newY)
+                    write_float(obj + 0x64, newZ)
+
+                    -- Update vehicle velocities:
+                    write_float(obj + 0x68, 0) -- x vel
+                    write_float(obj + 0x6C, 0) -- y vel
+                    write_float(obj + 0x70, 0.01285) -- z vel
+                    write_float(obj + 0x90, 0.15) -- yaw
+                    write_float(obj + 0x8C, 0.15) -- pitch
+                    write_float(obj + 0x94, 0.15) -- roll
+
+                    -- Update vehicle physics:
+                    write_bit(obj + 0x10, 0, 0) -- Unset noCollisions bit.
+                    write_bit(obj + 0x10, 5, 0) -- Unset ignorePhysics.
+
+                    -- Launch vehicle:
+                    if (shot_fired) then
+
+                        local vel = self.launch_velocity
+
+                        write_float(obj + 0x68, vel * math.sin(xAim))
+                        write_float(obj + 0x6C, vel * math.sin(yAim))
+                        write_float(obj + 0x70, vel * math.sin(zAim))
+
+                        v.target_object = nil
+                        break
+                    end
+                end
+            end
+        end
     end
 end
 
-function Tag:InitPlayer(Ply, Reset)
-    if (not Reset) then
+local function CMDSplit(CMD)
+    local Args = { }
+    for Params in gmatch(CMD, "([^%s]+)") do
+        Args[#Args + 1] = lower(Params)
+    end
+    return Args
+end
 
-        -- init new array for this player:
+function GGun:OnServerCommand(Ply, CMD, _, _)
+    local Args = CMDSplit(CMD)
+    local case = (Args and Args[1])
+    if (case and Args[1] == self.base_command) then
+
+        local lvl = tonumber(get_var(Ply, "$lvl"))
+        if (lvl >= self.permission) then
+
+            local pl = GetPlayers(Ply, Args)
+            if (pl) then
+                for i = 1, #pl do
+                    local TargetID = tonumber(pl[i])
+                    if (lvl < self.permission_other and TargetID ~= Ply) then
+                        Respond(Ply, "Cannot toggle for other players! (no permission)")
+                    else
+                        self:ToggleGravityGun(Ply, TargetID, Args)
+                    end
+                end
+            end
+        else
+            Respond(Ply, "You do not have permission to execute that command")
+        end
+        return false
+    end
+end
+
+function GGun:ToggleGravityGun(Ply, TargetID, Args)
+
+    local toggled = (self.players[TargetID].enabled)
+    local name = self.players[TargetID].name
+
+    local state = Args[2]
+    if (not state) then
+
+        state = self.players[TargetID].enabled
+        if (state) then
+            state = "activated"
+        else
+            state = "not activated"
+        end
+
+        if (Ply == TargetID) then
+            Respond(Ply, "Gravity Gun is " .. state)
+        else
+            Respond(Ply, name .. "'s Gravity Gun is " .. state)
+        end
+        return
+
+    elseif (state == "on" or state == "1" or state == "true") then
+        state = "enabled"
+    elseif (state == "off" or state == "0" or state == "false") then
+        state = "disabled"
+    else
+        state = nil
+    end
+
+    if (toggled and state == "enabled" or not toggled and state == "disabled") then
+        if (Ply == TargetID) then
+            Respond(Ply, "Your Gravity Gun is already " .. state)
+        else
+            Respond(Ply, name .. "'s Gravity Gun is already " .. state)
+        end
+    elseif (state) then
+
+        if (Ply == TargetID) then
+            Respond(Ply, "Gravity Gun " .. state)
+        else
+            Respond(Ply, "Gravity Gun " .. state .. " for " .. name)
+        end
+
+        self.players[TargetID].target_object = nil
+        self.players[TargetID].enabled = (state == "disabled" and false) or (state == "enabled" and true)
+    else
+        Respond(Ply, "Invalid Command Parameter.")
+        Respond(Ply, 'Usage: "on", "1", "true", "off", "0" or "false"')
+    end
+end
+
+function GetPlayers(Ply, Args)
+
+    local players = { }
+    local TargetID = Args[3]
+
+    if (TargetID == nil) or (TargetID == "me") then
+        table.insert(players, Ply)
+    elseif (TargetID == "all" or TargetID == "*") then
+        for i = 1, 16 do
+            if player_present(i) then
+                table.insert(players, i)
+            end
+        end
+    elseif (TargetID:match("%d+") and tonumber(TargetID:match("%d+")) > 0) then
+        if player_present(TargetID) then
+            table.insert(players, tonumber(Args[1]))
+        else
+            Respond(Ply, "Player #" .. TargetID .. " is not online!")
+        end
+    else
+        Respond(Ply, "Invalid Target ID Parameter")
+        Respond(Ply, 'Usage: "me", "all", "*" or [pid between 1-16]')
+    end
+
+    return players
+end
+
+function OnPlayerDeath(V)
+    if (GGun.disable_on_death) then
+        if (GGun.players[V].enabled) then
+            GGun.players[V].enabled = false
+        end
+    end
+end
+
+function GGun:InitPlayer(Ply, Reset)
+
+    if (not Reset) then
         self.players[Ply] = {
-            score = 0,
+
+            -- Used to keep track of the gravity gun's "state" (on or off):
+            enabled = false,
             --
-            -- Store a copy of this players name (store once, access whenever)
-            name = get_var(Ply, "$name")
+
+            weapon_state = nil,
+            name = get_var(Ply, "$name"),
         }
         return
-        --
-
-
-        -- Player disconnected. Pick a new tagger:
-    elseif (self:IsTagger(Ply) and self.new_tagger_on_quit) then
-        self:PickNewTagger()
-        --
-
-
-        -- Tagger disconnected (setting: new_tagger_on_quit is false)
-        -- Reset tagger variables:
-    elseif (self:IsTagger(Ply)) then
-        self:Stop()
     end
-    --
 
-
-    -- Clear the array for this player (garbage collection)
     self.players[Ply] = nil
 end
 
 function OnPlayerJoin(Ply)
-    Tag:InitPlayer(Ply, false)
-end
-
-function OnPlayerSpawn(Ply)
-    Tag.players[Ply].timer = 0
+    GGun:InitPlayer(Ply, false)
 end
 
 function OnPlayerQuit(Ply)
-    Tag:InitPlayer(Ply, true)
-end
-
--- This function is responsible for setting the nav marker
--- above the taggers head:
-function Tag:SetNav()
-    for i, _ in pairs(self.players) do
-
-        local p1 = get_player(i)
-        local p2 = get_player(self.tagger)
-
-        -- Set slayer target indicator:
-
-        if (p1 ~= p2) then
-            write_word(p1 + 0x88, to_real_index(self.tagger))
-        else
-            write_word(p1 + 0x88, to_real_index(i))
-        end
-        ---
-    end
-end
-
-function Tag:Start()
-    self.init = true
-end
-
-function Tag:Stop()
-    self.tagger = nil
-    self.init = false
-    self.delta_time = 0
-end
-
-function Tag:SetSpeed(Ply, Tab)
-
-    if (self:IsTagger(Ply)) then
-
-        if (self.tagger_speed_reduce) then
-            if (Tab.speed_timer) then
-                Tab.speed_timer = Tab.speed_timer + time_scale
-
-                -- Reset speed:
-                if (Tab.speed_timer >= self.speed_reduce_interval) then
-                    Tab.speed_timer = nil
-                    goto reset_speed
-                end
-
-                -- Reduce Tagger speed:
-                execute_command("s " .. Ply .. " " .. self.speed[1] - self.speed_reduction)
-                return
-            end
-        end
-
-        :: reset_speed ::
-        -- tagger:
-        execute_command("s " .. Ply .. " " .. self.speed[1])
-
-    else
-        -- runner:
-        execute_command("s " .. Ply .. " " .. self.speed[2])
-    end
-end
-
-
--- This function is called every 1/30th of a second:
-function Tag:OnTick()
-    if (self.init) then
-
-        self.delta_time = self.delta_time + time_scale
-        self:SetNav()
-
-        if (self.delta_time >= self.turn_timer) then
-            self:PickNewTagger()
-            return
-        end
-
-        for i, v in pairs(self.players) do
-
-            -- Calling this every 1/30th second is probably not the best thing!
-            self:SetSpeed(i, v)
-            --
-
-            -- loop through all players who are not "it"
-            local case = (self.score_limit ~= nil and v.score >= self.score_limit)
-            if (case and player_alive(i) and not self:IsTagger(i)) then
-
-                v.timer = v.timer + time_scale
-
-                -- Increment their score by "points_per"
-                if (v.timer >= self.runner_time) then
-                    v.score = v.score + self.points_per
-                    v.timer = 0
-                    execute_command("score " .. i .. " " .. v.score)
-                end
-
-                -- Check if we need to end the game:
-                if (v.score >= self.score_limit) then
-                    self:Say(v.name .. " won the game!")
-                    execute_command("sv_map_next")
-                end
-                --
-            end
-        end
-    end
-end
-
-function OnPlayerDeath(V, K)
-    local k, v = tonumber(K), tonumber(V)
-
-    if (k > 0) then
-
-        local score = tonumber(get_var(k, "$score"))
-        score = score - 1
-        execute_command("score " .. k .. " " .. score)
-
-        if (Tag.new_tagger_on_death) then
-            return Tag:IsTagger(v) and Tag:PickNewTagger()
-        end
-    end
-end
-
-local function GetTag(Type, Name)
-    local ObjTag = lookup_tag(Type, Name)
-    return (ObjTag ~= 0 and read_dword(ObjTag + 0xC)) or nil
-end
-
-function Tag:IsMelee(MetaID)
-    for _, v in pairs(self.melee) do
-        if (MetaID == GetTag(v[1], v[2])) then
-            return true
-        end
-    end
-    return false
-end
-
-function Tag:OnDamage(Victim, Causer, MetaID, _, _)
-
-    -- Check if PvP and not suicide:
-    if (Causer > 0 and Victim ~= Causer) then
-
-        -- Store victim/causer names:
-        local cname = self.players[Causer].name
-        local vname = self.players[Victim].name
-
-
-        -- Player has initialised a new game of tag:
-        --
-        if (not self.init and self:IsMelee(MetaID)) then
-
-            local t = self.on_game_start
-            for i = 1, #t do
-                self:Say(gsub(gsub(t[i],
-                        "%%cname%%", cname),
-                        "%%vname%%", vname))
-            end
-            self:SetTagger(Victim)
-            --
-            --
-
-
-            -- Game already running, player was tagged:
-            --
-        elseif (self:IsTagger(Causer) and self:IsMelee(MetaID)) then
-
-            local str = gsub(gsub(self.on_tag,
-                    "%%victim%%", vname),
-                    "%%tagger%%", cname)
-            self:Say(str)
-            self:Stop()
-            self.players[Causer].it = false
-            self.players[Causer].speed_timer = nil
-            self:SetTagger(Victim)
-            --
-            --
-
-
-            -- Victim was shot at by a runner.
-            -- Setting speed_timer to 0 will initiate a timer
-            -- causing the players speed to be reduce by "self.speed_reduction"
-            -- for "self.speed_reduce_interval" seconds.
-        elseif self:IsTagger(Victim) then
-            self.players[Victim].speed_timer = 0
-        end
-    end
-end
-
--- Temporarily removes the message prefix and then
--- restores it once we have finished relaying "MSG" to the server:
-function Tag:Say(MSG)
-    execute_command("msg_prefix \"\"")
-    say_all(MSG)
-    cprint(MSG)
-    execute_command("msg_prefix \" " .. self.server_prefix .. "\"")
-end
-
-function GameStart()
-    return Tag:Init()
-end
-
-function GameEnd()
-    return Tag:Init()
+    GGun:InitPlayer(Ply, true)
 end
 
 function OnTick()
-    return Tag:OnTick()
+    return GGun:OnTick()
 end
 
-function OnDamage(V, C, M, _, _)
-    return Tag:OnDamage(V, C, M, _, _)
-end
-
-function OnScriptUnload()
-    -- N/A
-end
-
--- Error Logging --
-local function WriteLog(str)
-    local file = io.open("Tag.errors", "a+")
-    if (file) then
-        file:write(str .. "\n")
-        file:close()
-    end
-end
-
--- In the event of an error, the script will trigger these two functions: OnError(), report()
-function report(StackTrace, Error)
-
-    cprint(StackTrace, 4 + 8)
-
-    cprint("--------------------------------------------------------", 5 + 8)
-    cprint("Please report this error on github:", 7 + 8)
-    cprint("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", 7 + 8)
-    cprint("Script Version: " .. script_version, 7 + 8)
-    cprint("--------------------------------------------------------", 5 + 8)
-
-    local timestamp = os.date("[%H:%M:%S - %d/%m/%Y]")
-    WriteLog(timestamp)
-    WriteLog("Please report this error on github:")
-    WriteLog("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues")
-    WriteLog("Script Version: " .. script_version)
-    WriteLog(Error)
-    WriteLog(StackTrace)
-    WriteLog("\n")
-end
-
--- This function will return a string with a traceback of the stack call...
--- ...and call function 'report' after 50 milliseconds.
-function OnError(Error)
-    timer(50, "report", debug.traceback(), Error)
+function OnServerCommand(P, C)
+    return GGun:OnServerCommand(P, C)
 end
