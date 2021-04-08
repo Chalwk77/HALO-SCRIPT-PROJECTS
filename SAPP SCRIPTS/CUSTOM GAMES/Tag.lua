@@ -45,7 +45,7 @@ local Tag = {
     -- Set to nil to disabled the score limit
     score_limit = 10000,
 
-    -- Runners will accumulate points while.
+    -- Runners will accumulate points while a game of tag is in play.
     -- Add "points_per_interval" points per "runner_time" seconds
     runner_time = 5,
     points_per = 100,
