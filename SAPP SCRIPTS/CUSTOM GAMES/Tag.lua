@@ -134,7 +134,7 @@ end
 
 function Tag:IsTagger(Ply)
 
-    -- Returns true Ply is the tagger:
+    -- Returns true if Ply is the tagger:
     if (Ply) then
         return (Ply == self.tagger)
     end
@@ -157,9 +157,12 @@ function Tag:PickNewTagger()
     end
 
     --
+    -- Get the index id of the current tagger if one exists:
     local excluded = self:IsTagger()
+    --
+
     -- Only reset timer variables once we have
-    -- established who the current tagger is:
+    -- established who the current tagger is (excluded):
     self:Stop()
     --
 
@@ -177,7 +180,7 @@ function Tag:PickNewTagger()
     end
     --
 
-    -- Pick random candidate from candidates-array:
+    -- Pick random candidate:
     if (#t > 0) then
 
         math.randomseed(os.clock())
@@ -259,8 +262,8 @@ end
 
 function Tag:Stop()
     self.tagger = nil
-    self.delta_time = 0
     self.init = false
+    self.delta_time = 0
 end
 
 function Tag:SetSpeed(Ply, Tab)
@@ -374,7 +377,9 @@ function Tag:OnDamage(Victim, Causer, MetaID, _, _)
         local cname = self.players[Causer].name
         local vname = self.players[Victim].name
 
+
         -- Player has initialised a new game of tag:
+        --
         if (not self.init and self:IsMelee(MetaID)) then
 
             local t = self.on_game_start
@@ -384,26 +389,38 @@ function Tag:OnDamage(Victim, Causer, MetaID, _, _)
                         "%%vname%%", vname))
             end
             self:SetTagger(Victim)
+            --
+            --
+
 
             -- Game already running, player was tagged:
+            --
         elseif (self:IsTagger(Causer) and self:IsMelee(MetaID)) then
 
             local str = gsub(gsub(self.on_tag,
                     "%%victim%%", vname),
                     "%%tagger%%", cname)
             self:Say(str)
-
             self:Stop()
             self.players[Causer].it = false
             self.players[Causer].speed_timer = nil
-
             self:SetTagger(Victim)
+            --
+            --
+
+
+            -- Victim was shot at by a runner.
+            -- Setting speed_timer to 0 will initiate a timer
+            -- causing the players speed to be reduce by "self.speed_reduction"
+            -- for "self.speed_reduce_interval" seconds.
         elseif self:IsTagger(Victim) then
             self.players[Victim].speed_timer = 0
         end
     end
 end
 
+-- Temporarily removes the message prefix and then
+-- restores it once we have finished relaying "MSG" to the server:
 function Tag:Say(MSG)
     execute_command("msg_prefix \"\"")
     say_all(MSG)
@@ -431,6 +448,7 @@ function OnScriptUnload()
     -- N/A
 end
 
+-- Error Logging --
 local function WriteLog(str)
     local file = io.open("Tag.errors", "a+")
     if (file) then
