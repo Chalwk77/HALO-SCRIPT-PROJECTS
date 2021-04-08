@@ -134,11 +134,14 @@ end
 
 function Tag:IsTagger(Ply)
 
+    -- Returns true Ply is the tagger:
     if (Ply) then
         return (Ply == self.tagger)
     end
 
+    -- Returns the tagger's index id:
     return self.tagger
+    --
 end
 
 function Tag:SetTagger(Tagger)
@@ -148,21 +151,23 @@ end
 
 function Tag:PickNewTagger()
 
-    self:Stop()
-
     local req = self.players_required
     if tonumber(get_var(0, "$pn")) < req then
         return
     end
 
-    local t = { }
+    --
     local excluded = self:IsTagger()
+    -- Only reset timer variables once we have
+    -- established who the current tagger is:
     self:Stop()
+    --
 
     -- set candidates:
+    local t = { }
     for i, v in pairs(self.players) do
 
-        -- ignore previous tagger --
+        -- ignore previous tagger
         if (i == excluded) then
             v.speed_timer = nil
         else
