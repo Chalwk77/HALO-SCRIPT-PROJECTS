@@ -216,6 +216,7 @@ function Alias:FormatTable(table)
 end
 
 function Alias:ShowResults(params)
+
     local records = self:CheckFile()
     local tab = records[params.type][params.artifact]
     local page = tonumber(params.page)
@@ -271,18 +272,17 @@ function Alias:ShowResults(params)
     end
 end
 
-function StrSplit(CMD, Delimiter)
-    local Args, index = { }, 1
-    for Params in gmatch(CMD, "([^" .. Delimiter .. "]+)") do
-        Args[index] = Params
-        index = index + 1
+local function CmdSplit(CMD)
+    local Args = { }
+    for Params in gmatch(CMD, "([^%s]+)") do
+        Args[#Args + 1] = lower(Params)
     end
     return Args
 end
 
 function Alias:IsPirated(hash)
-    for i = 1, #self.known_pirated_hashes do
-        if (hash == self.known_pirated_hashes[i]) then
+    for _, v in pairs(self.known_pirated_hashes) do
+        if (hash == v) then
             return true
         end
     end
@@ -300,13 +300,9 @@ function Alias:CmdHelp(Executor)
 end
 
 function Alias:OnServerCommand(Executor, Command)
-    local Args = StrSplit(Command, "%s")
+    local Args = CmdSplit(Command)
+    if (Args) then
 
-    if (Args[1] == nil) then
-        return
-    else
-
-        Command = Command:lower()
         local lvl = tonumber(get_var(Executor, "$lvl"))
         if (Args[1] == self.command) then
             if (lvl >= self.permission) or (Executor == 0) then
@@ -322,6 +318,9 @@ function Alias:OnServerCommand(Executor, Command)
                         self:Respond(Executor, "Player #" .. player_id .. " is not online.")
                         return false
                     elseif (Args[2] == "me") then
+                        if (Executor == 0) then
+                            return false, cprint("Please enter a valid player id!", 12)
+                        end
                         player_id = Executor
                     end
 
@@ -343,51 +342,59 @@ function Alias:OnServerCommand(Executor, Command)
                     -- /alias <pid>
                     local player_lookup = (player_id and Args[3] == nil) and (not hash_pattern)
 
+                    local hash = get_var(player_id, "$hash")
+                    local name = get_var(player_id, "$name")
+                    params.name = name
+
                     if (ip_lookup) then
+
                         params.page = (Args[3] ~= nil and Args[3]:match("^%d+$") or 1)
                         params.type = "ip_addresses"
                         params.artifact = ip_pattern
 
                     elseif (player_lookup) then
+
                         params.page = 1
                         params.type = self.default_table
-                        params.name = get_var(player_id, "$name")
+
                         if (self.default_table == "ip_addresses") then
                             params.artifact = self:GetIP(player_id)
                         elseif (self.default_table == "hashes") then
-                            params.artifact = get_var(player_id, "$hash")
-                            params.pirated = self:IsPirated(get_var(player_id, "$hash"))
+                            params.artifact = hash
+                            params.pirated = self:IsPirated(hash)
                         end
 
                     elseif (hash_lookup) then
+
                         params.page = (Args[3] ~= nil and Args[3]:match("^%d+$") or 1)
                         params.type = "hashes"
                         params.artifact = hash_pattern
                         params.pirated = self:IsPirated(hash_pattern)
 
                     elseif (player_ip_lookup) then
+
                         params.page = (Args[4] ~= nil and Args[4]:match("^%d+$") or 1)
                         params.type = "ip_addresses"
-                        params.name = get_var(player_id, "$name")
                         params.artifact = self:GetIP(player_id)
 
                     elseif (player_hash_lookup) then
+
                         params.type = "hashes"
                         params.page = (Args[4] ~= nil and Args[4]:match("^%d+$") or 1)
-                        params.name = get_var(player_id, "$name")
-                        params.artifact = get_var(player_id, "$hash")
-                        params.pirated = self:IsPirated(get_var(player_id, "$hash"))
+                        params.artifact = hash
+                        params.pirated = self:IsPirated(hash)
 
                     elseif (name_search) then
 
                         local cmd_len = len(self.command)
                         local cmd_to_replace = sub(Command, 1, cmd_len + 1)
-                        local name = gsub(gsub(Command, cmd_to_replace, ""), " --search", "")
+                        name = gsub(gsub(Command, cmd_to_replace, ""), " --search", "")
 
                         local records = self:CheckFile()
                         local ip_count = Alias:GetNames(Executor, records.ip_addresses, name, false)
                         local hash_count = Alias:GetNames(Executor, records.hashes, name, true)
                         ip_count = ip_count + hash_count
+
                         if (ip_count == 0) then
                             self:Respond(Executor, "No records found for [ " .. name .. " ]")
                         end
@@ -444,6 +451,7 @@ function Alias:UpdateRecords(Ply)
         records.hashes[hash] = {}
         table.insert(records.hashes[hash], name)
         update = true
+
         -- Add it:
     elseif not self:NameOnRecord(records.hashes[hash], name) then
         table.insert(records.hashes[hash], name)
@@ -456,6 +464,7 @@ function Alias:UpdateRecords(Ply)
 
         table.insert(records.ip_addresses[ip], name)
         update = true
+
         -- Add it:
     elseif not self:NameOnRecord(records.ip_addresses[ip], name) then
         table.insert(records.ip_addresses[ip], name)
@@ -469,7 +478,7 @@ function Alias:UpdateRecords(Ply)
         local file = assert(io.open(self.dir, "w"))
         if (file) then
             file:write(json:encode_pretty(records))
-            io.close(file)
+            file:close()
         end
     end
 end
@@ -487,7 +496,7 @@ function Alias:CheckFile(INIT)
             local file = io.open(self.dir, "r")
             if (file) then
                 content = file:read("*all")
-                io.close(file)
+                file:close()
             end
 
             local records = json:decode(content)
@@ -496,7 +505,7 @@ function Alias:CheckFile(INIT)
                 if (file) then
                     records = { hashes = {}, ip_addresses = {} }
                     file:write(json:encode_pretty(records))
-                    io.close(file)
+                    file:close()
                 end
             end
 
