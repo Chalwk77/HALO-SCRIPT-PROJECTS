@@ -36,6 +36,7 @@ local GGun = {
     -- If true, you can pickup and launch vehicles
     -- while occupying a vehicle (bypasses must_hold_ggun setting)
     use_in_vehicle = true,
+    --
 
     -- If true, gravity gun will be disabled on death:
     disable_on_death = false,
@@ -134,11 +135,13 @@ function GGun:OnTick()
                 local px, py, pz
                 local VehicleID = read_dword(DyN + 0x11C)
                 local VehicleObject = get_object_memory(VehicleID)
+
                 if (VehicleID == 0xFFFFFFFF) then
                     px, py, pz = read_vector3d(DyN + 0x5c)
                 elseif (VehicleObject ~= 0) then
                     px, py, pz = read_vector3d(VehicleObject + 0x5c)
                 end
+                --
 
                 -- Update Z-Coordinate change when crouching:
                 local couching = read_float(DyN + 0x50C)
@@ -147,6 +150,7 @@ function GGun:OnTick()
                 else
                     pz = pz + (0.35 * couching)
                 end
+                --
 
                 if (not v.target_object) then
 
