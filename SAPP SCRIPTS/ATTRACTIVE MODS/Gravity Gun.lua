@@ -46,8 +46,8 @@ local GGun = {
 
 api_version = "1.12.0.0"
 
-local sin = math.sin
-local gmatch, lower = string.gmatch, string.lower
+local lower = string.lower
+local gmatch = string.gmatch
 
 function OnScriptLoad()
     register_callback(cb["EVENT_TICK"], "OnTick")
@@ -91,9 +91,9 @@ function GGun:OnTick()
             if (DyN ~= 0) then
 
                 -- Player camera x,y,z
-                local xAim = read_float(DyN + 0x230)
-                local yAim = read_float(DyN + 0x234)
-                local zAim = read_float(DyN + 0x238)
+                local xAim = math.sin(read_float(DyN + 0x230))
+                local yAim = math.sin(read_float(DyN + 0x234))
+                local zAim = math.sin(read_float(DyN + 0x238))
 
                 local px, py, pz
                 local VehicleID = read_dword(DyN + 0x11C)
@@ -132,9 +132,9 @@ function GGun:OnTick()
                     -- Distance from player:
                     local distance = self.distance
 
-                    local newX = px + distance * sin(xAim)
-                    local newY = py + distance * sin(yAim)
-                    local newZ = pz + distance * sin(zAim)
+                    local newX = px + distance * xAim
+                    local newY = py + distance * yAim
+                    local newZ = pz + distance * zAim
 
                     -- Write to vehicle x,y,z coordinates:
                     write_float(obj + 0x5C, newX)
@@ -159,9 +159,9 @@ function GGun:OnTick()
 
                         local vel = self.launch_velocity
 
-                        write_float(obj + 0x68, vel * sin(xAim)) -- x vel
-                        write_float(obj + 0x6C, vel * sin(yAim)) -- y vel
-                        write_float(obj + 0x70, vel * sin(zAim)) -- z vel
+                        write_float(obj + 0x68, vel * xAim) -- x vel
+                        write_float(obj + 0x6C, vel * yAim) -- y vel
+                        write_float(obj + 0x70, vel * zAim) -- z vel
 
                         v.target_object = nil
                     end
