@@ -28,6 +28,10 @@ local GGun = {
     distance = 5,
     --
 
+    -- If true, players must be holding the ggun in order to
+    -- pick up vehicles:
+    must_hold_ggun = false,
+    --
 
     -- If true, gravity gun will be disabled on death:
     disable_on_death = false,
@@ -108,9 +112,11 @@ function GGun:OnTick()
 
                 local shot_fired = self:ShotFired(DyN, v)
 
-                if (shot_fired and not HoldingGRifle(DyN)) then
-                    Respond(i, "You need to be holding the Gravity Rifle!", true)
-                    return
+                if (self.must_hold_ggun) then
+                    if (shot_fired and not HoldingGRifle(DyN)) then
+                        Respond(i, "You need to be holding the Gravity Rifle!", true)
+                        return
+                    end
                 end
 
                 -- Player camera x,y,z

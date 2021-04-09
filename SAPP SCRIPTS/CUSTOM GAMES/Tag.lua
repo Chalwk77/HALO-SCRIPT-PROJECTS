@@ -16,7 +16,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 local Tag = {
 
     -- Tagger turn timer (in seconds):
-    turn_timer = 60,
+    turn_timer = 10,
     --
 
     -- Messages omitted when a new tagger is selected:
@@ -169,6 +169,9 @@ function Tag:PickNewTagger()
     -- Only reset timer variables once we have
     -- established who the current tagger is (excluded):
     self:Stop()
+
+    -- Reset previous taggers speed:
+    self:SetSpeed(excluded)
     --
 
     -- set candidates:
@@ -309,21 +312,18 @@ function Tag:OnTick()
         -- Speed reduction timer and scoring logic:
         for i, v in pairs(self.players) do
             local case = (player_alive(i) and self:IsTagger(i) and self.tagger_speed_reduce)
-            if (case) then
-                if (v.speed_timer) then
-                    v.speed_timer = v.speed_timer + time_scale
-                    if (v.speed_timer >= self.speed_reduce_interval) then
-                        v.speed_timer = nil
-                        self:SetSpeed(i)
-                    end
+            if (case and v.speed_timer) then
+                v.speed_timer = v.speed_timer + time_scale
+                if (v.speed_timer >= self.speed_reduce_interval) then
+                    v.speed_timer = nil
+                    self:SetSpeed(i)
                 end
             end
             --
             --
 
             --
-            case = (self.score_limit ~= nil and v.score >= self.score_limit)
-            if (case and player_alive(i) and not self:IsTagger(i)) then
+            if (self.score_limit and player_alive(i) and not self:IsTagger(i)) then
 
                 v.timer = v.timer + time_scale
 
@@ -415,11 +415,7 @@ function Tag:OnDamage(Victim, Causer, MetaID, _, _)
             --
 
 
-            -- Victim was shot at by a runner.
-            -- Setting speed_timer to 0 will initiate a timer
-            -- causing the players speed to be reduce by "self.speed_reduction"
-            -- for "self.speed_reduce_interval" seconds.
-        elseif self:IsTagger(Victim) then
+        elseif (self:IsTagger(Victim) and self.tagger_speed_reduce) then
             self:SetSpeed(Victim, true)
         end
     end
