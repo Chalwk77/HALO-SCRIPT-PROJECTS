@@ -42,14 +42,22 @@ local function Tag(Type, Name)
     return tag_id ~= 0 and read_dword(tag_id + 0xC) or nil
 end
 
-function OnObjectSpawn(Ply, MapID)
-
-    if (Ply) then
-
-        if (MapID == Tag("weap", "weapons\\gravity rifle\\gravity rifle")) then
-            return
+local function HoldingGRifle(Ply)
+    local DyN = get_dynamic_player(Ply)
+    if (DyN ~= 0) then
+        local weapon = get_object_memory(read_dword(DyN + 0x118))
+        if (weapon ~= 0) then
+            local tag = read_string(read_dword(read_word(weapon) * 32 + 0x40440038))
+            if (tag == "weapons\\gravity rifle\\gravity rifle") then
+                return true
+            end
         end
+    end
+    return false
+end
 
+function OnObjectSpawn(Ply, MapID)
+    if (Ply and not HoldingGRifle(Ply)) then
         if (MapID == Tag("proj", "weapons\\flamethrower\\flame")) then
             return false, SpawnObject(Ply)
         end

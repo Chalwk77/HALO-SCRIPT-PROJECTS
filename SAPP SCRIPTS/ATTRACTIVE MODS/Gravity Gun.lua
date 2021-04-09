@@ -69,7 +69,12 @@ function OnGameStart()
     end
 end
 
-local function Respond(Ply, Msg)
+local function Respond(Ply, Msg, Clear)
+    if (Clear) then
+        for _ = 1, 25 do
+            rprint(Ply, " ")
+        end
+    end
     rprint(Ply, Msg)
 end
 
@@ -83,12 +88,30 @@ function GGun:ShotFired(DyN, PT)
     return false
 end
 
+local function HoldingGRifle(DyN)
+    local weapon = get_object_memory(read_dword(DyN + 0x118))
+    if (weapon ~= 0) then
+        local tag = read_string(read_dword(read_word(weapon) * 32 + 0x40440038))
+        if (tag == "weapons\\gravity rifle\\gravity rifle") then
+            return true
+        end
+    end
+    return false
+end
+
 function GGun:OnTick()
     for i, v in pairs(self.players) do
         if (v.enabled) then
 
             local DyN = get_dynamic_player(i)
             if (DyN ~= 0) then
+
+                local shot_fired = self:ShotFired(DyN, v)
+
+                if (shot_fired and not HoldingGRifle(DyN)) then
+                    Respond(i, "You need to be holding the Gravity Rifle!", true)
+                    return
+                end
 
                 -- Player camera x,y,z
                 local xAim = math.sin(read_float(DyN + 0x230))
@@ -112,8 +135,6 @@ function GGun:OnTick()
                 else
                     pz = pz + (0.35 * couching)
                 end
-
-                local shot_fired = self:ShotFired(DyN, v)
 
                 if (not v.target_object) then
 
