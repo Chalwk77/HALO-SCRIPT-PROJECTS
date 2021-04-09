@@ -29,9 +29,13 @@ local GGun = {
     --
 
     -- If true, players must be holding the ggun in order to
-    -- pick up vehicles:
-    must_hold_ggun = false,
+    -- pick up vehicles (setting: "use_in_vehicle" must be false)
+    must_hold_ggun = true,
     --
+
+    -- If true, you can pickup and launch vehicles
+    -- while occupying a vehicle (bypasses must_hold_ggun setting)
+    use_in_vehicle = true,
 
     -- If true, gravity gun will be disabled on death:
     disable_on_death = false,
@@ -112,9 +116,12 @@ function GGun:OnTick()
 
                 local shot_fired = self:ShotFired(DyN, v)
 
-                if (self.must_hold_ggun) then
+                if (not self.use_in_vehicle and self.must_hold_ggun) then
                     if (shot_fired and not HoldingGRifle(DyN)) then
                         Respond(i, "You need to be holding the Gravity Rifle!", true)
+                        return
+                    elseif (v.target_object and not HoldingGRifle(DyN)) then
+                        v.target_object = nil
                         return
                     end
                 end
@@ -127,7 +134,6 @@ function GGun:OnTick()
                 local px, py, pz
                 local VehicleID = read_dword(DyN + 0x11C)
                 local VehicleObject = get_object_memory(VehicleID)
-
                 if (VehicleID == 0xFFFFFFFF) then
                     px, py, pz = read_vector3d(DyN + 0x5c)
                 elseif (VehicleObject ~= 0) then
