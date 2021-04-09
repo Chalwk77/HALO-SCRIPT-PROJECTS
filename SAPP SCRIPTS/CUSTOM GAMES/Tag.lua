@@ -16,7 +16,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 local Tag = {
 
     -- Tagger turn timer (in seconds):
-    turn_timer = 60,
+    turn_timer = 5,
     --
 
     -- Messages omitted when a new tagger is selected:
@@ -27,6 +27,10 @@ local Tag = {
         "%cname% has initialised a game of tag!",
         "%vname% is it!"
     },
+    --
+
+    -- Message omitted when random player is chosen to be "it":
+    on_random_selection = "%name% is now the tagger!",
     --
 
     -- Min players required to start a game of tag:
@@ -191,6 +195,8 @@ function Tag:PickNewTagger()
 
         local i = t[math.random(1, #t)]
         self:SetTagger(i)
+        local str = gsub(self.on_random_selection, "%%name%%", self.players[i].name)
+        self:Say(str)
     end
 end
 
@@ -270,8 +276,8 @@ end
 
 function Tag:SetSpeed(Ply, Reduce)
 
+    -- tagger --
     if (self:IsTagger(Ply)) then
-        -- tagger:
         if (not Reduce) then
             execute_command("s " .. Ply .. " " .. self.speed[1])
         else
