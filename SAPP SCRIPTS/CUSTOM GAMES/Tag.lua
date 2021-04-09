@@ -16,7 +16,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 local Tag = {
 
     -- Tagger turn timer (in seconds):
-    turn_timer = 5,
+    turn_timer = 60,
     --
 
     -- Messages omitted when a new tagger is selected:
