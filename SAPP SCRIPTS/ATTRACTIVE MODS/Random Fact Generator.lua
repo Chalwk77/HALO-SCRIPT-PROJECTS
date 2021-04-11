@@ -27,6 +27,11 @@ api_version = "1.12.0.0"
 local interval = 180
 local end_point = "https://api.chucknorris.io/jokes/random"
 
+-- If true, Chuck Norris's name will be replaced
+-- with the name of a random player on the server.
+local replace_name = true
+--
+
 -- A message relay function will temporarily remove the serve prefix
 -- and restore it to this when done.
 local server_prefix = "**SAPP**"
@@ -44,6 +49,7 @@ function OnScriptLoad()
     register_callback(cb["EVENT_TICK"], "GameUpdate")
     register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
+
     OnGameStart()
 end
 
@@ -56,6 +62,27 @@ function GameUpdate()
             delta_time = 0
             local data = Query(end_point)
             local jokes = (data and json:decode(data))
+
+            if (replace_name) then
+                local t = {}
+                for i = 1, 16 do
+                    if player_present(i) then
+                        t[#t + 1] = i
+                    end
+                end
+
+                if (#t > 0) then
+
+                    math.randomseed(os.clock())
+                    math.random();
+                    math.random();
+                    math.random();
+
+                    local name = get_var(t[math.random(1, #t)], "$name")
+                    jokes.value = jokes.value:gsub("Chuck Norris", name)
+                end
+            end
+
             return data and (jokes.value ~= nil and SayAll(jokes.value))
         end
     end
@@ -84,7 +111,6 @@ function OnScriptUnload()
     -- N/A
 end
 
--- Credits to Kavawuvi (002) for HTTP client functionality:
 local ffi = require("ffi")
 ffi.cdef [[
     typedef void http_response;
