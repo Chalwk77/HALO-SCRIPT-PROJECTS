@@ -85,7 +85,6 @@ local AutoMessage = {
 api_version = "1.12.0.0"
 
 local time_scale = 1 / 30
-local lower, gmatch = string.lower, string.gmatch
 
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
@@ -141,12 +140,12 @@ function AutoMessage:Show(TAB)
             execute_command("msg_prefix \"\"")
             say_all(Msg)
             execute_command("msg_prefix \" **" .. self.server_prefix .. "**\"")
-            return
-        end
-        for i = 1, 16 do
-            if player_present(i) then
-                self:Respond(i, Msg, 10)
-            end
+		else
+			for i = 1, 16 do
+				if player_present(i) then
+					self:Respond(i, Msg, 10)
+				end
+			end
         end
     end
 end
@@ -162,8 +161,8 @@ end
 
 local function CMDSplit(CMD)
     local Args = { }
-    for Params in gmatch(CMD, "([^%s]+)") do
-        Args[#Args + 1] = lower(Params)
+    for Params in CMD:gmatch("([^%s]+)") do
+        Args[#Args + 1] = Params:lower()
     end
     return Args
 end
@@ -174,7 +173,7 @@ function AutoMessage:OnServerCommand(Ply, Command, _, _)
         if (Args[1] == self.command) then
             local lvl = tonumber(get_var(Ply, "$lvl"))
             if (lvl >= self.permission or Ply == 0) then
-                local invalid
+                local error
                 if (Args[2] ~= nil) then
                     if (Args[2] == Args[2]:match("list")) then
                         self:Respond(Ply, "[Broadcast ID] [Line Number]", 12)
@@ -195,12 +194,13 @@ function AutoMessage:OnServerCommand(Ply, Command, _, _)
                             self:Respond(Ply, "Please enter a number between 1-" .. #self.announcements, 12)
                         end
                     else
-                        invalid = true
+                        error = true
                     end
                 else
-                    invalid = true
+                    error = true
                 end
-                if (invalid) then
+
+                if (error) then
                     self:Respond(Ply, "Invalid Command Syntax. Please try again!", 12)
                 end
             end
