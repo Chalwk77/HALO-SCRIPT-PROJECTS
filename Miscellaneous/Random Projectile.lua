@@ -31,23 +31,50 @@ local proj = {
     "vehicles\\scorpion\\tank shell"
 }
 
+local projectiles
+local time_scale = 1 / 30
+
 api_version = "1.12.0.0"
 
 function OnScriptLoad()
+    register_callback(cb["EVENT_TICK"], "OnTick")
+    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     register_callback(cb["EVENT_OBJECT_SPAWN"], "OnObjectSpawn")
+    OnGameStart()
+end
+
+local function CleanUpDrones(TIndex, Obj)
+
+    projectiles = projectiles or { }
+
+    if (TIndex) then
+        destroy_object(Obj)
+        projectiles[TIndex] = nil
+        return
+    end
+
+    for _, v in pairs(projectiles) do
+        destroy_object(v[1])
+    end
+
+    projectiles = { }
+end
+
+function OnGameStart()
+    CleanUpDrones()
 end
 
 local function Tag(Type, Name)
     local tag_id = lookup_tag(Type, Name)
-    return tag_id ~= 0 and read_dword(tag_id + 0xC) or nil
+    return (tag_id ~= 0 and read_dword(tag_id + 0xC)) or nil
 end
 
 local function HoldingGRifle(Ply)
     local DyN = get_dynamic_player(Ply)
     if (DyN ~= 0) then
-        local weapon = get_object_memory(read_dword(DyN + 0x118))
-        if (weapon ~= 0) then
-            local tag = read_string(read_dword(read_word(weapon) * 32 + 0x40440038))
+        local WeaponObject = get_object_memory(read_dword(DyN + 0x118))
+        if (WeaponObject ~= 0) then
+            local tag = read_string(read_dword(read_word(WeaponObject) * 32 + 0x40440038))
             if (tag == "weapons\\gravity rifle\\gravity rifle") then
                 return true
             end
@@ -56,15 +83,7 @@ local function HoldingGRifle(Ply)
     return false
 end
 
-function OnObjectSpawn(Ply, MapID)
-    if (Ply and not HoldingGRifle(Ply)) then
-        if (MapID == Tag("proj", "weapons\\flamethrower\\flame")) then
-            return false, SpawnObject(Ply)
-        end
-    end
-end
-
-function SpawnObject(Ply)
+local function SpawnObject(Ply)
     local DyN = get_dynamic_player(Ply)
     if (DyN ~= 0) then
 
@@ -73,7 +92,7 @@ function SpawnObject(Ply)
         local zAim = math.sin(read_float(DyN + 0x238))
 
         local px, py, pz = read_vector3d(DyN + 0x5c)
-        local distance = 5
+        local distance = 3
 
         local x = px + distance * xAim
         local y = py + distance * yAim
@@ -85,13 +104,33 @@ function SpawnObject(Ply)
         math.random();
 
         local tag = Tag("proj", proj[math.random(1, #proj)])
-        local projectile = spawn_projectile(tag, Ply, x, y, z)
+        if (tag) then
+            local projectile = spawn_projectile(tag, Ply, x, y, z + 0.3)
+            local obj = get_object_memory(projectile)
+            if (obj ~= 0) then
+                local velocity = math.random(0.1, 0.6)
+                write_float(obj + 0x68, velocity * xAim)
+                write_float(obj + 0x6C, velocity * yAim)
+                write_float(obj + 0x70, velocity * zAim)
+                projectiles[#projectiles + 1] = { projectile, obj, timer = 0 }
+            end
+        end
+    end
+end
 
-        projectile = get_object_memory(projectile)
-        if (projectile ~= 0) then
-            write_float(projectile + 0x68, 0.6 * xAim)
-            write_float(projectile + 0x6C, 0.6 * yAim)
-            write_float(projectile + 0x70, 0.6 * zAim)
+function OnObjectSpawn(Ply, MapID)
+    if (Ply and not HoldingGRifle(Ply)) then
+        if (MapID == Tag("proj", "weapons\\flamethrower\\flame")) then
+            return false, SpawnObject(Ply)
+        end
+    end
+end
+
+function OnTick()
+    for k, v in pairs(projectiles) do
+        v.timer = v.timer + time_scale
+        if (v.timer >= 5) then
+            CleanUpDrones(k, v[1])
         end
     end
 end
