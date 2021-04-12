@@ -57,8 +57,11 @@ local Crash = {
             "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", -- hash 4
         },
         names = {
+            -- Anyone who joins with these names will be crashed!
             "TᑌᗰᗷᗩᑕᑌᒪOᔕ",
+            "TUMBACULOS",
             "A55hol3",
+            --
         },
     },
     ------------------------------------------------
