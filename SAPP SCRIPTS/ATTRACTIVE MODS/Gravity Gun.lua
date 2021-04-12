@@ -47,7 +47,7 @@ local GGun = {
     -- vehicle velocities --
     --
     -- initial launch velocity --
-    launch_velocity = 0.6,
+    launch_velocity = 1.2,
 
     -- Suspended yaw, pitch & roll velocities:
     yaw = 0.1, pitch = 0.1, roll = 0.1,
@@ -142,11 +142,6 @@ function GGun:OnTick()
                     end
                 end
 
-                -- Player camera x,y,z
-                local xAim = math.sin(read_float(DyN + 0x230))
-                local yAim = math.sin(read_float(DyN + 0x234))
-                local zAim = math.sin(read_float(DyN + 0x238))
-
                 local px, py, pz
                 local VehicleID = read_dword(DyN + 0x11C)
                 local VehicleObject = get_object_memory(VehicleID)
@@ -170,7 +165,8 @@ function GGun:OnTick()
                 if (not v.target_object) then
 
                     local ignore_player = read_dword(get_player(i) + 0x34)
-                    local success, _, _, _, target = intersect(px, py, pz, xAim * 1000, yAim * 1000, zAim * 1000, ignore_player)
+                    local x, y, z = read_float(DyN + 0x230), read_float(DyN + 0x234), read_float(DyN + 0x238)
+                    local success, _, _, _, target = intersect(px, py, pz, x * 1000, y * 1000, z * 1000, ignore_player)
 
                     -- test for successful intersect with an object:
                     if (success and target ~= 0xFFFFFFFF and shot_fired) then
@@ -192,6 +188,11 @@ function GGun:OnTick()
                 else
 
                     local obj = v.target_object
+
+                    -- Player camera x,y,z
+                    local xAim = math.sin(read_float(DyN + 0x230))
+                    local yAim = math.sin(read_float(DyN + 0x234))
+                    local zAim = math.sin(read_float(DyN + 0x238))
 
                     -- Distance from player:
                     local distance = self.distance
