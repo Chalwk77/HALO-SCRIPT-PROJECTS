@@ -185,9 +185,9 @@ function GGun:OnTick()
 
                     local ignore_player = read_dword(get_player(i) + 0x34)
                     local x, y, z = read_float(DyN + 0x230), read_float(DyN + 0x234), read_float(DyN + 0x238)
-                    local success, _, _, _, target = intersect(px, py, pz, x * 1000, y * 1000, z * 1000, ignore_player)
 
                     -- test for successful intersect with an object:
+                    local success, _, _, _, target = intersect(px, py, pz, x * 1000, y * 1000, z * 1000, ignore_player)
                     if (success and target ~= 0xFFFFFFFF and shot_fired) then
 
                         local obj = get_object_memory(target)
