@@ -81,7 +81,7 @@ local Crash = {
         -- For custom maps, if you're experiencing a problem where the command executes fine but all it does
         -- is kill the player, try setting the iterations higher.
 
-        { "vehicles\\warthog\\mp_warthog", 500 }, -- this tag is sufficient for all stock maps.
+        { "vehicles\\warthog\\mp_warthog", 25 }, -- this tag is sufficient for all stock maps.
         { "bourrin\\halo reach\\vehicles\\warthog\\rocket warthog", 2000 }, -- this is for bigassv2,104
     }
     --===================================================--

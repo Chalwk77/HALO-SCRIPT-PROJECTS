@@ -12,12 +12,13 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 -- config starts --
 local GGun = {
 
+    -- This is the custom command used to toggle gravity gun on/off:
     base_command = "ggun", -- short for gravity gun
-
+    --
 
     -- Minimum permission required to execute /base_command for yourself
     permission = -1,
-
+    --
 
     -- Minimum permission required to toggle GGUN on/off for other players:
     permission_other = 4,
@@ -55,9 +56,6 @@ local GGun = {
 
 api_version = "1.12.0.0"
 
-local lower = string.lower
-local gmatch = string.gmatch
-
 function OnScriptLoad()
     register_callback(cb["EVENT_TICK"], "OnTick")
     register_callback(cb["EVENT_DIE"], "OnPlayerDeath")
@@ -65,6 +63,7 @@ function OnScriptLoad()
     register_callback(cb["EVENT_LEAVE"], "OnPlayerQuit")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
+    OnGameStart()
 end
 
 function OnGameStart()
@@ -103,6 +102,22 @@ local function HoldingGRifle(DyN)
         local tag = read_string(read_dword(read_word(weapon) * 32 + 0x40440038))
         if (tag == "weapons\\gravity rifle\\gravity rifle") then
             return true
+        end
+    end
+    return false
+end
+
+local function IsOccupied(VObject)
+    for i = 1, 16 do
+        if player_present(i) then
+            local DyN = get_dynamic_player(i)
+            if (DyN ~= 0) then
+                local VehicleID = read_dword(DyN + 0x11C)
+                local VObj = get_object_memory(VehicleID)
+                if (VObj ~= 0 and VObj == VObject) then
+                    return true
+                end
+            end
         end
     end
     return false
@@ -154,11 +169,23 @@ function GGun:OnTick()
 
                 if (not v.target_object) then
 
-                    -- test for successful intersect and make sure vehicle is not occupied:
                     local ignore_player = read_dword(get_player(i) + 0x34)
                     local success, _, _, _, target = intersect(px, py, pz, xAim * 1000, yAim * 1000, zAim * 1000, ignore_player)
+
+                    -- test for successful intersect with an object:
                     if (success and target ~= 0xFFFFFFFF and shot_fired) then
-                        v.target_object = get_object_memory(target)
+
+                        local obj = get_object_memory(target)
+
+                        -- Verify object is a vehicle:
+                        local tag = read_string(read_dword(read_word(obj) * 32 + 0x40440038))
+                        if lookup_tag("vehi", tag) then
+
+                            -- Check vehicle is not occupied:
+                            if not IsOccupied(obj) then
+                                v.target_object = (obj ~= 0xFFFFFFFF and obj) or nil
+                            end
+                        end
                     end
                     --
 
@@ -173,7 +200,7 @@ function GGun:OnTick()
                     local newY = py + distance * yAim
                     local newZ = pz + distance * zAim
 
-                    -- Write to vehicle x,y,z coordinates:
+                    -- Update vehicle x,y,z coordinates:
                     write_float(obj + 0x5C, newX)
                     write_float(obj + 0x60, newY)
                     write_float(obj + 0x64, newZ)
@@ -183,6 +210,7 @@ function GGun:OnTick()
                     write_float(obj + 0x6C, 0) -- y vel
                     write_float(obj + 0x70, 0.01285) -- z vel
 
+                    -- Update vehicle yaw, pitch, roll
                     write_float(obj + 0x90, self.yaw) -- yaw
                     write_float(obj + 0x8C, self.pitch) -- pitch
                     write_float(obj + 0x94, self.roll) -- roll
@@ -210,8 +238,8 @@ end
 
 local function CMDSplit(CMD)
     local Args = { }
-    for Params in gmatch(CMD, "([^%s]+)") do
-        Args[#Args + 1] = lower(Params)
+    for Params in CMD:gmatch("([^%s]+)") do
+        Args[#Args + 1] = Params:lower()
     end
     return Args
 end
