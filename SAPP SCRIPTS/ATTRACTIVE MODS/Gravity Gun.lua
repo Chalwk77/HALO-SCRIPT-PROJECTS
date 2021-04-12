@@ -47,7 +47,7 @@ local GGun = {
     -- vehicle velocities --
     --
     -- initial launch velocity --
-    launch_velocity = 1.2,
+    launch_velocity = 1.3,
 
     -- Suspended yaw, pitch & roll velocities:
     yaw = 0.1, pitch = 0.1, roll = 0.1,
@@ -55,6 +55,9 @@ local GGun = {
 -- config ends --
 
 api_version = "1.12.0.0"
+
+local tag_count
+local tag_address
 
 function OnScriptLoad()
     register_callback(cb["EVENT_TICK"], "OnTick")
@@ -68,6 +71,10 @@ end
 
 function OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
+
+        tag_count = read_dword(0x4044000C)
+        tag_address = read_dword(0x40440000)
+
         GGun.players = { }
         for i = 1, 16 do
             if player_present(i) then
@@ -118,6 +125,18 @@ local function IsOccupied(VObject)
                     return true
                 end
             end
+        end
+    end
+    return false
+end
+
+local function IsVehicle(TAG)
+    for i = 0, tag_count - 1 do
+        local tag = tag_address + 0x20 * i
+        local tag_name = read_string(read_dword(tag + 0x10))
+        local tag_class = read_dword(tag)
+        if (tag_class == 1986357353 and tag_name == TAG) then
+            return true
         end
     end
     return false
@@ -175,7 +194,7 @@ function GGun:OnTick()
 
                         -- Verify object is a vehicle:
                         local tag = read_string(read_dword(read_word(obj) * 32 + 0x40440038))
-                        if lookup_tag("vehi", tag) then
+                        if IsVehicle(tag) then
 
                             -- Check vehicle is not occupied:
                             if not IsOccupied(obj) then
@@ -184,7 +203,6 @@ function GGun:OnTick()
                         end
                     end
                     --
-
                 else
 
                     local obj = v.target_object
