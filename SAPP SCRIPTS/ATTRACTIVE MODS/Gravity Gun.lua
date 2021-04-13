@@ -63,6 +63,7 @@ function OnScriptLoad()
     register_callback(cb["EVENT_TICK"], "OnTick")
     register_callback(cb["EVENT_DIE"], "OnPlayerDeath")
     register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
+    register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerQuit")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
@@ -396,6 +397,10 @@ end
 
 function OnPlayerJoin(Ply)
     GGun:InitPlayer(Ply, false)
+end
+
+function OnPlayerSpawn(Ply)
+    GGun.players[Ply].target_object = nil
 end
 
 function OnPlayerQuit(Ply)
