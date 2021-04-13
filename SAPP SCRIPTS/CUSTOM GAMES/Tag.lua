@@ -240,8 +240,10 @@ function OnPlayerJoin(Ply)
 end
 
 function OnPlayerSpawn(Ply)
-    Tag.players[Ply].timer = 0
-    Tag:SetSpeed(Ply)
+    if (Tag.players and Tag.players[Ply]) then
+        Tag.players[Ply].timer = 0
+        Tag:SetSpeed(Ply)
+    end
 end
 
 function OnPlayerQuit(Ply)
