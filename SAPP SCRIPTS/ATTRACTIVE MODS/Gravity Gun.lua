@@ -105,9 +105,12 @@ function GGun:ShotFired(DyN, PT)
 end
 
 local function HoldingGRifle(DyN)
-    local weapon = get_object_memory(read_dword(DyN + 0x118))
-    if (weapon ~= 0) then
-        local tag = read_string(read_dword(read_word(weapon) * 32 + 0x40440038))
+
+    local WeaponID = read_dword(DyN + 0x118)
+    local WeaponObj = get_object_memory(WeaponID)
+
+    if (WeaponObj ~= 0) then
+        local tag = read_string(read_dword(read_word(WeaponObj) * 32 + 0x40440038))
         if (tag == "weapons\\gravity rifle\\gravity rifle") then
             return true
         end
@@ -193,13 +196,17 @@ function GGun:OnTick()
 
                         local obj = get_object_memory(target)
 
-                        -- Verify object is a vehicle:
-                        local tag = read_string(read_dword(read_word(obj) * 32 + 0x40440038))
-                        if IsVehicle(tag) then
+                        -- This check is necessary to prevent a potential crash
+                        if (obj ~= 0) then
+                            --
+                            -- Verify object is a vehicle:
+                            local tag = read_string(read_dword(read_word(obj) * 32 + 0x40440038))
+                            if IsVehicle(tag) then
 
-                            -- Check vehicle is not occupied:
-                            if not IsOccupied(obj) then
-                                v.target_object = (obj ~= 0xFFFFFFFF and obj) or nil
+                                -- Check vehicle is not occupied:
+                                if not IsOccupied(obj) then
+                                    v.target_object = (obj ~= 0xFFFFFFFF and obj) or nil
+                                end
                             end
                         end
                     end
