@@ -16,7 +16,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 local Tag = {
 
     -- Tagger turn timer (in seconds):
-    turn_timer = 10,
+    turn_timer = 60,
     --
 
     -- Messages omitted when a new tagger is selected:
@@ -379,44 +379,46 @@ function Tag:OnDamage(Victim, Causer, MetaID, _, _)
     -- Check if PvP and not suicide:
     if (Causer > 0 and Victim ~= Causer) then
 
-        -- Store victim/causer names:
-        local cname = self.players[Causer].name
-        local vname = self.players[Victim].name
+        if (self.players[Causer]) then
+
+            -- Store victim/causer names:
+            local cname = self.players[Causer].name
+            local vname = self.players[Victim].name
+
+            -- Player has initialised a new game of tag:
+            --
+            if (not self.init and self:IsMelee(MetaID)) then
+
+                local t = self.on_game_start
+                for i = 1, #t do
+                    self:Say(gsub(gsub(t[i],
+                            "%%cname%%", cname),
+                            "%%vname%%", vname))
+                end
+                self:SetTagger(Victim)
+                --
+                --
 
 
-        -- Player has initialised a new game of tag:
-        --
-        if (not self.init and self:IsMelee(MetaID)) then
+                -- Game already running, player was tagged:
+                --
+            elseif (self:IsTagger(Causer) and self:IsMelee(MetaID)) then
 
-            local t = self.on_game_start
-            for i = 1, #t do
-                self:Say(gsub(gsub(t[i],
-                        "%%cname%%", cname),
-                        "%%vname%%", vname))
+                local str = gsub(gsub(self.on_tag,
+                        "%%victim%%", vname),
+                        "%%tagger%%", cname)
+                self:Say(str)
+                self:Stop()
+                self.players[Causer].it = false
+                self.players[Causer].speed_timer = nil
+                self:SetTagger(Victim)
+                --
+                --
+
+
+            elseif (self:IsTagger(Victim) and self.tagger_speed_reduce) then
+                self:SetSpeed(Victim, true)
             end
-            self:SetTagger(Victim)
-            --
-            --
-
-
-            -- Game already running, player was tagged:
-            --
-        elseif (self:IsTagger(Causer) and self:IsMelee(MetaID)) then
-
-            local str = gsub(gsub(self.on_tag,
-                    "%%victim%%", vname),
-                    "%%tagger%%", cname)
-            self:Say(str)
-            self:Stop()
-            self.players[Causer].it = false
-            self.players[Causer].speed_timer = nil
-            self:SetTagger(Victim)
-            --
-            --
-
-
-        elseif (self:IsTagger(Victim) and self.tagger_speed_reduce) then
-            self:SetSpeed(Victim, true)
         end
     end
 end
