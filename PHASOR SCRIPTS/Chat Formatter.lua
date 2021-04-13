@@ -26,7 +26,7 @@ local chat_format = {
 -- "rtv" for example, would break otherwise.
 local ignore_list = {
     "rtv",
-    "skip"
+    "skip",
 }
 -- config ends --
 
