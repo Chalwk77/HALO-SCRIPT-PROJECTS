@@ -1,30 +1,23 @@
 --[[
-------------------------------------
-Description: HPC Chat ID's, Phasor V2+
-Copyright (c) 2016-2018
-* Author: Jericho Crosby
-* IGN: Chalwk
-* Written and Created by Jericho Crosby
+--=====================================================================================================--
+Script Name: Chat IDs, for Phasor V2, (PC & CE)
+Description: Suffixes the player's name with their Index ID.
+Example output: Chalwk [1]: This is some message
 
--- SAPP Version:
-https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/SAPP%20SCRIPTS/HPC%20Chat%20IDs%2C%20SAPP%20(BROKEN).lua
-
------------------------------------
+Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
+* Notice: You can use this document subject to the following conditions:
+https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
+--=====================================================================================================--
 ]]--
 
 function GetRequiredVersion()
     return 200
 end
 
-function OnScriptLoad(processId, game, persistent)
+function OnScriptLoad()
+    -- N/A
 end
 
-function OnServerChat(player, chattype, message)
-
-    local GetChatFormat = string.format(" [" .. resolveplayer(player) .. "] " .. (tostring(message)))
-    if player ~= nil then
-        return true, GetChatFormat
-    else
-        return true, GetChatFormat
-    end
+function OnServerChat(Ply, _, Msg)
+    return true, "[" .. resolveplayer(Ply) .. "]: " .. Msg
 end
