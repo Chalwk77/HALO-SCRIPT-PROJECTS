@@ -1,7 +1,15 @@
 --[[
 --=====================================================================================================--
 Script Name: Roll-The-Dice, for SAPP (PC & CE)
-Description: Things that shouldn't exist...
+Description: You will have a 1 in 5 chance of receiving one of these things:
+*	Random Vehicle Entry
+*	Random Weapon Assignment
+*	Delete Inventory
+*	Insta-Shield
+*	Launch Player into the air
+
+Type /rtd to "roll the dice"
+
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:

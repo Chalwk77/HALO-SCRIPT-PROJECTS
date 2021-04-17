@@ -1,7 +1,8 @@
 --[[
 --=====================================================================================================--
 Script Name: Gravity Gun, for SAPP (PC & CE)
-Description: Does this really need a description?
+Description: Does this really need a description? (half-life implementation).
+             To toggle Gravity Gun mode on or off, type /ggun on|off
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:

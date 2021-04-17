@@ -1,8 +1,8 @@
 --[[
 --=====================================================================================================--
 Script Name: Dispensable-Mines, for SAPP (PC & CE)
-Description: Dispense mines while driving!
-             You can toggle mine dispensing on a per-vehicle basis (see config)
+Description: Dispense super-explosive mines while driving.
+             To dispense a mine, press your flashlight key.
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:

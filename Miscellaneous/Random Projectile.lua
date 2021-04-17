@@ -1,7 +1,8 @@
 --[[
 --=====================================================================================================--
 Script Name: Random Projectiles, for SAPP (PC & CE)
-Description: Random Projectile Spawner
+Description: While using the flamethrower, a random projectile will be spawned
+             with a random velocity between 0.1-0.6.
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:

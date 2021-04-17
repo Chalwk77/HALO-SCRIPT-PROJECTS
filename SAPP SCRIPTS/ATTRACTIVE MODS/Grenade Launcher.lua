@@ -1,7 +1,8 @@
 --[[
 --=====================================================================================================--
 Script Name: Grenade Launcher, for SAPP (PC & CE)
-Description: Turns any hand-held or vehicle weapon into a grenade launcher
+Description: Turns any hand-held or vehicle weapon into a grenade launcher.
+             To toggle Grenade Launcher mode on or off, type /gl on|off
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
