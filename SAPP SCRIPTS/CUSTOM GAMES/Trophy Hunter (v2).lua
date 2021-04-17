@@ -161,6 +161,7 @@ function OnScriptLoad()
     if (get_var(0, '$gt') ~= 'n/a') then
         local trophy = mod:getGametype()
         if (trophy) then
+		
             trophies, console_messages = { }, { }
             mod:init()
             mod.settings.trophy = trophy

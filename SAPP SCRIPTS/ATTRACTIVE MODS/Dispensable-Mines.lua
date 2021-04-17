@@ -38,7 +38,12 @@ local Mines = {
         ["vehicles\\banshee\\banshee_mp"] = true,
         ["vehicles\\scorpion\\scorpion_mp"] = true,
         ["vehicles\\c gun turret\\c gun turret_mp"] = true
-    }
+    },
+    --
+
+    -- A message relay function temporarily removes the server prefix
+    -- and will restore it to this when the relay is finished:
+    server_prefix = "**SAPP**"
     --
 }
 
@@ -49,6 +54,8 @@ local rocket_meta
 local sqrt = math.sqrt
 local time_scale = 1 / 30
 local tag_count, tag_address
+local dma
+local dma_original
 
 api_version = "1.12.0.0"
 
@@ -100,6 +107,8 @@ function Mines:Init()
 
         tag_count = read_dword(0x4044000C)
         tag_address = read_dword(0x40440000)
+        dma = sig_scan("8B42348A8C28D500000084C9") + 3
+        dma_original = read_dword(dma)
 
         self.game_in_progress = true
 
@@ -232,6 +241,7 @@ function Mines:OnTick()
                                             write_float(proj_obj + 0x68, 0)
                                             write_float(proj_obj + 0x6C, 0)
                                             write_float(proj_obj + 0x70, -9999)
+
                                             timer(1000, "EditRocket", "true")
 
                                             Ply.killer = v.owner
@@ -284,13 +294,25 @@ function Mines:CheckDamage(Ply, Server, MetaID, _, _)
     if (self.players and self.players[Ply]) then
         if (Server == 0 and MetaID) then
             self.players[Ply].damage_meta = MetaID
-        elseif (Server < 0 and self.players[Ply].damage_meta == rocket_meta) then
+        elseif (Server == 0 and self.players[Ply].damage_meta == rocket_meta) then
+
+            local name = self.players[Ply].name
             local KID = self.players[Ply].killer
-            if (KID) then
-                local name = self.players[Ply].name
-                local k_name = self.players[KID].name
-                say_all(name .. " was blown up by " .. k_name .. "'s mine!")
-            end
+            local k_name = self.players[KID].name
+
+            safe_write(true)
+            write_dword(dma, 0x03EB01B1)
+            safe_write(false)
+
+            execute_command("msg_prefix \"\"")
+            say_all(name .. " was blown up by " .. k_name .. "'s mine!")
+            execute_command("msg_prefix \" **" .. self.server_prefix .. "**\"")
+
+            safe_write(true)
+            write_dword(dma, dma_original)
+            safe_write(false)
+
+            return false
         end
     end
 end
