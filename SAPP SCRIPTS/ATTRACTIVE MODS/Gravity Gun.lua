@@ -195,7 +195,6 @@ function GGun:OnTick()
 
                         local obj = get_object_memory(target)
 
-                        -- This check is necessary to prevent a potential crash
                         if (obj ~= 0) then
                             --
                             -- Verify object is a vehicle:

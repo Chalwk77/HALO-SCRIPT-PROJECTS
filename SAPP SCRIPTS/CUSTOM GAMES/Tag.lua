@@ -313,35 +313,39 @@ function Tag:OnTick()
 
         -- Speed reduction timer and scoring logic:
         for i, v in pairs(self.players) do
-            local case = (player_alive(i) and self:IsTagger(i) and self.tagger_speed_reduce)
-            if (case and v.speed_timer) then
-                v.speed_timer = v.speed_timer + time_scale
-                if (v.speed_timer >= self.speed_reduce_interval) then
-                    v.speed_timer = nil
-                    self:SetSpeed(i)
-                end
-            end
-            --
-            --
 
-            --
-            if (self.score_limit and player_alive(i) and not self:IsTagger(i)) then
+            if player_alive(i) then
 
-                v.timer = v.timer + time_scale
-
-                -- Increment runner score by "points_per"
-                if (v.timer >= self.runner_time) then
-                    v.score = v.score + self.points_per
-                    v.timer = 0
-                    execute_command("score " .. i .. " " .. v.score)
-                end
-
-                -- Check if we need to end the game:
-                if (v.score >= self.score_limit) then
-                    self:Say(v.name .. " won the game!")
-                    execute_command("sv_map_next")
+                local case = (self:IsTagger(i) and self.tagger_speed_reduce)
+                if (case and v.speed_timer) then
+                    v.speed_timer = v.speed_timer + time_scale
+                    if (v.speed_timer >= self.speed_reduce_interval) then
+                        v.speed_timer = nil
+                        self:SetSpeed(i)
+                    end
                 end
                 --
+                --
+
+                --
+                if (self.score_limit and not self:IsTagger(i)) then
+
+                    v.timer = v.timer + time_scale
+
+                    -- Increment runner score by "points_per"
+                    if (v.timer >= self.runner_time) then
+                        v.score = v.score + self.points_per
+                        v.timer = 0
+                        execute_command("score " .. i .. " " .. v.score)
+                    end
+
+                    -- Check if we need to end the game:
+                    if (v.score >= self.score_limit) then
+                        self:Say(v.name .. " won the game!")
+                        execute_command("sv_map_next")
+                    end
+                    --
+                end
             end
         end
     end
