@@ -92,10 +92,12 @@ local function LaunchGrenade(Ply, ParentID)
         local VehicleID = read_dword(DyN + 0x11C)
         local VehicleObject = get_object_memory(VehicleID)
 
+        local distance = 0.5
         if (VehicleID == 0xFFFFFFFF) then
             px, py, pz = read_vector3d(DyN + 0x5c)
         elseif (VehicleObject ~= 0) then
             px, py, pz = read_vector3d(VehicleObject + 0x5c)
+            distance = 2
         end
 
         -- Update Z-Coordinate change when crouching:
@@ -111,18 +113,16 @@ local function LaunchGrenade(Ply, ParentID)
         local yAim = math.sin(read_float(DyN + 0x234))
         local zAim = math.sin(read_float(DyN + 0x238))
 
-        local distance = 0.5
-        local height_offset = 0
-
-        local x = px + distance * xAim
-        local y = py + distance * yAim
-        local z = pz + distance * zAim + height_offset
+        local x = px + (distance * xAim)
+        local y = py + (distance * yAim)
+        local z = pz + (distance * zAim)
 
         local tag = GetTag("proj", "weapons\\frag grenade\\frag grenade")
         if (tag) then
 
             local frag = spawn_projectile(tag, Ply, x, y, z)
             local frag_object = get_object_memory(frag)
+
             if (frag and frag_object ~= 0) then
                 local velocity = 0.6
                 write_float(frag_object + 0x68, velocity * xAim)
