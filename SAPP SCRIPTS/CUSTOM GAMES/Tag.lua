@@ -3,8 +3,14 @@
 Script Name: Tag (v1.0), for SAPP (PC & CE)
 Description: Tag, you're it!
 
-             This script brings you TAG, a game involving two or more players.
-             A game of tag is initiated by meleeing a player - that player will become "it" (the tagger).
+This is a game involving two or more players.
+A game of tag is initiated by meleeing a player; this player will become "it" (the tagger).
+
+If a game of tag is in play, you will accumulate points as a runner.
+The score limit is 10,000 & taggers get a 1.5x speed boost.
+
+Taggers will be "it" for a maximum of 60 seconds; after which a random
+player (excluding the previous tagger) will become the new tagger.
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
