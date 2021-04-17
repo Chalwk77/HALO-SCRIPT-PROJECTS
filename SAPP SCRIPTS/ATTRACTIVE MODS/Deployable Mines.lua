@@ -1,7 +1,7 @@
 --[[
 --=====================================================================================================--
-Script Name: Dispensable-Mines, for SAPP (PC & CE)
-Description: Dispense super-explosive mines while driving.
+Script Name: Deployable Mines, for SAPP (PC & CE)
+Description: Deploy super-explosive mines while driving.
              To dispense a mine, press your flashlight key.
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
