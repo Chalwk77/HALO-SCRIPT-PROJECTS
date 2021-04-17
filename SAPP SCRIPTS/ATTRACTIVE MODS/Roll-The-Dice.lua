@@ -85,8 +85,7 @@ local RTD = {
 }
 
 -- string library variables --
-local lower = string.lower
-local gmatch, gsub = string.gmatch, string.gsub
+local gsub = string.gsub
 --
 
 -- counts --
@@ -95,8 +94,8 @@ local time_scale = 1 / 30
 function OnScriptLoad()
     register_callback(cb["EVENT_TICK"], "OnTick")
     register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
+    register_callback(cb["EVENT_LEAVE"], "OnPlayerQuit")
     register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
-    register_callback(cb["EVENT_LEAVE"], "OnPlayerLeave")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
     OnGameStart()
@@ -146,31 +145,35 @@ end
 
 function RTD:OnTick()
     for i, v in pairs(self.players) do
+
         local DyN = get_dynamic_player(i)
-        if (v.assign) then
+        if (DyN ~= 0 and player_alive(i)) then
 
-            local pos = GetXYZ(DyN)
-            if (pos and not pos.invehicle) then
-                v.assign = false
+            if (v.assign) then
 
-                local index = math.random(1, #self.weapons)
-                local n = self.weapons[index]
+                local pos = GetXYZ(DyN)
+                if (pos and not pos.invehicle) then
+                    v.assign = false
 
-                local tag = n[1]
-                local weapon_name = n[2]
+                    local index = math.random(1, #self.weapons)
+                    local n = self.weapons[index]
 
-                assign_weapon(spawn_object("weap", tag, pos.x, pos.y, pos.z), i)
-                local str = gsub(self.features[2].msg, "%%weapon_name%%", weapon_name)
-                Respond(i, str)
+                    local tag = n[1]
+                    local weapon_name = n[2]
+
+                    assign_weapon(spawn_object("weap", tag, pos.x, pos.y, pos.z), i)
+                    local str = gsub(self.features[2].msg, "%%weapon_name%%", weapon_name)
+                    Respond(i, str)
+                end
             end
-        end
 
-        if (v.insta_shield) then
-            InstaShield(DyN)
-            v.shield_timer = v.shield_timer + time_scale
-            if (v.shield_timer >= self.features[2].interval) then
-                v.shield_timer = 0
-                v.insta_shield = false
+            if (v.insta_shield) then
+                InstaShield(DyN)
+                v.shield_timer = v.shield_timer + time_scale
+                if (v.shield_timer >= self.features[4].interval) then
+                    v.shield_timer = 0
+                    v.insta_shield = false
+                end
             end
         end
     end
@@ -194,8 +197,8 @@ end
 
 local function CMDSplit(CMD)
     local Args = { }
-    for Params in gmatch(CMD, "([^%s]+)") do
-        Args[#Args + 1] = lower(Params)
+    for Params in CMD:gmatch("([^%s]+)") do
+        Args[#Args + 1] = Params:lower()
     end
     return Args
 end
@@ -205,8 +208,13 @@ function RTD:OnServerCommand(Ply, CMD, _, _)
     local Args = CMDSplit(CMD)
     local case = (Args and Args[1])
     if (case and Args[1] == self.command) then
-        if HasPermission(Ply) then
-            RTD:RollTheRice(Ply)
+
+        if player_alive(Ply) then
+            if HasPermission(Ply) then
+                RTD:RollTheRice(Ply)
+            end
+        else
+            Respond(Ply, "You're dead. Try again when you respawn")
         end
 
         --
@@ -247,11 +255,13 @@ local function DeleteWeapons(Ply, Tab)
 end
 
 local function Launch(Pos, Height)
-    local obj = (Pos.obj ~= 0 and Pos.obj or Pos.dyn)
-    if (Pos.obj) then
-        write_float(Pos.obj + 0x94, 0.75)
+    if (pos) then
+        local obj = (Pos.obj ~= 0 and Pos.obj or Pos.dyn)
+        if (Pos.obj) then
+            write_float(Pos.obj + 0x94, 0.75)
+        end
+        write_vector3d((obj) + 0x5C, Pos.x, Pos.y, (obj and Pos.z + Height))
     end
-    write_vector3d((obj) + 0x5C, Pos.x, Pos.y, (obj and Pos.z + Height))
 end
 
 function RTD:RollTheRice(Ply)
@@ -263,64 +273,64 @@ function RTD:RollTheRice(Ply)
 
     local n = math.random(1, #self.features)
 
-    n = 5
-
     local feature = self.features[n]
     if (feature.enabled) then
 
         local DyN = get_dynamic_player(Ply)
-        local pos = GetXYZ(DyN)
+        if (DyN ~= 0) then
 
-        -- enter player into random vehicle:
-        if (n == 1) then
+            local pos = GetXYZ(DyN)
 
-            if (pos and not pos.invehicle) then
-                local t = self.vehicles[math.random(1, #self.vehicles)]
-                local offset = 0.2
-                local tag, vehicle_name = t[1], t[2]
-                local vehicle = spawn_object("vehi", tag, pos.x, pos.y, pos.z + offset)
-                enter_vehicle(vehicle, Ply, 0)
+            -- enter player into random vehicle:
+            if (n == 1) then
 
-                Respond(Ply, gsub(feature.msg, "%%vehicle_name%%", vehicle_name))
+                if (pos and not pos.invehicle) then
+
+                    local t = self.vehicles[math.random(1, #self.vehicles)]
+                    local offset = 0.2
+                    local tag, vehicle_name = t[1], t[2]
+                    local vehicle = spawn_object("vehi", tag, pos.x, pos.y, pos.z + offset)
+                    enter_vehicle(vehicle, Ply, 0)
+
+                    Respond(Ply, gsub(feature.msg, "%%vehicle_name%%", vehicle_name))
+                    return
+                end
+                --
+
+
+
+                -- assign player a random weapon:
+            elseif (n == 2) then
+                self.players[Ply].assign = true
+                return
+                --
+
+
+
+                -- delete player inventory (excluding flag/oddball):
+            elseif (n == 3) then
+                DeleteWeapons(Ply, feature)
+                return
+                --
+
+
+
+                -- insta-shield
+            elseif (n == 4) then
+
+                Respond(Ply, feature.msg)
+                self.players[Ply].insta_shield = true
+                return
+                --
+
+
+
+                -- Launch player into the air:
+            elseif (n == 5) then
+                Respond(Ply, feature.msg)
+                Launch(pos, feature.height)
                 return
             end
-            --
-
-
-
-            -- assign player a random weapon:
-        elseif (n == 2) then
-            self.players[Ply].assign = true
-            return
-            --
-
-
-
-            -- delete player inventory (excluding flag/oddball):
-        elseif (n == 3) then
-            DeleteWeapons(Ply, feature)
-            return
-            --
-
-
-
-            -- insta-shield
-        elseif (n == 4) then
-
-            Respond(Ply, feature.msg)
-            self.players[Ply].insta_shield = true
-
-            InstaShield(Ply)
-            return
-            --
-
-
-
-            -- Launch player into the air:
-        elseif (n == 5) then
-            Respond(Ply, feature.msg)
-            Launch(pos, feature.height)
-            return
         end
     end
 
