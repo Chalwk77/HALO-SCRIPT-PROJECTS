@@ -240,7 +240,7 @@ function OnPlayerJoin(Ply)
 end
 
 function OnPlayerSpawn(Ply)
-    if (Tag.players and Tag.players[Ply]) then
+    if (Tag.players[Ply]) then
         Tag.players[Ply].timer = 0
         Tag:SetSpeed(Ply)
     end
@@ -260,9 +260,9 @@ function Tag:SetNav()
         local p2 = get_player(self.tagger)
 
         -- Set slayer target indicator:
-        if (p1 ~= p2) then
+        if (p1 ~= p2) and player_alive(self.tagger) then
             write_word(p1 + 0x88, to_real_index(self.tagger))
-        else
+        elseif (player_alive(i)) then
             write_word(p1 + 0x88, to_real_index(i))
         end
         ---
@@ -354,6 +354,9 @@ function OnPlayerDeath(V, K)
 
         local score = tonumber(get_var(k, "$score"))
         score = score - 1
+        if (score < 0) then
+            score = 0
+        end
         execute_command("score " .. k .. " " .. score)
 
         if (Tag.new_tagger_on_death) then
@@ -369,7 +372,8 @@ end
 
 function Tag:IsMelee(MetaID)
     for _, v in pairs(self.melee) do
-        if (MetaID == GetTag(v[1], v[2])) then
+        local meta = GetTag(v[1], v[2])
+        if (meta and MetaID == meta) then
             return true
         end
     end
