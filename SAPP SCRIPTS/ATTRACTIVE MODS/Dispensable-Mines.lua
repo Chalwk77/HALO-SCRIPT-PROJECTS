@@ -63,9 +63,9 @@ function OnScriptLoad()
     register_callback(cb["EVENT_TICK"], "OnTick")
     register_callback(cb["EVENT_DIE"], "CheckDamage")
     register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
+    register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerQuit")
     register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
-    register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "CheckDamage")
     OnGameStart()
@@ -298,19 +298,20 @@ function Mines:CheckDamage(Ply, Server, MetaID, _, _)
 
             local name = self.players[Ply].name
             local KID = self.players[Ply].killer
-            local k_name = self.players[KID].name
+            if (KID) then
 
-            safe_write(true)
-            write_dword(dma, 0x03EB01B1)
-            safe_write(false)
+                safe_write(true)
+                write_dword(dma, 0x03EB01B1)
+                safe_write(false)
 
-            execute_command("msg_prefix \"\"")
-            say_all(name .. " was blown up by " .. k_name .. "'s mine!")
-            execute_command("msg_prefix \" **" .. self.server_prefix .. "**\"")
+                execute_command("msg_prefix \"\"")
+                say_all(name .. " was blown up by " .. self.players[KID].name .. "'s mine!")
+                execute_command("msg_prefix \" **" .. self.server_prefix .. "**\"")
 
-            safe_write(true)
-            write_dword(dma, dma_original)
-            safe_write(false)
+                safe_write(true)
+                write_dword(dma, dma_original)
+                safe_write(false)
+            end
 
             return false
         end
