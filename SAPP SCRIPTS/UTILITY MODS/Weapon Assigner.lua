@@ -11,6 +11,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 
 api_version = "1.12.0.0"
 local MOD = { }
+
 function MOD:Init()
 
     self.players = { }
@@ -127,8 +128,9 @@ function MOD:Init()
                 },
                 ["ffa"] = {
                     [2] = { nil, 12, nil }, -- sniper
+                    [8] = { nil, 300, nil }, -- flamethrower
                     [1] = { nil, 60, nil }, -- pistol
-                    [7] = { nil, 240, nil }, -- assault rifle
+                    [12] = { nil, 240, nil }, -- assault rifle
                 }
             },
 
@@ -320,10 +322,13 @@ function MOD:Init()
                     [2] = { nil, 12, nil }, -- sniper
                 }
             }
-
-            -- Repeat the structure to add more maps:
+            --
+            -- Repeat the structure to add more maps.
+            --
         }
 
+        -- [weapon index] = {weapon tag path}
+        --
         self.tags = {
             [1] = "weapons\\pistol\\pistol",
             [2] = "weapons\\sniper rifle\\sniper rifle",
@@ -336,7 +341,9 @@ function MOD:Init()
             [9] = "weapons\\needler\\mp_needler",
             [10] = "weapons\\shotgun\\shotgun",
             [11] = "weapons\\ball\\ball",
+            [12] = "weapons\\gravity rifle\\gravity rifle",
         }
+
         -- CONFIGURATION ENDS << -------------------------------------------------
         --
         --
@@ -344,6 +351,7 @@ function MOD:Init()
         -- DO NOT TOUCH BELOW THIS POINT --
         local map = get_var(0, "$map")
         self.weapons = weapons[map]
+
         if (self.weapons) then
             register_callback(cb["EVENT_TICK"], "OnTick")
             register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
@@ -386,29 +394,27 @@ end
 
 function MOD:GameUpdate()
     for i, player in pairs(self.players) do
-        if (i) and player_alive(i) then
-            if (player.assign) then
+        if (i and player.assign and player_alive(i)) then
 
-                local DyN = get_dynamic_player(i)
-                if (DyN ~= 0) then
-                    local pos = GetXYZ(DyN)
-                    if (pos) then
-                        player.assign = false
-                        execute_command("wdel " .. i)
-                        local weapon_index = 0
+            local DyN = get_dynamic_player(i)
+            if (DyN ~= 0) then
 
-                        local t = MOD:WeaponTable(i)
+                local pos = GetXYZ(DyN)
+                if (pos) then
 
-                        for WI, _ in pairs(t) do
-                            weapon_index = weapon_index + 1
-                            if (weapon_index == 1 or weapon_index == 2) then
-                                assign_weapon(spawn_object("weap", self.tags[WI], pos.x, pos.y, pos.z), i)
-                            elseif (weapon_index == 3 or weapon_index == 4) then
-                                timer(250, "DelaySecQuat", i, self.tags[WI], pos.x, pos.y, pos.z)
-                            end
+                    player.assign = false
+                    execute_command("wdel " .. i)
+
+                    local weapon_index = 0
+                    for WI, _ in pairs(self:WeaponTable(i)) do
+                        weapon_index = weapon_index + 1
+                        if (weapon_index == 1 or weapon_index == 2) then
+                            assign_weapon(spawn_object("weap", self.tags[WI], pos.x, pos.y, pos.z), i)
+                        elseif (weapon_index == 3 or weapon_index == 4) then
+                            timer(250, "DelaySecQuat", i, self.tags[WI], pos.x, pos.y, pos.z)
                         end
-                        timer(self.ammo_set_delay, "SetAmmo", i, DyN)
                     end
+                    timer(self.ammo_set_delay, "SetAmmo", i, DyN)
                 end
             end
         end
@@ -447,6 +453,7 @@ local function GetTagName(TAG)
 end
 
 function SetAmmo(Ply, DyN)
+
     for i = 0, 3 do
         local WeaponID = read_dword(DyN + 0x2F8 + (i * 4))
         if (WeaponID ~= 0xFFFFFFFF) then
@@ -455,14 +462,17 @@ function SetAmmo(Ply, DyN)
             if (tag) then
                 for WI, A in pairs(MOD.weapons) do
                     if (tag == MOD.tags[WI]) then
+
                         -- loaded:
                         if (A[1]) then
                             write_word(WeaponObject + 0x2B8, A[1])
                         end
+
                         -- unloaded:
                         if (A[2]) then
                             write_word(WeaponObject + 0x2B6, A[2])
                         end
+
                         -- battery:
                         if (A[3]) then
                             execute_command_sequence("w8 1;battery " .. Ply .. " " .. A[3] .. " " .. i)
