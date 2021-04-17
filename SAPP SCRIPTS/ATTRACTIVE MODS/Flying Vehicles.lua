@@ -101,17 +101,16 @@ function FlyingVehicles:OnCommand(Ply, CMD, _, _)
 end
 
 function FlyingVehicles:Toggle(state)
-
-    for i = 0, tag_count - 1 do
-        local offset = tag_address + 0x20 * i
-        if (read_dword(offset) == 1986357353) then
-            local tag_name = read_string(read_dword(offset + 0x10))
-            for tag, enabled in pairs(self.vehicles) do
-                if (tag_name == tag and enabled) then
-                    local data = read_dword(offset + 0x14)
-                    local value = read_word(data + 0x2F4)
-                    if (value == 0 or value == 1 or value == 2 or value == 4) then
-                        if (state == "enabled") then
+    if (state == "enabled") then
+        for i = 0, tag_count - 1 do
+            local offset = tag_address + 0x20 * i
+            if (read_dword(offset) == 1986357353) then
+                local tag_name = read_string(read_dword(offset + 0x10))
+                for tag, enabled in pairs(self.vehicles) do
+                    if (tag_name == tag and enabled) then
+                        local data = read_dword(offset + 0x14)
+                        local value = read_word(data + 0x2F4)
+                        if (value == 0 or value == 1 or value == 2 or value == 4) then
                             self.rollback = self.rollback or { }
                             self.rollback[#self.rollback + 1] = { data + 0x2F4, read_word(data + 0x2F4) }
                             write_word(data + 0x2F4, 0x3)
@@ -120,9 +119,8 @@ function FlyingVehicles:Toggle(state)
                 end
             end
         end
-    end
-
-    if ((not state or state == "disabled") and self.rollback) then
+        return
+    elseif (self.rollback) then
         for _, v in pairs(self.rollback) do
             write_word(v[1], v[2])
         end
