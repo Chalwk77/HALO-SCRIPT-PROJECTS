@@ -22,7 +22,7 @@ local Mines = {
     --
 
     -- Trigger explosion when player is <= this many w/units
-    trigger_radius = 2,
+    trigger_radius = 0.7,
     --
 
     -- Mines are represented by this object:
@@ -54,8 +54,8 @@ api_version = "1.12.0.0"
 
 function OnScriptLoad()
     register_callback(cb["EVENT_TICK"], "OnTick")
-    register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
     register_callback(cb["EVENT_DIE"], "CheckDamage")
+    register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerQuit")
     register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
     register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
@@ -223,7 +223,9 @@ function Mines:OnTick()
                                         if (not team_play or get_var(i, "$team") ~= get_var(v.owner, "$team")) then
 
                                             EditRocket(false)
+
                                             local tag = GetTag("proj", "weapons\\rocket launcher\\rocket")
+
                                             local projectile = spawn_projectile(tag, i, v.x, v.y, v.z)
                                             local proj_obj = get_object_memory(projectile)
 
@@ -302,13 +304,13 @@ function EditRocket(rollback)
             local tag_data = read_dword(tag + 0x14)
             if (not rollback) then
                 write_dword(tag_data + 0x0, 1077936128)
-                write_dword(tag_data + 0x4, 1080033280)
+                write_dword(tag_data + 0x4, 1148846080)
                 write_dword(tag_data + 0xcc, 1061158912)
                 write_dword(tag_data + 0xd4, 1011562294)
-                write_dword(tag_data + 0x1d0, 1120403456)
-                write_dword(tag_data + 0x1d4, 1137180672)
-                write_dword(tag_data + 0x1d8, 1137180672)
-                write_dword(tag_data + 0x1f4, 1094713344)
+                write_dword(tag_data + 0x1d0, 1148846080)
+                write_dword(tag_data + 0x1d4, 1148846080)
+                write_dword(tag_data + 0x1d8, 1148846080)
+                write_dword(tag_data + 0x1f4, 1097859072)
             else
                 write_dword(tag_data + 0x0, 1056964608)
                 write_dword(tag_data + 0x4, 1073741824)
