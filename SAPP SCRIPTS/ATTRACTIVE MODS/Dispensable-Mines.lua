@@ -14,7 +14,7 @@ https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
 local Mines = {
 
     -- The number of mines players will spawn with:
-    mines_per_life = 5,
+    mines_per_life = 20,
     --
 
     -- Time (in seconds) until a mine despawns:
