@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Item Spawner, for SAPP (PC & CE)
+Script Name: Random Projectiles, for SAPP (PC & CE)
 Description: Random Projectile Spawner
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
@@ -69,15 +69,19 @@ local function Tag(Type, Name)
     return (tag_id ~= 0 and read_dword(tag_id + 0xC)) or nil
 end
 
+local function TagName(TAG)
+    if (TAG ~= nil and TAG ~= 0) then
+        return read_string(read_dword(read_word(TAG) * 32 + 0x40440038))
+    end
+    return ""
+end
+
 local function HoldingGRifle(Ply)
     local DyN = get_dynamic_player(Ply)
     if (DyN ~= 0) then
-        local WeaponObject = get_object_memory(read_dword(DyN + 0x118))
-        if (WeaponObject ~= 0) then
-            local tag = read_string(read_dword(read_word(WeaponObject) * 32 + 0x40440038))
-            if (tag == "weapons\\gravity rifle\\gravity rifle") then
-                return true
-            end
+        local Weapon = get_object_memory(read_dword(DyN + 0x118))
+        if (Weapon ~= 0 and TagName(Weapon) == "weapons\\gravity rifle\\gravity rifle") then
+            return true
         end
     end
     return false
@@ -85,7 +89,7 @@ end
 
 local function SpawnObject(Ply)
     local DyN = get_dynamic_player(Ply)
-    if (DyN ~= 0) then
+    if (DyN ~= 0 and player_alive(Ply)) then
 
         local xAim = math.sin(read_float(DyN + 0x230))
         local yAim = math.sin(read_float(DyN + 0x234))
