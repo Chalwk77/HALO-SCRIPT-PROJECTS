@@ -31,7 +31,7 @@ local GGun = {
 
     -- If true, players must be holding the ggun in order to
     -- pick up vehicles (setting: "use_in_vehicle" must be false)
-    must_hold_ggun = true,
+    must_hold_ggun = false,
     --
 
     -- If true, you can pickup and launch vehicles
@@ -56,8 +56,7 @@ local GGun = {
 
 api_version = "1.12.0.0"
 
-local tag_count
-local tag_address
+local tag_count, tag_address
 
 function OnScriptLoad()
     register_callback(cb["EVENT_TICK"], "OnTick")
@@ -94,13 +93,13 @@ local function Respond(Ply, Msg, Clear)
     rprint(Ply, Msg)
 end
 
-function GGun:ShotFired(DyN, PT)
+function GGun:ShotFired(DyN, Ply)
     local shot_fired = read_float(DyN + 0x490)
-    if (shot_fired ~= PT.weapon_state and shot_fired == 1) then
-        PT.weapon_state = shot_fired
+    if (shot_fired ~= Ply.weapon_state and shot_fired == 1) then
+        Ply.weapon_state = shot_fired
         return true
     end
-    PT.weapon_state = shot_fired
+    Ply.weapon_state = shot_fired
     return false
 end
 
@@ -122,7 +121,7 @@ local function IsOccupied(VObject)
     for i = 1, 16 do
         if player_present(i) then
             local DyN = get_dynamic_player(i)
-            if (DyN ~= 0) then
+            if (DyN ~= 0 and player_alive(i)) then
                 local VehicleID = read_dword(DyN + 0x11C)
                 local VObj = get_object_memory(VehicleID)
                 if (VObj ~= 0 and VObj == VObject) then
@@ -151,7 +150,7 @@ function GGun:OnTick()
         if (v.enabled) then
 
             local DyN = get_dynamic_player(i)
-            if (DyN ~= 0) then
+            if (DyN ~= 0 and player_alive(i)) then
 
                 local shot_fired = self:ShotFired(DyN, v)
 
@@ -201,7 +200,7 @@ function GGun:OnTick()
                             --
                             -- Verify object is a vehicle:
                             local tag = read_string(read_dword(read_word(obj) * 32 + 0x40440038))
-                            if IsVehicle(tag) then
+                            if (tag and IsVehicle(tag)) then
 
                                 -- Check vehicle is not occupied:
                                 if not IsOccupied(obj) then
