@@ -21,6 +21,13 @@ local FlyingVehicles = {
     -- Minimum permission required to turn fly mode on or off
     permission = 1,
 
+    -- Should Flying Vehicles be disabled when there are no players online?
+    no_players_reset = true,
+
+    -- If no players are online, Flying Vehicles will be
+    -- automatically disabled after this period of time:
+    no_players_interval = 60,
+
     vehicles = {
         -- set to false to disable flying for specific vehicles:
         ["vehicles\\ghost\\ghost_mp"] = false,
@@ -29,18 +36,25 @@ local FlyingVehicles = {
         ["vehicles\\banshee\\banshee_mp"] = false,
         ["vehicles\\scorpion\\scorpion_mp"] = false,
         ["vehicles\\c gun turret\\c gun turret_mp"] = false
-    },
+    }
 }
 -- config ends --
 
 api_version = "1.12.0.0"
 
+local time_scale = 1 / 30
 local tag_address, tag_count
 
 function OnScriptLoad()
+    register_callback(cb["EVENT_TICK"], "OnTick")
+    register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
     register_callback(cb["EVENT_COMMAND"], "OnCommand")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     OnGameStart()
+end
+
+function OnScriptUnload()
+    FlyingVehicles:Toggle()
 end
 
 function OnGameStart()
@@ -49,6 +63,20 @@ function OnGameStart()
         tag_count = read_dword(0x4044000C)
         FlyingVehicles:Toggle()
     end
+end
+
+function FlyingVehicles:OnTick()
+    local reset = (self.no_players_reset and self.rollback ~= nil)
+    if (reset and tonumber(get_var(0, "$pn")) == 0) then
+        self.reset_timer = self.reset_timer + time_scale
+        if (self.reset_timer >= self.no_players_interval) then
+            self:Toggle()
+        end
+    end
+end
+
+function OnPlayerJoin(_)
+    FlyingVehicles.reset_timer = 0
 end
 
 local function CMDSplit(CMD)
@@ -124,10 +152,13 @@ function FlyingVehicles:Toggle(state)
         for _, v in pairs(self.rollback) do
             write_word(v[1], v[2])
         end
-        self.rollback = nil
+        self.rollback, self.reset_timer = nil, 0
     end
 end
 
 function OnCommand(P, C)
     return FlyingVehicles:OnCommand(P, C)
+end
+function OnTick()
+    return FlyingVehicles:OnTick()
 end
