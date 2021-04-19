@@ -469,7 +469,7 @@ function Rank:OnTick()
                 if (i ~= j and jtab.coords and #jtab.coords > 0) then
 
                     -- Get x,y,z position of tea bagger:
-                    local i_pos = self:GetXYZ(i)
+                    local pos = self:GetXYZ(i)
 
                     -- Loop through all victim coordinate tables:
                     --
@@ -486,10 +486,10 @@ function Rank:OnTick()
 
 
                             -- Monitor tea bagger position --
-                        elseif (i_pos and not i_pos.in_vehicle) then
+                        elseif ((pos and pos.x) and not pos.in_vehicle) then
 
                             -- tea bagger coordinates:
-                            local px, py, pz = i_pos.x, i_pos.y, i_pos.z
+                            local px, py, pz = pos.x, pos.y, pos.z
                             --
 
                             -- corpse coordinates:
@@ -500,7 +500,7 @@ function Rank:OnTick()
                             if self:InProximity(px, py, pz, x, y, z) then
 
                                 -- Check if player is crouching & increment crouch count:
-                                local crouch = read_bit(i_pos.dyn + 0x208, 0)
+                                local crouch = read_bit(pos.dyn + 0x208, 0)
                                 if (crouch ~= itab.crouch_state and crouch == 1) then
                                     itab.crouch_count = itab.crouch_count + 1
 
@@ -823,7 +823,8 @@ function Rank:GetXYZ(Ply)
             pos.x, pos.y, pos.z = read_vector3d(VObject + 0x5c)
         end
     end
-    return pos
+
+    return (pos.x and pos) or nil
 end
 
 local function TeamPlay()
@@ -878,11 +879,11 @@ function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
         --
 
         -- Check if killer is in Vehicle:
-        local coords = self:GetXYZ(killer)
-        if (coords and coords.in_vehicle) then
+        local pos = self:GetXYZ(killer)
+        if (pos and pos.in_vehicle) then
             local t = self.credits.tags.vehicles
             for _, v in pairs(t) do
-                if (coords.name == v[2]) then
+                if (pos.name == v[2]) then
                     if (last_damage == GetTag(t.collision[1], t.collision[2])) then
                         return self:UpdateCredits(killer, { v[3], v[4] })
                     else

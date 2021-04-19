@@ -33,6 +33,13 @@ local TBag = {
     -- A player must crouch over a victim's corpse this many times in order to trigger the t-bag:
     --
     crouch_count = 4,
+
+
+    -- A message relay function temporarily removes the server prefix
+    -- and will restore it to this when the relay is finished
+    server_prefix = "**SAPP**",
+    --
+
     -- Configuration Ends --
 }
 
@@ -76,12 +83,12 @@ function TBag:Monitor()
 
         -- 2nd Loop (victims)
         --
-		
-		for j, jtab in pairs(self.players) do
+
+        for j, jtab in pairs(self.players) do
             if (i ~= j and jtab.coordinates and #jtab.coordinates > 0) then
 
                 -- Get x,y,z position of tea bagger:
-                local i_pos = self:GetXYZ(i)
+                local pos = self:GetXYZ(i)
 
                 -- Loop through all victim coordinate tables:
                 --
@@ -97,10 +104,10 @@ function TBag:Monitor()
                         jtab.coordinates[cIndex] = nil
 
                         -- Monitor tea bagger position --
-                    elseif (i_pos and not i_pos.in_vehicle) then
+                    elseif (pos and not pos.in_vehicle) then
 
                         -- tea bagger coordinates:
-                        local px, py, pz = i_pos.x, i_pos.y, i_pos.z
+                        local px, py, pz = pos.x, pos.y, pos.z
                         --
 
                         -- corpse coordinates:
@@ -111,7 +118,7 @@ function TBag:Monitor()
                         if self:InProximity(px, py, pz, x, y, z) then
 
                             -- Check if player is crouching & increment crouch count:
-                            local crouch = read_bit(i_pos.dyn + 0x208, 0)
+                            local crouch = read_bit(pos.dyn + 0x208, 0)
                             if (crouch ~= itab.crouch_state and crouch == 1) then
                                 itab.crouch_count = itab.crouch_count + 1
 
@@ -119,7 +126,11 @@ function TBag:Monitor()
                                 -- Broadcast tea bag message:
                                 --
                             elseif (itab.crouch_count >= self.crouch_count) then
+
+                                execute_command("msg_prefix \"\"")
                                 say_all(gsub(gsub(self.on_tbag, "%%name%%", itab.name), "%%victim%%", jtab.name))
+                                execute_command("msg_prefix \" " .. self.server_prefix .. "\"")
+
                                 itab.crouch_count = 0
                                 itab.crouch_state = 0
                                 jtab.coordinates[cIndex] = nil
@@ -184,7 +195,7 @@ function TBag:GetXYZ(Ply)
             pos.x, pos.y, pos.z = read_vector3d(VObject + 0x5c)
         end
     end
-    return pos
+    return (pos.x and pos) or nil
 end
 
 function OnScriptUnload()
