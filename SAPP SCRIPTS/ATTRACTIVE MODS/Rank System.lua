@@ -1145,13 +1145,6 @@ function OnTick()
     return Rank:OnTick()
 end
 
-function GetVehicleTag(Vehicle)
-    if (Vehicle ~= nil and Vehicle ~= 0) then
-        return read_string(read_dword(read_word(Vehicle) * 32 + 0x40440038))
-    end
-    return nil
-end
-
 function WriteLog(str)
     local file = io.open("Rank System.log", "a+")
     if (file) then
@@ -1184,6 +1177,6 @@ end
 -- This function will return a string with a traceback of the stack call...
 -- ...and call function 'report' after 50 milliseconds.
 function OnError(Error)
-    -- local StackTrace = debug.traceback()
-    -- timer(50, "report", StackTrace, Error)
+    local StackTrace = debug.traceback()
+    timer(50, "report", StackTrace, Error)
 end
