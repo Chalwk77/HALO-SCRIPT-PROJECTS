@@ -57,6 +57,7 @@ local GGun = {
 
 api_version = "1.12.0.0"
 
+local script_version = 1.0
 local tag_count, tag_address
 
 function OnScriptLoad()

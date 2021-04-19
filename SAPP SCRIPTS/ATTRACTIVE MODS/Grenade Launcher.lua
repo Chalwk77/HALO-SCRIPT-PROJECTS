@@ -60,6 +60,8 @@ local GLauncher = {
 
 api_version = "1.12.0.0"
 
+local script_version = 1.0
+
 function OnScriptLoad()
     register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerQuit")
