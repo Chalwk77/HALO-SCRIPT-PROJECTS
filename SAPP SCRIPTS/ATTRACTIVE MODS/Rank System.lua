@@ -72,7 +72,7 @@ local Rank = {
     tbag_coordinate_expiration = 30,
 
     -- A player must crouch over a victim's body this many times in order to trigger the t-bag scenario
-    tbag_crouch_count = 3,
+    tbag_crouch_count = 4,
     --
 
     messages = {
@@ -466,11 +466,13 @@ function Rank:OnTick()
             -- 2nd Loop (victims)
             --
             for j, jtab in pairs(self.players) do
-                if (i ~= j) then
+                if (i ~= j and jtab.coords and #jtab.coords > 0) then
+
+                    -- Get x,y,z position of tea bagger:
+                    local i_pos = self:GetXYZ(i)
 
                     -- Loop through all victim coordinate tables:
                     --
-
                     for cIndex, CTab in pairs(jtab.coords) do
 
                         -- increment expiration timer:
@@ -479,46 +481,41 @@ function Rank:OnTick()
 
                         -- Delete coordinate table on expire:
                         --
-
                         if (CTab.timer >= self.tbag_coordinate_expiration) then
                             jtab.coords[cIndex] = nil
-                            itab.crouch_count = 0
-                            itab.crouch_state = 0
-                        else
-
-                            -- Get x,y,z position of tea bagger:
-                            local i_pos = self:GetXYZ(i)
-                            if (i_pos and not i_pos.in_vehicle) then
-
-                                -- tea bagger coordinates:
-                                local px, py, pz = i_pos.x, i_pos.y, i_pos.z
-                                --
-
-                                -- corpse coordinates:
-                                local x, y, z = CTab.x, CTab.y, CTab.z
-                                --
-
-                                -- Check if tea bagger is within proximity of victim's corpse:
-                                if self:InProximity(px, py, pz, x, y, z) then
-
-                                    -- Check if player is crouching & increment crouch count:
-                                    local crouch = read_bit(i_pos.dyn + 0x208, 0)
-                                    if (crouch ~= itab.crouch_state and crouch == 1) then
-                                        itab.crouch_count = itab.crouch_count + 1
 
 
-                                        -- Broadcast tea bag message:
-                                        --
-                                    elseif (itab.crouch_count >= self.tbag_crouch_count) then
-                                        local str = gsub(gsub(self.messages[5], "%%name%%", itab.name), "%%victim%%", jtab.name)
-                                        self:Respond(i, str, say, 10, true)
-                                        self:UpdateCredits(i, { self.credits.tbag[1], self.credits.tbag[2] })
-                                        itab.crouch_count = 0
-                                        itab.crouch_state = 0
-                                        jtab.coords[cIndex] = nil
-                                    end
-                                    itab.crouch_state = crouch
+                            -- Monitor tea bagger position --
+                        elseif (i_pos and not i_pos.in_vehicle) then
+
+                            -- tea bagger coordinates:
+                            local px, py, pz = i_pos.x, i_pos.y, i_pos.z
+                            --
+
+                            -- corpse coordinates:
+                            local x, y, z = CTab.x, CTab.y, CTab.z
+                            --
+
+                            -- Check if tea bagger is within proximity of victim's corpse:
+                            if self:InProximity(px, py, pz, x, y, z) then
+
+                                -- Check if player is crouching & increment crouch count:
+                                local crouch = read_bit(i_pos.dyn + 0x208, 0)
+                                if (crouch ~= itab.crouch_state and crouch == 1) then
+                                    itab.crouch_count = itab.crouch_count + 1
+
+
+                                    -- Broadcast tea bag message:
+                                    --
+                                elseif (itab.crouch_count >= self.tbag_crouch_count) then
+                                    local str = gsub(gsub(self.messages[5], "%%name%%", itab.name), "%%victim%%", jtab.name)
+                                    self:Respond(i, str, say, 10, true)
+                                    self:UpdateCredits(i, { self.credits.tbag[1], self.credits.tbag[2] })
+                                    itab.crouch_count = 0
+                                    itab.crouch_state = 0
+                                    jtab.coords[cIndex] = nil
                                 end
+                                itab.crouch_state = crouch
                             end
                         end
                     end
