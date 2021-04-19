@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Rank System (v1.27), for SAPP (PC & CE)
+Script Name: Rank System (v1.28), for SAPP (PC & CE)
 Description: Rank System is fully integrated halo 3 style ranking system for SAPP servers.
 
 Players earn credits for killing, scoring and achievements, such as sprees, kill-combos and more.
@@ -13,7 +13,7 @@ For example, you will earn 6 credits for killing someone with the sniper rifle, 
 1): This mod requires that the following json library is installed to your server:
     Place "json.lua" in your servers root directory:
     http://regex.info/blog/lua/json
-	
+
 Copyright (c) 2020-2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
@@ -362,18 +362,20 @@ local Rank = {
 }
 
 local time_scale = 1 / 30
-local script_version = 1.27
+local script_version = 1.28
 
-local lower = string.lower
 local sqrt = math.sqrt
-local gmatch, gsub = string.gmatch, string.gsub
+local gsub = string.gsub
 
+-- Preload JSON Library:
+--
 local json = (loadfile "json.lua")()
 
 function OnScriptLoad()
     register_callback(cb["EVENT_TICK"], "OnTick")
     register_callback(cb["EVENT_DIE"], "OnPlayerDeath")
     register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
+    register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
     register_callback(cb["EVENT_SCORE"], "OnPlayerScore")
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
@@ -450,44 +452,72 @@ function Rank:ShowEndResults()
     end
 end
 
-local function GetRadius(pX, pY, pZ, X, Y, Z)
-    if (pX) then
-        return sqrt((pX - X) ^ 2 + (pY - Y) ^ 2 + (pZ - Z) ^ 2)
-    end
-    return nil
+function Rank:InProximity(pX, pY, pZ, X, Y, Z)
+    return sqrt((pX - X) ^ 2 + (pY - Y) ^ 2 + (pZ - Z) ^ 2) <= self.tbag_trigger_radius
 end
 
 function Rank:OnTick()
     if (self.tbag) then
-        for i, ply1 in pairs(self.players) do
-            if player_present(i) then
-                for j, ply2 in pairs(self.players) do
-                    if (i ~= j and ply1.crouch_count and ply2.coords) then
-                        local pos = self:GetXYZ(i)
-                        if (pos) and (not pos.invehicle) then
-                            for k, v in pairs(ply2.coords) do
-                                v.timer = v.timer + time_scale
-                                if (v.timer >= self.tbag_coordinate_expiration) then
-                                    ply2.coords[k] = nil
-                                else
-                                    local x, y, z = v.x, v.y, v.z
-                                    local px, py, pz = pos.x, pos.y, pos.z
-                                    local distance = GetRadius(px, py, pz, x, y, z)
-                                    if (distance) and (distance <= self.tbag_trigger_radius) then
 
-                                        local crouch = read_bit(pos.dyn + 0x208, 0)
-                                        if (crouch ~= ply1.crouch_state and crouch == 1) then
-                                            ply1.crouch_count = ply1.crouch_count + 1
+        -- 1st Loop (tea baggers)
+        --
+        for i, itab in pairs(self.players) do
 
-                                        elseif (ply1.crouch_count >= self.tbag_crouch_count) then
-                                            ply2.coords[k] = nil
-                                            ply1.crouch_count = 0
-                                            local str = gsub(gsub(self.messages[5], "%%name%%", ply1.name), "%%victim%%", ply2.name)
-                                            self:Respond(i, str, say, 10, true)
-                                            self:UpdateCredits(i, { self.credits.tbag[1], self.credits.tbag[2] })
-                                        end
-                                        ply1.crouch_state = crouch
+            -- 2nd Loop (victims)
+            --
+            for j, jtab in pairs(self.players) do
+                if (i ~= j) then
+
+                    -- Loop through all victim coordinate tables:
+                    --
+
+                    for cIndex, CTab in pairs(jtab.coords) do
+
+                        -- increment expiration timer:
+                        --
+                        CTab.timer = CTab.timer + time_scale
+
+                        -- Delete coordinate table on expire:
+                        --
+
+                        if (CTab.timer >= self.tbag_coordinate_expiration) then
+                            jtab.coords[cIndex] = nil
+                            itab.crouch_count = 0
+                            itab.crouch_state = 0
+                        else
+
+                            -- Get x,y,z position of tea bagger:
+                            local i_pos = self:GetXYZ(i)
+                            if (i_pos and not i_pos.in_vehicle) then
+
+                                -- tea bagger coordinates:
+                                local px, py, pz = i_pos.x, i_pos.y, i_pos.z
+                                --
+
+                                -- corpse coordinates:
+                                local x, y, z = CTab.x, CTab.y, CTab.z
+                                --
+
+                                -- Check if tea bagger is within proximity of victim's corpse:
+                                if self:InProximity(px, py, pz, x, y, z) then
+
+                                    -- Check if player is crouching & increment crouch count:
+                                    local crouch = read_bit(i_pos.dyn + 0x208, 0)
+                                    if (crouch ~= itab.crouch_state and crouch == 1) then
+                                        itab.crouch_count = itab.crouch_count + 1
+
+
+                                        -- Broadcast tea bag message:
+                                        --
+                                    elseif (itab.crouch_count >= self.tbag_crouch_count) then
+                                        local str = gsub(gsub(self.messages[5], "%%name%%", itab.name), "%%victim%%", jtab.name)
+                                        self:Respond(i, str, say, 10, true)
+                                        self:UpdateCredits(i, { self.credits.tbag[1], self.credits.tbag[2] })
+                                        itab.crouch_count = 0
+                                        itab.crouch_state = 0
+                                        jtab.coords[cIndex] = nil
                                     end
+                                    itab.crouch_state = crouch
                                 end
                             end
                         end
@@ -500,6 +530,13 @@ end
 
 function OnPlayerConnect(Ply)
     Rank:AddNewPlayer(Ply, false)
+end
+
+function OnPlayerSpawn(Ply)
+    if (Rank.players[Ply]) then
+        Rank.players[Ply].crouch_state = 0
+        Rank.players[Ply].crouch_count = 0
+    end
 end
 
 function OnPlayerDisconnect(Ply)
@@ -561,8 +598,8 @@ function Rank:AddNewPlayer(Ply, ManualLoad)
     self.players[Ply].crouch_count = 0
     --
 
+    -- false when called from OnPlayerConnect()
     if (not ManualLoad) then
-        -- false when called from OnPlayerConnect()
         self:UpdateJSON("OnPlayerConnect")
         self:GetRank(Ply, IP)
     end
@@ -680,8 +717,6 @@ end
 function Rank:GetIP(Ply)
     local IP = get_var(Ply, "$ip")
     IP = IP or self.players[Ply].ip
-    -- todo: add support for Halo PC (retail)
-    -- todo: self.players[Ply] is nullified when a player disconnects.
     if (self.ClientIndexType == 1) then
         IP = IP:match("%d+.%d+.%d+.%d+")
     end
@@ -777,23 +812,21 @@ function Rank:MultiKill(Ply)
 end
 
 function Rank:GetXYZ(Ply)
-    local coords, x, y, z = { }
+    local pos = { }
     local DyN = get_dynamic_player(Ply)
-    if (DyN ~= 0) then
+    if (player_alive(Ply) and DyN ~= 0) then
+        pos.dyn = DyN
         local VehicleID = read_dword(DyN + 0x11C)
-        local VehicleObject = get_object_memory(VehicleID)
+        local VObject = get_object_memory(VehicleID)
         if (VehicleID == 0xFFFFFFFF) then
-            coords.invehicle = false
-            x, y, z = read_vector3d(DyN + 0x5c)
-        elseif (VehicleObject ~= 0) then
-            coords.invehicle = true
-            x, y, z = read_vector3d(VehicleObject + 0x5c)
-            coords.name = GetVehicleTag(VehicleObject)
-
+            pos.in_vehicle = false
+            pos.x, pos.y, pos.z = read_vector3d(DyN + 0x5c)
+        elseif (VObject ~= 0) then
+            pos.in_vehicle = true
+            pos.x, pos.y, pos.z = read_vector3d(VObject + 0x5c)
         end
-        coords.x, coords.y, coords.z, coords.dyn = x, y, z, DyN
     end
-    return coords
+    return pos
 end
 
 local function TeamPlay()
@@ -804,6 +837,7 @@ local function TeamPlay()
 end
 
 function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
+
     local killer, victim = tonumber(KillerIndex), tonumber(VictimIndex)
 
     local last_damage = self.players[victim].last_damage
@@ -834,18 +868,21 @@ function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
 
         -- T-Bag Support:
         if (self.tbag) then
-            local vpos = self:GetXYZ(victim)
-            if (vpos and self.players[victim].coords) then
-                self.players[victim].coords[#self.players[victim].coords + 1] = {
-                    timer = 0, x = vpos.x, y = vpos.y, z = vpos.z,
-                }
+            local pos = self:GetXYZ(victim)
+            if (pos and self.players[victim]) then
+                table.insert(self.players[victim].coords, {
+                    timer = 0,
+                    x = pos.x,
+                    y = pos.y,
+                    z = pos.z
+                })
             end
         end
         --
 
         -- Check if killer is in Vehicle:
         local coords = self:GetXYZ(killer)
-        if (coords and coords.invehicle) then
+        if (coords and coords.in_vehicle) then
             local t = self.credits.tags.vehicles
             for _, v in pairs(t) do
                 if (coords.name == v[2]) then
@@ -1001,8 +1038,8 @@ end
 
 local function CMDSplit(CMD)
     local Args = { }
-    for Params in gmatch(CMD, "([^%s]+)") do
-        Args[#Args + 1] = lower(Params)
+    for Params in CMD:gmatch("([^%s]+)") do
+        Args[#Args + 1] = Params:lower()
     end
     return Args
 end

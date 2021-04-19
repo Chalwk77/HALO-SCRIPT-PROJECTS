@@ -65,7 +65,7 @@ function TBag:Init()
 end
 
 function TBag:InProximity(pX, pY, pZ, X, Y, Z)
-    return sqrt((pX - X) ^ 2 + (pY - Y) ^ 2 + (pZ - Z) ^ 2) <= self.radius
+    return sqrt((pX - X) ^ 2 + (pY - Y) ^ 2 + (pZ - Z) ^ 2) <= self.tbag_trigger_radius
 end
 
 function TBag:Monitor()
@@ -82,7 +82,7 @@ function TBag:Monitor()
                 -- Loop through all victim coordinate tables:
                 --
 
-                for cIndex, CTab in pairs(jtab.coordinates) do
+                for cIndex, CTab in pairs(jtab.coords) do
 
                     -- increment expiration timer:
                     --
@@ -92,7 +92,9 @@ function TBag:Monitor()
                     --
 
                     if (CTab.timer >= self.coordinate_expiration) then
-                        jtab.coordinates[cIndex] = nil
+                        jtab.coords[cIndex] = nil
+                        itab.crouch_count = 0
+                        itab.crouch_state = 0
                     else
 
                         -- Get x,y,z position of tea bagger:
@@ -119,9 +121,12 @@ function TBag:Monitor()
                                     -- Broadcast tea bag message:
                                     --
                                 elseif (itab.crouch_count >= self.crouch_count) then
-                                    say_all(gsub(gsub(self.on_tbag, "%%name%%", itab.name), "%%victim%%", jtab.name))
+                                    local str = gsub(gsub(self.messages[5], "%%name%%", itab.name), "%%victim%%", jtab.name)
+                                    self:Respond(i, str, say, 10, true)
+                                    self:UpdateCredits(i, { self.credits.tbag[1], self.credits.tbag[2] })
                                     itab.crouch_count = 0
-                                    jtab.coordinates[cIndex] = nil
+                                    itab.crouch_state = 0
+                                    jtab.coords[cIndex] = nil
                                 end
                                 itab.crouch_state = crouch
                             end
