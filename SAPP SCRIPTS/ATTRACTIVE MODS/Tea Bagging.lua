@@ -65,7 +65,7 @@ function TBag:Init()
 end
 
 function TBag:InProximity(pX, pY, pZ, X, Y, Z)
-    return sqrt((pX - X) ^ 2 + (pY - Y) ^ 2 + (pZ - Z) ^ 2) <= self.tbag_trigger_radius
+    return sqrt((pX - X) ^ 2 + (pY - Y) ^ 2 + (pZ - Z) ^ 2) <= self.radius
 end
 
 function TBag:Monitor()
@@ -76,15 +76,16 @@ function TBag:Monitor()
 
         -- 2nd Loop (victims)
         --
-        for j, jtab in pairs(self.players) do
-            if (i ~= j and jtab.coords and #jtab.coords > 0) then
+		
+		for j, jtab in pairs(self.players) do
+            if (i ~= j and jtab.coordinates and #jtab.coordinates > 0) then
 
                 -- Get x,y,z position of tea bagger:
                 local i_pos = self:GetXYZ(i)
 
                 -- Loop through all victim coordinate tables:
                 --
-                for cIndex, CTab in pairs(jtab.coords) do
+                for cIndex, CTab in pairs(jtab.coordinates) do
 
                     -- increment expiration timer:
                     --
@@ -93,7 +94,7 @@ function TBag:Monitor()
                     -- Delete coordinate table on expire:
                     --
                     if (CTab.timer >= self.coordinate_expiration) then
-                        jtab.coords[cIndex] = nil
+                        jtab.coordinates[cIndex] = nil
 
                         -- Monitor tea bagger position --
                     elseif (i_pos and not i_pos.in_vehicle) then
@@ -118,12 +119,10 @@ function TBag:Monitor()
                                 -- Broadcast tea bag message:
                                 --
                             elseif (itab.crouch_count >= self.crouch_count) then
-                                local str = gsub(gsub(self.messages[5], "%%name%%", itab.name), "%%victim%%", jtab.name)
-                                self:Respond(i, str, say, 10, true)
-                                self:UpdateCredits(i, { self.credits.tbag[1], self.credits.tbag[2] })
+                                say_all(gsub(gsub(self.on_tbag, "%%name%%", itab.name), "%%victim%%", jtab.name))
                                 itab.crouch_count = 0
                                 itab.crouch_state = 0
-                                jtab.coords[cIndex] = nil
+                                jtab.coordinates[cIndex] = nil
                             end
                             itab.crouch_state = crouch
                         end
