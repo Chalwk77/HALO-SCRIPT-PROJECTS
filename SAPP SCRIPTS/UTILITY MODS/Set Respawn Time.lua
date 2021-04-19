@@ -9,328 +9,251 @@ Description: This script will allow you to set respawn times on a per-map, per-g
             /setrespawn <time>
 
             Additionally, you can manually set a specific player's respawn time on demand with the following command:
-            /setrespawn <pid> <time> <-s>
+            /setrespawn <pid> <time>
 
 
-Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2020-2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
-
-* Written by Jericho Crosby (Chalwk)
 --=====================================================================================================--
 ]]--
 
-api_version = "1.12.0.0"
-local settings = {
+-- Configuration Starts --
+local SRT = {
 
     -- Custom command used to manually change global/player respawn time
-    custom_command = "setrespawn",
+    command = "setrespawn",
 
-    -- Minimum level required to execute "custom_command"
+    -- Minimum level required to execute "command"
     permission_level = 1,
 
-    -- Minimum level required to change the respawn time for other players
-    permission_level_extra = 4,
-
-    -- The "-s" parameter is optional. If you specify the "-s" flag, your command will be executed silently.
-    -- This means the target player will not receive the "[Command Executor name] set your respawn time to X seconds" message.
+    -- The "-s" parameter is optional.
+    -- If you specify the "-s" flag, your command will be executed silently.
+    -- This means the target player will not receive the "[Command Executor name]
+    -- set your respawn time to X seconds" message.
     silent_flag = "-s",
-
-    -- A message relay function temporarily removes the server prefix
-    -- and will restore it to this when the relay is finished
-    serverPrefix = "**SAPP**",
 
     -- If map is not listed below, it will use this global default respawn time (in seconds):
     default_respawn_time = 3,
 
-    -- All script messages that are output to the player/console:
-    messages = {
-        [1] = "Global server respawn time set to %time% second%s%",
-        [2] = {
-
-            "Your respawn time has been set to %time% second%s%",
-
-            "You have set %target_name%'s respawn time to %time% second%s%",
-            "%executor_name% set your respawn time to %time% second%s%",
-
-            "[silent command] %target_name%'s respawn time has been set to %time% second%s%",
-        },
-        [3] = "Invalid time format. Please use a number!",
-        [4] = "Invalid Syntax or Player ID. Usage: /%cmd% [number: 1-16] | */all | me <time> <opt silent -s>",
-        [5] = "Player #%target_id% is not online!",
-        [6] = "There are no players online!",
-        [7] = "You do not have permission to execute that command.",
-        [8] = "You do not have permission to execute that command on other players",
+    maps = {
+        --	CTF | SLAYER | TEAM-S | KOTH | TEAM-KOTH | ODDBALL | TEAM-ODDBALL | RACE | TEAM-RACE
+        ["beavercreek"] = { 3.0, 1, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
+        ["bloodgulch"] = { 3.0, 1, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
+        ["boardingaction"] = { 3.0, 1, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
+        ["carousel"] = { 3.0, 1, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
+        ["dangercanyon"] = { 3.0, 1, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
+        ["deathisland"] = { 3.0, 1, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
+        ["chillout"] = { 3.0, 1, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
+        ["gephyrophobia"] = { 3.0, 1, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
+        ["icefields"] = { 3.0, 1, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
+        ["infinity"] = { 3.0, 1, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
+        ["sidewinder"] = { 3.0, 1, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
+        ["timberland"] = { 3.0, 1, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
+        ["hangemhigh"] = { 3.0, 1, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
+        ["ratrace"] = { 3.0, 1, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
+        ["damnation"] = { 3.0, 1, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
+        ["putput"] = { 3.0, 1, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
+        ["prisoner"] = { 3.0, 1, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
+        ["wizard"] = { 3.0, 1, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
+        ["longest"] = { 3.0, 1, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
     },
 
-    maps = {
-        --	CTF | SLAYER | TEAM-S | KOTH |   TEAM-KOTH |   ODDBALL |   TEAM-ODDBALL |   RACE |   TEAM-RACE
-        ["beavercreek"] = { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
-        ["bloodgulch"] = { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
-        ["boardingaction"] = { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
-        ["carousel"] = { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
-        ["dangercanyon"] = { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
-        ["deathisland"] = { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
-        ["chillout"] = { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
-        ["gephyrophobia"] = { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
-        ["icefields"] = { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
-        ["infinity"] = { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
-        ["sidewinder"] = { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
-        ["timberland"] = { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
-        ["hangemhigh"] = { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
-        ["ratrace"] = { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
-        ["damnation"] = { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
-        ["putput"] = { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
-        ["prisoner"] = { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
-        ["wizard"] = { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
-        ["longest"] = { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
-        ["Bigass"] = { 3.0, 3.0, 0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
-
-        -- Repeat the structure to add more maps:
-        ["map_name_here"] = { 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0 },
-    }
+    -- A message relay function temporarily removes the server prefix
+    -- and will restore it to this when the relay is finished
+    serverPrefix = "**SAPP**",
 }
+-- Configuration Ends --
 
-local gmatch, gsub = string.gmatch, string.gsub
-local lower, upper = string.lower, string.upper
+api_version = "1.12.0.0"
 
-local function Init()
-    local gt = get_var(0, "$gt")
-    local map = get_var(0, "$map")
-    if (gt ~= "n/a") then
+function OnScriptLoad()
+    register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
+    register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
+    register_callback(cb['EVENT_LEAVE'], "OnPlayerQuit")
+    register_callback(cb['EVENT_GAME_START'], "OnNewGame")
+    register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
+    OnNewGame()
+end
 
-        settings.global_respawn_time = getSpawnTime(gt, map)
-
-        local str = gsub(gsub(settings.messages[1], "%%time%%", settings.global_respawn_time), "%%s%%", Plural(settings.global_respawn_time))
-        cprint(str, 10)
-
-        settings.players = { }
+function OnNewGame()
+    if (get_var(0, "$gt") ~= "n/a") then
+        SRT.players = { }
+        SRT.team_play = (get_var(0, "$ffa") == "0") or false
+        SRT.global_respawn_time = SRT:GetRespawnTime()
         for i = 1, 16 do
             if player_present(i) then
-                settings.players[i] = settings.global_respawn_time
-                SetRespawn(i)
-                Respond(i, str, "rprint", 10)
+                SRT:InitPlayer(i, false)
             end
         end
     end
 end
 
-function OnScriptLoad()
-    register_callback(cb['EVENT_JOIN'], "OnPlayerConnect")
-    register_callback(cb['EVENT_GAME_START'], "OnNewGame")
-    register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
-    register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
-    Init()
+function SRT:InitPlayer(Ply, Reset)
+    if (not Reset) then
+        self.players[Ply] = {
+            name = get_var(Ply, "$name"),
+            time = self.global_respawn_time
+        }
+        return
+    end
+    self.players[Ply] = nil
 end
 
-function OnNewGame()
-    Init()
+function OnPlayerJoin(Ply)
+    SRT:InitPlayer(Ply, false)
+end
+function OnPlayerQuit(Ply)
+    SRT:InitPlayer(Ply, true)
 end
 
-function OnPlayerConnect(PlayerIndex)
-    settings.players[PlayerIndex] = tonumber(settings.global_respawn_time)
-end
-
-function SetRespawn(PlayerIndex)
-    local player = get_player(PlayerIndex)
+function OnPlayerDeath(Ply)
+    local player = get_player(Ply)
     if (player ~= 0) then
-        write_dword(player + 0x2C, settings.players[PlayerIndex] * 33)
+        write_dword(player + 0x2C, SRT.players[Ply].time * 33)
     end
 end
 
-function OnPlayerDeath(PlayerIndex)
-    SetRespawn(PlayerIndex)
+function SRT:GetRespawnTime()
+
+    local map = get_var(0, "$map")
+    if (self.maps[map]) then
+
+        for k, v in pairs(self.maps) do
+            if (k == map) then
+                local gt = get_var(0, "$gt")
+                if (gt == "ctf") then
+                    return v[1]
+                elseif (gt == "slayer") then
+                    if (not self.team_play) then
+                        return v[2]
+                    else
+                        return v[3]
+                    end
+                elseif (gt == "koth") then
+                    if (not self.team_play) then
+                        return v[4]
+                    else
+                        return v[5]
+                    end
+                elseif (gt == "oddball") then
+                    if (not self.team_play) then
+                        return v[6]
+                    else
+                        return v[7]
+                    end
+                elseif (gt == "race") then
+                    if (not self.team_play) then
+                        return v[8]
+                    else
+                        return v[9]
+                    end
+                end
+            end
+        end
+    end
+    return self.default_respawn_time
 end
 
-local function TeamPlay()
-    if (get_var(0, "$ffa") == "0") then
-        return true
-    else
+local function Plural(n)
+    return (n > 1 and "s") or ""
+end
+
+local function Respond(Ply, Msg, Clear)
+
+    if (Ply == 0) then
+        cprint(Msg)
+        return
+    end
+
+    if (Clear) then
+        for _ = 1, 25 do
+            rprint(Ply, " ")
+        end
+    end
+    rprint(Ply, Msg)
+end
+
+local function CMDSplit(CMD)
+    local Args = { }
+    for Params in CMD:gmatch("([^%s]+)") do
+        Args[#Args + 1] = Params:lower()
+    end
+    return Args
+end
+
+function SRT:OnCommand(Ply, CMD, _, _)
+    local Args = CMDSplit(CMD)
+    local case = (Args and Args[1])
+    if (case and Args[1] == self.command) then
+
+        local lvl = tonumber(get_var(Ply, "$lvl"))
+        if (lvl >= self.permission_level or Ply == 0) then
+            if (Args[2]) then
+                local time = tonumber(Args[2]:match("%d+"))
+                if (Args[3] == nil) then
+                    Respond(Ply, "Global respawn time set to " .. time .. " second" .. Plural(time))
+                    for i = 1, 16 do
+                        if player_present(i) then
+                            self.players[i].time = time
+                            OnPlayerDeath(i)
+                        end
+                    end
+                elseif (Args[3]:match("%d+")) then
+                    local pl = GetPlayers(Ply, Args)
+                    if (#pl > 0) then
+                        time = tonumber(Args[3]:match("%d+"))
+                        for i = 1, #pl do
+                            local TID = tonumber(pl[i])
+                            self.players[TID].time = time
+                            local name = self.players[TID].name
+                            OnPlayerDeath(TID)
+                            Respond(Ply, "Respawn time for " .. name .. " set to " .. time .. " second" .. Plural(time))
+                        end
+                    end
+                else
+                    Respond(Ply, "Invalid Time! Please try again.")
+                end
+            else
+                Respond(Ply, "Invalid Command Argument.")
+                Respond(Ply, "Usage: /" .. self.command .. " <time> or " .. self.command .. " <pid> <time> <-s>")
+            end
+        else
+            Respond(Ply, "You do not have permission to execute that command")
+        end
         return false
     end
 end
 
-function getSpawnTime(gt, map)
-    for k, v in pairs(settings.maps) do
-        if (map == k) then
-            if (gt == "ctf") then
-                return v[1]
-            elseif (gt == "slayer") then
-                if (not TeamPlay()) then
-                    return v[2]
-                else
-                    return v[3]
-                end
-            elseif (gt == "koth") then
-                if (not TeamPlay()) then
-                    return v[4]
-                else
-                    return v[5]
-                end
-            elseif (gt == "oddball") then
-                if (not TeamPlay()) then
-                    return v[6]
-                else
-                    return v[7]
-                end
-            elseif (gt == "race") then
-                if (not TeamPlay()) then
-                    return v[8]
-                else
-                    return v[9]
-                end
-            end
-        end
-    end
+function GetPlayers(Ply, Args)
 
-    cprint('[RESPAWN SCRIPT] "' .. map .. '" is not listed in the map table config section.', 12)
-    return settings.default_respawn_time
-end
+    local players = { }
+    local TID = Args[2]
 
-local function CmdSplit(Cmd)
-    local t, i = {}, 1
-    for Args in gmatch(Cmd, "([^%s]+)") do
-        t[i] = Args
-        i = i + 1
-    end
-    return t
-end
-
-function Plural(n)
-    if (tonumber(n) > 1) then
-        return "s"
-    elseif (tonumber(n) <= 1) then
-        return ""
-    end
-    return ""
-end
-
-function OnServerCommand(Executor, Command, _, _)
-    local Args = CmdSplit(Command)
-    if (Args == nil) then
-        return
-    else
-
-        Args[1] = (lower(Args[1]) or upper(Args[1]))
-        if (Args[1] == settings.custom_command) then
-            local lvl = tonumber(get_var(Executor, "$lvl"))
-            if (lvl >= settings.permission_level) or (Executor == 0) then
-
-                if (Args[2] ~= nil and Args[3] == nil) then
-
-                    if (Args[2]:match("^%d+$")) then
-
-                        settings.global_respawn_time = tonumber(Args[2])
-
-                        for i = 1,16 do
-                            if player_present(i) then
-                                settings.players[i] = Args[2]
-                                SetRespawn(i)
-                            end
-                        end
-                        local str = gsub(gsub(settings.messages[1], "%%time%%", Args[2]), "%%s%%", Plural(Args[2]))
-                        Respond(Executor, str, "rprint", 10)
-                    else
-                        Respond(Executor, settings.messages[3], "rprint", 10)
-                    end
-                elseif (Args[2] ~= nil) and (Args[3]:match("^%d+$")) then
-
-                    local pl = GetPlayers(Executor, Args)
-                    if (#pl > 0) then
-                        for i = 1, #pl do
-
-                            local TargetID = tonumber(pl[i])
-                            if (TargetID ~= Executor) and (lvl < settings.permission_level_extra) and (Executor ~= 0) then
-                                Respond(Executor, settings.messages[8], "rprint", 10)
-                                return false
-                            elseif (Args[4] ~= nil) and (Args[4] ~= settings.silent_flag) then
-                                Respond(Executor, settings.messages[4], "rprint", 10)
-                                return false
-                            end
-
-                            local t_name = get_var(TargetID, "$name")
-                            local e_name = get_var(Executor, "$name")
-
-                            if (Executor == 0) then
-                                e_name = "[SERVER]"
-                            end
-
-                            settings.players[TargetID] = tonumber(Args[3])
-                            SetRespawn(TargetID)
-
-                            for MsgIndex, v in pairs(settings.messages[2]) do
-                                local str = gsub(gsub(gsub(gsub(v, "%%time%%", Args[3]), "%%s%%", Plural(Args[3])), "%%target_name%%", t_name), "%%executor_name%%", e_name)
-                                if (MsgIndex == 1) and (TargetID == Executor) and (Args[4] == nil) then
-                                    Respond(Executor, str, "rprint", 10)
-                                elseif (MsgIndex == 2) and (TargetID ~= Executor) and (Args[4] == nil) then
-                                    Respond(Executor, str, "rprint", 10)
-                                elseif (MsgIndex == 3) and (TargetID ~= Executor) and (Args[4] == nil) then
-                                    Respond(TargetID, str, "rprint", 10)
-                                elseif (MsgIndex == 4) and (Args[4] ~= nil and Args[4] == settings.silent_flag) then
-                                    Respond(Executor, str, "rprint", 10)
-                                end
-                            end
-                        end
-                    end
-                else
-                    Respond(Executor, settings.messages[4], "rprint", 10)
-                end
-            else
-                Respond(Executor, settings.messages[7], "rprint", 10)
-            end
-            return false
-        end
-    end
-end
-
-function GetPlayers(Executor, Args)
-    local pl = { }
-    if (Args[2] == "me") then
-        if (Executor ~= 0) then
-            table.insert(pl, Executor)
-        else
-            Respond(Executor, "I am not a player!", "rprint", 12)
-        end
-    elseif (Args[2]:match("%d+")) then
-        if player_present(Args[2]) then
-            table.insert(pl, Args[2])
-        else
-            local str = gsub(settings.messages[5], "%%target_id%%", Args[2])
-            Respond(Executor, str, "rprint", 12)
-        end
-    elseif (Args[2] == "all" or Args[2] == "*") then
+    if (TID == nil or TID == "me") then
+        table.insert(players, Ply)
+    elseif (TID == "all" or TID == "*") then
         for i = 1, 16 do
             if player_present(i) then
-                table.insert(pl, i)
+                table.insert(players, i)
             end
         end
-        if (#pl == 0) then
-            Respond(Executor, settings.messages[6], "rprint", 12)
+    elseif (TID:match("%d+") and tonumber(TID:match("%d+")) > 0) then
+        if player_present(TID) then
+            table.insert(players, TID)
+        else
+            Respond(Ply, "Player #" .. TID .. " is not online!")
         end
     else
-        local str = gsub(settings.messages[4], "%%cmd%%", Args[1])
-        Respond(Executor, str, "rprint", 12)
+        Respond(Ply, "Invalid Target ID Parameter")
+        Respond(Ply, 'Usage: "me", "all", "*" or [pid between 1-16]')
     end
-    return pl
+
+    return players
 end
 
-function Respond(Ply, Message, Type, Color)
-
-    Color = Color or 10
-    execute_command("msg_prefix \"\"")
-
-    if (Ply == 0) then
-        cprint(Message, Color)
-    end
-
-    if (Type == "rprint") then
-        rprint(Ply, Message)
-    elseif (Type == "say") then
-        say(Ply, Message)
-    elseif (Type == "say_all") then
-        say_all(Message)
-    end
-    execute_command("msg_prefix \" " .. settings.serverPrefix .. "\"")
+function OnServerCommand(P, C)
+    return SRT:OnCommand(P, C)
 end
 
 function OnScriptUnload()
