@@ -296,22 +296,22 @@ function GGun:OnServerCommand(Ply, CMD, _, _)
     end
 end
 
-function GGun:ToggleGravityGun(Ply, TargetID, Args)
+function GGun:ToggleGravityGun(Ply, TID, Args)
 
-    local toggled = (self.players[TargetID].enabled)
-    local name = self.players[TargetID].name
+    local toggled = (self.players[TID].enabled)
+    local name = self.players[TID].name
 
     local state = Args[2]
     if (not state) then
 
-        state = self.players[TargetID].enabled
+        state = self.players[TID].enabled
         if (state) then
             state = "activated"
         else
             state = "not activated"
         end
 
-        if (Ply == TargetID) then
+        if (Ply == TID) then
             Respond(Ply, "Gravity Gun is " .. state)
         else
             Respond(Ply, name .. "'s Gravity Gun is " .. state)
@@ -327,21 +327,21 @@ function GGun:ToggleGravityGun(Ply, TargetID, Args)
     end
 
     if (toggled and state == "enabled" or not toggled and state == "disabled") then
-        if (Ply == TargetID) then
+        if (Ply == TID) then
             Respond(Ply, "Your Gravity Gun is already " .. state)
         else
             Respond(Ply, name .. "'s Gravity Gun is already " .. state)
         end
     elseif (state) then
 
-        if (Ply == TargetID) then
+        if (Ply == TID) then
             Respond(Ply, "Gravity Gun " .. state)
         else
             Respond(Ply, "Gravity Gun " .. state .. " for " .. name)
         end
 
-        self.players[TargetID].target_object = nil
-        self.players[TargetID].enabled = (state == "disabled" and false) or (state == "enabled" and true)
+        self.players[TID].target_object = nil
+        self.players[TID].enabled = (state == "disabled" and false) or (state == "enabled" and true)
     else
         Respond(Ply, "Invalid Command Parameter.")
         Respond(Ply, 'Usage: "on", "1", "true", "off", "0" or "false"')
@@ -351,21 +351,21 @@ end
 function GetPlayers(Ply, Args)
 
     local players = { }
-    local TargetID = Args[3]
+    local TID = Args[3]
 
-    if (TargetID == nil) or (TargetID == "me") then
+    if (TID == nil or TID == "me") then
         table.insert(players, Ply)
-    elseif (TargetID == "all" or TargetID == "*") then
+    elseif (TID == "all" or TID == "*") then
         for i = 1, 16 do
             if player_present(i) then
                 table.insert(players, i)
             end
         end
-    elseif (TargetID:match("%d+") and tonumber(TargetID:match("%d+")) > 0) then
-        if player_present(TargetID) then
-            table.insert(players, tonumber(Args[1]))
+    elseif (TID:match("%d+") and tonumber(TID:match("%d+")) > 0) then
+        if player_present(TID) then
+            table.insert(players, TID)
         else
-            Respond(Ply, "Player #" .. TargetID .. " is not online!")
+            Respond(Ply, "Player #" .. TID .. " is not online!")
         end
     else
         Respond(Ply, "Invalid Target ID Parameter")
@@ -419,4 +419,41 @@ end
 
 function OnServerCommand(P, C)
     return GGun:OnServerCommand(P, C)
+end
+
+-- Error Logging --
+local function WriteLog(str)
+    local file = io.open("Gravity Gun.errors", "a+")
+    if (file) then
+        file:write(str .. "\n")
+        file:close()
+    end
+end
+
+-- In the event of an error, the script will trigger
+-- these two functions: OnError(), report()
+function report(StackTrace, Error)
+
+    cprint(StackTrace, 4 + 8)
+
+    cprint("--------------------------------------------------------", 5 + 8)
+    cprint("Please report this error on github:", 7 + 8)
+    cprint("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", 7 + 8)
+    cprint("Script Version: " .. script_version, 7 + 8)
+    cprint("--------------------------------------------------------", 5 + 8)
+
+    local timestamp = os.date("[%H:%M:%S - %d/%m/%Y]")
+    WriteLog(timestamp)
+    WriteLog("Please report this error on github:")
+    WriteLog("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues")
+    WriteLog("Script Version: " .. script_version)
+    WriteLog(Error)
+    WriteLog(StackTrace)
+    WriteLog("\n")
+end
+
+-- This function will return a string with a traceback of the stack call...
+-- and call function 'report' after 50 milliseconds.
+function OnError(Error)
+    timer(50, "report", debug.traceback(), Error)
 end

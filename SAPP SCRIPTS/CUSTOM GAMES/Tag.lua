@@ -61,6 +61,22 @@ local Tag = {
     points_per = 100,
     --
 
+    -- Players can be tagged by any of these weapons:
+    -- Set to "false" to disable.
+    melee = {
+        ["weapons\\flag\\melee"] = true,
+        ["weapons\\ball\\melee"] = true,
+        ["weapons\\pistol\\melee"] = true,
+        ["weapons\\needler\\melee"] = true,
+        ["weapons\\shotgun\\melee"] = true,
+        ["weapons\\flamethrower\\melee"] = true,
+        ["weapons\\sniper rifle\\melee"] = true,
+        ["weapons\\plasma rifle\\melee"] = true,
+        ["weapons\\plasma pistol\\melee"] = true,
+        ["weapons\\assault rifle\\melee"] = true,
+        ["weapons\\rocket launcher\\melee"] = true,
+        ["weapons\\plasma_cannon\\effects\\plasma_cannon_melee"] = true
+    },
 
     ---------------- Player Speed Logic ----------------
     -- {tagger speed, runner speed)
@@ -71,13 +87,12 @@ local Tag = {
     --
 
     -- Time (in seconds) that a tagger's speed will be reduced:
-    speed_reduce_interval = 0.50,
+    speed_reduce_interval = 0.10,
 
     -- The taggers speed will be reduced by this amount:
     -- (Tagger speed - speed_reduction)
     speed_reduction = 1.2,
     ------------------------------------------------------------------
-
 
     -- A message relay function temporarily removes the server prefix
     -- and will restore it to this when the relay is finished
@@ -122,23 +137,8 @@ function Tag:Init()
         -- Set the score limit:
         execute_command("scorelimit " .. self.score_limit or "")
 
-        Tag.players = { }
-        Tag:Stop()
-
-        Tag.melee = {
-            { "jpt!", "weapons\\flag\\melee" },
-            { "jpt!", "weapons\\ball\\melee" },
-            { "jpt!", "weapons\\pistol\\melee" },
-            { "jpt!", "weapons\\needler\\melee" },
-            { "jpt!", "weapons\\shotgun\\melee" },
-            { "jpt!", "weapons\\flamethrower\\melee" },
-            { "jpt!", "weapons\\sniper rifle\\melee" },
-            { "jpt!", "weapons\\plasma rifle\\melee" },
-            { "jpt!", "weapons\\plasma pistol\\melee" },
-            { "jpt!", "weapons\\assault rifle\\melee" },
-            { "jpt!", "weapons\\rocket launcher\\melee" },
-            { "jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_melee" },
-        }
+        self.players = { }
+        self:Stop()
     end
 end
 
@@ -149,17 +149,21 @@ function Tag:IsTagger(Ply)
         return (Ply == self.tagger)
     end
 
-    -- Returns the tagger's index id:
+    -- Returns the tagger index id:
     return self.tagger
     --
 end
 
+-- Sets a new tagger:
+--
 function Tag:SetTagger(Tagger)
     self.tagger = Tagger
     self:SetSpeed(Tagger)
     self:Start()
 end
 
+-- Picks a new random tagger:
+--
 function Tag:PickNewTagger()
 
     local req = self.players_required
@@ -204,8 +208,7 @@ function Tag:PickNewTagger()
 
         local i = t[math.random(1, #t)]
         self:SetTagger(i)
-        local str = gsub(self.on_random_selection, "%%name%%", self.players[i].name)
-        self:Say(str)
+        self:Say(gsub(self.on_random_selection, "%%name%%", self.players[i].name))
     end
 end
 
@@ -229,8 +232,8 @@ function Tag:InitPlayer(Ply, Reset)
         --
 
 
-        -- Tagger disconnected (setting: new_tagger_on_quit is false)
         -- Reset tagger variables:
+        -- Tagger disconnected (only if setting "new_tagger_on_quit" is false)
     elseif (self:IsTagger(Ply)) then
         self:Stop()
     end
@@ -263,12 +266,11 @@ function Tag:SetNav()
 
         -- Get static memory address of each player:
         local p1 = get_player(i)
-        local p2 = get_player(self.tagger)
 
         -- Set slayer target indicator:
-        if (p1 ~= p2) and player_alive(self.tagger) then
+        if (i ~= self.tagger) and player_alive(i) then
             write_word(p1 + 0x88, to_real_index(self.tagger))
-        elseif (player_alive(i)) then
+        else
             write_word(p1 + 0x88, to_real_index(i))
         end
         ---
@@ -318,10 +320,13 @@ function Tag:OnTick()
 
 
         -- Speed reduction timer and scoring logic:
+        --
         for i, v in pairs(self.players) do
 
             if player_alive(i) then
 
+                -- Reduce tagger speed if they are being shot at:
+                --
                 local case = (self:IsTagger(i) and self.tagger_speed_reduce)
                 if (case and v.speed_timer) then
                     v.speed_timer = v.speed_timer + time_scale
@@ -339,6 +344,7 @@ function Tag:OnTick()
                     v.timer = v.timer + time_scale
 
                     -- Increment runner score by "points_per"
+                    --
                     if (v.timer >= self.runner_time) then
                         v.score = v.score + self.points_per
                         v.timer = 0
@@ -346,6 +352,7 @@ function Tag:OnTick()
                     end
 
                     -- Check if we need to end the game:
+                    --
                     if (v.score >= self.score_limit) then
                         self:Say(v.name .. " won the game!")
                         execute_command("sv_map_next")
@@ -362,6 +369,9 @@ function OnPlayerDeath(V, K)
 
     if (k > 0) then
 
+        -- Deduct 1x score point for this kill
+        -- Only way to score (by design) is to accumulate points as a runner!
+        --
         local score = tonumber(get_var(k, "$score"))
         score = score - 1
         if (score < 0) then
@@ -369,22 +379,30 @@ function OnPlayerDeath(V, K)
         end
         execute_command("score " .. k .. " " .. score)
 
+        -- Tagger died, select new tagger:
+        --
         if (Tag.new_tagger_on_death) then
             return Tag:IsTagger(v) and Tag:PickNewTagger()
         end
     end
 end
 
+-- Returns MetaID of tag path:
+--
 local function GetTag(Type, Name)
     local ObjTag = lookup_tag(Type, Name)
     return (ObjTag ~= 0 and read_dword(ObjTag + 0xC)) or nil
 end
 
+-- Checks if the Damage MetaID matches MetaID of melee tag path
+--
 function Tag:IsMelee(MetaID)
-    for _, v in pairs(self.melee) do
-        local meta = GetTag(v[1], v[2])
-        if (meta and MetaID == meta) then
-            return true
+    for tag, enabled in pairs(self.melee) do
+        if (enabled) then
+            local meta = GetTag("jpt!", tag)
+            if (meta and MetaID == meta) then
+                return true
+            end
         end
     end
     return false
@@ -397,11 +415,11 @@ function Tag:OnDamage(Victim, Causer, MetaID, _, _)
 
         if (self.players[Causer]) then
 
-            -- Store victim/causer names:
+            -- Get victim/causer names:
             local cname = self.players[Causer].name
             local vname = self.players[Victim].name
 
-            -- Player has initialised a new game of tag:
+            -- Player has initialised a new game of tag (set initial tagger):
             --
             if (not self.init and self:IsMelee(MetaID)) then
 
@@ -416,7 +434,7 @@ function Tag:OnDamage(Victim, Causer, MetaID, _, _)
                 --
 
 
-                -- Game already running, player was tagged:
+                -- Game already running, player was tagged (set new tagger):
                 --
             elseif (self:IsTagger(Causer) and self:IsMelee(MetaID)) then
 
@@ -432,6 +450,8 @@ function Tag:OnDamage(Victim, Causer, MetaID, _, _)
                 --
 
 
+                -- Slow the speed of the tagger when shot at:
+                --
             elseif (self:IsTagger(Victim) and self.tagger_speed_reduce) then
                 self:SetSpeed(Victim, true)
             end
@@ -442,9 +462,9 @@ end
 -- Temporarily removes the message prefix and then
 -- restores it once we have finished relaying "MSG" to the server:
 function Tag:Say(MSG)
+    cprint(MSG)
     execute_command("msg_prefix \"\"")
     say_all(MSG)
-    cprint(MSG)
     execute_command("msg_prefix \" " .. self.server_prefix .. "\"")
 end
 
@@ -477,7 +497,8 @@ local function WriteLog(str)
     end
 end
 
--- In the event of an error, the script will trigger these two functions: OnError(), report()
+-- In the event of an error, the script will trigger
+-- these two functions: OnError(), report()
 function report(StackTrace, Error)
 
     cprint(StackTrace, 4 + 8)
@@ -499,7 +520,7 @@ function report(StackTrace, Error)
 end
 
 -- This function will return a string with a traceback of the stack call...
--- ...and call function 'report' after 50 milliseconds.
+-- and call function 'report' after 50 milliseconds.
 function OnError(Error)
     timer(50, "report", debug.traceback(), Error)
 end
