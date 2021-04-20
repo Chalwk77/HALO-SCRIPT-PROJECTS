@@ -26,18 +26,23 @@ api_version = "1.12.0.0"
 
 local Rank = {
 
+    -- A JSON database containing information about all player ranks.
+    -- This file will be located in the server's root directory.
     dir = "ranks.json",
 
     -- Suggestions: cR, $, Points, Candy
     currency_symbol = "cR",
 
+    -- When enabled, players will earn 2X experience points.
+    --
     double_exp = false,
 
+    -- Starting rank & grade for new players:
     starting_rank = "Recruit",
     starting_grade = 1,
     starting_credits = 0,
 
-    -- When should we update the file database (ranks.json)?
+    -- When should we update the rank database (ranks.json)?
     -- It's not recommended to save stats to file during player join & quit as this
     -- may cause undesirable (albeit temporary) lag.
     update_file_database = {
@@ -46,25 +51,28 @@ local Rank = {
         ["OnPlayerDisconnect"] = false
     },
 
+    -- Use this command to view stats on your current rank:
     -- Command Syntax: /check_rank_cmd [number: 1-16] | */all | me
     check_rank_cmd = "rank",
     check_rank_cmd_permission = -1,
     check_rank_cmd_permission_other = -1,
 
+    -- Use this command to view a list of the top 10 players:
     -- Command Syntax: /toplist_cmd
     toplist_cmd = "toplist",
     toplist_cmd_permission = -1,
-
     toplist_format = "Rank#: [%pos%] %name% | Credits: %cr%",
     topplayers = {
         header = "--------------------------------------",
         txt = "Rank#: [%pos%] %name% | Credits: %cr%",
         footer = "--------------------------------------",
     },
-
-    -- Toggle t-bag on or off:
     --
+
+    -- TEA BAGGING SUPPORT --
+    -- Toggle t-bag on or off:
     tbag = true,
+
     -- Radius (in world units) a player must be to trigger a t-bag
     tbag_trigger_radius = 2.5,
 
@@ -73,28 +81,43 @@ local Rank = {
 
     -- A player must crouch over a victim's body this many times in order to trigger the t-bag scenario
     tbag_crouch_count = 4,
-    --
+    ------------------------------
 
+    -- Fully customizable messages:
     messages = {
-        [1] = {-- on join
+
+        -- This message is sent to a player when they join:
+        [1] = {
             "You are rank [%rank%] Grade [%grade%] Position: [%pos%/%totalplayers%]",
             "Credits: %credits%",
         },
+        --
+
+        -- This message is broadcast server-wide when someone joins:
         [2] = { -- /rank command output (other player)
             "%name% is rank [%rank%] Grade [%grade%] Position: [%pos%/%totalplayers%]",
             "Credits: %credits%",
         },
+
+        -- Messages sent to player lacking permission to execute a X command:
         [3] = { "You do not have permission to execute this command." },
         [4] = { "You do not have permission to execute this command on other players" },
 
-        -- For T-Bagging:
+        -- This message is broadcast server-wide when someone tea bags a body:
         [5] = "%name% is t-bagging %victim%",
+        --
 
+        -- This message is broadcast server-wide when someone ranks up:
         [6] = "%name% is now rank [%rank%] grade [%grade%]",
+
+        -- This message is broadcast server-wide when someone completes all ranks:
         [7] = "%name% has completed all ranks!",
+
+        -- This message is broadcast server-wide when someone completes all ranks:
         [8] = "%name% was downgraded and is now rank [%rank%] grade [%grade%]",
 
-        [9] = { -- /rank command output (self)
+        -- This message is sent to a player they execute "/rank" command:
+        [9] = {
             "You are rank [%rank%] Grade [%grade%] Position: [%pos%/%totalplayers%]",
             "Credits: %credits%",
             " ",
@@ -103,16 +126,21 @@ local Rank = {
         }
     },
 
+    -- Credits table defines experience levels earnt & action-specific messages:
+    --
     credits = {
 
         -- Generic Zombie Mod support:
         zombies = {
+            -- Set to "true" to enable.
             enabled = false,
+            --
             human_team = "red",
             zombie_team = "blue",
             credits = { 25, "+25 %currency_symbol% (Zombie-Bite)" },
         },
 
+        -- Tea Bagging (credits added):
         tbag = { 1, "+1 %currency_symbol% (T-Bagging)" },
 
         -- Score (credits added):
@@ -172,10 +200,12 @@ local Rank = {
             --
 
             -- FALL DAMAGE --
+            --
             { "jpt!", "globals\\falling", -3, "-3 %currency_symbol% (Fall Damage)" },
             { "jpt!", "globals\\distance", -4, "-4 %currency_symbol% (Distance Damage)" },
 
             -- VEHICLE PROJECTILES --
+            --
             { "jpt!", "vehicles\\ghost\\ghost bolt", 7, "+7 %currency_symbol% (Ghost Bolt)" },
             { "jpt!", "vehicles\\scorpion\\bullet", 6, "+6 %currency_symbol% (Tank Bullet)" },
             { "jpt!", "vehicles\\warthog\\bullet", 6, "+6 %currency_symbol% (Warthog Bullet)" },
@@ -185,6 +215,7 @@ local Rank = {
             { "jpt!", "vehicles\\banshee\\mp_fuel rod explosion", 10, "+10 %currency_symbol% (Banshee Fuel-Rod Explosion)" },
 
             -- WEAPON PROJECTILES --
+            --
             { "jpt!", "weapons\\pistol\\bullet", 5, "+5 %currency_symbol% (Pistol Bullet)" },
             { "jpt!", "weapons\\shotgun\\pellet", 6, "+6 %currency_symbol% (Shotgun Pallet)" },
             { "jpt!", "weapons\\plasma rifle\\bolt", 4, "+4 %currency_symbol% (Plasma Rifle Bolt)" },
@@ -202,11 +233,13 @@ local Rank = {
             { "jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_explosion", 8, "+8 %currency_symbol% (Plasma Cannon Explosion)" },
 
             -- GRENADES --
+            --
             { "jpt!", "weapons\\frag grenade\\explosion", 8, "+8 %currency_symbol% (Frag Explosion)" },
             { "jpt!", "weapons\\plasma grenade\\attached", 7, "+7 %currency_symbol% (Plasma Grenade - attached)" },
             { "jpt!", "weapons\\plasma grenade\\explosion", 5, "+5 %currency_symbol% (Plasma Grenade explosion)" },
 
             -- MELEE --
+            --
             { "jpt!", "weapons\\flag\\melee", 5, "+5 %currency_symbol% (Melee: Flag)" },
             { "jpt!", "weapons\\ball\\melee", 5, "+5 %currency_symbol% (Melee: Ball)" },
             { "jpt!", "weapons\\pistol\\melee", 4, "+4 %currency_symbol% (Melee: Pistol)" },
@@ -221,6 +254,7 @@ local Rank = {
             { "jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_melee", 10, "+10 %currency_symbol% (Melee: Plasma Cannon)" },
 
             -- VEHICLE COLLISION --
+            --
             vehicles = {
                 collision = { "jpt!", "globals\\vehicle_collision" },
                 { "vehi", "vehicles\\ghost\\ghost_mp", 5, "+5 %currency_symbol% (Vehicle Squash: GHOST)" },
@@ -233,6 +267,9 @@ local Rank = {
         }
     },
 
+
+    -- STAR OF THE SHOW --
+    -- This table defines all rank requirements:
     ranks = {
         [1] = {
             rank = "Recruit",
@@ -367,11 +404,15 @@ local script_version = 1.28
 local sqrt = math.sqrt
 local gsub = string.gsub
 
--- Preload JSON Library:
+-- Preload JSON Interpreter Library:
 --
 local json = (loadfile "json.lua")()
 
 function OnScriptLoad()
+
+    -- register needed event callbacks:
+    --
+
     register_callback(cb["EVENT_TICK"], "OnTick")
     register_callback(cb["EVENT_DIE"], "OnPlayerDeath")
     register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
@@ -382,6 +423,8 @@ function OnScriptLoad()
     register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
+    --
+
     Rank:CheckFile(true)
 end
 
@@ -405,25 +448,38 @@ function Rank:UpdateJSON(TYPE)
             local file = assert(io.open(self.dir, "w"))
             if (file) then
                 file:write(json:encode_pretty(ranks))
-                io.close(file)
+                file:close()
             end
         end
     end
 end
 
 function Rank:ShowEndResults()
+
+    -- todo:
+    -- this needs to show top 3 ONLINE players
+    -- Not the top 3 on record.
+
     if tonumber(get_var(0, "$pn")) > 0 then
+
         local results = { }
         for i = 1, 16 do
             if player_present(i) then
                 results[i] = self.players[i]
             end
         end
+
         if (#results > 0) then
+
             local t = { }
             for _, v in pairs(results) do
-                t[#t + 1] = { ["ip"] = v.ip, ["credits"] = v.credits, ["name"] = v.name }
+                t[#t + 1] = {
+                    ["ip"] = v.ip,
+                    ["credits"] = v.credits,
+                    ["name"] = v.name
+                }
             end
+
             table.sort(t, function(a, b)
                 return a.credits > b.credits
             end)
@@ -469,6 +525,7 @@ function Rank:OnTick()
                 if (i ~= j and jtab.coords and #jtab.coords > 0) then
 
                     -- Get x,y,z position of tea bagger:
+                    --
                     local pos = self:GetXYZ(i)
 
                     -- Loop through all victim coordinate tables:
@@ -542,7 +599,10 @@ function OnPlayerDisconnect(Ply)
 end
 
 function OnPlayerScore(Ply)
-    Rank:UpdateCredits(tonumber(Ply), { Rank.credits.score[1], Rank.credits.score[2] })
+    Rank:UpdateCredits(tonumber(Ply), {
+        Rank.credits.score[1],
+        Rank.credits.score[2]
+    })
 end
 
 local function Completed()
@@ -623,9 +683,11 @@ function Rank:GetRanks(QUIT)
 end
 
 function SortRanks()
+
     local ranks = Rank:GetRanks()
+    local results = { }
     if (ranks) then
-        local results = { }
+
         for _, v in pairs(ranks) do
             results[#results + 1] = {
                 ["ip"] = v.ip,
@@ -635,11 +697,12 @@ function SortRanks()
                 ["credits"] = v.credits
             }
         end
+
         table.sort(results, function(a, b)
             return a.credits > b.credits
         end)
-        return results
     end
+    return results
 end
 
 function Rank:PrintRank(Ply, Pos, Stats, Total, I, NextRank, NextGrade, Required)
@@ -648,11 +711,11 @@ function Rank:PrintRank(Ply, Pos, Stats, Total, I, NextRank, NextGrade, Required
         ["%%req%%"] = Required,
         ["%%name%%"] = Stats.name,
         ["%%rank%%"] = Stats.rank,
-        ["%%next_grade%%"] = NextGrade,
         ["%%grade%%"] = Stats.grade,
         ["%%totalplayers%%"] = Total,
         ["%%next_rank%%"] = NextRank,
-        ["%%credits%%"] = Stats.credits,
+        ["%%next_grade%%"] = NextGrade,
+        ["%%credits%%"] = Stats.credits
     }
     for _, str in pairs(self.messages[I]) do
         for key, value in pairs(replace) do
@@ -694,9 +757,13 @@ function Rank:GetRank(Ply, IP, CMD)
                         self:PrintRank(Ply, k, v, #results, 2)
                     end
                 else
+
                     self:PrintRank(Ply, k, v, #results, 1)
-                    local str = v.name .. " connected -> Rank [" .. v.rank .. "] Grade [" .. v.grade .. "] Position: " .. k .. " of " .. #results .. " with " .. v.credits .. " credits."
-                    self:Respond(Ply, str, say, 10, true)
+
+                    local a = " connected -> Rank [" .. v.rank .. "] "
+                    local b = a .. "Grade [" .. v.grade .. "] Position: "
+                    local Str = b .. k .. " of " .. #results .. " with " .. v.credits .. " credits."
+                    self:Respond(Ply, Str, say, 10, true)
                 end
             end
         end
@@ -707,7 +774,10 @@ function Rank:FirstBlood(Ply)
     local kills = tonumber(get_var(Ply, "$kills"))
     if (kills == 1) then
         self.first_blood = false
-        self:UpdateCredits(Ply, { self.credits.first_blood[1], self.credits.first_blood[2] })
+        self:UpdateCredits(Ply, {
+            self.credits.first_blood[1],
+            self.credits.first_blood[2]
+        })
     end
 end
 
@@ -731,6 +801,7 @@ function Rank:CheckFile(ScriptLoad)
 
     if (get_var(0, "$gt") ~= "n/a") then
 
+        self.team_play = (get_var(0, "$ffa") == "0")
         self.game_started = true
         self.first_blood = true
 
@@ -740,7 +811,7 @@ function Rank:CheckFile(ScriptLoad)
             local file = io.open(self.dir, "r")
             if (file) then
                 content = file:read("*all")
-                io.close(file)
+                file:close()
             end
 
             local records = json:decode(content)
@@ -749,7 +820,7 @@ function Rank:CheckFile(ScriptLoad)
                 if (file) then
                     records = { }
                     file:write(json:encode_pretty(records))
-                    io.close(file)
+                    file:close()
                 end
             end
 
@@ -764,9 +835,10 @@ function Rank:CheckFile(ScriptLoad)
     end
 end
 
-local function GetTag(ObjectType, ObjectName)
-    if type(ObjectType) == "string" then
-        local Tag = lookup_tag(ObjectType, ObjectName)
+-- Returns the MetaID of the tag address:
+local function GetTag(Type, Name)
+    if type(Type) == "string" then
+        local Tag = lookup_tag(Type, Name)
         return Tag ~= 0 and read_dword(Tag + 0xC) or nil
     end
     return nil
@@ -809,16 +881,19 @@ function Rank:MultiKill(Ply)
 end
 
 function Rank:GetXYZ(Ply)
+
     local pos = { }
+
     local DyN = get_dynamic_player(Ply)
     if (player_alive(Ply) and DyN ~= 0) then
+
         pos.dyn = DyN
+        pos.in_vehicle = false
+        pos.x, pos.y, pos.z = read_vector3d(DyN + 0x5c)
+
         local VehicleID = read_dword(DyN + 0x11C)
         local VObject = get_object_memory(VehicleID)
-        if (VehicleID == 0xFFFFFFFF) then
-            pos.in_vehicle = false
-            pos.x, pos.y, pos.z = read_vector3d(DyN + 0x5c)
-        elseif (VObject ~= 0) then
+        if (VObject ~= 0) then
             pos.in_vehicle = true
             pos.x, pos.y, pos.z = read_vector3d(VObject + 0x5c)
         end
@@ -827,16 +902,9 @@ function Rank:GetXYZ(Ply)
     return (pos.x and pos) or nil
 end
 
-local function TeamPlay()
-    if (get_var(0, "$ffa") == "0") then
-        return true
-    end
-    return false
-end
+function Rank:OnPlayerDeath(V, K)
 
-function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
-
-    local killer, victim = tonumber(KillerIndex), tonumber(VictimIndex)
+    local killer, victim = tonumber(K), tonumber(V)
 
     local last_damage = self.players[victim].last_damage
     local kteam = get_var(killer, "$team")
@@ -846,8 +914,7 @@ function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
     local guardians = (killer == nil)
     local suicide = (killer == victim)
     local pvp = ((killer > 0) and killer ~= victim)
-    local team_play = TeamPlay()
-    local betrayal = (kteam == vteam and killer ~= victim and team_play)
+    local betrayal = (kteam == vteam and killer ~= victim and self.team_play)
     if (pvp and not betrayal) then
 
         self:MultiKill(killer)
@@ -855,7 +922,10 @@ function Rank:OnPlayerDeath(VictimIndex, KillerIndex)
 
         -- Killed from Grave:
         if (not player_alive(killer)) then
-            self:UpdateCredits(killer, { self.credits.killed_from_the_grave[1], self.credits.killed_from_the_grave[2] })
+            self:UpdateCredits(killer, {
+                self.credits.killed_from_the_grave[1],
+                self.credits.killed_from_the_grave[2]
+            })
         end
 
         -- Check for first blood:
@@ -997,9 +1067,10 @@ function Rank:UpdateRank(Ply, Silent)
     end
 end
 
-function Rank:OnDamageApplication(VictimIndex, KillerIndex, MetaID, _, _, _)
+function Rank:OnDamage(V, K, MetaID, _, _, _)
     if (self.game_started) then
-        local k, v = tonumber(KillerIndex), tonumber(VictimIndex)
+
+        local k, v = tonumber(K), tonumber(V)
         if player_present(v) then
             if (k > 0) then
                 if (self.players and self.players[k]) then
@@ -1013,22 +1084,24 @@ function Rank:OnDamageApplication(VictimIndex, KillerIndex, MetaID, _, _, _)
     end
 end
 
-function Rank:Respond(Ply, Message, Type, Color, Exclude)
+function Rank:Respond(Ply, Msg, Type, Color, Exclude)
     Color = Color or 10
     execute_command("msg_prefix \"\"")
+
     if (Ply == 0) then
-        cprint(Message, Color)
+        return cprint(Msg, Color)
     elseif (not Exclude) then
         if (Type ~= say_all) then
-            Type(Ply, Message)
+            Type(Ply, Msg)
         else
-            Type(Message)
+            Type(Msg)
         end
-    else
-        for i = 1, 16 do
-            if player_present(i) and (i ~= Ply) then
-                Type(i, Message)
-            end
+        return
+    end
+
+    for i = 1, 16 do
+        if player_present(i) and (i ~= Ply) then
+            Type(i, Msg)
         end
     end
     execute_command("msg_prefix \" " .. self.server_prefix .. "\"")
@@ -1042,25 +1115,25 @@ local function CMDSplit(CMD)
     return Args
 end
 
-function Rank:OnServerCommand(Executor, Command)
+function Rank:OnServerCommand(Ply, Command)
     local Args = CMDSplit(Command)
     if (Args) then
-        local lvl = tonumber(get_var(Executor, "$lvl"))
+        local lvl = tonumber(get_var(Ply, "$lvl"))
         if (Args[1] == self.check_rank_cmd) then
             if (lvl >= self.check_rank_cmd_permission) then
-                local pl = self:GetPlayers(Executor, Args)
+                local pl = self:GetPlayers(Ply, Args)
                 if (pl) then
                     for i = 1, #pl do
                         local TargetID = tonumber(pl[i])
-                        if (TargetID ~= Executor and lvl < self.check_rank_cmd_permission_other) then
-                            self:Respond(Executor, self.messages[4], rprint, 10)
+                        if (TargetID ~= Ply and lvl < self.check_rank_cmd_permission_other) then
+                            self:Respond(Ply, self.messages[4], rprint, 10)
                         else
-                            self:GetRank(Executor, self:GetIP(TargetID), true)
+                            self:GetRank(Ply, self:GetIP(TargetID), true)
                         end
                     end
                 end
             else
-                self:Respond(Executor, self.messages[3], rprint, 10)
+                self:Respond(Ply, self.messages[3], rprint, 10)
             end
             return false
         elseif (Args[1] == self.toplist_cmd) then
@@ -1073,11 +1146,11 @@ function Rank:OnServerCommand(Executor, Command)
                                     "%%pos%%", i),
                                     "%%name%%", v.name),
                                     "%%cr%%", v.credits)
-                            self:Respond(Executor, str, rprint, 10)
+                            self:Respond(Ply, str, rprint, 10)
                         end
                     end
                 else
-                    self:Respond(Executor, "Nothing to show!", rprint, 10)
+                    self:Respond(Ply, "Nothing to show!", rprint, 10)
                 end
             end
             return false
@@ -1093,7 +1166,7 @@ function Rank:GetPlayers(Executor, Args)
         else
             self:Respond(Executor, "The server cannot execute this command!", rprint, 10)
         end
-    elseif (Args[2] ~= nil) and (Args[2]:match("^%d+$")) then
+    elseif (Args[2] ~= nil and Args[2]:match("^%d+$")) then
         if player_present(Args[2]) then
             table.insert(pl, Args[2])
         else
@@ -1120,6 +1193,7 @@ function UpdateRageQuit(IP, Amount)
 
     if (ranks and ranks[IP]) then
         ranks[IP].credits = ranks[IP].credits - Amount
+
         local name = ranks[IP].name
         local str = name .. " was penalized " .. Amount .. "x credits for rage-quitting"
         Rank:Respond(_, str, say_all, 10)
@@ -1136,7 +1210,7 @@ function OnPlayerDeath(V, K)
 end
 
 function OnDamageApplication(V, K, M, _, _, _)
-    return Rank:OnDamageApplication(V, K, M, _, _, _)
+    return Rank:OnDamage(V, K, M, _, _, _)
 end
 
 function OnTick()
@@ -1173,7 +1247,7 @@ function report(StackTrace, Error)
 end
 
 -- This function will return a string with a traceback of the stack call...
--- ...and call function 'report' after 50 milliseconds.
+-- and call function 'report' after 50 milliseconds.
 function OnError(Error)
     local StackTrace = debug.traceback()
     timer(50, "report", StackTrace, Error)
