@@ -1,7 +1,6 @@
 --[[
 --=====================================================================================================--
 Script Name: Health Regeneration, for SAPP (PC & CE)
-Implementing API version: 1.11.0.0
 Description: Continuously regenerate your health.
     
     Credits to H® Shaft for the original "Continuous Health Regeneration" script.
@@ -10,41 +9,41 @@ Description: Continuously regenerate your health.
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
-
-* Written by Jericho Crosby (Chalwk)
 --=====================================================================================================--
 ]]--
 
 api_version = "1.12.0.0"
 
-Time = 10 -- time (in seconds) between each incremental increase in health
-increment = 0.1116 -- amount of health regenerated. (1 is full health)
+-- config starts --
+-- Time (in seconds) between each incremental increase in health:
+--
+local interval = 10
+
+-- Amount of health regenerated. (1 is full health)
+--
+local increment = 0.1116
+-- config ends --
 
 function OnScriptLoad()
-    register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
+    register_callback(cb['EVENT_JOIN'], "JOIN")
 end
 
-function OnScriptUnload()
+function JOIN(Ply)
+    timer(interval * 1000, "Regenerate", Ply)
 end
 
-function OnPlayerJoin(PlayerIndex)
-    timer(Time * 1000, "Regenerate", PlayerIndex)
-end
-
-function Regenerate(PlayerIndex)
+function Regenerate(Ply)
     for _ = 1, 16 do
-        local player_object = get_dynamic_player(PlayerIndex)
-        if (player_object ~= 0) then
-            if (player_alive(PlayerIndex)) then
-                if read_float(player_object + 0xE0) < 1 then
-                    write_float(player_object + 0xE0, read_float(player_object + 0xE0) + increment)
-                end
+        local DyN = get_dynamic_player(Ply)
+        if (DyN ~= 0 and player_alive(Ply)) then
+            if (read_float(DyN + 0xE0) < 1 )then
+                write_float(DyN + 0xE0, read_float(DyN + 0xE0) + increment)
             end
         end
     end
     return true
 end
 
-function OnError(Message)
-    print(debug.traceback())
+function OnScriptUnload()
+    -- N/A
 end
