@@ -103,7 +103,7 @@ end
 function SayAll(STR)
     execute_command('msg_prefix \"\"')
     say_all(STR)
-    cprint(STR)
+    -- cprint(STR)
     execute_command('msg_prefix ' .. server_prefix)
 end
 
