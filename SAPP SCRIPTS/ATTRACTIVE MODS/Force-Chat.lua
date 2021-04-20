@@ -23,12 +23,8 @@ Command Examples:
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
-
-* Written by Jericho Crosby (Chalwk)
 --=====================================================================================================--
 ]]--
-
-api_version = "1.12.0.0"
 
 -- Configuration Starts --------------------------------------------------------------
 local ForceChat = {
@@ -57,60 +53,48 @@ local ForceChat = {
 }
 -- Configuration Ends --------------------------------------------------------------
 
-local gsub, gmatch = string.gsub, string.gmatch
-local lower, len, sub = string.lower, string.len, string.sub
+local gsub = string.gsub
+api_version = "1.12.0.0"
 
 function OnScriptLoad()
     register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
 end
 
-function OnScriptUnload()
-
-end
-
 local function CMDSplit(CMD)
-    local Args, index = { }, 1
-    CMD = gsub(CMD, '"', "")
-    for Params in gmatch(CMD, "([^%s]+)") do
-        Args[index] = lower(Params)
-        index = index + 1
+    local Args = {}
+    CMD = CMD:gsub('"', "")
+    for Params in CMD:gmatch("([^%s]+)") do
+        Args[#Args + 1] = Params:lower()
     end
     return Args
 end
 
-function InVehicle(Ply)
+local function InVehicle(Ply)
     local DyN = get_dynamic_player(Ply)
-    if (DyN ~= 0) then
-        local vehicle = read_dword(DyN + 0x11C)
-        if (vehicle ~= 0xFFFFFFFF) then
-            return true
-        end
-    end
-    return false
+    local vehicle = read_dword(DyN + 0x11C)
+    return ((DyN ~= 0 and vehicle ~= 0xFFFFFFFF)) or false
 end
 
-function ForceChat:SendMessage(MSG, Type, Team, Executor, TargetID)
+function ForceChat:SendMessage(MSG, Type, Team, Ply, TID)
     execute_command("msg_prefix \"\"")
     if (Type == 1) then
         say_all(MSG)
     elseif (Type == 2 or Type == 3) then
         for i = 1, 16 do
             if player_present(i) then
-                if (Type == 2 and get_var(i, "$team") == Team) then
+                local team = get_var(i, "$team")
+                if (Type == 2 and team == Team) then
                     say(i, MSG)
                 elseif (Type == 3) then
-                    if InVehicle(TargetID) then
-                        if (TargetID == i) then
-                            say(TargetID, MSG)
-                        else
-                            local i_team = get_var(i, "$team")
-                            if (i_team == Team and InVehicle(i, Team)) then
-                                say(i, MSG)
-                            end
+                    if InVehicle(TID) then
+                        if (TID == i) then
+                            say(TID, MSG)
+                        elseif (team == Team and InVehicle(i, Team)) then
+                            say(i, MSG)
                         end
                     else
-                        local name = get_var(TargetID, "$name")
-                        self:Respond(Executor, name .. " is not in a vehicle!", 10)
+                        local name = get_var(TID, "$name")
+                        self:Respond(Ply, name .. " is not in a vehicle!", 10)
                         break
                     end
                 end
@@ -120,52 +104,51 @@ function ForceChat:SendMessage(MSG, Type, Team, Executor, TargetID)
     execute_command("msg_prefix \" " .. self.server_prefix .. "\"")
 end
 
-function ForceChat:OnServerCommand(Executor, Command, _, _)
-    local Args = CMDSplit(Command)
-    if (Args == nil) then
-        return
-    elseif (Args[1] == self.command) then
+function ForceChat:OnCommand(Ply, CMD)
+    local Args = CMDSplit(CMD)
+    if (Args and Args[1] == self.command) then
 
-        local lvl = tonumber(get_var(Executor, "$lvl"))
-        if (lvl >= self.permission or Executor == 0) then
+        local lvl = tonumber(get_var(Ply, "$lvl"))
+        if (lvl >= self.permission or Ply == 0) then
 
             if (Args[2] ~= nil and Args[2]:match("^%d+$")) then
-                local TargetID = tonumber(Args[2])
-                if player_present(TargetID) then
 
-                    if (TargetID ~= Executor) then
+                local TID = tonumber(Args[2])
+                if player_present(TID) then
+
+                    if (TID ~= Ply) then
 
                         local str_format = self.default
-                        local cmd_len = len(self.command)
-                        local cmd_to_replace = sub(Command, 1, cmd_len + 1)
-                        local message = Command:match(cmd_to_replace .. "[%s%d+%s](.*)")
+                        local cmd_len = self.command:len()
+                        local cmd_to_replace = CMD:sub(1, cmd_len + 1)
+                        local message = CMD:match(cmd_to_replace .. "[%s%d+%s](.*)")
 
-                        local name = get_var(TargetID, "$name")
-                        local team = get_var(TargetID, "$team")
+                        local name = get_var(TID, "$name")
+                        local team = get_var(TID, "$team")
 
                         local index = 1
                         for k, v in pairs(self.specific_format) do
-                            if (Command:match(k)) then
+                            if (CMD:match(k)) then
                                 index = v[2]
                                 str_format = gsub(gsub(v[1], "%%name%%", name), "%%message%%", message)
-                                message = gsub(str_format, k, "")
-                                return false, self:SendMessage(message, index, team, Executor, TargetID)
+                                message = str_format:gsub(k, "")
+                                return false, self:SendMessage(message, index, team, Ply, TID)
                             end
                         end
 
                         message = gsub(gsub(str_format, "%%name%%", name), "%%message%%", message)
-                        self:SendMessage(message, index, team, Executor, TargetID)
+                        self:SendMessage(message, index, team, Ply, TID)
                     else
-                        self:Respond(Executor, "You cannot execute this command on yourself!", 10)
+                        self:Respond(Ply, "You cannot execute this command on yourself!", 10)
                     end
                 else
-                    self:Respond(Executor, "Player #" .. TargetID .. " is not online.", 10)
+                    self:Respond(Ply, "Player #" .. TID .. " is not online.", 10)
                 end
             else
-                self:Respond(Executor, "Please enter a valid player id: [1-16]", 10)
+                self:Respond(Ply, "Please enter a valid player id: [1-16]", 10)
             end
         else
-            self:Respond(Executor, "Insufficient Permission", 10)
+            self:Respond(Ply, "Insufficient Permission", 10)
         end
         return false
     end
@@ -181,5 +164,9 @@ function ForceChat:Respond(Ply, Message, Color)
 end
 
 function OnServerCommand(P, C)
-    return ForceChat:OnServerCommand(P, C)
+    return ForceChat:OnCommand(P, C)
+end
+
+function OnScriptUnload()
+    -- N/A
 end
