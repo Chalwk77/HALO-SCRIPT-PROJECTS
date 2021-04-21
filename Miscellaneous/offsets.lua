@@ -71,8 +71,7 @@ function OnScriptLoad(process, Game, persistent)
     mapcycle_current_index = readdword(mapcycle_header + 0xC) -- Confirmed. Current mapcycle index.
 
     --mapcycle struct
-    mapcycle_something = readwidestring(mapcycle_pointer + mapcycle_current_index
-    0xE4 + 0xC) -- () LOTS OF BAADF00D!
+    mapcycle_something = readwidestring(mapcycle_pointer + mapcycle_current_index + 0xE4 + 0xC) -- () LOTS OF BAADF00D!
     mapcycle_current_map_name = readstring(readdword(mapcycle_pointer)) -- Confirmed. Real name of the map.
     mapcycle_current_gametype_name = readstring(readdword(mapcycle_pointer + 0x4)) -- Confirmed. Real name of the gametype. Case-sensitive.
     mapcycle_current_gametype_name2 = readwidestring(mapcycle_pointer + 0xC) -- Confirmed. Real name of gametype. Case-sensitive.
@@ -86,8 +85,8 @@ function OnScriptLoad(process, Game, persistent)
     server_friendly_fire_type = readword(network_server_globals + 0x120) -- Tested. Something to do with the friendly fire.
     server_rcon_password = readstring(network_server_globals + 0x128) -- Confirmed.
     if game == CE then
-    server_motd_filename = readstring(network_server_globals + 0x13C, 0x100) -- From OS.
-    server_motd_contents = readstring(network_server_globals + 0x23C, 0x100) -- From OS.
+        server_motd_filename = readstring(network_server_globals + 0x13C, 0x100) -- From OS.
+        server_motd_contents = readstring(network_server_globals + 0x23C, 0x100) -- From OS.
     end
 
     --gameinfo header
@@ -117,12 +116,12 @@ function OnScriptLoad(process, Game, persistent)
     --banlist struct
     banlist_struct_size = 0x44
     for j = 1, banlist_size do
-    ban_name = readwidestring(banlist_base + j  0x44, 13) -- Confirmed. Name of banned player.
-    ban_hash = readstring(banlist_base + j  0x44 + 0x1A, 32) -- Confirmed. Hash of banned player.
-    ban_some_bool = readbit(banlist_base + j  0x44 + 0x3A, 0) -- ()
-    ban_count = readword(banlist_base + j  0x44 + 0x3C) -- Confirmed. How many times the specified player has been banned.
-    ban_indefinitely = readbit(banlist_base + j  0x44 + 0x3E, 0) -- Confirmed. 1 if permanently banned, 0 if not.
-    ban_time = readdword(banlist_base + j  0x44 + 0x40) -- Confirmed. Ban end date.
+        ban_name = readwidestring(banlist_base + j, 0x44, 13) -- Confirmed. Name of banned player.
+        ban_hash = readstring(banlist_base + j, 0x44 + 0x1A, 32) -- Confirmed. Hash of banned player.
+        ban_some_bool = readbit(banlist_base + j, 0x44 + 0x3A, 0) -- ()
+        ban_count = readword(banlist_base + j, 0x44 + 0x3C) -- Confirmed. How many times the specified player has been banned.
+        ban_indefinitely = readbit(banlist_base + j, 0x44 + 0x3E, 0) -- Confirmed. 1 if permanently banned, 0 if not.
+        ban_time = readdword(banlist_base + j, 0x44 + 0x40) -- Confirmed. Ban end date.
     end
 
     --Stringdata addresses that aren't in a structheader (to my knowledge).
@@ -143,17 +142,17 @@ function OnScriptLoad(process, Game, persistent)
     -- random unuseful crap (string stuff) don't care enough to do CE
     -- don't know why I even cared enough to write these down.
     if game == PC then
-    halo_profilepath_cmdline = readstring(0x5D45B0, 5) -- Confirmed. The -path cmdline string.
-    halo_cpu_cmdline = readstring(0x5E4760, 4) -- Confirmed. The -cpu cmdline string.
-    halo_broadcast_game = readstring(0x5E4768, 5) -- Confirmed. Basically determines whether the server will broadcast on PCCETrial (halor = PC, halom = CE, halo = Trial).
-    halo_ip_cmdline = readstring(0x5E4770, 3) -- Confirmed. The -ip cmdline string.
-    halo_port_cmdline = readstring(0x5E4774, 5) -- Confirmed. The -port cmdline string.
-    halo_checkfpu_cmdline = readstring(0x5E477C, 9) -- Confirmed. The -checkfpu cmdline string.
-    halo_windowname = readstring(0x5E4788, 4) -- The console windowname and classname (basically windowtitle, always 'Halo Console (#)').
-    --0x5E4790 - 0x5E473C is registry key stuff
-    halo_dw15_exe_path = readstring(0x5E4940, 26)
-    --Confirmed. Path to dw15.exe (.Watsondw15.exe -x -s %u) probably from client code.
-    --other random crapstrings here
+        halo_profilepath_cmdline = readstring(0x5D45B0, 5) -- Confirmed. The -path cmdline string.
+        halo_cpu_cmdline = readstring(0x5E4760, 4) -- Confirmed. The -cpu cmdline string.
+        halo_broadcast_game = readstring(0x5E4768, 5) -- Confirmed. Basically determines whether the server will broadcast on PCCETrial (halor = PC, halom = CE, halo = Trial).
+        halo_ip_cmdline = readstring(0x5E4770, 3) -- Confirmed. The -ip cmdline string.
+        halo_port_cmdline = readstring(0x5E4774, 5) -- Confirmed. The -port cmdline string.
+        halo_checkfpu_cmdline = readstring(0x5E477C, 9) -- Confirmed. The -checkfpu cmdline string.
+        halo_windowname = readstring(0x5E4788, 4) -- The console windowname and classname (basically windowtitle, always 'Halo Console (#)').
+        --0x5E4790 - 0x5E473C is registry key stuff
+        halo_dw15_exe_path = readstring(0x5E4940, 26)
+        --Confirmed. Path to dw15.exe (.Watsondw15.exe -x -s %u) probably from client code.
+        --other random crapstrings here
     end
 
 end
@@ -180,32 +179,32 @@ function GetGameAddresses(game)
         collideable_objects_pointer = 0x744C34
         map_header_base = 0x630E74
         banlist_header = 0x641280
-        game_globals = -- () Why do I not have this for PC
+        game_globals = null -- () Why do I not have this for PC
         gameinfo_header = 0x671420
-    mapcycle_header = 0x614B4C
-    network_server_globals = 0x69B934
-    flags_pointer = 0x6A590C
+        mapcycle_header = 0x614B4C
+        network_server_globals = 0x69B934
+        flags_pointer = 0x6A590C
         hash_table_base = 0x6A2AE4
 
         -- StringData Addresses.
         broadcast_version_address = 0x5DF840
         version_info_address = 0x5E02C0
         broadcast_game_address = 0x5E4768
-    server_port_address = 0x625230
-    server_path_address = 0x62C390
-    computer_name_address = 0x62CD60
-    profile_path_address = 0x635610
-    map_name_address = 0x63BC78
-    computer_specs_address = 0x662D04
+        server_port_address = 0x625230
+        server_path_address = 0x62C390
+        computer_name_address = 0x62CD60
+        profile_path_address = 0x635610
+        map_name_address = 0x63BC78
+        computer_specs_address = 0x662D04
         map_name_address2 = 0x698F21
         server_password_address = 0x69B93C
         banlist_path_address = 0x69B950
         rcon_password_address = 0x69BA5C
 
-    --Patches
-    gametype_patch = 0x481F3C -- I 'thought' this worked but haven't tested in ages.
-    hashcheck_patch = 0x59c280
-    servername_patch = 0x517D6B
+        --Patches
+        gametype_patch = 0x481F3C -- I 'thought' this worked but haven't tested in ages.
+        hashcheck_patch = 0x59c280
+        servername_patch = 0x517D6B
         versioncheck_patch = 0x5152E7
     else
         -- Structsheaders.
@@ -538,8 +537,7 @@ function OnClientUpdate(player, m_objectId)
         flags_table_address = readdword(flags_table_base + 0x37C) -- Tested.
         for i = 0, flags_count do
             -- i is each individual flag index
-            flag_address = flags_table_address + i
-            148
+            flag_address = flags_table_address + i + 148
             flag_x_coord = readfloat(flag_address) -- Confirmed.
             flag_y_coord = readfloat(flag_address + 0x4) -- Confirmed.
             flag_z_coord = readfloat(flag_address + 0x8) -- Confirmed.

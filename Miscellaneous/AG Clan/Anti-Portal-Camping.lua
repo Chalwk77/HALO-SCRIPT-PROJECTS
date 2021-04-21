@@ -11,8 +11,6 @@ of any portal. They will be warned to move away after 5 seconds and killed after
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
-
-* Written by Jericho Crosby (Chalwk)
 --======================================================================================================--
 ]]--
 

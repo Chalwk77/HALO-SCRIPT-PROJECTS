@@ -10,8 +10,6 @@ Description:    Block Vehicle Entry on a per map basis
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
-
-* Written by Jericho Crosby (Chalwk)
 --=====================================================================================================--
 ]]--
 api_version = "1.12.0.0"

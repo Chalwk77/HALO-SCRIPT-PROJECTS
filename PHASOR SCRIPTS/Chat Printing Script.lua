@@ -9,9 +9,6 @@ Description: This script will log player chat to halo/logs/Server Chat.txt
 Copyright � 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
-
-* IGN: Chalwk
-* Written by Jericho Crosby (Chalwk)
 --------------------------------------------------------------------------
 ]]-- 
 function GetRequiredVersion()

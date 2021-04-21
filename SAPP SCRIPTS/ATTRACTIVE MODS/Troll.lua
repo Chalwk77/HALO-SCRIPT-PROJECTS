@@ -34,13 +34,11 @@ or manually prevent a player from being trolled by this script.
 
 * ENABLE or DISABLE any feature at any time with two simple commands (see config section)
 
+Credits to Kavawuvi and Devieth for functions at bottom of script.
+
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
-
-* Written by Jericho Crosby (Chalwk)
-
-Credits to Kavawuvi and Devieth for functions at bottom of script.
 --=====================================================================================================--
 ]]--
 

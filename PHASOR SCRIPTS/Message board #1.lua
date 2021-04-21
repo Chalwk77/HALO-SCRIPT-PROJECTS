@@ -7,7 +7,6 @@ Copyright � 2016 Jericho Crosby <jericho.crosby227@gmail.com>
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 * IGN: Chalwk
-* Written by Jericho Crosby (Chalwk)
 -----------------------------------
 ]]--
 

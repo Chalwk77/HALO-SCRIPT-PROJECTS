@@ -14,10 +14,6 @@ Description:    This mod will announce welcome messages to the newly joined play
 Copyright (c) 2016-2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
-
-* Written by Jericho Crosby (Chalwk)
-
-- This script is included in the Velocity Multi-Mod with many improvements.
 --=====================================================================================================--
 ]]--
 

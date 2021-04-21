@@ -9,10 +9,6 @@ Description: Reserve spartan armor colors for VIP members (based on hash)
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
-
-* Written by Jericho Crosby (Chalwk)
-
-- This script is included in the Velocity Multi-Mod with many improvements.
 --=====================================================================================================--
 ]]--
 

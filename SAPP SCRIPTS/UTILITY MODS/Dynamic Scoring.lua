@@ -6,8 +6,6 @@ Description: Score limit changes automatically, depending on number of players c
 Copyright (c) 2019-2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
-Inspiration taken from a mod made by {OZ}Shadow.
-* Written by Jericho Crosby (Chalwk)
 --=====================================================================================================--
 ]]--
 
