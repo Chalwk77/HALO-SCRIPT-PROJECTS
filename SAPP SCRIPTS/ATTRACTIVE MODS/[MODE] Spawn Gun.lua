@@ -10,7 +10,7 @@ Command Syntax: /spawngun [object]
                 * all objects are deleted automatically when you die.
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 Notice: You can use this document subject to the following conditions:
-https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
+https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 ~ Created by Jericho Crosby (Chalwk)
 --=====================================================================================================--
 ]]

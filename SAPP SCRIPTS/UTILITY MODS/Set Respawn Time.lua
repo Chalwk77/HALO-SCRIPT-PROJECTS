@@ -14,7 +14,7 @@ Description: This script will allow you to set respawn times on a per-map, per-g
 
 Copyright (c) 2020-2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
-https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
+https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 

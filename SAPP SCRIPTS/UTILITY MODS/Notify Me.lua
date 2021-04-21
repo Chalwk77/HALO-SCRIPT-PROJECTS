@@ -18,7 +18,7 @@ Description: A simple addon that notifies (via server terminal) of certain event
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
-https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
+https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 * Written by Jericho Crosby (Chalwk)
 --=====================================================================================================--

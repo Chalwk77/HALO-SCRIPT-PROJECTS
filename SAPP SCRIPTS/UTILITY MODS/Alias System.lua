@@ -32,7 +32,7 @@ To view a specific page of results, simply define the page id as shown in the co
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
-https://github.com/Chalwk77/Halo-Scripts-Phasor-V2-/blob/master/LICENSE
+https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 * Written by Jericho Crosby (Chalwk)
 --=====================================================================================================--
