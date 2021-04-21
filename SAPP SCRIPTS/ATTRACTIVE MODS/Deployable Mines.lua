@@ -51,11 +51,11 @@ local Mines = {
 
 local team_play
 local rocket_meta
+local dma_original, dma
+local tag_count, tag_address
+
 local sqrt = math.sqrt
 local time_scale = 1 / 30
-local tag_count, tag_address
-local dma
-local dma_original
 
 api_version = "1.12.0.0"
 
