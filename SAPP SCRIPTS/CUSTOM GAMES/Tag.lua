@@ -380,7 +380,7 @@ function OnPlayerDeath(V, K)
         -- Deduct 1x score point for this kill
         -- Only way to score (by design) is to accumulate points as a runner!
         --
-        if (self.score_limit) then
+        if (Tag.score_limit) then
             local score = tonumber(get_var(k, "$score"))
             score = score - 1
             if (score < 0) then
