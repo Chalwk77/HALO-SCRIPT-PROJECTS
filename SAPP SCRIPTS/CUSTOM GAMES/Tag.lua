@@ -24,7 +24,7 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 local Tag = {
 
     -- Set to 0 to disable:
-    points_on_tag = 0,
+    points_on_tag = 500,
 
     -- Tagger turn timer (in seconds):
     turn_timer = 60,
@@ -59,7 +59,7 @@ local Tag = {
     -- SCORING --
     -- Set to nil to disabled the score limit.
     --
-    score_limit = 10000,
+    score_limit = nil,
 
     -- Runners will accumulate points while a game of tag is in play.
     -- Add "points_per_interval" points per "runner_time" seconds
@@ -380,12 +380,14 @@ function OnPlayerDeath(V, K)
         -- Deduct 1x score point for this kill
         -- Only way to score (by design) is to accumulate points as a runner!
         --
-        local score = tonumber(get_var(k, "$score"))
-        score = score - 1
-        if (score < 0) then
-            score = 0
+        if (self.score_limit) then
+            local score = tonumber(get_var(k, "$score"))
+            score = score - 1
+            if (score < 0) then
+                score = 0
+            end
+            execute_command("score " .. k .. " " .. score)
         end
-        execute_command("score " .. k .. " " .. score)
 
         -- Tagger died, select new tagger:
         --
@@ -438,7 +440,11 @@ function Tag:OnDamage(Victim, Causer, MetaID, _, _)
                             "%%vname%%", vname))
                 end
                 self:SetTagger(Victim)
-                --
+
+                -- Increment player score:
+                local score = tonumber(get_var(Causer, "$score"))
+                score = score + self.points_on_tag
+                execute_command("score " .. Causer .. " " .. score)
                 --
 
 
@@ -455,10 +461,10 @@ function Tag:OnDamage(Victim, Causer, MetaID, _, _)
                 self.players[Causer].speed_timer = nil
                 self:SetTagger(Victim)
 
+                -- Increment player score:
                 local score = tonumber(get_var(Causer, "$score"))
                 score = score + self.points_on_tag
                 execute_command("score " .. Causer .. " " .. score)
-                --
                 --
 
                 -- Slow the speed of the tagger when shot at:

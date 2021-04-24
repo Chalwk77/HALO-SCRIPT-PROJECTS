@@ -24,7 +24,7 @@ local CTF = {
     respawn_time = 15,
 
     -- Points awarded on capture:
-    score_on_capture = 200,
+    score_on_capture = 500,
 
     -- Set to nil to disable score limit:
     score_limit = 10000,
