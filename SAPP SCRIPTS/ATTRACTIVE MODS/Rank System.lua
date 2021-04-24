@@ -520,7 +520,7 @@ function Rank:OnTick()
             -- 2nd Loop (victims)
             --
             for j, jtab in pairs(self.players) do
-                if (i ~= j and jtab.coords and #jtab.coords > 0) then
+                if (i ~= j and jtab.coordinates and #jtab.coordinates > 0) then
 
                     -- Get x,y,z position of tea bagger:
                     --
@@ -528,7 +528,7 @@ function Rank:OnTick()
 
                     -- Loop through all victim coordinate tables:
                     --
-                    for cIndex, CTab in pairs(jtab.coords) do
+                    for cIndex, CTab in pairs(jtab.coordinates) do
 
                         -- increment expiration timer:
                         --
@@ -537,7 +537,7 @@ function Rank:OnTick()
                         -- Delete coordinate table on expire:
                         --
                         if (CTab.timer >= self.tbag_coordinate_expiration) then
-                            jtab.coords[cIndex] = nil
+                            jtab.coordinates[cIndex] = nil
 
 
                             -- Monitor tea bagger position --
@@ -568,7 +568,7 @@ function Rank:OnTick()
                                     self:UpdateCredits(i, { self.credits.tbag[1], self.credits.tbag[2] })
                                     itab.crouch_count = 0
                                     itab.crouch_state = 0
-                                    jtab.coords[cIndex] = nil
+                                    jtab.coordinates[cIndex] = nil
                                 end
                                 itab.crouch_state = crouch
                             end
@@ -648,7 +648,7 @@ function Rank:AddNewPlayer(Ply, ManualLoad)
     end
 
     -- T-Bag Support:
-    self.players[Ply].coords = { }
+    self.players[Ply].coordinates = { }
     self.players[Ply].crouch_state = 0
     self.players[Ply].crouch_count = 0
     --
@@ -667,7 +667,7 @@ function Rank:GetRanks(QUIT)
         for i = 1, 16 do
             if player_present(i) and (self.players[i]) then
                 if (QUIT) then
-                    self.players[i].coords = nil
+                    self.players[i].coordinates = nil
                     self.players[i].last_damage = nil
                     self.players[i].crouch_count = nil
                     self.players[i].crouch_state = nil
@@ -936,7 +936,7 @@ function Rank:OnPlayerDeath(V, K)
         if (self.tbag) then
             local pos = self:GetXYZ(victim)
             if (pos and self.players[victim]) then
-                table.insert(self.players[victim].coords, {
+                table.insert(self.players[victim].coordinates, {
                     timer = 0,
                     x = pos.x,
                     y = pos.y,

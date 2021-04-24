@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Tag (v1.0), for SAPP (PC & CE)
+Script Name: Tag (v1.1), for SAPP (PC & CE)
 Description: Tag, you're it!
 
 This is a game involving two or more players.
@@ -8,6 +8,8 @@ A game of tag is initiated by meleeing a player; this player will become "it" (t
 
 If a game of tag is in play, you will accumulate points as a runner.
 The score limit is 10,000 & taggers get a 1.5x speed boost.
+
+When you tag someone, you will earn 500 points.
 
 Taggers will be "it" for a maximum of 60 seconds; after which a random
 player (excluding the previous tagger) will become the new tagger.
@@ -20,6 +22,9 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 -- configuration starts  -------------------------------------------
 local Tag = {
+
+    -- Set to 0 to disable:
+    points_on_tag = 0,
 
     -- Tagger turn timer (in seconds):
     turn_timer = 60,
@@ -52,7 +57,8 @@ local Tag = {
     --
 
     -- SCORING --
-    -- Set to nil to disabled the score limit
+    -- Set to nil to disabled the score limit.
+    --
     score_limit = 10000,
 
     -- Runners will accumulate points while a game of tag is in play.
@@ -108,7 +114,7 @@ local gsub = string.gsub
 local time_scale = 1 / 30
 
 -- Used for error reporting; See function report()
-local script_version = 1.0
+local script_version = 1.1
 
 -- SAPP Lua API Version:
 api_version = "1.12.0.0"
@@ -135,7 +141,9 @@ function Tag:Init()
     if (get_var(0, "$gt") ~= "n/a") then
 
         -- Set the score limit:
-        execute_command("scorelimit " .. self.score_limit or "")
+        if (self.score_limit) then
+            execute_command("scorelimit " .. self.score_limit)
+        end
 
         self.players = { }
         self:Stop()
@@ -446,9 +454,12 @@ function Tag:OnDamage(Victim, Causer, MetaID, _, _)
                 self.players[Causer].it = false
                 self.players[Causer].speed_timer = nil
                 self:SetTagger(Victim)
-                --
-                --
 
+                local score = tonumber(get_var(Causer, "$score"))
+                score = score + self.points_on_tag
+                execute_command("score " .. Causer .. " " .. score)
+                --
+                --
 
                 -- Slow the speed of the tagger when shot at:
                 --

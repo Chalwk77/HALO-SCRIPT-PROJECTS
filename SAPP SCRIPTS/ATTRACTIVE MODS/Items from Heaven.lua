@@ -189,7 +189,7 @@ function OnTick()
         end
 
         for k, v in pairs(objects) do
-            if (k and v.object_memory ~= 0) then
+            if (k) then
                 if (v.tag_type[1] == "vehi") then
                     if (v.object_memory ~= 0xFFFFFFFFF) then
                         v.timer = v.timer + time_scale
@@ -201,22 +201,18 @@ function OnTick()
                     end
                 elseif (v.tag_type[1] == "weap") then
                     local held
-
                     for i = 1, 16 do
                         if player_alive(i) and player_present(i) then
                             local DyN = get_dynamic_player(i)
                             for j = 0, 3 do
                                 local WeaponID = read_dword(DyN + 0x2F8 + (j * 4))
-                                if (WeaponID ~= 0xFFFFFFFF) then
-                                    local WeaponObject = get_object_memory(WeaponID)
-                                    if (WeaponObject == v.object_memory) then
-                                        held = true
-                                    end
+                                local WeaponObject = get_object_memory(WeaponID)
+                                if (WeaponID ~= 0xFFFFFFFF and WeaponObject == v.object_memory) then
+                                    held = true
                                 end
                             end
                         end
                     end
-
                     if (not held) then
                         v.timer = v.timer + time_scale
                         if (v.timer >= half_life) then

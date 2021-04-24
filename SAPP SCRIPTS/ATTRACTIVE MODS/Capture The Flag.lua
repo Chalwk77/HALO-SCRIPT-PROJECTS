@@ -24,7 +24,10 @@ local CTF = {
     respawn_time = 15,
 
     -- Points awarded on capture:
-    score_on_capture = 5,
+    score_on_capture = 200,
+
+    -- Set to nil to disable score limit:
+    score_limit = 10000,
 
     -- Enable this if you are using my Rank System script
     rank_system_support = false,
@@ -202,9 +205,8 @@ local CTF = {
 }
 -- configuration ends --
 
-local time_scale = 1 / 30
-
 local gsub = string.gsub
+local time_scale = 1 / 30
 local sqrt, floor = math.sqrt, math.floor
 
 function CTF:Init(Unload)
@@ -212,6 +214,11 @@ function CTF:Init(Unload)
     local gt = (get_var(0, "$gt") ~= "n/a") and (get_var(0, "$gt") ~= "ctf")
 
     if (gt and not Unload) then
+
+        -- Set the score limit:
+        if (self.score_limit) then
+            execute_command("scorelimit " .. self.score_limit)
+        end
 
         local map = get_var(0, "$map")
         if (not self.maps[map]) then
@@ -297,10 +304,7 @@ function OnPlayerDisconnect(Ply)
 end
 
 local function Plural(n)
-    if (n > 1) then
-        return "s"
-    end
-    return ""
+    return (n > 1 and "s") or ""
 end
 
 function CTF:OnTick()
@@ -452,6 +456,14 @@ function CTF:MonitorFlag(Ply)
 
                     self:Respond(nil, str, nil)
                     self:SpawnFlag()
+
+                    -- Check if we need to end the game:
+                    --
+                    if (self.score_limit and score >= self.score_limit) then
+                        self:Say(name .. " won the game!")
+                        execute_command("sv_map_next")
+                    end
+                    --
                     break
                 end
             end
