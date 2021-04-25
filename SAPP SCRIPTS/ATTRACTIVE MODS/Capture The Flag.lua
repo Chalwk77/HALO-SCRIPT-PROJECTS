@@ -456,14 +456,6 @@ function CTF:MonitorFlag(Ply)
 
                     self:Respond(nil, str, nil)
                     self:SpawnFlag()
-
-                    -- Check if we need to end the game:
-                    --
-                    if (self.score_limit and score >= self.score_limit) then
-                        self:Say(name .. " won the game!")
-                        execute_command("sv_map_next")
-                    end
-                    --
                     break
                 end
             end
