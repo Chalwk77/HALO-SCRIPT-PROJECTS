@@ -4,25 +4,33 @@ Script Name: Command Spy, for SAPP (PC & CE)
 Description:    This script will show commands typed by non-admins (to admins).
                 Admins wont see their own commands (:
 
-Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2020-2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
-local output_format = "[SPY] %name%: %command%"
+local output_format = {
+    -- RCON:
+    [1] = "[R-SPY] %name%: %cmd%",
+    -- CHAT:
+    [2] = "[C-SPY] %name%: /%cmd%",
+}
 
+-- If true, you will not see admin commands:
+local ignore_admins = false
+
+-- Add commands to be ignored:
 local commands_to_hide = {
-    -- Add your command here to hide it from command spy feedback.
     "/command1",
     "/command2",
     "/command3",
     "/command4",
-    "/command5"
+    "/command5",
     -- Repeat the structure to add more commands.
 }
 
--- Command(s) containing these words will not be sent:
+-- Command(s) containing these key words will not be sent:
 local command_blacklist = {
     "login",
     "admin_add",
@@ -34,17 +42,16 @@ local command_blacklist = {
 
 api_version = "1.12.0.0"
 
-local lower = string.lower
-local gmatch, gsub = string.gmatch, string.gsub
+local gsub = string.gsub
 
 function OnScriptLoad()
-    register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
+    register_callback(cb['EVENT_COMMAND'], "CommandSpy")
 end
 
-local function CMDSplit(Str)
+local function CMDSplit(STR)
     local Args = { }
-    for Params in gmatch(Str, "([^%s]+)") do
-        Args[#Args + 1] = lower(Params)
+    for Params in STR:gmatch("([^%s]+)") do
+        Args[#Args + 1] = Params:lower()
     end
     return Args
 end
@@ -61,23 +68,24 @@ local function BlackListed(CMD)
     return false
 end
 
-function OnServerCommand(Ply, Command, _, _)
+function CommandSpy(Ply, Command, ENV, _)
 
     local CMD = CMDSplit(Command)
-    if (#CMD > 0 and not BlackListed(Command)) then
+    if (#CMD and not BlackListed(CMD[1])) then
 
-        for i = 1, #commands_to_hide do
-            if (CMD[1] == commands_to_hide[i]) then
+        for _, v in pairs(commands_to_hide) do
+            if (CMD[1] == v) then
                 return
             end
         end
 
-        local name = get_var(Ply, "$name")
         local alvl = tonumber(get_var(Ply, "$lvl"))
-        if (alvl == -1) then
-            for i = 1, 16 do
+        if (not ignore_admins or alvl == -1) then
 
+            local name = get_var(Ply, "$name")
+            for i = 1, 16 do
                 if player_present(i) and (i ~= Ply) then
+
                     local bLvL = tonumber(get_var(i, "$lvl"))
                     if (bLvL >= 1) then
 
@@ -86,7 +94,7 @@ function OnServerCommand(Ply, Command, _, _)
                             cmd = cmd .. CMD[j] .. " "
                         end
 
-                        local str = gsub(gsub(output_format, "%%name%%", name), "%%cmd%%", cmd)
+                        local str = gsub(gsub(output_format[ENV], "%%name%%", name), "%%cmd%%", cmd)
                         rprint(i, str)
                     end
                 end
