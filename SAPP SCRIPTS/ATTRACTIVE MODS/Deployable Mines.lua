@@ -36,6 +36,7 @@ local Mines = {
         -- (!jpt) Tag path of the projectile used to simulate explosion:
         "weapons\\rocket launcher\\explosion"
     },
+
     ["deathisland"] = {
         "powerups\\health pack",
         "weapons\\rocket launcher\\rocket",
@@ -128,8 +129,8 @@ local Mines = {
     },
     ["tsce_multiplayerv1"] = {
         "cmt\\powerups\\human\\powerup_pack\\powerups\\health_pack",
-        "cmt\\weapons\\evolved_h1-spirit\\rocket_launcher\\damage_effects\\rocket_launcher_rocket_explosion",
-        "cmt\\weapons\\evolved_h1-spirit\\rocket_launcher\\projectiles\\rocket_launcher_rocket\\rocket_launcher_rocket"
+        "cmt\\weapons\\evolved_h1-spirit\\rocket_launcher\\projectiles\\rocket_launcher_rocket\\rocket_launcher_rocket",
+        "cmt\\weapons\\evolved_h1-spirit\\rocket_launcher\\damage_effects\\rocket_launcher_rocket_explosion"
     },
     --
 
