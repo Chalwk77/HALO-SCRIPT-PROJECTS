@@ -25,19 +25,130 @@ local Mines = {
     trigger_radius = 0.7,
     --
 
-    -- Mines are represented by this object:
-    object = { "eqip", "powerups\\health pack" },
+    ["bloodgulch"] = {
+        -- Object that represents the mine:
+        "powerups\\health pack",
+
+        -- (proj) Object used to simulate explosion:
+        -- We spawn a rocket projectile and instantly make it explode:
+        "weapons\\rocket launcher\\rocket",
+
+        -- (!jpt) Tag path of the projectile used to simulate explosion:
+        "weapons\\rocket launcher\\explosion"
+    },
+    ["deathisland"] = {
+        "powerups\\health pack",
+        "weapons\\rocket launcher\\rocket",
+        "weapons\\rocket launcher\\explosion"
+    },
+    ["icefields"] = {
+        "powerups\\health pack",
+        "weapons\\rocket launcher\\rocket",
+        "weapons\\rocket launcher\\explosion"
+    },
+    ["infinity"] = {
+        "powerups\\health pack",
+        "weapons\\rocket launcher\\rocket",
+        "weapons\\rocket launcher\\explosion"
+    },
+    ["sidewinder"] = {
+        "powerups\\health pack",
+        "weapons\\rocket launcher\\rocket",
+        "weapons\\rocket launcher\\explosion"
+    },
+    ["timberland"] = {
+        "powerups\\health pack",
+        "weapons\\rocket launcher\\rocket",
+        "weapons\\rocket launcher\\explosion"
+    },
+    ["dangercanyon"] = {
+        "powerups\\health pack",
+        "weapons\\rocket launcher\\rocket",
+        "weapons\\rocket launcher\\explosion"
+    },
+    ["beavercreek"] = {
+        "powerups\\health pack",
+        "weapons\\rocket launcher\\rocket",
+        "weapons\\rocket launcher\\explosion"
+    },
+    ["boardingaction"] = {
+        "powerups\\health pack",
+        "weapons\\rocket launcher\\rocket",
+        "weapons\\rocket launcher\\explosion"
+    },
+    ["carousel"] = {
+        "powerups\\health pack",
+        "weapons\\rocket launcher\\rocket",
+        "weapons\\rocket launcher\\explosion"
+    },
+    ["chillout"] = {
+        "powerups\\health pack",
+        "weapons\\rocket launcher\\rocket",
+        "weapons\\rocket launcher\\explosion"
+    },
+    ["damnation"] = {
+        "powerups\\health pack",
+        "weapons\\rocket launcher\\rocket",
+        "weapons\\rocket launcher\\explosion"
+    },
+    ["gephyrophobia"] = {
+        "powerups\\health pack",
+        "weapons\\rocket launcher\\rocket",
+        "weapons\\rocket launcher\\explosion"
+    },
+    ["hangemhigh"] = {
+        "powerups\\health pack",
+        "weapons\\rocket launcher\\rocket",
+        "weapons\\rocket launcher\\explosion"
+    },
+    ["longest"] = {
+        "powerups\\health pack",
+        "weapons\\rocket launcher\\rocket",
+        "weapons\\rocket launcher\\explosion"
+    },
+    ["prisoner"] = {
+        "powerups\\health pack",
+        "weapons\\rocket launcher\\rocket",
+        "weapons\\rocket launcher\\explosion"
+    },
+    ["putput"] = {
+        "powerups\\health pack",
+        "weapons\\rocket launcher\\rocket",
+        "weapons\\rocket launcher\\explosion"
+    },
+    ["ratrace"] = {
+        "powerups\\health pack",
+        "weapons\\rocket launcher\\rocket",
+        "weapons\\rocket launcher\\explosion"
+    },
+    ["wizard"] = {
+        "powerups\\health pack",
+        "weapons\\rocket launcher\\rocket",
+        "weapons\\rocket launcher\\explosion"
+    },
+    ["tsce_multiplayerv1"] = {
+        "cmt\\powerups\\human\\powerup_pack\\powerups\\health_pack",
+        "cmt\\weapons\\evolved_h1-spirit\\rocket_launcher\\damage_effects\\rocket_launcher_rocket_explosion",
+        "cmt\\weapons\\evolved_h1-spirit\\rocket_launcher\\projectiles\\rocket_launcher_rocket\\rocket_launcher_rocket"
+    },
     --
 
     -- vehicle tag paths --
     -- Set to false to disable vehicle dispensing on per-vehicle basis:
     vehicles = {
+
         ["vehicles\\ghost\\ghost_mp"] = true,
         ["vehicles\\rwarthog\\rwarthog"] = true,
         ["vehicles\\warthog\\mp_warthog"] = true,
         ["vehicles\\banshee\\banshee_mp"] = true,
         ["vehicles\\scorpion\\scorpion_mp"] = true,
-        ["vehicles\\c gun turret\\c gun turret_mp"] = true
+        ["vehicles\\c gun turret\\c gun turret_mp"] = true,
+
+        -- tsce_multiplayerv1 vehicles--
+        ["soi\\vehicles\\scorpion\\scorpion"] = true,
+        ["cmt\\vehicles\\evolved_h1-spirit\\ghost\\_ghost_mp\\ghost_mp"] = true,
+        ["cmt\\vehicles\\evolved_h1-spirit\\warthog\\_warthog_mp\\warthog_mp"] = true,
+        ["cmt\\vehicles\\evolved_h1-spirit\\warthog\\_warthog_rocket\\warthog_rocket"] = true
     },
     --
 
@@ -60,14 +171,7 @@ local time_scale = 1 / 30
 api_version = "1.12.0.0"
 
 function OnScriptLoad()
-    register_callback(cb["EVENT_TICK"], "OnTick")
-    register_callback(cb["EVENT_DIE"], "CheckDamage")
-    register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
-    register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
-    register_callback(cb["EVENT_LEAVE"], "OnPlayerQuit")
-    register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
-    register_callback(cb["EVENT_DAMAGE_APPLICATION"], "CheckDamage")
     OnGameStart()
 end
 
@@ -105,24 +209,48 @@ function Mines:Init()
 
     if (get_var(0, "$gt") ~= "n/a") then
 
-        tag_count = read_dword(0x4044000C)
-        tag_address = read_dword(0x40440000)
-        dma = sig_scan("8B42348A8C28D500000084C9") + 3
-        dma_original = read_dword(dma)
+        local map = get_var(0, "$map")
+        if (self[map]) then
 
-        self.game_in_progress = true
+            self.map = map
 
-        team_play = (get_var(0, "$ffa") == "0") or false
-        rocket_meta = GetTag("jpt!", "weapons\\rocket launcher\\explosion")
+            register_callback(cb["EVENT_TICK"], "OnTick")
+            register_callback(cb["EVENT_DIE"], "CheckDamage")
+            register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
+            register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
+            register_callback(cb["EVENT_LEAVE"], "OnPlayerQuit")
+            register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
+            register_callback(cb["EVENT_DAMAGE_APPLICATION"], "CheckDamage")
 
-        self:ClearAllMines()
-        self.players = { }
+            tag_count = read_dword(0x4044000C)
+            tag_address = read_dword(0x40440000)
 
-        for i = 1, 16 do
-            if player_present(i) then
-                self:InitPlayer(i, false)
+            dma = sig_scan("8B42348A8C28D500000084C9") + 3
+            dma_original = read_dword(dma)
+
+            self.game_in_progress = true
+
+            team_play = (get_var(0, "$ffa") == "0") or false
+            rocket_meta = GetTag("jpt!", "weapons\\rocket launcher\\explosion")
+
+            self:ClearAllMines()
+            self.players = { }
+
+            for i = 1, 16 do
+                if player_present(i) then
+                    self:InitPlayer(i, false)
+                end
             end
+            return
         end
+
+        unregister_callback(cb["EVENT_TICK"])
+        unregister_callback(cb["EVENT_DIE"])
+        unregister_callback(cb["EVENT_JOIN"])
+        unregister_callback(cb["EVENT_GAME_END"])
+        unregister_callback(cb["EVENT_LEAVE"])
+        unregister_callback(cb["EVENT_SPAWN"])
+        unregister_callback(cb["EVENT_DAMAGE_APPLICATION"])
     end
 end
 
@@ -154,7 +282,7 @@ end
 
 function Mines:NewMine(Ply, X, Y, Z)
 
-    local mine = spawn_object(self.object[1], self.object[2], X, Y, Z)
+    local mine = spawn_object("eqip", self[self.map][1], X, Y, Z)
     local object = get_object_memory(mine)
 
     self.mines[mine] = {
@@ -233,7 +361,7 @@ function Mines:OnTick()
 
                                             EditRocket(false)
 
-                                            local tag = GetTag("proj", "weapons\\rocket launcher\\rocket")
+                                            local tag = GetTag("proj", self[self.map][2])
 
                                             local projectile = spawn_projectile(tag, i, v.x, v.y, v.z)
                                             local proj_obj = get_object_memory(projectile)
@@ -323,7 +451,7 @@ function EditRocket(rollback)
         local tag = tag_address + 0x20 * i
         local tag_name = read_string(read_dword(tag + 0x10))
         local tag_class = read_dword(tag)
-        if (tag_class == 1785754657 and tag_name == "weapons\\rocket launcher\\explosion") then
+        if (tag_class == 1785754657 and tag_name == Mines[Mines.map][3]) then
             local tag_data = read_dword(tag + 0x14)
             if (not rollback) then
                 write_dword(tag_data + 0x1d0, 1148846080)

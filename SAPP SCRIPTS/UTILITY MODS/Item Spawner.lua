@@ -37,6 +37,8 @@ Command | Description
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
+
+
 --=====================================================================================================--
 ]]--
 
@@ -82,6 +84,9 @@ local Mod = {
 
         { "bipd", "characters\\cyborg_mp\\cyborg_mp", "Cyborg", { "cyborg" } },
 
+        --tsce
+        { "bipd", "cmt\\characters\\evolved_h1-spirit\\cyborg\\bipeds\\cyborg_mp", "Cyborg2", { "Cyborg" } },
+
         -- Equipment: (give/spawn)
         { "eqip", "powerups\\full-spectrum vision", "Vision Spectrum Cube", { "vscube", "vcube" } },
         { "eqip", "powerups\\health pack", "Health Pack", { "health", "hp", "hpack" } },
@@ -89,6 +94,22 @@ local Mod = {
         { "eqip", "powerups\\over shield", "Over Shield", { "overshield", "os", "oshield", "sh" } },
         { "eqip", "weapons\\frag grenade\\frag grenade", "Frag Grenade", { "frag", "grenade", "fraggrenade", "fnade" } },
         { "eqip", "weapons\\plasma grenade\\plasma grenade", "Plasma Grenade", { "plasma", "plasmagrenade", "psnade" } },
+        --tsce
+        { "eqip", "powerups\\needler ammo\\needler ammo", "Needler Ammo", { "tsce_" } },
+        { "eqip", "cmt\\weapons\\evolved_h1-spirit\\plasma_grenade\\plasma_grenade", "Plasma Grenade", { "tsce_pnade1" } },
+        { "eqip", "cmt\\powerups\\human\\ammo_pack\\powerups\\battle_rifle_ammo_pack", "BR Ammo", { "tsce_brammo" } },
+        { "eqip", "cmt\\weapons\\evolved_h1-spirit\\frag_grenade\\frag_grenade", "Frag Grenade", { "tsce_fnade2" } },
+        { "eqip", "cmt\\powerups\\human\\ammo_pack\\powerups\\pistol_ammo_pack", "Pistol Ammo", { "tsce_pistolammo" } },
+        { "eqip", "cmt\\powerups\\human\\ammo_box\\powerups\\shotgun_ammo_box", "Shotgun Ammo", { "tsce_shotgunammo" } },
+        { "eqip", "cmt\\powerups\\human\\ammo_box\\powerups\\sniper_rifle_ammo_box", "Sniper Ammo", { "tsce_sniperrifleammo" } },
+        { "eqip", "cmt\\powerups\\human\\ammo_pack\\powerups\\dmr_ammo_pack", "DMR Ammo", { "tsce_dmrammo" } },
+        { "eqip", "cmt\\powerups\\human\\ammo_pack\\powerups\\assault_rifle_ammo_pack", "Assault Rifle Ammo", { "tsce_arifleammo" } },
+        { "eqip", "cmt\\powerups\\human\\ammo_box\\powerups\\rocket_launcher_ammo_box", "Rocket Launcher Ammo", { "tsce_rocketammo" } },
+        { "eqip", "cmt\\powerups\\covenant\\powerup_pack\\powerups\\over_shield", "Overshield", { "tsce_overshield" } },
+        { "eqip", "cmt\\powerups\\covenant\\powerup_pack\\powerups\\active_camouflage", "Camo", { "tsce_camo" } },
+        { "eqip", "cmt\\powerups\\human\\powerup_pack\\powerups\\health_pack", "health Pack", { "tsce_healthpack" } },
+        { "eqip", "cmt\\weapons\\evolved\\human\\frag_grenade\\_frag_grenade_mp\\frag_grenade_mp", "Frag Grenade", { "tsce_fnade" } },
+        { "eqip", "cmt\\weapons\\evolved\\covenant\\plasma_grenade\\_plasma_grenade_mp\\plasma_grenade_mp", "Plasma Grenade", { "tsce_pnade2" } },
 
         -- Vehicles: (enter/spawn)
         { "vehi", "vehicles\\ghost\\ghost_mp", "Ghost", { "ghost", "ghost_mp" } },
@@ -97,6 +118,11 @@ local Mod = {
         { "vehi", "vehicles\\c gun turret\\c gun turret_mp", "Turret", { "turret", "cgun" } },
         { "vehi", "vehicles\\warthog\\mp_warthog", "Warthog", { "hog", "mp_warthog", "warthog" } },
         { "vehi", "vehicles\\scorpion\\scorpion_mp", "Tank", { "tank", "scorpion", "scorpion_mp" } },
+        --tsce
+        { "vehi", "cmt\\vehicles\\evolved_h1-spirit\\warthog\\_warthog_mp\\warthog_mp", "Warthog", { "tsce_hog" } },
+        { "vehi", "cmt\\vehicles\\evolved_h1-spirit\\warthog\\_warthog_rocket\\warthog_rocket", "RHog", { "tsce_rhog" } },
+        { "vehi", "cmt\\vehicles\\evolved_h1-spirit\\ghost\\_ghost_mp\\ghost_mp", "Ghost", { "tsce_ghost" } },
+        { "vehi", "soi\\vehicles\\scorpion\\scorpion", "Tank", { "tsce_tank" } },
 
         -- Weapons: (give/spawn)
         { "weap", "weapons\\gravity rifle\\gravity rifle", "Gravity Gun", { "ggun", "gravgun", "gravitygun" } },
@@ -112,6 +138,21 @@ local Mod = {
         { "weap", "weapons\\assault rifle\\assault rifle", "Assault Rifle", { "arifle", "assaultrifle", "rifle" } },
         { "weap", "weapons\\sniper rifle\\sniper rifle", "Sniper Rifle", { "sniper", "snipe", "sniperrifle", "srifle" } },
         { "weap", "weapons\\rocket launcher\\rocket launcher", "Rocket Launcher", { "rocketl", "rocketlauncher", "rlauncher" } },
+        --tsce
+        { "weap", "cmt\\weapons\\evolved_h1-spirit\\needler\\_needler_mp\\needler_mp", "Needler", { "tsce_needler" } },
+        { "weap", "cmt\\weapons\\evolved\\human\\battle_rifle\\_battle_rifle_specops\\battle_rifle_specops", "Battle Rifle", { "tsce_sbr" } },
+        { "weap", "cmt\\weapons\\evolved_h1-spirit\\plasma_rifle\\_plasma_rifle_mp\\plasma_rifle_mp", "Plasma Rifle", { "tsce_prifle" } },
+        { "weap", "cmt\\weapons\\evolved_h1-spirit\\pistol\\_pistol_mp\\pistol_mp", "Plasma Pistol", { "tsce_ppistol" } },
+        { "weap", "cmt\\weapons\\covenant\\brute_plasma_rifle\\reload\\brute plasma rifle", "Brute Plasma Pistol", { "tsce_bruteprifle" } },
+        { "weap", "cmt\\weapons\\evolved_h1-spirit\\shotgun\\shotgun", "Shotgun", { "tsce_shotgun" } },
+        { "weap", "cmt\\weapons\\evolved_h1-spirit\\sniper_rifle\\sniper_rifle", "Sniper Rifle", { "tsce_sniper" } },
+        { "weap", "cmt\\weapons\\evolved\\human\\dmr\\dmr", "DMR", { "tsce_dmr" } },
+        { "weap", "cmt\\weapons\\evolved_h1-spirit\\assault_rifle\\assault_rifle", "Assault Rifle", { "tsce_ar" } },
+        { "weap", "cmt\\weapons\\evolved_h1-spirit\\rocket_launcher\\rocket_launcher", "Rocket Launcher", { "tsce_rocketlauncher" } },
+        { "weap", "dreamweb\\weapons\\human\\battle_rifle\\_h2a\\battle_rifle", "Battle Rifle", { "tsce_br" } },
+        { "weap", "cmt\\weapons\\evolved\\covenant\\carbine\\carbine", "Carbine", { "tsce_carbine" } },
+        { "weap", "cmt\\weapons\\evolved\\human\\battle_rifle\\battle_rifle", "Human Battle Rifle", { "tsce_hbr" } },
+        { "weap", "cmt\\globals\\_shared\\empty_objects\\empty_weapon", "tsce", { "tsce_empty" } },
 
         -- Projectiles: (spawn)
         { "proj", "weapons\\flamethrower\\flame", "Flames", { "flames", "flameproj" } },
@@ -132,6 +173,30 @@ local Mod = {
         { "proj", "vehicles\\banshee\\banshee bolt", "Banshee Bolt", { "sheebolt", "bbolt", "bansheebolt", "bansheebullet", "bansheeboltproj" } },
         { "proj", "weapons\\assault rifle\\bullet", "Assault Rifle Bullet", { "riflebullet", "ariflebullet", "assaultriflebullet", "assaultrifleproj", "arifleproj" } },
         { "proj", "weapons\\plasma rifle\\charged bolt", "Plasma Rifle Charged Bolt", { "priflecbolt", "plasmarcharged", "priflecharged", "priflechargedproj", "plasmariflechartedproj" } },
+        --tsce
+        { "proj", "cmt\\vehicles\\evolved_h1-spirit\\warthog\\weapons\\warthog_turret\\projectiles\\warthog_turret_bullet", "Warthog Bullet", { "tsce_hogbullet" } },
+        { "proj", "cmt\\weapons\\evolved_h1-spirit\\rocket_launcher\\projectiles\\rocket_launcher_rocket\\rocket_launcher_rocket", "Rocket", { "tsce_rocket" } },
+        { "proj", "cmt\\globals\\evolved\\brute_aoe_hack\\projectiles\\brute_aoe_hack_proj", "Brute Hack", { "tsce_hackproj" } },
+        { "proj", "cmt\\globals\\evolved\\wraith_weakspot_hack\\wraith_weakspot_hack", "Wraith Weakspot Hack", { "tsce_wraith_weakspot" } },
+        { "proj", "cmt\\vehicles\\evolved_h1-spirit\\ghost\\weapons\\ghost_cannon\\projectiles\\ghost_cannon_bolt\\ghost_cannon_bolt", "Ghost Bolt", { "tsce_ghostbolt" } },
+        { "proj", "cmt\\vehicles\\evolved_h1-spirit\\scorpion\\weapons\\scorpion_cannon\\projectiles\\scorpion_cannon_shell", "Tank Shell", { "tsce_tankshell" } },
+        { "proj", "cmt\\vehicles\\evolved_h1-spirit\\scorpion\\weapons\\scorpion_chaingun\\projectiles\\scorpion_chaingun_bullet", "Tank Bullet", { "tsce_tankbullet" } },
+        { "proj", "cmt\\weapons\\evolved_h1-spirit\\needler\\_needler_mp\\projectiles\\needler_mp_needle", "Needle", { "tsce_needlerproj" } },
+        { "proj", "cmt\\globals\\evolved\\brute_aoe_hack\\_small\\projectiles\\brute_aoe_hack_small_proj", "Brute AOE HACK", { "tsce_brute_aoe_small" } },
+        { "proj", "cmt\\weapons\\evolved\\human\\battle_rifle\\projectiles\\battle_rifle_bullet silent", "Battle Rifle Bullet (silent)", { "tsce_br_bullet_silent" } },
+        { "proj", "cmt\\weapons\\evolved\\human\\battle_rifle\\projectiles\\battle_rifle_bullet", "Battle Rifle Bullet", { "tsce_br_bullet" } },
+        { "proj", "cmt\\weapons\\evolved_h1-spirit\\plasma_rifle\\projectiles\\plasma_rifle_bolt", "Plasma Rifle Bolt", { "tsce_prifle_bolt" } },
+        { "proj", "cmt\\weapons\\evolved_h1-spirit\\pistol\\projectiles\\pistol_bullet", "Pistol Bullet", { "tsce_pbullet" } },
+        { "proj", "cmt\\weapons\\covenant\\brute_plasma_rifle\\bolt", "Plasma Rifle Bolt", { "tsce_prbullet" } },
+        { "proj", "cmt\\weapons\\evolved_h1-spirit\\shotgun\\projectiles\\shotgun_pellet", "Shotgun Pallet", { "tsce_shotgun_bullet" } },
+        { "proj", "cmt\\weapons\\evolved_h1-spirit\\sniper_rifle\\projectiles\\sniper_rifle_bullet", "Sniper Bullet", { "tsce_sniperbullet" } },
+        { "proj", "cmt\\weapons\\evolved\\human\\dmr\\projectiles\\dmr_bullet", "DMR Bullet", { "tsce_dmrbullet" } },
+        { "proj", "cmt\\weapons\\evolved_h1-spirit\\assault_rifle\\projectiles\\assault_rifle_bullet", "Assault Rifle Bullet", { "tsce_arbullet" } },
+        { "proj", "cmt\\weapons\\evolved\\human\\battle_rifle\\projectiles\\battle_rifle_bullet h2a", "Battle Rifle Bullet (h2A)", { "tsce_br_h2a_bullet" } },
+        { "proj", "zteam\\objects\\weapons\\single\\battle_rifle\\h2\\bullet", "Battle Rifle (h2)", { "tsce_br_h2_bullet" } },
+        { "proj", "cmt\\weapons\\evolved\\covenant\\carbine\\projectiles\\carbine_bolt", "Carbine Bolt", { "tsce_carbinebolt" } },
+        { "proj", "cmt\\weapons\\evolved\\human\\frag_grenade\\_frag_grenade_mp\\frag_grenade_mp", "Frag Grenade (primed)", { "tsce_fnadeprime" } },
+        { "proj", "cmt\\weapons\\evolved\\covenant\\plasma_grenade\\_plasma_grenade_mp\\plasma_grenade_mp", "Plasma Grenade (primed)", { "tsce_pnadeprime" } },
     },
 
     --

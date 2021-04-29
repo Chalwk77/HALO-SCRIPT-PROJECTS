@@ -29,6 +29,28 @@ local GLauncher = {
     disable_on_death = false,
     --
 
+    -- Define grenades that will randomly spawn on a per-map basis;
+    ["bloodgulch"] = {"weapons\\frag grenade\\frag grenade"},
+    ["deathisland"] = {"weapons\\frag grenade\\frag grenade"},
+    ["icefields"] = {"weapons\\frag grenade\\frag grenade"},
+    ["infinity"] = {"weapons\\frag grenade\\frag grenade"},
+    ["sidewinder"] = {"weapons\\frag grenade\\frag grenade"},
+    ["timberland"] = {"weapons\\frag grenade\\frag grenade"},
+    ["dangercanyon"] = {"weapons\\frag grenade\\frag grenade"},
+    ["beavercreek"] = {"weapons\\frag grenade\\frag grenade"},
+    ["boardingaction"] = {"weapons\\frag grenade\\frag grenade"},
+    ["carousel"] = {"weapons\\frag grenade\\frag grenade"},
+    ["chillout"] = {"weapons\\frag grenade\\frag grenade"},
+    ["damnation"] = {"weapons\\frag grenade\\frag grenade"},
+    ["gephyrophobia"] = {"weapons\\frag grenade\\frag grenade"},
+    ["hangemhigh"] = {"weapons\\frag grenade\\frag grenade"},
+    ["longest"] = {"weapons\\frag grenade\\frag grenade"},
+    ["prisoner"] = {"weapons\\frag grenade\\frag grenade"},
+    ["putput"] = {"weapons\\frag grenade\\frag grenade"},
+    ["ratrace"] = {"weapons\\frag grenade\\frag grenade"},
+    ["wizard"] = {"weapons\\frag grenade\\frag grenade"},
+    ["tsce_multiplayerv1"] = {"cmt\\weapons\\evolved\\human\\frag_grenade\\_frag_grenade_mp\\frag_grenade_mp"},
+
     -- Grenade Launcher can be used with any of these weapons.
     -- Set to false to disable:
     weapons = {
@@ -54,32 +76,74 @@ local GLauncher = {
         ["vehicles\\banshee\\banshee bolt"] = true,
         ["vehicles\\c gun turret\\mp gun turret"] = false,
         ["vehicles\\banshee\\mp_banshee fuel rod"] = false,
+
+        -- tsce_multiplayerv1 vehicle projectiles--
+        ["cmt\\vehicles\\evolved_h1-spirit\\warthog\\weapons\\warthog_turret\\projectiles\\warthog_turret_bullet"] = true,
+        ["cmt\\vehicles\\evolved_h1-spirit\\ghost\\weapons\\ghost_cannon\\projectiles\\ghost_cannon_bolt\\ghost_cannon_bolt"] = true,
+        ["cmt\\vehicles\\evolved_h1-spirit\\scorpion\\weapons\\scorpion_cannon\\projectiles\\scorpion_cannon_shell"] = false,
+        ["cmt\\vehicles\\evolved_h1-spirit\\scorpion\\weapons\\scorpion_chaingun\\projectiles\\scorpion_chaingun_bullet"] = true,
+        -- tsce_multiplayerv1 weapon projectiles--
+        ["cmt\\weapons\\evolved_h1-spirit\\rocket_launcher\\projectiles\\rocket_launcher_rocket\\rocket_launcher_rocket"] = false,
+        ["cmt\\globals\\evolved\\brute_aoe_hack\\projectiles\\brute_aoe_hack_proj"] = true,
+        ["cmt\\globals\\evolved\\wraith_weakspot_hack\\wraith_weakspot_hack"] = false,
+        ["cmt\\weapons\\evolved_h1-spirit\\needler\\_needler_mp\\projectiles\\needler_mp_needle"] = false,
+        ["cmt\\globals\\evolved\\brute_aoe_hack\\_small\\projectiles\\brute_aoe_hack_small_proj"] = true,
+        ["cmt\\weapons\\evolved\\human\\battle_rifle\\projectiles\\battle_rifle_bullet silent"] = true,
+        ["cmt\\weapons\\evolved\\human\\battle_rifle\\projectiles\\battle_rifle_bullet"] = true,
+        ["cmt\\weapons\\evolved_h1-spirit\\plasma_rifle\\projectiles\\plasma_rifle_bolt"] = true,
+        ["cmt\\weapons\\evolved_h1-spirit\\pistol\\projectiles\\pistol_bullet"] = true,
+        ["cmt\\weapons\\covenant\\brute_plasma_rifle\\bolt"] = true,
+        ["cmt\\weapons\\evolved_h1-spirit\\shotgun\\projectiles\\shotgun_pellet"] = true,
+        ["cmt\\weapons\\evolved_h1-spirit\\sniper_rifle\\projectiles\\sniper_rifle_bullet"] = false,
+        ["cmt\\weapons\\evolved\\human\\dmr\\projectiles\\dmr_bullet"] = true,
+        ["cmt\\weapons\\evolved_h1-spirit\\assault_rifle\\projectiles\\assault_rifle_bullet"] = true,
+        ["cmt\\weapons\\evolved\\human\\battle_rifle\\projectiles\\battle_rifle_bullet h2a"] = true,
+        ["zteam\\objects\\weapons\\single\\battle_rifle\\h2\\bullet"] = true,
+        ["cmt\\weapons\\evolved\\covenant\\carbine\\projectiles\\carbine_bolt"] = true,
+        ["cmt\\weapons\\evolved\\human\\frag_grenade\\_frag_grenade_mp\\frag_grenade_mp"] = false,
+        ["cmt\\weapons\\evolved\\covenant\\plasma_grenade\\_plasma_grenade_mp\\plasma_grenade_mp"] = false,
     }
 }
 -- config ends --
 
 api_version = "1.12.0.0"
 
-local script_version = 1.0
+local script_version = 1.1
 
 function OnScriptLoad()
-    register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
-    register_callback(cb["EVENT_LEAVE"], "OnPlayerQuit")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
-    register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
-    register_callback(cb["EVENT_OBJECT_SPAWN"], "OnObjectSpawn")
     OnGameStart()
 end
 
 function OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
+
         GLauncher.players = { }
-        for i = 1, 16 do
-            if player_present(i) then
-                GLauncher:InitPlayer(i, false)
+
+        local map = get_var(0, "$map")
+        if (GLauncher[map]) then
+            GLauncher.map = map
+            register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
+            register_callback(cb["EVENT_LEAVE"], "OnPlayerQuit")
+            register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
+            register_callback(cb["EVENT_OBJECT_SPAWN"], "OnObjectSpawn")
+            for i = 1, 16 do
+                if player_present(i) then
+                    GLauncher:InitPlayer(i, false)
+                end
             end
+            return
         end
+
+        unregister_callback(cb["EVENT_JOIN"])
+        unregister_callback(cb["EVENT_LEAVE"])
+        unregister_callback(cb["EVENT_COMMAND"])
+        unregister_callback(cb["EVENT_OBJECT_SPAWN"])
     end
+end
+
+function OnScriptUnload()
+    -- N/A
 end
 
 local function GetTag(Type, Name)
@@ -87,7 +151,7 @@ local function GetTag(Type, Name)
     return (Tag ~= 0 and read_dword(Tag + 0xC)) or nil
 end
 
-local function LaunchGrenade(Ply, ParentID)
+function GLauncher:Launch(Ply, ParentID)
 
     local DyN = get_dynamic_player(Ply)
     local parent_object = get_object_memory(ParentID)
@@ -122,7 +186,10 @@ local function LaunchGrenade(Ply, ParentID)
         local y = py + (distance * yAim)
         local z = pz + (distance * zAim)
 
-        local tag = GetTag("proj", "weapons\\frag grenade\\frag grenade")
+
+        local n = math.random(1,#self[self.map])
+        local tag = GetTag("proj", self[self.map][n])
+
         if (tag) then
 
             local frag = spawn_projectile(tag, Ply, x, y, z)
@@ -138,11 +205,11 @@ local function LaunchGrenade(Ply, ParentID)
     end
 end
 
-function GLauncher:Launcher(Ply, MapID, ParentID)
+function GLauncher:OnObjectSpawn(Ply, MapID, ParentID)
     if (Ply > 0 and player_alive(Ply) and self.players[Ply].enabled) then
         for tag, enabled in pairs(self.weapons) do
             if (MapID == GetTag("proj", tag) and enabled) then
-                return false, LaunchGrenade(Ply, ParentID)
+                return false, self:Launch(Ply, ParentID)
             end
         end
     end
@@ -294,7 +361,7 @@ function OnServerCommand(P, C)
 end
 
 function OnObjectSpawn(P, MID, PID)
-    return GLauncher:Launcher(P, MID, PID)
+    return GLauncher:OnObjectSpawn(P, MID, PID)
 end
 
 -- Error Logging --

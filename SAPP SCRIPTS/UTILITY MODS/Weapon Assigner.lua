@@ -59,8 +59,7 @@ function MOD:Init()
                 ["ffa"] = {
                     [2] = { nil, 12, nil }, -- sniper
                     [1] = { nil, 60, nil }, -- pistol
-                    [9] = { nil, 120, nil }, -- needler
-                    [5] = { nil, nil, 100 }, -- plasma pistol
+                    [7] = { nil, 600, nil }, -- assault rifle
                 }
             },
 
@@ -128,9 +127,8 @@ function MOD:Init()
                 },
                 ["ffa"] = {
                     [2] = { nil, 12, nil }, -- sniper
-                    [8] = { nil, 300, nil }, -- flamethrower
                     [1] = { nil, 60, nil }, -- pistol
-                    [12] = { nil, 240, nil }, -- assault rifle
+                    [7] = { nil, 600, nil }, -- assault rifle
                 }
             },
 
@@ -162,8 +160,9 @@ function MOD:Init()
                     [7] = { nil, 240, nil }, -- assault rifle
                 },
                 ["ffa"] = {
+                    [2] = { nil, 12, nil }, -- sniper
                     [1] = { nil, 60, nil }, -- pistol
-                    [7] = { nil, 240, nil }, -- assault rifle
+                    [7] = { nil, 600, nil }, -- assault rifle
                 }
             },
 
@@ -179,9 +178,9 @@ function MOD:Init()
                     [4] = { nil, 8, nil }, -- rocket launcher
                 },
                 ["ffa"] = {
-                    [1] = { nil, 60, nil }, -- pistol
                     [2] = { nil, 12, nil }, -- sniper
-                    [4] = { nil, 8, nil }, -- rocket launcher
+                    [1] = { nil, 60, nil }, -- pistol
+                    [7] = { nil, 600, nil }, -- assault rifle
                 }
             },
 
@@ -199,10 +198,9 @@ function MOD:Init()
                     [2] = { nil, 12, nil }, -- sniper
                 },
                 ["ffa"] = {
-                    [1] = { nil, 60, nil }, -- pistol
-                    [4] = { nil, 8, nil }, -- rocket launcher
-                    [3] = { nil, nil, 100 }, -- plasma cannon
                     [2] = { nil, 12, nil }, -- sniper
+                    [1] = { nil, 60, nil }, -- pistol
+                    [7] = { nil, 600, nil }, -- assault rifle
                 }
             },
 
@@ -218,9 +216,9 @@ function MOD:Init()
                     [9] = { nil, 120, nil }, -- needler
                 },
                 ["ffa"] = {
+                    [2] = { nil, 12, nil }, -- sniper
                     [1] = { nil, 60, nil }, -- pistol
-                    [7] = { nil, 240, nil }, -- assault rifle
-                    [9] = { nil, 120, nil }, -- needler
+                    [7] = { nil, 600, nil }, -- assault rifle
                 }
             },
 
@@ -321,7 +319,23 @@ function MOD:Init()
                     [1] = { nil, 60, nil }, -- pistol
                     [2] = { nil, 12, nil }, -- sniper
                 }
-            }
+            },
+
+            ["tsce_multiplayerv1"] = {
+                ["red"] = {
+                    [1] = { nil, 60, nil }, -- pistol
+                    [2] = { nil, 12, nil }, -- sniper
+                },
+                ["blue"] = {
+                    [1] = { nil, 60, nil }, -- pistol
+                    [2] = { nil, 12, nil }, -- sniper
+                },
+                ["ffa"] = {
+                    [24] = { nil, nil, nil }, -- assault rifle
+                    [27] = { nil, nil, nil }, -- covenant carbine (auto carbine)
+                    [21] = { nil, nil, nil },  -- shotgun
+                }
+            },
             --
             -- Repeat the structure to add more maps.
             --
@@ -342,6 +356,29 @@ function MOD:Init()
             [10] = "weapons\\shotgun\\shotgun",
             [11] = "weapons\\ball\\ball",
             [12] = "weapons\\gravity rifle\\gravity rifle",
+
+            -- ============= [ CUSTOM WEAPONS ] ============= --
+            -- TSCE_MultiplayerV1:
+            [13] = "cmt\\vehicles\\evolved_h1-spirit\\warthog\\weapons\\warthog_turret\\warthog_turret",
+            [14] = "cmt\\vehicles\\evolved_h1-spirit\\warthog\\_warthog_rocket\\weapons\\warthog_rocket_turret\\warthog_rocket_turret",
+            [15] = "cmt\\vehicles\\evolved_h1-spirit\\ghost\\_ghost_mp\\weapons\\ghost_mp_cannon\\ghost_mp_cannon",
+            [16] = "soi\\vehicles\\scorpion\\scorpion cannon",
+            [17] = "altis\\weapons\\sprint\\sprint",
+            [18] = "cmt\\weapons\\evolved_h1-spirit\\needler\\_needler_mp\\needler_mp",
+            [19] = "cmt\\weapons\\evolved\\human\\battle_rifle\\_battle_rifle_specops\\battle_rifle_specops",
+            [20] = "cmt\\weapons\\evolved_h1-spirit\\plasma_rifle\\_plasma_rifle_mp\\plasma_rifle_mp",
+            [21] = "cmt\\weapons\\evolved_h1-spirit\\pistol\\_pistol_mp\\pistol_mp",
+            [22] = "cmt\\weapons\\covenant\\brute_plasma_rifle\\reload\\brute plasma rifle",
+            [23] = "cmt\\weapons\\evolved_h1-spirit\\shotgun\\shotgun",
+            [24] = "cmt\\weapons\\evolved_h1-spirit\\sniper_rifle\\sniper_rifle",
+            [25] = "cmt\\weapons\\evolved\\human\\dmr\\dmr",
+            [26] = "cmt\\weapons\\evolved_h1-spirit\\assault_rifle\\assault_rifle",
+            [27] = "cmt\\weapons\\evolved_h1-spirit\\rocket_launcher\\rocket_launcher",
+            [28] = "dreamweb\\weapons\\human\\battle_rifle\\_h2a\\battle_rifle",
+            [29] = "cmt\\weapons\\evolved\\covenant\\carbine\\carbine",
+            [30] = "cmt\\weapons\\evolved\\human\\battle_rifle\\battle_rifle",
+            [31] = "cmt\\globals\\_shared\\empty_objects\\empty_weapon",
+            --
         }
 
         -- CONFIGURATION ENDS << -------------------------------------------------
