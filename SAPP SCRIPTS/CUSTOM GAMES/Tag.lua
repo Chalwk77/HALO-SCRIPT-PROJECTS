@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Tag (v1.1), for SAPP (PC & CE)
+Script Name: Tag (v1.2), for SAPP (PC & CE)
 Description: Tag, you're it!
 
 This is a game involving two or more players.
@@ -133,7 +133,7 @@ local gsub = string.gsub
 local time_scale = 1 / 30
 
 -- Used for error reporting; See function report()
-local script_version = 1.1
+local script_version = 1.2
 
 -- SAPP Lua API Version:
 api_version = "1.12.0.0"
