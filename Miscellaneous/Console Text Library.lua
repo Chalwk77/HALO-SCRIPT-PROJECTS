@@ -16,10 +16,12 @@ ConsoleText:GameTick()
 Creating a new message:
 ConsoleText:NewMessage(PID, "MESSAGE STRING", 10, "|l", true)
 
+or 
+ConsoleText:NewMessage(PID, table_of_strings, 10, "|l", true)
 
 ConsoleText:NewMessage expects 5 parameters:
 Target Player ID
-Message String
+Message Content (string or table of strings)
 Message Duration
 Message Alignment ("|l", "|r", "|c", "|t" = Left, Right, Center, Tab)
 Console-Clear boolean (true/false)
@@ -33,10 +35,10 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 local time_scale = 1 / 30
 
 local ConsoleText = { messages = {} }
-function ConsoleText:NewMessage(Player, String, Time, Alignment, Clear)
+function ConsoleText:NewMessage(Player, Content, Time, Alignment, Clear)
     self.messages[#self.messages + 1] = {
         player = Player,
-        content = String,
+        content = Content,
         timer = Time,
         clear = Clear,
         alignment = Alignment or "|l"
@@ -57,7 +59,13 @@ function ConsoleText:GameTick()
                             rprint(v.player, " ")
                         end
                     end
-                    rprint(v.player, v.alignment .. " " .. v.content)
+					if type(v.content == "table") then
+						for i = 1,#v.content do
+							rprint(v.player, v.alignment .. " " .. v.content[i])
+						end
+					else
+						rprint(v.player, v.alignment .. " " .. v.content)
+					end
                 else
                     self.messages[k] = nil
                 end
