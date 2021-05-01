@@ -31,7 +31,14 @@ local Tag = {
     --
 
     -- Messages omitted when a new tagger is selected:
-    on_tag = "%victim% was tagged by %tagger%!",
+    on_tag = {
+
+        -- To everyone:
+        "%victim% was tagged by %tagger%!",
+
+        -- To Tagger:
+        "You were tagged by %tagger%. Melee someone for %points_on_tag% points!"
+    },
 
     -- Messages omitted when a NEW game of tag begins:
     on_game_start = {
@@ -41,7 +48,10 @@ local Tag = {
     --
 
     -- Message omitted when random player is chosen to be "it":
-    on_random_selection = "%name% is now the tagger!",
+    on_random_selection = {
+        "%name% is now the tagger!",
+        "You are the tagger! Melee someone for %points_on_tag% points!"
+    },
     --
 
     -- Min players required to start a game of tag:
@@ -70,6 +80,7 @@ local Tag = {
     -- Players can be tagged by any of these weapons:
     -- Set to "false" to disable.
     melee = {
+
         ["weapons\\flag\\melee"] = true,
         ["weapons\\ball\\melee"] = true,
         ["weapons\\pistol\\melee"] = true,
@@ -81,7 +92,15 @@ local Tag = {
         ["weapons\\plasma pistol\\melee"] = true,
         ["weapons\\assault rifle\\melee"] = true,
         ["weapons\\rocket launcher\\melee"] = true,
-        ["weapons\\plasma_cannon\\effects\\plasma_cannon_melee"] = true
+        ["weapons\\plasma_cannon\\effects\\plasma_cannon_melee"] = true,
+
+        -- tsce_multiplayerv1 -
+        ["weapons\\ball\\melee"] = true,
+        ["weapons\\ball\\melee_response"] = true,
+        ["weapons\\flag\\melee"] = true,
+        ["weapons\\flag\\melee_response"] = true,
+        ["cmt\\weapons\\evolved\\melee\\rifle\\melee"] = true,
+        ["cmt\\weapons\\evolved_h1-spirit\\melee\\melee"] = true,
     },
 
     ---------------- Player Speed Logic ----------------
@@ -164,10 +183,21 @@ end
 
 -- Sets a new tagger:
 --
-function Tag:SetTagger(Tagger)
+function Tag:SetTagger(Tagger, Random, Causer)
+
     self.tagger = Tagger
     self:SetSpeed(Tagger)
     self:Start()
+
+    -- inform tagger:
+    if (Random) then
+        self:Say(self.on_random_selection[2]:gsub("%%points_on_tag%%", self.points_on_tag), Tagger, nil)
+    else
+        local str = gsub(gsub(self.on_tag[2],
+                "%%points_on_tag%%", self.points_on_tag),
+                "%%tagger%%", Causer)
+        self:Say(str, Tagger, nil)
+    end
 end
 
 -- Picks a new random tagger:
@@ -215,8 +245,10 @@ function Tag:PickNewTagger()
         math.random();
 
         local i = t[math.random(1, #t)]
-        self:SetTagger(i)
-        self:Say(gsub(self.on_random_selection, "%%name%%", self.players[i].name))
+        self:SetTagger(i, true, nil)
+
+        -- inform all players (excluding tagger):
+        self:Say(gsub(self.on_random_selection[1], "%%name%%", self.players[i].name), nil, i)
     end
 end
 
@@ -362,7 +394,9 @@ function Tag:OnTick()
                     -- Check if we need to end the game:
                     --
                     if (v.score >= self.score_limit) then
-                        self:Say(v.name .. " won the game!")
+
+                        -- inform all players:
+                        self:Say(v.name .. " won the game!", nil, nil)
                         execute_command("sv_map_next")
                     end
                     --
@@ -432,14 +466,14 @@ function Tag:OnDamage(Victim, Causer, MetaID, _, _)
             -- Player has initialised a new game of tag (set initial tagger):
             --
             if (not self.init and self:IsMelee(MetaID)) then
-
                 local t = self.on_game_start
+
+                -- inform all players (excluding tagger):
+                self:SetTagger(Victim, false, cname)
                 for i = 1, #t do
-                    self:Say(gsub(gsub(t[i],
-                            "%%cname%%", cname),
-                            "%%vname%%", vname))
+                    local str = gsub(gsub(t[i], "%%cname%%", cname), "%%vname%%", vname)
+                    self:Say(str, nil, Victim)
                 end
-                self:SetTagger(Victim)
 
                 -- Increment player score:
                 local score = tonumber(get_var(Causer, "$score"))
@@ -452,14 +486,15 @@ function Tag:OnDamage(Victim, Causer, MetaID, _, _)
                 --
             elseif (self:IsTagger(Causer) and self:IsMelee(MetaID)) then
 
-                local str = gsub(gsub(self.on_tag,
-                        "%%victim%%", vname),
-                        "%%tagger%%", cname)
-                self:Say(str)
+                local str = gsub(gsub(self.on_tag[1], "%%victim%%", vname), "%%tagger%%", cname)
+
+                -- inform all players (excluding tagger)
+                self:Say(str, nil, Victim)
+
                 self:Stop()
                 self.players[Causer].it = false
                 self.players[Causer].speed_timer = nil
-                self:SetTagger(Victim)
+                self:SetTagger(Victim, false, cname)
 
                 -- Increment player score:
                 local score = tonumber(get_var(Causer, "$score"))
@@ -478,10 +513,28 @@ end
 
 -- Temporarily removes the message prefix and then
 -- restores it once we have finished relaying "MSG" to the server:
-function Tag:Say(MSG)
+
+function Tag:Say(MSG, Tagger, ExcludeID)
+
     cprint(MSG)
     execute_command("msg_prefix \"\"")
-    say_all(MSG)
+
+    -- inform tagger:
+    if (Tagger) then
+        say(Tagger, MSG)
+
+        -- inform all players:
+    elseif (not ExcludeID) then
+        say_all(MSG)
+
+        -- inform all players (excluding tagger):
+    elseif (ExcludeID) then
+        for i = 1, 16 do
+            if (player_present(i) and i ~= ExcludeID) then
+                say(i, MSG)
+            end
+        end
+    end
     execute_command("msg_prefix \" " .. self.server_prefix .. "\"")
 end
 
