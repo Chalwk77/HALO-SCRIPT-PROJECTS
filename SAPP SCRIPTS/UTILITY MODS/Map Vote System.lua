@@ -146,16 +146,16 @@ function MapVote:OnStart(reset)
 
     if (reset == true) then
         self:ResetVoteIndex()
-        execute_command("mapvote false")
-        execute_command("map_skip " .. self.map_skip)
-        execute_command("max_votes " .. self.max_votes)
-        execute_command("sv_mapcycle_timeout " .. self.map_cycle_timeout)
     end
 
     self.game_started = false
     if (get_var(0, "$gt") ~= "n/a") then
         self.results = { }
         self:SetupTimer(true)
+        execute_command("mapvote false")
+        execute_command("map_skip " .. self.map_skip)
+        execute_command("max_votes " .. self.max_votes)
+        execute_command("sv_mapcycle_timeout " .. self.map_cycle_timeout)
     end
 end
 
