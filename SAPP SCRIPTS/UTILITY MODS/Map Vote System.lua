@@ -1,13 +1,21 @@
 --[[
 --=====================================================================================================--
 Script Name: Map Vote System, for SAPP (PC & CE)
-Description: This system is a drop-in replacement for SAPP's built-in Map Voting System.
-             Case and re-cast your vote!
+Description: This script is a drop-in replacement for SAPP's built-in voting system.
 
-             - NOTES -
-             1). This script will disable SAPP's built-in map vote setting.
-             2). Map skipping will still work and the skip ratio is defined in the config.
-             3). You will need to import your map vote settings from mapvote.txt.
+             - features -
+             1). Cast and re-cast your vote!
+             2). Ability to show more than 6 map vote options.
+             3). Configurable messages
+             4). Full control over script timers:
+                 * Time until map votes are shown (after game ends).
+                 * Time until votes are calculated (after game ends).
+                 * Time until until map cycle (after PGCR screen is shown)
+
+             - notes -
+             1). You will need to import your map vote settings from mapvote.txt
+             2). This script will disable SAPP's built-in map vote setting automatically.
+             3). Map skipping will still work and the skip ratio is defined in the config.
              ----------------------------------------------------------------------------------------
 
              See config section for more information.
@@ -22,6 +30,10 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 local MapVote = {
 
     -- Map skip setting:
+    -- Enable the use of the skip command, skipping when a certain
+    -- percentage of people want the game to be skipped.
+    -- Set to 0 to disable map skipping entirely.
+    -- Default: 60% current server population required to vote.
     map_skip = 60,
     --
 
@@ -75,7 +87,9 @@ local MapVote = {
 
         1). Configure the map votes in the following format: {map name, game mode, message}
 
+
         2). Map vote options will be seen in-game like this:
+
             Examples:
             [1] bloodgulch (ctf)
             [2] deathisland (ctf)
@@ -83,17 +97,18 @@ local MapVote = {
             [4] icefields (ctf)
             [5] infinity (ctf)
 
+
         3). You can define custom game modes like this:
 
             { "bloodgulch", "MyCustomKing", "(Custom King)" },
             Example #2 (as seen in-game): [1] bloodgulch (Custom King)
+
 
         4). Vote options appear in groups of 5 and do not repeat until all groups have been shown:
             Suppose we have an array of 10 map vote options (see below), and we configure this array so that we
             only display a maximum of 5 map vote options; At the end of game 1, it will display map vote options 1 through 5.
             At the end of game 2, it will show options 6 through 10 (by design).
             Once all groups have been shown, the cycle repeats; Beginning at group 1 (the first 5 maps).
-
             The number of maps shown can be configured (see setting: "amount_to_show").
         ]]
 
@@ -167,9 +182,9 @@ function MapVote:Respond(Ply, Msg)
         say_all(Msg)
         cprint(Msg)
     else
-        say(Ply, Msg)
+        rprint(Ply, Msg)
     end
-    execute_command("msg_prefix \" **" .. self.server_prefix .. "**\"")
+    execute_command("msg_prefix \"" .. self.server_prefix .. "\"")
 end
 
 function MapVote:SetupTimer(game_started)
