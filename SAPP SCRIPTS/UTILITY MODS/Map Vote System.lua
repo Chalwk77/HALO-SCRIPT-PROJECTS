@@ -9,7 +9,7 @@ Description: This system is a drop-in replacement for SAPP's built-in Map Voting
 
              IMPORTANT:
              Be sure to change mapvote setting to false in your init.txt file.
-             However, you can leave max_votes & map_skip untouched; Skipping will still work!
+             However, you can leave max_votes & map_skip untouched; Map skipping will still work!
 
              --
 
