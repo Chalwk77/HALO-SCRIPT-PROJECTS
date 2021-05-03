@@ -6,6 +6,8 @@ Description: This system is a drop-in replacement for SAPP's built-in Map Voting
 
              --
              See config section for more information.
+
+             IMPORTANT: Disable SAPP's built-in map voting system before using this.
              --
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
@@ -17,6 +19,7 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 -- config starts --
 local MapVote = {
 
+    -- Most messages are configurable (edit them here):
     messages = {
 
         -- Message omitted when player votes for map:
@@ -58,9 +61,12 @@ local MapVote = {
 
     maps = {
 
-        --[[===============================================================--
+        --[[
 
+        =============================
         - TECHNICAL NOTES -
+        =============================
+
         1). Configure the map votes in the following format: {map name, game mode, message}
 
         2). Map vote options will seen in-game like this:
@@ -83,9 +89,11 @@ local MapVote = {
             Once all groups have been shown, the cycle repeats; Beginning at group 1 (the first 5 maps).
 
             The number of maps shown can be configured (see setting: "amount_to_show").
-        --===============================================================--]]
+        ]]
 
+        --======================================--
         -- CONFIGURE MAP VOTES HERE --
+        --======================================--
         { "bloodgulch", "ctf", "(ctf)" },
         { "deathisland", "ctf", "(ctf)" },
         { "sidewinder", "ctf", "(ctf)" },
@@ -213,6 +221,7 @@ function MapVote:Timer()
 
             vote = vote or self:PickRandomMap()
             self.results = vote
+            self.can_vote = false
 
             -- display winner --
             local words = {
@@ -343,7 +352,7 @@ function MapVote:Vote(Ply, MSG, _, _)
         local Args = STRSplit(MSG)
         if (Args) then
             local vid = tonumber(Args[1]:match("%d+"))
-            if (vid) then
+            if (vid and self.timer < self.time_until_tally) then
                 if (not self.can_vote) then
                     local time = (self.time_until_show - self.timer)
                     self:Respond(Ply, "Please wait " .. time .. " second" .. Plural(time))
@@ -365,10 +374,12 @@ function MapVote:AddVote(Ply, VID)
     local str = self.messages[1] -- voted
     for _, Result in pairs(self.results) do
         -- iterate through votes array:
-        for k, PID in pairs(Result[4]) do
-            if (PID == Ply) then
-                str = self.messages[2] -- re-voted
-                Result[4][k] = nil -- remove vote
+        if (Result[4]) then
+            for k, PID in pairs(Result[4]) do
+                if (PID == Ply) then
+                    str = self.messages[2] -- re-voted
+                    Result[4][k] = nil -- remove vote
+                end
             end
         end
     end
