@@ -73,7 +73,7 @@ local MapVote = {
         1). Configure the map votes in the following format: {map name, game mode, message}
 
         2). Map vote options will be seen in-game like this:
-            Example #1 (as seen in-game):
+            Examples:
             [1] bloodgulch (ctf)
             [2] deathisland (ctf)
             [3] sidewinder (ctf)
