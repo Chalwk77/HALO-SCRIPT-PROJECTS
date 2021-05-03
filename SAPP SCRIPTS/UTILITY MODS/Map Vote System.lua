@@ -6,7 +6,7 @@ Description: This system is a drop-in replacement for SAPP's built-in Map Voting
 
              - NOTES -
              1). This script will disable SAPP's built-in map vote setting.
-             2). Map skipping will still work and the skip-ratios are defined in the config section below.
+             2). Map skipping will still work and the skip ratio is defined in the config.
              3). You will need to import your map vote settings from mapvote.txt.
              ----------------------------------------------------------------------------------------
 
@@ -21,8 +21,7 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 -- config starts --
 local MapVote = {
 
-    -- Map Skipping Settings --
-    max_votes = 6,
+    -- Map skip setting:
     map_skip = 60,
     --
 
@@ -154,7 +153,6 @@ function MapVote:OnStart(reset)
         self:SetupTimer(true)
         execute_command("mapvote false")
         execute_command("map_skip " .. self.map_skip)
-        execute_command("max_votes " .. self.max_votes)
         execute_command("sv_mapcycle_timeout " .. self.map_cycle_timeout)
     end
 end
