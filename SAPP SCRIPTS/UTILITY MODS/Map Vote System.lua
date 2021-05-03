@@ -86,7 +86,8 @@ local MapVote = {
             Example #2 (as seen in-game): [1] bloodgulch (Custom King)
 
         4). Vote options appear in groups of 5 and do not repeat until all groups have been shown:
-            Suppose we have an array of 10 map vote options (see below), and we configure this array so that we only display a maximum of 5 map vote options; At the end of game 1, it will display map vote options 1 through 5.
+            Suppose we have an array of 10 map vote options (see below), and we configure this array so that we
+            only display a maximum of 5 map vote options; At the end of game 1, it will display map vote options 1 through 5.
             At the end of game 2, it will show options 6 through 10 (by design).
             Once all groups have been shown, the cycle repeats; Beginning at group 1 (the first 5 maps).
 
