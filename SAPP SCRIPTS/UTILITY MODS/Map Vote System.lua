@@ -30,10 +30,10 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 local MapVote = {
 
     -- Map skip setting:
-    -- Enable the use of the skip command, skipping when a certain
-    -- percentage of people want the game to be skipped.
+    --
+    -- map_skip is the percentage of people needed to skip the map.
     -- Set to 0 to disable map skipping entirely.
-    -- Default: 60% current server population required to vote.
+    -- Default: 60%
     map_skip = 60,
     --
 
@@ -147,6 +147,7 @@ local MapVote = {
 
 api_version = "1.12.0.0"
 
+local script_version = 1.1
 local start_index, end_index
 
 function OnScriptLoad()
@@ -448,6 +449,39 @@ function GameTick()
 end
 function OnGameStart(reset)
     return MapVote:OnStart(reset)
+end
+
+local function WriteLog(str)
+    local file = io.open("Map Vote System (errors).log", "a+")
+    if (file) then
+        file:write(str .. "\n")
+        file:close()
+    end
+end
+
+function report(StackTrace, Error)
+
+    local log = {
+        os.date("[%H:%M:%S - %d/%m/%Y]"),
+        Error,
+        StackTrace,
+        "--------------------------------------------------------",
+        "Please report this error on github:",
+        "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues",
+        "Script Version: " .. script_version,
+        "--------------------------------------------------------"
+    }
+
+    for i = 1, #log do
+        WriteLog(log[i])
+        cprint(log[i], 12)
+    end
+
+    WriteLog("\n")
+end
+
+function OnError(Error)
+    timer(50, "report", debug.traceback(), Error)
 end
 
 return MapVote
