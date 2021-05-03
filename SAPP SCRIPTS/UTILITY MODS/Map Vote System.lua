@@ -7,10 +7,12 @@ Description: This system is a drop-in replacement for SAPP's built-in Map Voting
              --
              See config section for more information.
 
-             IMPORTANT:
-             Be sure to change mapvote setting to false in your init.txt file.
-             However, you can leave max_votes & map_skip untouched; Map skipping will still work!
-
+             - NOTE -
+             This script will disable SAPP's built-in map vote setting automatically.
+             Map skipping will still work so long as you have set up max_votes & map_skip set up correctly in your init.txt.
+             I recommend these settings for map skipping:
+             max_votes 6
+             map_skip 60
              --
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
@@ -142,6 +144,7 @@ function MapVote:OnStart(reset)
 
     if (reset == true) then
         self:ResetVoteIndex()
+        execute_command("mapvote false")
         execute_command("sv_mapcycle_timeout " .. self.map_cycle_timeout)
     end
 
