@@ -281,6 +281,7 @@ function MapVote:Timer()
         end
 
         if (self.show) then
+
             -- print("showing vote options")
             self.show = false
             self.can_vote = true
@@ -330,7 +331,7 @@ function MapVote:Show()
     -- results:
     -- map [string], mode [string], mode message [string], votes [table]
 
-    local index, found = 1
+    local index = 1
     for i = start_index, end_index do
         if (self.maps[i]) then
             self.results[index] = {
@@ -348,11 +349,10 @@ function MapVote:Show()
                 {}
             }
             index = index + 1
-            found = (self.maps[i + 1] and true) or false
         end
     end
 
-    if not (found) then
+    if (self.maps[end_index+1]) then
         self:ResetVoteIndex()
     else
         start_index = (end_index + 1)
