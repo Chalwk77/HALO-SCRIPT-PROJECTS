@@ -3,7 +3,7 @@
 Script Name: Server Logger, for SAPP (PC & CE)
 Description: This script is intended to replace SAPP's built-in logger
 
- - this script will log -
+ - this script will log -
 * Join & Quit events
 * Game Start & End Events
 * Script Load, Re-Load & Script Unload Events
@@ -11,7 +11,7 @@ Description: This script is intended to replace SAPP's built-in logger
 * Chat Commands & Rcon/Console
 
 There is an additional option to prevent messages or commands containing sensitive information from being logged.
-Sensitive Information is defined in a table called sensitive_content.
+The aforementioned is defined in a table called sensitive_content.
 
 See config section for more information.
 
