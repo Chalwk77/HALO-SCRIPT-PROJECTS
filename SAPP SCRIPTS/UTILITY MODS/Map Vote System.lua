@@ -28,7 +28,6 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 api_version = "1.12.0.0"
 
--- Configuration Starts --
 local MapVote = {
 
     -- Map skip setting:
@@ -76,7 +75,7 @@ local MapVote = {
     time_until_tally = 10,
 
     -- Time (in seconds) until map cycle (after PGCR screen is shown)
-    map_cycle_timeout = 20,
+    map_cycle_timeout = 10,
     ----------------------------------------------------------------------------------------
 
     maps = {
@@ -137,7 +136,10 @@ local MapVote = {
     -- and will restore it to this when the relay is finished:
     server_prefix = "**SAPP**"
 }
--- Configuration Ends --
+
+-- configuration ends --
+-- do not touch anything below unless you know what you're doing.
+--
 
 local script_version = 1.2
 local start_index, end_index
