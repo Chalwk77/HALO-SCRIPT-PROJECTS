@@ -13,6 +13,6 @@ function START()
     local rx, ry, rz = read_vector3d(read_dword(ctf_globals))
     local bx, by, bz = read_vector3d(read_dword(ctf_globals + 4))
 
-    print("{" .. rx .. "," .. ry .. "," .. rz .. "}")
-    print("{" .. bx .. "," .. by .. "," .. bz "}")
+    cprint("{" .. rx .. "," .. ry .. "," .. rz .. "},")
+    cprint("{" .. bx .. "," .. by .. "," .. bz .. "}")
 end
