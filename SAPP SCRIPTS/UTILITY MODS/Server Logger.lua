@@ -1,6 +1,7 @@
 --[[
 --=====================================================================================================--
 Script Name: Server Logger, for SAPP (PC & CE)
+Description: This script is intended to replace SAPP's built-in logger
 
 This script will log:
 * Join & Quit events
@@ -10,7 +11,12 @@ This script will log:
 * Global Chat
 * Team Chat
 * Vehicle Chat
-* Chat Commands & Rcon/Console
+* Chat Commands & RCON/Console
+
+There is an additional option to prevent messages or commands containing sensitive information from being logged.
+Sensitive Information is defined in a table called sensitive_content.
+
+See config section for more information.
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
