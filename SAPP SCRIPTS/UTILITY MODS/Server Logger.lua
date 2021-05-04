@@ -32,6 +32,9 @@ local Logger = {
     -- Server log directory:
     dir = "Server Log.txt",
 
+    -- Timestamp format:
+    date_format = "!%a, %d %b %Y %H:%M:%S ",
+
 
     --====================--
     -- SENSITIVE CONTENT  --
@@ -317,7 +320,8 @@ function Logger:Write(STR)
     if (STR) then
         local file = io.open(self.dir, "a+")
         if (file) then
-            file:write(STR .. "\n")
+            local time_stamp = os.date(self.date_format)
+            file:write("[" .. time_stamp .. "] " .. STR .. "\n")
             file:close()
         end
     end
