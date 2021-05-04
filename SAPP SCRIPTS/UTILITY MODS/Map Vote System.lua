@@ -28,6 +28,7 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 api_version = "1.12.0.0"
 
+-- Configuration Starts --
 local MapVote = {
 
     -- Map skip setting:
@@ -72,10 +73,10 @@ local MapVote = {
     time_until_show = 7,
 
     -- Time (in seconds) until votes are calculated (after game ends):
-    time_until_tally = 10,
+    time_until_tally = 13,
 
     -- Time (in seconds) until map cycle (after PGCR screen is shown)
-    map_cycle_timeout = 10,
+    map_cycle_timeout = 13,
     ----------------------------------------------------------------------------------------
 
     maps = {
@@ -136,10 +137,7 @@ local MapVote = {
     -- and will restore it to this when the relay is finished:
     server_prefix = "**SAPP**"
 }
-
--- configuration ends --
--- do not touch anything below unless you know what you're doing.
---
+-- Configuration Ends --
 
 local script_version = 1.2
 local start_index, end_index
@@ -174,14 +172,14 @@ function OnGameEnd()
 end
 
 function MapVote:Respond(Ply, Msg)
-    execute_command("msg_prefix \"\"")
     if (not Ply) then
+        execute_command('msg_prefix ""')
         say_all(Msg)
+        execute_command('msg_prefix "' .. self.server_prefix .. ' "')
         cprint(Msg)
     else
         rprint(Ply, Msg)
     end
-    execute_command("msg_prefix \"" .. self.server_prefix .. "\"")
 end
 
 function MapVote:SetupTimer(game_started)
@@ -465,29 +463,27 @@ local function WriteLog(str)
     end
 end
 
-function report(StackTrace, Error)
+function OnError(Error)
 
     local log = {
-        os.date("[%H:%M:%S - %d/%m/%Y]"),
-        Error,
-        StackTrace,
-        "--------------------------------------------------------",
-        "Please report this error on github:",
-        "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues",
-        "Script Version: " .. script_version,
-        "--------------------------------------------------------"
+        { os.date("[%H:%M:%S - %d/%m/%Y]"), true, 12 },
+        { Error, false, 12 },
+        { debug.traceback(), true, 12 },
+        { "--------------------------------------------------------", true, 5 },
+        { "Please report this error on github:", true, 7 },
+        { "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", true, 7 },
+        { "Script Version: " .. script_version, true, 7 },
+        { "--------------------------------------------------------", true, 5 }
     }
 
-    for i = 1, #log do
-        WriteLog(log[i])
-        cprint(log[i], 12)
+    for _, v in pairs(log) do
+        WriteLog(v[1])
+        if (v[2]) then
+            cprint(v[1], v[3])
+        end
     end
 
     WriteLog("\n")
-end
-
-function OnError(Error)
-    timer(50, "report", debug.traceback(), Error)
 end
 
 return MapVote
