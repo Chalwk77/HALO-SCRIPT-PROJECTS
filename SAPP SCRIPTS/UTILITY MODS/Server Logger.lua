@@ -10,10 +10,10 @@ This script will log:
 * Global Chat
 * Team Chat
 * Vehicle Chat
-* Chat Commands (w/password filtering)
-* Rcon/Console Commands (w/password filtering)
+* Chat Commands (will not log messages containing sensitive content)
+* Rcon/Console Commands (will not log commands containing sensitive content)
 
-Copyright (c) 2019-2020, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
@@ -21,237 +21,309 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 api_version = "1.12.0.0"
 
--- Configuration Starts --
-local log_directory = "serverlog.txt"
+local Logger = {
 
---[[
-    These variables in can be used in on_join/on_quit & on_command/on_chat messages:
-        %name%      = player name
-        %id%        = player id
-        %ip%        = player ip
-        %hash%      = player hash
-        %level%     = player admin level
-        %state%     = admin status (true/false)
-        %message%   = (Chat/Command output)
-        %total%     = Total number of players currently online.
-]]
+    --
+    -- CONFIGURATION STARTS HERE --
+    --
 
-local on_join = "[JOIN] Name: [%name%] ID: [%id%] IP: [%ip%] CD-Key Hash: [%hash%] Total Players: [%total%/16]"
-local on_quit = "[QUIT] Name: [%name%] ID: [%id%] IP: [%ip%] CD-Key Hash: [%hash%] Total Players: [%total%/16]"
+    -- Server log directory:
+    dir = "Server Log.txt",
 
-local on_load = "[SCRIPT LOAD] Server Logger was loaded"
-local on_reload = "[SERVER] SAPP Was Reloaded"
-local on_unload = "[SCRIPT UNLOAD] Server Logger was unloaded"
-local on_game_end = "[GAME END] The Game has ended (post game carnage report showing)"
-local on_game_start = "[GAME START] A new game has started on [%map% | mode: %mode%]"
+    --====================--
+    -- SENSITIVE CONTENT  --
+    -- Any messages or commands containing these keywords will not be logged if executed by player.
+    --===========================================================================================--
+    sensitive_content = {
+        "login",
+        "admin_add",
+        "change_password",
+        "admin_change_pw",
+        "admin_add_manually",
+    },
 
-local on_chat = {
-    [0] = "[GLOBAL] %name% ID: [%id%] IP: [%ip%]: %message%",
-    [1] = "[TEAM] %name% ID: [%id%] IP: [%ip%]: %message%",
-    [2] = "[VEHICLE] %name% ID: [%id%] IP: [%ip%]: %message%",
-    [3] = "[UNKNOWN] %name% ID: [%id%] IP: [%ip%]: %message%",
+
+    --=========================--
+    -- SCRIPT LOAD & UNLOAD --
+    --=========================--
+    ["ScriptLoad"] = {
+        enabled = true,
+        func = function(f)
+            f:Write("[SCRIPT LOAD] Advanced Server Logger was loaded")
+        end
+    },
+    ["ScriptUnload"] = {
+        enabled = true,
+        func = function(f)
+            f:Write("[SCRIPT UNLOAD] Advanced Server Logger was unloaded")
+        end
+    },
+
+
+    --=========================--
+    -- GAME START & END --
+    --=========================--
+    ["GameStart"] = {
+        enabled = true,
+        func = function(f)
+            f:Write("[GAME START] A new game has started on [" .. f.map .. " - " .. f.gt .. " (" .. f.mode .. ")]")
+        end
+    },
+    ["GameEnd"] = {
+        enabled = true,
+        func = function(f)
+            f:Write("[GAME END] The game has ended! Showing post game carnage report...")
+        end
+    },
+
+
+    --=========================--
+    -- PLAYER JOIN & QUIT --
+    --=========================--
+    ["PlayerJoin"] = {
+        enabled = true,
+        func = function(f, p)
+
+            local a = p.name -- player name [string]
+            local b = p.id -- player id [string]
+            local c = p.ip -- player ip [string]
+            local d = p.hash -- player hash [string]
+            local e = f.pn -- player count [int]
+
+            f:Write("[JOIN] Name: " .. a .. " [ID: " .. b .. " | IP: " .. c .. " | CD-Key Hash: " .. d .. " | Total Players: " .. e .. "/16]")
+        end
+    },
+    ["PlayerQuit"] = {
+        enabled = true,
+        func = function(f, p)
+
+            local a = p.name -- player name [string]
+            local b = p.id -- player id [string]
+            local c = p.ip -- player ip [string]
+            local d = p.hash -- player hash [string]
+            local e = f.pn -- player count [int]
+
+            f:Write("[QUIT] Name: " .. a .. " [ID: " .. b .. " | IP: " .. c .. " | CD-Key Hash: " .. d .. " | Total Players: " .. e .. "/16]")
+        end
+    },
+
+
+    --=========================--
+    -- CHAT MESSAGE & COMMAND --
+    --=========================--
+    ["MessageCreate"] = {
+        enabled = true,
+        func = function(f)
+
+            local str
+            local a = f.chat[1] -- message [string]
+            local b = f.chat[2] -- message type [int]
+            local c = f.chat[3] -- player name [string]
+            local d = f.chat[4] -- player id [int]
+            f.chat = nil
+
+            if (b == 0) then
+                str = "[GLOBAL] " .. c .. " ID: [" .. d .. "]: " .. a
+            elseif (b == 1) then
+                str = "[TEAM] " .. c .. " ID: [" .. d .. "]: " .. a
+            elseif (b == 2) then
+                str = "[VEHICLE] " .. c .. " ID: [" .. d .. "]: " .. a
+            else
+                str = "[UNKNOWN] " .. c .. " ID: [" .. d .. "]: " .. a
+            end
+            f:Write(str)
+        end
+    },
+    ["Command"] = {
+        enabled = true,
+        func = function(fun)
+
+            local a = fun.cmd[1] -- admin (true or false) [string NOT BOOLEAN]
+            local b = fun.cmd[2] -- admin level [int]
+            local c = fun.cmd[3] -- executor name [string]
+            local d = fun.cmd[4] -- executor id [int]
+            local e = fun.cmd[5] -- execute ip (or 127.0.0.1) [string]
+            local f = fun.cmd[6] -- command [string]
+            local g = fun.cmd[7] -- command environment
+            fun.cmd = nil
+
+            local cmd
+            if (g == 0) then
+                cmd = "[CONSOLE COMMAND] " .. c .. ": " .. f .. " [Admin = " .. a .. " | Level: " .. b .. " | ID: " .. d .. " | IP: " .. e .. "]"
+            elseif (g == 1) then
+                cmd = "[RCON COMMAND] " .. c .. ": " .. f .. " [Admin = " .. a .. " | Level: " .. b .. " | ID: " .. d .. " | IP: " .. e .. "]"
+            elseif (g == 2) then
+                cmd = "[CHAT COMMAND] " .. c .. ": /" .. f .. " [Admin = " .. a .. " | Level: " .. b .. " | ID: " .. d .. " | IP: " .. e .. "]"
+            end
+
+            fun:Write(cmd)
+        end
+    }
+
+    --
+    -- CONFIGURATION ENDS --
+    --
 }
-
-local on_command = {
-    [0] = "[CONSOLE COMMAND] [Admin = %state% | Level: %level%] %name% ID: [%id%] IP: [%ip%]: %message%",
-    [1] = "[RCON COMMAND] [Admin = %state% | Level: %level%] %name% ID: [%id%] IP: [%ip%]: %message%",
-    [2] = "[CHAT COMMAND] [Admin = %state% | Level: %level%] %name% ID: [%id%] IP: [%ip%]: /%message%",
-    [3] = "[CENSORED] %message%" -- message will be replaced with "censor_character"
-}
-
--- Any command containing these words will be censored:
-local censored_content = {
-    censor_character = "*****",
-    "login",
-    "admin_add",
-    "sv_password",
-    "change_password",
-    "admin_change_pw",
-    "admin_add_manually",
-}
--- Configuration Ends --
-
-local players = {}
-local find = string.find
-local gsub, gmatch, sub = string.gsub, string.gmatch, string.sub
 
 function OnScriptLoad()
-    register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
-    register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
 
-    register_callback(cb["EVENT_CHAT"], "OnServerChat")
-    register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
+    register_callback(cb["EVENT_JOIN"], "PlayerJoin")
+    register_callback(cb["EVENT_LEAVE"], "PlayerQuit")
 
-    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
-    register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
+    register_callback(cb["EVENT_CHAT"], "MessageCreate")
+    register_callback(cb["EVENT_COMMAND"], "Command")
 
-    register_callback(cb['EVENT_PREJOIN'], "OnPlayerPrejoin")
+    register_callback(cb["EVENT_GAME_START"], "GameStart")
+    register_callback(cb["EVENT_GAME_END"], "GameEnd")
+    Logger["ScriptLoad"].func(Logger)
+end
 
-    if (get_var(0, "$gt") ~= "n/a") then
-        players = { }
+local script_version = 1.0
+
+function OnScriptUnload()
+    Logger["ScriptUnload"].func(Logger)
+end
+
+function GameStart()
+
+    Logger.pn = 0
+    Logger.cmd = nil
+    Logger.chat = nil
+    Logger.players = {}
+
+    local gt = get_var(0, "$gt")
+    if (gt ~= "n/a") then
+        Logger.gt = gt
+        Logger.map = get_var(0, "$map")
+        Logger.mode = get_var(0, "$mode")
+        Logger["GameStart"].func(Logger)
         for i = 1, 16 do
             if player_present(i) then
-                SaveClientData(i)
+                Logger:InitPlayer(i, false)
             end
         end
-        Write(on_reload)
-    else
-        Write(on_load)
     end
 end
 
-function OnGameStart()
-    if (get_var(0, "$gt") ~= "n/a") then
-        local map, mode = get_var(0, "$map"), get_var(0, "$mode")
-        local log = gsub(gsub(on_game_start, "%%map%%", map), "%%mode%%", mode)
-        Write(log)
+function GameEnd()
+    Logger["GameEnd"].func(Logger)
+end
+
+local function BlackListed(STR)
+
+    local Args = { }
+    for Params in STR:gmatch("([^%s]+)") do
+        Args[#Args + 1] = Params:lower()
     end
-end
 
-function OnGameEnd()
-    local map, mode = get_var(0, "$map"), get_var(0, "$mode")
-    local log = gsub(gsub(on_game_end, "%%map%%", map), "%%mode%%", mode)
-    Write(log)
-end
-
-function OnServerChat(PlayerIndex, Message, type)
-    if (type ~= 6) then
-        local msg = TextSplit(Message)
-        if (#msg == 0 or msg == nil) then
-            return
-        elseif not isCommand(msg) then
-            local t = players[PlayerIndex]
-            if (t) then
-                local log = on_chat[type]
-                if (log) then
-                    t["%%message%%"], t["%%total%%"] = Message, get_var(0, "$pn")
-                    for k, v in pairs(t) do
-                        log = gsub(log, k, v)
-                    end
-                    Write(log)
-                    t["%%message%%"] = ""
+    if (#Args > 0) then
+        for i = 1, #Args do
+            for _, word in pairs(Logger.sensitive_content) do
+                if Args[i]:lower():find(word) then
+                    return true
                 end
             end
         end
-    end
-end
-
-function OnServerCommand(PlayerIndex, Command, Environment, Password)
-    local cmd = TextSplit(Command)
-    if (#cmd == 0 or cmd == nil) then
-        return
-    else
-
-        local t = players[PlayerIndex]
-        if (t) then
-
-            t["%%message%%"], t["%%total%%"] = Command, get_var(0, "$pn")
-
-            local content = CensoredContent(Command)
-            if (content ~= nil) then
-                t["%%message%%"] = content
-                Environment = 3
-            end
-
-            local log = on_command[Environment]
-            if (log) then
-                for k, v in pairs(t) do
-                    log = gsub(log, k, v)
-                end
-                Write(log)
-            end
-
-            t["%%message%%"] = ""
-        end
-    end
-end
-
-function OnPlayerPrejoin(PlayerIndex)
-    SaveClientData(PlayerIndex)
-end
-
-local function JoinQuit(PlayerIndex, Type)
-    local log = ""
-    local t = players[PlayerIndex]
-    if (t) then
-        if (Type == 1) then
-            log = on_join
-        elseif (Type == 2) then
-            log = on_quit
-            players[PlayerIndex] = nil
-        end
-        for k, v in pairs(t) do
-            log = gsub(log, k, v)
-        end
-        Write(log)
-    end
-end
-
-function OnPlayerConnect(PlayerIndex)
-    JoinQuit(PlayerIndex, 1)
-end
-
-function OnPlayerDisconnect(PlayerIndex)
-    JoinQuit(PlayerIndex, 2)
-end
-
-function SaveClientData(Ply)
-
-    local level = tonumber(get_var(Ply, "$lvl"))
-    local state = tostring((level >= 1))
-
-    local name = get_var(Ply, "$name")
-    local ip = get_var(Ply, "$ip")
-    local hash = get_var(Ply, "$hash")
-
-    players[Ply] = {
-        ["%%id%%"] = Ply,
-        ["%%ip%%"] = ip,
-        ["%%name%%"] = name,
-        ["%%hash%%"] = hash,
-        ["%%message%%"] = "",
-        ["%%level%%"] = level,
-        ["%%state%%"] = state,
-        ["%%total%%"] = get_var(0, "$pn")
-    }
-end
-
-function Write(Content)
-    local file = io.open(log_directory, "a+")
-    if (file) then
-        local timestamp = os.date("[%d/%m/%Y - %H:%M:%S]")
-        file:write(timestamp .. " " .. Content .. "\n")
-    end
-    file:close()
-end
-
-function TextSplit(Message)
-    local args, index = {}, 1
-    for Params in gmatch(Message, "([^%s]+)") do
-        args[index] = Params
-        index = index + 1
-    end
-    return args
-end
-
-function isCommand(t)
-    if (sub(t[1], 1, 1) == "/" or sub(t[1], 1, 1) == "\\") then
-        return true
     end
     return false
 end
 
-function CensoredContent(Message)
-    local words = censored_content
-    for i = 1, #words do
-        local word = words[i]
-        if find(Message:lower(), word) then
-            return words.censor_character
-        end
-    end
-    return nil
+local function IsCommand(M)
+    return (M:sub(1, 1) == "/" or M:sub(1, 1) == "\\")
 end
 
-function OnScriptUnload()
-    Write(on_unload)
+function MessageCreate(P, M, T)
+    if (P == 0 or not BlackListed(M) and not IsCommand(M)) then
+        Logger.chat = { M, T, Logger["players"][P].name, P }
+        Logger["MessageCreate"].func(Logger)
+    end
+end
+
+local function IsAdmin(P, L)
+    return (P == 0 and "true") or (L >= 1 and "true" or "false")
+end
+
+function Command(P, C, E, _)
+    if (P == 0 or not BlackListed(C)) then
+        local lvl = tonumber(get_var(P, "$lvl"))
+        Logger.cmd = {
+            IsAdmin(P, lvl),
+            lvl,
+            (Logger.players[P] and Logger.players[P].name) or "SERVER CONSOLE",
+            P,
+            (Logger.players[P] and Logger.players[P].ip) or "localhost",
+            C,
+            E,
+        }
+        Logger["Command"].func(Logger)
+    end
+end
+
+function PlayerJoin(P)
+    Logger:InitPlayer(P, false)
+end
+
+function PlayerQuit(P)
+    Logger:InitPlayer(P, true)
+end
+
+function Logger:InitPlayer(P, Reset, Reload)
+    if (not Reset) then
+        self.players[P] = {
+            id = P,
+            ip = get_var(P, "$ip"),
+            name = get_var(P, "$name"),
+            hash = get_var(P, "$hash")
+        }
+        self.pn = tonumber(get_var(0, "$pn"))
+        if (not Reload) then
+            self["PlayerJoin"].func(self, self.players[P])
+        end
+        return
+    end
+
+    self.pn = tonumber(get_var(0, "$pn")) - 1
+    self["PlayerQuit"].func(self, self.players[P])
+    self.players[P] = nil
+end
+
+function Logger:Write(STR)
+    if (STR) then
+        local file = io.open(self.dir, "a+")
+        if (file) then
+            file:write(STR .. "\n")
+            file:close()
+        end
+    end
+end
+
+local function WriteError(str)
+    local file = io.open("Server Logger (errors).log", "a+")
+    if (file) then
+        file:write(str .. "\n")
+        file:close()
+    end
+end
+
+function OnError(Error)
+
+    local log = {
+        { os.date("[%H:%M:%S - %d/%m/%Y]"), true, 12 },
+        { Error, false, 12 },
+        { debug.traceback(), true, 12 },
+        { "--------------------------------------------------------", true, 5 },
+        { "Please report this error on github:", true, 7 },
+        { "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", true, 7 },
+        { "Script Version: " .. script_version, true, 7 },
+        { "--------------------------------------------------------", true, 5 }
+    }
+
+    for _, v in pairs(log) do
+        WriteError(v[1])
+        if (v[2]) then
+            cprint(v[1], v[3])
+        end
+    end
+
+    WriteError("\n")
 end
