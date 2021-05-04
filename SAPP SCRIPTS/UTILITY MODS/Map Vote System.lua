@@ -26,7 +26,8 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
--- config starts --
+api_version = "1.12.0.0"
+
 local MapVote = {
 
     -- Map skip setting:
@@ -87,7 +88,6 @@ local MapVote = {
 
         1). Configure the map votes in the following format: {map name, game mode, message}
 
-
         2). Map vote options will be seen in-game like this:
 
             Examples:
@@ -103,13 +103,6 @@ local MapVote = {
             { "bloodgulch", "MyCustomKing", "(Custom King)" },
             Example #2 (as seen in-game): [1] bloodgulch (Custom King)
 
-
-        4). Vote options appear in groups of 5 and do not repeat until all groups have been shown:
-            Suppose we have an array of 10 map vote options (see below), and we configure this array so that we
-            only display a maximum of 5 map vote options; At the end of game 1, it will display map vote options 1 through 5.
-            At the end of game 2, it will show options 6 through 10 (by design).
-            Once all groups have been shown, the cycle repeats; Beginning at group 1 (the first 5 maps).
-            The number of maps shown can be configured (see setting: "amount_to_show").
         ]]
 
         --======================================--
@@ -143,14 +136,17 @@ local MapVote = {
     -- and will restore it to this when the relay is finished:
     server_prefix = "**SAPP**"
 }
--- config ends --
 
-api_version = "1.12.0.0"
+-- configuration ends --
+-- do not touch anything below unless you know what you're doing.
+--
 
-local script_version = 1.1
+local script_version = 1.2
 local start_index, end_index
 
 function OnScriptLoad()
+
+    -- register needed event callbacks:
     register_callback(cb["EVENT_CHAT"], "OnVote")
     register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
@@ -331,6 +327,11 @@ function MapVote:Show()
     -- results:
     -- map [string], mode [string], mode message [string], votes [table]
 
+    local finished = (not self.maps[end_index + 1] and true) or false
+    if (finished) then
+        self:ResetVoteIndex(true)
+    end
+
     local index = 1
     for i = start_index, end_index do
         if (self.maps[i]) then
@@ -352,12 +353,8 @@ function MapVote:Show()
         end
     end
 
-    if (self.maps[end_index+1]) then
-        self:ResetVoteIndex()
-    else
-        start_index = (end_index + 1)
-        end_index = (start_index + self.amount_to_show - 1)
-    end
+    start_index = (end_index + 1)
+    end_index = (start_index + self.amount_to_show - 1)
 
     self:SetupTimer(false)
     timer(1000 * 1, "GameTick")
@@ -436,7 +433,16 @@ function MapVote:AddVote(Ply, VID)
     self:Respond(_, str)
 end
 
-function MapVote:ResetVoteIndex()
+function MapVote:ResetVoteIndex(Shuffle)
+
+    if (Shuffle) then
+        local t = { }
+        for i = #self.maps, 1, -1 do
+            t[#t + 1] = self.maps[i]
+        end
+        self.maps = t
+    end
+
     start_index = 1
     end_index = self.amount_to_show
 end
