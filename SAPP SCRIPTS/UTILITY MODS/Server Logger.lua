@@ -6,12 +6,11 @@ This script will log:
 * Join & Quit events
 * Game Start Events
 * Game End Events
-* Script Load & Script Unload Events
+* Script Load, Re-Load & Script Unload Events
 * Global Chat
 * Team Chat
 * Vehicle Chat
-* Chat Commands (will not log messages containing sensitive content)
-* Rcon/Console Commands (will not log commands containing sensitive content)
+* Chat Commands & Rcon/Console
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -30,10 +29,12 @@ local Logger = {
     -- Server log directory:
     dir = "Server Log.txt",
 
+
     --====================--
     -- SENSITIVE CONTENT  --
-    -- Any messages or commands containing these keywords will not be logged if executed by player.
+    -- Any messages or commands containing these keywords will not be logged.
     --===========================================================================================--
+
     sensitive_content = {
         "login",
         "admin_add",
@@ -42,19 +43,26 @@ local Logger = {
         "admin_add_manually",
     },
 
+    -- If true, console commands containing these keywords will be logged!
+    ignore_console = false,
+
 
     --=========================--
     -- SCRIPT LOAD & UNLOAD --
     --=========================--
     ["ScriptLoad"] = {
         enabled = true,
-        func = function(f)
-            f:Write("[SCRIPT LOAD] Advanced Server Logger was loaded")
+        Log = function(f)
+            if (f.reloaded) then
+                f:Write("[SCRIPT RE-LOAD] Server Logger was re-loaded")
+            else
+                f:Write("[SCRIPT LOAD] Server Logger was loaded")
+            end
         end
     },
     ["ScriptUnload"] = {
         enabled = true,
-        func = function(f)
+        Log = function(f)
             f:Write("[SCRIPT UNLOAD] Advanced Server Logger was unloaded")
         end
     },
@@ -65,13 +73,13 @@ local Logger = {
     --=========================--
     ["GameStart"] = {
         enabled = true,
-        func = function(f)
+        Log = function(f)
             f:Write("[GAME START] A new game has started on [" .. f.map .. " - " .. f.gt .. " (" .. f.mode .. ")]")
         end
     },
     ["GameEnd"] = {
         enabled = true,
-        func = function(f)
+        Log = function(f)
             f:Write("[GAME END] The game has ended! Showing post game carnage report...")
         end
     },
@@ -82,7 +90,7 @@ local Logger = {
     --=========================--
     ["PlayerJoin"] = {
         enabled = true,
-        func = function(f, p)
+        Log = function(f, p)
 
             local a = p.name -- player name [string]
             local b = p.id -- player id [string]
@@ -95,7 +103,7 @@ local Logger = {
     },
     ["PlayerQuit"] = {
         enabled = true,
-        func = function(f, p)
+        Log = function(f, p)
 
             local a = p.name -- player name [string]
             local b = p.id -- player id [string]
@@ -113,14 +121,14 @@ local Logger = {
     --=========================--
     ["MessageCreate"] = {
         enabled = true,
-        func = function(f)
+        Log = function(f)
 
             local str
             local a = f.chat[1] -- message [string]
             local b = f.chat[2] -- message type [int]
             local c = f.chat[3] -- player name [string]
             local d = f.chat[4] -- player id [int]
-            f.chat = nil
+            f.chat = {}
 
             if (b == 0) then
                 str = "[GLOBAL] " .. c .. " ID: [" .. d .. "]: " .. a
@@ -136,7 +144,7 @@ local Logger = {
     },
     ["Command"] = {
         enabled = true,
-        func = function(fun)
+        Log = function(fun)
 
             local a = fun.cmd[1] -- admin (true or false) [string NOT BOOLEAN]
             local b = fun.cmd[2] -- admin level [int]
@@ -145,7 +153,7 @@ local Logger = {
             local e = fun.cmd[5] -- execute ip (or 127.0.0.1) [string]
             local f = fun.cmd[6] -- command [string]
             local g = fun.cmd[7] -- command environment
-            fun.cmd = nil
+            fun.cmd = {}
 
             local cmd
             if (g == 0) then
@@ -158,11 +166,18 @@ local Logger = {
 
             fun:Write(cmd)
         end
-    }
+    },
 
     --
     -- CONFIGURATION ENDS --
     --
+
+    Reset = function(l)
+        l.pn = 0
+        l.cmd = {}
+        l.chat = {}
+        l.players = {}
+    end
 }
 
 function OnScriptLoad()
@@ -175,28 +190,32 @@ function OnScriptLoad()
 
     register_callback(cb["EVENT_GAME_START"], "GameStart")
     register_callback(cb["EVENT_GAME_END"], "GameEnd")
-    Logger["ScriptLoad"].func(Logger)
+
+    Logger.reloaded = (get_var(0, "$gt") ~= "n/a") or false
+    Logger["ScriptLoad"].Log(Logger)
+
+    GameStart()
 end
 
 local script_version = 1.0
 
 function OnScriptUnload()
-    Logger["ScriptUnload"].func(Logger)
+    Logger["ScriptUnload"].Log(Logger)
 end
 
 function GameStart()
 
-    Logger.pn = 0
-    Logger.cmd = nil
-    Logger.chat = nil
-    Logger.players = {}
-
     local gt = get_var(0, "$gt")
     if (gt ~= "n/a") then
-        Logger.gt = gt
-        Logger.map = get_var(0, "$map")
-        Logger.mode = get_var(0, "$mode")
-        Logger["GameStart"].func(Logger)
+
+        Logger:Reset(Logger)
+        if (not Logger.reloaded) then
+            Logger.gt = gt
+            Logger.map = get_var(0, "$map")
+            Logger.mode = get_var(0, "$mode")
+            Logger["GameStart"].Log(Logger)
+        end
+
         for i = 1, 16 do
             if player_present(i) then
                 Logger:InitPlayer(i, false)
@@ -206,10 +225,10 @@ function GameStart()
 end
 
 function GameEnd()
-    Logger["GameEnd"].func(Logger)
+    Logger["GameEnd"].Log(Logger)
 end
 
-local function BlackListed(STR)
+local function BlackListed(P, STR)
 
     local Args = { }
     for Params in STR:gmatch("([^%s]+)") do
@@ -220,6 +239,9 @@ local function BlackListed(STR)
         for i = 1, #Args do
             for _, word in pairs(Logger.sensitive_content) do
                 if Args[i]:lower():find(word) then
+                    if (P ~= nil and P == 0 and Logger.ignore_console) then
+                        return false
+                    end
                     return true
                 end
             end
@@ -233,9 +255,9 @@ local function IsCommand(M)
 end
 
 function MessageCreate(P, M, T)
-    if (P == 0 or not BlackListed(M) and not IsCommand(M)) then
-        Logger.chat = { M, T, Logger["players"][P].name, P }
-        Logger["MessageCreate"].func(Logger)
+    if (P == 0 or not BlackListed(_, M) and not IsCommand(M)) then
+        Logger.chat = { M, T, Logger.players[P].name, P }
+        Logger["MessageCreate"].Log(Logger)
     end
 end
 
@@ -244,7 +266,8 @@ local function IsAdmin(P, L)
 end
 
 function Command(P, C, E, _)
-    if (P == 0 or not BlackListed(C)) then
+
+    if (not BlackListed(P, C)) then
         local lvl = tonumber(get_var(P, "$lvl"))
         Logger.cmd = {
             IsAdmin(P, lvl),
@@ -255,7 +278,7 @@ function Command(P, C, E, _)
             C,
             E,
         }
-        Logger["Command"].func(Logger)
+        Logger["Command"].Log(Logger)
     end
 end
 
@@ -277,13 +300,13 @@ function Logger:InitPlayer(P, Reset, Reload)
         }
         self.pn = tonumber(get_var(0, "$pn"))
         if (not Reload) then
-            self["PlayerJoin"].func(self, self.players[P])
+            self["PlayerJoin"].Log(self, self.players[P])
         end
         return
     end
 
     self.pn = tonumber(get_var(0, "$pn")) - 1
-    self["PlayerQuit"].func(self, self.players[P])
+    self["PlayerQuit"].Log(self, self.players[P])
     self.players[P] = nil
 end
 
@@ -327,3 +350,7 @@ function OnError(Error)
 
     WriteError("\n")
 end
+
+-- For a future update:
+return Logger
+--
