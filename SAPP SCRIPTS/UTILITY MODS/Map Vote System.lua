@@ -28,6 +28,7 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 api_version = "1.12.0.0"
 
+-- Configuration Starts --
 local MapVote = {
 
     -- Map skip setting:
@@ -136,10 +137,7 @@ local MapVote = {
     -- and will restore it to this when the relay is finished:
     server_prefix = "**SAPP**"
 }
-
--- configuration ends --
--- do not touch anything below unless you know what you're doing.
---
+-- Configuration Ends --
 
 local script_version = 1.2
 local start_index, end_index
