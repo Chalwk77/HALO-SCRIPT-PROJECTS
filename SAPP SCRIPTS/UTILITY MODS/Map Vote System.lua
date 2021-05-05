@@ -407,8 +407,9 @@ function MapVote:AddVote(Ply, VID)
         -- iterate through votes array:
         if (Result[4]) then
             for k, PID in pairs(Result[4]) do
-                -- remove all votes for this player
-                -- Ensures player can only vote for 1 map at a time.
+
+                -- Remove all votes for this player.
+                -- This ensures player can only vote for 1 map at a time.
                 if (PID == Ply) then
                     str = self.messages[2] -- re-vote message
                     Result[4][k] = nil
