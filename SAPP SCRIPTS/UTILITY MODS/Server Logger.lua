@@ -1,16 +1,18 @@
 --[[
 --=====================================================================================================--
 Script Name: Server Logger, for SAPP (PC & CE)
-Description: This script is intended to replace SAPP's built-in logger
+Description: An advanced custom logger.
 
- - this script will log -
-* Join & Quit events
-* Game Start & End Events
-* Script Load, Re-Load & Script Unload Events
-* Global Chat, Team Chat & Vehicle Chat
-* Chat Commands & Rcon/Console
+    This script will log the following events:
+    1). Game start & end
+    2). Script load, re-load & unload
+    3). Team Change
+    4). Admin Login
+    5). Map Reset
+    6). Global, team & vehicle chat messages
+    7). Commands (originating from console, rcon & chat)
 
-See config section for more information.
+    See config section for more information.
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -29,15 +31,28 @@ local Logger = {
     -- Server log directory:
     dir = "Server Log.txt",
 
-    -- Timestamp format:
-    date_format = "!%a, %d %b %Y %H:%M:%S ",
+    -- Script errors (if any) will be logged to this file:
+    error_file = "Server Log (errors).log",
 
+    -- Timestamp format:
+    -- For help with date & time format, refer to this page: www.lua.org/pil/22.1.html
+    date_format = "!%a, %d %b %Y %H:%M:%S",
+
+    -- IP Address of the server:
+    ip = "localhost",
+
+    -- Name for the server console:
+    name = "SERVER CONSOLE",
 
     --====================--
     -- SENSITIVE CONTENT  --
-    -- Any commands containing these keywords will not be logged.
-    --===========================================================================================--
+    -- Any commands containing words in the "sensitive_content" table will not be logged.
+    --=================================================================================--
 
+    -- If true, console commands containing the aforementioned "words" will be logged.
+    ignore_console = false,
+
+    --============================--
     sensitive_content = {
         "login",
         "admin_add",
@@ -46,14 +61,11 @@ local Logger = {
         "admin_add_manually",
     },
 
-    -- If true, console commands containing these keywords will be logged!
-    ignore_console = false,
-
-
     --=========================--
     -- SCRIPT LOAD & UNLOAD --
     --=========================--
     ["ScriptLoad"] = {
+        enabled = true,
         Log = function(f)
             if (f.reloaded) then
                 f:Write("[SCRIPT RE-LOAD] Server Logger was re-loaded")
@@ -62,13 +74,13 @@ local Logger = {
             end
         end
     },
+
     ["ScriptUnload"] = {
         enabled = true,
         Log = function(f)
             f:Write("[SCRIPT UNLOAD] Advanced Server Logger was unloaded")
         end
     },
-
 
     --=========================--
     -- GAME START & END --
@@ -78,12 +90,12 @@ local Logger = {
             f:Write("[GAME START] A new game has started on [" .. f.map .. " - " .. f.gt .. " (" .. f.mode .. ")]")
         end
     },
+
     ["GameEnd"] = {
         Log = function(f)
-            f:Write("[GAME END] The game has ended! Showing post game carnage report...")
+            f:Write("[GAME END] The game has ended. Showing post game carnage report...")
         end
     },
-
 
     --=========================--
     -- PLAYER JOIN & QUIT --
@@ -100,6 +112,7 @@ local Logger = {
             f:Write("[JOIN] Name: " .. a .. " [ID: " .. b .. " | IP: " .. c .. " | CD-Key Hash: " .. d .. " | Total Players: " .. e .. "/16]")
         end
     },
+
     ["PlayerQuit"] = {
         Log = function(f, p)
 
@@ -113,6 +126,35 @@ local Logger = {
         end
     },
 
+    --=========================--
+    -- Team Change --
+    --=========================--
+    ["TeamChange"] = {
+        Log = function(f, p)
+            local n = f.players[p].name -- player name [string]
+            local t = f.players[p].team(p) -- player team [string]
+            f:Write("[TEAM CHANGE] " .. n .. " switched teams [New team: " .. t .. "]")
+        end
+    },
+
+    --=========================--
+    -- Admin Login --
+    --=========================--
+    ["AdminLogin"] = {
+        Log = function(f, n)
+            -- n = name
+            f:Write("[LOGIN] " .. n .. " has logged in")
+        end
+    },
+
+    --=========================--
+    -- Map Reset --
+    --=========================--
+    ["MapReset"] = {
+        Log = function(f)
+            f:Write("[MAP RESET] The map has been reset.")
+        end
+    },
 
     --=========================--
     -- CHAT MESSAGE & COMMAND --
@@ -139,6 +181,7 @@ local Logger = {
             f:Write(str)
         end
     },
+
     ["Command"] = {
         Log = function(fun)
 
@@ -178,14 +221,20 @@ local Logger = {
 
 function OnScriptLoad()
 
+    -- register needed event callbacks:
     register_callback(cb["EVENT_JOIN"], "PlayerJoin")
     register_callback(cb["EVENT_LEAVE"], "PlayerQuit")
 
-    register_callback(cb["EVENT_CHAT"], "MessageCreate")
     register_callback(cb["EVENT_COMMAND"], "Command")
+    register_callback(cb["EVENT_CHAT"], "MessageCreate")
 
-    register_callback(cb["EVENT_GAME_START"], "GameStart")
     register_callback(cb["EVENT_GAME_END"], "GameEnd")
+    register_callback(cb['EVENT_MAP_RESET'], "MapReset")
+    register_callback(cb["EVENT_GAME_START"], "GameStart")
+
+    register_callback(cb['EVENT_LOGIN'], "AdminLogin")
+
+    register_callback(cb['EVENT_TEAM_SWITCH'], "TeamChange")
 
     Logger.reloaded = (get_var(0, "$gt") ~= "n/a") or false
     Logger["ScriptLoad"].Log(Logger)
@@ -193,7 +242,7 @@ function OnScriptLoad()
     GameStart()
 end
 
-local script_version = 1.0
+local script_version = 1.1
 
 function OnScriptUnload()
     Logger["ScriptUnload"].Log(Logger)
@@ -263,16 +312,14 @@ end
 
 function Command(P, C, E, _)
     if (not BlackListed(P, C)) then
+
         local lvl = tonumber(get_var(P, "$lvl"))
-        Logger.cmd = {
-            IsAdmin(P, lvl),
-            lvl,
-            (Logger.players[P] and Logger.players[P].name) or "SERVER CONSOLE",
-            P,
-            (Logger.players[P] and Logger.players[P].ip) or "localhost",
-            C,
-            E,
-        }
+
+        local state = IsAdmin(P, lvl)
+        local ip = (P > 0 and Logger.players[P].ip) or Logger.ip
+        local name = (P > 0 and Logger.players[P].name) or Logger.name
+        Logger.cmd = { state, lvl, name, P, ip, C, E }
+
         Logger["Command"].Log(Logger)
     end
 end
@@ -286,12 +333,16 @@ function PlayerQuit(P)
 end
 
 function Logger:InitPlayer(P, Reset, Reload)
+
     if (not Reset) then
         self.players[P] = {
             id = P,
             ip = get_var(P, "$ip"),
             name = get_var(P, "$name"),
-            hash = get_var(P, "$hash")
+            hash = get_var(P, "$hash"),
+            team = function(P)
+                return get_var(P, "$team")
+            end
         }
         self.pn = tonumber(get_var(0, "$pn"))
         if (not Reload) then
@@ -305,21 +356,40 @@ function Logger:InitPlayer(P, Reset, Reload)
     self.players[P] = nil
 end
 
+function TeamChange(P)
+    if (Logger.players[P]) then
+        Logger["TeamChange"].Log(Logger, P)
+    end
+end
+
+function MapReset()
+    Logger["MapReset"].Log(Logger)
+end
+
+function AdminLogin(P)
+    if (Logger.players[P]) then
+        Logger["AdminLogin"].Log(Logger, Logger.players[P].name)
+    end
+end
+
+-- Start of the show; Responsible for logging messages to self.dir:
+--
 function Logger:Write(STR)
     if (STR) then
         local file = io.open(self.dir, "a+")
         if (file) then
-            local time_stamp = os.date(self.date_format)
-            file:write("[" .. time_stamp .. "] " .. STR .. "\n")
+            file:write("[" .. os.date(self.date_format) .. "] " .. STR .. "\n")
             file:close()
         end
     end
 end
 
-local function WriteError(str)
-    local file = io.open("Server Logger (errors).log", "a+")
+-- Error handler:
+--
+local function WriteError(err)
+    local file = io.open(Logger.error_file, "a+")
     if (file) then
-        file:write(str .. "\n")
+        file:write(err .. "\n")
         file:close()
     end
 end
@@ -327,6 +397,10 @@ end
 function OnError(Error)
 
     local log = {
+
+        -- log format: {msg, console out [true/false], console color}
+        -- If console out = false, the message will not be logged to console.
+
         { os.date("[%H:%M:%S - %d/%m/%Y]"), true, 12 },
         { Error, false, 12 },
         { debug.traceback(), true, 12 },
