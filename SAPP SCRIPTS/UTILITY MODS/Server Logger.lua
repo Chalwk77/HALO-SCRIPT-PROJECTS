@@ -65,7 +65,6 @@ local Logger = {
     -- SCRIPT LOAD & UNLOAD --
     --=========================--
     ["ScriptLoad"] = {
-        enabled = true,
         Log = function(f)
             if (f.reloaded) then
                 f:Write("[SCRIPT RE-LOAD] Server Logger was re-loaded")
