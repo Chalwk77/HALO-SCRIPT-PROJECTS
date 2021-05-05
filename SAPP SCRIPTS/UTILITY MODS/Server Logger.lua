@@ -54,7 +54,6 @@ local Logger = {
     -- SCRIPT LOAD & UNLOAD --
     --=========================--
     ["ScriptLoad"] = {
-        enabled = true,
         Log = function(f)
             if (f.reloaded) then
                 f:Write("[SCRIPT RE-LOAD] Server Logger was re-loaded")
@@ -75,13 +74,11 @@ local Logger = {
     -- GAME START & END --
     --=========================--
     ["GameStart"] = {
-        enabled = true,
         Log = function(f)
             f:Write("[GAME START] A new game has started on [" .. f.map .. " - " .. f.gt .. " (" .. f.mode .. ")]")
         end
     },
     ["GameEnd"] = {
-        enabled = true,
         Log = function(f)
             f:Write("[GAME END] The game has ended! Showing post game carnage report...")
         end
@@ -92,7 +89,6 @@ local Logger = {
     -- PLAYER JOIN & QUIT --
     --=========================--
     ["PlayerJoin"] = {
-        enabled = true,
         Log = function(f, p)
 
             local a = p.name -- player name [string]
@@ -105,7 +101,6 @@ local Logger = {
         end
     },
     ["PlayerQuit"] = {
-        enabled = true,
         Log = function(f, p)
 
             local a = p.name -- player name [string]
@@ -123,7 +118,6 @@ local Logger = {
     -- CHAT MESSAGE & COMMAND --
     --=========================--
     ["MessageCreate"] = {
-        enabled = true,
         Log = function(f)
 
             local str
@@ -146,7 +140,6 @@ local Logger = {
         end
     },
     ["Command"] = {
-        enabled = true,
         Log = function(fun)
 
             local a = fun.cmd[1] -- admin (true or false) [string NOT BOOLEAN]
