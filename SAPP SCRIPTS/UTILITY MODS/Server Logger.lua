@@ -3,15 +3,12 @@
 Script Name: Server Logger, for SAPP (PC & CE)
 Description: This script is intended to replace SAPP's built-in logger
 
- - this script will log -
+ - this script will log -
 * Join & Quit events
 * Game Start & End Events
 * Script Load, Re-Load & Script Unload Events
 * Global Chat, Team Chat & Vehicle Chat
 * Chat Commands & Rcon/Console
-
-There is an additional option to prevent messages or commands containing sensitive information from being logged.
-The aforementioned is defined in a table called sensitive_content.
 
 See config section for more information.
 
@@ -38,7 +35,7 @@ local Logger = {
 
     --====================--
     -- SENSITIVE CONTENT  --
-    -- Any messages or commands containing these keywords will not be logged.
+    -- Any commands containing these keywords will not be logged.
     --===========================================================================================--
 
     sensitive_content = {
@@ -261,7 +258,7 @@ local function IsCommand(M)
 end
 
 function MessageCreate(P, M, T)
-    if (P == 0 or not BlackListed(_, M) and not IsCommand(M)) then
+    if (not IsCommand(M) and Logger.players[P]) then
         Logger.chat = { M, T, Logger.players[P].name, P }
         Logger["MessageCreate"].Log(Logger)
     end
@@ -272,7 +269,6 @@ local function IsAdmin(P, L)
 end
 
 function Command(P, C, E, _)
-
     if (not BlackListed(P, C)) then
         local lvl = tonumber(get_var(P, "$lvl"))
         Logger.cmd = {
