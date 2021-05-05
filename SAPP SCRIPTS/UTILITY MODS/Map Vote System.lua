@@ -4,9 +4,9 @@ Script Name: Map Vote System, for SAPP (PC & CE)
 Description: This script is a drop-in replacement for SAPP's built-in voting system.
 
              - features -
-             1). Cast and re-cast your vote!
+             1). Cast and re-cast your vote.
              2). Ability to show more than 6 map vote options.
-             3). Configurable messages
+             3). Configurable messages.
              4). Full control over script timers:
                  * Time until map votes are shown (after game ends).
                  * Time until votes are calculated (after game ends).
@@ -75,8 +75,11 @@ local MapVote = {
     -- Time (in seconds) until votes are calculated (after game ends):
     time_until_tally = 13,
 
-    -- Time (in seconds) until map cycle (after PGCR screen is shown)
+    -- Time (in seconds) until map cycle (after PGCR screen is shown):
     map_cycle_timeout = 13,
+
+    -- Vote options will be re-shown every "re_show_interval" seconds until timer reaches "time_until_tally"
+    re_show_interval = 5,
     ----------------------------------------------------------------------------------------
 
     maps = {
@@ -139,7 +142,7 @@ local MapVote = {
 }
 -- Configuration Ends --
 
-local script_version = 1.2
+local script_version = 1.3
 local start_index, end_index
 
 function OnScriptLoad()
@@ -148,6 +151,7 @@ function OnScriptLoad()
     register_callback(cb["EVENT_CHAT"], "OnVote")
     register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
+
     OnGameStart(true)
 end
 
@@ -171,6 +175,7 @@ function OnGameEnd()
     MapVote:Show()
 end
 
+-- Function used for printing messages:
 function MapVote:Respond(Ply, Msg)
     if (not Ply) then
         execute_command('msg_prefix ""')
@@ -182,6 +187,7 @@ function MapVote:Respond(Ply, Msg)
     end
 end
 
+-- Sets initial values (doubles as reset function)
 function MapVote:SetupTimer(game_started)
     self.timer = 0
     self.init = true
@@ -190,6 +196,7 @@ function MapVote:SetupTimer(game_started)
     self.game_started = (game_started)
 end
 
+-- Picks a random vote table from self.results:
 function MapVote:PickRandomMap()
     local n = rand(1, #self.results + 1)
     local vote = self.results[n]
@@ -205,6 +212,8 @@ local function Plural(n)
     return (n > 1 and "s") or ""
 end
 
+-- Sorts self.results by vote count:
+-- todo: If two (or more) vote options have equal votes then pick one randomly.
 function MapVote:SortResults()
 
     local results = { }
@@ -263,6 +272,7 @@ function MapVote:Timer()
         end
 
         -- show vote options --
+        -----------------------
 
         -- show initial vote options --
         local case1 = (self.timer == self.time_until_show and self.init)
@@ -270,7 +280,8 @@ function MapVote:Timer()
         -- re-show vote options every 5 seconds until timer reaches self.time_until_tally
         local case2 = (not self.init and self.timer < self.time_until_tally)
 
-        if case1 or (case2 and self.timer % 5 == 0) then
+        -- Determine if we need to show vote options:
+        if case1 or (case2 and self.timer % self.re_show_interval == 0) then
             self.show = true
         end
 
@@ -283,6 +294,7 @@ function MapVote:Timer()
                 self.init, self.timer = false, 0
             end
 
+            -- Iterate over and print results array data:
             for i = 1, 16 do
                 if player_present(i) then
                     for j, R in pairs(self.results) do
@@ -322,17 +334,17 @@ end
 
 function MapVote:Show()
 
-    -- results:
-    -- map [string], mode [string], mode message [string], votes [table]
-
     local finished = (not self.maps[end_index + 1] and true) or false
     if (finished) then
         self:ResetVoteIndex(true)
     end
 
+    -- Determine what vote options to display:
     local index = 1
     for i = start_index, end_index do
         if (self.maps[i]) then
+
+            -- map [string], mode [string], mode message [string], votes [table]
             self.results[index] = {
 
                 -- map name:
@@ -351,25 +363,25 @@ function MapVote:Show()
         end
     end
 
+    -- Increment vote option start & end indexes:
     start_index = (end_index + 1)
     end_index = (start_index + self.amount_to_show - 1)
 
     self:SetupTimer(false)
-    timer(1000 * 1, "GameTick")
-end
 
-local function STRSplit(STR)
-    local Args = { }
-    for String in STR:gmatch("([^%s]+)") do
-        Args[#Args + 1] = String:lower()
-    end
-    return Args
+    -- Initialise vote timer:
+    timer(1000 * 1, "GameTick")
 end
 
 function MapVote:Vote(Ply, MSG, _, _)
     if (not self.game_started) then
-        local Args = STRSplit(MSG)
-        if (Args) then
+
+        local Args = { }
+        for VoteID in MSG:gmatch("([^%s]+)") do
+            Args[#Args + 1] = VoteID:lower()
+        end
+
+        if (#Args > 0) then
             local vid = tonumber(Args[1]:match("%d+"))
             if (vid and self.timer < self.time_until_tally) then
                 if (not self.can_vote) then
@@ -378,7 +390,7 @@ function MapVote:Vote(Ply, MSG, _, _)
                 elseif (self.results[vid]) then
                     self:AddVote(Ply, vid)
                 else
-                    rprint(Ply, "Invalid map vote id!")
+                    self:Respond(Ply, "Invalid map vote id! Please type a number between 1 & " .. self.amount_to_show)
                 end
             else
                 return true
@@ -390,18 +402,21 @@ end
 
 function MapVote:AddVote(Ply, VID)
 
-    local str = self.messages[1] -- voted
+    local str = self.messages[1] -- first time vote message
     for _, Result in pairs(self.results) do
         -- iterate through votes array:
         if (Result[4]) then
             for k, PID in pairs(Result[4]) do
+                -- remove all votes for this player
+                -- Ensures player can only vote for 1 map at a time.
                 if (PID == Ply) then
-                    str = self.messages[2] -- re-voted
-                    Result[4][k] = nil -- remove vote
+                    str = self.messages[2] -- re-vote message
+                    Result[4][k] = nil
                 end
             end
         end
     end
+    -- Add current vote id:
     table.insert(self.results[VID][4], Ply)
 
     local words = {
@@ -431,6 +446,8 @@ function MapVote:AddVote(Ply, VID)
     self:Respond(_, str)
 end
 
+-- Sets initial start & end indexes for self.maps:
+-- Also reverses the order of self.maps once all groups of vote options have been shown.
 function MapVote:ResetVoteIndex(Shuffle)
 
     if (Shuffle) then
@@ -486,4 +503,6 @@ function OnError(Error)
     WriteLog("\n")
 end
 
+-- for a future update --
 return MapVote
+--
