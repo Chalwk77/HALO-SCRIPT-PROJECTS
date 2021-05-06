@@ -75,7 +75,6 @@ local Logger = {
     },
 
     ["ScriptUnload"] = {
-        enabled = true,
         Log = function(f)
             f:Write("[SCRIPT UNLOAD] Advanced Server Logger was unloaded")
         end
