@@ -3,14 +3,11 @@
 Script Name: Command Spy, for SAPP (PC & CE)
 Description: Get notified when a player executes a command.
 
-             - features -
-             Admins of level 1 (or higher) will be notified when
-             someone executes a command originating from rcon or chat (see "output_format" table).
+- features -
+Admins of level 1 (or higher) will be notified when someone executes a command originating from rcon or chat.
+Command Spy is enabled for all admins by default and can be turned on or off for yourself (or other players).
 
-             Command Spy is enabled for all admins by default.
-             Command Spy can be turned on or off for yourself (or others players)
-
-             See config section for more information.
+See the config section for more information.
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
