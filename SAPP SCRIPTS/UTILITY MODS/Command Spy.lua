@@ -3,6 +3,15 @@
 Script Name: Command Spy, for SAPP (PC & CE)
 Description: Get notified when a player executes a command.
 
+             - features -
+             Admins of level 1 (or higher) will be notified when
+             someone executes a command originating from rcon or chat (see "output_format" table).
+
+             Command Spy is enabled for all admins by default.
+             Command Spy can be turned on or off for yourself (or others players)
+
+             See config section for more information.
+
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
@@ -12,15 +21,16 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 -- config starts --
 local CSpy = {
 
-    -- This is the custom command used to toggle command spy on/off:
+    -- This is the custom command used to toggle command spy on or off:
+    -- Command syntax: /command [1/0] [pid]
     command = "spy",
     --
 
-    -- Minimum permission required to execute /command for yourself
-    permission = -1,
+    -- Minimum permission required to execute /command (for yourself)
+    permission = 1,
     --
 
-    -- Minimum permission required to toggle command spy on/off for other players:
+    -- Minimum permission required to toggle command spy for other players:
     permission_other = 4,
 
     -- If true, command spy will be enabled for admins by default:
@@ -37,8 +47,8 @@ local CSpy = {
         [2] = "[C-SPY] %name%: /%cmd%",
     },
 
-    -- Command(s) containing these key words will not be sent:
-    command_blacklist = {
+    -- Command(s) containing these words will not be seen:
+    blacklist = {
         "login",
         "admin_add",
         "sv_password",
@@ -52,13 +62,15 @@ local CSpy = {
 
 api_version = "1.12.0.0"
 
-local gsub = string.gsub
-
 function OnScriptLoad()
+
     register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
-    register_callback(cb["EVENT_COMMAND"], "OnCommand")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerQuit")
+
+    register_callback(cb["EVENT_COMMAND"], "OnCommand")
+
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
+
     OnGameStart()
 end
 
@@ -71,14 +83,6 @@ function OnGameStart()
             end
         end
     end
-end
-
-local function CMDSplit(CMD)
-    local Args = { }
-    for Params in CMD:gmatch("([^%s]+)") do
-        Args[#Args + 1] = Params:lower()
-    end
-    return Args
 end
 
 local function Respond(Ply, Msg)
@@ -120,7 +124,7 @@ end
 -- This function checks if the command contains any blacklisted keywords:
 --
 local function BlackListed(CMD)
-    for _, word in pairs(CSpy.command_blacklist) do
+    for _, word in pairs(CSpy.blacklist) do
         if CMD:lower():find(word) then
             return true
         end
@@ -128,10 +132,15 @@ local function BlackListed(CMD)
     return false
 end
 
+local gsub = string.gsub
 function CSpy:SPY(Ply, CMD, ENV, _)
 
-    local Args = CMDSplit(CMD)
-    if (Args) then
+    local Args = { }
+    for Command in CMD:gmatch("([^%s]+)") do
+        Args[#Args + 1] = Command:lower()
+    end
+
+    if (#Args > 0) then
         local lvl = tonumber(get_var(Ply, "$lvl"))
         if (Args[1] == self.command) then
             if (lvl >= self.permission or Ply == 0) then
@@ -257,3 +266,7 @@ end
 function OnCommand(P, C, E)
     return CSpy:SPY(P, C, E)
 end
+
+-- for a future update:
+return CSpy
+--
