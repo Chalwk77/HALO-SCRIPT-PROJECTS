@@ -240,7 +240,7 @@ function OnScriptLoad()
     GameStart()
 end
 
-local script_version = 1.1
+local script_version = 1.2
 
 function OnScriptUnload()
     Logger["ScriptUnload"].Log(Logger)
