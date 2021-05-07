@@ -349,9 +349,11 @@ function Logger:InitPlayer(P, Reset, Reload)
         return
     end
 
-    self.pn = tonumber(get_var(0, "$pn")) - 1
-    self["PlayerQuit"].Log(self, self.players[P])
-    self.players[P] = nil
+    if (self.players[P]) then
+        self.pn = tonumber(get_var(0, "$pn")) - 1
+        self["PlayerQuit"].Log(self, self.players[P])
+        self.players[P] = nil
+    end
 end
 
 function TeamChange(P)
