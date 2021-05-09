@@ -7,7 +7,8 @@ Description: This script is a drop-in replacement for SAPP's built-in voting sys
              1). Cast and re-cast your vote.
              2). Ability to show more than 6 map vote options.
              3). Configurable messages.
-             4). Full control over script timers:
+             4). Limit how many times can a player re-vote.
+             5). Full control over script timers:
                  * Time until map votes are shown (after game ends).
                  * Time until votes are calculated (after game ends).
                  * Time until until map cycle (after PGCR screen is shown)
@@ -39,25 +40,37 @@ local MapVote = {
     map_skip = 60,
     --
 
+    -- If true, players can re-cast their vote:
+    re_vote = true,
+
+    -- How many times can a player re-vote?
+    re_vote_count = 1,
+
+    -- If true, the player's console will be cleared
+    -- before we need to print vote options:
+    clear_console = false,
+
     -- Most messages are configurable (edit them here):
     messages = {
 
+        -- message alignment characters: "|l", "|r", "|c", "|t" = Left, Right, Center, Tab
+
         -- Message omitted when player votes for map:
-        [1] = "%name% voted for [#%id%] %map% %msg%",
+        [1] = "|l%name% voted for [#%id%] %map% %msg%",
         --
 
         -- Message omitted when player re-votes (updates):
-        [2] = "%name% updated their vote to [#%id%] %map% %msg%",
+        [2] = "|l%name% updated their vote to [#%id%] %map% %msg%",
         --
 
         -- Map vote option format:
-        [3] = "[%id%] %map% %msg%",
+        [3] = "|l[%id%] %map% %msg%",
         --
 
         -- Map vote calculation messages:
         [4] = {
-            "%map% %msg% won with %votes% vote%s%",
-            "No Votes! Picking %map% %msg%..."
+            "|l%map% %msg% won with %votes% vote%s%",
+            "|lNo Votes! Picking %map% %msg%..."
         }
         --
     },
@@ -101,7 +114,6 @@ local MapVote = {
             [4] icefields (ctf)
             [5] infinity (ctf)
 
-
         3). You can define custom game modes like this:
 
             { "bloodgulch", "MyCustomKing", "(Custom King)" },
@@ -133,7 +145,7 @@ local MapVote = {
         { "prisoner", "ctf", "(ctf)" },
         { "putput", "ctf", "(ctf)" },
         { "ratrace", "ctf", "(ctf)" },
-        { "wizard", "ctf", "(ctf)" },
+        { "wizard", "ctf", "(ctf)" }
     },
 
     -- A message relay function temporarily removes the server prefix
@@ -142,7 +154,7 @@ local MapVote = {
 }
 -- Configuration Ends --
 
-local script_version = 1.3
+local script_version = 1.4
 local start_index, end_index
 
 function OnScriptLoad()
@@ -150,6 +162,8 @@ function OnScriptLoad()
     -- register needed event callbacks:
     register_callback(cb["EVENT_CHAT"], "OnVote")
     register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
+    register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
+    register_callback(cb["EVENT_LEAVE"], "OnPlayerQuit")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
 
     OnGameStart(true)
@@ -161,8 +175,17 @@ function MapVote:OnStart(reset)
         self:ResetVoteIndex()
     end
 
+    self.votes = { }
     self.game_started = false
+
     if (get_var(0, "$gt") ~= "n/a") then
+
+        for i = 1, 16 do
+            if player_present(i) then
+                self:InitPlayer(i, false)
+            end
+        end
+
         self.results = { }
         self:SetupTimer(true)
         execute_command("mapvote false")
@@ -196,16 +219,42 @@ function MapVote:SetupTimer(game_started)
     self.game_started = (game_started)
 end
 
--- Picks a random vote table from self.results:
-function MapVote:PickRandomMap()
-    local n = rand(1, #self.results + 1)
-    local vote = self.results[n]
+-- Picks a random vote table:
+function MapVote:PickRandomMap(t)
+    local n = rand(1, #t + 1)
     return {
-        vote[1],
-        vote[2],
-        vote[3],
-        #vote[4]
+        t[n][1],
+        t[n][2],
+        t[n][3],
+        t[n][4]
     }
+end
+
+function MapVote:InitPlayer(Ply, Reset)
+
+    if (not Reset) then
+        self.votes[Ply] = (self.re_vote and self.re_vote_count + 1) or 1
+        return
+    end
+
+    self.votes[Ply] = nil
+end
+
+function OnPlayerJoin(Ply)
+    MapVote:InitPlayer(Ply, false)
+end
+
+function OnPlayerQuit(Ply)
+    MapVote:InitPlayer(Ply, true)
+end
+
+function MapVote:ClearConsole(Ply, Count)
+    if (self.clear_console) then
+        Count = Count or 25
+        for _ = 1, Count do
+            rprint(Ply, " ")
+        end
+    end
 end
 
 local function Plural(n)
@@ -213,21 +262,35 @@ local function Plural(n)
 end
 
 -- Sorts self.results by vote count:
--- todo: If two (or more) vote options have equal votes then pick one randomly.
 function MapVote:SortResults()
 
-    local results = { }
+    -- self.results:
+    -- map [string], mode [string], mode message [string], votes [table]
+    --
+
+    local groups = { }
     for _, v in pairs(self.results) do
-        if (#v[4] > 0) then
-            table.insert(results, { v[1], v[2], v[3], #v[4] })
+        local votes = #v[4]
+        if (votes > 0) then
+            groups[votes] = groups[votes] or {}
+            table.insert(groups[votes], v)
         end
     end
 
-    -- print("sorting results...")
-    table.sort(results, function(a, b)
-        return a[4] > b[4]
-    end)
-    return results
+    local highest = 0
+    for VoteCount, _ in pairs(groups) do
+        if (VoteCount > highest) then
+            highest = VoteCount
+        end
+    end
+
+    local winner = groups[highest]
+    if (winner) then
+        winner = self:PickRandomMap(winner)
+        return winner
+    end
+
+    return nil
 end
 
 function MapVote:Timer()
@@ -243,10 +306,9 @@ function MapVote:Timer()
 
             -- print("calculating results")
 
-            local results = self:SortResults()
-            local vote = results[1]
+            local vote = self:SortResults()
+            vote = vote or self:PickRandomMap(self.results)
 
-            vote = vote or self:PickRandomMap()
             self.results = vote
             self.can_vote = false
 
@@ -255,11 +317,11 @@ function MapVote:Timer()
                 ["%%map%%"] = vote[1],
                 ["%%mode%%"] = vote[2],
                 ["%%msg%%"] = vote[3],
-                ["%%votes%%"] = vote[4],
-                ["%%s%%"] = Plural(vote[4])
+                ["%%votes%%"] = #vote[4],
+                ["%%s%%"] = Plural(#vote[4])
             }
 
-            local str = (vote[4] > 0 and self.messages[4][1] or self.messages[4][2])
+            local str = (#vote[4] > 0 and self.messages[4][1] or self.messages[4][2])
             for k, v in pairs(words) do
                 str = str:gsub(k, v)
             end
@@ -297,6 +359,8 @@ function MapVote:Timer()
             -- Iterate over and print results array data:
             for i = 1, 16 do
                 if player_present(i) then
+
+                    self:ClearConsole(i, 25)
                     for j, R in pairs(self.results) do
 
                         local words = {
@@ -388,7 +452,12 @@ function MapVote:Vote(Ply, MSG, _, _)
                     local time = (self.time_until_show - self.timer)
                     self:Respond(Ply, "Please wait " .. time .. " second" .. Plural(time))
                 elseif (self.results[vid]) then
-                    self:AddVote(Ply, vid)
+                    if (self.votes[Ply] > 0) then
+                        self.votes[Ply] = self.votes[Ply] - 1
+                        self:AddVote(Ply, vid)
+                    else
+                        self:Respond(Ply, "You cannot re-vote at this time.")
+                    end
                 else
                     self:Respond(Ply, "Invalid map vote id! Please type a number between 1 & " .. self.amount_to_show)
                 end
