@@ -11,10 +11,10 @@ Description: This script is a drop-in replacement for SAPP's built-in voting sys
              5). Full control over script timers:
                  * Time until map votes are shown (after game ends).
                  * Time until votes are calculated (after game ends).
-                 * Time until until map cycle (after PGCR screen is shown)
+                 * Time until map cycle (after PGCR screen is shown)
 
              - notes -
-             1). You will need to import your map vote settings from mapvote.txt
+             1). You need to import your map vote settings from mapvotes.txt
              2). This script will disable SAPP's built-in map vote setting automatically.
              3). Map skipping will still work and the skip ratio is defined in the config.
              ----------------------------------------------------------------------------------------
@@ -40,14 +40,17 @@ local MapVote = {
     map_skip = 60,
     --
 
+    -- How many votes options to display when the game ends?
+    amount_to_show = 5,
+    --
+
     -- If true, players can re-cast their vote:
     re_vote = true,
 
     -- How many times can a player re-vote?
     re_vote_count = 1,
 
-    -- If true, the player's console will be cleared
-    -- before we need to print vote options:
+    -- If true, the player's console will be cleared each time we print vote options:
     clear_console = false,
 
     -- Most messages are configurable (edit them here):
@@ -74,10 +77,6 @@ local MapVote = {
         }
         --
     },
-
-    -- How many votes options to display when the game ends?
-    amount_to_show = 5,
-    --
 
     ----------------------------------------------------------------------------------------
     -- I do not recommend changing these values:
