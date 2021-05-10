@@ -61,11 +61,11 @@ local MapVote = {
 
         -- message alignment characters: "|l", "|r", "|c", "|t" = Left, Right, Center, Tab
 
-        -- Message omitted when player votes for map:
+        -- Message sent when player votes for map:
         [1] = "|l%name% voted for [#%id%] %map% %msg%",
         --
 
-        -- Message omitted when player re-votes (updates):
+        -- Message sent when player re-votes (updates):
         [2] = "|l%name% updated their vote to [#%id%] %map% %msg%",
         --
 
@@ -77,7 +77,17 @@ local MapVote = {
         [4] = {
             "|l%map% %msg% won with %votes% vote%s%",
             "|lNo Votes! Picking %map% %msg%..."
-        }
+        },
+
+        -- Message sent to player when their vote count equals zero;
+        [5] = "|lYou cannot re-vote at this time.",
+
+        -- Message sent to player when they attempt to vote too early.
+        -- This is after the game ends but before the PGCR is shown:
+        [6] = "|lPlease wait %time% second%s%...",
+
+        -- Message sent to player when they type an invalid map vote id:
+        [7] = "|lInvalid map vote id. Please type a number between 1 & %max%",
         --
     },
 
@@ -149,6 +159,12 @@ local MapVote = {
         { "ratrace", "ctf", "(ctf)" },
         { "wizard", "ctf", "(ctf)" }
     },
+
+    -- ADVANCED USERS ONLY --
+
+    -- File name that will log all errors.
+    -- If there are any errors, they will be logged to this file (in root directory).
+    error_log = "Map Vote System (errors).log",
 
     -- A message relay function temporarily removes the server prefix
     -- and will restore it to this when the relay is finished:
@@ -453,16 +469,17 @@ function MapVote:Vote(Ply, MSG, _, _)
             if (vid and self.timer < self.time_until_tally) then
                 if (not self.can_vote) then
                     local time = (self.time_until_show - self.timer)
-                    self:Respond(Ply, "Please wait " .. time .. " second" .. Plural(time))
+                    local str = self.messages[6]:gsub("%%time%%", time)
+                    self:Respond(Ply, str:gsub("%%s%%", Plural(time)))
                 elseif (self.results[vid]) then
                     if (self.votes[Ply] > 0) then
                         self.votes[Ply] = self.votes[Ply] - 1
                         self:AddVote(Ply, vid)
                     else
-                        self:Respond(Ply, "You cannot re-vote at this time.")
+                        self:Respond(Ply, self.messages[5])
                     end
                 else
-                    self:Respond(Ply, "Invalid map vote id! Please type a number between 1 & " .. self.amount_to_show)
+                    self:Respond(Ply, self.messages[7]:gsub("%%max%%", self.amount_to_show))
                 end
             else
                 return true
@@ -550,7 +567,7 @@ function OnGameStart(reset)
 end
 
 local function WriteLog(str)
-    local file = io.open("Map Vote System (errors).log", "a+")
+    local file = io.open(self.error_log, "a+")
     if (file) then
         file:write(str .. "\n")
         file:close()
