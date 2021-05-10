@@ -13,11 +13,15 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 -- config starts --
 local GLauncher = {
 
+    -- A message relay function temporarily removes the server prefix
+    -- and will restore it to this when the relay is finished:
+    server_prefix = "**LNZ**",
+
     -- This is the custom command used to toggle grenade launcher on/off:
-    base_command = "gl", -- short for grenade launcher
+    command = "gl", -- short for grenade launcher
     --
 
-    -- Minimum permission required to execute /base_command for yourself
+    -- Minimum permission required to execute /command for yourself
     permission = -1,
     --
 
@@ -29,27 +33,35 @@ local GLauncher = {
     disable_on_death = false,
     --
 
-    -- Define grenades that will randomly spawn on a per-map basis;
-    ["bloodgulch"] = {"weapons\\frag grenade\\frag grenade"},
-    ["deathisland"] = {"weapons\\frag grenade\\frag grenade"},
-    ["icefields"] = {"weapons\\frag grenade\\frag grenade"},
-    ["infinity"] = {"weapons\\frag grenade\\frag grenade"},
-    ["sidewinder"] = {"weapons\\frag grenade\\frag grenade"},
-    ["timberland"] = {"weapons\\frag grenade\\frag grenade"},
-    ["dangercanyon"] = {"weapons\\frag grenade\\frag grenade"},
-    ["beavercreek"] = {"weapons\\frag grenade\\frag grenade"},
-    ["boardingaction"] = {"weapons\\frag grenade\\frag grenade"},
-    ["carousel"] = {"weapons\\frag grenade\\frag grenade"},
-    ["chillout"] = {"weapons\\frag grenade\\frag grenade"},
-    ["damnation"] = {"weapons\\frag grenade\\frag grenade"},
-    ["gephyrophobia"] = {"weapons\\frag grenade\\frag grenade"},
-    ["hangemhigh"] = {"weapons\\frag grenade\\frag grenade"},
-    ["longest"] = {"weapons\\frag grenade\\frag grenade"},
-    ["prisoner"] = {"weapons\\frag grenade\\frag grenade"},
-    ["putput"] = {"weapons\\frag grenade\\frag grenade"},
-    ["ratrace"] = {"weapons\\frag grenade\\frag grenade"},
-    ["wizard"] = {"weapons\\frag grenade\\frag grenade"},
-    ["tsce_multiplayerv1"] = {"cmt\\weapons\\evolved\\human\\frag_grenade\\_frag_grenade_mp\\frag_grenade_mp"},
+    death_messages = false,
+
+    -- [map name] = { grenade (proj), damage tag (!jpt) }
+    --
+    ["bloodgulch"] = { "weapons\\frag grenade\\frag grenade", "weapons\\frag grenade\\explosion" },
+    ["deathisland"] = { "weapons\\frag grenade\\frag grenade", "weapons\\frag grenade\\explosion" },
+    ["icefields"] = { "weapons\\frag grenade\\frag grenade", "weapons\\frag grenade\\explosion" },
+    ["infinity"] = { "weapons\\frag grenade\\frag grenade", "weapons\\frag grenade\\explosion" },
+    ["sidewinder"] = { "weapons\\frag grenade\\frag grenade", "weapons\\frag grenade\\explosion" },
+    ["timberland"] = { "weapons\\frag grenade\\frag grenade", "weapons\\frag grenade\\explosion" },
+    ["dangercanyon"] = { "weapons\\frag grenade\\frag grenade", "weapons\\frag grenade\\explosion" },
+    ["beavercreek"] = { "weapons\\frag grenade\\frag grenade", "weapons\\frag grenade\\explosion" },
+    ["boardingaction"] = { "weapons\\frag grenade\\frag grenade", "weapons\\frag grenade\\explosion" },
+    ["carousel"] = { "weapons\\frag grenade\\frag grenade", "weapons\\frag grenade\\explosion" },
+    ["chillout"] = { "weapons\\frag grenade\\frag grenade", "weapons\\frag grenade\\explosion" },
+    ["damnation"] = { "weapons\\frag grenade\\frag grenade", "weapons\\frag grenade\\explosion" },
+    ["gephyrophobia"] = { "weapons\\frag grenade\\frag grenade", "weapons\\frag grenade\\explosion" },
+    ["hangemhigh"] = { "weapons\\frag grenade\\frag grenade", "weapons\\frag grenade\\explosion" },
+    ["longest"] = { "weapons\\frag grenade\\frag grenade", "weapons\\frag grenade\\explosion" },
+    ["prisoner"] = { "weapons\\frag grenade\\frag grenade", "weapons\\frag grenade\\explosion" },
+    ["putput"] = { "weapons\\frag grenade\\frag grenade", "weapons\\frag grenade\\explosion" },
+    ["ratrace"] = { "weapons\\frag grenade\\frag grenade", "weapons\\frag grenade\\explosion" },
+    ["wizard"] = { "weapons\\frag grenade\\frag grenade", "weapons\\frag grenade\\explosion" },
+
+    -- custom maps --
+    ["tsce_multiplayerv1"] = {
+        "cmt\\weapons\\evolved\\human\\frag_grenade\\_frag_grenade_mp\\frag_grenade_mp",
+        "cmt\\weapons\\evolved\\human\\frag_grenade\\damage_effects\\frag_grenade_explosion"
+    },
 
     -- Grenade Launcher can be used with any of these weapons.
     -- Set to false to disable:
@@ -82,9 +94,10 @@ local GLauncher = {
         ["cmt\\vehicles\\evolved_h1-spirit\\ghost\\weapons\\ghost_cannon\\projectiles\\ghost_cannon_bolt\\ghost_cannon_bolt"] = true,
         ["cmt\\vehicles\\evolved_h1-spirit\\scorpion\\weapons\\scorpion_cannon\\projectiles\\scorpion_cannon_shell"] = false,
         ["cmt\\vehicles\\evolved_h1-spirit\\scorpion\\weapons\\scorpion_chaingun\\projectiles\\scorpion_chaingun_bullet"] = true,
+
         -- tsce_multiplayerv1 weapon projectiles--
         ["cmt\\weapons\\evolved_h1-spirit\\rocket_launcher\\projectiles\\rocket_launcher_rocket\\rocket_launcher_rocket"] = false,
-        ["cmt\\globals\\evolved\\brute_aoe_hack\\projectiles\\brute_aoe_hack_proj"] = true,
+        ["cmt\\globals\\evolved\\brute_aoe_hack\\projectiles\\brute_aoe_hack_proj"] = false,
         ["cmt\\globals\\evolved\\wraith_weakspot_hack\\wraith_weakspot_hack"] = false,
         ["cmt\\weapons\\evolved_h1-spirit\\needler\\_needler_mp\\projectiles\\needler_mp_needle"] = false,
         ["cmt\\globals\\evolved\\brute_aoe_hack\\_small\\projectiles\\brute_aoe_hack_small_proj"] = true,
@@ -108,66 +121,81 @@ local GLauncher = {
 
 api_version = "1.12.0.0"
 
-local script_version = 1.1
+local time_scale = 1 / 30
+local script_version = 1.2
 
 function OnScriptLoad()
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     OnGameStart()
 end
 
-function OnGameStart()
+function OnScriptUnload()
+    -- N/A
+end
+
+function GLauncher:OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
 
-        GLauncher.players = { }
+        self.players = { }
 
         local map = get_var(0, "$map")
-        if (GLauncher[map]) then
-            GLauncher.map = map
+        if (self[map]) then
+
+            self.map = map
+            self.projectiles = { }
+            self.frag_grenade = GetTag("jpt!", self[map][2])
+
+            register_callback(cb["EVENT_TICK"], "OnTick")
+            register_callback(cb["EVENT_DIE"], "DeathHandler")
             register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
             register_callback(cb["EVENT_LEAVE"], "OnPlayerQuit")
+            register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
             register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
             register_callback(cb["EVENT_OBJECT_SPAWN"], "OnObjectSpawn")
+            register_callback(cb["EVENT_DAMAGE_APPLICATION"], "DeathHandler")
+
             for i = 1, 16 do
                 if player_present(i) then
-                    GLauncher:InitPlayer(i, false)
+                    self:InitPlayer(i, false)
                 end
             end
             return
         end
 
+        unregister_callback(cb["EVENT_DIE"])
         unregister_callback(cb["EVENT_JOIN"])
+        unregister_callback(cb["EVENT_SPAWN"])
         unregister_callback(cb["EVENT_LEAVE"])
         unregister_callback(cb["EVENT_COMMAND"])
         unregister_callback(cb["EVENT_OBJECT_SPAWN"])
+        unregister_callback(cb["EVENT_DAMAGE_APPLICATION"])
     end
 end
 
-function OnScriptUnload()
-    -- N/A
+function GLauncher:OnTick()
+    if (self.death_messages) then
+        for k, v in pairs(self.projectiles) do
+            if (get_object_memory(k) == 0) then
+                v[5] = v[5] + time_scale
+                if (v[5] >= 2) then
+                    self.projectiles[k] = nil
+                end
+            else
+                local x, y, z = read_vector3d(k + 0x5c)
+                v[2] = x
+                v[3] = y
+                v[4] = z
+            end
+        end
+    end
 end
 
-local function GetTag(Type, Name)
-    local Tag = lookup_tag(Type, Name)
-    return (Tag ~= 0 and read_dword(Tag + 0xC)) or nil
-end
-
-function GLauncher:Launch(Ply, ParentID)
+function GLauncher:Launch(Ply)
 
     local DyN = get_dynamic_player(Ply)
-    local parent_object = get_object_memory(ParentID)
-    if (DyN ~= 0 and parent_object ~= 0) then
+    if (DyN ~= 0) then
 
-        local px, py, pz
-        local VehicleID = read_dword(DyN + 0x11C)
-        local VehicleObject = get_object_memory(VehicleID)
-
-        local distance = 0.5
-        if (VehicleID == 0xFFFFFFFF) then
-            px, py, pz = read_vector3d(DyN + 0x5c)
-        elseif (VehicleObject ~= 0) then
-            px, py, pz = read_vector3d(VehicleObject + 0x5c)
-            distance = 2
-        end
+        local px, py, pz, distance = self:GetXYZ(Ply)
 
         -- Update Z-Coordinate change when crouching:
         local couching = read_float(DyN + 0x50C)
@@ -186,41 +214,71 @@ function GLauncher:Launch(Ply, ParentID)
         local y = py + (distance * yAim)
         local z = pz + (distance * zAim)
 
-
-        local n = math.random(1,#self[self.map])
-        local tag = GetTag("proj", self[self.map][n])
+        local tag = GetTag("proj", self[self.map][1])
 
         if (tag) then
 
             local frag = spawn_projectile(tag, Ply, x, y, z)
-            local frag_object = get_object_memory(frag)
+            local object = get_object_memory(frag)
+            if (frag and object ~= 0) then
 
-            if (frag and frag_object ~= 0) then
+                local name = self.players[Ply].name
+                self.projectiles[object] = { name, x, y, z, 0 }
+
                 local velocity = 0.6
-                write_float(frag_object + 0x68, velocity * xAim)
-                write_float(frag_object + 0x6C, velocity * yAim)
-                write_float(frag_object + 0x70, velocity * zAim)
+                write_float(object + 0x68, velocity * xAim)
+                write_float(object + 0x6C, velocity * yAim)
+                write_float(object + 0x70, velocity * zAim)
             end
         end
     end
 end
 
-function GLauncher:OnObjectSpawn(Ply, MapID, ParentID)
+function GLauncher:Radius(x1, y1, z1, x2, y2, z2)
+    local distance = math.sqrt((x1 - x2) ^ 2 + (y1 - y2) ^ 2 + (z1 - z2) ^ 2)
+    return (distance <= 5)
+end
+
+-- event_die, event_damage_application
+function GLauncher:DeathHandler(Victim, Killer, MetaID)
+    if (self.death_messages) then
+        local player = self.players[Victim]
+        if (player) then
+            if (MetaID) then
+                player.meta_id = MetaID
+            elseif (tonumber(Killer) == 0 and player.meta_id == self.frag_grenade) then
+                local x, y, z = self:GetXYZ(Victim)
+                for _, v in pairs(self.projectiles) do
+                    if self:Radius(x, y, z, v[2], v[3], v[4]) then
+                        execute_command('msg_prefix ""')
+                        if (v[1] == player.name) then
+                            say_all(player.name .. " committed suicide")
+                        else
+                            say_all(player.name .. " was blown up by " .. v[1])
+                        end
+                        execute_command('msg_prefix "' .. self.server_prefix .. ' "')
+                        break
+                    end
+                end
+            end
+        end
+    end
+end
+
+function OnPlayerSpawn(Ply)
+    if (GLauncher.players[Ply]) then
+        GLauncher.players[Ply].meta_id = 0
+    end
+end
+
+function GLauncher:OnObjectSpawn(Ply, MapID)
     if (Ply > 0 and player_alive(Ply) and self.players[Ply].enabled) then
         for tag, enabled in pairs(self.weapons) do
-            if (MapID == GetTag("proj", tag) and enabled) then
-                return false, self:Launch(Ply, ParentID)
+            if (enabled and MapID == GetTag("proj", tag)) then
+                return false, self:Launch(Ply)
             end
         end
     end
-end
-
-local function CMDSplit(CMD)
-    local Args = { }
-    for Params in CMD:gmatch("([^%s]+)") do
-        Args[#Args + 1] = Params:lower()
-    end
-    return Args
 end
 
 local function Respond(Ply, Msg, Clear)
@@ -233,9 +291,13 @@ local function Respond(Ply, Msg, Clear)
 end
 
 function GLauncher:OnServerCommand(Ply, CMD, _, _)
-    local Args = CMDSplit(CMD)
-    local case = (Args and Args[1])
-    if (case and Args[1] == self.base_command) then
+
+    local Args = { }
+    for Params in CMD:gmatch("([^%s]+)") do
+        Args[#Args + 1] = Params:lower()
+    end
+
+    if (#Args > 0 and Args[1] == self.command) then
 
         local lvl = tonumber(get_var(Ply, "$lvl"))
         if (lvl >= self.permission) then
@@ -337,11 +399,32 @@ function GetPlayers(Ply, Args)
     return players
 end
 
+function GLauncher:GetXYZ(Ply)
+    local DyN = get_dynamic_player(Ply)
+    if (DyN ~= 0) then
+
+        local VehicleID = read_dword(DyN + 0x11C)
+        local VehicleObject = get_object_memory(VehicleID)
+
+        local x, y, z
+        local distance = 0.5
+
+        if (VehicleID == 0xFFFFFFFF) then
+            x, y, z = read_vector3d(DyN + 0x5c)
+        elseif (VehicleObject ~= 0) then
+            distance = 2
+            x, y, z = read_vector3d(VehicleObject + 0x5c)
+        end
+        return x, y, z, distance
+    end
+end
+
 function GLauncher:InitPlayer(Ply, Reset)
     if (not Reset) then
         self.players[Ply] = {
+            meta_id = 0,
             enabled = false,
-            name = get_var(Ply, "$name"),
+            name = get_var(Ply, "$name")
         }
         return
     end
@@ -359,44 +442,51 @@ end
 function OnServerCommand(P, C)
     return GLauncher:OnServerCommand(P, C)
 end
-
 function OnObjectSpawn(P, MID, PID)
     return GLauncher:OnObjectSpawn(P, MID, PID)
 end
+function DeathHandler(P, C, MID, _, _, _)
+    return GLauncher:DeathHandler(P, C, MID, _, _, _)
+end
+function OnGameStart()
+    return GLauncher:OnGameStart()
+end
+function OnTick()
+    return GLauncher:OnTick()
+end
 
--- Error Logging --
+function GetTag(Type, Name)
+    local Tag = lookup_tag(Type, Name)
+    return (Tag ~= 0 and read_dword(Tag + 0xC)) or nil
+end
+
 local function WriteLog(str)
-    local file = io.open("Grenade Launcher.errors", "a+")
+    local file = io.open("Grenade Launcher (errors).log", "a+")
     if (file) then
         file:write(str .. "\n")
         file:close()
     end
 end
 
--- In the event of an error, the script will trigger
--- these two functions: OnError(), report()
-function report(StackTrace, Error)
-
-    cprint(StackTrace, 4 + 8)
-
-    cprint("--------------------------------------------------------", 5 + 8)
-    cprint("Please report this error on github:", 7 + 8)
-    cprint("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", 7 + 8)
-    cprint("Script Version: " .. script_version, 7 + 8)
-    cprint("--------------------------------------------------------", 5 + 8)
-
-    local timestamp = os.date("[%H:%M:%S - %d/%m/%Y]")
-    WriteLog(timestamp)
-    WriteLog("Please report this error on github:")
-    WriteLog("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues")
-    WriteLog("Script Version: " .. script_version)
-    WriteLog(Error)
-    WriteLog(StackTrace)
-    WriteLog("\n")
-end
-
--- This function will return a string with a traceback of the stack call...
--- and call function 'report' after 50 milliseconds.
 function OnError(Error)
-    timer(50, "report", debug.traceback(), Error)
+
+    local log = {
+        { os.date("[%H:%M:%S - %d/%m/%Y]"), true, 12 },
+        { Error, false, 12 },
+        { debug.traceback(), true, 12 },
+        { "--------------------------------------------------------", true, 5 },
+        { "Please report this error on github:", true, 7 },
+        { "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", true, 7 },
+        { "Script Version: " .. script_version, true, 7 },
+        { "--------------------------------------------------------", true, 5 }
+    }
+
+    for _, v in pairs(log) do
+        WriteLog(v[1])
+        if (v[2]) then
+            cprint(v[1], v[3])
+        end
+    end
+
+    WriteLog("\n")
 end

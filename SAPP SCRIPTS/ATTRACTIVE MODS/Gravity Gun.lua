@@ -14,10 +14,10 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 local GGun = {
 
     -- This is the custom command used to toggle gravity gun on/off:
-    base_command = "ggun", -- short for gravity gun
+    command = "ggun", -- short for gravity gun
     --
 
-    -- Minimum permission required to execute /base_command for yourself
+    -- Minimum permission required to execute /command for yourself
     permission = -1,
     --
 
@@ -40,10 +40,8 @@ local GGun = {
     use_in_vehicle = true,
     --
 
-    -- If true, gravity gun will be disabled on death:
-    disable_on_death = false,
-    --
-
+    -- experimental setting:
+    death_messages = false,
 
     -- vehicle velocities --
     --
@@ -52,35 +50,49 @@ local GGun = {
 
     -- Suspended yaw, pitch & roll velocities:
     yaw = 0.1, pitch = 0.1, roll = 0.1,
+
+    -- A message relay function temporarily removes the server prefix
+    -- and will restore it to this when the relay is finished:
+    server_prefix = "**LNZ**",
 }
 -- config ends --
 
 api_version = "1.12.0.0"
 
-local script_version = 1.0
+local time_scale = 1 / 30
+local script_version = 1.1
 local tag_count, tag_address
 
 function OnScriptLoad()
     register_callback(cb["EVENT_TICK"], "OnTick")
-    register_callback(cb["EVENT_DIE"], "OnPlayerDeath")
     register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
     register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerQuit")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
+    register_callback(cb["EVENT_DIE"], "DeathHandler")
+    register_callback(cb["EVENT_DAMAGE_APPLICATION"], "DeathHandler")
+
     OnGameStart()
 end
 
-function OnGameStart()
+function OnScriptUnload()
+    -- N/A
+end
+
+function GGun:OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
 
         tag_count = read_dword(0x4044000C)
         tag_address = read_dword(0x40440000)
 
-        GGun.players = { }
+        self.players = { }
+        self.vehicles = { }
+        self.vehicle_collision = GetTag("jpt!", "globals\\vehicle_collision")
+
         for i = 1, 16 do
             if player_present(i) then
-                GGun:InitPlayer(i, false)
+                self:InitPlayer(i, false)
             end
         end
     end
@@ -147,7 +159,27 @@ local function IsVehicle(TAG)
     return false
 end
 
+function GGun:Radius(x1, y1, z1, x2, y2, z2)
+    local distance = math.sqrt((x1 - x2) ^ 2 + (y1 - y2) ^ 2 + (z1 - z2) ^ 2)
+    return (distance <= 5)
+end
+
 function GGun:OnTick()
+
+    if (self.death_messages) then
+        for k, v in pairs(self.vehicles) do
+            if (v[5] < 7) then
+                local x, y, z = read_vector3d(k + 0x5c)
+                v[2] = x
+                v[3] = y
+                v[4] = z
+                v[5] = v[5] + time_scale
+            else
+                self.vehicles[k] = nil
+            end
+        end
+    end
+
     for i, v in pairs(self.players) do
         if (v.enabled) then
 
@@ -166,16 +198,7 @@ function GGun:OnTick()
                     end
                 end
 
-                local px, py, pz
-                local VehicleID = read_dword(DyN + 0x11C)
-                local VehicleObject = get_object_memory(VehicleID)
-
-                if (VehicleID == 0xFFFFFFFF) then
-                    px, py, pz = read_vector3d(DyN + 0x5c)
-                elseif (VehicleObject ~= 0) then
-                    px, py, pz = read_vector3d(VehicleObject + 0x5c)
-                end
-                --
+                local px, py, pz = self:GetXYZ(i)
 
                 -- Update Z-Coordinate change when crouching:
                 local couching = read_float(DyN + 0x50C)
@@ -205,6 +228,8 @@ function GGun:OnTick()
 
                                 -- Check vehicle is not occupied:
                                 if not IsOccupied(obj) then
+                                    -- {owner name, x,y,z, timer}
+                                    self.vehicles[obj] = { v.name, 0, 0, 0, 0 }
                                     v.target_object = (obj ~= 0xFFFFFFFF and obj) or nil
                                 end
                             end
@@ -263,18 +288,14 @@ function GGun:OnTick()
     end
 end
 
-local function CMDSplit(CMD)
+function GGun:OnServerCommand(Ply, CMD, _, _)
+
     local Args = { }
     for Params in CMD:gmatch("([^%s]+)") do
         Args[#Args + 1] = Params:lower()
     end
-    return Args
-end
 
-function GGun:OnServerCommand(Ply, CMD, _, _)
-    local Args = CMDSplit(CMD)
-    local case = (Args and Args[1])
-    if (case and Args[1] == self.base_command) then
+    if (#Args > 0 and Args[1] == self.command) then
 
         local lvl = tonumber(get_var(Ply, "$lvl"))
         if (lvl >= self.permission) then
@@ -376,11 +397,46 @@ function GetPlayers(Ply, Args)
     return players
 end
 
-function OnPlayerDeath(V)
-    if (GGun.disable_on_death) then
-        if (GGun.players[V].enabled) then
-            GGun.players[V].enabled = false
+-- event_die, event_damage_application
+function GGun:DeathHandler(Victim, Killer, MetaID)
+    if (self.death_messages) then
+        local player = self.players[Victim]
+        if (player) then
+            if (MetaID) then
+                player.meta_id = MetaID
+            elseif (tonumber(Killer) == 0 and player.meta_id == self.vehicle_collision) then
+                local x, y, z = self:GetXYZ(Victim)
+                for _, v in pairs(self.vehicles) do
+                    if self:Radius(x, y, z, v[2], v[3], v[4]) then
+                        execute_command('msg_prefix ""')
+                        if (v[1] ~= player.name) then
+                            say_all(player.name .. " was killed by " .. v[1])
+                        end
+                        execute_command('msg_prefix "' .. self.server_prefix .. ' "')
+                        break
+                    end
+                end
+                return false
+            end
         end
+    end
+end
+
+function GGun:GetXYZ(Ply)
+    local DyN = get_dynamic_player(Ply)
+    if (DyN ~= 0) then
+
+        local VehicleID = read_dword(DyN + 0x11C)
+        local VehicleObject = get_object_memory(VehicleID)
+
+        local x, y, z
+
+        if (VehicleID == 0xFFFFFFFF) then
+            x, y, z = read_vector3d(DyN + 0x5c)
+        elseif (VehicleObject ~= 0) then
+            x, y, z = read_vector3d(VehicleObject + 0x5c)
+        end
+        return x, y, z
     end
 end
 
@@ -388,6 +444,8 @@ function GGun:InitPlayer(Ply, Reset)
 
     if (not Reset) then
         self.players[Ply] = {
+
+            meta_id = 0,
 
             -- Used to keep track of the gravity gun's "state" (on or off):
             enabled = false,
@@ -400,6 +458,11 @@ function GGun:InitPlayer(Ply, Reset)
     end
 
     self.players[Ply] = nil
+end
+
+function GetTag(Type, Name)
+    local Tag = lookup_tag(Type, Name)
+    return (Tag ~= 0 and read_dword(Tag + 0xC)) or nil
 end
 
 function OnPlayerJoin(Ply)
@@ -421,40 +484,40 @@ end
 function OnServerCommand(P, C)
     return GGun:OnServerCommand(P, C)
 end
+function DeathHandler(P, C, MID, _, _, _)
+    return GGun:DeathHandler(P, C, MID, _, _, _)
+end
+function OnGameStart()
+    return GGun:OnGameStart()
+end
 
--- Error Logging --
 local function WriteLog(str)
-    local file = io.open("Gravity Gun.errors", "a+")
+    local file = io.open("Gravity Gun (errors).log", "a+")
     if (file) then
         file:write(str .. "\n")
         file:close()
     end
 end
 
--- In the event of an error, the script will trigger
--- these two functions: OnError(), report()
-function report(StackTrace, Error)
-
-    cprint(StackTrace, 4 + 8)
-
-    cprint("--------------------------------------------------------", 5 + 8)
-    cprint("Please report this error on github:", 7 + 8)
-    cprint("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", 7 + 8)
-    cprint("Script Version: " .. script_version, 7 + 8)
-    cprint("--------------------------------------------------------", 5 + 8)
-
-    local timestamp = os.date("[%H:%M:%S - %d/%m/%Y]")
-    WriteLog(timestamp)
-    WriteLog("Please report this error on github:")
-    WriteLog("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues")
-    WriteLog("Script Version: " .. script_version)
-    WriteLog(Error)
-    WriteLog(StackTrace)
-    WriteLog("\n")
-end
-
--- This function will return a string with a traceback of the stack call...
--- and call function 'report' after 50 milliseconds.
 function OnError(Error)
-    timer(50, "report", debug.traceback(), Error)
+
+    local log = {
+        { os.date("[%H:%M:%S - %d/%m/%Y]"), true, 12 },
+        { Error, false, 12 },
+        { debug.traceback(), true, 12 },
+        { "--------------------------------------------------------", true, 5 },
+        { "Please report this error on github:", true, 7 },
+        { "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", true, 7 },
+        { "Script Version: " .. script_version, true, 7 },
+        { "--------------------------------------------------------", true, 5 }
+    }
+
+    for _, v in pairs(log) do
+        WriteLog(v[1])
+        if (v[2]) then
+            cprint(v[1], v[3])
+        end
+    end
+
+    WriteLog("\n")
 end
