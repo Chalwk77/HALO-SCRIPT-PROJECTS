@@ -40,18 +40,21 @@ local MapVote = {
     map_skip = 60,
     --
 
-    -- How many votes options to display when the game ends?
-    amount_to_show = 5,
-    --
-
     -- If true, players can re-cast their vote:
     re_vote = true,
 
     -- How many times can a player re-vote?
     re_vote_count = 1,
+    --
+
+    -- How many votes options to display when the game ends?
+    amount_to_show = 5,
+    --
 
     -- If true, the player's console will be cleared each time we print vote options:
+    -- Not recommended --
     clear_console = false,
+    --
 
     -- Most messages are configurable (edit them here):
     messages = {
@@ -153,15 +156,15 @@ local MapVote = {
 }
 -- Configuration Ends --
 
-local script_version = 1.4
+local script_version = 1.5
 local start_index, end_index
 
 function OnScriptLoad()
 
     -- register needed event callbacks:
     register_callback(cb["EVENT_CHAT"], "OnVote")
-    register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
     register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
+    register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerQuit")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
 
@@ -187,6 +190,7 @@ function MapVote:OnStart(reset)
 
         self.results = { }
         self:SetupTimer(true)
+
         execute_command("mapvote false")
         execute_command("map_skip " .. self.map_skip)
         execute_command("sv_mapcycle_timeout " .. self.map_cycle_timeout)
@@ -256,10 +260,6 @@ function MapVote:ClearConsole(Ply, Count)
     end
 end
 
-local function Plural(n)
-    return (n > 1 and "s") or ""
-end
-
 -- Sorts self.results by vote count:
 function MapVote:SortResults()
 
@@ -290,6 +290,10 @@ function MapVote:SortResults()
     end
 
     return nil
+end
+
+local function Plural(n)
+    return (n > 1 and "s") or ""
 end
 
 function MapVote:Timer()
@@ -529,6 +533,10 @@ function MapVote:ResetVoteIndex(Shuffle)
 
     start_index = 1
     end_index = self.amount_to_show
+end
+
+function OnScriptUnload()
+    -- N/A
 end
 
 function OnVote(P, M)
