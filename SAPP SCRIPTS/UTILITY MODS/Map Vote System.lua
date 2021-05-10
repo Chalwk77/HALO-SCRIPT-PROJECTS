@@ -79,7 +79,8 @@ local MapVote = {
             "|lNo Votes! Picking %map% %msg%..."
         },
 
-        -- Message sent to player when their vote count equals zero;
+        -- If a player tries to vote more than "re_vote_count" times,
+        -- this message will be sent to them:
         [5] = "|lYou cannot re-vote at this time.",
 
         -- Message sent to player when they attempt to vote too early.
@@ -162,8 +163,8 @@ local MapVote = {
 
     -- ADVANCED USERS ONLY --
 
-    -- File name that will log all errors.
-    -- If there are any errors, they will be logged to this file (in root directory).
+    -- If there are any errors, this will be the file to which
+    -- they are logged (located in the root directory):
     error_log = "Map Vote System (errors).log",
 
     -- A message relay function temporarily removes the server prefix
