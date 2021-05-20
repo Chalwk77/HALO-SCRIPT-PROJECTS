@@ -4,6 +4,9 @@ local ctf_globals
 
 function OnScriptLoad()
     local pointer = sig_scan("8B3C85????????3BF9741FE8????????8B8E2C0200008B4610") + 3
+    if (pointer == 3) then
+        return
+    end
     ctf_globals = read_dword(pointer)
     register_callback(cb["EVENT_GAME_START"], "START")
 end
