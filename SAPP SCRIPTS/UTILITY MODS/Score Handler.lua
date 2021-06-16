@@ -28,9 +28,10 @@ local Scoring = {
     -- FLAG CAPTURE:
     score = { 1, "Flag Capture" },
 
-    -- FLAG CARRIER KILLS:
+    -- RED FLAG CARRIER KILL:
     red_flag_kill = {5, "Red Flag Carrier Kill"},
 
+    -- BLUE FLAG CARRIER KILL:
     blue_flag_kill = {5, "Blue Flag Carrier Kill"},
 
     -- ASSIST:
