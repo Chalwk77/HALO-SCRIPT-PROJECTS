@@ -28,6 +28,11 @@ local Scoring = {
     -- FLAG CAPTURE:
     score = { 1, "Flag Capture" },
 
+    -- FLAG CARRIER KILLS:
+    red_flag_kill = {5, "Red Flag Carrier Kill"},
+
+    blue_flag_kill = {5, "Blue Flag Carrier Kill"},
+
     -- ASSIST:
     assist = { 1, "Assist" },
 
@@ -183,6 +188,8 @@ local Scoring = {
 
 api_version = "1.12.0.0"
 
+local globals
+
 function OnScriptLoad()
 
     register_callback(cb["EVENT_SCORE"], "OnScore")
@@ -200,7 +207,13 @@ function OnScriptLoad()
     register_callback(cb["EVENT_DIE"], "DeathHandler")
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "DeathHandler")
 
-    OnNewGame()
+    local gp = sig_scan("8B3C85????????3BF9741FE8????????8B8E2C0200008B4610") + 3
+    if (gp == 3) then
+        return
+    end
+    globals = read_dword(gp)
+
+    OnNewGame(globals)
 end
 
 local function GetTag(Type, Name)
@@ -224,6 +237,8 @@ function Scoring:OnNewGame()
 
         local collision = self.tags.collision
         self.vehicle_collision = GetTag(collision[1], collision[2])
+
+        self.red_flag, self.blue_flag = read_dword(globals + 0x8), read_dword(globals + 0xC)
 
         for i = 1, 16 do
             if player_present(i) then
@@ -390,6 +405,13 @@ function Scoring:DeathHandler(V, K, MetaID, _, HitString, BackTap)
         --
         KillingSpree(killer)
 
+        -- flag carrier kill:
+        --
+        local flag, flag_points = self:HasFlag(victim)
+        if (flag) then
+            SetPoints(killer, flag_points[1], nil, flag_points[2])
+        end
+
         -- killed from the grave:
         --
         if (not player_alive(killer)) then
@@ -515,6 +537,24 @@ function Scoring:InitPlayer(Ply, Reset)
     end
 
     self.players[Ply] = nil
+end
+
+function Scoring:HasFlag(Ply)
+    local DyN = get_dynamic_player(Ply)
+    if (DyN ~= 0) then
+        local Weapon = read_dword(DyN + 0x118)
+        if (Weapon ~= 0) then
+            for j = 0, 3 do
+                local Object = read_dword(DyN + 0x2F8 + 4 * j)
+                if (Object == self.red_flag) then
+                    return true, self.red_flag_kill
+                elseif (Object == self.blue_flag) then
+                    return true, self.blue_flag_kill
+                end
+            end
+        end
+    end
+    return nil, nil
 end
 
 function OnScore(Ply)
