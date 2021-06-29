@@ -9,6 +9,33 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
+-- USE THIS WEBSITE TO GENERATE YOUR LOGO:
+-- https://patorjk.com/software/taag/#p=display&f=Graffiti&t=Type%20Something%20
+-- Make sure logo text is encapsulated in quotes.
+
+-- config starts --
+local logo = {
+
+    -- format: {"text", text color}
+    -- See SAPP documentation for color codes.
+
+    { "================================================================================", 10 },
+    { "%time_stamp%", 6 },
+    { "" },
+    { "     '||'  '||'     |     '||'       ..|''||           ..|'''.| '||''''|  ", 12, },
+    { "      ||    ||     |||     ||       .|'    ||        .|'     '   ||  .    ", 12, },
+    { "      ||''''||    |  ||    ||       ||      ||       ||          ||''|    ", 12, },
+    { "      ||    ||   .''''|.   ||       '|.     ||       '|.      .  ||       ", 12, },
+    { "     .||.  .||. .|.  .||. .||.....|  ''|...|'         ''|....'  .||.....| ", 12, },
+    { "               ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-", 7 },
+    { "                             %server_name%", 10 },
+    { "               ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-", 7 },
+    { "" },
+    { "================================================================================", 10 }
+}
+
+-- config ends --
+
 api_version = "1.12.0.0"
 
 function OnScriptLoad()
@@ -32,19 +59,11 @@ function PrintLogo()
         local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
         local server_name = read_widestring(network_struct + 0x8, 0x42)
         local time_stamp = os.date("%A, %d %B %Y - %X")
-        cprint("================================================================================", 10)
-        cprint(time_stamp, 6)
-        cprint("")
-        cprint("     '||'  '||'     |     '||'       ..|''||           ..|'''.| '||''''|  ", 12)
-        cprint("      ||    ||     |||     ||       .|'    ||        .|'     '   ||  .    ", 12)
-        cprint("      ||''''||    |  ||    ||       ||      ||       ||          ||''|    ", 12)
-        cprint("      ||    ||   .''''|.   ||       '|.     ||       '|.      .  ||       ", 12)
-        cprint("     .||.  .||. .|.  .||. .||.....|  ''|...|'         ''|....'  .||.....| ", 12)
-        cprint("               ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-", 7)
-        cprint("                             " .. server_name, 10)
-        cprint("               ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-", 7)
-        cprint("")
-        cprint("================================================================================", 10)
+        for _, v in pairs(logo) do
+            local text = v[1]
+            local color = v[2] or 0
+            cprint(text:gsub("%%time_stamp%%", time_stamp):gsub("%%server_name%%", server_name), color)
+        end
     end
 end
 
