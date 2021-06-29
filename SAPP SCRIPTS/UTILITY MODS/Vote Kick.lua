@@ -219,7 +219,7 @@ end
 function VoteKick:ShowPlayerList(Executor)
     local player_count = self:GetPlayerCount()
     if (player_count > 0) then
-        self:Respond(Executor, "[ ID.    -    Name.    -    Immune]", 13)
+        self:Respond(Executor, "[ ID.    -    Name.    -    Immune ]", 13)
         for i = 1, 16 do
             if player_present(i) then
                 local name = get_var(i, "$name")
