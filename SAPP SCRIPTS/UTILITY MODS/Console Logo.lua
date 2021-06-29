@@ -16,8 +16,9 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 -- config starts --
 local logo = {
 
-    -- format: {"text", text color}
-    -- See SAPP documentation for color codes.
+    -- format: {"text", text color code}
+    -- See SAPP documentation for color codes:
+    -- http://halo.isimaginary.com/SAPP%20Documentation%20Revision%202.5.pdf
 
     { "================================================================================", 10 },
     { "%time_stamp%", 6 },
