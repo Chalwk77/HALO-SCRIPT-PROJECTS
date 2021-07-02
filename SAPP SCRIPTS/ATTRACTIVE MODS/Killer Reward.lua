@@ -52,29 +52,29 @@ local MOD = {
     -- stock tags --
     -- To disable a specific item, change the 'true' value to "false".
     weapons = {
-        { "weap", "weapons\\pistol\\pistol", true },
-        { "weap", "weapons\\shotgun\\shotgun", true },
-        { "weap", "weapons\\needler\\mp_needler", true },
-        { "weap", "weapons\\flamethrower\\flamethrower", true },
-        { "weap", "weapons\\plasma rifle\\plasma rifle", true },
-        { "weap", "weapons\\sniper rifle\\sniper rifle", true },
-        { "weap", "weapons\\assault rifle\\assault rifle", true },
-        { "weap", "weapons\\plasma pistol\\plasma pistol", true },
-        { "weap", "weapons\\plasma_cannon\\plasma_cannon", true },
-        { "weap", "weapons\\rocket launcher\\rocket launcher", true },
+        { "weap", "weapons\\pistol\\pistol" },
+        { "weap", "weapons\\shotgun\\shotgun" },
+        { "weap", "weapons\\needler\\mp_needler" },
+        { "weap", "weapons\\flamethrower\\flamethrower" },
+        { "weap", "weapons\\plasma rifle\\plasma rifle" },
+        { "weap", "weapons\\sniper rifle\\sniper rifle" },
+        { "weap", "weapons\\assault rifle\\assault rifle" },
+        { "weap", "weapons\\plasma pistol\\plasma pistol" },
+        { "weap", "weapons\\plasma_cannon\\plasma_cannon" },
+        { "weap", "weapons\\rocket launcher\\rocket launcher" },
     },
 
     equipment = {
-        { "eqip", "powerups\\health pack", true },
-        { "eqip", "powerups\\over shield", true },
-        { "eqip", "powerups\\active camouflage", true },
-        { "eqip", "powerups\\pistol ammo\\pistol ammo", true },
-        { "eqip", "powerups\\shotgun ammo\\shotgun ammo", true },
-        { "eqip", "powerups\\needler ammo\\needler ammo", true },
-        { "eqip", "powerups\\flamethrower ammo\\flamethrower ammo", true },
-        { "eqip", "powerups\\sniper rifle ammo\\sniper rifle ammo", true },
-        { "eqip", "powerups\\assault rifle ammo\\assault rifle ammo", true },
-        { "eqip", "powerups\\rocket launcher ammo\\rocket launcher ammo", true },
+        { "eqip", "powerups\\health pack" },
+        { "eqip", "powerups\\over shield" },
+        { "eqip", "powerups\\active camouflage" },
+        { "eqip", "powerups\\pistol ammo\\pistol ammo" },
+        { "eqip", "powerups\\shotgun ammo\\shotgun ammo" },
+        { "eqip", "powerups\\needler ammo\\needler ammo" },
+        { "eqip", "powerups\\flamethrower ammo\\flamethrower ammo" },
+        { "eqip", "powerups\\sniper rifle ammo\\sniper rifle ammo" },
+        { "eqip", "powerups\\assault rifle ammo\\assault rifle ammo" },
+        { "eqip", "powerups\\rocket launcher ammo\\rocket launcher ammo" },
     }
 }
 -- config ends --
@@ -106,26 +106,24 @@ end
 
 function MOD:SpawnItem(x, y, z)
 
-    local name, type
+    local n, name, type
 
     if (MOD["WeaponsAndEquipment"]) then
-
-        local n = rand(0, 2)
-        if (n == 1) then
+        n = rand(0, 2)
+        if (n == 0) then
             n = MOD.weapons[rand(1, #MOD.weapons + 1)]
         else
             n = MOD.weapons[rand(1, #MOD.equipment + 1)]
         end
-        type, name = n[1], n[2]
 
     elseif (MOD["JustEquipment"]) then
-        local n = MOD.weapons[rand(1, #MOD.equipment + 1)]
-        type, name = n[1], n[2]
+        n = MOD.weapons[rand(1, #MOD.equipment + 1)]
+
     elseif (MOD["JustWeapons"]) then
-        local n = MOD.weapons[rand(1, #MOD.weapons + 1)]
-        type, name = n[1], n[2]
+        n = MOD.weapons[rand(1, #MOD.weapons + 1)]
     end
 
+    type, name = n[1], n[2]
     if (GetTag(type, name)) then
         spawn_object(type, name, x, y, z + 0.5)
     end
@@ -136,24 +134,24 @@ function OnDeath(Victim, Killer)
     local victim = tonumber(Victim)
     local killer = tonumber(Killer)
 
-    if (killer > 0 and player_present(killer)) then
+    --if (killer > 0 and player_present(killer)) then
 
-        local DyN = get_dynamic_player(victim)
-        if (DyN ~= 0) then
+    local DyN = get_dynamic_player(victim)
+    if (DyN ~= 0) then
 
-            local x, y, z = GetPos(DyN)
+        local x, y, z = GetPos(DyN)
 
-            if (MOD["mode 1"]) then
+        if (MOD["mode 1"]) then
+            MOD:SpawnItem(x, y, z)
+
+        elseif (MOD["mode 2"]) then
+            local kills = tonumber(get_var(killer, "$kills"))
+            if (kills % MOD.consecutive_kills == 0) then
                 MOD:SpawnItem(x, y, z)
-
-            elseif (MOD["mode 2"]) then
-                local kills = tonumber(get_var(killer, "$kills"))
-                if (kills % MOD.consecutive_kills == 0) then
-                    MOD:SpawnItem(x, y, z)
-                end
             end
         end
     end
+    --end
 end
 
 function OnScriptUnload()
