@@ -106,18 +106,18 @@ end
 
 function MOD:SpawnItem(x, y, z)
 
-    local n, name, type
+    local n, type, name
 
     if (MOD["WeaponsAndEquipment"]) then
         n = rand(0, 2)
         if (n == 0) then
             n = MOD.weapons[rand(1, #MOD.weapons + 1)]
         else
-            n = MOD.weapons[rand(1, #MOD.equipment + 1)]
+            n = MOD.equipment[rand(1, #MOD.equipment + 1)]
         end
 
     elseif (MOD["JustEquipment"]) then
-        n = MOD.weapons[rand(1, #MOD.equipment + 1)]
+        n = MOD.equipment[rand(1, #MOD.equipment + 1)]
 
     elseif (MOD["JustWeapons"]) then
         n = MOD.weapons[rand(1, #MOD.weapons + 1)]
