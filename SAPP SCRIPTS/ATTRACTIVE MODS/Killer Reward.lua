@@ -48,9 +48,7 @@ local MOD = {
     consecutive_kills = 5,
     --==============================================--
 
-
-    -- stock tags --
-    -- To disable a specific item, change the 'true' value to "false".
+    -- stock weapon tags --
     weapons = {
         { "weap", "weapons\\pistol\\pistol" },
         { "weap", "weapons\\shotgun\\shotgun" },
@@ -64,6 +62,7 @@ local MOD = {
         { "weap", "weapons\\rocket launcher\\rocket launcher" },
     },
 
+    -- stock equipment tags --
     equipment = {
         { "eqip", "powerups\\health pack" },
         { "eqip", "powerups\\over shield" },
@@ -150,15 +149,10 @@ function OnDeath(Victim, Killer)
         if (DyN ~= 0) then
 
             local x, y, z = GetPos(DyN)
+            local consecutive = (tonumber(get_var(killer, "$kills")) % MOD.consecutive_kills == 0)
 
-            if (MOD["mode 1"]) then
+            if (MOD["mode 1"] or MOD["mode 2"] and consecutive) then
                 MOD:SpawnItem(x, y, z)
-
-            elseif (MOD["mode 2"]) then
-                local kills = tonumber(get_var(killer, "$kills"))
-                if (kills % MOD.consecutive_kills == 0) then
-                    MOD:SpawnItem(x, y, z)
-                end
             end
         end
     end
