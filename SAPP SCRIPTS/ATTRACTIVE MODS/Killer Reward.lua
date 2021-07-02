@@ -144,24 +144,24 @@ function OnDeath(Victim, Killer)
     local victim = tonumber(Victim)
     local killer = tonumber(Killer)
 
-    --if (killer > 0 and player_present(killer)) then
+    if (killer > 0 and player_present(killer)) then
 
-    local DyN = get_dynamic_player(victim)
-    if (DyN ~= 0) then
+        local DyN = get_dynamic_player(victim)
+        if (DyN ~= 0) then
 
-        local x, y, z = GetPos(DyN)
+            local x, y, z = GetPos(DyN)
 
-        if (MOD["mode 1"]) then
-            MOD:SpawnItem(x, y, z)
-
-        elseif (MOD["mode 2"]) then
-            local kills = tonumber(get_var(killer, "$kills"))
-            if (kills % MOD.consecutive_kills == 0) then
+            if (MOD["mode 1"]) then
                 MOD:SpawnItem(x, y, z)
+
+            elseif (MOD["mode 2"]) then
+                local kills = tonumber(get_var(killer, "$kills"))
+                if (kills % MOD.consecutive_kills == 0) then
+                    MOD:SpawnItem(x, y, z)
+                end
             end
         end
     end
-    --end
 end
 
 function OnScriptUnload()
