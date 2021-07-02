@@ -132,6 +132,7 @@ function MOD:SpawnItem(x, y, z)
 end
 
 function OnDeath(Victim, Killer)
+
     local victim = tonumber(Victim)
     local killer = tonumber(Killer)
 
@@ -147,7 +148,7 @@ function OnDeath(Victim, Killer)
 
             elseif (MOD["mode 2"]) then
                 local kills = tonumber(get_var(killer, "$kills"))
-                if (kills % MOD.consecutive_kills) then
+                if (kills % MOD.consecutive_kills == 0) then
                     MOD:SpawnItem(x, y, z)
                 end
             end
