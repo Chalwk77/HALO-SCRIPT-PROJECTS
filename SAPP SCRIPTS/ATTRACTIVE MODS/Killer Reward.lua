@@ -40,12 +40,14 @@ local MOD = {
 
     -- No kills required (victim will drop item indefinitely):
     --
-    ["mode 1"] = false,
+    ["mode 1"] = true,
 
     -- Kills required (an item will drop every N consecutive kills):
     --
-    ["mode 2"] = true,
+    ["mode 2"] = false,
     consecutive_kills = 5,
+
+
     --==============================================--
 
     -- stock weapon tags --
