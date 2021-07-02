@@ -40,11 +40,11 @@ local MOD = {
 
     -- No kills required (victim will drop item indefinitely):
     --
-    ["mode 1"] = true,
+    ["mode 1"] = false,
 
     -- Kills required (an item will drop every N consecutive kills):
     --
-    ["mode 2"] = false,
+    ["mode 2"] = true,
     consecutive_kills = 5,
     --==============================================--
 
@@ -125,8 +125,18 @@ function MOD:SpawnItem(x, y, z)
 
     type, name = n[1], n[2]
     if (GetTag(type, name)) then
-        spawn_object(type, name, x, y, z + 0.5)
+
+        -- Technical Note --
+        -- Objects are not anchored to the ground.
+        -- We need to delay the spawn logic otherwise they might
+        -- fly away if the victim is blown up.
+
+        timer(500, "SpawnObject", type, name, x, y, z)
     end
+end
+
+function SpawnObject(type, name, x, y, z)
+    spawn_object(type, name, x, y, z + 0.5)
 end
 
 function OnDeath(Victim, Killer)
