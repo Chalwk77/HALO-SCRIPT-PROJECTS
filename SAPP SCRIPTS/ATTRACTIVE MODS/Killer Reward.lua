@@ -153,7 +153,7 @@ function OnDeath(Victim, Killer)
             local x, y, z = GetPos(DyN)
             local consecutive = (tonumber(get_var(killer, "$kills")) % MOD.consecutive_kills == 0)
 
-            if (MOD["mode 1"] or MOD["mode 2"] and consecutive) then
+            if (MOD["mode 1"] or (MOD["mode 2"] and consecutive)) then
                 MOD:SpawnItem(x, y, z)
             end
         end
