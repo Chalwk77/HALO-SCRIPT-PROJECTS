@@ -35,7 +35,7 @@ api_version = "1.12.0.0"
 local team_play
 
 function OnScriptLoad()
-    register_callback(cb["EVENT_CHAT"], "RCONChat")
+    register_callback(cb["EVENT_CHAT"], "RconChat")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     OnGameStart()
 end
@@ -62,7 +62,7 @@ local function InVehicle(Ply)
     return (DyN ~= 0 and vehicle ~= 0xFFFFFFFF), object or false
 end
 
-function RCONChat(Ply, Msg, Type)
+function RconChat(Ply, Msg, Type)
 
     local args = { }
     for Params in Msg:gmatch("([^%s]+)") do
@@ -80,11 +80,10 @@ function RCONChat(Ply, Msg, Type)
             local original_message = Msg
             Msg = msg:gsub("%%name%%", p_name):gsub("%%id%%", Ply):gsub("%%msg%%", Msg)
 
-            -- team/vehicle:
-            if (Type == 1 or Type == 2) then
+            -- team:
+            if (Type == 1) then
 
-                -- team:
-                if (Type == 1 and team_play) then
+                if (team_play) then
                     for i = 1, 16 do
                         if player_present(i) then
                             if (get_var(Ply, "$team") == get_var(i, "$team")) then
@@ -93,29 +92,26 @@ function RCONChat(Ply, Msg, Type)
                         end
                     end
                     return false
+                end
 
-                    -- team chat (on slayer)
-                elseif (Type == 1) then
+                Msg = original_message
+                Msg = chat[0]:gsub("%%name%%", p_name):gsub("%%id%%", Ply):gsub("%%msg%%", Msg)
+                goto global
 
-                    Msg = original_message
-                    Msg = chat[0]:gsub("%%name%%", p_name):gsub("%%id%%", Ply):gsub("%%msg%%", Msg)
-                    goto global
+                -- vehicle
+            elseif (Type == 2) then
+                for i = 1, 16 do
+                    if player_present(i) then
 
-                    -- vehicle
-                elseif (Type == 2) then
-                    for i = 1, 16 do
-                        if player_present(i) then
+                        local in_vehicle_a, vehicle_a = InVehicle(i)
+                        local in_vehicle_b, vehicle_b = InVehicle(Ply)
 
-                            local in_vehicle_a, vehicle_a = InVehicle(i)
-                            local in_vehicle_b, vehicle_b = InVehicle(Ply)
-
-                            if (in_vehicle_a and in_vehicle_b and vehicle_a == vehicle_b) then
-                                rprint(i, Msg)
-                            end
+                        if (in_vehicle_a and in_vehicle_b and vehicle_a == vehicle_b) then
+                            rprint(i, Msg)
                         end
                     end
-                    return false
                 end
+                return false
             end
 
             :: global ::
