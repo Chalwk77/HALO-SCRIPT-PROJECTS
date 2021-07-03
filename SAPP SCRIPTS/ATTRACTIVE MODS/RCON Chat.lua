@@ -72,7 +72,7 @@ function RconChat(Ply, Msg, Type)
     if (#args > 0) then
 
         local chat_command = Msg:sub(1, 1) == "/" or Msg:sub(1, 1) == "\\"
-        if (not chat_command and Type ~= 4 and Type ~= 3 and not Contains(args[1])) then
+        if (not chat_command and not Contains(args[1])) then
 
             local msg = chat[Type]
             local p_name = get_var(Ply, "$name")
