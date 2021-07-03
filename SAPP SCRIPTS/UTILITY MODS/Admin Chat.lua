@@ -73,15 +73,18 @@ local AdminChat = {
 }
 -- ============= Configuration Ends ============= --
 
-local gsub, sub = string.gsub, string.sub
-local lower, gmatch = string.lower, string.gmatch
-
 function OnScriptLoad()
-    register_callback(cb["EVENT_CHAT"], "SendMessage")
-    register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
-    register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
-    register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
 
+    register_callback(cb["EVENT_CHAT"], "SendMessage")
+    register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
+    register_callback(cb["EVENT_LEAVE"], "OnPlayerQuit")
+    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
+    register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
+
+    OnGameStart()
+end
+
+function OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
         for i = 1, 16 do
             if player_present(i) then
@@ -95,19 +98,21 @@ function OnScriptUnload()
     -- N/A
 end
 
-function OnPlayerConnect(Ply)
+function OnPlayerJoin(Ply)
     AdminChat:InitPlayer(Ply, false)
 end
 
-function OnPlayerDisconnect(Ply)
+function OnPlayerQuit(Ply)
     AdminChat:InitPlayer(Ply, true)
 end
 
 local function STRSplit(CMD)
     local Args = { }
-    for Params in gmatch(gsub(CMD, '"', ""), "([^%s]+)") do
-        Args[#Args + 1] = lower(Params)
+
+    for Params in CMD:gsub('"', ""):gmatch("([^%s]+)") do
+        Args[#Args + 1] = Params:lower()
     end
+
     return Args
 end
 
@@ -123,12 +128,12 @@ function AdminChat:IsAdmin(Ply, CMD)
     return false, (CMD ~= nil and self:Respond(Ply, "Insufficient Permission", 10))
 end
 
-function AdminChat:InitPlayer(Ply, Disconnecting)
+function AdminChat:InitPlayer(Ply, Reset)
 
     if (self:IsAdmin(Ply)) then
 
         local ip = self:GetIP(Ply)
-        if (not Disconnecting) then
+        if (not Reset) then
 
             self[ip] = self[ip] or nil
 
@@ -144,9 +149,10 @@ function AdminChat:InitPlayer(Ply, Disconnecting)
     end
 end
 
-function AdminChat:OnServerCommand(Executor, CMD)
+function AdminChat:OnCommand(Executor, CMD)
+
     local Args = STRSplit(CMD)
-    if (Args ~= nil and Args[1] == self.command) then
+    if (#Args > 0 and Args[1] == self.command) then
 
         -- Admin [boolean], lvl [int]
         local Admin, lvl = self:IsAdmin(Executor, true)
@@ -182,7 +188,7 @@ function AdminChat:ActivationState(Executor, State)
     elseif (State == "off") or (State == "0") or (State == "false") then
         return 0
     else
-        return false, self:Respond(Executor, gsub(self.messages[8], "%%cmd%%", self.command), 12)
+        return false, self:Respond(Executor, self.messages[8]:gsub("%%cmd%%", self.command), 12)
     end
 end
 
@@ -232,7 +238,7 @@ function AdminChat:Toggle(params)
                     ["%%target_name%%"] = tn,
                 }
                 for k, v in pairs(words) do
-                    str = gsub(str, k, v)
+                    str = str:gsub(k, v)
                 end
                 return str
             end
@@ -265,7 +271,7 @@ function AdminChat:GetPlayers(Executor, Param)
         else
             self:Respond(Executor, "Please enter a valid player id", 10)
         end
-    elseif (Param ~= nil) and (Param:match("^%d+$")) then
+    elseif (Param ~= nil and Param:match("^%d+$")) then
         if player_present(Param) then
             table.insert(pl, Param)
         else
@@ -317,17 +323,17 @@ function AdminChat:SendMessage(Ply, Msg, Type)
             if (self[ip]) then
 
                 -- check if incoming message string is chat command:
-                local is_command = (sub(args[1], 1, 1) == "/") or (sub(args[1], 1, 1) == "\\")
-                if (is_command) then
-                    return true
-                else
+                local chat_command = (args[1]:sub(1, 1) == "/" or args[1]:sub(1, 1) == "\\")
+
+                if (not chat_command) then
 
                     -- Admin Chat message formatter:
                     local name = get_var(Ply, "$name")
-                    local msg = gsub(gsub(gsub(self.messages[1], "%%name%%", name), "%%id%%", Ply), "%%message%%", Msg)
+                    local msg = self.messages[1]:gsub("%%name%%", name):gsub("%%id%%", Ply):gsub("%%message%%", Msg)
 
                     for i = 1, 16 do
                         if player_present(i) then
+                            -- Check if player is an admin and send them the message:
                             if (tonumber(get_var(i, '$lvl')) >= self.permission) then
                                 rprint(i, "|l" .. msg)
                             end
@@ -342,7 +348,7 @@ function AdminChat:SendMessage(Ply, Msg, Type)
 end
 
 function OnServerCommand(P, C)
-    return AdminChat:OnServerCommand(P, C)
+    return AdminChat:OnCommand(P, C)
 end
 function SendMessage(P, M, T)
     return AdminChat:SendMessage(P, M, T)
