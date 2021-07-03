@@ -106,7 +106,7 @@ function RconChat(Ply, Msg, Type)
                         local in_vehicle_a, vehicle_a = InVehicle(i)
                         local in_vehicle_b, vehicle_b = InVehicle(Ply)
 
-                        if (in_vehicle_a and in_vehicle_b and vehicle_a == vehicle_b) then
+                        if (in_vehicle_a and in_vehicle_b) and (vehicle_a == vehicle_b) then
                             rprint(i, Msg)
                         end
                     end
