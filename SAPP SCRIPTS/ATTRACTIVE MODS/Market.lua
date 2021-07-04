@@ -38,25 +38,44 @@ local Market = {
 
     Commands = {
 
-        -- Camouflage: ["SAPP COMMAND EXECUTED"] = {"custom command", price, duration, catalog message}
+        -- Camouflage:
+        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, duration, catalog message}
         ["camo"] = { "m1", 60, 30, "-60 -> Camo (30 seconds)" },
 
-        -- God Mode: ["SAPP COMMAND EXECUTED"] = {"custom command", price, duration, catalog message}
+
+        --
+        -- God Mode:
+        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, duration, catalog message}
         ["god"] = { "m2", 200, 30, "-200 -> God (30 seconds)" },
 
-        -- Frags: ["SAPP COMMAND EXECUTED"] = {"custom command", price, total, catalog message}
+
+        --
+        -- Frags:
+        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, total, catalog message}
         ["nades"] = { "m3", 30, 2, "-30 -> Frags (x2)" },
 
-        -- Plasmas: ["SAPP COMMAND EXECUTED"] = {"custom command", price, total, catalog message}
+
+        --
+        -- Plasmas:
+        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, total, catalog message}
         ["plasmas"] = { "m4", 30, 2, "-30 -> Plasmas (x2)" },
 
-        -- Speed Boost: ["SAPP COMMAND EXECUTED"] = {"custom command", price, speed, catalog message}
+
+        --
+        -- Speed Boost:
+        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, speed, catalog message}
         ["s"] = { "m5", 60, 1.3, "-60 -> Speed Boost (1.3x)" },
 
-        -- Overshield: ["SAPP COMMAND EXECUTED"] = {"custom command", price, state, catalog message}
+
+        --
+        -- Overshield:
+        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, state, catalog message}
         ["sh"] = { "m6", 100, 1, "-100 -> Camo (full shield)" },
 
-        -- Health: ["SAPP COMMAND EXECUTED"] = {"custom command", price, h-points, catalog message}
+
+        --
+        -- Health:
+        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, h-points, catalog message}
         ["hp"] = { "m7", 100, 1, "-100 -> HP (full health)" },
     }
 }
