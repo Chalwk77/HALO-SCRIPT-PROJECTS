@@ -75,10 +75,10 @@ function RconChat(Ply, Msg, Type)
         if (not chat_command and not Contains(args[1])) then
 
             local msg = chat[Type]
-            local p_name = get_var(Ply, "$name")
+            local name = get_var(Ply, "$name")
 
             local original_message = Msg
-            Msg = msg:gsub("%%name%%", p_name):gsub("%%id%%", Ply):gsub("%%msg%%", Msg)
+            Msg = msg:gsub("%%name%%", name):gsub("%%id%%", Ply):gsub("%%msg%%", Msg)
 
             -- team:
             if (Type == 1) then
@@ -95,7 +95,7 @@ function RconChat(Ply, Msg, Type)
                 end
 
                 Msg = original_message
-                Msg = chat[0]:gsub("%%name%%", p_name):gsub("%%id%%", Ply):gsub("%%msg%%", Msg)
+                Msg = chat[0]:gsub("%%name%%", name):gsub("%%id%%", Ply):gsub("%%msg%%", Msg)
                 goto global
 
                 -- vehicle
