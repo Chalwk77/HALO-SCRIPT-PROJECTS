@@ -42,7 +42,7 @@ local MOD = {
     --
     ["mode 1"] = true,
 
-    -- Kills required (an item will drop every N consecutive kills):
+    -- Kills required (an item will drop every N non-consecutive kills):
     --
     ["mode 2"] = false,
     consecutive_kills = 5,
@@ -145,7 +145,7 @@ function OnDeath(Victim, Killer)
     local victim = tonumber(Victim)
     local killer = tonumber(Killer)
 
-    if (killer > 0 and player_present(killer)) then
+    if (killer > 0 and player_present(killer) and killer ~= victim) then
 
         local DyN = get_dynamic_player(victim)
         if (DyN ~= 0) then
