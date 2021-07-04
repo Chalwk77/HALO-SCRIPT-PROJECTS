@@ -124,10 +124,12 @@ function OnCommand(Ply, CMD, _, _)
                     response = false
                 else
                     say(Ply, "You do not have enough money!")
+                    response = false
                 end
                 response = false
             end
         end
+
         return response
     end
 end
