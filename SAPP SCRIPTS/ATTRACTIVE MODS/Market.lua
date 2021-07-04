@@ -33,7 +33,7 @@ local Market = {
     -- Message seen on kill.
     message = "+%money%->%total%",
 
-    -- Command used to view available for purchase:
+    -- Command used to view available items for purchase:
     catalog_command = "market",
 
     Commands = {
