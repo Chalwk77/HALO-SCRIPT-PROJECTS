@@ -62,7 +62,7 @@ local AutoMessage = {
     -- Time (in seconds) between message announcements:
     interval = 300,
 
-    -- Set to false to send messages to player console:
+    -- If true, messages will appear in chat; Otherwise they will appear in the player console:
     show_announcements_in_chat = true,
 
     -- If true, messages will also be printed to server console terminal (in pink):
@@ -76,13 +76,15 @@ local AutoMessage = {
 
     -- A message relay function temporarily removes the server prefix
     -- and will restore it to this when the relay is finished:
-    server_prefix = "**SAPP**"
+    server_prefix = "**SAPP**",
     --
+
+    -- Advanced Users Only: (timer tick rate, 30 ticks = 1 second)
+    time_scale = 1 / 30
 }
 
+-- SAPP Lua API version:
 api_version = "1.12.0.0"
-
-local time_scale = 1 / 30
 
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
@@ -113,7 +115,7 @@ end
 
 function AutoMessage:GameTick()
     if (self.init) then
-        self.timer = self.timer + time_scale
+        self.timer = self.timer + self.time_scale
         if (self.timer >= self.interval) then
             self.timer = 0
 
@@ -134,17 +136,21 @@ function AutoMessage:Show(TAB)
         if (self.show_announcements_on_console) then
             cprint(Msg, 13)
         end
+
         if (self.show_announcements_in_chat) then
-            execute_command("msg_prefix \"\"")
+            execute_command('msg_prefix ""')
             say_all(Msg)
-            execute_command("msg_prefix \" **" .. self.server_prefix .. "**\"")
-		else
-			for i = 1, 16 do
-				if player_present(i) then
-					self:Respond(i, Msg, 10)
-				end
-			end
+            execute_command('msg_prefix "' .. self.server_prefix .. ' "')
+            goto next
         end
+
+        for i = 1, 16 do
+            if player_present(i) then
+                self:Respond(i, Msg, 10)
+            end
+        end
+
+        :: next ::
     end
 end
 
@@ -157,53 +163,50 @@ function AutoMessage:Respond(Ply, Msg, Color)
     end
 end
 
-local function CMDSplit(CMD)
+function AutoMessage:OnCommand(Ply, CMD, _, _)
+
     local Args = { }
     for Params in CMD:gmatch("([^%s]+)") do
         Args[#Args + 1] = Params:lower()
     end
-    return Args
-end
 
-function AutoMessage:OnServerCommand(Ply, Command, _, _)
-    local Args = CMDSplit(Command)
-    if (Args) then
-        if (Args[1] == self.command) then
-            local lvl = tonumber(get_var(Ply, "$lvl"))
-            if (lvl >= self.permission or Ply == 0) then
-                local error
-                if (Args[2] ~= nil) then
-                    if (Args[2] == Args[2]:match("list")) then
-                        self:Respond(Ply, "[Broadcast ID] [Line Number]", 12)
-                        self:Respond(Ply, "--------------------------------------------------------------------------------", 12)
-                        local t = self.announcements
-                        for i = 1, #t do
-                            for j, v in pairs(t[i]) do
-                                self:Respond(Ply, "[" .. i .. "] [" .. j .. "] " .. v)
-                            end
+    if (#Args > 0 and Args[1] == self.command) then
+        local lvl = tonumber(get_var(Ply, "$lvl"))
+        if (lvl >= self.permission or Ply == 0) then
+
+            local error
+            if (Args[2] ~= nil) then
+
+                if (Args[2] == Args[2]:match("list")) then
+                    self:Respond(Ply, "[Broadcast ID] [Line Number]", 12)
+                    self:Respond(Ply, "--------------------------------------------------------------------------------", 12)
+                    local t = self.announcements
+                    for i = 1, #t do
+                        for j, v in pairs(t[i]) do
+                            self:Respond(Ply, "[" .. i .. "] [" .. j .. "] " .. v)
                         end
-                        self:Respond(Ply, "--------------------------------------------------------------------------------", 12)
-                    elseif (Args[2]:match("^%d+$") and Args[3] == nil) then
-                        local n = tonumber(Args[2])
-                        if (self.announcements[n]) then
-                            self:Show(self.announcements[n])
-                        else
-                            self:Respond(Ply, "Invalid Broadcast ID", 12)
-                            self:Respond(Ply, "Please enter a number between 1-" .. #self.announcements, 12)
-                        end
+                    end
+                    self:Respond(Ply, "--------------------------------------------------------------------------------", 12)
+                elseif (Args[2]:match("^%d+$") and Args[3] == nil) then
+                    local n = tonumber(Args[2])
+                    if (self.announcements[n]) then
+                        self:Show(self.announcements[n])
                     else
-                        error = true
+                        self:Respond(Ply, "Invalid Broadcast ID", 12)
+                        self:Respond(Ply, "Please enter a number between 1-" .. #self.announcements, 12)
                     end
                 else
                     error = true
                 end
-
-                if (error) then
-                    self:Respond(Ply, "Invalid Command Syntax. Please try again!", 12)
-                end
+            else
+                error = true
             end
-            return false
+
+            if (error) then
+                self:Respond(Ply, "Invalid Command Syntax. Please try again!", 12)
+            end
         end
+        return false
     end
 end
 
@@ -212,7 +215,7 @@ function OnTick()
 end
 
 function OnServerCommand(P, C, _, _)
-    return AutoMessage:OnServerCommand(P, C, _, _)
+    return AutoMessage:OnCommand(P, C, _, _)
 end
 
 -- For a future update ...
