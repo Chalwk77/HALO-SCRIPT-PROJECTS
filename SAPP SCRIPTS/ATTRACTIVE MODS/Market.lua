@@ -34,48 +34,48 @@ local Market = {
     message = "+%money%->%total%",
 
     -- Command used to view available items for purchase:
-    catalog_command = "market",
+    catalogue_command = "market",
 
     Commands = {
 
         -- Camouflage:
-        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, duration, catalog message}
+        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, duration, catalogue message}
         ["camo"] = { "m1", 60, 30, "-60 -> Camo (30 seconds)" },
 
 
         --
         -- God Mode:
-        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, duration, catalog message}
+        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, duration, catalogue message}
         ["god"] = { "m2", 200, 30, "-200 -> God (30 seconds)" },
 
 
         --
         -- Frags:
-        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, total, catalog message}
+        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, total, catalogue message}
         ["nades"] = { "m3", 30, 2, "-30 -> Frags (x2)" },
 
 
         --
         -- Plasmas:
-        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, total, catalog message}
+        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, total, catalogue message}
         ["plasmas"] = { "m4", 30, 2, "-30 -> Plasmas (x2)" },
 
 
         --
         -- Speed Boost:
-        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, speed, catalog message}
+        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, speed, catalogue message}
         ["s"] = { "m5", 60, 1.3, "-60 -> Speed Boost (1.3x)" },
 
 
         --
         -- Overshield:
-        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, state, catalog message}
+        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, state, catalogue message}
         ["sh"] = { "m6", 100, 1, "-100 -> Camo (full shield)" },
 
 
         --
         -- Health:
-        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, h-points, catalog message}
+        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, h-points, catalogue message}
         ["hp"] = { "m7", 100, 1, "-100 -> HP (full health)" },
     }
 }
@@ -112,7 +112,7 @@ function OnCommand(Ply, CMD, _, _)
         local response
         for cmd, v in pairs(Market.Commands) do
 
-            if (Args[1] == Market.catalog_command) then
+            if (Args[1] == Market.catalogue_command) then
                 rprint(Ply, "/" .. cmd .. " " .. v[#v])
                 response = false
             elseif (Args[1] == v[1]) then
