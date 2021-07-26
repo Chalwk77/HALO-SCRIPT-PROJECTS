@@ -5410,12 +5410,11 @@ function Command_Setammo(executor, command, PlayerIndex, type, ammo, count)
                 if player_object then
                     local m_weaponId = read_dword(player_object + 0x118)
                     local weapon_id = get_object_memory(m_weaponId)
-                    if m_weaponId then
+                            sync_ammo(m_weaponId)
                         if type == "unloaded" or type == "1" then
                             safe_write(true)
                             write_dword(weapon_id + 0x2B6, tonumber(ammo))
                             safe_write(false)
-                            sync_ammo(m_weaponId)
                             sendresponse(getname(players[i]) .. " had their unloaded ammo changed to " .. ammo, command, executor)
                         elseif type == "2" or type == "loaded" then
                             safe_write(true)

@@ -2,14 +2,19 @@
 --=====================================================================================================--
 Script Name: Market, for SAPP (PC & CE)
 Description: Gain +30 points for every kill.
-
              Use these points to buy one of the following:
-             Camouflage
-             God Mode
-             Grenades (frags/plasmas)
-             Overshield
-             Health
-             Speed Boost
+
+             Camouflage ($60, 30 seconds)
+             God Mode ($200, 30 seconds)
+             Grenades (frags/plasmas) - ($30 each, 2x)
+             Overshield ($60, full shield)
+             Health ($100, full health)
+             Speed Boost ($60, 1.3x)
+
+             Easily edit custom command, price, duration and catalogue message.
+
+             Catalogue command: /market
+             Used to view available items for purchase.
 
 Credits: "upmx" for requesting the script on Open Carnage:Market
 https://opencarnage.net/index.php?/topic/7112-change-points-for-an-item-a-market/
