@@ -15,7 +15,8 @@ Features:
     3). Define primary weapon (default: plasma pistol).
 	4). Option to change ammo, mag & battery for the primary weapon (no ammo by default).
 	5). Prevent map objects from spawning.
-    6). Grenade Bonuses (per kill):
+	6). Optional kill message: i.e, "+2 frags, +1 plasma"
+    7). Grenade Bonuses (per kill):
         * frag explosion (+1)
         * plasma explosion (+1)
         * sticky plasma (+5)
@@ -77,7 +78,7 @@ local FragNation = {
         { 'weap', 'weapons\\plasma rifle\\plasma rifle', false },
         { 'weap', 'weapons\\sniper rifle\\sniper rifle', false },
         { 'weap', 'weapons\\assault rifle\\assault rifle', false },
-        { 'weap', 'weapons\\plasma pistol\\plasma pistol', true },
+        { 'weap', 'weapons\\plasma pistol\\plasma pistol', true }, -- primary weapon
         { 'weap', 'weapons\\plasma_cannon\\plasma_cannon', false },
         { 'weap', 'weapons\\rocket launcher\\rocket launcher', false },
 
