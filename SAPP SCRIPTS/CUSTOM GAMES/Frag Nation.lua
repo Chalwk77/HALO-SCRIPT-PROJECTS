@@ -44,12 +44,19 @@ local FragNation = {
 
     -- Primary weapon:
     --
-    primary_weapon = 'weapons\\plasma pistol\\plasma pistol',
+    primary_weapon = 'weapons\\pistol\\pistol',
+
+    -- ammo settings for primary weapon:
+    --
+    battery = 0,
+    ammo = 0,
+    mag = 0,
 
     -- Game objects that will be disabled:
+    --
     objects = {
 
-        -- { tag type, tag name, enabled/disabled }
+        -- { tag type, tag name, enabled/disabled (enabled = true, disabled = false)}
         -- weapons:
         --
         { 'weap', 'weapons\\pistol\\pistol', false },
@@ -158,9 +165,11 @@ function FragNation:GameTick()
                 v.assign = false
 
                 execute_command("wdel " .. i)
-
                 assign_weapon(spawn_object("weap", self.primary_weapon, pos.x, pos.y, pos.z), i)
-                execute_command_sequence("w8 1;battery " .. i .. " 0")
+
+                execute_command_sequence("w8 1;ammo " .. i .. " " .. self.ammo)
+                execute_command_sequence("w8 1;mag " .. i .. " " .. self.mag)
+                execute_command_sequence("w8 1;battery " .. i .. " " .. self.battery)
 
                 SetGrenades(i, 1, self.starting_grenades[1])
                 SetGrenades(i, 2, self.starting_grenades[2])
@@ -241,6 +250,7 @@ end
 function OnTick()
     return FragNation:GameTick()
 end
+
 function OnDeath(V, K)
     return FragNation:OnDeath(V, K)
 end
@@ -248,3 +258,6 @@ end
 function OnScriptUnload()
     -- N/A
 end
+
+-- For a future update:
+return FragNation
