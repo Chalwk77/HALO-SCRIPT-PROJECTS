@@ -13,8 +13,9 @@ Features:
     1). Set the number of starting grenades (on spawn).
     2). Option to enabled or disable game objects (weapons, vehicles, equipment).
     3). Define primary weapon (default: plasma pistol).
-	4). Option to change ammo, mag & battery for the primary weapon (no ammo by default)
-    5). Grenade Bonuses (per kill):
+	4). Option to change ammo, mag & battery for the primary weapon (no ammo by default).
+	5). Prevent map objects from spawning.
+    6). Grenade Bonuses (per kill):
         * frag explosion (+1)
         * plasma explosion (+1)
         * sticky plasma (+5)
@@ -36,11 +37,12 @@ local FragNation = {
 
 
     -- Grenades rewarded per kill:
+    -- {amount, message} (leave the message blank "" to disable it)
     --
     grenades_on_kill = {
-        1, -- frag explosion
-        1, -- plasma explosion
-        5, -- plasmas (sticky)
+        { 1, "+1 frag" }, -- frag explosion
+        { 1, "+1 plasma" }, -- plasma explosion
+        { 2, "+2 plasmas" } -- plasmas (sticky)
     },
 
 
@@ -54,6 +56,11 @@ local FragNation = {
     battery = 0,
     ammo = 0,
     mag = 0,
+
+
+    -- If an object tag (listed below) is false, should we prevent it from spawning?
+    --
+    remove_map_objects = true,
 
 
     -- Game objects that will be disabled:
@@ -70,7 +77,7 @@ local FragNation = {
         { 'weap', 'weapons\\plasma rifle\\plasma rifle', false },
         { 'weap', 'weapons\\sniper rifle\\sniper rifle', false },
         { 'weap', 'weapons\\assault rifle\\assault rifle', false },
-        { 'weap', 'weapons\\plasma pistol\\plasma pistol', false },
+        { 'weap', 'weapons\\plasma pistol\\plasma pistol', true },
         { 'weap', 'weapons\\plasma_cannon\\plasma_cannon', false },
         { 'weap', 'weapons\\rocket launcher\\rocket launcher', false },
 
@@ -112,12 +119,27 @@ function OnScriptLoad()
 
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamage")
 
+    if (FragNation.remove_map_objects) then
+        register_callback(cb["EVENT_OBJECT_SPAWN"], "OnObjectSpawn")
+    end
+
     OnGameStart()
 end
 
-local function GetTag(Type, Name)
-    local Tag = lookup_tag(Type, Name)
-    return (Tag ~= 0 and read_dword(Tag + 0xC)) or nil
+-- Credits to Kavawuvi for this function:
+--
+local function GetTag(Class, Name)
+    local address = read_dword(0x40440000)
+    for i = 0, read_word(0x4044000C) - 1 do
+        local tag = address + i * 0x20
+        local class = string.reverse(string.sub(read_string(tag), 1, 4))
+        if (class == Class) then
+            if (read_string(read_dword(tag + 0x10)) == Name) then
+                return read_dword(tag + 0xC)
+            end
+        end
+    end
+    return nil
 end
 
 function OnGameStart()
@@ -182,8 +204,10 @@ function FragNation:GameTick()
     end
 end
 
-local function Plural(n)
-    return n > 1 and "s" or ""
+local function SendText(Ply, Str)
+    if (Str ~= "") then
+        rprint(Ply, Str)
+    end
 end
 
 function FragNation:OnDeath(Victim, Killer)
@@ -200,20 +224,34 @@ function FragNation:OnDeath(Victim, Killer)
             -- frag explosion:
             --
             if MetaID == GetTag("jpt!", "weapons\\frag grenade\\explosion") then
-                SetGrenades(k, 1, frags + self.grenades_on_kill[1])
-                rprint(k, "+" .. self.grenades_on_kill[1] .. " frag grenade" .. Plural(self.grenades_on_kill[1]))
+
+                frags = frags + self.grenades_on_kill[1][1]
+                local str = self.grenades_on_kill[1][2]
+
+                SetGrenades(k, 1, frags)
+                SendText(k, str)
+
 
                 -- plasma explosion:
                 --
             elseif MetaID == GetTag("jpt!", "weapons\\plasma grenade\\explosion") then
-                SetGrenades(k, 2, plasmas + self.grenades_on_kill[2])
-                rprint(k, "+" .. self.grenades_on_kill[2] .. " plasma grenade" .. Plural(self.grenades_on_kill[2]))
+
+                plasmas = plasmas + self.grenades_on_kill[2][1]
+                local str = self.grenades_on_kill[2][2]
+
+                SetGrenades(k, 1, plasmas)
+                SendText(k, str)
+
 
                 -- plasma (sticky):
                 --
             elseif MetaID == GetTag("jpt!", "weapons\\plasma grenade\\attached") then
-                SetGrenades(k, 2, plasmas + self.grenades_on_kill[3])
-                rprint(k, "+" .. self.grenades_on_kill[3] .. " plasma grenade" .. Plural(self.grenades_on_kill[3]))
+
+                plasmas = plasmas + self.grenades_on_kill[3][1]
+                local str = self.grenades_on_kill[3][2]
+
+                SetGrenades(k, 1, plasmas)
+                SendText(k, str)
             end
 
             self.players[k].metaid = 0
@@ -229,6 +267,16 @@ function FragNation:InitPlayer(Ply, Reset)
     end
 
     self.players[Ply] = nil
+end
+
+function OnObjectSpawn(Ply, MID)
+    if (Ply == 0) then
+        for _, v in pairs(FragNation.objects) do
+            if (MID == GetTag(v[1], v[2]) and not v[3]) then
+                return false
+            end
+        end
+    end
 end
 
 function OnDamage(Victim, Causer, MetaID, _, _)
