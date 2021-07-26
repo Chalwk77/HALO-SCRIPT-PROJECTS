@@ -12,9 +12,9 @@ Features:
 
     1). Set the number of starting grenades (on spawn).
     2). Option to enabled or disable game objects (weapons, vehicles, equipment).
-    3). Define primary weapon (default: plasma pistol),
-
-    4). Grenade Bonuses (per kill):
+    3). Define primary weapon (default: plasma pistol).
+	4). Option to change ammo, mag & battery for the primary weapon (no ammo by default)
+    5). Grenade Bonuses (per kill):
         * frag explosion (+1)
         * plasma explosion (+1)
         * sticky plasma (+5)
@@ -34,6 +34,7 @@ local FragNation = {
     --
     starting_grenades = { 2, 2 },
 
+
     -- Grenades rewarded per kill:
     --
     grenades_on_kill = {
@@ -42,15 +43,18 @@ local FragNation = {
         5, -- plasmas (sticky)
     },
 
+
     -- Primary weapon:
     --
-    primary_weapon = 'weapons\\pistol\\pistol',
+    primary_weapon = 'weapons\\plasma pistol\\plasma pistol',
+
 
     -- ammo settings for primary weapon:
     --
     battery = 0,
     ammo = 0,
     mag = 0,
+
 
     -- Game objects that will be disabled:
     --
@@ -70,7 +74,7 @@ local FragNation = {
         { 'weap', 'weapons\\plasma_cannon\\plasma_cannon', false },
         { 'weap', 'weapons\\rocket launcher\\rocket launcher', false },
 
-        -- { tag type, tag name, enabled/disabled }
+        -- { tag type, tag name, enabled/disabled (enabled = true, disabled = false)}
         -- vehicles:
         --
         { 'weap', 'vehicles\\ghost\\ghost_mp', false },
@@ -80,7 +84,7 @@ local FragNation = {
         { 'weap', 'vehicles\\scorpion\\scorpion_mp', false },
         { 'weap', 'vehicles\\c gun turret\\c gun turret_mp', false },
 
-        -- { tag type, tag name, enabled/disabled }
+        -- { tag type, tag name, enabled/disabled (enabled = true, disabled = false)}
         -- equipment:
         --
         { "eqip", "powerups\\health pack", "Health Pack", true },
