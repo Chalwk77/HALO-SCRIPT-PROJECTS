@@ -5,8 +5,20 @@ Description: A grenade only mini game.
 
              Each player is given two of each grenade and an empty plasma pistol.
              If you have no grenades, you're limited to Melee-Combat.
-             Every time you kill a player, you get a grenade(s).
+             Every time you kill a player (with a grenade), you get a grenade(s).
              * Refer to config section for more info.
+
+
+Features:
+
+    Set the number of starting grenades (on spawn)
+    Option to enabled or disable game objects (weapons, vehicles, equipment)
+    Define primary weapon (default: plasma pistol)
+
+    Grenade Bonuses:
+        frag explosion (+1 per kill)
+        plasma explosion (+1 per kill)
+        sticky plasma (+5 per kill)
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
