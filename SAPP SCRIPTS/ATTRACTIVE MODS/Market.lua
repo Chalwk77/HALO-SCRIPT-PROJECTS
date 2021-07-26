@@ -16,7 +16,7 @@ Description: Gain +30 points for every kill.
              Catalogue command: /market
              Used to view available items for purchase.
 
-Credits: "upmx" for requesting the script on Open Carnage:Market
+Credits: "upmx" for requesting the script on Open Carnage:
 https://opencarnage.net/index.php?/topic/7112-change-points-for-an-item-a-market/
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
@@ -27,20 +27,33 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 api_version = "1.12.0.0"
 
+-- config starts --
+
 local Market = {
 
     -- Starting balance (on join):
+    --
     starting_balance = 0,
 
+
     -- Points per kill:
+    --
     points = 30,
 
+
     -- Message seen on kill.
+    --
     message = "+%money%->%total%",
 
+
     -- Command used to view available items for purchase:
+    --
     catalogue_command = "market",
 
+
+    ----------------------------------------------------
+    -- COMMAND SETTINGS --------------------------------
+    ----------------------------------------------------
     Commands = {
 
         -- Camouflage:
@@ -84,15 +97,16 @@ local Market = {
         ["hp"] = { "m7", 100, 1, "-100 -> HP (full health)" },
     }
 }
+-- config ends --
 
 function OnScriptLoad()
     register_callback(cb["EVENT_COMMAND"], "OnCommand")
     register_callback(cb["EVENT_DIE"], "OnPlayerDeath")
 end
 
-function OnPlayerDeath(VictimIndex, KillerIndex)
-    local k = tonumber(KillerIndex)
-    local v = tonumber(VictimIndex)
+function OnPlayerDeath(Victim, Killer)
+    local v = tonumber(Victim)
+    local k = tonumber(Killer)
     if (k > 0 and player_present(k) and k ~= v) then
 
         local points = Market.points
