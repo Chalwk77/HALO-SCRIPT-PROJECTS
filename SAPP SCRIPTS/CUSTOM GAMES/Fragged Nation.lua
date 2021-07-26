@@ -1,24 +1,23 @@
 --[[
 --=====================================================================================================--
 Script Name: Fragged Nation, for SAPP (PC & CE)
-Description: A grenade only mini game.
+Description: A grenade only mini-game.
 
              Each player is given two of each grenade and an empty plasma pistol.
-             If you have no grenades, you're limited to Melee-Combat.
+             If you have no grenades, you're limited to melee-combat.
              Every time you kill a player (with a grenade), you get a grenade(s).
              * Refer to config section for more info.
 
-
 Features:
 
-    Set the number of starting grenades (on spawn)
-    Option to enabled or disable game objects (weapons, vehicles, equipment)
-    Define primary weapon (default: plasma pistol)
+    1). Set the number of starting grenades (on spawn).
+    2). Option to enabled or disable game objects (weapons, vehicles, equipment).
+    3). Define primary weapon (default: plasma pistol),
 
-    Grenade Bonuses:
-        frag explosion (+1 per kill)
-        plasma explosion (+1 per kill)
-        sticky plasma (+5 per kill)
+    4). Grenade Bonuses (per kill):
+        * frag explosion (+1)
+        * plasma explosion (+1)
+        * sticky plasma (+5)
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -32,9 +31,11 @@ api_version = "1.12.0.0"
 local FraggedNation = {
 
     -- Number of {frags, plasmas} on spawn:
+    --
     starting_grenades = { 2, 2 },
 
-    -- Frags rewarded per kill:
+    -- Grenades rewarded per kill:
+    --
     grenades_on_kill = {
         1, -- frag explosion
         1, -- plasma explosion
@@ -42,12 +43,13 @@ local FraggedNation = {
     },
 
     -- Primary weapon:
+    --
     primary_weapon = 'weapons\\plasma pistol\\plasma pistol',
 
-    -- objects that will be disabled (no pickup):
+    -- Game objects that will be disabled:
     objects = {
 
-        -- {tag type, tag name, enabled = true, disabled = false}
+        -- { tag type, tag name, enabled/disabled }
         -- weapons:
         --
         { 'weap', 'weapons\\pistol\\pistol', false },
@@ -61,7 +63,7 @@ local FraggedNation = {
         { 'weap', 'weapons\\plasma_cannon\\plasma_cannon', false },
         { 'weap', 'weapons\\rocket launcher\\rocket launcher', false },
 
-        -- {tag type, tag name, enabled = true, disabled = false}
+        -- { tag type, tag name, enabled/disabled }
         -- vehicles:
         --
         { 'weap', 'vehicles\\ghost\\ghost_mp', false },
@@ -71,7 +73,7 @@ local FraggedNation = {
         { 'weap', 'vehicles\\scorpion\\scorpion_mp', false },
         { 'weap', 'vehicles\\c gun turret\\c gun turret_mp', false },
 
-        -- {tag type, tag name, enabled = true, disabled = false}
+        -- { tag type, tag name, enabled/disabled }
         -- equipment:
         --
         { "eqip", "powerups\\health pack", "Health Pack", true },
@@ -119,6 +121,7 @@ function OnGameStart()
         end
 
         -- disable game objects:
+        --
         for _, v in pairs(FraggedNation.objects) do
             if not v[3] and GetTag(v[1], v[2]) then
                 execute_command("disable_object '" .. v[2] .. "'")
