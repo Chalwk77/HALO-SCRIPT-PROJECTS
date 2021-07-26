@@ -4,7 +4,7 @@ Script Name: Custom Wdel, for SAPP (PC & CE)
 Description: This script overrides SAPP's built-in wdel command.
              The flag will not be removed from a players inventory.
 
-             Credits: "no one"
+             Credits for idea: "no one"
              Request Link: https://opencarnage.net/index.php?/topic/7091-block-wdel-n-with-the-flag/
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
@@ -105,15 +105,15 @@ function OnCommand(Ply, CMD, _, _)
 
                         local DyN = get_dynamic_player(TID)
                         if (DyN ~= 0) then
-
-                            local stdout = true
                             local weapons = GetWeapons(DyN)
-
-                            for _, weapon in pairs(weapons) do
-                                destroy_object(weapon)
-                                if (stdout) then
-                                    stdout = false
-                                    Respond(Ply, "Weapons removed for " .. name)
+                            if (#weapons > 0) then
+                                local stdout = true
+                                for _, weapon in pairs(weapons) do
+                                    destroy_object(weapon)
+                                    if (stdout) then
+                                        stdout = false
+                                        Respond(Ply, "Weapons removed for " .. name)
+                                    end
                                 end
                             end
                         end
