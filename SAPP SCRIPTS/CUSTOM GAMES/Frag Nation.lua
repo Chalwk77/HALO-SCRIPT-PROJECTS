@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Fragged Nation, for SAPP (PC & CE)
+Script Name: Frag Nation, for SAPP (PC & CE)
 Description: A grenade only mini-game.
 
              Each player is given two of each grenade and an empty plasma pistol.
@@ -28,7 +28,7 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 api_version = "1.12.0.0"
 
 -- config beings --
-local FraggedNation = {
+local FragNation = {
 
     -- Number of {frags, plasmas} on spawn:
     --
@@ -112,17 +112,17 @@ end
 function OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
 
-        FraggedNation.players = { }
+        FragNation.players = { }
 
         for i = 1, 16 do
             if player_present(i) then
-                FraggedNation:InitPlayer(i, false)
+                FragNation:InitPlayer(i, false)
             end
         end
 
         -- disable game objects:
         --
-        for _, v in pairs(FraggedNation.objects) do
+        for _, v in pairs(FragNation.objects) do
             if not v[3] and GetTag(v[1], v[2]) then
                 execute_command("disable_object '" .. v[2] .. "'")
             end
@@ -150,7 +150,7 @@ local function SetGrenades(Ply, Type, Amount)
     end
 end
 
-function FraggedNation:GameTick()
+function FragNation:GameTick()
     for i, v in pairs(self.players) do
         if player_alive(i) then
             local pos = GetXYZ(i)
@@ -173,16 +173,16 @@ local function Plural(n)
     return n > 1 and "s" or ""
 end
 
-function FraggedNation:OnDeath(Victim, Killer)
+function FragNation:OnDeath(Victim, Killer)
     local v, k = tonumber(Victim), tonumber(Killer)
     if (k > 0 and k ~= v) then
 
         local DyN = get_dynamic_player(k)
         if (DyN ~= 0 and self.players[k]) then
 
+            local MetaID = self.players[k].metaid
             local frags = tonumber(read_byte(DyN + 0x31E))
             local plasmas = tonumber(read_byte(DyN + 0x31F))
-            local MetaID = self.players[k].metaid
 
             -- frag explosion:
             --
@@ -208,7 +208,7 @@ function FraggedNation:OnDeath(Victim, Killer)
     end
 end
 
-function FraggedNation:InitPlayer(Ply, Reset)
+function FragNation:InitPlayer(Ply, Reset)
 
     if (not Reset) then
         self.players[Ply] = { metaid = 0, assign = false }
@@ -221,28 +221,28 @@ end
 function OnDamage(Victim, Causer, MetaID, _, _)
     local v, k = tonumber(Victim), tonumber(Causer)
     if (k > 0 and k ~= v) then
-        FraggedNation.players[Causer].metaid = MetaID
+        FragNation.players[Causer].metaid = MetaID
     end
 end
 
 function OnPlayerConnect(Ply)
-    FraggedNation:InitPlayer(Ply, false)
+    FragNation:InitPlayer(Ply, false)
 end
 
 function OnPlayerDisconnect(Ply)
-    FraggedNation:InitPlayer(Ply, true)
+    FragNation:InitPlayer(Ply, true)
 end
 
 function OnSpawn(Ply)
-    FraggedNation.players[Ply].metaid = 0
-    FraggedNation.players[Ply].assign = true
+    FragNation.players[Ply].metaid = 0
+    FragNation.players[Ply].assign = true
 end
 
 function OnTick()
-    return FraggedNation:GameTick()
+    return FragNation:GameTick()
 end
 function OnDeath(V, K)
-    return FraggedNation:OnDeath(V, K)
+    return FragNation:OnDeath(V, K)
 end
 
 function OnScriptUnload()
