@@ -1,25 +1,23 @@
 --[[
 --=====================================================================================================--
 Script Name: Frag Nation, for SAPP (PC & CE)
-Description: A grenade only mini-game.
-
-             Each player is given two of each grenade and an empty plasma pistol.
-             If you have no grenades, you're limited to melee-combat.
-             Every time you kill a player (with a grenade), you get a grenade(s).
-             * Refer to config section for more info.
+Description: Frag Nation is a grenade only mini-game.
+			 Each player is given two of each grenade and an empty plasma pistol.
+			 Every time you kill a player (with a grenade), you will be rewarded with a grenade(s).
+			 If you have no grenades, you will be limited to melee-combat.
 
 Features:
 
-    1). Set the number of starting grenades (on spawn).
-    2). Option to enabled or disable game objects (weapons, vehicles, equipment).
-    3). Define primary weapon (default: plasma pistol).
-	4). Option to change ammo, mag & battery for the primary weapon (no ammo by default).
-	5). Prevent map objects from spawning.
-	6). Optional kill message: i.e, "+2 frags, +1 plasma"
-    7). Grenade Bonuses (per kill):
-        * frag explosion (+1)
-        * plasma explosion (+1)
-        * sticky plasma (+5)
+	* Set the number of starting grenades (on spawn)
+	* Define primary weapon (default: plasma pistol)
+	* Change ammo, mag & battery for the primary weapon (no ammo by default)
+	* Prevent interaction with map objects (weapons, vehicles, equipment)
+	* Prevent map objects from spawning at all (weapons, vehicles, equipment)
+	* Optional kill message: i.e, "+2 frags, +1 plasma"
+	* Grenade Bonuses (per kill):
+		- frag explosion (+1)
+		- plasma explosion (+1)
+		- sticky plasma (+2)
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
