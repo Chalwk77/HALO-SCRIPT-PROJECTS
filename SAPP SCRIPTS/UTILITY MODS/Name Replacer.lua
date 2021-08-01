@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Name Ban, for SAPP (PC & CE)
+Script Name: Name Replacer, for SAPP (PC & CE)
 Description: Players have names that you don't like? No problem!
 
 NOTE: This is not an anti-impersonator script!
@@ -13,7 +13,7 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 api_version = "1.12.0.0"
 
-local NameBan = {
+local NameReplacer = {
 
     -- When a player joins the server, their name is cross-checked against the BLACKLIST TABLE.
     -- If a match is made, their name will be changed to a random name from the below NAMES TABLE.
@@ -73,27 +73,18 @@ function OnScriptLoad()
     OnGameStart()
 end
 
-function NameBan:CheckNameExists(Ply)
-    local name = get_var(Ply, "$name")
-    for j = 1, #self.names do
-        if (name == self.names[j][1]) then
-            self.names[j][1].used = true
-        end
-    end
-end
-
 function OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
 
-        NameBan.players = { }
+        NameReplacer.players = { }
 
-        for i = 1, #NameBan.names do
-            NameBan.names[i].used = false
+        for i = 1, #NameReplacer.names do
+            NameReplacer.names[i].used = false
         end
 
         for i = 1, 16 do
             if player_present(i) then
-                NameBan:CheckNameExists(i)
+                NameReplacer:CheckNameExists(i)
             end
         end
     end
@@ -101,16 +92,15 @@ end
 
 function OnPlayerQuit(Ply)
 
-    Ply = NameBan.players[Ply]
+    Ply = NameReplacer.players[Ply]
     if (Ply ~= nil) then
-        NameBan.names[Ply.n_id].used = false
+        NameReplacer.names[Ply.n_id].used = false
     end
 
     self.players[Ply] = nil
 end
 
-function NameBan:GetRandomName(Ply)
-
+function NameReplacer:GetRandomName(Ply)
 
     local t = { }
     for i = 1, #self.names do
@@ -134,7 +124,7 @@ function NameBan:GetRandomName(Ply)
     return "no name"
 end
 
-function NameBan:PreJoin(Ply)
+function NameReplacer:PreJoin(Ply)
 
     self:CheckNameExists(Ply)
 
@@ -169,8 +159,18 @@ function NameBan:PreJoin(Ply)
     end
 end
 
-function OnPreJoin(Ply)
-    return NameBan:PreJoin(Ply)
+function NameReplacer:CheckNameExists(Ply)
+    local name = get_var(Ply, "$name")
+    for j = 1, #self.names do
+        if (name == self.names[j][1]) then
+            self.names[j][1].used = true
+        end
+    end
 end
 
-return NameBan
+
+function OnPreJoin(Ply)
+    return NameReplacer:PreJoin(Ply)
+end
+
+return NameReplacer
