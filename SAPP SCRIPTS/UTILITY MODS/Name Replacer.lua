@@ -3,6 +3,12 @@
 Script Name: Name Replacer, for SAPP (PC & CE)
 Description: Change blacklisted names into something funny!
 
+             During pre-join, a player's name is cross-checked against a blacklist table.
+             If a match is made, their name will be changed to a random one from a table called "random_names".
+
+             As random names get assigned, they become marked as "used" until the player quits the server.
+             This is to prevent someone else from being assigned the same random name.
+
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
@@ -14,9 +20,6 @@ api_version = "1.12.0.0"
 -- config starts --
 
 local NameReplacer = {
-
-    -- During pre-join, a player's name is cross-checked against the below BLACKLIST TABLE.
-    -- If a match is made, their name will be changed to a random name from the below NAMES TABLE.
 
     --
     -- BLACKLIST TABLE:
