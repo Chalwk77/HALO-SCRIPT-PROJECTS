@@ -20,7 +20,7 @@ local NameReplacer = {
 
     --
     -- BLACKLIST TABLE:
-    --
+    -- Note: Names can only be max 11 characters!
     blacklist = {
         "Hacker",
         "TᑌᗰᗷᗩᑕᑌᒪOᔕ",
@@ -30,7 +30,7 @@ local NameReplacer = {
 
     --
     -- NAMES TABLE:
-    --
+    -- Note: Names can only be max 11 characters!
     names = {
         { "iLoveAG" },
         { "iLoveV3" },
