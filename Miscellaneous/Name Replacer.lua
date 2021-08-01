@@ -1,6 +1,7 @@
 api_version = "1.12.0.0"
 
 local blacklist = {
+    -- from -> to
     { "Hacker", "bobby" },
     { "TᑌᗰᗷᗩᑕᑌᒪOᔕ", "salmon" },
     { "TUMBACULOS", "tuna" },
