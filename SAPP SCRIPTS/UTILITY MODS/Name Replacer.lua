@@ -15,12 +15,12 @@ api_version = "1.12.0.0"
 
 local NameReplacer = {
 
-    -- When a player joins the server, their name is cross-checked against the BLACKLIST TABLE.
+    -- During pre-join, a player's name is cross-checked against the below BLACKLIST TABLE.
     -- If a match is made, their name will be changed to a random name from the below NAMES TABLE.
 
     --
     -- BLACKLIST TABLE:
-    -- Note: Names can only be max 11 characters!
+    --
     blacklist = {
         "Hacker",
         "TᑌᗰᗷᗩᑕᑌᒪOᔕ",
@@ -30,8 +30,8 @@ local NameReplacer = {
 
     --
     -- NAMES TABLE:
-    -- Note: Names can only be max 11 characters!
-    names = {
+    --
+    random_names = {
         { "iLoveAG" },
         { "iLoveV3" },
         { "loser4Eva" },
@@ -55,7 +55,6 @@ local NameReplacer = {
 
         -- repeat the structure to add more entries
         --
-        --
     }
 }
 
@@ -71,6 +70,7 @@ function OnScriptLoad()
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
 
     network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
+
     OnGameStart()
 end
 
@@ -81,10 +81,14 @@ function OnGameStart()
 
         -- Set all names to "unused" by default:
         --
-        for _,v in pairs(NameReplacer.names) do
+        for _, v in pairs(NameReplacer.random_names) do
             v.used = false
         end
 
+        -- This block of code is executed if:
+        -- 1). SAPP is reloaded
+        -- 2). The script is loaded during a game
+        --
         for i = 1, 16 do
             if player_present(i) then
                 NameReplacer:CheckNameExists(i)
@@ -99,7 +103,7 @@ function OnPlayerQuit(Ply)
     --
     local id = NameReplacer.players[Ply]
     if (id ~= nil) then
-        NameReplacer.names[id].used = false
+        NameReplacer.random_names[id].used = false
     end
 
     NameReplacer.players[Ply] = nil
@@ -110,9 +114,9 @@ function NameReplacer:GetRandomName(Ply)
     -- Determine and store all name candidates:
     --
     local t = { }
-    for i,v in pairs(self.names) do
+    for i, v in pairs(self.random_names) do
         if (v[1]:len() < 12 and not v.used) then
-            t[#t + 1] = { v[1], i }
+            t[#t + 1] = { v[1], i } -- {name, table index}
         end
     end
 
@@ -121,10 +125,10 @@ function NameReplacer:GetRandomName(Ply)
 
         local rand = rand(1, #t - 1)
         local name = t[rand][1]
-        local n_id = t[rand][2]
+        local n_id = t[rand][2] -- table index from names
 
         self.players[Ply] = n_id
-        self.names[n_id].used = true
+        self.random_names[n_id].used = true
 
         return name
     end
@@ -135,10 +139,11 @@ end
 function NameReplacer:PreJoin(Ply)
 
     self:CheckNameExists(Ply)
-    local name_on_join = get_var(Ply, "$name")
-    for _, name in pairs(self.blacklist) do
 
-        if (name_on_join == name) then
+    local name_on_join = get_var(Ply, "$name")
+    for _, black_listed_name in pairs(self.blacklist) do
+
+        if (name_on_join == black_listed_name) then
 
             local new_name = self:GetRandomName(Ply)
 
@@ -167,11 +172,11 @@ function NameReplacer:PreJoin(Ply)
 end
 
 --
--- Checks if a newly joined players name is already in the random names table.
+-- Checks if a newly-joined player's name is already in the random names table.
 -- If true, that name gets marked as "used".
 function NameReplacer:CheckNameExists(Ply)
     local name = get_var(Ply, "$name")
-    for _,v in pairs(self.names) do
+    for _, v in pairs(self.random_names) do
         if (name == v[1]) then
             v[1].used = true
         end
@@ -182,5 +187,4 @@ function OnPreJoin(Ply)
     return NameReplacer:PreJoin(Ply)
 end
 
--- For a future update:
 return NameReplacer
