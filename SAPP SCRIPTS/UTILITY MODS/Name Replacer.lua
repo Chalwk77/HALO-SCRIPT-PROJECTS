@@ -1,9 +1,7 @@
 --[[
 --=====================================================================================================--
 Script Name: Name Replacer, for SAPP (PC & CE)
-Description: Players have names that you don't like? No problem!
-
-NOTE: This is not an anti-impersonator script!
+Description: Change blacklisted names into something funny!
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -13,11 +11,12 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 api_version = "1.12.0.0"
 
+-- config starts --
+
 local NameReplacer = {
 
     -- When a player joins the server, their name is cross-checked against the BLACKLIST TABLE.
     -- If a match is made, their name will be changed to a random name from the below NAMES TABLE.
-
 
     --
     -- BLACKLIST TABLE:
@@ -60,6 +59,8 @@ local NameReplacer = {
     }
 }
 
+-- config ends --
+
 local network_struct
 
 function OnScriptLoad()
@@ -78,8 +79,10 @@ function OnGameStart()
 
         NameReplacer.players = { }
 
-        for i = 1, #NameReplacer.names do
-            NameReplacer.names[i].used = false
+        -- Set all names to "unused" by default:
+        --
+        for _,v in pairs(NameReplacer.names) do
+            v.used = false
         end
 
         for i = 1, 16 do
@@ -92,23 +95,28 @@ end
 
 function OnPlayerQuit(Ply)
 
-    Ply = NameReplacer.players[Ply]
-    if (Ply ~= nil) then
-        NameReplacer.names[Ply.n_id].used = false
+    -- Mark name as "unused":
+    --
+    local id = NameReplacer.players[Ply]
+    if (id ~= nil) then
+        NameReplacer.names[id].used = false
     end
 
-    self.players[Ply] = nil
+    NameReplacer.players[Ply] = nil
 end
 
 function NameReplacer:GetRandomName(Ply)
 
+    -- Determine and store all name candidates:
+    --
     local t = { }
-    for i = 1, #self.names do
-        if (self.names[i][1]:len() < 12 and not self.names[i].used) then
-            t[#t + 1] = { self.names[i][1], i }
+    for i,v in pairs(self.names) do
+        if (v[1]:len() < 12 and not v.used) then
+            t[#t + 1] = { v[1], i }
         end
     end
 
+    -- Pick random name candidate:
     if (#t > 0) then
 
         local rand = rand(1, #t - 1)
@@ -127,7 +135,6 @@ end
 function NameReplacer:PreJoin(Ply)
 
     self:CheckNameExists(Ply)
-
     local name_on_join = get_var(Ply, "$name")
     for _, name in pairs(self.blacklist) do
 
@@ -159,15 +166,17 @@ function NameReplacer:PreJoin(Ply)
     end
 end
 
+--
+-- Checks if a newly joined players name is already in the random names table.
+-- If true, that name gets marked as "used".
 function NameReplacer:CheckNameExists(Ply)
     local name = get_var(Ply, "$name")
-    for j = 1, #self.names do
-        if (name == self.names[j][1]) then
-            self.names[j][1].used = true
+    for _,v in pairs(self.names) do
+        if (name == v[1]) then
+            v[1].used = true
         end
     end
 end
-
 
 function OnPreJoin(Ply)
     return NameReplacer:PreJoin(Ply)
