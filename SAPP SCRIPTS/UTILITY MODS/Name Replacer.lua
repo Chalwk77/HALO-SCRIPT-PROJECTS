@@ -34,6 +34,7 @@ local NameReplacer = {
     --
     -- NAMES TABLE:
     --
+
     random_names = {
         { "iLoveAG" },
         { "iLoveV3" },
@@ -89,8 +90,8 @@ function OnGameStart()
         end
 
         -- This block of code is executed if:
-        -- 1). SAPP is reloaded
-        -- 2). The script is loaded during a game
+        -- 1). SAPP is loaded/reloaded
+        -- 2). The script is loaded manually
         --
         for i = 1, 16 do
             if player_present(i) then
@@ -116,7 +117,7 @@ function NameReplacer:GetRandomName(Ply)
 
     -- Determine and store all name candidates:
     --
-    local t = { }
+    local t = {"a", "b"}
     for i, v in pairs(self.random_names) do
         if (v[1]:len() < 12 and not v.used) then
             t[#t + 1] = { v[1], i } -- {name, table index}
@@ -126,7 +127,7 @@ function NameReplacer:GetRandomName(Ply)
     -- Pick random name candidate:
     if (#t > 0) then
 
-        local rand = rand(1, #t - 1)
+        local rand = rand(1, #t + 1)
         local name = t[rand][1]
         local n_id = t[rand][2] -- table index from names
 
