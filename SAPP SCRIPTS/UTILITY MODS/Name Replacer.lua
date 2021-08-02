@@ -117,7 +117,7 @@ function NameReplacer:GetRandomName(Ply)
 
     -- Determine and store all name candidates:
     --
-    local t = {"a", "b"}
+    local t = {}
     for i, v in pairs(self.random_names) do
         if (v[1]:len() < 12 and not v.used) then
             t[#t + 1] = { v[1], i } -- {name, table index}
