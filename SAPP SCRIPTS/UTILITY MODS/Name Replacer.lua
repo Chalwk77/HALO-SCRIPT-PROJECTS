@@ -81,12 +81,6 @@ end
 function OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
 
-        local array = {"a", "b", "c"}
-        local n = rand(1,#array)
-        for i = 1,10 do
-            print(n)
-        end
-
         NameReplacer.players = { }
 
         -- Set all names to "unused" by default:
