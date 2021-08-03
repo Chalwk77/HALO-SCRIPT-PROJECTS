@@ -54,17 +54,10 @@ end
 
 local function PreventScoring(Killer, Victim)
 
-    local score = tonumber(get_var(Killer, "$score"))
-    score = score - 1
-
-    local kills = tonumber(get_var(Killer, "$kills"))
-    kills = kills - 1
-
-    local assists = tonumber(get_var(Killer, "$assists"))
-    assists = assists - 1
-
-    local deaths = tonumber(get_var(Victim, "$deaths"))
-    deaths = deaths - 1
+    local score = tonumber(get_var(Killer, "$score") -1)
+    local kills = tonumber(get_var(Killer, "$kills") -1)
+    local assists = tonumber(get_var(Killer, "$assists") -1)
+    local deaths = tonumber(get_var(Victim, "$deaths") -1)
 
     if (prevent_negatives and score < 0) then
         score, kills, assists, deaths = 0, 0, 0, 0
