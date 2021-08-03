@@ -59,8 +59,11 @@ local function PreventScoring(Killer, Victim)
     local assists = tonumber(get_var(Killer, "$assists") - 1)
     local deaths = tonumber(get_var(Victim, "$deaths") - 1)
 
-    if (prevent_negatives and score < 0) then
-        score, kills, assists, deaths = 0, 0, 0, 0
+    if (prevent_negatives) then
+        score = (score < 0 and 0) or score
+        kills = (kills < 0 and 0) or kills
+        deaths = (deaths < 0 and 0) or deaths
+        assists = (assists < 0 and 0) or assists
     end
 
     execute_command("score " .. Killer .. " " .. score)
