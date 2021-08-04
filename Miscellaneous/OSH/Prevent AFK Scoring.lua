@@ -1,5 +1,8 @@
 -- Set this to false to allow a players score to go into negatives:
 --
+
+local vps_ip = "127.0.0.1"
+
 local prevent_negatives = true
 
 local bots = {
@@ -74,10 +77,13 @@ end
 
 function OnPlayerDeath(Victim, Killer)
     local k, v = tonumber(Killer), tonumber(Victim)
-    if (k > 0) then
-        for _, bot_name in pairs(bots) do
-            if (get_var(v, "$name") == bot_name) then
-                PreventScoring(k, v)
+    if (k > 0 and k ~= v) then
+        local bot_ip = get_var(Victim, "$ip"):match("%d+.%d+.%d+.%d+")
+        if (bot_ip == vps_ip) then
+            for _, bot_name in pairs(bots) do
+                if (get_var(v, "$name") == bot_name) then
+                    PreventScoring(k, v)
+                end
             end
         end
     end
