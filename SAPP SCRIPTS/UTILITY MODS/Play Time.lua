@@ -201,14 +201,17 @@ end
 
 local function FormatMessage(y, w, d, h, m, s, n, j)
     return {
-        ["%%Y%%"] = y,
-        ["%%W%%"] = w,
-        ["%%D%%"] = d,
-        ["%%H%%"] = h,
-        ["%%M%%"] = m,
-        ["%%S%%"] = s,
-        ["%%name%%"] = n,
-        ["%%joins%%"] = j,
+
+        ["%%Y%%"] = y, -- years
+        ["%%W%%"] = w, -- weeks
+        ["%%D%%"] = d, -- days
+        ["%%H%%"] = h, -- hours
+        ["%%M%%"] = m, -- minutes
+        ["%%S%%"] = s, -- seconds
+        ["%%name%%"] = n, -- name
+        ["%%joins%%"] = j, -- joins
+
+        -- determine pluralize word (join):
         ["%%s%%"] = function()
             return (j > 1 and "s") or ""
         end
