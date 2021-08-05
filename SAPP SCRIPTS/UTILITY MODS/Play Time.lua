@@ -56,9 +56,9 @@ local TimePlayed = {
     dir = "PlayTime.json",
 
     -- Client data is saved as a json array.
-    -- The array index for each client will either be "IP", or "IP:PORT" or the players Hash
-    -- Set to 1 for IP-only indexing.
-    -- Set to 2 for IP:PORT indexing.
+    -- The array index for each client will either be "IP", or "IP:PORT" or the players Hash.
+    -- Set to 1 for IP:PORT indexing.
+    -- Set to 2 for IP-only indexing.
     -- Set to 3 for hash-only indexing.
     --
     ClientIndexType = 2,
@@ -276,12 +276,12 @@ function TimePlayed:GetClientIndex(Ply)
 
     local ip = get_var(Ply, "$ip")
 
-    -- ip only
+    -- ip:port
     --
     if (self.ClientIndexType == 1) then
         ip = ip or self.players[Ply].ip
 
-        -- ip:port
+        -- ip only
         --
     elseif (self.ClientIndexType == 2) then
         ip = ip:match("%d+.%d+.%d+.%d+")
