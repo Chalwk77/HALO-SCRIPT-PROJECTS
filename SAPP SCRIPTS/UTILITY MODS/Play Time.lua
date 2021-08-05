@@ -348,8 +348,7 @@ function TimePlayed:CheckFile(ScriptLoad)
                 file:close()
             end
 
-            -- Check for database array:
-            -- * Creates an empty one and saves it to PlayTime.json if it doesn't already exist:
+            -- Load an existing database or create a new one:
             --
             local db = json:decode(content)
             if (not db) then
@@ -363,8 +362,6 @@ function TimePlayed:CheckFile(ScriptLoad)
 
             self.database = db
 
-            --
-            --
             for i = 1, 16 do
                 if player_present(i) then
                     self:AddNewPlayer(i, true)
