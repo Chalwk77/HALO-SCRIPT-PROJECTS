@@ -519,8 +519,8 @@ function OnGameEnd(stage)
                     KillStats[gethash(i)].total.credits = KillStats[gethash(i)].total.credits + 15
                 end
                 extra[gethash(i)].woops.gamesplayed = extra[gethash(i)].woops.gamesplayed + 1
-                time = os.time() - jointime[gethash(i)]
-                extra[gethash(i)].woops.time = extra[gethash(i)].woops.time + time
+                time = os.time() - jointime[gethash(i)] -- db.time
+                extra[gethash(i)].woops.time = extra[gethash(i)].woops.time + time -- players[tid]
             end
         end
     end
