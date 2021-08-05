@@ -6,10 +6,9 @@ Description: Display your playtime with a simple command: /playtime [number: 1-1
              This script will also show how many times you have joined the server.
 
 -----[!] IMPORTANT [!] -----
-1): This mod requires that the following plugins are installed to your server:
-    http://regex.info/blog/lua/json
 
-2): Place "json.lua" in your servers root directory.
+This script requires that the following json library is installed to the servers root directory:
+LINK: http://regex.info/blog/lua/json
 
 Copyright (c) 2020-2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
