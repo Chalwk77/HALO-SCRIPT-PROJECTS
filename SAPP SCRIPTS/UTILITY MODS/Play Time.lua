@@ -61,7 +61,7 @@ local TimePlayed = {
     -- Set to 2 for IP-only indexing.
     -- Set to 3 for hash-only indexing (not recommended at all).
     --
-    ClientIndexType = 2,
+    ClientIndexType = 1,
 }
 
 -- Preload JSON Interpreter Library:
@@ -139,8 +139,8 @@ function TimePlayed:AddNewPlayer(Ply, ManualLoad)
     self.players[Ply] = { }
     self.players[Ply] = db[index]
     self.players[Ply].name = name -- update name
-    self.players[Ply].joins = db[index].joins + 1 -- increment joins on file + 1
-    self.players[Ply].time = db[index].time -- set to time on file
+    self.players[Ply].joins = db[index].joins + 1 -- match joins on file (last known joins)
+    self.players[Ply].time = db[index].time -- match time on file (last known time)
 
     self.play_time[Ply] = os.time()
 
