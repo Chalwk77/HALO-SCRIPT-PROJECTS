@@ -339,6 +339,8 @@ function TimePlayed:CheckFile(ScriptLoad)
 
         if (self.database == nil) then
 
+            -- Check if PlayTime.json exists (create if not):
+            --
             local content = ""
             local file = io.open(self.dir, "r")
             if (file) then
@@ -346,18 +348,23 @@ function TimePlayed:CheckFile(ScriptLoad)
                 file:close()
             end
 
-            local records = json:decode(content)
-            if (not records) then
+            -- Check for database array:
+            -- * Creates an empty one and saves it to PlayTime.json if it doesn't already exist:
+            --
+            local db = json:decode(content)
+            if (not db) then
                 file = assert(io.open(self.dir, "w"))
                 if (file) then
-                    records = { }
-                    file:write(json:encode_pretty(records))
+                    db = { }
+                    file:write(json:encode_pretty(db))
                     file:close()
                 end
             end
 
-            self.database = records
+            self.database = db
 
+            --
+            --
             for i = 1, 16 do
                 if player_present(i) then
                     self:AddNewPlayer(i, true)
