@@ -23,7 +23,7 @@ local TimePlayed = {
     --
     command = "playtime",
 
-    -- Minimum permission lvl required to execute "/check"
+    -- Minimum permission lvl required to execute "/playtime"
     --
     permission = 1,
 
@@ -93,9 +93,10 @@ function OnGameEnd()
 end
 
 function TimePlayed:UpdateJSON(TYPE)
+
+    -- saves local database (self.database) to self.dir:
+    --
     if (self.update_file_database[TYPE]) then
-        -- saves local database (self.database) to self.dir:
-        --
         local db = self:GetLocalDB()
         if (db) then
             local file = assert(io.open(self.dir, "w"))
@@ -126,7 +127,7 @@ function TimePlayed:AddNewPlayer(Ply, ManualLoad)
         db[ip] = {
             ip = ip,
             time = 0, -- set initial play time to zero
-            joins = 0,
+            joins = 0, -- set initial joins to zero
             name = name,
         }
     end
