@@ -128,10 +128,10 @@ function TimePlayed:AddNewPlayer(Ply, ManualLoad)
     local db = self.database
     if (db[index] == nil) then
         db[index] = {
-            index = index,
             time = 0, -- set initial play time to zero
             joins = 0, -- set initial joins to zero
             name = name,
+            index = index
         }
     end
 
