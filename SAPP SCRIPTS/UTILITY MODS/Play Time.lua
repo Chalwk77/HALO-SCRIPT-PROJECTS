@@ -328,7 +328,7 @@ function TimePlayed:GetPlayers(Executor, Args)
         if (Executor ~= 0) then
             table.insert(pl, Executor)
         else
-            self:Respond(Executor, "The server cannot execute this command!")
+            self:Respond(Executor, "Please enter a valid player id (#1-16)")
         end
     elseif (Args[2] ~= nil and Args[2]:match("^%d+$")) then
         if player_present(Args[2]) then
