@@ -20,7 +20,7 @@ api_version = "1.12.0.0"
 
 local TimePlayed = {
 
-    -- Custom command used to check play-time + join count:
+    -- Custom command used to check playtime & join count:
     --
     command = "playtime",
 
@@ -31,19 +31,32 @@ local TimePlayed = {
     -- During what events should the PlayTime.json database be updated?
     --
     update_file_database = {
-        ["event_game_end"] = true,
         ["event_join"] = true,
-        ["event_leave"] = true
+        ["event_leave"] = true,
+        ["event_game_end"] = true
     },
 
-    messages = {
+    -- Custom messages seen when checking playtime:
+    --
+    output = {
 
-        [1] = "Your playtime is Years: %Y%, Weeks: %W%, Days: %D%, Hours: %H%, Minutes: %M%, Seconds: %S%",
-        [2] = "%name%'s playtime is Years: %Y%, Weeks: %W%, Days: %D%, Hours: %H%, Minutes: %M%, Seconds: %S%",
+        -- Your playtime:
+        --
+        {
+            "-------- [ Your Playtime ] --------",
+            "Years: %Y%, Weeks: %W%, Days: %D%, Hours: %H%, Minutes: %M%, Seconds: %S%",
+            " ", -- line break
+            "You have joined %joins% time%s%"
+        },
 
-        [3] = "You have joined %joins% time%s%",
-        [4] = "%name% has joined %joins% time%s%",
-        [5] = "You do not have permission to execute this command!",
+        -- Someone else's playtime:
+        --
+        {
+            "-------- [ %name%'s Playtime ] --------",
+            "Years: %Y%, Weeks: %W%, Days: %D%, Hours: %H%, Minutes: %M%, Seconds: %S%",
+            " ", -- line break
+            "%name% has joined %joins% time%s%"
+        }
     },
 
     -- ADVANCED USERS ONLY:
@@ -61,7 +74,7 @@ local TimePlayed = {
     -- Set to 2 for IP-only indexing.
     -- Set to 3 for hash-only indexing (not recommended at all).
     --
-    ClientIndexType = 1,
+    ClientIndexType = 1
 }
 
 -- Preload JSON Interpreter Library:
@@ -139,7 +152,7 @@ function TimePlayed:AddNewPlayer(Ply, ManualLoad)
     self.players[Ply] = { }
     self.players[Ply] = db[index]
     self.players[Ply].name = name -- update name
-    self.players[Ply].joins = db[index].joins + 1 -- match joins on file (last known joins)
+    self.players[Ply].joins = db[index].joins + 1 -- match joins on file (+1)
     self.players[Ply].time = db[index].time -- match time on file (last known time)
 
     self.play_time[Ply] = os.time()
@@ -170,6 +183,8 @@ function TimePlayed:GetLocalDB()
     return db -- return self.database
 end
 
+-- Converts seconds to time format:
+--
 local function secondsToTime(seconds)
     local years = math.floor(seconds / (60 * 60 * 24 * 365))
     seconds = seconds % (60 * 60 * 24 * 365)
@@ -182,6 +197,22 @@ local function secondsToTime(seconds)
     local minutes = math.floor(seconds / 60)
     seconds = seconds % 60
     return years, weeks, days, hours, minutes, seconds
+end
+
+local function FormatMessage(y, w, d, h, m, s, n, j)
+    return {
+        ["%%Y%%"] = y,
+        ["%%W%%"] = w,
+        ["%%D%%"] = d,
+        ["%%H%%"] = h,
+        ["%%M%%"] = m,
+        ["%%S%%"] = s,
+        ["%%name%%"] = n,
+        ["%%joins%%"] = j,
+        ["%%s%%"] = function()
+            return (j > 1 and "s") or ""
+        end
+    }
 end
 
 function TimePlayed:OnCommand(Ply, CMD)
@@ -200,63 +231,33 @@ function TimePlayed:OnCommand(Ply, CMD)
                     for i = 1, #pl do
 
                         local TID = tonumber(pl[i])
-                        local isSelf = (Ply == TID)
+                        local name = self.players[TID].name
+                        local joins = self.players[TID].joins
 
-                        if (isSelf and TID ~= 0) or (not isSelf) then
+                        local session_time = self.play_time[TID]
+                        local time_on_file = self.players[TID].time
+                        local time = (os.time() + time_on_file) - session_time
+                        local y, w, d, h, m, s = secondsToTime(time)
 
-                            local name = self.players[TID].name
-                            local joins = self.players[TID].joins
+                        local str_format = FormatMessage(y, w, d, h, m, s, name, joins)
 
-                            local session_time = self.play_time[TID]
-                            local time_on_file = self.players[TID].time
-                            local time = (os.time() + time_on_file) - session_time
-                            local years, weeks, days, hours, minutes, seconds = secondsToTime(time)
+                        local output
+                        if (Ply == TID) then
+                            output = self.output[1]
+                        else
+                            output = self.output[2]
+                        end
 
-                            local str_format = {
-                                ["%%Y%%"] = years,
-                                ["%%W%%"] = weeks,
-                                ["%%D%%"] = days,
-                                ["%%H%%"] = hours,
-                                ["%%M%%"] = minutes,
-                                ["%%S%%"] = seconds,
-                                ["%%name%%"] = name,
-                                ["%%joins%%"] = joins,
-                                ["%%s%%"] = function()
-                                    return (joins > 1 and "s") or ""
-                                end
-                            }
-
-                            -- SHOW PLAY TIME:
-                            --
-                            local msg = ""
-                            if (isSelf) then
-                                msg = self.messages[1]
-                            else
-                                msg = self.messages[2]
-                            end
-
+                        for _, str in pairs(output) do
                             for k, v in pairs(str_format) do
-                                msg = msg:gsub(k, v)
+                                str = str:gsub(k, v)
                             end
-                            self:Respond(Ply, msg)
-                            self:Respond(Ply, " ") -- spacing
-
-                            -- SHOW JOINS:
-                            --
-                            if (isSelf) then
-                                msg = self.messages[3]
-                            else
-                                msg = self.messages[4]
-                            end
-                            for k, v in pairs(str_format) do
-                                msg = msg:gsub(k, v)
-                            end
-                            self:Respond(Ply, msg)
+                            self:Respond(Ply, str)
                         end
                     end
                 end
             else
-                self:Respond(Ply, self.messages[5])
+                self:Respond(Ply, "You do not have permission to execute this command!")
             end
             return false
         end
