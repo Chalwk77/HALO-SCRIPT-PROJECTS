@@ -59,7 +59,7 @@ local TimePlayed = {
     -- The array index for each client will either be "IP", or "IP:PORT" or the players Hash.
     -- Set to 1 for IP:PORT indexing.
     -- Set to 2 for IP-only indexing.
-    -- Set to 3 for hash-only indexing.
+    -- Set to 3 for hash-only indexing (not recommended at all).
     --
     ClientIndexType = 2,
 }
@@ -130,8 +130,7 @@ function TimePlayed:AddNewPlayer(Ply, ManualLoad)
         db[index] = {
             time = 0, -- set initial play time to zero
             joins = 0, -- set initial joins to zero
-            name = name,
-            index = index
+            name = name
         }
     end
 
