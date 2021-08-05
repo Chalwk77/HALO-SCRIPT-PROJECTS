@@ -56,8 +56,10 @@ local TimePlayed = {
     dir = "TimePlayed.json",
 
     -- Client data is saved as a json array.
-    -- The array index for each client will either be "IP", or "IP:PORT".
+    -- The array index for each client will either be "IP", or "IP:PORT" or the players Hash
     -- Set to 1 for IP-only indexing.
+    -- Set to 2 for IP:PORT indexing.
+    -- Set to 3 for hash-only indexing.
     --
     ClientIndexType = 2,
 }
@@ -120,13 +122,13 @@ end
 
 function TimePlayed:AddNewPlayer(Ply, ManualLoad)
 
-    local ip = self:GetIP(Ply)
+    local index = self:GetClientIndex(Ply)
     local name = get_var(Ply, "$name")
 
     local db = self.database
-    if (db[ip] == nil) then
-        db[ip] = {
-            ip = ip,
+    if (db[index] == nil) then
+        db[index] = {
+            index = index,
             time = 0, -- set initial play time to zero
             joins = 0, -- set initial joins to zero
             name = name,
@@ -136,10 +138,10 @@ function TimePlayed:AddNewPlayer(Ply, ManualLoad)
     self.database = db
 
     self.players[Ply] = { }
-    self.players[Ply] = db[ip]
+    self.players[Ply] = db[index]
     self.players[Ply].name = name -- update name
-    self.players[Ply].joins = db[ip].joins + 1 -- match joins on file (last known joins)
-    self.players[Ply].time = db[ip].time -- match time on file (last known time)
+    self.players[Ply].joins = db[index].joins + 1 -- match joins on file (last known joins)
+    self.players[Ply].time = db[index].time -- match time on file (last known time)
 
     self.play_time[Ply] = os.time()
 
@@ -161,7 +163,7 @@ function TimePlayed:GetLocalDB()
                 local time = os.time() - self.play_time[i]
                 self.players[i].time = self.players[i].time + time
 
-                db[self:GetIP(i)] = self.players[i]
+                db[self:GetClientIndex(i)] = self.players[i]
             end
         end
     end
@@ -270,12 +272,17 @@ function TimePlayed:Respond(Ply, Msg)
     end
 end
 
-function TimePlayed:GetIP(Ply)
+function TimePlayed:GetClientIndex(Ply)
     local ip = get_var(Ply, "$ip")
-    ip = ip or self.players[Ply].ip
+    local hash = get_var(Ply, "$hash")
     if (self.ClientIndexType == 1) then
+        ip = ip or self.players[Ply].ip
+    elseif (self.ClientIndexType == 2) then
         ip = ip:match("%d+.%d+.%d+.%d+")
+    elseif (self.ClientIndexType == 3) then
+        return hash
     end
+
     return ip
 end
 
