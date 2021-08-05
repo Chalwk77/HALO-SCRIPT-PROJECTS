@@ -28,7 +28,7 @@ local TimePlayed = {
     --
     permission = 1,
 
-    -- During what events should the TimePlayed.json database be updated?
+    -- During what events should the PlayTime.json database be updated?
     --
     update_file_database = {
         ["event_game_end"] = true,
@@ -53,7 +53,7 @@ local TimePlayed = {
     -- A JSON database containing player stats.
     -- This file will be located in the server's root directory.
     --
-    dir = "TimePlayed.json",
+    dir = "PlayTime.json",
 
     -- Client data is saved as a json array.
     -- The array index for each client will either be "IP", or "IP:PORT" or the players Hash
@@ -168,7 +168,7 @@ function TimePlayed:GetLocalDB()
         end
     end
 
-    return db
+    return db -- return self.database
 end
 
 local function secondsToTime(seconds)
@@ -273,14 +273,23 @@ function TimePlayed:Respond(Ply, Msg)
 end
 
 function TimePlayed:GetClientIndex(Ply)
+
     local ip = get_var(Ply, "$ip")
-    local hash = get_var(Ply, "$hash")
+
+    -- ip only
+    --
     if (self.ClientIndexType == 1) then
         ip = ip or self.players[Ply].ip
+
+        -- ip:port
+        --
     elseif (self.ClientIndexType == 2) then
         ip = ip:match("%d+.%d+.%d+.%d+")
+
+        -- hash
+        --
     elseif (self.ClientIndexType == 3) then
-        return hash
+        return get_var(Ply, "$hash")
     end
 
     return ip
