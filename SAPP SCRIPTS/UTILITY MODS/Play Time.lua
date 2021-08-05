@@ -1,9 +1,9 @@
 --[[
 --=====================================================================================================--
 Script Name: Play Time, for SAPP (PC & CE)
-Description: Display your play-time with a simple command: /playtime [number: 1-16] | */all | me
-             Play time is the total time you have spent on the server during its lifetime.
-             Will also show how many times you have joined the server.
+Description: Display your playtime with a simple command: /playtime [number: 1-16] | */all | me
+             Playtime is the total time you have spent on the server during its lifetime.
+             This script will also show how many times you have joined the server.
 
 -----[!] IMPORTANT [!] -----
 1): This mod requires that the following plugins are installed to your server:
