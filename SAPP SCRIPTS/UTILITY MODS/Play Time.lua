@@ -138,7 +138,7 @@ function TimePlayed:AddNewPlayer(Ply, ManualLoad)
     self.players[Ply] = { }
     self.players[Ply] = db[ip]
     self.players[Ply].name = name -- update name
-    self.players[Ply].joins = db[ip].joins + 1
+    self.players[Ply].joins = db[ip].joins + 1 -- match joins on file (last known joins)
     self.players[Ply].time = db[ip].time -- match time on file (last known time)
 
     self.play_time[Ply] = os.time()
