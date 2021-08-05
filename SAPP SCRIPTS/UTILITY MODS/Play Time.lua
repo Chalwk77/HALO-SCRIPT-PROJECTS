@@ -295,19 +295,19 @@ function TimePlayed:GetClientIndex(Ply)
     return ip
 end
 
-function TimePlayed:GetPlayers(Executor, Args)
+function TimePlayed:GetPlayers(Ply, Args)
     local pl = { }
     if (Args[2] == "me" or Args[2] == nil) then
-        if (Executor ~= 0) then
-            table.insert(pl, Executor)
+        if (Ply ~= 0) then
+            table.insert(pl, Ply)
         else
-            self:Respond(Executor, "Please enter a valid player id (#1-16)")
+            self:Respond(Ply, "Please enter a valid player id (#1-16)")
         end
     elseif (Args[2] ~= nil and Args[2]:match("^%d+$")) then
         if player_present(Args[2]) then
             table.insert(pl, Args[2])
         else
-            self:Respond(Executor, "Player #" .. Args[2] .. " is not online")
+            self:Respond(Ply, "Player #" .. Args[2] .. " is not online")
         end
     elseif (Args[2] == "all" or Args[2] == "*") then
         for i = 1, 16 do
@@ -316,10 +316,10 @@ function TimePlayed:GetPlayers(Executor, Args)
             end
         end
         if (#pl == 0) then
-            self:Respond(Executor, "There are no players online!")
+            self:Respond(Ply, "There are no players online!")
         end
     else
-        self:Respond(Executor, "Invalid Command Syntax. Please try again!")
+        self:Respond(Ply, "Invalid Command Syntax. Please try again!")
     end
     return pl
 end
@@ -339,7 +339,7 @@ function TimePlayed:CheckFile(ScriptLoad)
 
         if (self.database == nil) then
 
-            -- Check if PlayTime.json exists (create if not):
+            -- Check if self.dir exists (create if not):
             --
             local content = ""
             local file = io.open(self.dir, "r")
