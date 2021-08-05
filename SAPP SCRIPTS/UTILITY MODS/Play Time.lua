@@ -235,7 +235,7 @@ function TimePlayed:OnCommand(Ply, CMD)
     if (#Args > 0) then
         local lvl = tonumber(get_var(Ply, "$lvl"))
         if (Args[1] == self.command) then
-            if (lvl >= self.permission) then
+            if (lvl >= self.permission or Ply == 0) then
                 local pl = self:GetPlayers(Ply, Args)
                 if (pl) then
                     for i = 1, #pl do
