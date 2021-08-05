@@ -240,15 +240,7 @@ function TimePlayed:OnCommand(Ply, CMD)
                         local y, w, d, h, m, s = secondsToTime(time)
 
                         local str_format = FormatMessage(y, w, d, h, m, s, name, joins)
-
-                        local output
-                        if (Ply == TID) then
-                            output = self.output[1]
-                        else
-                            output = self.output[2]
-                        end
-
-                        for _, str in pairs(output) do
+                        for _, str in pairs(Ply == TID and self.output[1] or self.output[2]) do
                             for k, v in pairs(str_format) do
                                 str = str:gsub(k, v)
                             end
