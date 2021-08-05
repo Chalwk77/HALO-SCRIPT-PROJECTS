@@ -169,49 +169,6 @@ function TimePlayed:GetLocalDB()
     return db
 end
 
-function TimePlayed:CheckFile(ScriptLoad)
-
-    if (ScriptLoad) then
-        self.database = nil
-    end
-
-    self.players, self.play_time = { }, { }
-    self.game_started = false
-
-    if (get_var(0, "$gt") ~= "n/a") then
-
-        self.game_started = true
-
-        if (self.database == nil) then
-
-            local content = ""
-            local file = io.open(self.dir, "r")
-            if (file) then
-                content = file:read("*all")
-                file:close()
-            end
-
-            local records = json:decode(content)
-            if (not records) then
-                file = assert(io.open(self.dir, "w"))
-                if (file) then
-                    records = { }
-                    file:write(json:encode_pretty(records))
-                    file:close()
-                end
-            end
-
-            self.database = records
-
-            for i = 1, 16 do
-                if player_present(i) then
-                    self:AddNewPlayer(i, true)
-                end
-            end
-        end
-    end
-end
-
 local function secondsToTime(seconds)
     local years = math.floor(seconds / (60 * 60 * 24 * 365))
     seconds = seconds % (60 * 60 * 24 * 365)
@@ -255,9 +212,6 @@ function TimePlayed:OnCommand(Ply, CMD)
                             local years, weeks, days, hours, minutes, seconds = secondsToTime(time)
 
                             local str_format = {
-                                ["%%s%%"] = function()
-                                    return (joins > 1 and "s") or ""
-                                end,
                                 ["%%Y%%"] = years,
                                 ["%%W%%"] = weeks,
                                 ["%%D%%"] = days,
@@ -265,7 +219,10 @@ function TimePlayed:OnCommand(Ply, CMD)
                                 ["%%M%%"] = minutes,
                                 ["%%S%%"] = seconds,
                                 ["%%name%%"] = name,
-                                ["%%joins%%"] = joins
+                                ["%%joins%%"] = joins,
+                                ["%%s%%"] = function()
+                                    return (joins > 1 and "s") or ""
+                                end
                             }
 
                             -- SHOW PLAY TIME:
@@ -281,7 +238,7 @@ function TimePlayed:OnCommand(Ply, CMD)
                                 msg = msg:gsub(k, v)
                             end
                             self:Respond(Ply, msg)
-                            self:Respond(Ply, " ")
+                            self:Respond(Ply, " ") -- spacing
 
                             -- SHOW JOINS:
                             --
@@ -294,7 +251,6 @@ function TimePlayed:OnCommand(Ply, CMD)
                                 msg = msg:gsub(k, v)
                             end
                             self:Respond(Ply, msg)
-                            self:Respond(Ply, " ")
                         end
                     end
                 end
@@ -350,6 +306,49 @@ function TimePlayed:GetPlayers(Executor, Args)
         self:Respond(Executor, "Invalid Command Syntax. Please try again!")
     end
     return pl
+end
+
+function TimePlayed:CheckFile(ScriptLoad)
+
+    if (ScriptLoad) then
+        self.database = nil
+    end
+
+    self.players, self.play_time = { }, { }
+    self.game_started = false
+
+    if (get_var(0, "$gt") ~= "n/a") then
+
+        self.game_started = true
+
+        if (self.database == nil) then
+
+            local content = ""
+            local file = io.open(self.dir, "r")
+            if (file) then
+                content = file:read("*all")
+                file:close()
+            end
+
+            local records = json:decode(content)
+            if (not records) then
+                file = assert(io.open(self.dir, "w"))
+                if (file) then
+                    records = { }
+                    file:write(json:encode_pretty(records))
+                    file:close()
+                end
+            end
+
+            self.database = records
+
+            for i = 1, 16 do
+                if player_present(i) then
+                    self:AddNewPlayer(i, true)
+                end
+            end
+        end
+    end
 end
 
 function OnServerCommand(P, C)
