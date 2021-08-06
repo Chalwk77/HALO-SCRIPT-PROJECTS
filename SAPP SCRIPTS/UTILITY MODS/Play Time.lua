@@ -44,7 +44,8 @@ local TimePlayed = {
         --
         {
             "-------- [ Your Playtime ] --------",
-            "Years: %Y%, Weeks: %W%, Days: %D%, Hours: %H%, Minutes: %M%, Seconds: %S%",
+            "Years: %Y%, Weeks: %W%, Days: %D%",
+            "Hours: %H%, Minutes: %M%, Seconds: %S%",
             " ", -- line break
             "You have joined %joins% time%s%"
         },
@@ -53,7 +54,8 @@ local TimePlayed = {
         --
         {
             "-------- [ %name%'s Playtime ] --------",
-            "Years: %Y%, Weeks: %W%, Days: %D%, Hours: %H%, Minutes: %M%, Seconds: %S%",
+            "Years: %Y%, Weeks: %W%, Days: %D%",
+            "Hours: %H%, Minutes: %M%, Seconds: %S%",
             " ", -- line break
             "%name% has joined %joins% time%s%"
         }
