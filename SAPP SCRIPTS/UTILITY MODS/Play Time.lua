@@ -11,8 +11,7 @@ This script requires that the following json library is installed to the servers
 LINK: http://regex.info/blog/lua/json
 
 Technical Note:
-Play time data will only begin to be collected from the moment you install the script.
-SAPP itself has no way of knowing (or keeping track of) how long someone has spent on the server during its lifetime.
+Playtime data will only begin to be collected from the moment you install the script.
 
 Copyright (c) 2020-2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
