@@ -212,7 +212,7 @@ function VPN:OnCommand(Ply, CMD)
                         if (JsonData) then
                             local ip_lookup = json:decode(JsonData)
                             if (ip_lookup.success) then
-                                Respond(Ply, "VPN STATUS FOR " .. get_var(TID, "$name"))
+                                Respond(Ply, "VPN STATUS FOR " .. get_var(TID, "$name") .. " [" .. ip .. "]")
                                 Respond(Ply, " ") -- line break
                                 for k, v in pairs(self.checks) do
                                     local case1 = (type(v) == "boolean" and v)
