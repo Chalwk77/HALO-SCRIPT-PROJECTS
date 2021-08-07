@@ -185,8 +185,12 @@ function VPN:OnCommand(Ply, CMD)
         local lvl = tonumber(get_var(Ply, "$lvl"))
         if (Args[1] == self.command) then
             if (lvl >= self.permission or Ply == 0) then
+
                 local pl = GetPlayers(Ply, Args)
                 if (pl) then
+
+                    Respond(Ply, "Running Analysis. Please wait..")
+
                     for player = 1, #pl do
 
                         local TID = tonumber(pl[player])
@@ -208,18 +212,20 @@ function VPN:OnCommand(Ply, CMD)
                         if (JsonData) then
                             local ip_lookup = json:decode(JsonData)
                             if (ip_lookup.success) then
-
                                 Respond(Ply, "VPN STATUS FOR " .. get_var(TID, "$name"))
+                                Respond(Ply, " ") -- line break
                                 for k, v in pairs(self.checks) do
-                                    local case1 = (type(v) == "boolean" and v and ip_lookup[k])
-                                    local case2 = (type(v) == "number" and ip_lookup[k] >= v)
+                                    local case1 = (type(v) == "boolean" and v)
+                                    local case2 = (type(v) == "number" and ip_lookup[k] >= v) -- only display fraud score if it's >= v
                                     if (case1 or case2) then
-                                        Respond(Ply, k .. " -> " .. tostring(v))
+                                        Respond(Ply, k .. " = " .. tostring(ip_lookup[k]))
                                     end
                                 end
-                                Respond(Ply, " ")
+                                Respond(Ply, " ") -- line break
                             end
+                            return false
                         end
+                        Respond(Ply, "Something went wrong. Please check script settings.")
                     end
                 end
             else
