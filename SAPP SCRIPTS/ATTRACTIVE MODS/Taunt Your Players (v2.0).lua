@@ -30,18 +30,18 @@ function taunt.Init()
     taunt.OnGameOver = true
 
     -- CUSTOM VARIABLE:
-    -- Use "%victim_name%" (without the quotes) to output the victim's name.
+    -- Use "%victim%" (without the quotes) to output the victim's name.
     taunt.deathmessages = {
-        " Aw, %victim_name%, I seen better shooting at the county fair!",
+        " Aw, %victim%, I seen better shooting at the county fair!",
         " Ees too bad you got manure for brains!!",
-        " Hell's full a' retired Gamers, %victim_name%, And it's time you join em!",
+        " Hell's full a' retired Gamers, %victim%, And it's time you join em!",
         " Hell! My horse pisses straighter than you shoot!!",
         " Can't you do better than that! I've seen worms move faster!",
-        " Not good enough %victim_name%, not good enough!",
+        " Not good enough %victim%, not good enough!",
         " Hell - I can already smell your rotting corpse.",
-        " Today is a good day to die %victim_name%!!",
+        " Today is a good day to die %victim%!!",
         " Huh, too slow!! You will regret that!!",
-        " You insult me, %victim_name%!!",
+        " You insult me, %victim%!!",
         " I'm going to send ya to an early grave!!",
         " Had enough yet?!",
         " Hope ya plant better than ya shoot!!",
@@ -49,19 +49,19 @@ function taunt.Init()
         " Time to fit you for a coffin!!",
         " You have a date with the undertaker!!",
         " Your life ends in the wasteland...",
-        " Rest in peace, %victim_name%.",
+        " Rest in peace, %victim%.",
         " You fought valiantly... but to no avail.",
-        " You're dead. Again, %victim_name%!",
+        " You're dead. Again, %victim%!",
         " You're dead as a doornail.",
-        " Time to reload, %victim_name%.",
+        " Time to reload, %victim%.",
         " Here's a picture of your corpse. Not pretty.",
         " Boy, are you stupid. And dead.",
         " Ha ha ha ha ha. You're dead, moron!",
-        " Couldn't charm your way out of that one, %victim_name%.",
+        " Couldn't charm your way out of that one, %victim%.",
         " Nope. Just Nope.",
         " You have perished. What a Shame.",
         " Sell your PC. Just do it.",
-        " You disappoint me, %victim_name%.",
+        " You disappoint me, %victim%.",
     }
 
     -- CUSTOM VARIABLES:
@@ -154,7 +154,7 @@ function OnPlayerDeath(PlayerIndex, KillerIndex)
         -- 2). Send victim a random message from the taunt.deathmessages table:
     elseif (killer > 0) then
         local name = get_var(victim, "$name")
-        local message = gsub(GetMessage(taunt.deathmessages), "%%victim_name%%", name)
+        local message = gsub(GetMessage(taunt.deathmessages), "%%victim%%", name)
         rprint(PlayerIndex, taunt.message_alignment .. " " .. message)
     end
 end
