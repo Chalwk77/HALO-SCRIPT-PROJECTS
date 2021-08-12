@@ -164,8 +164,12 @@ function NameReplacer:GetRandomName(Ply)
 
     -- Pick random name candidate:
     if (#t > 0) then
+        math.randomseed(os.clock())
+        math.random();
+        math.random();
+        math.random();
+        local rand = math.random(1, #t)
 
-        local rand = rand(1, #t + 1)
         local name = t[rand][1]
         local n_id = t[rand][2] -- table index from names
 
