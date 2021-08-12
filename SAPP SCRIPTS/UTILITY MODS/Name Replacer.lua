@@ -27,7 +27,8 @@ local NameReplacer = {
     blacklist = {
         "Butcher",
         "Caboose",
-        "Crazy", "Cupid",
+        "Crazy",
+        "Cupid",
         "Darling",
         "Dasher",
         "Disco",
@@ -219,7 +220,7 @@ function NameReplacer:CheckNameExists(Ply)
     local name = get_var(Ply, "$name")
     for _, v in pairs(self.random_names) do
         if (name == v[1]) then
-            v[1].used = true
+            v.used = true
         end
     end
 end
