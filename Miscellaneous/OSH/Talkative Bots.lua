@@ -203,8 +203,6 @@ api_version = "1.12.0.0"
 
 -- config ends --
 
-local time_to_load
-
 -- Used for custom timers:
 local time_scale = 1 / 30
 
@@ -226,8 +224,6 @@ function OnScriptLoad()
 end
 
 function ChatBot:OnGameStart()
-
-    time_to_load = os.clock()
 
     -- Ensures the script doesn't run talk-logic unless a game is running:
     --
@@ -255,10 +251,13 @@ function ChatBot:OnGameStart()
 
         -- Retrieve remote database:
         --
+        local time_to_load = os.clock()
+
         local JsonData = self:Query(self.database_endpoint)
-        if (JsonData) then
+        if (assert(JsonData, "Unable to load database")) then
 
             -- Converts JSON array into a string-indexed Lua array:
+            --
             local messages = json:decode(JsonData)
 
             -- Convert tables into numerically indexed arrays:
@@ -268,13 +267,14 @@ function ChatBot:OnGameStart()
                 gc_count = gc_count + 1
                 table.insert(self.messages.general_chatter, { txt, enabled })
             end
-            cprint("----- [ Talkative Bots ] -----", 10)
-            cprint(gc_count .. " general chatter messages loaded", 10)
 
             for txt, enabled in pairs(messages.death_messages) do
                 dm_count = dm_count + 1
                 table.insert(self.messages.death_messages, { txt, enabled })
             end
+
+            cprint("----- [ Talkative Bots ] -----", 10)
+            cprint(gc_count .. " general chatter messages loaded", 10)
             cprint(dm_count .. " death messages loaded", 10)
             cprint(gc_count + dm_count .. " total messages", 10)
             cprint("Database finished loading in " .. os.clock() - time_to_load .. " seconds", 5)
