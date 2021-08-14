@@ -58,43 +58,43 @@ local Market = {
 
         -- Camouflage:
         -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, duration, catalogue message}
-        ["camo"] = { "m1", 60, 30, "-60 -> Camo (30 seconds)" },
+        ["camo"] = { "m1", 60, 30, "-$60 -> Camo (30 seconds)" },
 
 
         --
         -- God Mode:
         -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, duration, catalogue message}
-        ["god"] = { "m2", 200, 30, "-200 -> God (30 seconds)" },
+        ["god"] = { "m2", 200, 30, "-$200 -> God (30 seconds)" },
 
 
         --
         -- Frags:
         -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, total, catalogue message}
-        ["nades"] = { "m3", 30, 2, "-30 -> Frags (x2)" },
+        ["nades"] = { "m3", 30, 2, "-$30 -> Frags (x2)" },
 
 
         --
         -- Plasmas:
         -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, total, catalogue message}
-        ["plasmas"] = { "m4", 30, 2, "-30 -> Plasmas (x2)" },
+        ["plasmas"] = { "m4", 30, 2, "-$30 -> Plasmas (x2)" },
 
 
         --
         -- Speed Boost:
         -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, speed, catalogue message}
-        ["s"] = { "m5", 60, 1.3, "-60 -> Speed Boost (1.3x)" },
+        ["s"] = { "m5", 60, 1.3, "-$60 -> Speed Boost (1.3x)" },
 
 
         --
         -- Overshield:
         -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, state, catalogue message}
-        ["sh"] = { "m6", 100, 1, "-100 -> Camo (full shield)" },
+        ["sh"] = { "m6", 100, 1, "-$100 -> Camo (full shield)" },
 
 
         --
         -- Health:
         -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, h-points, catalogue message}
-        ["hp"] = { "m7", 100, 1, "-100 -> HP (full health)" },
+        ["hp"] = { "m7", 100, 1, "-$100 -> HP (full health)" },
     }
 }
 -- config ends --
