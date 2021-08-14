@@ -2,9 +2,9 @@ IP ADDRESS: 63.251.20.151
 
 HALO COMBAT EVOLVED (PC)
 • 2305 - BlAcK - Blood Gulch - CTF  
-• 2329 - ROK - Blood Gulch - CTF  
-• 2333 - BK{USA}ZOMBIES - Battle Creek, Blood Gulch, Chill Out, Chiron TL-34, Damnation, Derelict, Gephyrophobia, Hang 'Em High, Longest, Prisoner, Rat Race, Timberland, Wizard - Zombies  
-• 2349 - $ - Blood Gulch - Team Slayer 
+• 2329 - ROK - Blood Gulch - CTF
+• 2333 - BK{USA}ZOMBIES - Battle Creek, Blood Gulch, Chill Out, Chiron TL-34, Damnation, Derelict, Gephyrophobia, Hang 'Em High, Longest, Prisoner, Rat Race, Timberland, Wizard - Zombies
+• 2349 - $ - Blood Gulch - Team Slayer
 • 2355 - BlAcK{Sniper_Dream_Team_Mod} -  Battle Creek, Blood Gulch, Danger Canyon, Death Island, Hang 'Em High, Sidewinder - CTF  
 • 2359 - BK - Blood Gulch - CTF  
 • 2369 - BK{USA} - Blood Gulch - Slayer 
