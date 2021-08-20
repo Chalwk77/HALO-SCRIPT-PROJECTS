@@ -16,5 +16,5 @@ function BlockHeadshots(Victim, Killer, _, _, HitString, _)
 end
 
 function OnScriptUnload()
-
+    -- N/A
 end
