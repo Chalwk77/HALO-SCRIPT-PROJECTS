@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Loadout (v1.8), for SAPP (PC & CE)
+Script Name: Loadout (v1.9), for SAPP (PC & CE)
 
 ~ acknowledgements ~
 Concept credit goes to OSH Clan, a gaming community operating on Halo CE:
@@ -83,7 +83,7 @@ local Loadout = {
     death_sprees_bonus = true,
 
     -- If true, this script will change a players armor based on their class (and team)
-    modify_armor_color = true,
+    modify_armor_color = false,
 
     -- =========================== --
     -- SCORE LIMIT SETTINGS --
@@ -1108,7 +1108,7 @@ local Loadout = {
 
 local ip_addresses = { }
 local time_scale = 1 / 30
-local script_version = 1.8
+local script_version = 1.9
 local gmatch, gsub = string.gmatch, string.gsub
 local lower = string.lower
 local floor, sqrt, format = math.floor, math.sqrt, string.format
@@ -1123,6 +1123,7 @@ end
 local function Init(reset)
     local events_registered = RegisterSAPPEvents()
     if (events_registered) then
+
         if (reset) then
             Loadout.players = { }
             execute_command('sv_map_reset')
@@ -1289,13 +1290,13 @@ function Loadout:GetWeaponTable(Ply)
     local info = self:GetLevelInfo(Ply)
     if (info and info.class and info.level) then
         local weapon_table = self.classes[info.class].levels[info.level].weapons
-		if (weapon_table.custom_maps) then
-			for map, tab in pairs(weapon_table.custom_maps) do
-				if (lower(map) == lower(self.map)) then
-					return tab
-				end
-			end
-		end
+        if (weapon_table.custom_maps) then
+            for map, tab in pairs(weapon_table.custom_maps) do
+                if (lower(map) == lower(self.map)) then
+                    return tab
+                end
+            end
+        end
         return weapon_table.stock_maps
     end
     return nil
@@ -2478,8 +2479,8 @@ function Loadout:SetColor(Ply)
 
     if (self.modify_armor_color) then
 
-        local ply_obj = get_player(Ply)
-        if (ply_obj ~= 0) then
+        local DyN = get_player(Ply)
+        if (DyN ~= 0) then
 
             local t = self:GetLevelInfo(Ply)
             local class = t.class
@@ -2494,10 +2495,11 @@ function Loadout:SetColor(Ply)
             else
                 color = self.classes[class].color.team[team]
             end
+
             safe_write(true)
             for ColorName, ColorID in pairs(self.colors) do
                 if (ColorName == color) then
-                    write_byte(ply_obj + 0x60, ColorID)
+                    write_byte(DyN + 0x60, ColorID)
                 end
             end
             safe_write(false)
@@ -2564,22 +2566,24 @@ function RegisterSAPPEvents()
 end
 
 function LSS(state)
-    local ls
-    if (state) then
-        ls = sig_scan("741F8B482085C9750C")
-        if (ls == 0) then
-            ls = sig_scan("EB1F8B482085C9750C")
+    if (Loadout.modify_armor_color) then
+        local ls
+        if (state) then
+            ls = sig_scan("741F8B482085C9750C")
+            if (ls == 0) then
+                ls = sig_scan("EB1F8B482085C9750C")
+            end
+            safe_write(true)
+            write_char(ls, 235)
+            safe_write(false)
+        else
+            if (ls == 0 or ls == nil) then
+                return
+            end
+            safe_write(true)
+            write_char(ls, 116)
+            safe_write(false)
         end
-        safe_write(true)
-        write_char(ls, 235)
-        safe_write(false)
-    else
-        if (ls == 0) then
-            return
-        end
-        safe_write(true)
-        write_char(ls, 116)
-        safe_write(false)
     end
 end
 

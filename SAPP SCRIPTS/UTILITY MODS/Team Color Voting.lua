@@ -464,7 +464,6 @@ function mod:CMDSplit(CMD)
     return cmd, args
 end
 
---Credits to Kavawuvi for this chunk of code:
 function mod:LSS(state)
     if (state) then
         ls = sig_scan("741F8B482085C9750C")
