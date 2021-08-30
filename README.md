@@ -6,7 +6,7 @@ If my work has helped you in any way, show your support and buy me a coffee :)
 
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=X6VNRT8N4JEPS&source=url)
 - - - - 
-- - - - 
+- - - -
 * [SAPP SCRIPTS](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/SAPP%20SCRIPTS)
 * [PHASOR SCRIPTS](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/PHASOR%20SCRIPTS)
 * [CHIMERA SCRIPTS](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/CHIMERA/GLOBAL)
@@ -41,6 +41,5 @@ Website | Discord
 
 
 ##### Contact Me:
-Email: jericho.crosby227@gmail.com
-Discord: Chalwk#9284
-
+- Email: jericho.crosby227@gmail.com
+- Discord: Chalwk#9284
