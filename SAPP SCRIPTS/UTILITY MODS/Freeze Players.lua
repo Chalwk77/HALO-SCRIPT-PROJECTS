@@ -129,13 +129,13 @@ function OnServerCommand(Executor, Command, _, _)
 end
 
 function OnPlayerChat(PlayerIndex, Message, Type)
-	if (Type ~= 6) then
-		local PreventChat = (players[PlayerIndex].frozen) and (not chat)
-		if (PreventChat) then
-			rprint(PlayerIndex, messages[7])
-			return false
-		end
-	end
+    if (Type ~= 6) then
+        local PreventChat = (players[PlayerIndex].frozen) and (not chat)
+        if (PreventChat) then
+            rprint(PlayerIndex, messages[7])
+            return false
+        end
+    end
 end
 
 function ValidateCMD(Executor, Args, Type)
