@@ -17,7 +17,7 @@ Contributors to projects and code
   * Creator of commands script (4.2)
         - http://pastebin.com/gHiz0A51
   
-* **[Benjamin Auquite](https://github.com/th3w1zard1)**
+* **[Benjamin Auquite (Wizard)](https://github.com/th3w1zard1)**
 
   * Co-Creator of commands script (4.2)
         - http://pastebin.com/gHiz0A51
