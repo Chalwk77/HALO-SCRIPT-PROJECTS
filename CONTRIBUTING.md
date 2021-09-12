@@ -26,31 +26,23 @@ Contributors to projects and code
 
 * **[Nuggets](http://phasor.proboards.com/user/36)**
 
-  * sendconsoletext overload
+  * sendconsoletext overload (used in some of my Phasor scripts)
         - http://pastebin.com/1dtn0DiM
         
 * **[002](https://github.com/Halogen002)**
   * Chimera
         - https://opencarnage.net/index.php?/topic/6916-chimera-build-49/
-  * http client
+  * http client (integrated into some of my scripts)
         - https://github.com/Halogen002/SAPP-HTTP-Client
-  * GetTagInfo
+  * GetTagInfo (used in some of my scripts)
         - get_tag_info (function)
-        
-* **[H® Shaft](http://pastebin.com/u/HR_Shaft)**
-
-  * Crash_Player (function)
-        - http://pastebin.com/1dtn0DiM
-        
-  * OnDamageLookup (function)
-        - https://pastebin.com/edZ82aWn
         
 * **[giraffe](https://opencarnage.net/index.php?/profile/1463-giraffe/)**
 
-  * Auto-Vehicle Flip (script)
+  * Auto-Vehicle Flip (integrated into one of my scripts)
         - https://opencarnage.net/index.php?/topic/6251-auto-vehicle-flip/
         
 * **[Jeffrey Friedl](http://regex.info/blog/)**
 
-  * JSON.lua file
+  * JSON.lua
         - latest version: http://regex.info/blog/lua/json
