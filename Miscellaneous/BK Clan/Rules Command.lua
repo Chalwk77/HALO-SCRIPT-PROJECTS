@@ -32,10 +32,10 @@ local interval = 180
 --
 local Rules = {
     "1. Do not betray your team mates.",
-    "2. Do not block any entrances or teleports.",
     "3. Do not be toxic, be a good spot!",
-    "5. Do not camp on any forbidden places.",
-    "4. If you're a zombie, press melee key to infect them.",
+    "3. Do not camp on any forbidden places.",
+    "4. Do not block any entrances or teleports.",
+    "5. If you're a zombie, press melee key to infect them.",
 }
 
 
