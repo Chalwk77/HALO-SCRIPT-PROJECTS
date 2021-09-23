@@ -48,27 +48,25 @@ end
 function ConsoleText:GameTick()
     if (#self.messages > 0) then
         for k, v in pairs(self.messages) do
-            if (v.player) then
-                if player_present(v.player) then
-                    v.timer = v.timer - time_scale
-                    if (v.timer <= 0) then
-                        self.messages[k] = nil
-                        return
-                    elseif (v.clear) then
-                        for _ = 1, 25 do
-                            rprint(v.player, " ")
-                        end
-                    end
-					if type(v.content == "table") then
-						for i = 1,#v.content do
-							rprint(v.player, v.alignment .. " " .. v.content[i])
-						end
-					else
-						rprint(v.player, v.alignment .. " " .. v.content)
-					end
-                else
+            if (v.player and player_present(v.player)) then
+                v.timer = v.timer - time_scale
+                if (v.timer <= 0) then
                     self.messages[k] = nil
+                    return
+                elseif (v.clear) then
+                    for _ = 1, 25 do
+                        rprint(v.player, " ")
+                    end
                 end
+                if type(v.content == "table") then
+                    for i = 1, #v.content do
+                        rprint(v.player, v.alignment .. " " .. v.content[i])
+                    end
+                else
+                    rprint(v.player, v.alignment .. " " .. v.content)
+                end
+            else
+                self.messages[k] = nil
             end
         end
     end
