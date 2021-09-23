@@ -69,10 +69,6 @@ function OnScriptLoad()
     OnGameStart()
 end
 
-function OnTick()
-    ConsoleText:GameTick()
-end
-
 function ShowRules(Ply, CMD, _, _)
     if (CMD:sub(1, command:len()):lower() == command) then
         ConsoleText:NewMessage(Ply, Rules, show_time, nil, true)
@@ -97,4 +93,8 @@ end
 
 function OnGameEnd()
     game_started = false
+end
+
+function OnTick()
+    ConsoleText:GameTick()
 end
