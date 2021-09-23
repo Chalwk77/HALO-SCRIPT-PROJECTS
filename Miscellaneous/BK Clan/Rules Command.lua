@@ -28,6 +28,11 @@ local announcement = "Type /" .. command .. " to view the game rules."
 local interval = 180
 
 
+-- How long (in seconds) do the messages appear for?
+--
+local show_time = 10
+
+
 -- Rules Table:
 --
 local Rules = {
@@ -50,6 +55,8 @@ local server_prefix = "**BK**"
 
 api_version = "1.12.0.0"
 
+local ConsoleText = (loadfile "Console Text Library.lua")()
+
 local game_started
 
 function OnScriptLoad()
@@ -57,15 +64,18 @@ function OnScriptLoad()
     register_callback(cb["EVENT_COMMAND"], "ShowRules")
     register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
+    register_callback(cb["EVENT_TICK"], "OnTick")
 
     OnGameStart()
 end
 
+function OnTick()
+    ConsoleText:GameTick()
+end
+
 function ShowRules(Ply, CMD, _, _)
     if (CMD:sub(1, command:len()):lower() == command) then
-        for _, Rule in pairs(Rules) do
-            rprint(Ply, Rule)
-        end
+        ConsoleText:NewMessage(Ply, Rules, show_time, nil, true)
         return false
     end
 end
