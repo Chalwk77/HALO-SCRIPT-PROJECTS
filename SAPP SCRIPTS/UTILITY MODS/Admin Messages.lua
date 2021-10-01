@@ -1,75 +1,88 @@
 --[[
 --=====================================================================================================--
-Script Name: Admin Join Messages, for SAPP (PC & CE)
-Description: Customizable admin-join messages on a per-level basis.
+Script Name: Admin Messages, for SAPP (PC & CE)
+Description: A custom join message will appear based your admin level.
 
-Copyright (c) 2019-2020, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2019-2021, Jericho Crosby <jericho.crosby227@gmail.com>
 Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
-api_version = "1.11.0.0"
-local join_message = {} -- do not touch!
+-- config starts --
 
--- Configuration [starts]  ---------------------------------------------------------
--- output:          [prefix]        [message] (note: player name is automatically inserted between [prefix] and [message])
-join_message[1] = { "[TRIAL-MOD] ", " joined the server. Everybody hide!" }
-join_message[2] = { "[MODERATOR] ", " just showed up. Hold my beer!" }
-join_message[3] = { "[ADMIN] ", " just joined. Hide your bananas!" }
-join_message[4] = { "[SENIOR-ADMIN] ", " joined the server." }
-join_message.clan_leaders = {
-    ["127.0.0.1"] = { "[CLAN LEADER] ", " joined the server." },
-    ["192.168.1.1"] = { "[CLAN LEADER] ", " joined the server." },
-    -- repeat structure to add more entries...,
+local Join_Messages = {
+
+    -- Level 1:
+    --
+    [1] = "[TRIAL-MOD] %name% joined the server. Everybody hide!",
+
+    -- Level 2:
+    --
+    [2] = "[MODERATOR] %name% ust showed up. Hold my beer!",
+
+    -- Level 3:
+    --
+    [3] = "[ADMIN] %name% just joined. Hide your bananas!",
+
+    -- Level 4:
+    --
+    [4] = "[SENIOR-ADMIN] %name% joined the server.",
+
+    -- Where should messages appear, chat or rcon?
+    --
+    environment = "chat",
+
+    -- Message alignment (has not affect for clients running Chimera)
+    -- Left = |l, Right = |r, Center = |c, Tab: |t
+    --
+    alignment = "|l",
+
+    --
+
+    -- Advanced users only:
+    --
+    -- A message relay function temporarily removes the server prefix
+    -- and will restore it to this when the relay is finished:
+    -- Technical note: This only applies to the chat environment.
+    server_prefix = "**SAPP**",
+    --
 }
+-- config ends --
 
-local environment = 'chat' -- valid environments: "chat", "rcon"
+api_version = "1.11.0.0"
 
-local alignment = "|l" -- Left = l, Right = r, Center = c, Tab: t
--- Configuration [ends] ------------------------------------------------------------
-
-local SAPPFunc
 function OnScriptLoad()
     register_callback(cb['EVENT_JOIN'], "OnPlayerConnect")
-    if (environment == "chat") then
-        SAPPFunc = say
-    elseif (environment == "rprint") then
-        SAPPFunc = rprint
-    end
 end
 
-local function IsClanLeader(IP)
-    for ip, v in pairs(join_message.clan_leaders) do
-        if (IP == ip) then
-            return v
-        end
-    end
-    return false
-end
+function Join_Messages:Broadcast(Ply)
 
-function OnPlayerConnect(p)
-    local name, lvl = get_var(p, "$name"), tonumber(get_var(p, "$lvl"))
+    local lvl = tonumber(get_var(Ply, "$lvl"))
     if (lvl >= 1) then
 
-        local msg = ""
-        local ip = get_var(p, '$ip'):match("%d+.%d+.%d+.%d+")
-        local leader = IsClanLeader(ip)
+        local name = get_var(Ply, "$name")
+        local msg = self.alignment .. " " .. self[lvl]
+        msg = msg:gsub("%%name%%", name)
 
-        if (not leader) then
-            msg = "|" .. alignment .. " " .. join_message[lvl][1] .. name .. join_message[lvl][2]
-        else
-            msg = "|" .. alignment .. " " .. leader[1] .. name .. leader[2]
-        end
-
-        for i = 1, 16 do
-            if (i ~= p and player_present(i)) then
-                SAPPFunc(i, msg)
+        if (self.environment == "chat") then
+            execute_command("msg_prefix \"\"")
+            say_all(msg)
+            execute_command("msg_prefix \" " .. self.server_prefix .. "\"")
+        elseif (self.environment == "rcon") then
+            for i = 1, 16 do
+                if player_present(i) then
+                    rprint(i, msg)
+                end
             end
         end
     end
 end
 
 function OnScriptUnload()
+    -- N/A
+end
 
+function OnPlayerConnect(ID)
+    return Join_Messages:Broadcast(ID)
 end
