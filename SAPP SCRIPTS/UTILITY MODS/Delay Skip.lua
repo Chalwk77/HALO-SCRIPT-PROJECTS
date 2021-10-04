@@ -1,6 +1,7 @@
 --[[
 --=====================================================================================================--
 Script Name: Skip Delay, for SAPP (PC & CE)
+Description: Prevent players from skipping the game too early.
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -23,6 +24,7 @@ local time
 function OnScriptLoad()
 
     register_callback(cb["EVENT_CHAT"], "Skip")
+    register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
 
     OnGameStart()
@@ -32,16 +34,24 @@ local function Plural(n)
     return (n > 1 and "s") or ""
 end
 
-function Skip(Ply, Msg, _, _)
-    local n = math.ceil(time + delay - os.clock())
-    if (Msg:sub(1, Msg:len()):lower() == "skip" and n > 0) then
-        rprint(Ply, "Please wait " .. n .. " second" .. Plural(n) .. " before attempting to skip")
-        return false
+function Skip(Ply, Msg)
+    if (time) then
+        local n = math.ceil(time + delay - os.clock())
+        if (Msg:sub(1, Msg:len()):lower() == "skip" and n > 0) then
+            rprint(Ply, "Please wait " .. n .. " second" .. Plural(n) .. " before attempting to skip")
+            return false
+        end
     end
 end
 
 function OnGameStart()
-    time = os.clock()
+    if (get_var(0, "$gt") ~= "n/a") then
+        time = os.clock()
+    end
+end
+
+function OnGameEnd()
+    time = nil
 end
 
 function OnScriptUnload()
