@@ -35,9 +35,9 @@ local function Plural(n)
 end
 
 function Skip(Ply, Msg)
-    if (time) then
+    if (time and Msg:sub(1, Msg:len()):lower() == "skip") then
         local n = math.ceil(time + delay - os.clock())
-        if (Msg:sub(1, Msg:len()):lower() == "skip" and n > 0) then
+        if (n > 0) then
             rprint(Ply, "Please wait " .. n .. " second" .. Plural(n) .. " before attempting to skip")
             return false
         end
@@ -45,6 +45,7 @@ function Skip(Ply, Msg)
 end
 
 function OnGameStart()
+    time = nil
     if (get_var(0, "$gt") ~= "n/a") then
         time = os.clock()
     end
