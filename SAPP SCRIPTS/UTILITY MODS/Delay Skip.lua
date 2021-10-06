@@ -1,7 +1,12 @@
 --[[
 --=====================================================================================================--
 Script Name: Skip Delay, for SAPP (PC & CE)
-Description: Prevent players from skipping the game too early.
+Description: This script prevents players from skipping the game too early.
+
+Scenario: A player with a good ping (and bad intentions) joins the server after a new game has just begun
+          and immediately types "skip", thus ending the game before anyone else joins.
+
+I've heard cases of people binding this to a key too.
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
