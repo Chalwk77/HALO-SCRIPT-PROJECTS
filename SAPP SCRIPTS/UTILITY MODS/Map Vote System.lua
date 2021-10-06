@@ -41,22 +41,27 @@ local MapVote = {
     --
 
     -- If true, players can re-cast their vote:
+    --
     re_vote = true,
 
     -- How many times can a player re-vote?
+    --
     re_vote_count = 1,
     --
 
     -- How many votes options to display when the game ends?
+    --
     amount_to_show = 5,
     --
 
     -- If true, the player's console will be cleared each time we print vote options:
     -- Not recommended --
+    --
     clear_console = false,
     --
 
     -- Most messages are configurable (edit them here):
+    --
     messages = {
 
         -- message alignment characters: "|l", "|r", "|c", "|t" = Left, Right, Center, Tab
@@ -95,16 +100,20 @@ local MapVote = {
     ----------------------------------------------------------------------------------------
     -- I do not recommend changing these values:
 
-    -- Time (in seconds) until we show map votes (after game ends)
+    -- Time (in seconds) until we show map votes (after game ends):
+    --
     time_until_show = 7,
 
     -- Time (in seconds) until votes are calculated (after game ends):
+    --
     time_until_tally = 13,
 
     -- Time (in seconds) until map cycle (after PGCR screen is shown):
+    --
     map_cycle_timeout = 13,
 
     -- Vote options will be re-shown every "re_show_interval" seconds until timer reaches "time_until_tally"
+    --
     re_show_interval = 5,
     ----------------------------------------------------------------------------------------
 
@@ -173,13 +182,14 @@ local MapVote = {
 }
 -- Configuration Ends --
 
-local script_version = 1.5
+local script_version = 1.6
 local start_index, end_index
 
 function OnScriptLoad()
 
     -- register needed event callbacks:
     register_callback(cb["EVENT_CHAT"], "OnVote")
+    register_callback(cb["EVENT_COMMAND"], "OnCommand")
     register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
     register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerQuit")
@@ -195,6 +205,7 @@ function MapVote:OnStart(reset)
     end
 
     self.votes = { }
+    self.manual_mode = false
     self.game_started = false
 
     if (get_var(0, "$gt") ~= "n/a") then
@@ -215,7 +226,12 @@ function MapVote:OnStart(reset)
 end
 
 function OnGameEnd()
-    MapVote:Show()
+    MapVote.game_started = false
+    timer(10, "Show")
+end
+
+function Show()
+    return MapVote:Show()
 end
 
 -- Function used for printing messages:
@@ -418,54 +434,76 @@ end
 
 function MapVote:Show()
 
-    local finished = (not self.maps[end_index + 1] and true) or false
-    if (finished) then
-        self:ResetVoteIndex(true)
-    end
+    if (not self.manual_mode) then
 
-    -- Determine what vote options to display:
-    local index = 1
-    for i = start_index, end_index do
-        if (self.maps[i]) then
-
-            -- map [string], mode [string], mode message [string], votes [table]
-            self.results[index] = {
-
-                -- map name:
-                self.maps[i][1],
-
-                -- mode:
-                self.maps[i][2],
-
-                -- mode message:
-                self.maps[i][3],
-
-                -- array of votes:
-                {}
-            }
-            index = index + 1
+        local finished = (not self.maps[end_index + 1] and true) or false
+        if (finished) then
+            self:ResetVoteIndex(true)
         end
+
+        -- Determine what vote options to display:
+        local index = 1
+        for i = start_index, end_index do
+            if (self.maps[i]) then
+
+                -- map [string], mode [string], mode message [string], votes [table]
+                self.results[index] = {
+
+                    -- map name:
+                    self.maps[i][1],
+
+                    -- mode:
+                    self.maps[i][2],
+
+                    -- mode message:
+                    self.maps[i][3],
+
+                    -- array of votes:
+                    {}
+                }
+                index = index + 1
+            end
+        end
+
+        -- Increment vote option start & end indexes:
+        start_index = (end_index + 1)
+        end_index = (start_index + self.amount_to_show - 1)
+
+        self:SetupTimer(false)
+
+        -- Initialise vote timer:
+        timer(1000 * 1, "GameTick")
     end
+end
 
-    -- Increment vote option start & end indexes:
-    start_index = (end_index + 1)
-    end_index = (start_index + self.amount_to_show - 1)
+local function StrSplit(STR)
+    local Args = { }
+    for MSG in STR:gmatch("([^%s]+)") do
+        Args[#Args + 1] = MSG:lower()
+    end
+    return Args
+end
 
-    self:SetupTimer(false)
+function DelayMapLoad()
+    if (not MapVote.game_started) then
+        MapVote.manual_mode = true
+    end
+end
 
-    -- Initialise vote timer:
-    timer(1000 * 1, "GameTick")
+function OnCommand(_, CMD, _, _)
+    local Args = StrSplit(CMD)
+    if (#Args > 0 and Args[1] == "map") then
+        timer(0, "DelayMapLoad")
+        return true
+    end
 end
 
 function MapVote:Vote(Ply, MSG, _, _)
     if (not self.game_started) then
 
-        local Args = { }
-        for VoteID in MSG:gmatch("([^%s]+)") do
-            Args[#Args + 1] = VoteID:lower()
-        end
-
+        local Args = StrSplit(MSG)
         if (#Args > 0) then
+
             local vid = tonumber(Args[1]:match("%d+"))
             if (vid and self.timer < self.time_until_tally) then
                 if (not self.can_vote) then
