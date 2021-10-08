@@ -472,7 +472,7 @@ function MapVote:Show()
         self:SetupTimer(false)
 
         -- Initialise vote timer:
-        timer(1000 * 1, "GameTick")
+        timer(1000, "GameTick")
     end
 end
 
@@ -591,16 +591,14 @@ function MapVote:ResetVoteIndex(Shuffle)
     end_index = self.amount_to_show
 end
 
-function OnScriptUnload()
-    -- N/A
-end
-
 function OnVote(P, M)
     return MapVote:Vote(P, M)
 end
+
 function GameTick()
     return MapVote:Timer()
 end
+
 function OnGameStart(reset)
     return MapVote:OnStart(reset)
 end
@@ -635,6 +633,11 @@ function OnError(Error)
 
     WriteLog("\n")
 end
+
+function OnScriptUnload()
+    -- N/A
+end
+
 
 -- for a future update --
 return MapVote
