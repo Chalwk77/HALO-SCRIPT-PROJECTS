@@ -182,7 +182,7 @@ local MapVote = {
 }
 -- Configuration Ends --
 
-local script_version = 1.6
+local script_version = 1.7
 local start_index, end_index
 
 function OnScriptLoad()
@@ -227,7 +227,7 @@ end
 
 function OnGameEnd()
     MapVote.game_started = false
-    timer(10, "Show")
+    timer(25, "Show")
 end
 
 function Show()
@@ -493,7 +493,7 @@ end
 function OnCommand(_, CMD, _, _)
     local Args = StrSplit(CMD)
     if (#Args > 0 and Args[1] == "map") then
-        timer(0, "DelayMapLoad")
+        timer(10, "DelayMapLoad")
         return true
     end
 end
