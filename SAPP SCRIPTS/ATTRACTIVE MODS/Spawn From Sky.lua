@@ -102,9 +102,6 @@ local maps = {
 }
 -- config ends --
 
-local players
-local map_table
-
 function OnScriptLoad()
 
     register_callback(cb["EVENT_TICK"], "OnTick")
@@ -115,6 +112,8 @@ function OnScriptLoad()
 
     OnGameStart()
 end
+
+local players, map_table
 
 function OnGameStart()
 
