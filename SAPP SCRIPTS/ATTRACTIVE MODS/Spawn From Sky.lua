@@ -1,7 +1,7 @@
 --[[
 --=====================================================================================================--
 Script Name: Spawn From Sky, for SAPP (PC & CE)
-Description: Read the title!
+Description: Players will spawn X world-units above the ground when they first join.
 
              Each map has an associative array:
              ["bloodgulch"] = {
@@ -106,73 +106,56 @@ local players
 local map_table
 
 function OnScriptLoad()
+
+    register_callback(cb["EVENT_TICK"], "OnTick")
+    register_callback(cb["EVENT_JOIN"], "OnJoin")
+    register_callback(cb['EVENT_SPAWN'], "OnSpawn")
+    register_callback(cb['EVENT_PRESPAWN'], "OnPreSpawn")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
+
     OnGameStart()
 end
 
-local function RegisterSAPPEvents(Load)
-    if (Load) then
-        register_callback(cb["EVENT_TICK"], "OnTick")
-        register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
-        register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
-        register_callback(cb['EVENT_PRESPAWN'], "OnPreSpawn")
-    else
-        unregister_callback(cb["EVENT_TICK"])
-        unregister_callback(cb["EVENT_JOIN"])
-        unregister_callback(cb['EVENT_SPAWN'])
-        unregister_callback(cb['EVENT_PRESPAWN'])
-    end
-end
-
 function OnGameStart()
+
+    players = { }
+    map_table = nil
+
     if (get_var(0, "$gt") ~= "n/a") then
-
-        players = { }
-        map_table = nil
-
-        local map = get_var(0, "$map")
-        if (maps[map]) then
-            map_table = maps[map]
-            RegisterSAPPEvents(true)
-        else
-            RegisterSAPPEvents(false)
-            cprint("[Spawn From Sky] " .. map .. " is not listed!", 12)
-        end
+        map_table = maps[get_var(0, "$map")] or nil
     end
 end
 
 function OnTick()
-    for i, _ in pairs(players) do
-        if (i) then
-            local DyN = get_dynamic_player(i)
-            if (DyN ~= 0) then
-                local state = read_byte(DyN + 0x2A3)
-                if (state == 21 or state == 22) then
-                    execute_command("ungod " .. i)
-                    write_word(DyN + 0x104, 0)
-                    players[i] = nil
+    if (map_table) then
+        for i, _ in pairs(players) do
+            if (i) then
+                local DyN = get_dynamic_player(i)
+                if (DyN ~= 0) then
+                    local state = read_byte(DyN + 0x2A3) -- un-god player when they hit the ground
+                    if (state == 21 or state == 22) then
+                        execute_command("ungod " .. i)
+                        write_word(DyN + 0x104, 0)
+                        players[i] = nil
+                    end
                 end
             end
         end
     end
 end
 
-local function InitPlayer(Ply)
+function OnJoin(Ply)
     players[Ply] = true
 end
 
-function OnPlayerJoin(Ply)
-    InitPlayer(Ply)
-end
-
-function OnPlayerSpawn(Ply)
-    if (players[Ply]) then
+function OnSpawn(Ply)
+    if (map_table and players[Ply]) then
         execute_command("god " .. Ply)
     end
 end
 
 function OnPreSpawn(Ply)
-    if (players[Ply]) then
+    if (map_table and players[Ply]) then
         local DyN = get_dynamic_player(Ply)
         if (DyN ~= 0) then
             local x, y, z, h
