@@ -84,7 +84,8 @@ function CheckVehicles()
             local in_range = GetRadius(vx, vy, vz, x, y, z, 2)
             if (in_range) then
 
-                local rotation = v.r
+                -- r = original vehicle rotation angle
+                local r = v.r
 
                 --
                 -- check if the vehicle's z axis is + 0.1-0.3 world units above where it should be
