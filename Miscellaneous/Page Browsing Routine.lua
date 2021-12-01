@@ -51,7 +51,6 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 local PageBrowser = { }
 
-local len = string.len
 local floor = math.floor
 local concat = table.concat
 
@@ -85,8 +84,8 @@ local function FormatTable(t, MaxResults, Spaces)
 
     local longest = 0
     for _, v in pairs(t) do
-        if (len(v) > longest) then
-            longest = len(v)
+        if (v:len() > longest) then
+            longest = v:len()
         end
     end
 
@@ -95,7 +94,7 @@ local function FormatTable(t, MaxResults, Spaces)
         if (count % MaxResults == 0) or (k == #t) then
             rows[row] = (rows[row] or "") .. v
         else
-            rows[row] = (rows[row] or "") .. v .. spacing(longest - len(v) + Spaces)
+            rows[row] = (rows[row] or "") .. v .. spacing(longest - v:len() + Spaces)
         end
         if (count % MaxResults == 0) then
             row = row + 1

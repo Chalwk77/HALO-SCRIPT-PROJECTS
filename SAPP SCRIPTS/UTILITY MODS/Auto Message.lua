@@ -21,7 +21,7 @@ local AutoMessage = {
 
         { -- message 1
             "Multi-Line Support | Message 1, line 1",
-            "Message 1, line 2"
+            "Message 1, line 2",
         },
 
 

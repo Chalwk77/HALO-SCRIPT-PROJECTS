@@ -38,7 +38,7 @@ function OnPreSpawn(Ply)
             --local pos = map_table[team]
 
             -- Use ffa table for this map:
-            local pos = map_table.ffa
+            local pos = map_table.red
 
             -- Pick random coordinate from ffa table:
             local n = math.random(1, #pos)
