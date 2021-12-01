@@ -83,6 +83,9 @@ function CheckVehicles()
             --
             local in_range = GetRadius(vx, vy, vz, x, y, z, 2)
             if (in_range) then
+
+                local rotation = v.r
+
                 --
                 -- check if the vehicle's z axis is + 0.1-0.3 world units above where it should be
                 -- (will add this logic when I have time)
@@ -104,8 +107,14 @@ end
 function OnObjectSpawn(_, MapID, _, ObjectID)
     for _, v in pairs(vehicles) do
         if (MapID == GetTag(v.type, v.name)) then
-            -- Set this vehicles object id:
+
+            -- Save this vehicles object id:
+            --
             v.object = ObjectID
+
+            -- Save this vehicles rotation angle (in radians):
+            --
+            v.r = read_float(ObjectID + 0x74)
         end
     end
 end
