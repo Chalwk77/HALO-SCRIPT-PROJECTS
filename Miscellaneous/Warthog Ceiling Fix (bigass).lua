@@ -1,6 +1,8 @@
 -- Warthog ceiling bug fix for the map Bigass
 -- Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 
+-- This script will automatically teleport a glitched warthog back to its starting position (w/ proper rotation).
+
 local vehicles = {
     { type = "vehi", -- red base
       name = "bourrin\\halo reach\\vehicles\\warthog\\reach gauss hog",
@@ -85,6 +87,9 @@ function CheckVehicles()
                 -- check if the vehicle's z axis is + 0.1-0.3 world units above where it should be
                 -- (will add this logic when I have time)
                 --
+
+                -- TO DO:
+                -- The above logic + ignore vehicles that are occupied.
             end
         end
     end
