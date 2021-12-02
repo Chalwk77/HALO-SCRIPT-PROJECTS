@@ -22,7 +22,7 @@ local vehicles = {
       pos = { 152.07675170898, 40.980716705322, -0.75395542383194, 8.9575530326513e-10 } }
 }
 
-local delay = 2
+local delay = 1
 local game_started
 
 api_version = "1.12.0.0"
@@ -74,7 +74,6 @@ function CheckVehicles()
             -- Where it currently is: vx,vy,vz
             --
             local vx, vy, vz = read_vector3d(object + 0x5C)
-            print(vx, vy, vz)
 
             -- Where it should be: x,y,z,r
             --
@@ -85,20 +84,21 @@ function CheckVehicles()
 
             -- Check if the vehicle is near its starting location (+/- 1 w/unit):
             --
-            --if (GetDistance(vx, vy, vz, x, y, z, 1)) then
-            --
-            --    -- Check if its floating above the ground (z+0.2 w/units):
-            --    --
-            --    local height_offset = math.sqrt((vz ^ 2) + (z ^ 2))
-            --    if (height_offset > 0.2) then
-            --
-            --        -- Respawn this vehicle:
-            --        --
-            --        destroy_object(object)
-            --        local vehicle = spawn_object(v.type, v.name, x, y, z, r)
-            --        v.object = get_object_memory(vehicle)
-            --    end
-            --end
+            if (GetDistance(vx, vy, vz, x, y, z, 1)) then
+
+                -- todo: tweak math
+
+                -- Check if its floating above the ground (z+0.2 w/units):
+                --
+                local height_offset = math.sqrt((vz ^ 2) + (z ^ 2))
+                if (height_offset > 0.000001) then
+                    -- Respawn this vehicle:
+                    --
+                    destroy_object(object)
+                    local vehicle = spawn_object(v.type, v.name, x, y, z, r)
+                    v.object = get_object_memory(vehicle)
+                end
+            end
         end
     end
     return game_started
@@ -109,15 +109,22 @@ local function GetTag(Type, Name)
     return (Tag ~= 0 and read_dword(Tag + 0xC)) or nil
 end
 
+-- todo: only execute this function once! (on game start)
 function OnObjectSpawn(_, MapID, _, ObjectID)
-    for i, v in pairs(vehicles) do
+    for _, v in pairs(vehicles) do
         if (MapID == GetTag(v.type, v.name)) then
-            timer(0, "DelayUpdate", ObjectID)
+
+            timer(0, "SaveObjectID", ObjectID)
+            -- Technical note:
+            --
+            -- If we don't delay the logic in SaveObjectID(),
+            -- get_object_memory(ObjectID) will return 0.
+            --
         end
     end
 end
 
-function DelayUpdate(ObjectID)
+function SaveObjectID(ObjectID)
     local object = get_object_memory(ObjectID)
     if (object ~= 0) then
         local vx, vy, vz = read_vector3d(object + 0x5C)
@@ -125,8 +132,6 @@ function DelayUpdate(ObjectID)
             local x, y, z = v.pos[1], v.pos[2], v.pos[3]
             local in_range = GetDistance(vx, vy, vz, x, y, z, 0.1)
             if (in_range) then
-                -- Save this vehicles object id:
-                --
                 v.object = object
             end
         end
