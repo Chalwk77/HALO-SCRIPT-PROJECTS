@@ -18,7 +18,7 @@ local vehicles = {
       pos = { 152.07527160645, 40.980175018311, -0.78609919548035, 8.9575530326513e-10 } }
 }
 
-local delay = 1
+local delay = 3
 local game_started
 
 api_version = "1.12.0.0"
@@ -66,7 +66,7 @@ function CheckVehicles()
         local object = get_object_memory(v.object)
         if (object ~= 0 and object ~= 0xFFFFFFFF) then
 
-            -- Where it currently is: x,y,z
+            -- Where it currently is: vx,vy,vz
             --
             local vx, vy, vz = read_vector3d(object + 0x5C)
 
@@ -102,6 +102,9 @@ local function GetTag(Type, Name)
     return (Tag ~= 0 and read_dword(Tag + 0xC)) or nil
 end
 
+--=========================================================--
+-- TO DO: fix this function!
+--=========================================================--
 function OnObjectSpawn(_, MapID, _, ObjectID)
     for _, v in pairs(vehicles) do
         if (MapID == GetTag(v.type, v.name)) then
