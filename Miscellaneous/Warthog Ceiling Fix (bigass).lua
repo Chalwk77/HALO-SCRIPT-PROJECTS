@@ -89,7 +89,8 @@ function CheckVehicles()
                     -- Respawn this vehicle:
                     --
                     destroy_object(object)
-                    spawn_object(v.type, v.name, x, y, z, r)
+                    local vehicle = spawn_object(v.type, v.name, x, y, z, r)
+                    v.object = get_object_memory(vehicle)
                 end
             end
         end
