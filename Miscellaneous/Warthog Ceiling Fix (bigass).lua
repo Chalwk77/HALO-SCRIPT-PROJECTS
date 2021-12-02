@@ -77,7 +77,7 @@ function CheckVehicles()
             local z = v.pos[3]
             local r = v.pos[4]
 
-            -- Check if the vehicle is near its starting location (within 0.500 world units):
+            -- Check if the vehicle is near its starting location (within 1 world unit):
             --
             if (GetDistance(vx, vy, vz, x, y, z, 1)) then
 
