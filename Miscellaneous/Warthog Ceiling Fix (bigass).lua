@@ -77,14 +77,20 @@ function CheckVehicles()
             local z = v.pos[3]
             local r = v.pos[4]
 
-            -- Check if the vehicle is near its starting location:
+            -- Check if the vehicle is near its starting location (within 0.500 world units):
             --
             if (GetDistance(vx, vy, vz, x, y, z, 0.500)) then
 
+                -- Check if its floating above the ground (+0.3 world units above z):
+                --
                 local height_offset = math.sqrt((vz ^ 2) + (z ^ 2))
+                if (height_offset > 0.3) then
 
-                destroy_object(object)
-                spawn_object(v.type, v.name, x, y, z, r)
+                    -- Respawn this vehicle:
+                    --
+                    destroy_object(object)
+                    spawn_object(v.type, v.name, x, y, z, r)
+                end
             end
         end
     end
