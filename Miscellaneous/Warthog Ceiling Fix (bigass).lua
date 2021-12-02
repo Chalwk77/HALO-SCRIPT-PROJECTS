@@ -4,21 +4,25 @@
 -- This script will automatically teleport a glitched warthog back to its starting position (w/ proper rotation).
 
 local vehicles = {
+
     { type = 'vehi', -- red base
       name = 'bourrin\\halo reach\\vehicles\\warthog\\reach gauss hog',
-      pos = { -130.70635986328, -71.420547485352, -0.12882445752621, 6.6630392247964e-37 } },
+      pos = { -130.70628356934, -71.420822143555, -0.1817033290863, 6.6630392247964e-37 } },
+
     { type = 'vehi', -- red base
       name = 'bourrin\\halo reach\\vehicles\\warthog\\h2 mp_warthog',
-      pos = { -128.29974365234, -70.520027160645, -0.14425709843636, -6.4093676162253e+14 } },
+      pos = { -128.29972839355, -70.520156860352, -0.16934883594513, -6.4093676162253e+14 } },
+
     { type = 'vehi', -- blue base
       name = 'bourrin\\halo reach\\vehicles\\warthog\\h2 mp_warthog',
-      pos = { 149.50099182129, 40.949211120605, -0.79486745595932, 3.5092477183271e+25 } },
+      pos = { 149.50099182129, 40.949256896973, -0.80388098955154, 3.5092477183271e+25 } },
+
     { type = 'vehi', -- blue base
       name = 'bourrin\\halo reach\\vehicles\\warthog\\reach gauss hog',
-      pos = { 152.07527160645, 40.980175018311, -0.78609919548035, 8.9575530326513e-10 } }
+      pos = { 152.07675170898, 40.980716705322, -0.75395542383194, 8.9575530326513e-10 } }
 }
 
-local delay = 3
+local delay = 2
 local game_started
 
 api_version = "1.12.0.0"
@@ -61,14 +65,16 @@ local function GetDistance(x1, y1, z1, x2, y2, z2, r)
 end
 
 function CheckVehicles()
+
     for _, v in pairs(vehicles) do
 
-        local object = get_object_memory(v.object)
+        local object = v.object
         if (object ~= 0 and object ~= 0xFFFFFFFF) then
 
             -- Where it currently is: vx,vy,vz
             --
             local vx, vy, vz = read_vector3d(object + 0x5C)
+            print(vx, vy, vz)
 
             -- Where it should be: x,y,z,r
             --
@@ -77,22 +83,22 @@ function CheckVehicles()
             local z = v.pos[3]
             local r = v.pos[4]
 
-            -- Check if the vehicle is near its starting location (within 1 world unit):
+            -- Check if the vehicle is near its starting location (+/- 1 w/unit):
             --
-            if (GetDistance(vx, vy, vz, x, y, z, 1)) then
-
-                -- Check if its floating above the ground (+0.2 world units above z):
-                --
-                local height_offset = math.sqrt((vz ^ 2) + (z ^ 2))
-                if (height_offset > 0.2) then
-
-                    -- Respawn this vehicle:
-                    --
-                    destroy_object(object)
-                    local vehicle = spawn_object(v.type, v.name, x, y, z, r)
-                    v.object = get_object_memory(vehicle)
-                end
-            end
+            --if (GetDistance(vx, vy, vz, x, y, z, 1)) then
+            --
+            --    -- Check if its floating above the ground (z+0.2 w/units):
+            --    --
+            --    local height_offset = math.sqrt((vz ^ 2) + (z ^ 2))
+            --    if (height_offset > 0.2) then
+            --
+            --        -- Respawn this vehicle:
+            --        --
+            --        destroy_object(object)
+            --        local vehicle = spawn_object(v.type, v.name, x, y, z, r)
+            --        v.object = get_object_memory(vehicle)
+            --    end
+            --end
         end
     end
     return game_started
@@ -103,15 +109,26 @@ local function GetTag(Type, Name)
     return (Tag ~= 0 and read_dword(Tag + 0xC)) or nil
 end
 
---=========================================================--
--- TO DO: fix this function!
---=========================================================--
 function OnObjectSpawn(_, MapID, _, ObjectID)
-    for _, v in pairs(vehicles) do
+    for i, v in pairs(vehicles) do
         if (MapID == GetTag(v.type, v.name)) then
-            -- Save this vehicles object id:
-            --
-            v.object = ObjectID
+            timer(0, "DelayUpdate", ObjectID)
+        end
+    end
+end
+
+function DelayUpdate(ObjectID)
+    local object = get_object_memory(ObjectID)
+    if (object ~= 0) then
+        local vx, vy, vz = read_vector3d(object + 0x5C)
+        for _, v in pairs(vehicles) do
+            local x, y, z = v.pos[1], v.pos[2], v.pos[3]
+            local in_range = GetDistance(vx, vy, vz, x, y, z, 0.1)
+            if (in_range) then
+                -- Save this vehicles object id:
+                --
+                v.object = object
+            end
         end
     end
 end
