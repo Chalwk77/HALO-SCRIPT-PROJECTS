@@ -79,12 +79,12 @@ function CheckVehicles()
 
             -- Check if the vehicle is near its starting location (within 0.500 world units):
             --
-            if (GetDistance(vx, vy, vz, x, y, z, 0.500)) then
+            if (GetDistance(vx, vy, vz, x, y, z, 1)) then
 
-                -- Check if its floating above the ground (+0.3 world units above z):
+                -- Check if its floating above the ground (+0.2 world units above z):
                 --
                 local height_offset = math.sqrt((vz ^ 2) + (z ^ 2))
-                if (height_offset > 0.3) then
+                if (height_offset > 0.2) then
 
                     -- Respawn this vehicle:
                     --
