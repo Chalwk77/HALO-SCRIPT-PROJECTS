@@ -444,6 +444,15 @@ function Zombies:GameTick()
                                 --
                             end
                         end
+
+                        -- Remove ammo from zombie weapons:
+                        --
+                        local team = get_var(i, "$team")
+                        if (team == self.zombie_team) then
+                            execute_command_sequence("w8 1;ammo " .. i .. " 0")
+                            execute_command_sequence("w8 1;mag " .. i .. " 0")
+                            execute_command_sequence("w8 1;battery " .. i .. " 0")
+                        end
                     end
                 end
             end
