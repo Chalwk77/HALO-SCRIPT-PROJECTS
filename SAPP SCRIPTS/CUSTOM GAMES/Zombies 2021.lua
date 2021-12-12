@@ -42,10 +42,11 @@ local Zombies = {
             ------------------------
             Notes on variables --
             ------------------------
-            *   speed:          Set to 0 to use map settings (1 = normal speed).
-            *   health:         Range from 0 to 99999, (1 = normal health).
-            *   respawn_time:   Range from 0-999 (in seconds).
-            *   weapons:        Leave the array blank to use default weapon sets.
+            *   speed:                  Set to 0 to use map settings (1 = normal speed).
+            *   health:                 Range from 0 to 99999, (1 = normal health).
+            *   respawn_time:           Range from 0-999 (in seconds).
+            *   weapons:                Leave the array blank to use default weapon sets.
+            *   damage_multiplier:      Range from 0-10
 
             --- Notes ---
             You can add up to 4 stock weapon tag names at your discretion.
@@ -59,6 +60,7 @@ local Zombies = {
             speed = 1,
             health = 1,
             respawn_time = 1.5,
+            damage_multiplier = 10,
             weapons = { "weapons\\ball\\ball" }
         },
 
@@ -66,14 +68,16 @@ local Zombies = {
             speed = 1,
             health = 1,
             weapons = { },
-            respawn_time = 3
+            respawn_time = 3,
+            damage_multiplier = 1
         },
 
         ["Last Man Standing"] = {
             speed = 1,
             health = 1,
             weapons = { },
-            respawn_time = 3
+            respawn_time = 3,
+            damage_multiplier = 1
         }
     },
 
@@ -191,6 +195,7 @@ function OnScriptLoad()
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
     register_callback(cb["EVENT_WEAPON_DROP"], "OnWeaponDrop")
+    register_callback(cb["EVENT_DAMAGE_APPLICATION"], "DamageMultiplier")
 
     kill_message_address = sig_scan("8B42348A8C28D500000084C9") + 3
     original_kill_message = read_dword(kill_message_address)
@@ -856,6 +861,33 @@ function Zombies:Broadcast(Ply, Msg)
         say_all(Msg)
     end
     execute_command("msg_prefix \" " .. self.server_prefix .. "\"")
+end
+
+-- This function is responsible for multiplying applied Damage
+-- @param Ply (Victim) [number]
+-- @param Causer (Killer) [number]
+-- @param Damage (applied damage %) [number]
+--
+function DamageMultiplier(Ply, Causer, _, Damage, _, _)
+    if (tonumber(Causer) > 0 and Ply ~= Causer and Zombies.game_started) then
+
+        local c_team = get_var(Causer, "$team")
+        local v_team = get_var(Ply, "$team")
+
+        if (c_team == v_team) then
+            return false
+        end
+
+        if (c_team == Zombies.zombie_team) then
+            return true, Damage * Zombies.attributes["Zombies"].damage_multiplier
+        elseif (c_team == Zombies.human_team) then
+            if (Causer ~= Zombies.last_man) then
+                return true, Damage * Zombies.attributes["Humans"].damage_multiplier
+            else
+                return true, Damage * Zombies.attributes["Last Man Standing"].damage_multiplier
+            end
+        end
+    end
 end
 
 -- This function is called every time a new game begins:
