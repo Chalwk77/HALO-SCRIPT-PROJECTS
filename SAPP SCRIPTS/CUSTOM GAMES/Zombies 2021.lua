@@ -4,8 +4,6 @@ Script Name: Zombies 2021, for SAPP (PC & CE)
 Description: A fully customizable zombie game.
             See the bottom of this script for recommended game type settings.
 
-            todo: remove ammo from zombie weapons
-
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
