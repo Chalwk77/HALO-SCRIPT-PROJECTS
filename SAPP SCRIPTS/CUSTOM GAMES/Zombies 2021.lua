@@ -458,7 +458,7 @@ function Zombies:StartPreGameTimer()
     local countdown = self.timers["Pre-Game Countdown"]
     countdown.timer = countdown.timer + 1
 
-    local time_remaining = (self.game_start_delay - countdown.timer)
+    local time_remaining = (countdown.delay - countdown.timer)
     if (time_remaining <= 0) then
 
         -- Stop the timer:
@@ -543,12 +543,13 @@ function Zombies:SwitchHumanToZombie()
     local countdown = self.timers["No Zombies"]
     countdown.timer = countdown.timer + 1
 
-    local time_remaining = (self.no_zombies_delay - countdown.timer)
+    local time_remaining = (countdown.delay - countdown.timer)
     if (time_remaining <= 0) then
 
-        countdown.init = false
-        countdown.timer = 0
+        self:StopTimer(countdown)
 
+        -- Save all players on the human team to the humans array:
+        --
         local humans = {}
         for i = 1, 16 do
             local team = get_var(i, "$team")
@@ -557,10 +558,14 @@ function Zombies:SwitchHumanToZombie()
             end
         end
 
+        --Pick a random human to become the zombie:
+        --
         math.randomseed(os.clock())
         local new_zombie = humans[math.random(1, #humans)]
         local name = self.players[new_zombie].name
 
+        -- Tell player what team they're on:
+        --
         local msg = self.messages.no_zombies_switch
         msg = msg:gsub("$name", name)
         say_all(msg)
@@ -657,9 +662,7 @@ function Zombies:GamePhaseCheck(Ply, PlayerCount)
         -- No zombies left | Select random player to become zombie:
     elseif (zombies <= 0 and humans >= 1) then
         local countdown = self.timers["No Zombies"]
-        countdown.timer = 0
-        countdown.init = true
-        timer(1000, "SwitchHumanToZombie")
+        self:StartTimer(countdown, "SwitchHumanToZombie")
     end
 end
 
