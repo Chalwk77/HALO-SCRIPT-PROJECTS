@@ -36,7 +36,7 @@ local Zombies = {
     zombie_team = "blue",
 
     -- Zombie Curing (disabled by default):
-    -- When enabled, a zombie needs X consecutive kills to become human again.
+    -- When enabled, a zombie needs X (cure_threshold) consecutive kills to become human again.
     --
     zombies_can_be_cured = false,
 
