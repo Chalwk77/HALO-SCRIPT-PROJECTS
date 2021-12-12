@@ -40,20 +40,26 @@ local Zombies = {
     --
     zombies_can_be_cured = false,
 
+    -- Cure Threshold:
     -- Number of kills required to become a human again:
     -- Do not set this value to 1 or curing will not work.
     --
     cure_threshold = 5,
 
-    -- Regenerating Health (only applies to Last Man Standing):
-    -- When enabled, the last man standing will have regenerating health (see attributes table)
+    -- Regenerating Health:
+    -- When enabled, the last man standing will have regenerating health (see attributes table).
     --
     regenerating_health = true,
 
-    -- Nav Marker above Last Man Standing's head:
+    -- Nav Marker:
     -- When enabled, the last man standing will have a nav marker above his head.
     --
     nav_marker = true,
+
+    -- Crouch Camo:
+    -- When enabled, zombies can go invisible by crouching.
+    --
+    crouch_camo = true,
 
     -- Player attributes:
     --
@@ -183,7 +189,7 @@ local Zombies = {
 
         -- weapons:
         --
-        { "weap", "weapons\\flag\\flag", 0 },
+        { "weap", "weapons\\flag\\flag", 2 },
         { "weap", "weapons\\ball\\ball", 2 },
         { "weap", "weapons\\pistol\\pistol", 2 },
         { "weap", "weapons\\shotgun\\shotgun", 2 },
@@ -271,6 +277,7 @@ function Zombies:Init()
             delay = self.no_zombies_delay + 1
         }
     }
+
     if (get_var(0, "$gt") ~= "n/a") then
 
         -- Disable game objects:
@@ -429,12 +436,24 @@ function Zombies:GetWeaponTable(Ply)
 end
 
 function Zombies:HealthRegeneration(Ply)
-    if (self.regenerating_health and self.game_started) then
+    if (self.regenerating_health and self.last_man == Ply) then
         local DyN = get_dynamic_player(Ply)
         if (DyN ~= 0 and player_alive(Ply)) then
             local health = read_float(DyN + 0xE0)
             if (health < 1) then
                 write_float(DyN + 0xE0, health + self.health_increment)
+            end
+        end
+    end
+end
+
+function Zombies:CrouchCamo(Ply)
+    if (self.crouch_camo and get_var(Ply, "$team") == self.zombie_team) then
+        local DyN = get_dynamic_player(Ply)
+        if (DyN ~= 0 and player_alive(Ply)) then
+            local couching = read_float(DyN + 0x50C)
+            if (couching == 1) then
+                execute_command("camo " .. Ply .. " 1")
             end
         end
     end
@@ -450,6 +469,7 @@ function Zombies:GameTick()
     for i, player in pairs(self.players) do
         if (i and self.game_started) then
 
+            self:CrouchCamo(i)
             self:HealthRegeneration(i)
 
             if (player.assign) then
