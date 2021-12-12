@@ -159,10 +159,17 @@ local Zombies = {
         { "eqip", "powerups\\active camouflage", 2 },
         { "eqip", "weapons\\frag grenade\\frag grenade", 2 },
         { "eqip", "weapons\\plasma grenade\\plasma grenade", 2 },
-    }
+    },
+
+    -- A message relay function temporarily removes the server prefix
+    -- and will restore it to this when the relay is finished
+    server_prefix = "**SAPP**",
+    --
 }
 -- config ends --
 -- do not touch anything below this point --
+
+local kill_message_address, original_kill_message
 
 api_version = "1.12.0.0"
 
@@ -178,6 +185,10 @@ function OnScriptLoad()
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
     register_callback(cb["EVENT_WEAPON_DROP"], "OnWeaponDrop")
+
+    kill_message_address = sig_scan("8B42348A8C28D500000084C9") + 3
+    original_kill_message = read_dword(kill_message_address)
+    DisableDeathMessages()
 
     Zombies:Init()
 end
@@ -477,6 +488,7 @@ function Zombies:StartPreGameTimer()
 
         -- Reset the map:
         execute_command("sv_map_reset")
+        EnableDeathMessages()
         self.game_started = true
 
         -- Sort players into teams:
@@ -500,8 +512,7 @@ function Zombies:StartPreGameTimer()
                     -- Tell player what team they are on:
                     local msg = self.messages.on_game_begin
                     local team = self:GetTeamType(i)
-                    say(i, msg:gsub("$team", team))
-
+                    self:Broadcast(i, msg:gsub("$team", team))
                 else
                     -- Set player to human team:
                     --
@@ -511,7 +522,7 @@ function Zombies:StartPreGameTimer()
                     --
                     local msg = self.messages.on_game_begin
                     local team = self:GetTeamType(i)
-                    say(i, msg:gsub("$team", team))
+                    self:Broadcast(i, msg:gsub("$team", team))
                 end
             end
         end
@@ -522,7 +533,7 @@ function Zombies:StartPreGameTimer()
 
     local msg = self.messages.pre_game_message
     msg = msg:gsub("$time", time_remaining):gsub("$s", Plural(time_remaining))
-    say_all(msg)
+    self:Broadcast(nil, msg)
 
     return countdown.init
 end
@@ -530,7 +541,6 @@ end
 -- Broadcasts self.messages.not_enough_players:
 --
 function Zombies:NotEnoughPlayers()
-
     local countdown = self.timers["Not Enough Players"]
     if (countdown.init) then
         for i = 1, 16 do
@@ -543,7 +553,6 @@ function Zombies:NotEnoughPlayers()
             end
         end
     end
-
     return (countdown.init)
 end
 
@@ -578,7 +587,7 @@ function Zombies:SwitchHumanToZombie()
         --
         local msg = self.messages.no_zombies_switch
         msg = msg:gsub("$name", name)
-        say_all(msg)
+        self:Broadcast(nil, msg)
         self:SwitchTeam(new_zombie, self.zombie_team)
 
         return false
@@ -586,7 +595,7 @@ function Zombies:SwitchHumanToZombie()
 
     local msg = self.messages.no_zombies
     msg = msg:gsub("$time", time_remaining):gsub("$s", Plural(time_remaining))
-    say_all(msg)
+    self:Broadcast(nil, msg)
 
     return countdown.init
 end
@@ -602,7 +611,7 @@ end
 function Zombies:EndTheGame(Team)
     Team = Team or ""
     local msg = self.messages.end_of_game
-    say_all(msg:gsub("$team", Team))
+    self:Broadcast(nil, msg:gsub("$team", Team))
     execute_command("sv_map_next")
 end
 
@@ -647,7 +656,7 @@ function Zombies:GamePhaseCheck(Ply, PlayerCount)
                     self.last_man = i
                     local name = self.players[i].name
                     local msg = self.messages.on_last_man
-                    say_all(msg:gsub("$name", name))
+                    self:Broadcast(nil, msg:gsub("$name", name))
                     self:SetAttributes(i, true)
                 end
             end
@@ -700,67 +709,20 @@ function Zombies:OnPlayerDeath(Victim, Killer)
 
             -- Broadcast "self.messages.on_zombify" message:
             --
-            if (player_present(killer)) then
+            if (victim ~= killer) then
+                if player_present(killer) then
+                    local v_name = self.players[victim].name
+                    local k_name = self.players[killer].name
 
-                local v_name = self.players[victim].name
-                local k_name = self.players[killer].name
-
-                local msg = self.messages.on_zombify
-                msg = msg:gsub("$victim", v_name)
-                msg = msg:gsub("$killer", k_name)
-                say_all(msg)
+                    local msg = self.messages.on_zombify
+                    msg = msg:gsub("$victim", v_name)
+                    msg = msg:gsub("$killer", k_name)
+                    self:Broadcast(nil, msg)
+                end
             end
         end
 
         self:CleanUpDrones(Victim, true)
-    end
-end
-
--- This function is called every time a new game begins:
---
-function OnGameStart()
-    Zombies:Init()
-end
-
--- This function is called every time a game ends:
---
-function OnGameEnd()
-    Zombies.game_started = false
-end
-
--- This function is called when a player has connected:
--- @param Ply (player index) [int]
---
-function OnPlayerConnect(Ply)
-    Zombies:InitPlayer(Ply, false)
-    Zombies:GameStartCheck(Ply)
-end
-
--- This function is called when a player has disconnected:
--- @param Ply (player index) [int]
---
-function OnPlayerDisconnect(Ply)
-    Zombies:InitPlayer(Ply, true)
-
-    if (Zombies.game_started) then
-
-        local player_count = tonumber(get_var(0, "$pn"))
-        player_count = player_count - 1
-
-        -- Stop timers:
-        --
-        if (player_count <= 0) then
-
-            local countdown = Zombies.timers["Pre-Game Countdown"]
-            self:StopTimer(countdown)
-
-            countdown = Zombies.timers["No Zombies"]
-            self:StopTimer(countdown)
-        end
-
-        Zombies:GamePhaseCheck(Ply, player_count)
-    else
-        Zombies:GameStartCheck(Ply, true)
     end
 end
 
@@ -823,15 +785,6 @@ function Zombies:SetHealth(Ply, Instant)
 end
 
 --
--- This function is called when a player has finished spawning:
--- @param Ply (player index) [int]
---
-function OnPlayerSpawn(Ply)
-    Zombies.players[Ply].assign = true
-    Zombies:SetAttributes(Ply)
-end
-
---
 -- This function Sets player attributes:
 -- @param Ply (player index) [int]
 --
@@ -854,11 +807,98 @@ function Zombies:SetAttributes(Ply, Instant)
     end
 end
 
+--
+-- This function broadcasts a custom server message:
+-- @param Msg (message) [string]
+--
+function Zombies:Broadcast(Ply, Msg)
+    execute_command("msg_prefix \"\"")
+    if (Ply) then
+        say(Ply, Msg)
+    else
+        say_all(Msg)
+    end
+    execute_command("msg_prefix \" " .. self.server_prefix .. "\"")
+end
+
+-- This function is called every time a new game begins:
+--
+function OnGameStart()
+    Zombies:Init()
+end
+
+-- This function is called every time a game ends:
+--
+function OnGameEnd()
+    Zombies.game_started = false
+end
+
+-- This function is called when a player has connected:
+-- @param Ply (player index) [int]
+--
+function OnPlayerConnect(Ply)
+    Zombies:InitPlayer(Ply, false)
+    Zombies:GameStartCheck(Ply)
+end
+
+-- This function is called when a player has disconnected:
+-- @param Ply (player index) [int]
+--
+function OnPlayerDisconnect(Ply)
+    Zombies:InitPlayer(Ply, true)
+
+    if (Zombies.game_started) then
+
+        local player_count = tonumber(get_var(0, "$pn"))
+        player_count = player_count - 1
+
+        -- Stop timers:
+        --
+        if (player_count <= 0) then
+
+            local countdown = Zombies.timers["Pre-Game Countdown"]
+            self:StopTimer(countdown)
+
+            countdown = Zombies.timers["No Zombies"]
+            self:StopTimer(countdown)
+        end
+
+        Zombies:GamePhaseCheck(Ply, player_count)
+    else
+        Zombies:GameStartCheck(Ply, true)
+    end
+end
+
+--
+-- This function is called when a player has finished spawning:
+-- @param Ply (player index) [int]
+--
+function OnPlayerSpawn(Ply)
+    Zombies.players[Ply].assign = true
+    Zombies:SetAttributes(Ply)
+end
+
 -- This function is called every time a player drops a weapon:
 -- @param Ply (player index) [int]
 --
 function OnWeaponDrop(Ply)
     Zombies:CleanUpDrones(Ply, true)
+end
+
+-- Enables the servers default death messages:
+--
+function EnableDeathMessages()
+    safe_write(true)
+    write_dword(kill_message_address, original_kill_message)
+    safe_write(false)
+end
+
+-- Disables the servers default death messages:
+--
+function DisableDeathMessages()
+    safe_write(true)
+    write_dword(kill_message_address, 0x03EB01B1)
+    safe_write(false)
 end
 
 -- Functions with a call to another function:
