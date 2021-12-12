@@ -204,8 +204,6 @@ local Zombies = {
 -- config ends --
 -- do not touch anything below this point --
 
-local kill_message_address, original_kill_message
-
 api_version = "1.12.0.0"
 
 -- This function registers needed event callbacks:
@@ -221,10 +219,6 @@ function OnScriptLoad()
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
     register_callback(cb["EVENT_WEAPON_DROP"], "OnWeaponDrop")
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "DamageMultiplier")
-
-    kill_message_address = sig_scan("8B42348A8C28D500000084C9") + 3
-    original_kill_message = read_dword(kill_message_address)
-    DisableDeathMessages()
 
     Zombies:Init()
 end
@@ -282,6 +276,8 @@ function Zombies:Init()
             end
         end
     end
+
+    DisableDeathMessages()
 end
 
 -- Create (new) or delete (old) player array:
@@ -1050,15 +1046,19 @@ end
 --
 function EnableDeathMessages()
     safe_write(true)
-    write_dword(kill_message_address, original_kill_message)
+    write_dword(Zombies.kill_message_address, Zombies.original_kill_message)
     safe_write(false)
 end
 
 -- Disables the servers default death messages:
 --
 function DisableDeathMessages()
+
+    Zombies.kill_message_address = sig_scan("8B42348A8C28D500000084C9") + 3
+    Zombies.original_kill_message = read_dword(Zombies.kill_message_address)
+
     safe_write(true)
-    write_dword(kill_message_address, 0x03EB01B1)
+    write_dword(Zombies.kill_message_address, 0x03EB01B1)
     safe_write(false)
 end
 
