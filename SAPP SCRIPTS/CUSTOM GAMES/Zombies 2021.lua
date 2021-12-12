@@ -220,6 +220,8 @@ function OnScriptLoad()
     register_callback(cb["EVENT_WEAPON_DROP"], "OnWeaponDrop")
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "DamageMultiplier")
 
+    DisableDeathMessages()
+
     Zombies:Init()
 end
 
@@ -259,7 +261,6 @@ function Zombies:Init()
             delay = self.no_zombies_delay + 1
         }
     }
-
     if (get_var(0, "$gt") ~= "n/a") then
 
         -- Disable game objects:
@@ -273,11 +274,10 @@ function Zombies:Init()
         for i = 1, 16 do
             if player_present(i) then
                 self:InitPlayer(i, false)
+                self:GameStartCheck(i, false)
             end
         end
     end
-
-    DisableDeathMessages()
 end
 
 -- Create (new) or delete (old) player array:
