@@ -184,16 +184,19 @@ function Zombies:Init()
     self.game_started = false
 
     self.timers = {
+
+        ["Not Enough Players"] = {
+            timer = 0,
+            init = false
+        },
+
         ["Pre-Game Countdown"] = {
             timer = 0,
             init = false,
             enough_players = false,
             delay = self.game_start_delay
         },
-        ["Not Enough Players"] = {
-            timer = 0,
-            init = false
-        },
+
         ["No Zombies"] = {
             timer = 0,
             init = false,
@@ -204,6 +207,7 @@ function Zombies:Init()
     if (get_var(0, "$gt") ~= "n/a") then
 
         -- Disable game objects:
+        --
         for _, v in pairs(self.objects) do
             execute_command("disable_object '" .. v[2] .. "' " .. v[3])
         end
@@ -243,8 +247,9 @@ local function ClearConsole(Ply)
     end
 end
 
+-- Used to pluralize a string based on whether n>0
 -- @param n (time remaining) [number]
--- @return char "s" if n>0 [string]
+-- @return char n [string]
 local function Plural(n)
     return (n > 0 and "s") or ""
 end
@@ -264,7 +269,7 @@ function Zombies:StopTimer(t)
     t.init = false
 end
 
--- Check if we need to show the pre-game countdown message or "not enough players" message:
+-- Game Start Check logic:
 -- @param Ply (player index) [int]
 -- @param Deduct (deduct 1 from player count) [boolean]
 --
@@ -279,35 +284,28 @@ function Zombies:GameStartCheck(Ply, Deduct)
     local countdown2 = self.timers["Not Enough Players"]
     local countdown3 = self.timers["No Zombies"]
     local enough_players = (player_count >= self.required_players)
+    local show_countdown = (enough_players and not countdown1.init and not self.game_started)
 
-    -- Show pre-game countdown message:
+    -- Show pre-game countdown or "not enough players" message:
     --
-    if (enough_players and not countdown1.init and not self.game_started) then
-
+    if (not enough_players) then
+        self:StopTimer(countdown1) -- in case it was running
+        self:StartTimer(countdown2, "NotEnoughPlayers")
+    elseif (show_countdown) then
         self:StartTimer(countdown1, "StartPreGameTimer")
         self:StopTimer(countdown2)
         self:StopTimer(countdown3)
+    elseif (self.game_started) then
 
-        -- Show "not enough players" message:
+        -- Game has already begun.
+        -- Switch this player (Ply) to zombie team:
         --
-    elseif (not enough_players) then
-        self:StopTimer(countdown1)
-        self:StartTimer(countdown2, "NotEnoughPlayers")
-    end
-
-    -- Game has already begun.
-    -- Set this player to zombie team:
-    if (self.game_started) then
-
         self:SwitchTeam(Ply, self.zombie_team)
 
-        -- Stop the No Zombies timer:
+        -- Stop No Zombies timer (in case it was running when this player joined):
         --
         if (countdown3.init) then
-            local _, zombies = self:GetTeamCounts()
-            if (zombies >= 1) then
-                self:StopTimer(countdown3)
-            end
+            self:StopTimer(countdown3)
         end
     end
 end
@@ -448,7 +446,8 @@ function Zombies:GetTeamType(Ply)
     return (team == self.human_team and "human") or "zombie"
 end
 
--- Shows the pre-game countdown message:
+-- Shows the pre-game countdown message,
+-- resets the map and sorts players into teams:
 --
 function Zombies:StartPreGameTimer()
 
