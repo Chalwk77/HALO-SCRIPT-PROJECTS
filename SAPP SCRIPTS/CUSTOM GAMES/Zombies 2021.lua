@@ -45,6 +45,11 @@ local Zombies = {
     --
     cure_threshold = 5,
 
+    -- Regenerating Health (only applies to Last Man Standing):
+    -- When enabled, the last man standing will have regenerating health (see attributes table)
+    --
+    regenerating_health = true,
+
     -- Player attributes:
     --
     attributes = {
@@ -56,6 +61,7 @@ local Zombies = {
             ------------------------
             *   speed:                  Set to 0 to use map settings (1 = normal speed).
             *   health:                 Range from 0 to 99999, (1 = normal health).
+                                        Last Man has optional Health Regeneration that regenerates at increments of 0.0005 per 30 ticks.
             *   respawn_time:           Range from 0-999 (in seconds).
             *   weapons:                Leave the array blank to use default weapon sets.
             *   damage_multiplier:      Range from 0-10
@@ -86,7 +92,10 @@ local Zombies = {
 
         ["Last Man Standing"] = {
             speed = 1,
-            health = 1,
+            health = {
+                base = 1,
+                increment = 0.0005
+            },
             weapons = { },
             respawn_time = 3,
             damage_multiplier = 1
@@ -233,6 +242,8 @@ function Zombies:Init()
     self.last_man = nil
     self.switching = false
     self.game_started = false
+
+    self.health_increment = self.attributes["Last Man Standing"].health.increment
 
     self.timers = {
 
@@ -411,13 +422,27 @@ function Zombies:GetWeaponTable(Ply)
     end
 end
 
+function Zombies:HealthRegeneration(Ply)
+    if (self.regenerating_health) then
+        local DyN = get_dynamic_player(Ply)
+        if (DyN ~= 0 and player_alive(Ply)) then
+            if read_float(DyN + 0xE0) < 1 then
+                local health = read_float(DyN + 0xE0)
+                write_float(DyN + 0xE0, health + self.health_increment)
+            end
+        end
+    end
+end
+
 -- This function is called once every 1/30th second (1 tick):
--- Used for weapon assignments.
+-- Used for weapon assignments and health regeneration.
 --
 function Zombies:GameTick()
 
     for i, player in pairs(self.players) do
         if (i and self.game_started) then
+
+            self:HealthRegeneration(i)
 
             if (player.assign) then
                 local DyN, x, y, z = GetPos(i)
@@ -884,7 +909,7 @@ function Zombies:SetHealth(Ply, Instant)
     elseif (team == self.human_team) then
         health = self.attributes["Humans"].health
         if (self.last_man == Ply) then
-            health = self.attributes["Last Man Standing"].health
+            health = self.attributes["Last Man Standing"].health.base
         end
     end
 
