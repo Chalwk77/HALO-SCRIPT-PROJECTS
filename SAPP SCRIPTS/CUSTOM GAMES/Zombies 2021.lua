@@ -14,7 +14,7 @@ local Zombies = {
 
     -- Time (in seconds) until a game begins:
     --
-    game_start_delay = 0,
+    game_start_delay = 5,
 
     -- Number of players required to start the game:
     --
@@ -194,13 +194,13 @@ function Zombies:Init()
             timer = 0,
             init = false,
             enough_players = false,
-            delay = self.game_start_delay
+            delay = self.game_start_delay + 1
         },
 
         ["No Zombies"] = {
             timer = 0,
             init = false,
-            delay = self.no_zombies_delay
+            delay = self.no_zombies_delay + 1
         }
     }
 
