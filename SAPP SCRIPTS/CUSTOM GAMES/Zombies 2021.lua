@@ -195,6 +195,7 @@ end
 
 function OnScriptUnload()
     execute_command("sv_map_reset")
+    EnableDeathMessages()
 end
 
 -- Sets up pre-game parameters:
@@ -488,7 +489,6 @@ function Zombies:StartPreGameTimer()
 
         -- Reset the map:
         execute_command("sv_map_reset")
-        EnableDeathMessages()
         self.game_started = true
 
         -- Sort players into teams:
@@ -690,12 +690,13 @@ end
 -- @param Killer (killer index) [int]
 function Zombies:OnPlayerDeath(Victim, Killer)
 
-    if (self.game_started) then
+    local killer = tonumber(Killer)
+    local victim = tonumber(Victim)
+    local v_name = self.players[victim].name
+    local k_name = (self.players[killer] ~= nil and self.players[killer].name) or "UNKNOWN"
+    local victim_team = get_var(victim, "$team")
 
-        local killer = tonumber(Killer)
-        local victim = tonumber(Victim)
-        local v_name = self.players[victim].name
-        local victim_team = get_var(victim, "$team")
+    if (self.game_started) then
 
         -- PvP & Suicide:
         if (killer > 0 and victim_team == self.human_team) then
@@ -711,21 +712,34 @@ function Zombies:OnPlayerDeath(Victim, Killer)
             -- Broadcast "self.messages.on_zombify" message:
             --
             if (victim ~= killer) then
-                if player_present(killer) then
-                    local k_name = self.players[killer].name
-                    local msg = self.messages.on_zombify
-                    msg = msg:gsub("$victim", v_name)
-                    msg = msg:gsub("$killer", k_name)
-                    self:Broadcast(nil, msg)
-                end
+                local msg = self.messages.on_zombify
+                msg = msg:gsub("$victim", v_name)
+                msg = msg:gsub("$killer", k_name)
+                self:Broadcast(nil, msg)
             else
+                -- Suicide Message override:
+                --
                 self:Broadcast(nil, v_name .. " committed suicide")
             end
         else
+            -- Every other death (message) override:
+            --
             self:Broadcast(nil, v_name .. " died")
         end
 
         self:CleanUpDrones(Victim, true)
+
+
+        -- Death Message overrides (pre-game):
+        --
+    elseif (killer > 0) then
+        if (victim == killer) then
+            self:Broadcast(nil, v_name .. " committed suicide")
+        else
+            self:Broadcast(nil, v_name .. " was killed by " .. k_name)
+        end
+    else
+        self:Broadcast(nil, v_name .. " died")
     end
 end
 
