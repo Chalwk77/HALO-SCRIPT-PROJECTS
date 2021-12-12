@@ -694,6 +694,7 @@ function Zombies:OnPlayerDeath(Victim, Killer)
 
         local killer = tonumber(Killer)
         local victim = tonumber(Victim)
+        local v_name = self.players[victim].name
         local victim_team = get_var(victim, "$team")
 
         -- PvP & Suicide:
@@ -711,15 +712,17 @@ function Zombies:OnPlayerDeath(Victim, Killer)
             --
             if (victim ~= killer) then
                 if player_present(killer) then
-                    local v_name = self.players[victim].name
                     local k_name = self.players[killer].name
-
                     local msg = self.messages.on_zombify
                     msg = msg:gsub("$victim", v_name)
                     msg = msg:gsub("$killer", k_name)
                     self:Broadcast(nil, msg)
                 end
+            else
+                self:Broadcast(nil, v_name .. " committed suicide")
             end
+        else
+            self:Broadcast(nil, v_name .. " died")
         end
 
         self:CleanUpDrones(Victim, true)
