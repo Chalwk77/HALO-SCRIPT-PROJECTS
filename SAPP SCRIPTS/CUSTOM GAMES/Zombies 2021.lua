@@ -14,7 +14,7 @@ local Zombies = {
 
     -- Time (in seconds) until a game begins:
     --
-    game_start_delay = 10,
+    game_start_delay = 5,
 
     -- Number of players required to start the game:
     --
@@ -36,31 +36,38 @@ local Zombies = {
     --
     attributes = {
 
-        --
+        --[[
         ------------------------
-        -- Notes on variables --
+        Notes on variables --
         ------------------------
-        -- speed: Set to 0 to disable (1 = normal speed).
-        -- health: Range from 0 to 99999, (1 = normal health).
-        -- weapons: Leave the array blank to use default weapon sets.
-        --
+        *   speed:          Set to 0 to disable (1 = normal speed).
+        *   health:         Range from 0 to 99999, (1 = normal health).
+        *   respawn_time:   Range from 0-999 (in seconds).
+        *   weapons:        Leave the array blank to use default weapon sets.
+
+            Notes:
+            You can add up to 4 stock weapon tag names at your discretion.
+        --]]
 
         ["Zombies"] = {
             speed = 1,
             health = 1,
+            respawn_time = 1.5,
             weapons = { "weapons\\ball\\ball" }
         },
 
         ["Humans"] = {
             speed = 1,
             health = 1,
-            weapons = { } -- blank by default!
+            weapons = { },
+            respawn_time = 3
         },
 
         ["Last Man Standing"] = {
-            speed = 1,
+            speed = 5,
             health = 1,
-            weapons = { } -- blank by default!
+            weapons = { },
+            respawn_time = 3
         }
     },
 
@@ -217,7 +224,8 @@ function Zombies:InitPlayer(Ply, Reset)
     if (not Reset) then
         self.players[Ply] = {
             drones = {},
-            assign = false
+            assign = false,
+            name = get_var(Ply, "$name")
         }
         return
     end
@@ -548,7 +556,7 @@ function Zombies:SwitchHumanToZombie()
 
         math.randomseed(os.clock())
         local new_zombie = humans[math.random(1, #humans)]
-        local name = get_var(new_zombie, "$name")
+        local name = self.players[new_zombie].name
 
         local msg = self.messages.no_zombies_switch
         msg = msg:gsub("$name", name)
@@ -619,9 +627,10 @@ function Zombies:GamePhaseCheck(Ply, PlayerCount)
                 local last_man_team = get_var(i, "$team")
                 if (last_man_team == self.human_team and not self.last_man) then
                     self.last_man = i
+                    local name = self.players[i].name
                     local msg = self.messages.on_last_man
-                    say_all(msg:gsub("$name", get_var(i, "$name")))
-                    self:SetSpeed(i, self.attributes["Humans"].speed)
+                    say_all(msg:gsub("$name", name))
+                    self:SetAttributes(i)
                 end
             end
         end
@@ -664,8 +673,27 @@ function Zombies:OnPlayerDeath(Victim, Killer)
 
         -- PvP & Suicide:
         if (killer > 0 and victim_team == self.human_team) then
+
+            -- Switch victim to the zombie team:
+            --
             self:SwitchTeam(victim, self.zombie_team)
+
+            -- Check game phase:
+            --
             self:GamePhaseCheck(nil, nil)
+
+            -- Broadcast "self.messages.on_zombify" message:
+            --
+            if (player_present(killer)) then
+
+                local v_name = self.players[victim].name
+                local k_name = self.players[killer].name
+
+                local msg = self.messages.on_zombify
+                msg = msg:gsub("$victim", v_name)
+                msg = msg:gsub("$killer", k_name)
+                say_all(msg)
+            end
         end
 
         self:CleanUpDrones(Victim, true)
@@ -719,48 +747,63 @@ function OnPlayerDisconnect(Ply)
         Zombies:GamePhaseCheck(Ply, player_count)
     else
         Zombies:GameStartCheck(Ply, true)
-        --local countdown = Zombies.timers["Pre-Game Countdown"]
-        --if (countdown.init) then
-        --    countdown.timer = 0
-        --    countdown.init = false
-        --end
     end
 end
 
---
--- This function returns the relevant speed a player should be:
+-- This function returns the relevant respawn time for this player:
 -- @param Ply (player index) [int]
+-- @param return (respawn time) [number]
 --
-function Zombies:GetSpeed(Ply)
-
-    local speed = 1  -- default speed
+function Zombies:GetRespawnTime(Ply)
+    local time
     local team = get_var(Ply, "$team")
-
-    -- Zombie Speed:
     if (team == self.zombie_team) then
-        speed = self.attributes["Zombies"].speed
-
-        -- Human Speed:
+        time = self.attributes["Zombies"].respawn_time
     elseif (team == self.human_team) then
-        speed = self.attributes["Humans"].speed
-
-        -- Last man speed (relevant in the case of guardians):
-        --
-        local humans, _ = self:GetTeamCounts()
-        if (humans == 1) then
-            speed = self.attributes["Last Man Standing"].speed
+        time = self.attributes["Humans"].respawn_time
+        if (self.last_man == Ply) then
+            time = self.attributes["Last Man Standing"].respawn_time
         end
     end
-    return speed
+    return time
 end
 
---
--- Sets the player speed:
+-- This function sets this players speed:
 -- @param Ply (player index) [int]
 --
 function Zombies:SetSpeed(Ply)
-    local speed = self:GetSpeed(Ply)
-    execute_command("s " .. Ply .. " " .. speed)
+    local speed
+    local team = get_var(Ply, "$team")
+    local time = self:GetRespawnTime(Ply)
+    if (team == self.zombie_team) then
+        speed = self.attributes["Zombies"].speed
+    elseif (team == self.human_team) then
+        speed = self.attributes["Humans"].speed
+        if (self.last_man == Ply) then
+            speed = self.attributes["Last Man Standing"].speed
+        end
+    end
+
+    execute_command_sequence("w8 " .. time .. ";s " .. Ply .. " " .. speed)
+end
+
+-- This function sets this players health:
+-- @param Ply (player index) [int]
+--
+function Zombies:SetHealth(Ply)
+    local health
+    local team = get_var(Ply, "$team")
+    local time = self:GetRespawnTime(Ply)
+    if (team == self.zombie_team) then
+        health = self.attributes["Zombies"].health
+    elseif (team == self.human_team) then
+        health = self.attributes["Humans"].health
+        if (self.last_man == Ply) then
+            health = self.attributes["Last Man Standing"].health
+        end
+    end
+
+    execute_command_sequence("w8 " .. time .. ";hp " .. Ply .. " " .. health)
 end
 
 --
@@ -769,7 +812,28 @@ end
 --
 function OnPlayerSpawn(Ply)
     Zombies.players[Ply].assign = true
+    Zombies:SetAttributes(Ply)
+end
+
+--
+-- This function Sets player attributes:
+-- @param Ply (player index) [int]
+--
+function Zombies:SetAttributes(Ply)
+
     if (Zombies.game_started) then
+        -- Set respawn time:
+        --
+        local time = Zombies:GetRespawnTime(Ply)
+        local Player = get_player(Ply)
+        if (Player ~= 0) then
+            write_dword(Player + 0x2C, time * 33)
+        end
+
+        -- Set Player Health:
+        Zombies:SetHealth(Ply)
+
+        -- Set Player Speed:
         Zombies:SetSpeed(Ply)
     end
 end
@@ -782,6 +846,7 @@ function OnWeaponDrop(Ply)
 end
 
 -- Functions with a call to another function:
+--
 function OnTick()
     return Zombies:GameTick()
 end
