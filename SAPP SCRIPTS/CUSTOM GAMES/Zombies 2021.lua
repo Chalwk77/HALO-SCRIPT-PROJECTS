@@ -298,7 +298,7 @@ function Zombies:Init()
 end
 
 -- Create (new) or delete (old) player array:
--- @param Ply (player index) [int]
+-- @param Ply (player index) [number]
 -- @param Reset (reset players array for this player) [boolean]
 --
 function Zombies:InitPlayer(Ply, Reset)
@@ -317,7 +317,7 @@ function Zombies:InitPlayer(Ply, Reset)
 end
 
 -- Used to clear a players rcon console:
--- @param Ply (player index) [int]
+-- @param Ply (player index) [number]
 --
 local function ClearConsole(Ply)
     for _ = 1, 25 do
@@ -348,7 +348,7 @@ function Zombies:StopTimer(t)
 end
 
 -- Game Start Check logic:
--- @param Ply (player index) [int]
+-- @param Ply (player index) [number]
 -- @param Deduct (deduct 1 from player count) [boolean]
 --
 function Zombies:GameStartCheck(Ply, Deduct)
@@ -389,7 +389,7 @@ function Zombies:GameStartCheck(Ply, Deduct)
 end
 
 -- Returns player memory address and X,Y,Z coordinates:
--- @param Ply (player index) [int]
+-- @param Ply (player index) [number]
 -- @return memory address (DyN) of a player (Ply) and three 32-bit floating point numbers (x,y,z)
 --
 local function GetPos(Ply)
@@ -421,7 +421,7 @@ function Zombies:GetTeamCounts()
 end
 
 -- Returns the appropriate weapon table for a given player:
--- @param Ply (player index) [int]
+-- @param Ply (player index) [number]
 -- @return, weapon table [table]
 --
 function Zombies:GetWeaponTable(Ply)
@@ -538,7 +538,7 @@ end
 
 --
 -- Deletes player weapon drones:
--- @param Victim (player index) [int]
+-- @param Victim (player index) [number]
 -- @param Assign (assign new weapons) [boolean]
 --
 function Zombies:CleanUpDrones(Ply, Assign)
@@ -558,7 +558,7 @@ end
 
 --
 -- Returns the team type (red = human, blue = zombie):
--- @param Ply (player index) [int]
+-- @param Ply (player index) [number]
 -- @return player team type [string]
 function Zombies:GetTeamType(Ply)
     local team = get_var(Ply, "$team")
@@ -720,7 +720,7 @@ function Zombies:SetNavMarker()
     end
 end
 
--- @param Ply (player index) [int]
+-- @param Ply (player index) [number]
 -- @param Team (new team) [string]
 function Zombies:SwitchTeam(Ply, Team)
     self.switching = true
@@ -740,7 +740,7 @@ end
 -- Assigns tertiary & quaternary weapons:
 -- Stores a copy of the weapon object to a table called drones.
 --
--- @param Ply (player index) [int]
+-- @param Ply (player index) [number]
 -- @param Tag (weapon tag type) [string]
 -- @param x,y,z (three 32-bit floating point numbers (player coordinates)) [float]
 --
@@ -756,8 +756,8 @@ end
 -- .Sets the last man alive.
 -- .Switches random human to zombie team when there are no zombies.
 --
--- @param Ply (player index) [int]
--- @param PlayerCount (total number of players) [int]
+-- @param Ply (player index) [number]
+-- @param PlayerCount (total number of players) [number]
 function Zombies:GamePhaseCheck(Ply, PlayerCount)
 
     -- Returns the number of humans and zombies:
@@ -815,7 +815,7 @@ function Zombies:GamePhaseCheck(Ply, PlayerCount)
 end
 
 -- This function cures a zombie when they have >= self.cure_threshold kills:
--- @param Ply (player index) [int]
+-- @param Ply (player index) [number]
 --
 function Zombies:ZombieCured(Ply)
     if (self.cure_threshold > 1 and self.players[Ply] ~= nil) then
@@ -838,8 +838,8 @@ function Zombies:ZombieCured(Ply)
 end
 
 -- This function is called every time a player dies:
--- @param Victim (victim index) [int]
--- @param Killer (killer index) [int]
+-- @param Victim (victim index) [number]
+-- @param Killer (killer index) [number]
 
 function Zombies:OnPlayerDeath(Victim, Killer)
 
@@ -911,7 +911,7 @@ function Zombies:OnPlayerDeath(Victim, Killer)
 end
 
 -- This function returns the relevant respawn time for this player:
--- @param Ply (player index) [int]
+-- @param Ply (player index) [number]
 -- @param return (respawn time) [number]
 --
 function Zombies:GetRespawnTime(Ply)
@@ -929,7 +929,7 @@ function Zombies:GetRespawnTime(Ply)
 end
 
 -- This function sets this players speed:
--- @param Ply (player index) [int]
+-- @param Ply (player index) [number]
 -- @param Instant (affect immediately) [boolean]
 --
 function Zombies:SetSpeed(Ply, Instant)
@@ -950,7 +950,7 @@ function Zombies:SetSpeed(Ply, Instant)
 end
 
 -- This function sets this players health:
--- @param Ply (player index) [int]
+-- @param Ply (player index) [number]
 -- @param Instant (affect immediately) [boolean]
 --
 function Zombies:SetHealth(Ply, Instant)
@@ -973,7 +973,7 @@ end
 
 --
 -- This function Sets player attributes:
--- @param Ply (player index) [int]
+-- @param Ply (player index) [number]
 --
 function Zombies:SetAttributes(Ply, Instant)
 
@@ -1048,7 +1048,7 @@ function OnGameEnd()
 end
 
 -- This function is called when a player has connected:
--- @param Ply (player index) [int]
+-- @param Ply (player index) [number]
 --
 function OnPlayerConnect(Ply)
     Zombies:InitPlayer(Ply, false)
@@ -1056,7 +1056,7 @@ function OnPlayerConnect(Ply)
 end
 
 -- This function is called when a player has disconnected:
--- @param Ply (player index) [int]
+-- @param Ply (player index) [number]
 --
 function OnPlayerDisconnect(Ply)
     Zombies:InitPlayer(Ply, true)
@@ -1085,7 +1085,7 @@ end
 
 --
 -- This function is called when a player has finished spawning:
--- @param Ply (player index) [int]
+-- @param Ply (player index) [number]
 --
 function OnPlayerSpawn(Ply)
     Zombies.players[Ply].assign = true
@@ -1093,7 +1093,7 @@ function OnPlayerSpawn(Ply)
 end
 
 -- This function is called every time a player drops a weapon:
--- @param Ply (player index) [int]
+-- @param Ply (player index) [number]
 --
 function OnWeaponDrop(Ply)
     Zombies:CleanUpDrones(Ply, true)
