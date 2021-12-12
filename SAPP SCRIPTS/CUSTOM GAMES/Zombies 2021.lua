@@ -1,7 +1,10 @@
 --[[
 --=====================================================================================================--
 Script Name: Zombies 2021, for SAPP (PC & CE)
-Description: A fully customizable zombie game
+Description: A fully customizable zombie game.
+            See the bottom of this script for recommended game type settings.
+
+            todo: remove ammo from zombie weapons
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -37,16 +40,20 @@ local Zombies = {
     attributes = {
 
         --[[
-        ------------------------
-        Notes on variables --
-        ------------------------
-        *   speed:          Set to 0 to disable (1 = normal speed).
-        *   health:         Range from 0 to 99999, (1 = normal health).
-        *   respawn_time:   Range from 0-999 (in seconds).
-        *   weapons:        Leave the array blank to use default weapon sets.
 
-            Notes:
+            ------------------------
+            Notes on variables --
+            ------------------------
+            *   speed:          Set to 0 to use map settings (1 = normal speed).
+            *   health:         Range from 0 to 99999, (1 = normal health).
+            *   respawn_time:   Range from 0-999 (in seconds).
+            *   weapons:        Leave the array blank to use default weapon sets.
+
+            --- Notes ---
             You can add up to 4 stock weapon tag names at your discretion.
+            For example:
+            weapons = { "weapons\\flag\\flag", "weapons\\pistol\\pistol", "weapons\\shotgun\\shotgun", "weapons\\ball\\ball" }
+
         --]]
 
         ["Zombies"] = {
@@ -777,8 +784,9 @@ function Zombies:SetSpeed(Ply, Instant)
             speed = self.attributes["Last Man Standing"].speed
         end
     end
-
-    execute_command_sequence("w8 " .. time .. ";s " .. Ply .. " " .. speed)
+    if (speed ~= 0) then
+        execute_command_sequence("w8 " .. time .. ";s " .. Ply .. " " .. speed)
+    end
 end
 
 -- This function sets this players health:
@@ -798,7 +806,9 @@ function Zombies:SetHealth(Ply, Instant)
         end
     end
 
-    execute_command_sequence("w8 " .. time .. ";hp " .. Ply .. " " .. health)
+    if (health ~= 0) then
+        execute_command_sequence("w8 " .. time .. ";hp " .. Ply .. " " .. health)
+    end
 end
 
 --
@@ -935,3 +945,46 @@ end
 function OnPlayerDeath(V, K)
     return Zombies:OnPlayerDeath(V, K)
 end
+
+--[[
+
+    -------------------------------
+    RECOMMENDED GAME TYPE SETTINGS:
+    -------------------------------
+
+    ----------* Game Options * ----------
+    SELECT GAME:                    SLAYER
+    DEATH BONUS:                    NO
+    KILL IN ORDER:                  NO
+    KILL PENALTY:                   NO
+    KILLS TO WIN:                   50
+    TEAM PLAY                       YES
+    TIME LIMIT:                     45 MINUTES
+
+    ----------* Player Options * ----------
+    NUMBER OF LIVES:                INFINITE
+    MAXIMUM HEALTH:                 100%
+    SHIELDS:                        NO
+    RESPAWN TIME:                   INSTANT
+    RESPAWN TIME GROWTH:            NONE
+    ODD MAN OUT:                    NO
+    INVISIBLE PLAYERS:              NO
+    SUICIDE PENALTY:                NO
+
+    ----------* Item Options * ----------
+    INFINITE GRENADES:              NO
+    WEAPON SET:                     NORMAL
+    STARTING EQUIPMENT:             GENERIC
+
+    ----------* Vehicle Options * ----------
+    SIDE:                           BLUE TEAM
+    VEHICLE SET:                    NONE
+    SIDE:                           RED TEAM
+    VEHICLE SET:                    NONE
+
+    ----------* Indicator Options * ----------
+    OBJECTIVES INDICATOR:           NONE
+    OTHER PLAYERS ON RADAR:         NO
+    FRIEND INDICATORS ON SCREEN:    YES
+
+]]
