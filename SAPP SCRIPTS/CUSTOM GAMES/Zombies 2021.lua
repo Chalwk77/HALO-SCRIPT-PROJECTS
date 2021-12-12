@@ -50,6 +50,11 @@ local Zombies = {
     --
     regenerating_health = true,
 
+    -- Nav Marker above Last Man Standing's head:
+    -- When enabled, the last man standing will have a nav marker above his head.
+    --
+    nav_marker = true,
+
     -- Player attributes:
     --
     attributes = {
@@ -65,12 +70,17 @@ local Zombies = {
             *   respawn_time:           Range from 0-999 (in seconds).
             *   weapons:                Leave the array blank to use default weapon sets.
             *   damage_multiplier:      Range from 0-10
+            *   nav_marker              A NAV marker will appear above the last man standing
 
             --- Notes ---
             You can add up to 4 stock weapon tag names at your discretion.
+
             For example:
             weapons = { "weapons\\flag\\flag", "weapons\\pistol\\pistol", "weapons\\shotgun\\shotgun", "weapons\\ball\\ball" }
-            See the weapons section of the objects table below for a full list of weapon tags.
+            * See the weapons section of the objects table below for a full list of weapon tags.
+
+            If the Nav Marker attribute is enabled, the kill-in-order game type flag must be set to YES
+            The objectives indicator flag must also be set to NAV POINTS.
 
         --]]
 
@@ -419,7 +429,7 @@ function Zombies:GetWeaponTable(Ply)
 end
 
 function Zombies:HealthRegeneration(Ply)
-    if (self.regenerating_health) then
+    if (self.regenerating_health and self.game_started) then
         local DyN = get_dynamic_player(Ply)
         if (DyN ~= 0 and player_alive(Ply)) then
             local health = read_float(DyN + 0xE0)
@@ -431,9 +441,11 @@ function Zombies:HealthRegeneration(Ply)
 end
 
 -- This function is called once every 1/30th second (1 tick):
--- Used for weapon assignments and health regeneration.
+-- Used for weapon assignments, health regeneration and Last-Man Nav Makers.
 --
 function Zombies:GameTick()
+
+    self:SetNavMarker()
 
     for i, player in pairs(self.players) do
         if (i and self.game_started) then
@@ -661,6 +673,31 @@ function Zombies:SwitchHumanToZombie()
     self:Broadcast(nil, msg)
 
     return countdown.init
+end
+
+-- This function sets a nav marker above the Last Man Standing's head:
+--
+function Zombies:SetNavMarker()
+    if (self.nav_marker) then
+        for i, _ in pairs(self.players) do
+
+            -- Get static memory address of each player:
+            --
+            local p1 = get_player(i)
+            if (p1 ~= 0) then
+
+                -- Set slayer target indicator to the last man:
+                --
+                if (self.last_man ~= nil and i ~= self.last_man) and player_alive(i) then
+                    write_word(p1 + 0x88, to_real_index(self.last_man))
+                else
+                    -- Set slayer target indicator to themselves:
+                    --
+                    write_word(p1 + 0x88, to_real_index(i))
+                end
+            end
+        end
+    end
 end
 
 -- @param Ply (player index) [int]
@@ -1089,7 +1126,7 @@ end
     ----------* Game Options * ----------
     SELECT GAME:                    SLAYER
     DEATH BONUS:                    NO
-    KILL IN ORDER:                  NO
+    KILL IN ORDER:                  NO (set to YES is using Nav Marker feature)
     KILL PENALTY:                   NO
     KILLS TO WIN:                   50
     TEAM PLAY                       YES
@@ -1103,7 +1140,7 @@ end
     RESPAWN TIME GROWTH:            NONE
     ODD MAN OUT:                    NO
     INVISIBLE PLAYERS:              NO
-    SUICIDE PENALTY:                NO
+    SUICIDE PENALTY:                NONE
 
     ----------* Item Options * ----------
     INFINITE GRENADES:              NO
@@ -1117,7 +1154,7 @@ end
     VEHICLE SET:                    NONE
 
     ----------* Indicator Options * ----------
-    OBJECTIVES INDICATOR:           NONE
+    OBJECTIVES INDICATOR:           NONE (set to NAV POINTS is using Nav Marker feature)
     OTHER PLAYERS ON RADAR:         NO
     FRIEND INDICATORS ON SCREEN:    YES
 
