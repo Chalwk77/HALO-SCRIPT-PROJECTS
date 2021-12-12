@@ -48,8 +48,7 @@ local Zombies = {
 
     -- Regenerating Health:
     -- When enabled, the last man standing will have regenerating health (see attributes table).
-    -- This feature is disabled by default, as it's sort of useless when zombies can insta-kill by default.
-    -- Practical if zombie damage_multiplier is set to 1 and humans have shields.
+    -- This feature is only practical if the zombie damage_multiplier is set to 1,
     --
     regenerating_health = false,
 
