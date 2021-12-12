@@ -64,7 +64,7 @@ local Zombies = {
         },
 
         ["Last Man Standing"] = {
-            speed = 5,
+            speed = 1,
             health = 1,
             weapons = { },
             respawn_time = 3
