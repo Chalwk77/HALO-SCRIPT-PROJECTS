@@ -14,7 +14,7 @@ local Zombies = {
 
     -- Time (in seconds) until a game begins:
     --
-    game_start_delay = 5,
+    game_start_delay = 0,
 
     -- Number of players required to start the game:
     --
@@ -212,6 +212,8 @@ function Zombies:Init()
             execute_command("disable_object '" .. v[2] .. "' " .. v[3])
         end
 
+        -- Init new players array for each player:
+        --
         for i = 1, 16 do
             if player_present(i) then
                 self:InitPlayer(i, false)
@@ -225,6 +227,7 @@ end
 -- @param Reset (reset players array for this player) [boolean]
 --
 function Zombies:InitPlayer(Ply, Reset)
+
     if (not Reset) then
         self.players[Ply] = {
             drones = {},
@@ -247,7 +250,7 @@ local function ClearConsole(Ply)
     end
 end
 
--- Used to pluralize a string based on whether n>0
+-- Used to pluralize a string based on whether n>0.
 -- @param n (time remaining) [number]
 -- @return char n [string]
 local function Plural(n)
@@ -323,7 +326,7 @@ local function GetPos(Ply)
 end
 
 -- This function returns the number of players in each team:
--- @return blue/red team player counts
+-- @return humans [number], zombies [number]
 --
 function Zombies:GetTeamCounts()
 
@@ -358,6 +361,7 @@ function Zombies:GetWeaponTable(Ply)
 end
 
 -- This function is called once every 1/30th second (1 tick):
+-- Used for weapon assignments.
 --
 function Zombies:GameTick()
 
@@ -645,8 +649,8 @@ function Zombies:GamePhaseCheck(Ply, PlayerCount)
 
         for i = 1, 16 do
             if (i ~= Ply and player_present(i)) then
-                local team = self:GetTeamType(i)
-                self:EndTheGame(team)
+                local team_type = self:GetTeamType(i)
+                self:EndTheGame(team_type)
             end
         end
 
