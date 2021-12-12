@@ -1126,7 +1126,7 @@ end
     ----------* Game Options * ----------
     SELECT GAME:                    SLAYER
     DEATH BONUS:                    NO
-    KILL IN ORDER:                  NO (set to YES is using Nav Marker feature)
+    KILL IN ORDER:                  NO (set to YES if using Nav Marker feature)
     KILL PENALTY:                   NO
     KILLS TO WIN:                   50
     TEAM PLAY                       YES
@@ -1154,7 +1154,7 @@ end
     VEHICLE SET:                    NONE
 
     ----------* Indicator Options * ----------
-    OBJECTIVES INDICATOR:           NONE (set to NAV POINTS is using Nav Marker feature)
+    OBJECTIVES INDICATOR:           NONE (set to NAV POINTS if using Nav Marker feature)
     OTHER PLAYERS ON RADAR:         NO
     FRIEND INDICATORS ON SCREEN:    YES
 
