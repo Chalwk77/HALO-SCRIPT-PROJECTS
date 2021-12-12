@@ -76,37 +76,48 @@ local Zombies = {
     messages = {
 
         -- Continuous message announced when there aren't enough players:
+        -- Custom variables:        $current (current players online [number])
+        --                          $required (number of required players)
         --
         not_enough_players = "$current/$required players needed to start the game",
 
         -- Pre-Game message:
+        -- Custom variables:        $time (time remaining until game begins)
+        --                          $s placeholder to pluralize the word "seconds" (if $time is >1)
         --
         pre_game_message = "Game will begin in $time second$s",
 
         -- End of Game message:
+        -- Custom variables:        $team (team name [string])
         --
         end_of_game = "The $team team won!",
 
         -- New Game message:
+        -- Custom variables:        $team (team name)
         --
         on_game_begin = "The game has begun. You're on the $team team!",
 
         -- Message announced when you kill a human:
+        -- Custom variables:        $victim (victim name)
+        --                          $killer (killer name)
         --
         on_zombify = "$victim was zombified by $killer",
 
         -- Last Man Alive message:
+        -- Custom variables:        $name (last man standing name)
         --
         on_last_man = "$name is the Last Human Alive!",
 
         -- Message announced when there are no zombies:
+        -- Custom variables:        $time (time remaining until a random human is chosen to become a zombie)
+        --                          $s placeholder to pluralize the word "seconds" (if $time is >1)
         --
         no_zombies = "No Zombies! Switching random human in $time second$s",
 
         -- Message announced when a human is selected to become a zombie:
+        -- Custom variables:        $name (name of human who was switched to zombie team)
         --
         no_zombies_switch = "$name was switched to the Zombie team"
-
     },
 
     --
@@ -462,8 +473,7 @@ function Zombies:StartPreGameTimer()
     if (time_remaining <= 0) then
 
         -- Stop the timer:
-        countdown.init = false
-        countdown.timer = 0
+        self:StopTimer(countdown)
 
         -- Reset the map:
         execute_command("sv_map_reset")
@@ -638,7 +648,7 @@ function Zombies:GamePhaseCheck(Ply, PlayerCount)
                     local name = self.players[i].name
                     local msg = self.messages.on_last_man
                     say_all(msg:gsub("$name", name))
-                    self:SetAttributes(i)
+                    self:SetAttributes(i, true)
                 end
             end
         end
@@ -742,12 +752,10 @@ function OnPlayerDisconnect(Ply)
         if (player_count <= 0) then
 
             local countdown = Zombies.timers["Pre-Game Countdown"]
-            countdown.timer = 0
-            countdown.init = false
+            self:StopTimer(countdown)
 
             countdown = Zombies.timers["No Zombies"]
-            countdown.timer = 0
-            countdown.init = false
+            self:StopTimer(countdown)
         end
 
         Zombies:GamePhaseCheck(Ply, player_count)
@@ -776,11 +784,12 @@ end
 
 -- This function sets this players speed:
 -- @param Ply (player index) [int]
+-- @param Instant (affect immediately) [boolean]
 --
-function Zombies:SetSpeed(Ply)
+function Zombies:SetSpeed(Ply, Instant)
     local speed
     local team = get_var(Ply, "$team")
-    local time = self:GetRespawnTime(Ply)
+    local time = (Instant and 0) or self:GetRespawnTime(Ply)
     if (team == self.zombie_team) then
         speed = self.attributes["Zombies"].speed
     elseif (team == self.human_team) then
@@ -795,11 +804,12 @@ end
 
 -- This function sets this players health:
 -- @param Ply (player index) [int]
+-- @param Instant (affect immediately) [boolean]
 --
-function Zombies:SetHealth(Ply)
+function Zombies:SetHealth(Ply, Instant)
     local health
     local team = get_var(Ply, "$team")
-    local time = self:GetRespawnTime(Ply)
+    local time = (Instant and 0) or self:GetRespawnTime(Ply)
     if (team == self.zombie_team) then
         health = self.attributes["Zombies"].health
     elseif (team == self.human_team) then
@@ -825,7 +835,7 @@ end
 -- This function Sets player attributes:
 -- @param Ply (player index) [int]
 --
-function Zombies:SetAttributes(Ply)
+function Zombies:SetAttributes(Ply, Instant)
 
     if (Zombies.game_started) then
         -- Set respawn time:
@@ -837,10 +847,10 @@ function Zombies:SetAttributes(Ply)
         end
 
         -- Set Player Health:
-        Zombies:SetHealth(Ply)
+        Zombies:SetHealth(Ply, Instant)
 
         -- Set Player Speed:
-        Zombies:SetSpeed(Ply)
+        Zombies:SetSpeed(Ply, Instant)
     end
 end
 
