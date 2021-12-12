@@ -51,6 +51,7 @@ local Zombies = {
             You can add up to 4 stock weapon tag names at your discretion.
             For example:
             weapons = { "weapons\\flag\\flag", "weapons\\pistol\\pistol", "weapons\\shotgun\\shotgun", "weapons\\ball\\ball" }
+            See the weapons section of the objects table below for a full list of weapon tags.
 
         --]]
 
@@ -443,13 +444,15 @@ function Zombies:GameTick()
                             end
                         end
 
-                        -- Remove ammo from zombie weapons:
+                        -- Remove ammo & grenades from zombie weapons:
                         --
                         local team = get_var(i, "$team")
                         if (team == self.zombie_team) then
-                            execute_command_sequence("w8 1;ammo " .. i .. " 0")
-                            execute_command_sequence("w8 1;mag " .. i .. " 0")
-                            execute_command_sequence("w8 1;battery " .. i .. " 0")
+                            execute_command_sequence("w8 1; ammo " .. i .. " 0")
+                            execute_command_sequence("w8 1; mag " .. i .. " 0")
+                            execute_command_sequence("w8 1; battery " .. i .. " 0")
+                            execute_command_sequence("w8 1; nades " .. i .. " 0")
+                            execute_command_sequence("w8 1; plasmas " .. i .. " 0")
                         end
                     end
                 end
