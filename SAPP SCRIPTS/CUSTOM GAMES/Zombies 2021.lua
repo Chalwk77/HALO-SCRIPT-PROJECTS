@@ -33,6 +33,16 @@ local Zombies = {
     --
     zombie_team = "blue",
 
+    -- Zombie Curing (disabled by default):
+    -- When enabled, a zombie needs X consecutive kills to become human again.
+    --
+    zombies_can_be_cured = false,
+
+    -- Number of kills required to become a human again:
+    -- Do not set this value to 1 or curing will not work.
+    --
+    cure_threshold = 5,
+
     -- Player attributes:
     --
     attributes = {
@@ -127,7 +137,11 @@ local Zombies = {
         -- Message announced when a human is selected to become a zombie:
         -- Custom variables:        $name (name of human who was switched to zombie team)
         --
-        no_zombies_switch = "$name was switched to the Zombie team"
+        no_zombies_switch = "$name was switched to the Zombie team",
+
+        -- Message announced when a zombie has been cured:
+        --
+        on_cure = "$name was cured!"
     },
 
     --
@@ -215,6 +229,7 @@ function Zombies:Init()
 
     self.players = { }
     self.last_man = nil
+    self.switching = false
     self.game_started = false
 
     self.timers = {
@@ -521,6 +536,7 @@ function Zombies:StartPreGameTimer()
                 players[#players + 1] = i
             end
         end
+
         if (#players > 0) then
 
             math.randomseed(os.clock())
@@ -553,6 +569,8 @@ function Zombies:StartPreGameTimer()
         return false
     end
 
+    -- Show the pre-game message:
+    --
     local msg = self.messages.pre_game_message
     msg = msg:gsub("$time", time_remaining):gsub("$s", Plural(time_remaining))
     self:Broadcast(nil, msg)
@@ -599,7 +617,7 @@ function Zombies:SwitchHumanToZombie()
             end
         end
 
-        --Pick a random human to become the zombie:
+        --Pick a random human (from humans array) to become the zombie:
         --
         math.randomseed(os.clock())
         local new_zombie = humans[math.random(1, #humans)]
@@ -625,6 +643,7 @@ end
 -- @param Ply (player index) [int]
 -- @param Team (new team) [string]
 function Zombies:SwitchTeam(Ply, Team)
+    self.switching = true
     execute_command("st " .. Ply .. " " .. Team)
 end
 
@@ -652,6 +671,13 @@ function DelaySecQuat(Ply, Tag, x, y, z)
     assign_weapon(weapon, Ply)
 end
 
+-- This function:
+-- .Checks if we need to end the game.
+-- .Sets the last man alive.
+-- .Switches random human to zombie team when there are no zombies.
+--
+-- @param Ply (player index) [int]
+-- @param PlayerCount (total number of players) [int]
 function Zombies:GamePhaseCheck(Ply, PlayerCount)
 
     -- Returns the number of humans and zombies:
@@ -671,6 +697,7 @@ function Zombies:GamePhaseCheck(Ply, PlayerCount)
     -- Check for (and set) last man alive:
     --
     if (humans == 1 and zombies > 0) then
+
         for i = 1, 16 do
             if player_present(i) then
                 local last_man_team = get_var(i, "$team")
@@ -707,9 +734,33 @@ function Zombies:GamePhaseCheck(Ply, PlayerCount)
     end
 end
 
+-- This function cures a zombie when they have >= self.cure_threshold kills:
+-- @param Ply (player index) [int]
+--
+function Zombies:ZombieCured(Ply)
+    if (self.cure_threshold > 1 and self.players[Ply] ~= nil) then
+        local streak = tonumber(get_var(Ply, "$streak"))
+        if (streak >= self.cure_threshold) then
+
+            -- Switch zombie to the human team:
+            --
+            self:SwitchTeam(Ply, self.human_team)
+
+            -- Announce that this player has been cured:
+            --
+            local msg = self.messages.on_cure
+            local name = self.players[Ply].name
+            msg = msg:gsub("$name", name)
+
+            self:Broadcast(nil, msg)
+        end
+    end
+end
+
 -- This function is called every time a player dies:
 -- @param Victim (victim index) [int]
 -- @param Killer (killer index) [int]
+
 function Zombies:OnPlayerDeath(Victim, Killer)
 
     local killer = tonumber(Killer)
@@ -723,9 +774,20 @@ function Zombies:OnPlayerDeath(Victim, Killer)
         -- PvP & Suicide:
         if (killer > 0 and victim_team == self.human_team) then
 
+            -- If the last man alive was killed by someone who is about to be cured,
+            -- reset their last-man status:
+            --
+            if (self.last_man == victim) then
+                self.last_man = nil
+            end
+
             -- Switch victim to the zombie team:
             --
             self:SwitchTeam(victim, self.zombie_team)
+
+            -- Check if we need to cure this zombie:
+            --
+            self:ZombieCured(killer)
 
             -- Check game phase:
             --
@@ -743,7 +805,7 @@ function Zombies:OnPlayerDeath(Victim, Killer)
                 --
                 self:Broadcast(nil, v_name .. " committed suicide")
             end
-        else
+        elseif (not self.switching) then
             -- Every other death (message) override:
             --
             self:Broadcast(nil, v_name .. " died")
@@ -752,7 +814,8 @@ function Zombies:OnPlayerDeath(Victim, Killer)
         self:CleanUpDrones(Victim, true)
 
 
-        -- Death Message overrides (pre-game):
+        --
+        -- Pre-Game death message overrides:
         --
     elseif (killer > 0) then
         if (victim == killer) then
@@ -763,6 +826,8 @@ function Zombies:OnPlayerDeath(Victim, Killer)
     else
         self:Broadcast(nil, v_name .. " died")
     end
+
+    self.switching = false
 end
 
 -- This function returns the relevant respawn time for this player:
@@ -926,10 +991,10 @@ function OnPlayerDisconnect(Ply)
         if (player_count <= 0) then
 
             local countdown = Zombies.timers["Pre-Game Countdown"]
-            self:StopTimer(countdown)
+            Zombies:StopTimer(countdown)
 
             countdown = Zombies.timers["No Zombies"]
-            self:StopTimer(countdown)
+            Zombies:StopTimer(countdown)
         end
 
         Zombies:GamePhaseCheck(Ply, player_count)
