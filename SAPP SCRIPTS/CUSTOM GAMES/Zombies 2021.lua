@@ -426,8 +426,8 @@ function Zombies:HealthRegeneration(Ply)
     if (self.regenerating_health) then
         local DyN = get_dynamic_player(Ply)
         if (DyN ~= 0 and player_alive(Ply)) then
-            if read_float(DyN + 0xE0) < 1 then
-                local health = read_float(DyN + 0xE0)
+            local health = read_float(DyN + 0xE0)
+            if (health < 1) then
                 write_float(DyN + 0xE0, health + self.health_increment)
             end
         end
