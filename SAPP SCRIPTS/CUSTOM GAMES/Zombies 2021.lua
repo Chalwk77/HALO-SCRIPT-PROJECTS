@@ -177,6 +177,10 @@ local Zombies = {
             If you want to use game type settings for a specific grenade,
             set the grenade value to nil. For example: {1, nil}
             In the above example, the script will override the value for frags (by 1) but plasmas will use game mode settings.
+
+            IMPORTANT:
+            Zombies will only be able to use their grenades if they have been assigned a weapon other than the oddball or flag.
+            This is a limitation with Halo, unfortunately.
             --=====================================================================================================================--
 
         --]]
