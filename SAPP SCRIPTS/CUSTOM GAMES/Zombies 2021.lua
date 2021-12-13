@@ -3,8 +3,57 @@
 Script Name: Zombies 2021, for SAPP (PC & CE)
 Description: A fully customizable zombie game.
 
+            --------- [ start of feature list ] ---------
+
+            * WEAPONS:
+            You can assign up to 4 weapons for both zombies and humans.
+            Zombie ammo (if applicable) is removed automagically.
+            Default Settings: Zombies = Skull, Humans = Map Defaults, Last-Man = Map Defaults
+
+            * ZOMBIES CAN BE CURED:
+            A zombie needs X (cure_threshold) consecutive kills to become human again.
+            Default Settings: ON | Cure Threshold = 3
+
+            * REGENERATING HEALTH:
+            The last man standing will have regenerating health (when enabled).
+            This feature is only practical if the zombie damage_multiplier is set to 1.
+            Health will increase by 0.005 units every 30 ticks.
+            Default Setting: OFF
+
+            * NAV MARKERS:
+            The last man standing will have a nav marker above his head (when enabled).
+            Default Setting: OFF
+
+            * CROUCH CAMO:
+            Zombies can go invisible while crouching.
+            Default Setting: ON
+
+            * SPEED BOOST:
+            Configurable speed boost settings for zombies, humans & last-man.
+            Default Settings: Zombies = 1.5, Humans = 1, Last-Man = 1.5
+
+            * HEALTH:
+            Configurable health settings for zombies, humans & last-man.
+            Default Settings: Zombies = 1, Humans = 1, Last-Man = 1
+
+            * DAMAGE MULTIPLIERS:
+            Configurable damage multiplier settings for zombies, humans & last-man.
+            Default Settings: Zombies = 10, Humans = 1, Last-Man = 1
+
+            * GAME OBJECTS:
+            Game objects interactions from weapons, vehicles and equipment can be
+            enabled/disabled for red team, blue team or both teams.
+            --------- [ end of feature list ] ---------
+
             See the bottom of this script for recommended game type settings.
             NOTE: This script is designed to run Team Slayer on stock maps!
+
+            Quality of Life feedback:
+            This script is best played on the following stock maps:
+
+            Ratrace, Hangemhigh, Beavercreek, Carousel
+            Chillout, Damnation, Gephyrophobia, Prisoner
+            Putput (Chiron TL-34), Bloodgulch, Timberland
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -48,7 +97,7 @@ local Zombies = {
 
     -- Regenerating Health:
     -- When enabled, the last man standing will have regenerating health (see attributes table).
-    -- This feature is only practical if the zombie damage_multiplier is set to 1,
+    -- This feature is only practical if the zombie damage_multiplier is set to 1.
     --
     regenerating_health = false,
 
