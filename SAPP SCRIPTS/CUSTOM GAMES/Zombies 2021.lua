@@ -317,8 +317,10 @@ function OnScriptLoad()
 end
 
 function OnScriptUnload()
-    execute_command("sv_map_reset")
-    EnableDeathMessages()
+    if (get_var(0, "$gt") ~= "n/a") then
+        execute_command("sv_map_reset")
+        EnableDeathMessages()
+    end
 end
 
 -- Sets up pre-game parameters:
