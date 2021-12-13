@@ -59,6 +59,10 @@ Description: A fully customizable zombie game.
             * GAME OBJECTS:
             Game objects interactions from weapons, vehicles and equipment can be
             enabled/disabled for the red team, blue team or both teams.
+
+            * MESSAGES
+            Fully configurable game messages.
+
             --------- [ end of feature list ] ---------
 
             See the bottom of this script for recommended game type settings.
