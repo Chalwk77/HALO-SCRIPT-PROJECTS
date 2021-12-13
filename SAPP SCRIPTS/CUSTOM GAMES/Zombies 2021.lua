@@ -236,7 +236,7 @@ local Zombies = {
         -- Variables:        $victim (victim name)
         --                   $killer (killer name)
         --
-        generic_death = "$name died"
+        generic_death = "$victim died"
         -- Message announced when someone dies by any means other than PvP and suicide:
         -- Variables:        $victim (victim name)
         --
@@ -328,6 +328,7 @@ function Zombies:Init()
     self.last_man = nil
     self.switching = false
     self.game_started = false
+    self.block_death_messages = true
 
     self.health_increment = self.attributes["Last Man Standing"].health.increment
 
@@ -721,6 +722,7 @@ function Zombies:StartPreGameTimer()
 
         -- Reset the map:
         execute_command("sv_map_reset")
+
         self.game_started = true
 
         -- Sort players into teams:
@@ -728,7 +730,9 @@ function Zombies:StartPreGameTimer()
         local players = {}
         for i = 1, 16 do
             if player_present(i) then
-                players[#players + 1] = i
+                if (self.players[i]) then
+                    table.insert(players, tonumber(i))
+                end
             end
         end
 
@@ -770,6 +774,7 @@ function Zombies:StartPreGameTimer()
             end
         end
 
+        self.block_death_messages = false
         self:GamePhaseCheck(nil, nil)
         return false
     end
@@ -1042,92 +1047,94 @@ end
 
 function Zombies:OnPlayerDeath(Victim, Killer)
 
-    local killer = tonumber(Killer)
-    local victim = tonumber(Victim)
-    local v_name = self.players[victim].name
-    local k_name = (self.players[killer] ~= nil and self.players[killer].name) or "UNKNOWN"
-    local victim_team = get_var(victim, "$team")
+    if (not self.block_death_messages) then
+        local killer = tonumber(Killer)
+        local victim = tonumber(Victim)
+        local v_name = self.players[victim].name
+        local k_name = (self.players[killer] ~= nil and self.players[killer].name) or "UNKNOWN"
+        local victim_team = get_var(victim, "$team")
 
-    if (self.game_started) then
+        if (self.game_started) then
 
-        -- PvP & Suicide:
-        if (killer > 0) then
+            -- PvP & Suicide:
+            if (killer > 0) then
 
-            -- Human died:
-            --
-            if (victim_team == self.human_team) then
-
-                -- If the last man alive was killed by someone who is about to be cured,
-                -- reset their last-man status:
+                -- Human died:
                 --
-                if (self.last_man == victim) then
-                    self.last_man = nil
-                end
+                if (victim_team == self.human_team) then
 
-                -- Switch victim to the zombie team:
-                --
-                self:SwitchTeam(victim, self.zombie_team)
-
-                -- Set zombie type to Standard-Zombie:
-                --
-                self.players[victim].standard = true
-
-                -- Check if we need to cure this zombie:
-                --
-                self:ZombieCured(killer)
-
-                -- Check game phase:
-                --
-                self:GamePhaseCheck(nil, nil)
-
-                -- Broadcast "self.messages.on_zombify" message:
-                --
-                if (victim ~= killer) then
-                    local msg = self.messages.on_zombify
-                    msg = msg:gsub("$victim", v_name)
-                    msg = msg:gsub("$killer", k_name)
-                    self:Broadcast(nil, msg)
-                else
-                    -- Suicide Message override:
+                    -- If the last man alive was killed by someone who is about to be cured,
+                    -- reset their last-man status:
                     --
-                    AnnounceSuicide(v_name)
+                    if (self.last_man == victim) then
+                        self.last_man = nil
+                    end
+
+                    -- Switch victim to the zombie team:
+                    --
+                    self:SwitchTeam(victim, self.zombie_team)
+
+                    -- Set zombie type to Standard-Zombie:
+                    --
+                    self.players[victim].standard = true
+
+                    -- Check if we need to cure this zombie:
+                    --
+                    self:ZombieCured(killer)
+
+                    -- Check game phase:
+                    --
+                    self:GamePhaseCheck(nil, nil)
+
+                    -- Broadcast "self.messages.on_zombify" message:
+                    --
+                    if (victim ~= killer) then
+                        local msg = self.messages.on_zombify
+                        msg = msg:gsub("$victim", v_name)
+                        msg = msg:gsub("$killer", k_name)
+                        self:Broadcast(nil, msg)
+                    else
+                        -- Suicide Message override:
+                        --
+                        AnnounceSuicide(v_name)
+                    end
+
+                else
+                    -- Human vs Zombie:
+                    --
+                    AnnouncePvP(v_name, k_name)
                 end
 
+
+            elseif (not self.switching) then
+                -- Generic Death:
+                --
+                --AnnounceGenericDeath(v_name)
+            end
+
+            self:CleanUpDrones(Victim, true)
+
+            --
+            -- Pre-Game death message overrides:
+            --
+        elseif (killer > 0) then
+            if (victim == killer) then
+                -- Suicide Message override:
+                --
+                AnnounceSuicide(v_name)
             else
-                -- Human vs Zombie:
+                -- PvP:
                 --
                 AnnouncePvP(v_name, k_name)
             end
-
-
-        elseif (not self.switching) then
+        else
             -- Generic Death:
             --
             AnnounceGenericDeath(v_name)
         end
 
-        self:CleanUpDrones(Victim, true)
-
-        --
-        -- Pre-Game death message overrides:
-        --
-    elseif (killer > 0) then
-        if (victim == killer) then
-            -- Suicide Message override:
-            --
-            AnnounceSuicide(v_name)
-        else
-            -- PvP:
-            --
-            AnnouncePvP(v_name, k_name)
-        end
-    else
-        -- Generic Death:
-        --
-        AnnounceGenericDeath(v_name)
+        self.switching = false
     end
-
-    self.switching = false
 end
 
 -- This function returns the relevant respawn time for this player:
@@ -1263,7 +1270,7 @@ function DamageMultiplier(Ply, Causer, _, Damage, _, _)
         -- Multiply units of damage by the appropriate damage multiplier property:
         --
         if (c_team == Zombies.zombie_team) then
-            local standard = self:AlphaZombie(Ply)
+            local standard = Zombies:AlphaZombie(Ply)
             if (standard) then
                 return true, Damage * Zombies.attributes["Standard Zombies"].damage_multiplier
             else
