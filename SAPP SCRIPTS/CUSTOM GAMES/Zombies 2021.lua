@@ -169,7 +169,7 @@ local Zombies = {
             health = 1,
             respawn_time = 1.5,
             damage_multiplier = 10,
-            weapons = { "weapons\\pistol\\pistol" }
+            weapons = { "weapons\\ball\\ball" }
         },
 
         ["Humans"] = {
@@ -319,8 +319,8 @@ end
 function OnScriptUnload()
     if (get_var(0, "$gt") ~= "n/a") then
         execute_command("sv_map_reset")
-        EnableDeathMessages()
     end
+    EnableDeathMessages()
 end
 
 -- Sets up pre-game parameters:
