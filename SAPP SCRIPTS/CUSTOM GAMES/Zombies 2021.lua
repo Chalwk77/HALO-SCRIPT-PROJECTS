@@ -10,29 +10,25 @@ Description: A fully customizable zombie game.
             Configurable pre-game countdown:
             The script will initialise a pre-game countdown from 5 seconds when
             enough players have joined.
-            Default Settings: 5 second delay (2 players required)
+            Default Settings: 5-second delay (2 players required)
 
             Configurable no-zombie timer:
             The script will choose a random human to become a zombie when there are no zombies left.
-            Default Settings: 5 second delay
+            Default Settings: 5-second delay
             ----------------
-
 
             * TEAMS:
             Define what team zombies and humans are on.
             Default Settings: Zombies = Blue Team, Humans = Red Team
-
 
             * WEAPONS:
             You can assign up to 4 weapons for both zombies and humans.
             Zombie ammo (if applicable) is removed automatically.
             Default Settings: Zombies = Skull, Humans = Map Defaults, Last-Man = Map Defaults
 
-
             * ZOMBIES CAN BE CURED:
             A zombie needs X (cure_threshold) consecutive kills to become human again.
             Default Settings: ON, Cure Threshold = 3
-
 
             * REGENERATING HEALTH:
             The last man standing will have regenerating health (when enabled).
@@ -40,11 +36,9 @@ Description: A fully customizable zombie game.
             Health will increase by 0.005 units every 30 ticks.
             Default Setting: OFF
 
-
             * NAV MARKERS:
             The last man standing will have a nav marker above his head (when enabled).
             Default Setting: OFF
-
 
             * CROUCH CAMO:
             Zombies can go invisible while crouching.
@@ -54,26 +48,21 @@ Description: A fully customizable zombie game.
             Define starting grenades for Zombies, Humans & Last Man Standing.
             Default Settings: Zombies = {0, 0}, Humans = {2, 2}, Last-Man = {4, 4}
 
-
             * SPEED BOOST:
             Configurable speed boost settings for zombies, humans & last-man.
             Default Settings: Zombies = 1.5, Humans = 1, Last-Man = 1.5
-
 
             * HEALTH:
             Configurable health settings for zombies, humans & last-man.
             Default Settings: Zombies = 1, Humans = 1, Last-Man = 1
 
-
             * DAMAGE MULTIPLIERS:
             Configurable damage multiplier settings for zombies, humans & last-man.
             Default Settings: Zombies = 10, Humans = 1, Last-Man = 1
 
-
             * GAME OBJECTS:
             Game objects interactions from weapons, vehicles and equipment can be
             enabled/disabled for the red team, blue team or both teams.
-
 
             * MESSAGES
             Fully configurable game messages.
@@ -100,6 +89,11 @@ local Zombies = {
     --
     required_players = 2,
 
+    -- When enabled, the script will broadcast a continuous message
+    -- showing how many players are required to start the game.
+    --
+    show_not_enough_players_message = false,
+
     -- Time (in seconds) until a human is selected to become a zombie:
     --
     no_zombies_delay = 5,
@@ -112,7 +106,7 @@ local Zombies = {
     --
     zombie_team = "blue",
 
-    -- Zombie Curing (disabled by default):
+    -- Zombie Curing:
     -- When enabled, a zombie needs X (cure_threshold) consecutive kills to become human again.
     --
     zombies_can_be_cured = true,
@@ -123,19 +117,19 @@ local Zombies = {
     --
     cure_threshold = 3,
 
-    -- Regenerating Health:
+    -- Regenerating Health (off by default):
     -- When enabled, the last man standing will have regenerating health (see attributes table).
     -- This feature is only practical if the zombie damage_multiplier is set to 1.
     --
     regenerating_health = false,
 
-    -- Nav Marker:
+    -- Nav Marker (off by default):
     -- When enabled, the last man standing will have a nav marker above his head.
     --
     nav_marker = false,
 
     -- Crouch Camo:
-    -- When enabled, zombies can go invisible by crouching.
+    -- When enabled, zombies can go invisible by holding their crouch button.
     --
     crouch_camo = true,
 
@@ -150,12 +144,14 @@ local Zombies = {
             ------------------------
             *   speed:                  Set to 0 to use map settings (1 = normal speed).
             *   health:                 Units of health range from 0 to 99999, (1 = normal health).
-                                        Last Man has optional Health Regeneration that regenerates at increments of 0.0005 per 30 ticks.
+                                        Last Man has optional Health Regeneration that regenerates at increments of 0.0005 units per 30 ticks.
+
             *   respawn_time:           Range from 0-999 (in seconds).
             *   weapons:                Leave the array blank to use default weapon sets.
-            *   damage_multiplier:      Units of damage range from 0-10
-            *   nav_marker              A NAV marker will appear above the last man standing
-            *   grenades                Allows you to define the number of starting frags & plasma
+            *   damage_multiplier:      Units of damage range from 0-10.
+            *   nav_marker              A NAV marker will appear above the last man standing's head.
+
+            *   grenades                Allows you to define the starting number of frags & plasmas.
                                         Format: {frags [number], plasmas [number]}
                                         Example: {1, 3} = 1 frag, 3 plasmas
 
@@ -167,16 +163,16 @@ local Zombies = {
 
             For example:
             weapons = { "weapons\\flag\\flag", "weapons\\pistol\\pistol", "weapons\\shotgun\\shotgun", "weapons\\ball\\ball" }
-            See the weapons section of the objects table below for a full list of weapon tags.
+            See the "weapons" of the "objects" table below (on or near line 268) for a full list of weapon tags.
 
             Nav Markers:
-            If the Nav Marker attribute is enabled, the kill-in-order game type flag must be set to YES
+            If the Nav Marker attribute is enabled, the kill-in-order game type flag must be set to YES.
             The objectives indicator flag must also be set to NAV POINTS.
 
             Grenade Attributes:
             If you want to use game type settings for a specific grenade,
             set the grenade value to nil. For example: {1, nil}
-            In the above example, the script will override the value for frags (by 1) but plasmas will use game mode settings.
+            In the above example, the script will override the value for frags (by setting it to 1) but plasmas will use game mode settings.
 
             IMPORTANT:
             Zombies will only be able to use their grenades if they have been assigned a weapon other than the oddball or flag.
@@ -221,52 +217,72 @@ local Zombies = {
     messages = {
 
         -- Continuous message announced when there aren't enough players:
-        -- Custom variables:        $current (current players online [number])
-        --                          $required (number of required players)
+        -- Variables:        $current (current players online [number])
+        --                   $required (number of required players)
         --
         not_enough_players = "$current/$required players needed to start the game",
 
         -- Pre-Game message:
-        -- Custom variables:        $time (time remaining until game begins)
-        --                          $s placeholder to pluralize the word "seconds" (if $time is >1)
+        -- Variables:        $time (time remaining until game begins)
+        --                   $s placeholder to pluralize the word "seconds" (if $time is >1)
         --
         pre_game_message = "Game will begin in $time second$s",
 
         -- End of Game message:
-        -- Custom variables:        $team (team name [string])
+        -- Variables:        $team (team name [string])
         --
         end_of_game = "The $team team won!",
 
         -- New Game message:
-        -- Custom variables:        $team (team name)
+        -- Variables:        $team (team name)
         --
         on_game_begin = "The game has begun. You're on the $team team!",
 
         -- Message announced when you kill a human:
-        -- Custom variables:        $victim (victim name)
-        --                          $killer (killer name)
+        -- Variables:        $victim (victim name)
+        --                   $killer (killer name)
         --
         on_zombify = "$victim was zombified by $killer",
 
         -- Last Man Alive message:
-        -- Custom variables:        $name (last man standing name)
+        -- Variables:        $name (last man standing name)
         --
         on_last_man = "$name is the Last Human Alive!",
 
         -- Message announced when there are no zombies:
-        -- Custom variables:        $time (time remaining until a random human is chosen to become a zombie)
-        --                          $s placeholder to pluralize the word "seconds" (if $time is >1)
+        -- Variables:        $time (time remaining until a random human is chosen to become a zombie)
+        --                   $s placeholder to pluralize the word "seconds" (if $time is >1)
         --
         no_zombies = "No Zombies! Switching random human in $time second$s",
 
         -- Message announced when a human is selected to become a zombie:
-        -- Custom variables:        $name (name of human who was switched to zombie team)
+        -- Variables:        $name (name of human who was switched to zombie team)
         --
         no_zombies_switch = "$name was switched to the Zombie team",
 
         -- Message announced when a zombie has been cured:
+        -- Variables:        $name (name of human who was cured)
         --
-        on_cure = "$name was cured!"
+        on_cure = "$name was cured!",
+
+        -- Message announced when someone commits suicide:
+        -- Variables:        $name (name of person who died)
+        --
+
+        suicide = "$victim committed suicide",
+        -- Message announced when someone commits suicide:
+        -- Variables:        $victim (victim name)
+        --
+
+        pvp = "$victim was killed by $killer",
+        -- Message announced when PvP even occurs:
+        -- Variables:        $victim (victim name)
+        --                   $killer (killer name)
+        --
+        generic_death = "$name died"
+        -- Message announced when someone dies by any means other than PvP and suicide:
+        -- Variables:        $victim (victim name)
+        --
     },
 
     --
@@ -469,7 +485,9 @@ function Zombies:GameStartCheck(Ply, Deduct)
     --
     if (not enough_players) then
         self:StopTimer(countdown1) -- in case it was running
-        self:StartTimer(countdown2, "NotEnoughPlayers")
+        if (self.show_not_enough_players_message) then
+            self:StartTimer(countdown2, "NotEnoughPlayers")
+        end
     elseif (show_countdown) then
         self:StartTimer(countdown1, "StartPreGameTimer")
         self:StopTimer(countdown2)
@@ -790,7 +808,8 @@ function Zombies:NotEnoughPlayers()
     return (countdown.init)
 end
 
--- This function shows the "not enough players" message:
+-- This function chooses a random human to become a zombie
+-- when there are no zombies left:
 --
 function Zombies:SwitchHumanToZombie()
     local countdown = self.timers["No Zombies"]
@@ -984,6 +1003,35 @@ function Zombies:ZombieCured(Ply)
     end
 end
 
+-- Announces suicide messages:
+-- @param victim_name (player index) [number]
+--
+local function AnnounceSuicide(victim_name)
+    local msg = Zombies.messages.suicide
+    msg = msg:gsub("$victim", victim_name)
+    Zombies:Broadcast(nil, msg)
+end
+
+-- Announces pvp messages:
+-- @param victim_name (victim index) [number]
+-- @param killer_name (killer index) [number]
+--
+local function AnnouncePvP(victim_name, killer_name)
+    local msg = Zombies.messages.pvp
+    msg = msg:gsub("$victim", victim_name)
+    msg = msg:gsub("$killer", killer_name)
+    Zombies:Broadcast(nil, msg)
+end
+
+-- Announces generic death messages:
+-- @param victim_name (player index) [number]
+--
+local function AnnounceGenericDeath(victim_name)
+    local msg = Zombies.messages.generic_death
+    msg = msg:gsub("$victim", victim_name)
+    Zombies:Broadcast(nil, msg)
+end
+
 -- This function is called every time a player dies:
 -- @param Victim (victim index) [number]
 -- @param Killer (killer index) [number]
@@ -1034,17 +1082,19 @@ function Zombies:OnPlayerDeath(Victim, Killer)
                 else
                     -- Suicide Message override:
                     --
-                    self:Broadcast(nil, v_name .. " committed suicide")
+                    AnnounceSuicide(v_name)
                 end
             else
-                self:Broadcast(nil, v_name .. " was killed by " .. k_name)
+                -- Human vs Zombie:
+                --
+                AnnouncePvP(v_name, k_name)
             end
 
 
         elseif (not self.switching) then
-            -- Every other death (message) override:
+            -- Generic Death:
             --
-            self:Broadcast(nil, v_name .. " died")
+            AnnounceGenericDeath(v_name)
         end
 
         self:CleanUpDrones(Victim, true)
@@ -1054,12 +1104,18 @@ function Zombies:OnPlayerDeath(Victim, Killer)
         --
     elseif (killer > 0) then
         if (victim == killer) then
-            self:Broadcast(nil, v_name .. " committed suicide")
+            -- Suicide Message override:
+            --
+            AnnounceSuicide(v_name)
         else
-            self:Broadcast(nil, v_name .. " was killed by " .. k_name)
+            -- PvP:
+            --
+            AnnouncePvP(v_name, k_name)
         end
     else
-        self:Broadcast(nil, v_name .. " died")
+        -- Generic Death:
+        --
+        AnnounceGenericDeath(v_name)
     end
 
     self.switching = false
