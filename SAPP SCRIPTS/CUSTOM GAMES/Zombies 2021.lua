@@ -1,81 +1,24 @@
 --[[
 --=====================================================================================================--
 Script Name: Zombies (v1.0), for SAPP (PC & CE)
-Description: A fully customizable zombie game.
 
-            --------- [ start of feature list ] ---------
+-- Introduction --
+Players in zombies matches are split into two teams: Humans (red team) and Zombies (blue team).
+When a human dies, they switch to the zombie team. A human's goal is to remain alive (uninfected) until
+the end of the round, while a zombie's goal is to kill (infect) as many humans as possible.
 
-            * TIMERS:
-            ----------------
-            Configurable pre-game countdown:
-            The script will initialise a pre-game countdown from 5 seconds when
-            enough players have joined.
-            Default Setting: 5-second delay (2 players required)
+When only one human remains, that human becomes the "Last Man Standing".
+The Last Man Standing can be given unique player traits; typically, these include a waypoint revealing
+their location to zombies, making survival an extreme challenge.
 
-            Configurable no-zombie timer:
-            The script will choose a random human to become a zombie when there are no zombies left.
-            Default Setting: 5-second delay
-            ----------------
+The players who start a round as zombies are Alpha Zombies.
+The number of Alpha Zombies can be changed in the game type options, and Alpha Zombies can be
+given unique player traits to distinguish them from standard zombies.
 
-            * TEAMS:
-            Define what team zombies and humans are on.
-            Default Settings: Zombies = Blue Team, Humans = Red Team
+Typically, the zombies have melee weapons at their disposal and are capable of
+killing humans in a single blow. Humans are usually given short - and medium-range firearms.
 
-            * NOT-ENOUGH-PLAYERS:
-            A continuous message saying "X players required to start the game" will be broadcast until
-            enough players have joined. After which, the pre-game timer counts down from 5 seconds.
-            Default Setting: ON
-
-            * WEAPONS:
-            You can assign up to 4 weapons for both zombies and humans.
-            Zombie ammo (if applicable) is removed automatically.
-            Default Settings: Zombies = Skull, Humans = Map Defaults, Last-Man = Map Defaults
-
-            * ZOMBIES CAN BE CURED:
-            A zombie needs X (cure_threshold) consecutive kills to become human again.
-            Default Settings: ON, Cure Threshold = 3
-
-            * REGENERATING HEALTH:
-            The last man standing will have regenerating health (when enabled).
-            This feature is only practical if the zombie damage_multiplier is set to 1.
-            Health will increase by 0.005 units every 30 ticks.
-            Default Setting: OFF
-
-            * NAV MARKERS:
-            The last man standing will have a nav marker above his head (when enabled).
-            Default Setting: OFF
-
-            * CROUCH CAMO:
-            Zombies can go invisible while crouching.
-            Default Setting: ON
-
-            * GRENADES:
-            Define starting grenades for Zombies, Humans & Last Man Standing.
-            Default Settings: Zombies = {0, 0}, Humans = {2, 2}, Last-Man = {4, 4}
-
-            * SPEED BOOST:
-            Configurable speed boost settings for zombies, humans & last-man.
-            Default Settings: Zombies = 1.5, Humans = 1, Last-Man = 1.5
-
-            * HEALTH:
-            Configurable health settings for zombies, humans & last-man.
-            Default Settings: Zombies = 1, Humans = 1, Last-Man = 1
-
-            * DAMAGE MULTIPLIERS:
-            Configurable damage multiplier settings for zombies, humans & last-man.
-            Default Settings: Zombies = 10, Humans = 1, Last-Man = 1
-
-            * GAME OBJECTS:
-            Game objects interactions from weapons, vehicles and equipment can be
-            enabled/disabled for the red team, blue team or both teams.
-
-            * MESSAGES
-            Fully configurable game messages.
-
-            --------- [ end of feature list ] ---------
-
-            See the bottom of this script for recommended game type settings.
-            NOTE: This script is designed to run Team Slayer on stock maps.
+* See the bottom of this script for recommended game type settings.
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -186,12 +129,23 @@ local Zombies = {
 
         --]]
 
-        ["Zombies"] = {
+        ["Alpha Zombies"] = {
             speed = 1.5,
-            health = 1,
+            health = 2,
+            camo = true,
             respawn_time = 1.5,
             grenades = { 0, 0 },
             damage_multiplier = 10,
+            weapons = { "weapons\\ball\\ball", "weapons\\flag\\flag" }
+        },
+
+        ["Standard Zombies"] = {
+            speed = 1,
+            health = 1,
+            camo = true,
+            respawn_time = 2.5,
+            grenades = { 0, 0 },
+            damage_multiplier = 1,
             weapons = { "weapons\\ball\\ball" }
         },
 
@@ -429,6 +383,7 @@ function Zombies:InitPlayer(Ply, Reset)
         self.players[Ply] = {
             drones = {},
             assign = false,
+            standard = true,
             name = get_var(Ply, "$name")
         }
         return
@@ -551,7 +506,12 @@ end
 function Zombies:GetWeaponTable(Ply)
     local team = get_var(Ply, "$team")
     if (team == "blue") then
-        return self.attributes["Zombies"].weapons
+        local standard = self:AlphaZombie(Ply)
+        if (standard) then
+            return self.attributes["Standard Zombies"].weapons
+        else
+            return self.attributes["Alpha Zombies"].weapons
+        end
     elseif tonumber(get_var(0, "$reds")) > 1 then
         return self.attributes["Humans"].weapons
     else
@@ -611,7 +571,12 @@ local function SetGrenades(Ply)
     local grenades
     local team = get_var(Ply, "$team")
     if (team == Zombies.zombie_team) then
-        grenades = tostring(Zombies.attributes["Zombies"].grenades)
+        local standard = self:AlphaZombie(Ply)
+        if (standard) then
+            grenades = tostring(Zombies.attributes["Standard Zombies"].grenades)
+        else
+            grenades = tostring(Zombies.attributes["Alpha Zombies"].grenades)
+        end
     elseif (team == Zombies.human_team) then
         if (Ply ~= Zombies.last_man) then
             grenades = tostring(Zombies.attributes["Humans"].grenades)
@@ -758,8 +723,12 @@ function Zombies:StartPreGameTimer()
 
             math.randomseed(os.clock())
             local new_zombie = players[math.random(1, #players)]
-            for i, _ in pairs(players) do
+            for i, player in pairs(players) do
                 if (i == new_zombie) then
+
+                    -- Set zombie type to Alpha-Zombie:
+                    --
+                    player.standard = false
 
                     -- Set player to zombie team:
                     self:SwitchTeam(i, self.zombie_team)
@@ -768,7 +737,13 @@ function Zombies:StartPreGameTimer()
                     local msg = self.messages.on_game_begin
                     local team = self:GetTeamType(i)
                     self:Broadcast(i, msg:gsub("$team", team))
+
                 else
+
+                    -- Set zombie type to Standard-Zombie:
+                    --
+                    player.standard = false
+
                     -- Set player to human team:
                     --
                     self:SwitchTeam(i, self.human_team)
@@ -846,6 +821,13 @@ function Zombies:SwitchHumanToZombie()
         local msg = self.messages.no_zombies_switch
         msg = msg:gsub("$name", name)
         self:Broadcast(nil, msg)
+
+        -- Set zombie type to Standard-Zombie:
+        --
+        self.players[new_zombie].standard = true
+
+        -- Switch them:
+        --
         self:SwitchTeam(new_zombie, self.zombie_team)
 
         -- Check game phase:
@@ -885,6 +867,10 @@ function Zombies:SetNavMarker()
             end
         end
     end
+end
+
+function Zombies:AlphaZombie(Ply)
+    return self.players[Ply].standard
 end
 
 -- @param Ply (player index) [number]
@@ -1069,6 +1055,10 @@ function Zombies:OnPlayerDeath(Victim, Killer)
                 --
                 self:SwitchTeam(victim, self.zombie_team)
 
+                -- Set zombie type to Standard-Zombie:
+                --
+                self.players[victim].standard = true
+
                 -- Check if we need to cure this zombie:
                 --
                 self:ZombieCured(killer)
@@ -1089,6 +1079,7 @@ function Zombies:OnPlayerDeath(Victim, Killer)
                     --
                     AnnounceSuicide(v_name)
                 end
+
             else
                 -- Human vs Zombie:
                 --
@@ -1134,7 +1125,12 @@ function Zombies:GetRespawnTime(Ply)
     local time
     local team = get_var(Ply, "$team")
     if (team == self.zombie_team) then
-        time = self.attributes["Zombies"].respawn_time
+        local standard = self:AlphaZombie(Ply)
+        if (standard) then
+            time = self.attributes["Standard Zombies"].respawn_time
+        else
+            time = self.attributes["Alpha Zombies"].respawn_time
+        end
     elseif (team == self.human_team) then
         time = self.attributes["Humans"].respawn_time
         if (self.last_man == Ply) then
@@ -1153,7 +1149,12 @@ function Zombies:SetSpeed(Ply, Instant)
     local team = get_var(Ply, "$team")
     local time = (Instant and 0) or self:GetRespawnTime(Ply)
     if (team == self.zombie_team) then
-        speed = self.attributes["Zombies"].speed
+        local standard = self:AlphaZombie(Ply)
+        if (standard) then
+            speed = self.attributes["Standard Zombies"].speed
+        else
+            speed = self.attributes["Alpha Zombies"].speed
+        end
     elseif (team == self.human_team) then
         speed = self.attributes["Humans"].speed
         if (self.last_man == Ply) then
@@ -1174,7 +1175,12 @@ function Zombies:SetHealth(Ply, Instant)
     local team = get_var(Ply, "$team")
     local time = (Instant and 0) or self:GetRespawnTime(Ply)
     if (team == self.zombie_team) then
-        health = self.attributes["Zombies"].health
+        local standard = self:AlphaZombie(Ply)
+        if (standard) then
+            health = self.attributes["Standard Zombies"].health
+        else
+            health = self.attributes["Alpha Zombies"].health
+        end
     elseif (team == self.human_team) then
         health = self.attributes["Humans"].health
         if (self.last_man == Ply) then
@@ -1244,7 +1250,12 @@ function DamageMultiplier(Ply, Causer, _, Damage, _, _)
         -- Multiply units of damage by the appropriate damage multiplier property:
         --
         if (c_team == Zombies.zombie_team) then
-            return true, Damage * Zombies.attributes["Zombies"].damage_multiplier
+            local standard = self:AlphaZombie(Ply)
+            if (standard) then
+                return true, Damage * Zombies.attributes["Standard Zombies"].damage_multiplier
+            else
+                return true, Damage * Zombies.attributes["Alpha Zombies"].damage_multiplier
+            end
         elseif (c_team == Zombies.human_team) then
             if (Causer ~= Zombies.last_man) then
                 return true, Damage * Zombies.attributes["Humans"].damage_multiplier
@@ -1366,14 +1377,14 @@ end
 
 --[[
 
-    ---------------------------------------------------------------
+    -----------------------------------------------------------------------
     Quality of Life feedback:
-    This script is best played on the following stock maps:
+    This script is designed to run Team Slayer on the following stock maps:
 
-    Ratrace,        Hangemhigh,     Beavercreek,        Carousel
-    Chillout,       Damnation,      Gephyrophobia,      Prisoner
-    Timberland,     Bloodgulch,     Putput
-    ---------------------------------------------------------------
+    Ratrace,            Hangemhigh,         Beavercreek,          Carousel
+    Chillout,           Damnation,          Gephyrophobia,        Prisoner
+    Timberland,         Bloodgulch,         Putput
+    -----------------------------------------------------------------------
 
 
     -------------------------------
@@ -1414,7 +1425,6 @@ end
     OBJECTIVES INDICATOR:           NONE (set to NAV POINTS if using Nav Marker feature)
     OTHER PLAYERS ON RADAR:         NO
     FRIEND INDICATORS ON SCREEN:    YES
-
 ]]
 
 -- For a future update:
