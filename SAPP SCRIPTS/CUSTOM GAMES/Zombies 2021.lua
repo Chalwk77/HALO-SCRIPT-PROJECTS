@@ -188,8 +188,8 @@ local Zombies = {
         ["Zombies"] = {
             speed = 1.5,
             health = 1,
-            grenades = { 0, 0 },
             respawn_time = 1.5,
+            grenades = { 0, 0 },
             damage_multiplier = 10,
             weapons = { "weapons\\ball\\ball" }
         },
@@ -197,22 +197,22 @@ local Zombies = {
         ["Humans"] = {
             speed = 1,
             health = 1,
-            grenades = { 2, 2 },
             weapons = { },
             respawn_time = 3,
+            grenades = { 2, 2 },
             damage_multiplier = 1
         },
 
         ["Last Man Standing"] = {
             speed = 1.5,
+            weapons = { },
+            respawn_time = 0,
+            grenades = { 4, 4 },
+            damage_multiplier = 1,
             health = {
                 base = 1,
                 increment = 0.0005
-            },
-            weapons = { },
-            grenades = { 4, 4 },
-            respawn_time = 0,
-            damage_multiplier = 1
+            }
         }
     },
 
@@ -641,6 +641,7 @@ function Zombies:GameTick()
                             -- Assign primary & secondary weapons:
                             --
                             if (slot == 1 or slot == 2) then
+
                                 -- Spawn the weapon:
                                 --
                                 local weapon = spawn_object("weap", v, x, y, z)
