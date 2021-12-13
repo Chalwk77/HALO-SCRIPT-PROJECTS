@@ -31,7 +31,7 @@ Description: A fully customizable zombie game.
 
             * ZOMBIES CAN BE CURED:
             A zombie needs X (cure_threshold) consecutive kills to become human again.
-            Default Settings: ON | Cure Threshold = 3
+            Default Settings: ON, Cure Threshold = 3
 
 
             * REGENERATING HEALTH:
@@ -49,6 +49,10 @@ Description: A fully customizable zombie game.
             * CROUCH CAMO:
             Zombies can go invisible while crouching.
             Default Setting: ON
+
+            * GRENADES:
+            Define starting grenades for Zombies, Humans & Last Man Standing.
+            Default Settings: Zombies = {0, 0}, Humans = {2, 2}, Last-Man = {4, 4}
 
 
             * SPEED BOOST:
@@ -151,22 +155,37 @@ local Zombies = {
             *   weapons:                Leave the array blank to use default weapon sets.
             *   damage_multiplier:      Units of damage range from 0-10
             *   nav_marker              A NAV marker will appear above the last man standing
+            *   grenades                Allows you to define the number of starting frags & plasma
+                                        Format: {frags [number], plasmas [number]}
+                                        Example: {1, 3} = 1 frag, 3 plasmas
 
-            --- Notes ---
+            --=====================================================================================================================--
+            -- NOTES --
+
+            Weapons:
             You can add up to 4 stock weapon tag names at your discretion.
 
             For example:
             weapons = { "weapons\\flag\\flag", "weapons\\pistol\\pistol", "weapons\\shotgun\\shotgun", "weapons\\ball\\ball" }
-            * See the weapons section of the objects table below for a full list of weapon tags.
+            See the weapons section of the objects table below for a full list of weapon tags.
 
+            Nav Markers:
             If the Nav Marker attribute is enabled, the kill-in-order game type flag must be set to YES
             The objectives indicator flag must also be set to NAV POINTS.
+
+            Grenade Attributes:
+            If you want to use game type settings for a specific grenade,
+            set the grenade value to nil.
+            For example: {1,nil}
+            In this example, the script will override the value for frags (by 1) but plasmas will use game mode settings.
+            --=====================================================================================================================--
 
         --]]
 
         ["Zombies"] = {
             speed = 1.5,
             health = 1,
+            grenades = { 0, 0 },
             respawn_time = 1.5,
             damage_multiplier = 10,
             weapons = { "weapons\\ball\\ball" }
@@ -175,6 +194,7 @@ local Zombies = {
         ["Humans"] = {
             speed = 1,
             health = 1,
+            grenades = { 2, 2 },
             weapons = { },
             respawn_time = 3,
             damage_multiplier = 1
@@ -187,6 +207,7 @@ local Zombies = {
                 increment = 0.0005
             },
             weapons = { },
+            grenades = { 4, 4 },
             respawn_time = 0,
             damage_multiplier = 1
         }
@@ -512,6 +533,10 @@ function Zombies:GetWeaponTable(Ply)
     end
 end
 
+-- This function is responsible for increment player health:
+-- Only applies to the Last Man Standing
+-- @param Ply (player index) [number]
+--
 function Zombies:HealthRegeneration(Ply)
     if (self.regenerating_health and self.last_man == Ply) then
         local DyN = get_dynamic_player(Ply)
@@ -524,6 +549,9 @@ function Zombies:HealthRegeneration(Ply)
     end
 end
 
+-- This function is responsible for making a zombie go invisible when they crouch:
+-- @param Ply (player index) [number]
+--
 function Zombies:CrouchCamo(Ply)
     if (self.crouch_camo and get_var(Ply, "$team") == self.zombie_team) then
         local DyN = get_dynamic_player(Ply)
@@ -539,13 +567,38 @@ end
 -- Removes Ammo and Grenades from zombie weapons:
 --
 local function RemoveAmmo(Ply)
+    if (Zombies.game_started) then
+        local team = get_var(Ply, "$team")
+        if (team == Zombies.zombie_team) then
+            execute_command_sequence("w8 1; ammo " .. Ply .. " 0")
+            execute_command_sequence("w8 1; mag " .. Ply .. " 0")
+            execute_command_sequence("w8 1; battery " .. Ply .. " 0")
+        end
+    end
+end
+
+-- Sets player grenades (frags/plasmas):
+-- @param Ply (player index) [number]
+--
+local function SetGrenades(Ply)
+
+    local grenades
     local team = get_var(Ply, "$team")
     if (team == Zombies.zombie_team) then
-        execute_command_sequence("w8 1; ammo " .. Ply .. " 0")
-        execute_command_sequence("w8 1; mag " .. Ply .. " 0")
-        execute_command_sequence("w8 1; battery " .. Ply .. " 0")
-        execute_command_sequence("w8 1; nades " .. Ply .. " 0")
-        execute_command_sequence("w8 1; plasmas " .. Ply .. " 0")
+        grenades = tostring(Zombies.attributes["Zombies"].grenades)
+    elseif (team == Zombies.human_team) then
+        if (Ply ~= Zombies.last_man) then
+            grenades = tostring(Zombies.attributes["Humans"].grenades)
+        else
+            grenades = tostring(Zombies.attributes["Last Man Standing"].grenades)
+        end
+    end
+
+    if (grenades[1] ~= nil) then
+        execute_command_sequence("w8 1; nades " .. Ply .. " " .. grenades[1])
+    end
+    if (grenades[2] ~= nil) then
+        execute_command_sequence("w8 1; plasmas " .. Ply .. " " .. grenades[2])
     end
 end
 
@@ -608,6 +661,8 @@ function Zombies:GameTick()
                                 --
                             end
                         end
+
+                        SetGrenades(i)
                         RemoveAmmo(i)
                     end
                 end
