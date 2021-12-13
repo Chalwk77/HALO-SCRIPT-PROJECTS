@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Zombies 2021, for SAPP (PC & CE)
+Script Name: Zombies (v1.0), for SAPP (PC & CE)
 Description: A fully customizable zombie game.
 
             --------- [ start of feature list ] ---------
