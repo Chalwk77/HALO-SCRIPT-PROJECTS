@@ -175,9 +175,8 @@ local Zombies = {
 
             Grenade Attributes:
             If you want to use game type settings for a specific grenade,
-            set the grenade value to nil.
-            For example: {1,nil}
-            In this example, the script will override the value for frags (by 1) but plasmas will use game mode settings.
+            set the grenade value to nil. For example: {1, nil}
+            In the above example, the script will override the value for frags (by 1) but plasmas will use game mode settings.
             --=====================================================================================================================--
 
         --]]
@@ -185,7 +184,7 @@ local Zombies = {
         ["Zombies"] = {
             speed = 1.5,
             health = 1,
-            grenades = { 0, 0 },
+            grenades = { nil, nil },
             respawn_time = 1.5,
             damage_multiplier = 10,
             weapons = { "weapons\\ball\\ball" }
