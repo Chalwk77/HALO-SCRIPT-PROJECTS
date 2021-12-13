@@ -1040,10 +1040,14 @@ function DamageMultiplier(Ply, Causer, _, Damage, _, _)
         local c_team = get_var(Causer, "$team")
         local v_team = get_var(Ply, "$team")
 
+        -- Block friendly fire:
+        --
         if (c_team == v_team) then
             return false
         end
 
+        -- Multiply units of damage by the appropriate damage multiplier property:
+        --
         if (c_team == Zombies.zombie_team) then
             return true, Damage * Zombies.attributes["Zombies"].damage_multiplier
         elseif (c_team == Zombies.human_team) then
