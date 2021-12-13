@@ -30,11 +30,11 @@ local Zombies = {
 
     -- Time (in seconds) until a game begins:
     --
-    game_start_delay = 5,
+    game_start_delay = 10,
 
     -- Number of players required to start the game:
     --
-    required_players = 4,
+    required_players = 2,
 
     -- The players who start a round as zombies are Alpha Zombies.
     -- This is the percentage of online players who will become alpha zombies.
