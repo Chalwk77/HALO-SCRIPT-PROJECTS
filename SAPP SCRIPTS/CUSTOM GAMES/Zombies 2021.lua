@@ -505,7 +505,7 @@ end
 function Zombies:GetWeaponTable(Ply)
     local team = get_var(Ply, "$team")
     if (team == "blue") then
-        local standard = self:AlphaZombie(Ply)
+        local standard = self:IsAlphaZombie(Ply)
         if (standard) then
             return self.attributes["Standard Zombies"].weapons
         else
@@ -543,7 +543,7 @@ function Zombies:CrouchCamo(Ply)
         -- Check if zombie is allowed to use camo:
         --
         local camo
-        local standard = self:AlphaZombie(Ply)
+        local standard = self:IsAlphaZombie(Ply)
         if (standard) then
             camo = self.attributes["Standard Zombies"].camo
         else
@@ -585,7 +585,7 @@ local function SetGrenades(Ply)
     local grenades
     local team = get_var(Ply, "$team")
     if (team == Zombies.zombie_team) then
-        local standard = Zombies:AlphaZombie(Ply)
+        local standard = Zombies:IsAlphaZombie(Ply)
         if (standard) then
             grenades = Zombies.attributes["Standard Zombies"].grenades
         else
@@ -887,7 +887,7 @@ function Zombies:SetNavMarker()
     end
 end
 
-function Zombies:AlphaZombie(Ply)
+function Zombies:IsAlphaZombie(Ply)
     return self.players[Ply].standard
 end
 
@@ -1145,7 +1145,7 @@ function Zombies:GetRespawnTime(Ply)
     local time
     local team = get_var(Ply, "$team")
     if (team == self.zombie_team) then
-        local standard = self:AlphaZombie(Ply)
+        local standard = self:IsAlphaZombie(Ply)
         if (standard) then
             time = self.attributes["Standard Zombies"].respawn_time
         else
@@ -1169,7 +1169,7 @@ function Zombies:SetSpeed(Ply, Instant)
     local team = get_var(Ply, "$team")
     local time = (Instant and 0) or self:GetRespawnTime(Ply)
     if (team == self.zombie_team) then
-        local standard = self:AlphaZombie(Ply)
+        local standard = self:IsAlphaZombie(Ply)
         if (standard) then
             speed = self.attributes["Standard Zombies"].speed
         else
@@ -1195,7 +1195,7 @@ function Zombies:SetHealth(Ply, Instant)
     local team = get_var(Ply, "$team")
     local time = (Instant and 0) or self:GetRespawnTime(Ply)
     if (team == self.zombie_team) then
-        local standard = self:AlphaZombie(Ply)
+        local standard = self:IsAlphaZombie(Ply)
         if (standard) then
             health = self.attributes["Standard Zombies"].health
         else
@@ -1270,7 +1270,7 @@ function DamageMultiplier(Ply, Causer, _, Damage, _, _)
         -- Multiply units of damage by the appropriate damage multiplier property:
         --
         if (c_team == Zombies.zombie_team) then
-            local standard = Zombies:AlphaZombie(Ply)
+            local standard = Zombies:IsAlphaZombie(Ply)
             if (standard) then
                 return true, Damage * Zombies.attributes["Standard Zombies"].damage_multiplier
             else
