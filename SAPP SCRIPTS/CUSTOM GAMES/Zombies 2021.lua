@@ -34,7 +34,13 @@ local Zombies = {
 
     -- Number of players required to start the game:
     --
-    required_players = 2,
+    required_players = 4,
+
+    -- The players who start a round as zombies are Alpha Zombies.
+    -- This is the percentage of online players who will become alpha zombies.
+    -- 50% = half the players online.
+    --
+    starting_zombies_percentage = 50,
 
     -- When enabled, the script will broadcast a continuous message
     -- showing how many players are required to start the game.
@@ -190,10 +196,16 @@ local Zombies = {
         --
         end_of_game = "The $team team won!",
 
-        -- New Game message:
-        -- Variables:        $team (team name)
+        -- Game has Begun:
         --
-        on_game_begin = "The game has begun. You're on the $team team!",
+        on_game_begin = {
+            "The game has begun. You are a Human!",
+            "The game has begun. You're an Alpha-Zombie!"
+        },
+
+        -- Message sent to new standard zombies:
+        --
+        new_standard_zombie = "You're a Standard Zombie!",
 
         -- Message announced when you kill a human:
         -- Variables:        $victim (victim name)
@@ -320,6 +332,16 @@ function OnScriptUnload()
     EnableDeathMessages()
 end
 
+-- Fisher-yates shuffle algorithm:
+--
+local function shuffle(t)
+    for i = #t, 2, -1 do
+        local j = math.random(i)
+        t[i], t[j] = t[j], t[i]
+    end
+    return t
+end
+
 -- Sets up pre-game parameters:
 --
 function Zombies:Init()
@@ -354,7 +376,6 @@ function Zombies:Init()
     }
 
     if (get_var(0, "$gt") ~= "n/a") then
-
         -- Disable game objects:
         --
         for _, v in pairs(self.objects) do
@@ -725,52 +746,42 @@ function Zombies:StartPreGameTimer()
 
         self.game_started = true
 
-        -- Sort players into teams:
-        --
-        local players = {}
+        local players = { }
         for i = 1, 16 do
             if player_present(i) then
-                if (self.players[i]) then
-                    table.insert(players, tonumber(i))
-                end
+                table.insert(players, { id = i })
             end
         end
+        players = shuffle(players)
 
-        if (#players > 0) then
+        for i, v in pairs(players) do
 
-            math.randomseed(os.clock())
-            local new_zombie = players[math.random(1, #players)]
-            for i, _ in pairs(players) do
-                if (i == new_zombie) then
+            local percentage = (i / #players * 100)
+            if (percentage <= self.starting_zombies_percentage) then
 
-                    -- Set zombie type to Alpha-Zombie:
-                    --
-                    self.players[i].standard = false
+                -- Set zombie type to Alpha-Zombie:
+                --
+                self.players[v.id].standard = false
 
-                    -- Set player to zombie team:
-                    self:SwitchTeam(i, self.zombie_team)
+                -- Set player to zombie team:
+                --
+                self:SwitchTeam(v.id, self.zombie_team)
 
-                    -- Tell player what team they are on:
-                    local msg = self.messages.on_game_begin
-                    local team = self:GetTeamType(i)
-                    self:Broadcast(i, msg:gsub("$team", team))
+                -- Tell player what team they are on:
+                --
+                self:Broadcast(v.id, self.messages.on_game_begin[2])
+            else
+                -- Set zombie type to Standard-Zombie:
+                --
+                self.players[v.id].standard = true
 
-                else
+                -- Set player to human team:
+                --
+                self:SwitchTeam(v.id, self.human_team)
 
-                    -- Set zombie type to Standard-Zombie:
-                    --
-                    self.players[i].standard = false
-
-                    -- Set player to human team:
-                    --
-                    self:SwitchTeam(i, self.human_team)
-
-                    -- Tell player what team they are on:
-                    --
-                    local msg = self.messages.on_game_begin
-                    local team = self:GetTeamType(i)
-                    self:Broadcast(i, msg:gsub("$team", team))
-                end
+                -- Tell player what team they are on:
+                --
+                self:Broadcast(v.id, self.messages.on_game_begin[1])
             end
         end
 
@@ -953,11 +964,13 @@ function Zombies:GamePhaseCheck(Ply, PlayerCount)
             if player_present(i) then
                 local last_man_team = get_var(i, "$team")
                 if (last_man_team == self.human_team and not self.last_man) then
-                    self.last_man = i
-                    local name = self.players[i].name
-                    local msg = self.messages.on_last_man
-                    self:Broadcast(nil, msg:gsub("$name", name))
-                    self:SetAttributes(i, true)
+                    if (self.players[i]) then
+                        self.last_man = i
+                        local name = self.players[i].name
+                        local msg = self.messages.on_last_man
+                        self:Broadcast(nil, msg:gsub("$name", name))
+                        self:SetAttributes(i, true)
+                    end
                 end
             end
         end
@@ -1220,6 +1233,15 @@ end
 function Zombies:SetAttributes(Ply, Instant)
 
     if (Zombies.game_started) then
+
+        local team = get_var(Ply, "$team")
+        if (team == self.zombie_team) then
+            local standard = self:IsAlphaZombie(Ply)
+            if (standard) then
+                self:Broadcast(Ply, self.messages.new_standard_zombie)
+            end
+        end
+
         -- Set respawn time:
         --
         local time = Zombies:GetRespawnTime(Ply)
