@@ -5,9 +5,21 @@ Description: A fully customizable zombie game.
 
             --------- [ start of feature list ] ---------
 
+            * TIMERS:
+            ----------------
+            Configurable pre-game countdown:
+            The script will initialise a pre-game countdown from 5 seconds when
+            enough players have joined.
+            Default Settings: 5 second delay (2 players required)
+
+            Configurable no-zombie timer:
+            The script will choose a random human to become a zombie when there are no zombies left.
+            Default Settings: 5 second delay
+            ----------------
+
             * WEAPONS:
             You can assign up to 4 weapons for both zombies and humans.
-            Zombie ammo (if applicable) is removed automagically.
+            Zombie ammo (if applicable) is removed automatically.
             Default Settings: Zombies = Skull, Humans = Map Defaults, Last-Man = Map Defaults
 
             * ZOMBIES CAN BE CURED:
@@ -42,18 +54,11 @@ Description: A fully customizable zombie game.
 
             * GAME OBJECTS:
             Game objects interactions from weapons, vehicles and equipment can be
-            enabled/disabled for red team, blue team or both teams.
+            enabled/disabled for the red team, blue team or both teams.
             --------- [ end of feature list ] ---------
 
             See the bottom of this script for recommended game type settings.
-            NOTE: This script is designed to run Team Slayer on stock maps!
-
-            Quality of Life feedback:
-            This script is best played on the following stock maps:
-
-            Ratrace, Hangemhigh, Beavercreek, Carousel
-            Chillout, Damnation, Gephyrophobia, Prisoner
-            Putput (Chiron TL-34), Bloodgulch, Timberland
+            NOTE: This script is designed to run Team Slayer on stock maps.
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -1220,6 +1225,16 @@ end
 
 --[[
 
+    ---------------------------------------------------------------
+    Quality of Life feedback:
+    This script is best played on the following stock maps:
+
+    Ratrace,        Hangemhigh,     Beavercreek,        Carousel
+    Chillout,       Damnation,      Gephyrophobia,      Prisoner
+    Timberland,     Bloodgulch,     Putput
+    ---------------------------------------------------------------
+
+
     -------------------------------
     RECOMMENDED GAME TYPE SETTINGS:
     -------------------------------
@@ -1260,7 +1275,6 @@ end
     FRIEND INDICATORS ON SCREEN:    YES
 
 ]]
-
 
 -- For a future update:
 return Zombies
