@@ -10,16 +10,21 @@ Description: A fully customizable zombie game.
             Configurable pre-game countdown:
             The script will initialise a pre-game countdown from 5 seconds when
             enough players have joined.
-            Default Settings: 5-second delay (2 players required)
+            Default Setting: 5-second delay (2 players required)
 
             Configurable no-zombie timer:
             The script will choose a random human to become a zombie when there are no zombies left.
-            Default Settings: 5-second delay
+            Default Setting: 5-second delay
             ----------------
 
             * TEAMS:
             Define what team zombies and humans are on.
             Default Settings: Zombies = Blue Team, Humans = Red Team
+
+            * NOT-ENOUGH-PLAYERS:
+            A continuous message saying "X players required to start the game" will be broadcast until
+            enough players have joined. After which, the pre-game timer counts down from 5 seconds.
+            Default Setting: ON
 
             * WEAPONS:
             You can assign up to 4 weapons for both zombies and humans.
@@ -92,7 +97,7 @@ local Zombies = {
     -- When enabled, the script will broadcast a continuous message
     -- showing how many players are required to start the game.
     --
-    show_not_enough_players_message = false,
+    show_not_enough_players_message = true,
 
     -- Time (in seconds) until a human is selected to become a zombie:
     --
