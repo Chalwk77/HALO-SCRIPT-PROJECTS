@@ -17,18 +17,22 @@ Description: A fully customizable zombie game.
             Default Settings: 5 second delay
             ----------------
 
+
             * TEAMS:
             Define what team zombies and humans are on.
             Default Settings: Zombies = Blue Team, Humans = Red Team
+
 
             * WEAPONS:
             You can assign up to 4 weapons for both zombies and humans.
             Zombie ammo (if applicable) is removed automatically.
             Default Settings: Zombies = Skull, Humans = Map Defaults, Last-Man = Map Defaults
 
+
             * ZOMBIES CAN BE CURED:
             A zombie needs X (cure_threshold) consecutive kills to become human again.
             Default Settings: ON | Cure Threshold = 3
+
 
             * REGENERATING HEALTH:
             The last man standing will have regenerating health (when enabled).
@@ -36,29 +40,36 @@ Description: A fully customizable zombie game.
             Health will increase by 0.005 units every 30 ticks.
             Default Setting: OFF
 
+
             * NAV MARKERS:
             The last man standing will have a nav marker above his head (when enabled).
             Default Setting: OFF
+
 
             * CROUCH CAMO:
             Zombies can go invisible while crouching.
             Default Setting: ON
 
+
             * SPEED BOOST:
             Configurable speed boost settings for zombies, humans & last-man.
             Default Settings: Zombies = 1.5, Humans = 1, Last-Man = 1.5
+
 
             * HEALTH:
             Configurable health settings for zombies, humans & last-man.
             Default Settings: Zombies = 1, Humans = 1, Last-Man = 1
 
+
             * DAMAGE MULTIPLIERS:
             Configurable damage multiplier settings for zombies, humans & last-man.
             Default Settings: Zombies = 10, Humans = 1, Last-Man = 1
 
+
             * GAME OBJECTS:
             Game objects interactions from weapons, vehicles and equipment can be
             enabled/disabled for the red team, blue team or both teams.
+
 
             * MESSAGES
             Fully configurable game messages.
