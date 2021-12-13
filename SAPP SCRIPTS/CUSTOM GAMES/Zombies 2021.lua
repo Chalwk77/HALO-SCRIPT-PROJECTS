@@ -30,11 +30,11 @@ local Zombies = {
 
     -- Time (in seconds) until a game begins:
     --
-    game_start_delay = 10,
+    game_start_delay = 5,
 
     -- Number of players required to start the game:
     --
-    required_players = 2,
+    required_players = 3,
 
     -- The players who start a round as zombies are Alpha Zombies.
     -- This is the percentage of online players who will become alpha zombies.
@@ -81,7 +81,7 @@ local Zombies = {
     --
     nav_marker = false,
 
-    -- Player attributes:
+    -- Player trait tables:
     --
     attributes = {
 
@@ -156,7 +156,11 @@ local Zombies = {
         ["Humans"] = {
             speed = 1,
             health = 1,
-            weapons = { },
+            weapons = {
+                "weapons\\pistol\\pistol",
+                "weapons\\shotgun\\shotgun",
+                "weapons\\assault rifle\\assault rifle"
+            },
             respawn_time = 3,
             grenades = { 2, 2 },
             damage_multiplier = 1
