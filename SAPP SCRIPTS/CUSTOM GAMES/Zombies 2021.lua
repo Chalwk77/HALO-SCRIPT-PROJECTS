@@ -8,15 +8,14 @@ When a human dies, they switch to the zombie team. A human's goal is to remain a
 the end of the round, while a zombie's goal is to kill (infect) as many humans as possible.
 
 When only one human remains, that human becomes the "Last Man Standing".
-The Last Man Standing can be given unique player traits; typically, these include a waypoint revealing
-their location to zombies, making survival an extreme challenge.
+The Last Man Standing is given unique player traits; including a waypoint revealing
+their location to zombies, making survival an extreme challenge, among other traits.
 
 The players who start a round as zombies are Alpha Zombies.
-The number of Alpha Zombies can be changed in the game type options, and Alpha Zombies can be
-given unique player traits to distinguish them from standard zombies.
+Alpha Zombies have unique player traits to distinguish them from standard zombies.
 
-Typically, the zombies have melee weapons at their disposal and are capable of
-killing humans in a single blow. Humans are usually given short - and medium-range firearms.
+Zombies have melee weapons at their disposal and are capable of killing humans in a single blow.
+Humans are given short - and medium-range firearms by default.
 
 * See the bottom of this script for recommended game type settings.
 
@@ -76,11 +75,6 @@ local Zombies = {
     --
     nav_marker = false,
 
-    -- Crouch Camo:
-    -- When enabled, zombies can go invisible by holding their crouch button.
-    --
-    crouch_camo = true,
-
     -- Player attributes:
     --
     attributes = {
@@ -98,7 +92,7 @@ local Zombies = {
             *   weapons:                Leave the array blank to use default weapon sets.
             *   damage_multiplier:      Units of damage range from 0-10.
             *   nav_marker              A NAV marker will appear above the last man standing's head.
-
+            *   camo                    Alpha-Zombies and Standard Zombies have optional Crouch Camo traits.
             *   grenades                Allows you to define the starting number of frags & plasmas.
                                         Format: {frags [number], plasmas [number]}
                                         Example: {1, 3} = 1 frag, 3 plasmas
@@ -107,11 +101,10 @@ local Zombies = {
             -- NOTES --
 
             Weapons:
-            You can add up to 4 stock weapon tag names at your discretion.
+            You can define up to four weapon tag names (see example below):
 
-            For example:
             weapons = { "weapons\\flag\\flag", "weapons\\pistol\\pistol", "weapons\\shotgun\\shotgun", "weapons\\ball\\ball" }
-            See the "weapons" of the "objects" table below (on or near line 268) for a full list of weapon tags.
+            See the "weapons" section of the "objects" table below (on or near line 261) for a full list of weapon tags.
 
             Nav Markers:
             If the Nav Marker attribute is enabled, the kill-in-order game type flag must be set to YES.
@@ -134,15 +127,20 @@ local Zombies = {
             health = 2,
             camo = true,
             respawn_time = 1.5,
-            grenades = { 0, 0 },
+            grenades = { 0, 2 },
             damage_multiplier = 10,
-            weapons = { "weapons\\ball\\ball", "weapons\\flag\\flag" }
+            weapons = {
+                "weapons\\shotgun\\shotgun",
+                "weapons\\pistol\\pistol",
+                "weapons\\plasma rifle\\plasma rifle",
+                "weapons\\plasma pistol\\plasma pistol"
+            }
         },
 
         ["Standard Zombies"] = {
             speed = 1,
             health = 1,
-            camo = true,
+            camo = false,
             respawn_time = 2.5,
             grenades = { 0, 0 },
             damage_multiplier = 1,
@@ -539,12 +537,27 @@ end
 -- @param Ply (player index) [number]
 --
 function Zombies:CrouchCamo(Ply)
-    if (self.crouch_camo and get_var(Ply, "$team") == self.zombie_team) then
-        local DyN = get_dynamic_player(Ply)
-        if (DyN ~= 0 and player_alive(Ply)) then
-            local couching = read_float(DyN + 0x50C)
-            if (couching == 1) then
-                execute_command("camo " .. Ply .. " 1")
+    if (get_var(Ply, "$team") == self.zombie_team) then
+
+        -- Check if zombie is allowed to use camo:
+        --
+        local camo
+        local standard = self:AlphaZombie(Ply)
+        if (standard) then
+            camo = self.attributes["Standard Zombies"].camo
+        else
+            camo = self.attributes["Alpha Zombies"].camo
+        end
+
+        -- Apply Camo:
+        --
+        if (camo) then
+            local DyN = get_dynamic_player(Ply)
+            if (DyN ~= 0 and player_alive(Ply)) then
+                local couching = read_float(DyN + 0x50C)
+                if (couching == 1) then
+                    execute_command("camo " .. Ply .. " 1")
+                end
             end
         end
     end
@@ -556,9 +569,9 @@ local function RemoveAmmo(Ply)
     if (Zombies.game_started) then
         local team = get_var(Ply, "$team")
         if (team == Zombies.zombie_team) then
-            execute_command_sequence("w8 1; ammo " .. Ply .. " 0")
-            execute_command_sequence("w8 1; mag " .. Ply .. " 0")
-            execute_command_sequence("w8 1; battery " .. Ply .. " 0")
+            execute_command_sequence("w8 1; ammo " .. Ply .. " 0 5")
+            execute_command_sequence("w8 1; mag " .. Ply .. " 0  5")
+            execute_command_sequence("w8 1; battery " .. Ply .. " 0  5")
         end
     end
 end
@@ -571,23 +584,24 @@ local function SetGrenades(Ply)
     local grenades
     local team = get_var(Ply, "$team")
     if (team == Zombies.zombie_team) then
-        local standard = self:AlphaZombie(Ply)
+        local standard = Zombies:AlphaZombie(Ply)
         if (standard) then
-            grenades = tostring(Zombies.attributes["Standard Zombies"].grenades)
+            grenades = Zombies.attributes["Standard Zombies"].grenades
         else
-            grenades = tostring(Zombies.attributes["Alpha Zombies"].grenades)
+            grenades = Zombies.attributes["Alpha Zombies"].grenades
         end
     elseif (team == Zombies.human_team) then
         if (Ply ~= Zombies.last_man) then
-            grenades = tostring(Zombies.attributes["Humans"].grenades)
+            grenades = Zombies.attributes["Humans"].grenades
         else
-            grenades = tostring(Zombies.attributes["Last Man Standing"].grenades)
+            grenades = Zombies.attributes["Last Man Standing"].grenades
         end
     end
 
     if (grenades[1] ~= nil) then
         execute_command_sequence("w8 1; nades " .. Ply .. " " .. grenades[1])
     end
+
     if (grenades[2] ~= nil) then
         execute_command_sequence("w8 1; plasmas " .. Ply .. " " .. grenades[2])
     end
@@ -636,7 +650,7 @@ function Zombies:GameTick()
 
                                 -- Store a copy of this weapon to the drones table:
                                 --
-                                player.drones[#player.drones + 1] = weapon
+                                table.insert(player.drones, weapon)
 
                                 -- Assign this weapon:
                                 --
@@ -653,10 +667,9 @@ function Zombies:GameTick()
                                 --
                             end
                         end
-
-                        SetGrenades(i)
                         RemoveAmmo(i)
                     end
+                    SetGrenades(i)
                 end
             end
         end
@@ -723,12 +736,12 @@ function Zombies:StartPreGameTimer()
 
             math.randomseed(os.clock())
             local new_zombie = players[math.random(1, #players)]
-            for i, player in pairs(players) do
+            for i, _ in pairs(players) do
                 if (i == new_zombie) then
 
                     -- Set zombie type to Alpha-Zombie:
                     --
-                    player.standard = false
+                    self.players[i].standard = false
 
                     -- Set player to zombie team:
                     self:SwitchTeam(i, self.zombie_team)
@@ -742,7 +755,7 @@ function Zombies:StartPreGameTimer()
 
                     -- Set zombie type to Standard-Zombie:
                     --
-                    player.standard = false
+                    self.players[i].standard = false
 
                     -- Set player to human team:
                     --
@@ -899,8 +912,8 @@ end
 --
 function DelaySecQuat(Ply, Tag, x, y, z)
     local weapon = spawn_object("weap", Tag, x, y, z)
-    local drones = Zombies.players[Ply].drones
-    drones[#drones + 1] = weapon
+    local drones = Zombies.players[tonumber(Ply)].drones
+    table.insert(drones, weapon)
     assign_weapon(weapon, Ply)
 end
 
