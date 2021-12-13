@@ -38,13 +38,13 @@ local Zombies = {
     -- Zombie Curing (disabled by default):
     -- When enabled, a zombie needs X (cure_threshold) consecutive kills to become human again.
     --
-    zombies_can_be_cured = false,
+    zombies_can_be_cured = true,
 
     -- Cure Threshold:
     -- Number of kills required to become a human again:
     -- Do not set this value to 1 or curing will not work.
     --
-    cure_threshold = 5,
+    cure_threshold = 3,
 
     -- Regenerating Health:
     -- When enabled, the last man standing will have regenerating health (see attributes table).
@@ -55,7 +55,7 @@ local Zombies = {
     -- Nav Marker:
     -- When enabled, the last man standing will have a nav marker above his head.
     --
-    nav_marker = true,
+    nav_marker = false,
 
     -- Crouch Camo:
     -- When enabled, zombies can go invisible by crouching.
@@ -72,11 +72,11 @@ local Zombies = {
             Notes on variables --
             ------------------------
             *   speed:                  Set to 0 to use map settings (1 = normal speed).
-            *   health:                 Range from 0 to 99999, (1 = normal health).
+            *   health:                 Units of health range from 0 to 99999, (1 = normal health).
                                         Last Man has optional Health Regeneration that regenerates at increments of 0.0005 per 30 ticks.
             *   respawn_time:           Range from 0-999 (in seconds).
             *   weapons:                Leave the array blank to use default weapon sets.
-            *   damage_multiplier:      Range from 0-10
+            *   damage_multiplier:      Units of damage range from 0-10
             *   nav_marker              A NAV marker will appear above the last man standing
 
             --- Notes ---
@@ -92,7 +92,7 @@ local Zombies = {
         --]]
 
         ["Zombies"] = {
-            speed = 1,
+            speed = 1.5,
             health = 1,
             respawn_time = 1.5,
             damage_multiplier = 10,
@@ -108,13 +108,13 @@ local Zombies = {
         },
 
         ["Last Man Standing"] = {
-            speed = 1,
+            speed = 1.5,
             health = {
                 base = 1,
                 increment = 0.0005
             },
             weapons = { },
-            respawn_time = 3,
+            respawn_time = 0,
             damage_multiplier = 1
         }
     },
@@ -686,6 +686,10 @@ function Zombies:SwitchHumanToZombie()
         self:Broadcast(nil, msg)
         self:SwitchTeam(new_zombie, self.zombie_team)
 
+        -- Check game phase:
+        --
+        self:GamePhaseCheck(nil, nil)
+
         return false
     end
 
@@ -823,6 +827,10 @@ function Zombies:ZombieCured(Ply)
         local streak = tonumber(get_var(Ply, "$streak"))
         if (streak >= self.cure_threshold) then
 
+            -- Delete the skull BEFORE switching (important):
+            --
+            self:CleanUpDrones(Ply)
+
             -- Switch zombie to the human team:
             --
             self:SwitchTeam(Ply, self.human_team)
@@ -853,39 +861,48 @@ function Zombies:OnPlayerDeath(Victim, Killer)
     if (self.game_started) then
 
         -- PvP & Suicide:
-        if (killer > 0 and victim_team == self.human_team) then
+        if (killer > 0) then
 
-            -- If the last man alive was killed by someone who is about to be cured,
-            -- reset their last-man status:
+            -- Human died:
             --
-            if (self.last_man == victim) then
-                self.last_man = nil
-            end
+            if (victim_team == self.human_team) then
 
-            -- Switch victim to the zombie team:
-            --
-            self:SwitchTeam(victim, self.zombie_team)
-
-            -- Check if we need to cure this zombie:
-            --
-            self:ZombieCured(killer)
-
-            -- Check game phase:
-            --
-            self:GamePhaseCheck(nil, nil)
-
-            -- Broadcast "self.messages.on_zombify" message:
-            --
-            if (victim ~= killer) then
-                local msg = self.messages.on_zombify
-                msg = msg:gsub("$victim", v_name)
-                msg = msg:gsub("$killer", k_name)
-                self:Broadcast(nil, msg)
-            else
-                -- Suicide Message override:
+                -- If the last man alive was killed by someone who is about to be cured,
+                -- reset their last-man status:
                 --
-                self:Broadcast(nil, v_name .. " committed suicide")
+                if (self.last_man == victim) then
+                    self.last_man = nil
+                end
+
+                -- Switch victim to the zombie team:
+                --
+                self:SwitchTeam(victim, self.zombie_team)
+
+                -- Check if we need to cure this zombie:
+                --
+                self:ZombieCured(killer)
+
+                -- Check game phase:
+                --
+                self:GamePhaseCheck(nil, nil)
+
+                -- Broadcast "self.messages.on_zombify" message:
+                --
+                if (victim ~= killer) then
+                    local msg = self.messages.on_zombify
+                    msg = msg:gsub("$victim", v_name)
+                    msg = msg:gsub("$killer", k_name)
+                    self:Broadcast(nil, msg)
+                else
+                    -- Suicide Message override:
+                    --
+                    self:Broadcast(nil, v_name .. " committed suicide")
+                end
+            else
+                self:Broadcast(nil, v_name .. " was killed by " .. k_name)
             end
+
+
         elseif (not self.switching) then
             -- Every other death (message) override:
             --
@@ -893,7 +910,6 @@ function Zombies:OnPlayerDeath(Victim, Killer)
         end
 
         self:CleanUpDrones(Victim, true)
-
 
         --
         -- Pre-Game death message overrides:
