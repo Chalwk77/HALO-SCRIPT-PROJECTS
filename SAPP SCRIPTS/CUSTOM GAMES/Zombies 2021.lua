@@ -4,7 +4,7 @@ Script Name: Zombies 2021, for SAPP (PC & CE)
 Description: A fully customizable zombie game.
 
             See the bottom of this script for recommended game type settings.
-            NOTE: This is designed to run on stock maps.
+            NOTE: This script is designed to run Team Slayer on stock maps!
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -96,7 +96,7 @@ local Zombies = {
             health = 1,
             respawn_time = 1.5,
             damage_multiplier = 10,
-            weapons = { "weapons\\ball\\ball" }
+            weapons = { "weapons\\pistol\\pistol" }
         },
 
         ["Humans"] = {
@@ -235,6 +235,7 @@ function OnScriptLoad()
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
     register_callback(cb["EVENT_WEAPON_DROP"], "OnWeaponDrop")
+    register_callback(cb["EVENT_WEAPON_PICKUP"], "OnWeaponPickup")
     register_callback(cb["EVENT_DAMAGE_APPLICATION"], "DamageMultiplier")
 
     DisableDeathMessages()
@@ -460,6 +461,19 @@ function Zombies:CrouchCamo(Ply)
     end
 end
 
+-- Removes Ammo and Grenades from zombie weapons:
+--
+local function RemoveAmmo(Ply)
+    local team = get_var(Ply, "$team")
+    if (team == Zombies.zombie_team) then
+        execute_command_sequence("w8 1; ammo " .. Ply .. " 0")
+        execute_command_sequence("w8 1; mag " .. Ply .. " 0")
+        execute_command_sequence("w8 1; battery " .. Ply .. " 0")
+        execute_command_sequence("w8 1; nades " .. Ply .. " 0")
+        execute_command_sequence("w8 1; plasmas " .. Ply .. " 0")
+    end
+end
+
 -- This function is called once every 1/30th second (1 tick):
 -- Used for weapon assignments, health regeneration and Last-Man Nav Makers.
 --
@@ -519,17 +533,7 @@ function Zombies:GameTick()
                                 --
                             end
                         end
-
-                        -- Remove ammo & grenades from zombie weapons:
-                        --
-                        local team = get_var(i, "$team")
-                        if (team == self.zombie_team) then
-                            execute_command_sequence("w8 1; ammo " .. i .. " 0")
-                            execute_command_sequence("w8 1; mag " .. i .. " 0")
-                            execute_command_sequence("w8 1; battery " .. i .. " 0")
-                            execute_command_sequence("w8 1; nades " .. i .. " 0")
-                            execute_command_sequence("w8 1; plasmas " .. i .. " 0")
-                        end
+                        RemoveAmmo(i)
                     end
                 end
             end
@@ -1116,6 +1120,13 @@ function OnWeaponDrop(Ply)
     Zombies:CleanUpDrones(Ply, true)
 end
 
+-- This function is called every time a player picks up a weapon:
+-- @param Ply (player index) [number]
+--
+function OnWeaponPickup(Ply)
+    RemoveAmmo(Ply)
+end
+
 -- Enables the servers default death messages:
 --
 function EnableDeathMessages()
@@ -1196,3 +1207,7 @@ end
     FRIEND INDICATORS ON SCREEN:    YES
 
 ]]
+
+
+-- For a future update:
+return Zombies
