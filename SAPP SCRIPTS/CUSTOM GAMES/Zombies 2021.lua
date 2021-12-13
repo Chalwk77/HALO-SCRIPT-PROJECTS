@@ -17,6 +17,10 @@ Description: A fully customizable zombie game.
             Default Settings: 5 second delay
             ----------------
 
+            * TEAMS:
+            Define what team zombies and humans are on.
+            Default Settings: Zombies = Blue Team, Humans = Red Team
+
             * WEAPONS:
             You can assign up to 4 weapons for both zombies and humans.
             Zombie ammo (if applicable) is removed automatically.
