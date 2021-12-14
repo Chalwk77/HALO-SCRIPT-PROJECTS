@@ -10,9 +10,11 @@ SAPP & Phasor are both powerful server extensions (Server Apps) for Halo: PC and
 I have been writing Lua scripts for 13 years; Making everything from custom games, utilities, libraries and other server additives. 
 
 ## ❤ SUPPORT ME️ ❤
-If my work has helped you in any way, show your support and buy me a coffee :coffee: 
-
+If my work has helped you in any way, show your support and buy me a coffee :coffee:
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=X6VNRT8N4JEPS&source=url)
+
+You can further support me by clicking the 👁️ watch and ⭐ star buttons on the HSP Repo.
+
 - - - - 
 - - - -
 Check out my:
