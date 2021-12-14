@@ -4,18 +4,25 @@ Script Name: Zombies (v1.1), for SAPP (PC & CE)
 
 -- Introduction --
 Players in zombies matches are split into two teams: Humans (red team) and Zombies (blue team).
-When a human dies, they switch to the zombie team. A human's goal is to remain alive (uninfected) until
-the end of the round, while a zombie's goal is to kill (infect) as many humans as possible.
+
+When a human dies, they switch to the zombie team.
+A human's goal is to remain alive (uninfected) until the end of the round, while a zombie's goal is to kill (infect) as many humans as possible.
 
 When only one human remains, that human becomes the "Last Man Standing".
-The Last Man Standing is given unique player traits; including a waypoint revealing
-their location to zombies, making survival an extreme challenge, among other traits.
+The Last Man Standing is given unique player traits; including a waypoint revealing their location to zombies, making survival an extreme challenge.
+See more on traits below.
 
 The players who start a round as zombies are Alpha Zombies.
 Alpha Zombies have unique player traits to distinguish them from standard zombies.
 
+Standard Zombies are:
+
+	* Humans who have been infected.
+	* Players who joined after a game has already begun will get standard-zombie status.
+	* Humans who commit suicide will get standard-zombie status.
+
 Zombies have melee weapons at their disposal and are capable of killing humans in a single blow.
-Humans are given short - and medium-range firearms by default.
+Humans are given short - and medium-range firearms.
 
 * See the bottom of this script for recommended game type settings.
 
