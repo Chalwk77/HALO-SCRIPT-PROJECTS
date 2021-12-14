@@ -2,7 +2,7 @@
 
 - - - - 
 ## ❤️ SUPPORT ME️ ❤
-If my work has helped you in any way, show your support and buy me a coffee :) 
+If my work has helped you in any way, show your support and buy me a coffee :coffee: 
 
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=X6VNRT8N4JEPS&source=url)
 - - - - 
