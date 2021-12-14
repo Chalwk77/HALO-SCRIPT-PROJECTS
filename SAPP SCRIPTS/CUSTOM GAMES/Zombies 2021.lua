@@ -117,7 +117,7 @@ local Zombies = {
             You can define up to four weapon tag names (see example below):
 
             weapons = { "weapons\\flag\\flag", "weapons\\pistol\\pistol", "weapons\\shotgun\\shotgun", "weapons\\ball\\ball" }
-            See the "weapons" section of the "objects" table below (on or near line 261) for a full list of weapon tags.
+            See the "weapons" section of the "objects" table below (on or near line 284) for a full list of weapon tags.
 
             Nav Markers:
             If the Nav Marker attribute is enabled, the kill-in-order game type flag must be set to YES.
