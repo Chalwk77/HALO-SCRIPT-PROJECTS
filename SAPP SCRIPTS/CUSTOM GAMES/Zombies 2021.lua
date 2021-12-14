@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Zombies (v1.0), for SAPP (PC & CE)
+Script Name: Zombies (v1.1), for SAPP (PC & CE)
 
 -- Introduction --
 Players in zombies matches are split into two teams: Humans (red team) and Zombies (blue team).
@@ -340,6 +340,10 @@ end
 --
 local function shuffle(t)
     for i = #t, 2, -1 do
+        math.random();
+        math.random();
+        math.random();
+        math.randomseed(os.clock())
         local j = math.random(i)
         t[i], t[j] = t[j], t[i]
     end
@@ -406,8 +410,8 @@ function Zombies:InitPlayer(Ply, Reset)
     if (not Reset) then
         self.players[Ply] = {
             drones = {},
+            alpha = false,
             assign = false,
-            standard = true,
             name = get_var(Ply, "$name")
         }
         return
@@ -529,17 +533,19 @@ end
 --
 function Zombies:GetWeaponTable(Ply)
     local team = get_var(Ply, "$team")
-    if (team == "blue") then
-        local standard = self:IsAlphaZombie(Ply)
-        if (standard) then
-            return self.attributes["Standard Zombies"].weapons
-        else
+    if (team == self.zombie_team) then
+        local alpha = self:IsAlphaZombie(Ply)
+        if (alpha) then
             return self.attributes["Alpha Zombies"].weapons
+        else
+            return self.attributes["Standard Zombies"].weapons
         end
-    elseif tonumber(get_var(0, "$reds")) > 1 then
-        return self.attributes["Humans"].weapons
-    else
-        return self.attributes["Last Man Standing"].weapons
+    elseif (team == self.human_team) then
+        if (self.last_man == nil) then
+            return self.attributes["Humans"].weapons
+        else
+            return self.attributes["Last Man Standing"].weapons
+        end
     end
 end
 
@@ -568,11 +574,11 @@ function Zombies:CrouchCamo(Ply)
         -- Check if zombie is allowed to use camo:
         --
         local camo
-        local standard = self:IsAlphaZombie(Ply)
-        if (standard) then
-            camo = self.attributes["Standard Zombies"].camo
-        else
+        local alpha = self:IsAlphaZombie(Ply)
+        if (alpha) then
             camo = self.attributes["Alpha Zombies"].camo
+        else
+            camo = self.attributes["Standard Zombies"].camo
         end
 
         -- Apply Camo:
@@ -610,11 +616,11 @@ local function SetGrenades(Ply)
     local grenades
     local team = get_var(Ply, "$team")
     if (team == Zombies.zombie_team) then
-        local standard = Zombies:IsAlphaZombie(Ply)
-        if (standard) then
-            grenades = Zombies.attributes["Standard Zombies"].grenades
-        else
+        local alpha = Zombies:IsAlphaZombie(Ply)
+        if (alpha) then
             grenades = Zombies.attributes["Alpha Zombies"].grenades
+        else
+            grenades = Zombies.attributes["Standard Zombies"].grenades
         end
     elseif (team == Zombies.human_team) then
         if (Ply ~= Zombies.last_man) then
@@ -765,7 +771,7 @@ function Zombies:StartPreGameTimer()
 
                 -- Set zombie type to Alpha-Zombie:
                 --
-                self.players[v.id].standard = false
+                self.players[v.id].alpha = true
 
                 -- Set player to zombie team:
                 --
@@ -774,11 +780,8 @@ function Zombies:StartPreGameTimer()
                 -- Tell player what team they are on:
                 --
                 self:Broadcast(v.id, self.messages.on_game_begin[2])
-            else
-                -- Set zombie type to Standard-Zombie:
-                --
-                self.players[v.id].standard = true
 
+            else
                 -- Set player to human team:
                 --
                 self:SwitchTeam(v.id, self.human_team)
@@ -857,7 +860,7 @@ function Zombies:SwitchHumanToZombie()
 
         -- Set zombie type to Standard-Zombie:
         --
-        self.players[new_zombie].standard = true
+        self.players[new_zombie].alpha = false
 
         -- Switch them:
         --
@@ -902,8 +905,11 @@ function Zombies:SetNavMarker()
     end
 end
 
+-- Used to check if someone is an Alpha Zombie:
+-- @return [boolean]
+--
 function Zombies:IsAlphaZombie(Ply)
-    return self.players[Ply].standard
+    return self.players[Ply].alpha
 end
 
 -- @param Ply (player index) [number]
@@ -1093,7 +1099,7 @@ function Zombies:OnPlayerDeath(Victim, Killer)
 
                     -- Set zombie type to Standard-Zombie:
                     --
-                    self.players[victim].standard = true
+                    self.players[victim].alpha = false
 
                     -- Check if we need to cure this zombie:
                     --
@@ -1162,11 +1168,11 @@ function Zombies:GetRespawnTime(Ply)
     local time
     local team = get_var(Ply, "$team")
     if (team == self.zombie_team) then
-        local standard = self:IsAlphaZombie(Ply)
-        if (standard) then
-            time = self.attributes["Standard Zombies"].respawn_time
-        else
+        local alpha = self:IsAlphaZombie(Ply)
+        if (alpha) then
             time = self.attributes["Alpha Zombies"].respawn_time
+        else
+            time = self.attributes["Standard Zombies"].respawn_time
         end
     elseif (team == self.human_team) then
         time = self.attributes["Humans"].respawn_time
@@ -1186,11 +1192,11 @@ function Zombies:SetSpeed(Ply, Instant)
     local team = get_var(Ply, "$team")
     local time = (Instant and 0) or self:GetRespawnTime(Ply)
     if (team == self.zombie_team) then
-        local standard = self:IsAlphaZombie(Ply)
-        if (standard) then
-            speed = self.attributes["Standard Zombies"].speed
-        else
+        local alpha = self:IsAlphaZombie(Ply)
+        if (alpha) then
             speed = self.attributes["Alpha Zombies"].speed
+        else
+            speed = self.attributes["Standard Zombies"].speed
         end
     elseif (team == self.human_team) then
         speed = self.attributes["Humans"].speed
@@ -1212,11 +1218,11 @@ function Zombies:SetHealth(Ply, Instant)
     local team = get_var(Ply, "$team")
     local time = (Instant and 0) or self:GetRespawnTime(Ply)
     if (team == self.zombie_team) then
-        local standard = self:IsAlphaZombie(Ply)
-        if (standard) then
-            health = self.attributes["Standard Zombies"].health
-        else
+        local alpha = self:IsAlphaZombie(Ply)
+        if (alpha) then
             health = self.attributes["Alpha Zombies"].health
+        else
+            health = self.attributes["Standard Zombies"].health
         end
     elseif (team == self.human_team) then
         health = self.attributes["Humans"].health
@@ -1240,8 +1246,8 @@ function Zombies:SetAttributes(Ply, Instant)
 
         local team = get_var(Ply, "$team")
         if (team == self.zombie_team) then
-            local standard = self:IsAlphaZombie(Ply)
-            if (standard) then
+            local alpha = self:IsAlphaZombie(Ply)
+            if (not alpha) then
                 self:Broadcast(Ply, self.messages.new_standard_zombie)
             end
         end
@@ -1296,11 +1302,11 @@ function DamageMultiplier(Ply, Causer, _, Damage, _, _)
         -- Multiply units of damage by the appropriate damage multiplier property:
         --
         if (c_team == Zombies.zombie_team) then
-            local standard = Zombies:IsAlphaZombie(Ply)
-            if (standard) then
-                return true, Damage * Zombies.attributes["Standard Zombies"].damage_multiplier
-            else
+            local alpha = Zombies:IsAlphaZombie(Causer)
+            if (alpha) then
                 return true, Damage * Zombies.attributes["Alpha Zombies"].damage_multiplier
+            else
+                return true, Damage * Zombies.attributes["Standard Zombies"].damage_multiplier
             end
         elseif (c_team == Zombies.human_team) then
             if (Causer ~= Zombies.last_man) then
