@@ -41,7 +41,7 @@ local Zombies = {
 
     -- Number of players required to start the game:
     --
-    required_players = 3,
+    required_players = 2,
 
     -- The players who start a round as zombies are Alpha Zombies.
     -- This is the percentage of online players who will become alpha zombies.
