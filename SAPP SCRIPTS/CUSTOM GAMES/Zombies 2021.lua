@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Zombies (v1.1), for SAPP (PC & CE)
+Script Name: Zombies (v1.2), for SAPP (PC & CE)
 
 -- Introduction --
 Players in zombies matches are split into two teams: Humans (red team) and Zombies (blue team).
@@ -310,6 +310,9 @@ local Zombies = {
     -- and will restore it to this when the relay is finished
     server_prefix = "**SAPP**",
     --
+
+    -- Script errors (if any) will be logged to this file:
+    error_file = "Zombies (errors).log",
 }
 -- config ends --
 -- do not touch anything below this point --
@@ -1394,6 +1397,45 @@ end
 --
 function OnWeaponPickup(Ply)
     RemoveAmmo(Ply)
+end
+
+-- Error handler:
+--
+local function WriteError(err)
+    local file = io.open(Zombies.error_file, "a+")
+    if (file) then
+        file:write(err .. "\n")
+        file:close()
+    end
+end
+
+-- This function is called every time an error is raised:
+--
+function OnError(Error)
+
+    local log = {
+
+        -- log format: {msg, console out [true/false], console color}
+        -- If console out = false, the message will not be logged to console.
+
+        { os.date("[%H:%M:%S - %d/%m/%Y]"), true, 12 },
+        { Error, false, 12 },
+        { debug.traceback(), true, 12 },
+        { "--------------------------------------------------------", true, 5 },
+        { "Please report this error on github:", true, 7 },
+        { "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", true, 7 },
+        { "Script Version: " .. script_version, true, 7 },
+        { "--------------------------------------------------------", true, 5 }
+    }
+
+    for _, v in pairs(log) do
+        WriteError(v[1])
+        if (v[2]) then
+            cprint(v[1], v[3])
+        end
+    end
+
+    WriteError("\n")
 end
 
 -- Enables the servers default death messages:
