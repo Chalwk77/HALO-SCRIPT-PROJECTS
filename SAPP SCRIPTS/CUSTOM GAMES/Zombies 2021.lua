@@ -59,14 +59,14 @@ local Zombies = {
     show_not_enough_players_message = true,
 
     -- How often should the "not enough players" message appear (in seconds)?
-    -- Default: 1
+    -- Default: 15
     --
-    not_enough_players_message_frequency = 1,
+    not_enough_players_message_frequency = 15,
 
     -- When enabled, chat will be cleared when showing the "not enough players" message.
-    -- Default: true
+    -- Default: false
     --
-    clear_chat = true,
+    clear_chat = false,
 
     -- Time (in seconds) until a human is selected to become a zombie:
     -- Default: 5
