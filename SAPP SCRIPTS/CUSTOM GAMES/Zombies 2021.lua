@@ -405,7 +405,7 @@ function Zombies:Init()
     if (get_var(0, "$gt") ~= "n/a") then
 
         -- Enable game objects:
-        self:GameObjects(true)
+        self:GameObjects(false)
 
         -- Init new players array for each player:
         for i = 1, 16 do
@@ -779,7 +779,7 @@ function Zombies:StartPreGameTimer()
         self.game_started = true
 
         -- Disable game objects:
-        self:GameObjects(false)
+        self:GameObjects(true)
 
         local players = { }
         for i = 1, 16 do
