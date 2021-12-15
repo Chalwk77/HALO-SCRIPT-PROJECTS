@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Zombies (v1.7), for SAPP (PC & CE)
+Script Name: Zombies (v1.8), for SAPP (PC & CE)
 
 -- Introduction --
 Players in zombies matches are split into two teams: Humans (red team) and Zombies (blue team).
@@ -138,7 +138,7 @@ local Zombies = {
             You can define up to four weapon tag names (see example below):
 
             weapons = { "weapons\\flag\\flag", "weapons\\pistol\\pistol", "weapons\\shotgun\\shotgun", "weapons\\ball\\ball" }
-            See the "weapons" section of the "objects" table below (on or near line 305) for a full list of weapon tags.
+            See the "weapons" section of the "objects" table below (on or near line 309) for a full list of weapon tags.
 
             Nav Markers:
             If the Nav Marker attribute is enabled, the kill-in-order game type flag must be set to YES.
@@ -288,43 +288,47 @@ local Zombies = {
 
     --
     -- Game objects to disable:
-    -- Format: {tag type, tag name, team}
+
+    -- Format: {tag name, team}
     -- Teams: 0 = both, 1 = red, 2 = blue
+
+    -- To enable an object for both teams, prefix the line with a double-hyphen (--).
+    -- For example: -- { 'powerups\\health pack', 2 }
     --
     objects = {
 
         -- vehicles:
         --
-        { "vehi", "vehicles\\ghost\\ghost_mp", 2 },
-        { "vehi", "vehicles\\rwarthog\\rwarthog", 2 },
-        { "vehi", "vehicles\\banshee\\banshee_mp", 2 },
-        { "vehi", "vehicles\\scorpion\\scorpion_mp", 2 },
-        { "vehi", "vehicles\\c gun turret\\c gun turret_mp", 2 },
-        { "vehi", "vehicles\\warthog\\mp_warthog", "Warthog", 2 },
+        { 'vehicles\\ghost\\ghost_mp', 2 },
+        { 'vehicles\\rwarthog\\rwarthog', 2 },
+        { 'vehicles\\warthog\\mp_warthog', 2 },
+        { 'vehicles\\banshee\\banshee_mp', 2 },
+        { 'vehicles\\scorpion\\scorpion_mp', 2 },
+        { 'vehicles\\c gun turret\\c gun turret_mp', 2 },
 
         -- weapons:
         --
-        { "weap", "weapons\\flag\\flag", 2 },
-        { "weap", "weapons\\ball\\ball", 2 },
-        { "weap", "weapons\\pistol\\pistol", 2 },
-        { "weap", "weapons\\shotgun\\shotgun", 2 },
-        { "weap", "weapons\\needler\\mp_needler", 2 },
-        { "weap", "weapons\\plasma rifle\\plasma rifle", 2 },
-        { "weap", "weapons\\flamethrower\\flamethrower", 2 },
-        { "weap", "weapons\\sniper rifle\\sniper rifle", 2 },
-        { "weap", "weapons\\plasma_cannon\\plasma_cannon", 2 },
-        { "weap", "weapons\\plasma pistol\\plasma pistol", 2 },
-        { "weap", "weapons\\assault rifle\\assault rifle", 2 },
-        { "weap", "weapons\\gravity rifle\\gravity rifle", 2 },
-        { "weap", "weapons\\rocket launcher\\rocket launcher", 2 },
+        { 'weapons\\flag\\flag', 2 },
+        { 'weapons\\ball\\ball', 2 },
+        { 'weapons\\pistol\\pistol', 2 },
+        { 'weapons\\shotgun\\shotgun', 2 },
+        { 'weapons\\needler\\mp_needler', 2 },
+        { 'weapons\\plasma rifle\\plasma rifle', 2 },
+        { 'weapons\\flamethrower\\flamethrower', 2 },
+        { 'weapons\\sniper rifle\\sniper rifle', 2 },
+        { 'weapons\\plasma_cannon\\plasma_cannon', 2 },
+        { 'weapons\\plasma pistol\\plasma pistol', 2 },
+        { 'weapons\\assault rifle\\assault rifle', 2 },
+        { 'weapons\\gravity rifle\\gravity rifle', 2 },
+        { 'weapons\\rocket launcher\\rocket launcher', 2 },
 
         -- equipment:
         --
-        { "eqip", "powerups\\health pack", 0 },
-        { "eqip", "powerups\\over shield", 2 },
-        { "eqip", "powerups\\active camouflage", 2 },
-        { "eqip", "weapons\\frag grenade\\frag grenade", 2 },
-        { "eqip", "weapons\\plasma grenade\\plasma grenade", 2 },
+        -- { 'powerups\\health pack', 0 },
+        { 'powerups\\over shield', 2 },
+        { 'powerups\\active camouflage', 2 },
+        { 'weapons\\frag grenade\\frag grenade', 2 },
+        { 'weapons\\plasma grenade\\plasma grenade', 2 },
     },
 
     -- A message relay function temporarily removes the server prefix
@@ -338,7 +342,7 @@ local Zombies = {
     -- config ends --
 
     -- DO NOT TOUCH THIS --
-    script_version = 1.7
+    script_version = 1.8
     --
 }
 
@@ -752,7 +756,7 @@ function Zombies:GameObjects(State)
 
     -- Disable game objects:
     for _, v in pairs(self.objects) do
-        execute_command(State .. " '" .. v[2] .. "' " .. v[3])
+        execute_command(State .. " '" .. v[1] .. "' " .. v[2])
     end
 end
 
