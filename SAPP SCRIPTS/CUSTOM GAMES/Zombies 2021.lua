@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Zombies (v1.3), for SAPP (PC & CE)
+Script Name: Zombies (v1.4), for SAPP (PC & CE)
 
 -- Introduction --
 Players in zombies matches are split into two teams: Humans (red team) and Zombies (blue team).
@@ -154,7 +154,7 @@ local Zombies = {
             speed = 1,
             health = 1,
             camo = false,
-            respawn_time = 2.5,
+            respawn_time = 3,
             grenades = { 0, 0 },
             damage_multiplier = 1,
             weapons = { "weapons\\ball\\ball" }
@@ -210,8 +210,8 @@ local Zombies = {
         -- Game has Begun:
         --
         on_game_begin = {
-            "The game has begun. You are a Human!",
-            "The game has begun. You're an Alpha-Zombie!"
+            "You're a Human!",
+            "You're an Alpha-Zombie!"
         },
 
         -- Message sent to new standard zombies:
@@ -312,10 +312,18 @@ local Zombies = {
     --
 
     -- Script errors (if any) will be logged to this file:
-    error_file = "Zombies (errors).log"
+    error_file = "Zombies (errors).log",
+
+    -- config ends --
+
+    -- DO NOT TOUCH THIS --
+    script_version = 1.4
+    --
 }
--- config ends --
+
+--
 -- do not touch anything below this point --
+--
 
 api_version = "1.12.0.0"
 
@@ -1391,7 +1399,7 @@ function OnError(Error)
         { "--------------------------------------------------------", true, 5 },
         { "Please report this error on github:", true, 7 },
         { "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", true, 7 },
-        { "Script Version: " .. script_version, true, 7 },
+        { "Script Version: " .. Zombies.script_version, true, 7 },
         { "--------------------------------------------------------", true, 5 }
     }
 
