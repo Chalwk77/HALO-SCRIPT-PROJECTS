@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Zombies (v1.6), for SAPP (PC & CE)
+Script Name: Zombies (v1.7), for SAPP (PC & CE)
 
 -- Introduction --
 Players in zombies matches are split into two teams: Humans (red team) and Zombies (blue team).
@@ -36,55 +36,76 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 local Zombies = {
 
     -- Time (in seconds) until a game begins:
+    -- Default: 5
     --
     game_start_delay = 5,
 
     -- Number of players required to start the game:
+    -- Default: 2
     --
     required_players = 2,
 
     -- The players who start a round as zombies are Alpha Zombies.
     -- This is the percentage of online players who will become alpha zombies.
     -- 50% = half the players online.
+    -- Default: 50
     --
     starting_zombies_percentage = 50,
 
     -- When enabled, the script will broadcast a continuous message
     -- showing how many players are required to start the game.
+    -- Default: true
     --
     show_not_enough_players_message = true,
 
+    -- How often should the "not enough players" message appear (in seconds)?
+    -- Default: 1
+    --
+    not_enough_players_message_frequency = 1,
+
+    -- When enabled, chat will be cleared when showing the "not enough players" message.
+    -- Default: true
+    --
+    clear_chat = true,
+
     -- Time (in seconds) until a human is selected to become a zombie:
+    -- Default: 5
     --
     no_zombies_delay = 5,
 
     -- Human Team:
+    -- Default: red
     --
     human_team = "red",
 
     -- Zombie Team:
+    -- Default: blue
     --
     zombie_team = "blue",
 
     -- Zombie Curing:
     -- When enabled, a zombie needs X (cure_threshold) consecutive kills to become human again.
+    -- Default: true
     --
     zombies_can_be_cured = true,
 
     -- Cure Threshold:
     -- Number of kills required to become a human again:
     -- Do not set this value to 1 or curing will not work.
+    -- Default: 3
     --
     cure_threshold = 3,
 
     -- Regenerating Health (off by default):
     -- When enabled, the last man standing will have regenerating health (see attributes table).
     -- This feature is only practical if the zombie damage_multiplier is set to 1.
+    -- Default: false
     --
     regenerating_health = false,
 
     -- Nav Marker (off by default):
     -- When enabled, the last man standing will have a nav marker above his head.
+    -- Default: false
     --
     nav_marker = false,
 
@@ -117,7 +138,7 @@ local Zombies = {
             You can define up to four weapon tag names (see example below):
 
             weapons = { "weapons\\flag\\flag", "weapons\\pistol\\pistol", "weapons\\shotgun\\shotgun", "weapons\\ball\\ball" }
-            See the "weapons" section of the "objects" table below (on or near line 284) for a full list of weapon tags.
+            See the "weapons" section of the "objects" table below (on or near line 305) for a full list of weapon tags.
 
             Nav Markers:
             If the Nav Marker attribute is enabled, the kill-in-order game type flag must be set to YES.
@@ -210,19 +231,19 @@ local Zombies = {
         -- Game has Begun:
         --
         on_game_begin = {
-            "You're a Human!",
-            "You're an Alpha-Zombie!"
+            "You're a Human! (Eres un humano)",
+            "You're an Alpha-Zombie! (¡Eres un Alpha zombi!)"
         },
 
         -- Message sent to new standard zombies:
         --
-        new_standard_zombie = "You're a Standard Zombie!",
+        new_standard_zombie = "You're a Standard Zombie! (Eres un zombi estándar)",
 
         -- Message announced when you kill a human:
         -- Variables:        $victim (victim name)
         --                   $killer (killer name)
         --
-        on_zombify = "$victim was zombified by $killer",
+        on_zombify = "$victim was zombified (zombificado) by $killer",
 
         -- Last Man Alive message:
         -- Variables:        $name (last man standing name)
@@ -243,7 +264,7 @@ local Zombies = {
         -- Message announced when a zombie has been cured:
         -- Variables:        $name (name of human who was cured)
         --
-        on_cure = "$name was cured!",
+        on_cure = "$name was cured! ($name estaba curado)",
 
         -- Message announced when someone commits suicide:
         -- Variables:        $name (name of person who died)
@@ -259,7 +280,7 @@ local Zombies = {
         -- Variables:        $victim (victim name)
         --                   $killer (killer name)
         --
-        generic_death = "$victim died"
+        generic_death = "$victim died ($victim murió)"
         -- Message announced when someone dies by any means other than PvP and suicide:
         -- Variables:        $victim (victim name)
         --
@@ -317,7 +338,7 @@ local Zombies = {
     -- config ends --
 
     -- DO NOT TOUCH THIS --
-    script_version = 1.6
+    script_version = 1.7
     --
 }
 
@@ -468,10 +489,10 @@ end
 
 -- Starts a given timer:
 -- @param t (timer table) [table]
-function Zombies:StartTimer(t, Callback)
+function Zombies:StartTimer(t, Callback, Delay)
     t.timer = 0
     t.init = true
-    timer(1000, Callback)
+    timer(Delay, Callback)
 end
 
 -- Stops a given timer:
@@ -504,10 +525,11 @@ function Zombies:GameStartCheck(Ply, Deduct)
     if (not enough_players) then
         self:StopTimer(countdown1) -- in case it was running
         if (self.show_not_enough_players_message) then
-            self:StartTimer(countdown2, "NotEnoughPlayers")
+            local delay = self.not_enough_players_message_frequency
+            self:StartTimer(countdown2, "NotEnoughPlayers", delay)
         end
     elseif (show_countdown) then
-        self:StartTimer(countdown1, "StartPreGameTimer")
+        self:StartTimer(countdown1, "StartPreGameTimer", 1000)
         self:StopTimer(countdown2)
         self:StopTimer(countdown3)
     elseif (self.game_started) then
@@ -826,7 +848,9 @@ function Zombies:NotEnoughPlayers()
                 local msg = self.messages.not_enough_players
                 msg = msg:gsub("$current", get_var(0, "$pn"))
                 msg = msg:gsub("$required", self.required_players)
-                ClearConsole(i)
+                if (self.clear_chat) then
+                    ClearConsole(i)
+                end
                 rprint(i, msg)
             end
         end
@@ -1001,7 +1025,7 @@ function Zombies:GamePhaseCheck(Ply, PlayerCount)
         -- No zombies left | Select random player to become zombie:
     elseif (zombies <= 0 and humans >= 1) then
         local countdown = self.timers["No Zombies"]
-        self:StartTimer(countdown, "SwitchHumanToZombie")
+        self:StartTimer(countdown, "SwitchHumanToZombie", 1000)
     end
 end
 
