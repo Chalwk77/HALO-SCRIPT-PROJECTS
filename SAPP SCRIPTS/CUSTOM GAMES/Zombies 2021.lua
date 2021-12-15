@@ -1139,7 +1139,6 @@ function Zombies:OnPlayerDeath(Victim, Killer)
 
                     -- Zombie suicide:
                 elseif (suicide) then
-                    -- Suicide Message override:
                     AnnounceSuicide(v_name)
                 end
 
