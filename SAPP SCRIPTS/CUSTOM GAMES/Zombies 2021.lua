@@ -1093,7 +1093,7 @@ function Zombies:OnPlayerDeath(Victim, Killer)
         local killer = tonumber(Killer)
         local victim = tonumber(Victim)
 
-        local victim_team = get_var(victim, "$team")
+        local suicide = (killer == victim)
 
         local v_name = self.players[victim].name
         local k_name = (self.players[killer] ~= nil and self.players[killer].name) or "UNKNOWN"
@@ -1102,6 +1102,8 @@ function Zombies:OnPlayerDeath(Victim, Killer)
 
             -- PvP & Suicide:
             if (killer > 0) then
+
+                local victim_team = get_var(victim, "$team")
 
                 -- Human died:
                 if (victim_team == self.human_team) then
@@ -1124,8 +1126,8 @@ function Zombies:OnPlayerDeath(Victim, Killer)
                     -- Check game phase:
                     self:GamePhaseCheck(nil, nil)
 
-                    -- Broadcast "self.messages.on_zombify" message:
-                    if (victim ~= killer) then
+                    -- Announce Zombify:
+                    if (not suicide) then
                         local msg = self.messages.on_zombify
                         msg = msg:gsub("$victim", v_name)
                         msg = msg:gsub("$killer", k_name)
@@ -1135,13 +1137,14 @@ function Zombies:OnPlayerDeath(Victim, Killer)
                         AnnounceSuicide(v_name)
                     end
 
-                else
-                    -- Human vs Zombie:
-                    AnnouncePvP(v_name, k_name)
+                    -- Zombie suicide:
+                elseif (suicide) then
+                    -- Suicide Message override:
+                    AnnounceSuicide(v_name)
                 end
 
-            elseif (not self.switching) then
                 -- Generic Death:
+            elseif (not self.switching) then
                 AnnounceGenericDeath(v_name)
             end
 
@@ -1149,8 +1152,8 @@ function Zombies:OnPlayerDeath(Victim, Killer)
 
             -- Pre-Game death message overrides:
         elseif (killer > 0) then
-            if (victim == killer) then
-                -- Suicide Message override:
+            -- Suicide Message override:
+            if (suicide) then
                 AnnounceSuicide(v_name)
             else
                 -- PvP:
@@ -1357,6 +1360,12 @@ end
 --
 function OnGameEnd()
     Zombies.game_started = false
+    local countdown1 = self.timers["Pre-Game Countdown"]
+    local countdown2 = self.timers["Not Enough Players"]
+    local countdown3 = self.timers["No Zombies"]
+    Zombies:StopTimer(countdown1)
+    Zombies:StopTimer(countdown2)
+    Zombies:StopTimer(countdown3)
 end
 
 -- This function is called when a player has connected:
