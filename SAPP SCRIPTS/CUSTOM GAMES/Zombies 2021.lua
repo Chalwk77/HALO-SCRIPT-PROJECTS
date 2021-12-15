@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Zombies (v1.5), for SAPP (PC & CE)
+Script Name: Zombies (v1.6), for SAPP (PC & CE)
 
 -- Introduction --
 Players in zombies matches are split into two teams: Humans (red team) and Zombies (blue team).
@@ -317,7 +317,7 @@ local Zombies = {
     -- config ends --
 
     -- DO NOT TOUCH THIS --
-    script_version = 1.5
+    script_version = 1.6
     --
 }
 
@@ -425,15 +425,28 @@ function Zombies:InitPlayer(Ply, Reset)
 
     if (not Reset) then
         self.players[Ply] = {
+
+            -- Used to keep track of zombie weapon objects.
+            -- They are deleted from the world when a zombie dies/quits/cured.
             drones = {},
+
+            -- Player alpha-zombie status (false initially):
             alpha = false,
+
+            -- Used to determine when to assign weapons.
+            -- True when a player spawns or when a zombie tries to drop their weapon.
             assign = false,
+
+            -- One-time save of their name so we don't have to keep calling get_var(Ply, "$name").
             name = get_var(Ply, "$name")
         }
         return
     end
 
+    -- Delete their weapons from the world:
     self:CleanUpDrones(Ply)
+
+    -- Delete this player array:
     self.players[Ply] = nil
 end
 
@@ -501,7 +514,10 @@ function Zombies:GameStartCheck(Ply, Deduct)
 
         -- Game has already begun.
         -- Switch this player (Ply) to zombie team:
-        self:SwitchTeam(Ply, self.zombie_team)
+        local team = get_var(Ply, "$team")
+        if (team ~= self.zombie_team) then
+            self:SwitchTeam(Ply, self.zombie_team)
+        end
 
         -- Stop No Zombies timer (in case it was running when this player joined):
         if (countdown3.init) then
@@ -759,21 +775,27 @@ function Zombies:StartPreGameTimer()
 
         for i, v in pairs(players) do
 
+            local team = get_var(v.id, "$team")
             local percentage = (i / #players * 100)
             if (percentage <= self.starting_zombies_percentage) then
 
                 -- Set zombie type to Alpha-Zombie:
                 self.players[v.id].alpha = true
 
-                -- Set player to zombie team:
-                self:SwitchTeam(v.id, self.zombie_team)
+                -- Set player to zombie team (only if they're not already on zombie team):
+                if (team ~= self.zombie_team) then
+                    self:SwitchTeam(v.id, self.zombie_team)
+                end
 
                 -- Tell player what team they are on:
                 self:Broadcast(v.id, self.messages.on_game_begin[2])
 
             else
-                -- Set player to human team:
-                self:SwitchTeam(v.id, self.human_team)
+
+                -- Set player to human team (only if they're not already on human team):
+                if (team ~= self.human_team) then
+                    self:SwitchTeam(v.id, self.human_team)
+                end
 
                 -- Tell player what team they are on:
                 self:Broadcast(v.id, self.messages.on_game_begin[1])
