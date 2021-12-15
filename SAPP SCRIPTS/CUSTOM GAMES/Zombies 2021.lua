@@ -492,7 +492,7 @@ end
 function Zombies:StartTimer(t, Callback, Delay)
     t.timer = 0
     t.init = true
-    timer(Delay, Callback)
+    timer(1000 * Delay, Callback)
 end
 
 -- Stops a given timer:
@@ -529,7 +529,7 @@ function Zombies:GameStartCheck(Ply, Deduct)
             self:StartTimer(countdown2, "NotEnoughPlayers", delay)
         end
     elseif (show_countdown) then
-        self:StartTimer(countdown1, "StartPreGameTimer", 1000)
+        self:StartTimer(countdown1, "StartPreGameTimer", 1)
         self:StopTimer(countdown2)
         self:StopTimer(countdown3)
     elseif (self.game_started) then
@@ -1025,7 +1025,7 @@ function Zombies:GamePhaseCheck(Ply, PlayerCount)
         -- No zombies left | Select random player to become zombie:
     elseif (zombies <= 0 and humans >= 1) then
         local countdown = self.timers["No Zombies"]
-        self:StartTimer(countdown, "SwitchHumanToZombie", 1000)
+        self:StartTimer(countdown, "SwitchHumanToZombie", 1)
     end
 end
 
