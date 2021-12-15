@@ -1060,9 +1060,9 @@ end
 -- Announces suicide messages:
 -- @param victim_name (player index) [number]
 --
-local function AnnounceSuicide(victim_name)
+local function AnnounceSuicide(victim)
     local msg = Zombies.messages.suicide
-    msg = msg:gsub("$victim", victim_name)
+    msg = msg:gsub("$victim", victim)
     Zombies:Broadcast(nil, msg)
 end
 
@@ -1070,19 +1070,19 @@ end
 -- @param victim_name (victim index) [number]
 -- @param killer_name (killer index) [number]
 --
-local function AnnouncePvP(victim_name, killer_name)
+local function AnnouncePvP(victim, killer)
     local msg = Zombies.messages.pvp
-    msg = msg:gsub("$victim", victim_name)
-    msg = msg:gsub("$killer", killer_name)
+    msg = msg:gsub("$victim", victim)
+    msg = msg:gsub("$killer", killer)
     Zombies:Broadcast(nil, msg)
 end
 
 -- Announces generic death messages:
 -- @param victim_name (player index) [number]
 --
-local function AnnounceGenericDeath(victim_name)
+local function AnnounceGenericDeath(victim)
     local msg = Zombies.messages.generic_death
-    msg = msg:gsub("$victim", victim_name)
+    msg = msg:gsub("$victim", victim)
     Zombies:Broadcast(nil, msg)
 end
 
@@ -1130,12 +1130,9 @@ function Zombies:OnPlayerDeath(Victim, Killer)
                     -- Check game phase:
                     self:GamePhaseCheck(nil, nil)
 
-                    -- Announce Zombify:
                     if (not suicide) then
-                        local msg = self.messages.on_zombify
-                        msg = msg:gsub("$victim", v_name)
-                        msg = msg:gsub("$killer", k_name)
-                        self:Broadcast(nil, msg)
+                        -- PvP:
+                        AnnouncePvP(v_name, k_name)
                     else
                         -- Suicide Message override:
                         AnnounceSuicide(v_name)
@@ -1144,6 +1141,9 @@ function Zombies:OnPlayerDeath(Victim, Killer)
                     -- Zombie suicide:
                 elseif (suicide) then
                     AnnounceSuicide(v_name)
+                else
+                    -- PvP:
+                    AnnouncePvP(v_name, k_name)
                 end
 
                 -- Generic Death:
