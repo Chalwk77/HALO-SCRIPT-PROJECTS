@@ -26,6 +26,9 @@ Humans are given short - and medium-range firearms.
 
 * See the bottom of this script for recommended game type settings.
 
+Please report any bugs and feedback on the page linked below (script changelogs are posted on this page).
+https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/132
+
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
