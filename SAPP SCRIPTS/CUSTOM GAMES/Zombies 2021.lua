@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Zombies (v1.4), for SAPP (PC & CE)
+Script Name: Zombies (v1.5), for SAPP (PC & CE)
 
 -- Introduction --
 Players in zombies matches are split into two teams: Humans (red team) and Zombies (blue team).
@@ -151,12 +151,12 @@ local Zombies = {
         },
 
         ["Standard Zombies"] = {
-            speed = 1,
+            speed = 1.3,
             health = 1,
             camo = false,
             respawn_time = 3,
             grenades = { 0, 0 },
-            damage_multiplier = 1,
+            damage_multiplier = 10,
             weapons = { "weapons\\ball\\ball" }
         },
 
@@ -299,7 +299,7 @@ local Zombies = {
 
         -- equipment:
         --
-        { "eqip", "powerups\\health pack", 2 },
+        { "eqip", "powerups\\health pack", 0 },
         { "eqip", "powerups\\over shield", 2 },
         { "eqip", "powerups\\active camouflage", 2 },
         { "eqip", "weapons\\frag grenade\\frag grenade", 2 },
@@ -317,7 +317,7 @@ local Zombies = {
     -- config ends --
 
     -- DO NOT TOUCH THIS --
-    script_version = 1.4
+    script_version = 1.5
     --
 }
 
@@ -621,37 +621,6 @@ local function RemoveAmmo(Ply)
     end
 end
 
--- Sets player grenades (frags/plasmas):
--- @param Ply (player index) [number]
---
-local function SetGrenades(Ply)
-
-    local grenades
-    local team = get_var(Ply, "$team")
-    if (team == Zombies.zombie_team) then
-        local alpha = Zombies:IsAlphaZombie(Ply)
-        if (alpha) then
-            grenades = Zombies.attributes["Alpha Zombies"].grenades
-        else
-            grenades = Zombies.attributes["Standard Zombies"].grenades
-        end
-    elseif (team == Zombies.human_team) then
-        if (Ply ~= Zombies.last_man) then
-            grenades = Zombies.attributes["Humans"].grenades
-        else
-            grenades = Zombies.attributes["Last Man Standing"].grenades
-        end
-    end
-
-    if (grenades[1] ~= nil) then
-        execute_command_sequence("w8 1; nades " .. Ply .. " " .. grenades[1])
-    end
-
-    if (grenades[2] ~= nil) then
-        execute_command_sequence("w8 1; plasmas " .. Ply .. " " .. grenades[2])
-    end
-end
-
 -- This function is called once every 1/30th second (1 tick):
 -- Used for weapon assignments, health regeneration and Last-Man Nav Makers.
 --
@@ -706,7 +675,6 @@ function Zombies:GameTick()
                         end
                         RemoveAmmo(i)
                     end
-                    SetGrenades(i)
                 end
             end
         end
@@ -988,7 +956,7 @@ function Zombies:GamePhaseCheck(Ply, PlayerCount)
                         local name = self.players[i].name
                         local msg = self.messages.on_last_man
                         self:Broadcast(nil, msg:gsub("$name", name))
-                        self:SetAttributes(i, true)
+                        self:SetAttributes(i)
                     end
                 end
             end
@@ -1075,11 +1043,14 @@ end
 function Zombies:OnPlayerDeath(Victim, Killer)
 
     if (not self.block_death_messages) then
+
         local killer = tonumber(Killer)
         local victim = tonumber(Victim)
+
+        local victim_team = get_var(victim, "$team")
+
         local v_name = self.players[victim].name
         local k_name = (self.players[killer] ~= nil and self.players[killer].name) or "UNKNOWN"
-        local victim_team = get_var(victim, "$team")
 
         if (self.game_started) then
 
@@ -1122,7 +1093,6 @@ function Zombies:OnPlayerDeath(Victim, Killer)
                     -- Human vs Zombie:
                     AnnouncePvP(v_name, k_name)
                 end
-
 
             elseif (not self.switching) then
                 -- Generic Death:
@@ -1176,10 +1146,9 @@ end
 -- @param Ply (player index) [number]
 -- @param Instant (affect immediately) [boolean]
 --
-function Zombies:SetSpeed(Ply, Instant)
+function Zombies:SetSpeed(Ply)
     local speed
     local team = get_var(Ply, "$team")
-    local time = (Instant and 0) or self:GetRespawnTime(Ply)
     if (team == self.zombie_team) then
         local alpha = self:IsAlphaZombie(Ply)
         if (alpha) then
@@ -1194,18 +1163,16 @@ function Zombies:SetSpeed(Ply, Instant)
         end
     end
     if (speed ~= 0) then
-        execute_command_sequence("w8 " .. time .. ";s " .. Ply .. " " .. speed)
+        execute_command_sequence("w8 1;s " .. Ply .. " " .. speed)
     end
 end
 
 -- This function sets this players health:
 -- @param Ply (player index) [number]
--- @param Instant (affect immediately) [boolean]
 --
-function Zombies:SetHealth(Ply, Instant)
+function Zombies:SetHealth(Ply)
     local health
     local team = get_var(Ply, "$team")
-    local time = (Instant and 0) or self:GetRespawnTime(Ply)
     if (team == self.zombie_team) then
         local alpha = self:IsAlphaZombie(Ply)
         if (alpha) then
@@ -1219,9 +1186,36 @@ function Zombies:SetHealth(Ply, Instant)
             health = self.attributes["Last Man Standing"].health.base
         end
     end
-
     if (health ~= 0) then
-        execute_command_sequence("w8 " .. time .. ";hp " .. Ply .. " " .. health)
+        execute_command_sequence("w8 1;hp " .. Ply .. " " .. health)
+    end
+end
+
+-- Sets player grenades (frags/plasmas):
+-- @param Ply (player index) [number]
+--
+function Zombies:SetGrenades(Ply)
+    local grenades
+    local team = get_var(Ply, "$team")
+    if (team == self.zombie_team) then
+        local alpha = self:IsAlphaZombie(Ply)
+        if (alpha) then
+            grenades = self.attributes["Alpha Zombies"].grenades
+        else
+            grenades = self.attributes["Standard Zombies"].grenades
+        end
+    elseif (team == self.human_team) then
+        if (Ply ~= self.last_man) then
+            grenades = self.attributes["Humans"].grenades
+        else
+            grenades = self.attributes["Last Man Standing"].grenades
+        end
+    end
+    if (grenades[1] ~= nil) then
+        execute_command("nades " .. Ply .. " " .. grenades[1] .. " 1")
+    end
+    if (grenades[2] ~= nil) then
+        execute_command("nades " .. Ply .. " " .. grenades[2] .. " 2")
     end
 end
 
@@ -1229,9 +1223,9 @@ end
 -- This function Sets player attributes:
 -- @param Ply (player index) [number]
 --
-function Zombies:SetAttributes(Ply, Instant)
+function Zombies:SetAttributes(Ply)
 
-    if (Zombies.game_started) then
+    if (self.game_started) then
 
         local team = get_var(Ply, "$team")
         if (team == self.zombie_team) then
@@ -1242,17 +1236,20 @@ function Zombies:SetAttributes(Ply, Instant)
         end
 
         -- Set respawn time:
-        local time = Zombies:GetRespawnTime(Ply)
+        local time = self:GetRespawnTime(Ply)
         local Player = get_player(Ply)
         if (Player ~= 0) then
             write_dword(Player + 0x2C, time * 33)
         end
 
         -- Set Player Health:
-        Zombies:SetHealth(Ply, Instant)
+        self:SetHealth(Ply)
 
         -- Set Player Speed:
-        Zombies:SetSpeed(Ply, Instant)
+        self:SetSpeed(Ply)
+
+        -- Set Grenades:
+        self:SetGrenades(Ply)
     end
 end
 
@@ -1278,8 +1275,8 @@ end
 function DamageMultiplier(Ply, Causer, _, Damage, _, _)
     if (tonumber(Causer) > 0 and Ply ~= Causer and Zombies.game_started) then
 
-        local c_team = get_var(Causer, "$team")
         local v_team = get_var(Ply, "$team")
+        local c_team = get_var(Causer, "$team")
 
         -- Block friendly fire:
         if (c_team == v_team) then
