@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Zombies (v1.8), for SAPP (PC & CE)
+Script Name: Zombies (v1.9), for SAPP (PC & CE)
 
 -- Introduction --
 Players in zombies matches are split into two teams: Humans (red team) and Zombies (blue team).
@@ -49,8 +49,9 @@ local Zombies = {
     required_players = 2,
 
     -- The players who start a round as zombies are Alpha Zombies.
-    -- This is the percentage of online players who will become alpha zombies.
-    -- 50% = half the players online.
+    -- This is the percentage of players who will become alpha zombies.
+    -- 50-56% = half the players online.
+    -- See bottom of the script for full percentages table.
     -- Default: 50
     --
     starting_zombies_percentage = 50,
@@ -128,9 +129,9 @@ local Zombies = {
             *   respawn_time:           Range from 0-999 (in seconds).
             *   weapons:                Leave the array blank to use default weapon sets.
             *   damage_multiplier:      Units of damage range from 0-10.
-            *   nav_marker              A NAV marker will appear above the last man standing's head.
-            *   camo                    Alpha-Zombies and Standard Zombies have optional Crouch Camo traits.
-            *   grenades                Allows you to define the starting number of frags & plasmas.
+            *   nav_marker:             A NAV marker will appear above the last man standing's head.
+            *   camo:                   Alpha-Zombies and Standard Zombies have optional Crouch Camo traits.
+            *   grenades:               Allows you to define the starting number of frags & plasmas.
                                         Format: {frags [number], plasmas [number]}
                                         Example: {1, 3} = 1 frag, 3 plasmas
 
@@ -200,7 +201,7 @@ local Zombies = {
         ["Last Man Standing"] = {
             speed = 1.5,
             weapons = { },
-            respawn_time = 0,
+            respawn_time = 1,
             grenades = { 4, 4 },
             damage_multiplier = 2,
             health = {
@@ -251,7 +252,7 @@ local Zombies = {
         -- Last Man Alive message:
         -- Variables:        $name (last man standing name)
         --
-        on_last_man = "$name is the Last Human Alive!",
+        on_last_man = "$name is the Last Human Alive! (último hombre vivo)",
 
         -- Message announced when there are no zombies:
         -- Variables:        $time (time remaining until a random human is chosen to become a zombie)
@@ -272,21 +273,24 @@ local Zombies = {
         -- Message announced when someone commits suicide:
         -- Variables:        $name (name of person who died)
         --
+        suicide = "$victim committed suicide (suicidio)",
 
-        suicide = "$victim committed suicide",
-        -- Message announced when someone commits suicide:
-        -- Variables:        $victim (victim name)
-        --
-
-        pvp = "$victim was killed by $killer",
-        -- Message announced when PvP even occurs:
+        -- Message announced when PvP event occurs:
         -- Variables:        $victim (victim name)
         --                   $killer (killer name)
         --
-        generic_death = "$victim died ($victim murió)"
-        -- Message announced when someone dies by any means other than PvP and suicide:
+        pvp = "$victim was killed by $killer",
+
+        -- Message announced when someone dies by unknown means:
         -- Variables:        $victim (victim name)
         --
+        generic_death = "$victim died (murió)",
+
+        -- Message announced when someone dies by guardians:
+        -- Variables:        $victim (victim name)
+        -- Variables:        $killer (killer name)
+        --
+        guardians_death = "$victim and $killer were killed by the guardians"
     },
 
     --
@@ -344,8 +348,8 @@ local Zombies = {
 
     -- config ends --
 
-    -- DO NOT TOUCH THIS --
-    script_version = 1.8
+    -- DO NOT TOUCH BELOW THIS POINT --
+    script_version = 1.9
     --
 }
 
@@ -360,7 +364,7 @@ api_version = "1.12.0.0"
 function OnScriptLoad()
 
     register_callback(cb["EVENT_TICK"], "OnTick")
-    register_callback(cb["EVENT_DIE"], "OnPlayerDeath")
+    register_callback(cb["EVENT_DIE"], "DeathHandler")
     register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
     register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
     register_callback(cb["EVENT_GAME_START"], "OnGameEnd")
@@ -368,7 +372,7 @@ function OnScriptLoad()
     register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
     register_callback(cb["EVENT_WEAPON_DROP"], "OnWeaponDrop")
     register_callback(cb["EVENT_WEAPON_PICKUP"], "OnWeaponPickup")
-    register_callback(cb["EVENT_DAMAGE_APPLICATION"], "DamageMultiplier")
+    register_callback(cb["EVENT_DAMAGE_APPLICATION"], "DeathHandler")
 
     -- Disable default server messages:
     DisableDeathMessages()
@@ -384,18 +388,11 @@ function OnScriptUnload()
     EnableDeathMessages()
 end
 
--- Fisher-yates shuffle algorithm:
---
-local function shuffle(t)
-    for i = #t, 2, -1 do
-        math.random();
-        math.random();
-        math.random();
-        math.randomseed(os.clock())
-        local j = math.random(i)
-        t[i], t[j] = t[j], t[i]
-    end
-    return t
+-- This function returns the memory address [int] of a tag in the map using
+-- the tag’s class and path.
+local function GetTag(Type, Name)
+    local Tag = lookup_tag(Type, Name)
+    return Tag ~= 0 and read_dword(Tag + 0xC) or nil
 end
 
 -- Sets up pre-game parameters:
@@ -432,6 +429,9 @@ function Zombies:Init()
 
     if (get_var(0, "$gt") ~= "n/a") then
 
+        self.fall_damage = GetTag("jpt!", "globals\\falling")
+        self.distance_damage = GetTag("jpt!", "globals\\distance")
+
         -- Enable game objects:
         self:GameObjects(false)
 
@@ -451,8 +451,14 @@ end
 --
 function Zombies:InitPlayer(Ply, Reset)
 
+    Ply = tonumber(Ply)
+
     if (not Reset) then
         self.players[Ply] = {
+
+            -- Used to track applied damage tag ids (meta id)
+            -- to distinguish fall damage from distance damage.
+            meta_id = 0,
 
             -- Used to keep track of zombie weapon objects.
             -- They are deleted from the world when a zombie dies/quits/cured.
@@ -468,6 +474,7 @@ function Zombies:InitPlayer(Ply, Reset)
             -- One-time save of their name so we don't have to keep calling get_var(Ply, "$name").
             name = get_var(Ply, "$name")
         }
+
         return
     end
 
@@ -497,16 +504,16 @@ end
 -- Starts a given timer:
 -- @param t (timer table) [table]
 function Zombies:StartTimer(t, Callback, Delay)
-    t.timer = 0
     t.init = true
+    t.timer = 0
     timer(1000 * Delay, Callback)
 end
 
 -- Stops a given timer:
 -- @param t (timer table) [table]
 function Zombies:StopTimer(t)
-    t.timer = 0
     t.init = false
+    t.timer = 0
 end
 
 -- Game Start Check logic:
@@ -736,8 +743,12 @@ function Zombies:CleanUpDrones(Ply, Assign)
     if (team == self.zombie_team) then
         local drones = self.players[Ply].drones
         if (#drones > 0) then
-            for _, weapon in pairs(drones) do
-                destroy_object(weapon)
+            for k, weapon in pairs(drones) do
+                local object = get_object_memory(weapon)
+                if (object ~= 0 and object ~= 0xFFFFFFFF) then
+                    destroy_object(weapon)
+                end
+                drones[k] = nil
             end
             if (Assign) then
                 self.players[Ply].assign = true
@@ -772,75 +783,86 @@ function Zombies:GetTeamType(Ply)
     return (team == self.human_team and "human") or "zombie"
 end
 
+-- Fisher-yates shuffle algorithm:
+--
+local function shuffle(t)
+    for i = #t, 2, -1 do
+        math.random();
+        math.random();
+        math.random();
+        math.randomseed(os.clock())
+        local j = math.random(i)
+        t[i], t[j] = t[j], t[i]
+    end
+    return t
+end
+
 -- Shows the pre-game countdown message,
 -- resets the map and sorts players into teams:
 --
 function Zombies:StartPreGameTimer()
 
     local countdown = self.timers["Pre-Game Countdown"]
-    countdown.timer = countdown.timer + 1
+    if (countdown.init) then
+        countdown.timer = countdown.timer + 1
 
-    local time_remaining = (countdown.delay - countdown.timer)
-    if (time_remaining <= 0) then
+        local time_remaining = (countdown.delay - countdown.timer)
+        if (time_remaining <= 0) then
 
-        -- Stop the timer:
-        self:StopTimer(countdown)
+            -- Stop the timer:
+            self:StopTimer(countdown)
 
-        -- Reset the map:
-        execute_command("sv_map_reset")
+            -- Reset the map:
+            execute_command("sv_map_reset")
 
-        self.game_started = true
+            self.game_started = true
 
-        -- Disable game objects:
-        self:GameObjects(true)
+            -- Disable game objects:
+            self:GameObjects(true)
 
-        local players = { }
-        for i = 1, 16 do
-            if player_present(i) then
-                table.insert(players, { id = i })
+            local players = { }
+            for i = 1, 16 do
+                if player_present(i) then
+                    table.insert(players, { id = i })
+                end
             end
-        end
-        players = shuffle(players)
+            players = shuffle(players)
 
-        for i, v in pairs(players) do
+            for i, v in pairs(players) do
 
-            local team = get_var(v.id, "$team")
-            local percentage = (i / #players * 100)
-            if (percentage <= self.starting_zombies_percentage) then
+                local percentage = (i / #players * 100)
+                if (percentage <= self.starting_zombies_percentage) then
 
-                -- Set zombie type to Alpha-Zombie:
-                self.players[v.id].alpha = true
+                    -- Set zombie type to Alpha-Zombie:
+                    self.players[v.id].alpha = true
 
-                -- Set player to zombie team (only if they're not already on zombie team):
-                if (team ~= self.zombie_team) then
+                    -- Set player to zombie team (only if they're not already on zombie team):
                     self:SwitchTeam(v.id, self.zombie_team)
-                end
 
-                -- Tell player what team they are on:
-                self:Broadcast(v.id, self.messages.on_game_begin[2])
+                    -- Tell player what team they are on:
+                    self:Broadcast(v.id, self.messages.on_game_begin[2])
 
-            else
+                else
 
-                -- Set player to human team (only if they're not already on human team):
-                if (team ~= self.human_team) then
+                    -- Set player to human team (only if they're not already on human team):
                     self:SwitchTeam(v.id, self.human_team)
-                end
 
-                -- Tell player what team they are on:
-                self:Broadcast(v.id, self.messages.on_game_begin[1])
+                    -- Tell player what team they are on:
+                    self:Broadcast(v.id, self.messages.on_game_begin[1])
+                end
             end
+
+            self.block_death_messages = false
+            self:GamePhaseCheck(nil, nil)
+            return false
         end
 
-        self.block_death_messages = false
-        self:GamePhaseCheck(nil, nil)
-        return false
+        -- Show the pre-game message:
+        --
+        local msg = self.messages.pre_game_message
+        msg = msg:gsub("$time", time_remaining):gsub("$s", Plural(time_remaining))
+        self:Broadcast(nil, msg)
     end
-
-    -- Show the pre-game message:
-    --
-    local msg = self.messages.pre_game_message
-    msg = msg:gsub("$time", time_remaining):gsub("$s", Plural(time_remaining))
-    self:Broadcast(nil, msg)
 
     return countdown.init
 end
@@ -869,49 +891,52 @@ end
 -- when there are no zombies left:
 --
 function Zombies:SwitchHumanToZombie()
+
     local countdown = self.timers["No Zombies"]
-    countdown.timer = countdown.timer + 1
+    if (countdown.init) then
+        countdown.timer = countdown.timer + 1
 
-    local time_remaining = (countdown.delay - countdown.timer)
-    if (time_remaining <= 0) then
+        local time_remaining = (countdown.delay - countdown.timer)
+        if (time_remaining <= 0) then
 
-        self:StopTimer(countdown)
+            self:StopTimer(countdown)
 
-        -- Save all players on the human team to the humans array:
-        local humans = {}
-        for i = 1, 16 do
-            local team = get_var(i, "$team")
-            if (team == self.human_team) then
-                humans[#humans + 1] = i
+            -- Save all players on the human team to the humans array:
+            local humans = {}
+            for i = 1, 16 do
+                local team = get_var(i, "$team")
+                if (team == self.human_team) then
+                    humans[#humans + 1] = i
+                end
             end
+
+            --Pick a random human (from humans array) to become the zombie:
+            math.randomseed(os.clock())
+            local new_zombie = humans[math.random(1, #humans)]
+            local name = self.players[new_zombie].name
+
+            -- Tell player what team they're on:
+            --
+            local msg = self.messages.no_zombies_switch
+            msg = msg:gsub("$name", name)
+            self:Broadcast(nil, msg)
+
+            -- Set zombie type to Standard-Zombie:
+            self.players[new_zombie].alpha = false
+
+            -- Switch them:
+            self:SwitchTeam(new_zombie, self.zombie_team)
+
+            -- Check game phase:
+            self:GamePhaseCheck(nil, nil)
+
+            return false
         end
 
-        --Pick a random human (from humans array) to become the zombie:
-        math.randomseed(os.clock())
-        local new_zombie = humans[math.random(1, #humans)]
-        local name = self.players[new_zombie].name
-
-        -- Tell player what team they're on:
-        --
-        local msg = self.messages.no_zombies_switch
-        msg = msg:gsub("$name", name)
+        local msg = self.messages.no_zombies
+        msg = msg:gsub("$time", time_remaining):gsub("$s", Plural(time_remaining))
         self:Broadcast(nil, msg)
-
-        -- Set zombie type to Standard-Zombie:
-        self.players[new_zombie].alpha = false
-
-        -- Switch them:
-        self:SwitchTeam(new_zombie, self.zombie_team)
-
-        -- Check game phase:
-        self:GamePhaseCheck(nil, nil)
-
-        return false
     end
-
-    local msg = self.messages.no_zombies
-    msg = msg:gsub("$time", time_remaining):gsub("$s", Plural(time_remaining))
-    self:Broadcast(nil, msg)
 
     return countdown.init
 end
@@ -970,8 +995,9 @@ end
 -- @param x,y,z (three 32-bit floating point numbers (player coordinates)) [float]
 --
 function DelaySecQuat(Ply, Tag, x, y, z)
+    Ply = tonumber(Ply)
     local weapon = spawn_object("weap", Tag, x, y, z)
-    local drones = Zombies.players[tonumber(Ply)].drones
+    local drones = Zombies.players[Ply].drones
     table.insert(drones, weapon)
     assign_weapon(weapon, Ply)
 end
@@ -1039,7 +1065,7 @@ end
 -- This function cures a zombie when they have >= self.cure_threshold kills:
 -- @param Ply (player index) [number]
 --
-function Zombies:ZombieCured(Ply)
+function Zombies:CureZombie(Ply)
     if (self.cure_threshold > 1 and self.players[Ply] ~= nil) then
         local streak = tonumber(get_var(Ply, "$streak"))
         if (streak >= self.cure_threshold) then
@@ -1089,89 +1115,21 @@ local function AnnounceGenericDeath(victim)
     Zombies:Broadcast(nil, msg)
 end
 
--- This function is called every time a player dies:
--- @param Victim (victim index) [number]
--- @param Killer (killer index) [number]
+-- Announces guardians:
+-- @param victim_name (player index) [number]
+--
+local function AnnounceGuardians(victim, killer)
+    local msg = Zombies.messages.guardians_death
+    msg = msg:gsub("$victim", victim)
+    msg = msg:gsub("$killer", killer)
+    Zombies:Broadcast(nil, msg)
+end
 
-function Zombies:OnPlayerDeath(Victim, Killer)
-
-    if (not self.block_death_messages) then
-
-        local killer = tonumber(Killer)
-        local victim = tonumber(Victim)
-
-        local suicide = (killer == victim)
-
-        local v_name = self.players[victim].name
-        local k_name = (self.players[killer] ~= nil and self.players[killer].name) or "UNKNOWN"
-
-        if (self.game_started) then
-
-            -- PvP & Suicide:
-            if (killer > 0) then
-
-                local victim_team = get_var(victim, "$team")
-
-                -- Human died:
-                if (victim_team == self.human_team) then
-
-                    -- If the last man alive was killed by someone who is about to be cured,
-                    -- reset their last-man status:
-                    if (self.last_man == victim) then
-                        self.last_man = nil
-                    end
-
-                    -- Switch victim to the zombie team:
-                    self:SwitchTeam(victim, self.zombie_team)
-
-                    -- Set zombie type to Standard-Zombie:
-                    self.players[victim].alpha = false
-
-                    -- Check if we need to cure this zombie:
-                    self:ZombieCured(killer)
-
-                    -- Check game phase:
-                    self:GamePhaseCheck(nil, nil)
-
-                    if (not suicide) then
-                        -- PvP:
-                        AnnouncePvP(v_name, k_name)
-                    else
-                        -- Suicide Message override:
-                        AnnounceSuicide(v_name)
-                    end
-
-                    -- Zombie suicide:
-                elseif (suicide) then
-                    AnnounceSuicide(v_name)
-                else
-                    -- PvP:
-                    AnnouncePvP(v_name, k_name)
-                end
-
-                -- Generic Death:
-            elseif (not self.switching) then
-                AnnounceGenericDeath(v_name)
-            end
-
-            self:CleanUpDrones(Victim, true)
-
-            -- Pre-Game death message overrides:
-        elseif (killer > 0) then
-            -- Suicide Message override:
-            if (suicide) then
-                AnnounceSuicide(v_name)
-            else
-                -- PvP:
-                AnnouncePvP(v_name, k_name)
-            end
-        else
-            -- Generic Death:
-            AnnounceGenericDeath(v_name)
-        end
-
-        self.switching = false
-    end
+local function AnnounceZombify(victim, killer)
+    local msg = Zombies.messages.on_zombify
+    msg = msg:gsub("$victim", victim)
+    msg = msg:gsub("$killer", killer)
+    Zombies:Broadcast(nil, msg)
 end
 
 -- This function returns the relevant respawn time for this player:
@@ -1290,13 +1248,6 @@ function Zombies:SetAttributes(Ply)
             end
         end
 
-        -- Set respawn time:
-        local time = self:GetRespawnTime(Ply)
-        local Player = get_player(Ply)
-        if (Player ~= 0) then
-            write_dword(Player + 0x2C, time * 33)
-        end
-
         -- Set Player Health:
         self:SetHealth(Ply)
 
@@ -1322,12 +1273,167 @@ function Zombies:Broadcast(Ply, Msg)
     execute_command("msg_prefix \" " .. self.server_prefix .. "\"")
 end
 
+local function Falling(MetaID)
+    if (MetaID == Zombies.fall_damage or MetaID == Zombies.distance_damage) then
+        return true
+    end
+    return false
+end
+
+local function DeathSwitch(Victim, Killer)
+    -- Switch victim to the zombie team:
+    Zombies:SwitchTeam(Victim, Zombies.zombie_team)
+
+    -- Set zombie type to Standard-Zombie:
+    Zombies.players[Victim].alpha = false
+
+    -- Check if we need to cure this zombie:
+    if (Killer and Zombies.players[Killer]) then
+        Zombies:CureZombie(Killer)
+    end
+
+    -- Check game phase:
+    Zombies:GamePhaseCheck(nil, nil)
+end
+
+-- Set respawn time:
+--
+local function SetRespawn(Ply)
+    if (Zombies.game_started) then
+        local time = Zombies:GetRespawnTime(Ply)
+        local Player = get_player(Ply)
+        if (Player ~= 0) then
+            write_dword(Player + 0x2C, time * 33)
+        end
+    end
+end
+
+-- This function is called during event_die and event_damage_application.
+-- @param Ply (Victim) [number]
+-- @param Causer (Killer) [number]
+-- @param MetaID (damage tag id) [number]
+-- @param Damage (applied damage %) [number]
+--
+function Zombies:DeathHandler(Victim, Killer, MetaID, Damage, _, _)
+
+    local victim = tonumber(Victim)
+    local killer = tonumber(Killer)
+
+    local v_team = get_var(Victim, "$team")
+    local c_team = get_var(Killer, "$team")
+
+    local v = self.players[victim]
+    local k = self.players[killer]
+
+    if (v) then
+
+        -- event_damage_application:
+        if (MetaID) then
+            v.meta_id = MetaID
+
+            local friendly_fire = (c_team == v_team and killer ~= victim)
+
+            -- Block friendly fire:
+            if (friendly_fire) then
+                return false
+
+                -- Multiply units of damage by the appropriate damage multiplier property:
+                -- zombie vs human:
+            elseif (c_team == self.zombie_team) then
+                local alpha = self:IsAlphaZombie(killer)
+                if (alpha) then
+                    return true, Damage * self.attributes["Alpha Zombies"].damage_multiplier
+                else
+                    return true, Damage * self.attributes["Standard Zombies"].damage_multiplier
+                end
+                -- human vs zombie:
+            elseif (c_team == self.human_team) then
+                if (killer ~= self.last_man) then
+                    return true, Damage * self.attributes["Humans"].damage_multiplier
+                else
+                    return true, Damage * self.attributes["Last Man Standing"].damage_multiplier
+                end
+            end
+
+            return
+        end
+
+        SetRespawn(victim)
+
+        -- event_die:
+        if (not self.block_death_messages and self.game_started) then
+
+            local server = (killer == -1)
+            local squashed = (killer == 0)
+            local guardians = (v and k and killer == nil)
+            local suicide = (v and killer == victim)
+            local falling = Falling(v.meta_id)
+            local pvp = (killer > 0 and killer ~= victim)
+
+            if (pvp) then
+
+                -- zombie vs human:
+                if (v_team == self.human_team) then
+
+                    -- If the last man alive was killed by someone who is about to be cured,
+                    -- reset their last-man status:
+                    if (self.last_man == victim) then
+                        self.last_man = nil
+                    end
+
+                    DeathSwitch(victim, killer)
+                    AnnounceZombify(v.name, k.name)
+
+                    -- human vs zombie:
+                elseif (k) then
+                    AnnouncePvP(v.name, k.name)
+                end
+
+                -- suicide
+            elseif (suicide) then
+                if (v_team == self.human_team) then
+                    DeathSwitch(victim)
+                end
+                AnnounceSuicide(v.name)
+
+                -- guardians
+            elseif (guardians) then
+                AnnounceGuardians(v.name, k.name)
+
+                -- squashed or killed by server
+            elseif (squashed or (server and not falling)) then
+                if (not self.switching) then
+                    AnnounceGenericDeath(v.name)
+                end
+
+                -- fall damage:
+            elseif (falling) then
+                if (v_team == self.human_team) then
+                    DeathSwitch(victim)
+                end
+                AnnounceGenericDeath(v.name)
+            else
+                -- unknown death:
+                AnnounceGenericDeath(v.name)
+            end
+
+            if (v_team == self.zombie_team) then
+                execute_command("nades " .. victim .. " 0")
+            end
+            self:CleanUpDrones(victim, true)
+        end
+    end
+
+    self.switching = false
+end
+
 -- This function is responsible for multiplying applied Damage
 -- @param Ply (Victim) [number]
 -- @param Causer (Killer) [number]
 -- @param Damage (applied damage %) [number]
 --
 function DamageMultiplier(Ply, Causer, _, Damage, _, _)
+
     if (tonumber(Causer) > 0 and Ply ~= Causer and Zombies.game_started) then
 
         local v_team = get_var(Ply, "$team")
@@ -1414,8 +1520,12 @@ end
 -- @param Ply (player index) [number]
 --
 function OnPlayerSpawn(Ply)
-    Zombies.players[Ply].assign = true
-    Zombies:SetAttributes(Ply)
+    local player = Zombies.players[Ply]
+    if (player) then
+        player.meta_id = 0
+        player.assign = true
+        Zombies:SetAttributes(Ply)
+    end
 end
 
 -- This function is called every time a player drops a weapon:
@@ -1482,10 +1592,8 @@ end
 -- Disables the servers default death messages:
 --
 function DisableDeathMessages()
-
     Zombies.kill_message_address = sig_scan("8B42348A8C28D500000084C9") + 3
     Zombies.original_kill_message = read_dword(Zombies.kill_message_address)
-
     safe_write(true)
     write_dword(Zombies.kill_message_address, 0x03EB01B1)
     safe_write(false)
@@ -1505,11 +1613,49 @@ end
 function SwitchHumanToZombie()
     return Zombies:SwitchHumanToZombie()
 end
-function OnPlayerDeath(V, K)
-    return Zombies:OnPlayerDeath(V, K)
+function DeathHandler(V, K, MID, D, _, _)
+    return Zombies:DeathHandler(V, K, MID, D, _, _)
 end
 
 --[[
+
+    -- TEAM BALANCE PERCENTAGES --
+    -- These are the number of players who will become
+    -- zombies based on the defined percentage (starting_zombies_percentage).
+
+    0 zombies at 1%		1 zombie at 11%	    3 zombies at 21%	4 zombies at 31%
+    0 zombies at 2%		1 zombie at 12%	    3 zombies at 22%	5 zombies at 32%
+    0 zombies at 3%		2 zombies at 13%	3 zombies at 23%	5 zombies at 33%
+    0 zombies at 4%		2 zombies at 14%	3 zombies at 24%	5 zombies at 34%
+    0 zombies at 5%		2 zombies at 15%	4 zombies at 25%	5 zombies at 35%
+    0 zombies at 6%		2 zombies at 16%	4 zombies at 26%	5 zombies at 36%
+    1 zombie at 7%		2 zombies at 17%	4 zombies at 27%	5 zombies at 37%
+    1 zombie at 8%		2 zombies at 18%	4 zombies at 28%	6 zombies at 38%
+    1 zombie at 9%		3 zombies at 19%	4 zombies at 29%	6 zombies at 39%
+    1 zombie at 10%	    3 zombies at 20%	4 zombies at 30%	6 zombies at 40%
+
+    6 zombies at 41%	8 zombies at 51%	9 zombies at 61%	11 zombies at 71%
+    6 zombies at 42%	8 zombies at 52%	9 zombies at 62%	11 zombies at 72%
+    6 zombies at 43%	8 zombies at 53%	10 zombies at 63%	11 zombies at 73%
+    7 zombies at 44%	8 zombies at 54%	10 zombies at 64%	11 zombies at 74%
+    7 zombies at 45%	8 zombies at 55%	10 zombies at 65%	12 zombies at 75%
+    7 zombies at 46%	8 zombies at 56%	10 zombies at 66%	12 zombies at 76%
+    7 zombies at 47%	9 zombies at 57%	10 zombies at 67%	12 zombies at 77%
+    7 zombies at 48%	9 zombies at 58%	10 zombies at 68%	12 zombies at 78%
+    7 zombies at 49%	9 zombies at 59%	11 zombies at 69%	12 zombies at 79%
+    8 zombies at 50%	9 zombies at 60%	11 zombies at 70%	12 zombies at 80%
+
+    12 zombies at 81%	14 zombies at 91%
+    13 zombies at 82%	14 zombies at 92%
+    13 zombies at 83%	14 zombies at 93%
+    13 zombies at 84%	15 zombies at 95%
+    13 zombies at 85%	15 zombies at 96%
+    13 zombies at 86%	15 zombies at 97%
+    13 zombies at 87% 	15 zombies at 98%
+    14 zombies at 88%	15 zombies at 99%
+    14 zombies at 89%	16 zombies at 100%
+    14 zombies at 90%
+
 
     -----------------------------------------------------------------------
     Quality of Life feedback:
