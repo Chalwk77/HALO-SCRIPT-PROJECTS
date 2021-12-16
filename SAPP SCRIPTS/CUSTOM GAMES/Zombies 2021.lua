@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Zombies (v1.9), for SAPP (PC & CE)
+Script Name: Zombies (v1.10), for SAPP (PC & CE)
 
 -- Introduction --
 Players in zombies matches are split into two teams: Humans (red team) and Zombies (blue team).
@@ -168,8 +168,8 @@ local Zombies = {
             grenades = { 0, 2 },
             damage_multiplier = 10,
             weapons = {
-                "weapons\\shotgun\\shotgun",
                 "weapons\\pistol\\pistol",
+                "weapons\\shotgun\\shotgun",
                 "weapons\\plasma rifle\\plasma rifle",
                 "weapons\\plasma pistol\\plasma pistol"
             }
@@ -349,7 +349,7 @@ local Zombies = {
     -- config ends --
 
     -- DO NOT TOUCH BELOW THIS POINT --
-    script_version = 1.9
+    script_version = 1.10
     --
 }
 
@@ -831,7 +831,7 @@ function Zombies:StartPreGameTimer()
             for i, v in pairs(players) do
 
                 local percentage = (i / #players * 100)
-                if (percentage <= self.starting_zombies_percentage) then
+                if (percentage <= self.starting_zombies_percentage and self.players[v.id]) then
 
                     -- Set zombie type to Alpha-Zombie:
                     self.players[v.id].alpha = true
