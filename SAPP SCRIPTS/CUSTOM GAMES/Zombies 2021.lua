@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Zombies (v1.11), for SAPP (PC & CE)
+Script Name: Zombies (v1.12), for SAPP (PC & CE)
 
 -- Introduction --
 Players in zombies matches are split into two teams: Humans (red team) and Zombies (blue team).
@@ -167,12 +167,7 @@ local Zombies = {
             respawn_time = 1.5,
             grenades = { 0, 2 },
             damage_multiplier = 10,
-            weapons = {
-                "weapons\\pistol\\pistol",
-                "weapons\\shotgun\\shotgun",
-                "weapons\\plasma rifle\\plasma rifle",
-                "weapons\\plasma pistol\\plasma pistol"
-            }
+            weapons = { 'weapons\\plasma rifle\\plasma rifle' }
         },
 
         ["Standard Zombies"] = {
@@ -349,7 +344,7 @@ local Zombies = {
     -- config ends --
 
     -- DO NOT TOUCH BELOW THIS POINT --
-    script_version = 1.11
+    script_version = 1.12
     --
 }
 
@@ -562,18 +557,6 @@ function Zombies:GameStartCheck(Ply, Deduct)
     end
 end
 
--- Returns player memory address and X,Y,Z coordinates:
--- @param Ply (player index) [number]
--- @return memory address (DyN) of a player (Ply) and three 32-bit floating point numbers (x,y,z)
---
-local function GetPos(Ply)
-    local DyN = get_dynamic_player(Ply)
-    if (DyN ~= 0 and player_alive(Ply)) then
-        local x, y, z = read_vector3d(DyN + 0x5C)
-        return DyN, x, y, z
-    end
-end
-
 -- This function returns the number of players in each team:
 -- @return humans [number], zombies [number]
 --
@@ -695,12 +678,27 @@ function Zombies:GameTick()
     for i, player in pairs(self.players) do
         if (i and self.game_started) then
 
+            for k, drone in pairs(player.drones) do
+                if (k and drone.despawn) and (not player_alive(i)) then
+                    local object = get_object_memory(drone.weapon)
+                    if (object ~= 0) then
+                        --drone.timer = drone.timer + 1 / 30
+                        --write_vector3d(object + 0x5C, 0, 0, -9999)
+                        --if (drone.timer >= 5) then
+                        destroy_object(drone.weapon)
+                        --end
+                    else
+                        player.drones[k] = nil
+                    end
+                end
+            end
+
             self:CrouchCamo(i)
             self:HealthRegeneration(i)
 
             if (player.assign) then
-                local DyN, x, y, z = GetPos(i)
-                if (DyN ~= 0 and x) then
+                local DyN = get_dynamic_player(i)
+                if (DyN ~= 0 and player_alive(i)) then
 
                     player.assign = false
 
@@ -719,17 +717,17 @@ function Zombies:GameTick()
                             if (slot == 1 or slot == 2) then
 
                                 -- Spawn the weapon:
-                                local weapon = spawn_object("weap", v, x, y, z)
+                                local weapon = spawn_object("weap", v, 0, 0, -9999)
 
                                 -- Store a copy of this weapon to the drones table:
-                                table.insert(player.drones, weapon)
+                                table.insert(player.drones, { weapon = weapon, timer = 0, despawn = false })
 
                                 -- Assign this weapon:
                                 assign_weapon(weapon, i)
 
                                 -- Assign tertiary & quaternary weapons:
                             elseif (slot >= 3) then
-                                timer(250, "DelaySecQuat", i, v, x, y, z)
+                                timer(250, "DelaySecQuat", i, v)
                                 --
                                 -- Technical note:
                                 -- It's important that we delay the logic responsible for assigning tertiary and quaternary weapon
@@ -754,14 +752,15 @@ function Zombies:CleanUpDrones(Ply, Assign)
     local team = get_var(Ply, "$team")
     if (team == self.zombie_team) then
         local drones = self.players[Ply].drones
-        if (#drones > 0) then
-            for _, weapon in pairs(drones) do
-                destroy_object(weapon)
+        for _, v in pairs(drones) do
+            local object = get_object_memory(v.weapon)
+            if (object ~= 0 and object ~= 0xFFFFFFF) then
+                destroy_object(v.weapon)
             end
-            self.players[Ply].drones = {}
-            if (Assign) then
-                self.players[Ply].assign = true
-            end
+        end
+        drones = {}
+        if (Assign) then
+            self.players[Ply].assign = true
         end
     end
 end
@@ -955,11 +954,9 @@ end
 function Zombies:SetNavMarker()
     if (self.nav_marker) then
         for i, _ in pairs(self.players) do
-
             -- Get static memory address of each player:
             local p1 = get_player(i)
             if (p1 ~= 0) then
-
                 -- Set slayer target indicator to the last man:
                 if (self.last_man ~= nil and i ~= self.last_man) and player_alive(i) then
                     write_word(p1 + 0x88, to_real_index(self.last_man))
@@ -1003,11 +1000,11 @@ end
 -- @param Tag (weapon tag type) [string]
 -- @param x,y,z (three 32-bit floating point numbers (player coordinates)) [float]
 --
-function DelaySecQuat(Ply, Tag, x, y, z)
+function DelaySecQuat(Ply, Tag)
     Ply = tonumber(Ply)
-    local weapon = spawn_object("weap", Tag, x, y, z)
+    local weapon = spawn_object("weap", Tag, 0, 0, -9999)
     local drones = Zombies.players[Ply].drones
-    table.insert(drones, weapon)
+    table.insert(drones, { weapon = weapon, timer = 0, despawn = false })
     assign_weapon(weapon, Ply)
 end
 
@@ -1429,8 +1426,9 @@ function Zombies:DeathHandler(Victim, Killer, MetaID, Damage, _, _)
 
             if (v_team == self.zombie_team) then
                 execute_command("nades " .. victim .. " 0")
-                execute_command("wdel " .. victim)
-                self.players[victim].drones = {}
+                for _, weapon in pairs(v.drones) do
+                    weapon.despawn = true
+                end
             end
         end
     end
@@ -1511,7 +1509,7 @@ end
 -- This function is called every time a player drops a weapon:
 -- @param Ply (player index) [number]
 --
-function OnWeaponDrop(Ply, Slot)
+function OnWeaponDrop(Ply)
     Zombies:CleanUpDrones(Ply, true)
 end
 
