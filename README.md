@@ -3,9 +3,12 @@
 - - - - 
 
 Hi there. I'm Chalwk, a passionate independent game developer and open source enthusiast from New Zealand.
-The HSP (Halo Script Projects) GitHub repository is the platform which I upload all of my Lua scripts for SAPP and Phasor.
+You'll find me doing all sorts of coding projects, from software engineering through research and development to creative coding.
 
-SAPP & Phasor are both powerful server extensions (Server Apps) for Halo: PC and Halo: CE.
+The HSP (Halo Script Projects) GitHub repository is the platform to which I upload all of my Lua scripts for SAPP and Phasor.
+
+**What is SAPP & Phasor?**
+> Powerful server extensions for the Halo: PC and Halo: CE dedicated server.
 
 I have been writing Lua scripts for 13 years; Making everything from custom games, utilities, libraries and other server additives. 
 
