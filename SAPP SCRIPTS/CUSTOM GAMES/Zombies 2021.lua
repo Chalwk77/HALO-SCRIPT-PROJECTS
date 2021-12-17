@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Zombies (v1.10), for SAPP (PC & CE)
+Script Name: Zombies (v1.11), for SAPP (PC & CE)
 
 -- Introduction --
 Players in zombies matches are split into two teams: Humans (red team) and Zombies (blue team).
@@ -349,7 +349,7 @@ local Zombies = {
     -- config ends --
 
     -- DO NOT TOUCH BELOW THIS POINT --
-    script_version = 1.10
+    script_version = 1.11
     --
 }
 
@@ -743,13 +743,10 @@ function Zombies:CleanUpDrones(Ply, Assign)
     if (team == self.zombie_team) then
         local drones = self.players[Ply].drones
         if (#drones > 0) then
-            for k, weapon in pairs(drones) do
-                local object = get_object_memory(weapon)
-                if (object ~= 0 and object ~= 0xFFFFFFFF) then
-                    destroy_object(weapon)
-                end
-                drones[k] = nil
+            for _, weapon in pairs(drones) do
+                destroy_object(weapon)
             end
+            self.players[Ply].drones = {}
             if (Assign) then
                 self.players[Ply].assign = true
             end
@@ -1329,33 +1326,34 @@ function Zombies:DeathHandler(Victim, Killer, MetaID, Damage, _, _)
 
         -- event_damage_application:
         if (MetaID) then
-            v.meta_id = MetaID
+            if (killer > 0) then
+                v.meta_id = MetaID
 
-            local friendly_fire = (c_team == v_team and killer ~= victim)
+                local friendly_fire = (c_team == v_team and killer ~= victim)
 
-            -- Block friendly fire:
-            if (friendly_fire) then
-                return false
+                -- Block friendly fire:
+                if (friendly_fire) then
+                    return false
 
-                -- Multiply units of damage by the appropriate damage multiplier property:
-                -- zombie vs human:
-            elseif (c_team == self.zombie_team) then
-                local alpha = self:IsAlphaZombie(killer)
-                if (alpha) then
-                    return true, Damage * self.attributes["Alpha Zombies"].damage_multiplier
-                else
-                    return true, Damage * self.attributes["Standard Zombies"].damage_multiplier
-                end
-                -- human vs zombie:
-            elseif (c_team == self.human_team) then
-                if (killer ~= self.last_man) then
-                    return true, Damage * self.attributes["Humans"].damage_multiplier
-                else
-                    return true, Damage * self.attributes["Last Man Standing"].damage_multiplier
+                    -- Multiply units of damage by the appropriate damage multiplier property:
+                    -- zombie vs human:
+                elseif (c_team == self.zombie_team) then
+                    local alpha = self:IsAlphaZombie(killer)
+                    if (alpha) then
+                        return true, Damage * self.attributes["Alpha Zombies"].damage_multiplier
+                    else
+                        return true, Damage * self.attributes["Standard Zombies"].damage_multiplier
+                    end
+                    -- human vs zombie:
+                elseif (c_team == self.human_team) then
+                    if (killer ~= self.last_man) then
+                        return true, Damage * self.attributes["Humans"].damage_multiplier
+                    else
+                        return true, Damage * self.attributes["Last Man Standing"].damage_multiplier
+                    end
                 end
             end
-
-            return
+            return true
         end
 
         SetRespawn(victim)
@@ -1419,47 +1417,13 @@ function Zombies:DeathHandler(Victim, Killer, MetaID, Damage, _, _)
 
             if (v_team == self.zombie_team) then
                 execute_command("nades " .. victim .. " 0")
+                execute_command("wdel " .. victim)
+                self.players[victim].drones = {}
             end
-            self:CleanUpDrones(victim, true)
         end
     end
 
     self.switching = false
-end
-
--- This function is responsible for multiplying applied Damage
--- @param Ply (Victim) [number]
--- @param Causer (Killer) [number]
--- @param Damage (applied damage %) [number]
---
-function DamageMultiplier(Ply, Causer, _, Damage, _, _)
-
-    if (tonumber(Causer) > 0 and Ply ~= Causer and Zombies.game_started) then
-
-        local v_team = get_var(Ply, "$team")
-        local c_team = get_var(Causer, "$team")
-
-        -- Block friendly fire:
-        if (c_team == v_team) then
-            return false
-        end
-
-        -- Multiply units of damage by the appropriate damage multiplier property:
-        if (c_team == Zombies.zombie_team) then
-            local alpha = Zombies:IsAlphaZombie(Causer)
-            if (alpha) then
-                return true, Damage * Zombies.attributes["Alpha Zombies"].damage_multiplier
-            else
-                return true, Damage * Zombies.attributes["Standard Zombies"].damage_multiplier
-            end
-        elseif (c_team == Zombies.human_team) then
-            if (Causer ~= Zombies.last_man) then
-                return true, Damage * Zombies.attributes["Humans"].damage_multiplier
-            else
-                return true, Damage * Zombies.attributes["Last Man Standing"].damage_multiplier
-            end
-        end
-    end
 end
 
 -- This function is called every time a new game begins:
@@ -1492,6 +1456,10 @@ end
 -- @param Ply (player index) [number]
 --
 function OnPlayerDisconnect(Ply)
+
+    execute_command("nades " .. Ply .. " 0")
+    execute_command("wdel " .. Ply)
+
     Zombies:InitPlayer(Ply, true)
 
     if (Zombies.game_started) then
@@ -1531,7 +1499,7 @@ end
 -- This function is called every time a player drops a weapon:
 -- @param Ply (player index) [number]
 --
-function OnWeaponDrop(Ply)
+function OnWeaponDrop(Ply, Slot)
     Zombies:CleanUpDrones(Ply, true)
 end
 
