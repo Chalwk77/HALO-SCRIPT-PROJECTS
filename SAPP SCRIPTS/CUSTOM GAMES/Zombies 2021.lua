@@ -666,9 +666,21 @@ local function RemoveAmmo(Ply)
     if (Zombies.game_started) then
         local team = get_var(Ply, "$team")
         if (team == Zombies.zombie_team) then
-            execute_command_sequence("w8 1; ammo " .. Ply .. " 0 5")
-            execute_command_sequence("w8 1; mag " .. Ply .. " 0  5")
-            execute_command_sequence("w8 1; battery " .. Ply .. " 0  5")
+            local DyN = get_dynamic_player(Ply)
+            if (DyN ~= 0) then
+                for i = 0, 3 do
+                    local WeaponID = read_dword(DyN + 0x2F8 + (i * 4))
+                    if (WeaponID ~= 0xFFFFFFFF) then
+                        local WeaponObject = get_object_memory(WeaponID)
+                        if (WeaponObject ~= 0) then
+                            write_word(WeaponObject + 0x2B8, 0)
+                            write_word(WeaponObject + 0x2B6, 0)
+                            execute_command("battery " .. Ply .. " 0 " .. i)
+                            sync_ammo(WeaponID)
+                        end
+                    end
+                end
+            end
         end
     end
 end
