@@ -658,7 +658,7 @@ local function RemoveAmmo(Ply)
                         if (WeaponObject ~= 0) then
                             write_word(WeaponObject + 0x2B8, 0)
                             write_word(WeaponObject + 0x2B6, 0)
-                            execute_command("battery " .. Ply .. " 0 " .. i)
+                            execute_command_sequence("w8 1; battery " .. Ply .. " 0 " .. i)
                             sync_ammo(WeaponID)
                         end
                     end
@@ -735,7 +735,6 @@ function Zombies:GameTick()
                                 --
                             end
                         end
-                        RemoveAmmo(i)
                     end
                 end
             end
@@ -1467,7 +1466,6 @@ end
 --
 function OnPlayerDisconnect(Ply)
 
-    execute_command("nades " .. Ply .. " 0")
     execute_command("wdel " .. Ply)
 
     Zombies:InitPlayer(Ply, true)
