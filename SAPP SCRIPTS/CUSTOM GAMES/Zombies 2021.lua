@@ -750,16 +750,18 @@ end
 function Zombies:CleanUpDrones(Ply, Assign)
     local team = get_var(Ply, "$team")
     if (team == self.zombie_team) then
-        local drones = self.players[Ply].drones
-        for _, v in pairs(drones) do
-            local object = get_object_memory(v.weapon)
-            if (object ~= 0 and object ~= 0xFFFFFFF) then
-                destroy_object(v.weapon)
+        if (self.players[Ply]) then
+            local drones = self.players[Ply].drones
+            for _, v in pairs(drones) do
+                local object = get_object_memory(v.weapon)
+                if (object ~= 0 and object ~= 0xFFFFFFF) then
+                    destroy_object(v.weapon)
+                end
             end
-        end
-        drones = {}
-        if (Assign) then
-            self.players[Ply].assign = true
+            drones = {}
+            if (Assign) then
+                self.players[Ply].assign = true
+            end
         end
     end
 end
