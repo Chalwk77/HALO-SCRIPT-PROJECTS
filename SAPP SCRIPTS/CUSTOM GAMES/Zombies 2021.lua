@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Zombies (v1.12), for SAPP (PC & CE)
+Script Name: Zombies (v1.13), for SAPP (PC & CE)
 
 -- Introduction --
 Players in zombies matches are split into two teams: Humans (red team) and Zombies (blue team).
@@ -142,7 +142,7 @@ local Zombies = {
             You can define up to four weapon tag names (see example below):
 
             weapons = { "weapons\\flag\\flag", "weapons\\pistol\\pistol", "weapons\\shotgun\\shotgun", "weapons\\ball\\ball" }
-            See the "weapons" section of the "objects" table below (on or near line 309) for a full list of weapon tags.
+            See the "weapons" section of the "objects" table below (on or near line 311) for a full list of weapon tags.
 
             Nav Markers:
             If the Nav Marker attribute is enabled, the kill-in-order game type flag must be set to YES.
@@ -344,7 +344,7 @@ local Zombies = {
     -- config ends --
 
     -- DO NOT TOUCH BELOW THIS POINT --
-    script_version = 1.12
+    script_version = 1.13
     --
 }
 
@@ -1075,8 +1075,7 @@ function Zombies:CureZombie(Ply)
         local streak = tonumber(get_var(Ply, "$streak"))
         if (streak >= self.cure_threshold) then
 
-            -- Delete the skull BEFORE switching (important):
-            self:CleanUpDrones(Ply)
+            self:DespawnWeapons(Ply)
 
             -- Switch zombie to the human team:
             self:SwitchTeam(Ply, self.human_team)
@@ -1264,6 +1263,13 @@ function Zombies:SetAttributes(Ply)
     end
 end
 
+function Zombies:DespawnWeapons(Ply)
+    local drones = self.players[Ply].drones
+    for _, weapon in pairs(drones) do
+        weapon.despawn = true
+    end
+end
+
 --
 -- This function broadcasts a custom server message:
 -- @param Msg (message) [string]
@@ -1334,8 +1340,10 @@ function Zombies:DeathHandler(Victim, Killer, MetaID, Damage, _, _)
 
         -- event_damage_application:
         if (MetaID) then
+
+            v.meta_id = MetaID
+
             if (killer > 0) then
-                v.meta_id = MetaID
 
                 local friendly_fire = (c_team == v_team and killer ~= victim)
 
@@ -1399,8 +1407,10 @@ function Zombies:DeathHandler(Victim, Killer, MetaID, Damage, _, _)
             elseif (suicide) then
                 if (v_team == self.human_team) then
                     DeathSwitch(victim)
+                    goto skip
                 end
                 AnnounceSuicide(v.name)
+                :: skip ::
 
                 -- guardians
             elseif (guardians) then
@@ -1416,18 +1426,19 @@ function Zombies:DeathHandler(Victim, Killer, MetaID, Damage, _, _)
             elseif (falling) then
                 if (v_team == self.human_team) then
                     DeathSwitch(victim)
+                    goto next
                 end
                 AnnounceGenericDeath(v.name)
+                :: next ::
             else
                 -- unknown death:
                 AnnounceGenericDeath(v.name)
             end
 
+            -- Prepare weapons for deletion:
             if (v_team == self.zombie_team) then
                 execute_command("nades " .. victim .. " 0")
-                for _, weapon in pairs(v.drones) do
-                    weapon.despawn = true
-                end
+                self:DespawnWeapons(victim)
             end
         end
     end
