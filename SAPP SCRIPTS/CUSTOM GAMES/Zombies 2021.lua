@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Zombies (v1.13), for SAPP (PC & CE)
+Script Name: Zombies (v1.14), for SAPP (PC & CE)
 
 -- Introduction --
 Players in zombies matches are split into two teams: Humans (red team) and Zombies (blue team).
@@ -344,7 +344,7 @@ local Zombies = {
     -- config ends --
 
     -- DO NOT TOUCH BELOW THIS POINT --
-    script_version = 1.13
+    script_version = 1.14
     --
 }
 
