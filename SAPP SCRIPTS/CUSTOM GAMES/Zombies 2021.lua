@@ -1685,6 +1685,7 @@ end
     STARTING EQUIPMENT:             GENERIC
 
     ----------* Vehicle Options * ----------
+    VEHICLE RESPAWN TIME:           90 SECONDS
     SIDE:                           BLUE TEAM
     VEHICLE SET:                    NONE
     SIDE:                           RED TEAM
