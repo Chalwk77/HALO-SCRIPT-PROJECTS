@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Zombies (v1.15), for SAPP (PC & CE)
+Script Name: Zombies (v1.16), for SAPP (PC & CE)
 
 -- Introduction --
 Players in zombies matches are split into two teams: Humans (red team) and Zombies (blue team).
@@ -344,7 +344,7 @@ local Zombies = {
     -- config ends --
 
     -- DO NOT TOUCH BELOW THIS POINT --
-    script_version = 1.15
+    script_version = 1.16
     --
 }
 
@@ -796,10 +796,10 @@ end
 --
 local function shuffle(t)
     for i = #t, 2, -1 do
+        math.randomseed(os.time())
         math.random();
         math.random();
         math.random();
-        math.randomseed(os.clock())
         local j = math.random(i)
         t[i], t[j] = t[j], t[i]
     end
@@ -920,7 +920,10 @@ function Zombies:SwitchHumanToZombie()
             end
 
             --Pick a random human (from humans array) to become the zombie:
-            math.randomseed(os.clock())
+            math.randomseed(os.time())
+            math.random();
+            math.random();
+            math.random();
             local new_zombie = humans[math.random(1, #humans)]
             local name = self.players[new_zombie].name
 
