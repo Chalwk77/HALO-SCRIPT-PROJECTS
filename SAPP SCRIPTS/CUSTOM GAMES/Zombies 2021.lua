@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Zombies (v1.14), for SAPP (PC & CE)
+Script Name: Zombies (v1.15), for SAPP (PC & CE)
 
 -- Introduction --
 Players in zombies matches are split into two teams: Humans (red team) and Zombies (blue team).
@@ -344,7 +344,7 @@ local Zombies = {
     -- config ends --
 
     -- DO NOT TOUCH BELOW THIS POINT --
-    script_version = 1.14
+    script_version = 1.15
     --
 }
 
@@ -930,8 +930,8 @@ function Zombies:SwitchHumanToZombie()
             msg = msg:gsub("$name", name)
             self:Broadcast(nil, msg)
 
-            -- Set zombie type to Standard-Zombie:
-            self.players[new_zombie].alpha = false
+            -- Set zombie type to Alpha-Zombie:
+            self.players[new_zombie].alpha = true
 
             -- Switch them:
             self:SwitchTeam(new_zombie, self.zombie_team)
@@ -1688,7 +1688,7 @@ end
     SIDE:                           BLUE TEAM
     VEHICLE SET:                    NONE
     SIDE:                           RED TEAM
-    VEHICLE SET:                    NONE
+    VEHICLE SET:                    1 ROCKET HOG, 1 CHAIN GUN HOG
 
     ----------* Indicator Options * ----------
     OBJECTIVES INDICATOR:           NONE (set to NAV POINTS if using Nav Marker feature)
