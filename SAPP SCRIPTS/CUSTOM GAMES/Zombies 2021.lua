@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Zombies (v1.16), for SAPP (PC & CE)
+Script Name: Zombies (v1.17), for SAPP (PC & CE)
 
 -- Introduction --
 Players in zombies matches are split into two teams: Humans (red team) and Zombies (blue team).
@@ -49,12 +49,16 @@ local Zombies = {
     required_players = 2,
 
     -- The players who start a round as zombies are Alpha Zombies.
-    -- This is the percentage of players who will become alpha zombies.
-    -- 50-56% = half the players online.
-    -- See bottom of the script for full percentages table.
-    -- Default: 50
-    --
-    starting_zombies_percentage = 50,
+    -- The script will dynamically determine how many Alpha Zombies there should be
+    -- based on how many players are online.
+    -- Format: {min players, max players, zombie count}
+    -- Example: { 13, 16, 4 } = if there are between 13-16 players, 4 of them will become alpha-z.
+    zombie_count = {
+        { 1, 4, 1 }, -- 1-4 players
+        { 5, 8, 2 }, -- 5-8 players
+        { 9, 12, 3 }, -- 9-12 players
+        { 13, 16, 4 }, -- 13-16 players
+    },
 
     -- When enabled, the script will broadcast a continuous message
     -- showing how many players are required to start the game.
@@ -171,17 +175,17 @@ local Zombies = {
         },
 
         ["Standard Zombies"] = {
-            speed = 1.3,
+            speed = 1.4,
             health = 1,
             camo = false,
-            respawn_time = 3,
+            respawn_time = 2.5,
             grenades = { 0, 0 },
             damage_multiplier = 10,
             weapons = { "weapons\\ball\\ball" }
         },
 
         ["Humans"] = {
-            speed = 1,
+            speed = 1.2,
             health = 1,
             weapons = {
                 "weapons\\pistol\\pistol",
@@ -344,7 +348,7 @@ local Zombies = {
     -- config ends --
 
     -- DO NOT TOUCH BELOW THIS POINT --
-    script_version = 1.16
+    script_version = 1.17
     --
 }
 
@@ -796,11 +800,7 @@ end
 --
 local function shuffle(t)
     for i = #t, 2, -1 do
-        math.randomseed(os.time())
-        math.random();
-        math.random();
-        math.random();
-        local j = math.random(i)
+        local j = rand(i) + 1
         t[i], t[j] = t[j], t[i]
     end
     return t
@@ -837,11 +837,22 @@ function Zombies:StartPreGameTimer()
             end
             players = shuffle(players)
 
+            local zombies = 1
+            for _, v in pairs(self.zombie_count) do
+                local min, max, count = v[1], v[2], v[3]
+                if (#players >= min and #players <= max) then
+                    zombies = count
+                end
+            end
+
             for i, v in pairs(players) do
+                if (i > zombies) then
+                    -- Set player to human team (only if they're not already on human team):
+                    self:SwitchTeam(v.id, self.human_team)
 
-                local percentage = (i / #players * 100)
-                if (percentage <= self.starting_zombies_percentage and self.players[v.id]) then
-
+                    -- Tell player what team they are on:
+                    self:Broadcast(v.id, self.messages.on_game_begin[1])
+                else
                     -- Set zombie type to Alpha-Zombie:
                     self.players[v.id].alpha = true
 
@@ -850,14 +861,6 @@ function Zombies:StartPreGameTimer()
 
                     -- Tell player what team they are on:
                     self:Broadcast(v.id, self.messages.on_game_begin[2])
-
-                else
-
-                    -- Set player to human team (only if they're not already on human team):
-                    self:SwitchTeam(v.id, self.human_team)
-
-                    -- Tell player what team they are on:
-                    self:Broadcast(v.id, self.messages.on_game_begin[1])
                 end
             end
 
@@ -1610,44 +1613,6 @@ function DeathHandler(V, K, MID, D, _, _)
 end
 
 --[[
-
-    -- TEAM BALANCE PERCENTAGES --
-    -- These are the number of players who will become
-    -- zombies based on the defined percentage (starting_zombies_percentage).
-
-    0 zombies at 1%		1 zombie at 11%	    3 zombies at 21%	4 zombies at 31%
-    0 zombies at 2%		1 zombie at 12%	    3 zombies at 22%	5 zombies at 32%
-    0 zombies at 3%		2 zombies at 13%	3 zombies at 23%	5 zombies at 33%
-    0 zombies at 4%		2 zombies at 14%	3 zombies at 24%	5 zombies at 34%
-    0 zombies at 5%		2 zombies at 15%	4 zombies at 25%	5 zombies at 35%
-    0 zombies at 6%		2 zombies at 16%	4 zombies at 26%	5 zombies at 36%
-    1 zombie at 7%		2 zombies at 17%	4 zombies at 27%	5 zombies at 37%
-    1 zombie at 8%		2 zombies at 18%	4 zombies at 28%	6 zombies at 38%
-    1 zombie at 9%		3 zombies at 19%	4 zombies at 29%	6 zombies at 39%
-    1 zombie at 10%	    3 zombies at 20%	4 zombies at 30%	6 zombies at 40%
-
-    6 zombies at 41%	8 zombies at 51%	9 zombies at 61%	11 zombies at 71%
-    6 zombies at 42%	8 zombies at 52%	9 zombies at 62%	11 zombies at 72%
-    6 zombies at 43%	8 zombies at 53%	10 zombies at 63%	11 zombies at 73%
-    7 zombies at 44%	8 zombies at 54%	10 zombies at 64%	11 zombies at 74%
-    7 zombies at 45%	8 zombies at 55%	10 zombies at 65%	12 zombies at 75%
-    7 zombies at 46%	8 zombies at 56%	10 zombies at 66%	12 zombies at 76%
-    7 zombies at 47%	9 zombies at 57%	10 zombies at 67%	12 zombies at 77%
-    7 zombies at 48%	9 zombies at 58%	10 zombies at 68%	12 zombies at 78%
-    7 zombies at 49%	9 zombies at 59%	11 zombies at 69%	12 zombies at 79%
-    8 zombies at 50%	9 zombies at 60%	11 zombies at 70%	12 zombies at 80%
-
-    12 zombies at 81%	14 zombies at 91%
-    13 zombies at 82%	14 zombies at 92%
-    13 zombies at 83%	14 zombies at 93%
-    13 zombies at 84%	15 zombies at 95%
-    13 zombies at 85%	15 zombies at 96%
-    13 zombies at 86%	15 zombies at 97%
-    13 zombies at 87% 	15 zombies at 98%
-    14 zombies at 88%	15 zombies at 99%
-    14 zombies at 89%	16 zombies at 100%
-    14 zombies at 90%
-
 
     -----------------------------------------------------------------------
     Quality of Life feedback:
