@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Zombies (v1.17), for SAPP (PC & CE)
+Script Name: Zombies (v1.18), for SAPP (PC & CE)
 
 -- Introduction --
 Players in zombies matches are split into two teams: Humans (red team) and Zombies (blue team).
@@ -348,7 +348,7 @@ local Zombies = {
     -- config ends --
 
     -- DO NOT TOUCH BELOW THIS POINT --
-    script_version = 1.17
+    script_version = 1.18
     --
 }
 
@@ -375,6 +375,10 @@ function OnScriptLoad()
 
     -- Disable default server messages:
     DisableDeathMessages()
+
+    if (get_var(0, "$gt") ~= "n/a") then
+        Zombies.health_increment = Zombies.attributes["Last Man Standing"].health.increment
+    end
 
     -- Set up game base game parameters:
     Zombies:Init()
@@ -403,7 +407,6 @@ function Zombies:Init()
     self.switching = false
     self.game_started = false
     self.block_death_messages = true
-    self.health_increment = self.attributes["Last Man Standing"].health.increment
 
     self.timers = {
 
@@ -832,7 +835,7 @@ function Zombies:StartPreGameTimer()
             local players = { }
             for i = 1, 16 do
                 if player_present(i) then
-                    table.insert(players, { id = i })
+                    table.insert(players, i)
                 end
             end
             players = shuffle(players)
@@ -845,22 +848,22 @@ function Zombies:StartPreGameTimer()
                 end
             end
 
-            for i, v in pairs(players) do
+            for i, id in pairs(players) do
                 if (i > zombies) then
                     -- Set player to human team (only if they're not already on human team):
-                    self:SwitchTeam(v.id, self.human_team)
+                    self:SwitchTeam(id, self.human_team)
 
                     -- Tell player what team they are on:
-                    self:Broadcast(v.id, self.messages.on_game_begin[1])
+                    self:Broadcast(id, self.messages.on_game_begin[1])
                 else
                     -- Set zombie type to Alpha-Zombie:
-                    self.players[v.id].alpha = true
+                    self.players[id].alpha = true
 
                     -- Set player to zombie team (only if they're not already on zombie team):
-                    self:SwitchTeam(v.id, self.zombie_team)
+                    self:SwitchTeam(id, self.zombie_team)
 
                     -- Tell player what team they are on:
-                    self:Broadcast(v.id, self.messages.on_game_begin[2])
+                    self:Broadcast(id, self.messages.on_game_begin[2])
                 end
             end
 
@@ -959,7 +962,7 @@ end
 -- This function sets a nav marker above the Last Man Standing's head:
 --
 function Zombies:SetNavMarker()
-    if (self.nav_marker) then
+    if (self.nav_marker and self.game_started) then
         for i, _ in pairs(self.players) do
             -- Get static memory address of each player:
             local p1 = get_player(i)
@@ -1260,14 +1263,16 @@ function Zombies:SetAttributes(Ply)
             end
         end
 
-        -- Set Player Health:
-        self:SetHealth(Ply)
+        if (player_alive(Ply)) then
+            -- Set Player Health:
+            self:SetHealth(Ply)
 
-        -- Set Player Speed:
-        self:SetSpeed(Ply)
+            -- Set Player Speed:
+            self:SetSpeed(Ply)
 
-        -- Set Grenades:
-        self:SetGrenades(Ply)
+            -- Set Grenades:
+            self:SetGrenades(Ply)
+        end
     end
 end
 
