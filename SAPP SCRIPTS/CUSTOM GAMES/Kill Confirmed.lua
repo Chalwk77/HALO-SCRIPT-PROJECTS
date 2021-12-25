@@ -1,8 +1,12 @@
 --[[
 --=====================================================================================================--
 Script Name: Kill Confirmed, for SAPP (PC & CE)
-Description: Kill Confirmed from Call of Duty.
-             Teams score by collecting dog tags that enemies drop upon death.
+Description: This is Kill Confirmed from Call of Duty Modern Warfare 3.
+             Teams score by collecting dog tags (skulls) that enemies drop upon death.
+			 The first team to 65 points wins.
+			 Dog tags (skulls) will despawn after 30 seconds (configurable).
+
+			 NOTE: This script is designed to be run on TEAM SLAYER.
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -81,17 +85,20 @@ end
 
 function KillConfirmed:Init()
 
+    self.game_started = false
     self.dog_tags = self.dog_tags or { }
     RemoveAllDogTags()
 
     local gt = get_var(0, "$gt")
     if (gt ~= "n/a" and EventsRegistered(gt)) then
+        self.game_started = true
         execute_command("scorelimit " .. self.score_limit)
     end
 end
 
 function OnScriptLoad()
     register_callback(cb["EVENT_GAME_START"], "OnNewGame")
+    register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
     KillConfirmed:Init()
 end
 
@@ -99,13 +106,19 @@ function OnNewGame()
     KillConfirmed:Init()
 end
 
+function OnGameEnd()
+    KillConfirmed.game_started = false
+end
+
 function KillConfirmed:GameTick()
-    for k, v in pairs(self.dog_tags) do
-        if (k) then
-            v.timer = v.timer + 1 / 30
-            local time_remaining = (self.despawn_delay - v.timer)
-            if (time_remaining <= 0) then
-                DestroyDogTag(k, v)
+    if (self.game_started) then
+        for k, v in pairs(self.dog_tags) do
+            if (k) then
+                v.timer = v.timer + 1 / 30
+                local time_remaining = (self.despawn_delay - v.timer)
+                if (time_remaining <= 0) then
+                    DestroyDogTag(k, v)
+                end
             end
         end
     end
@@ -160,26 +173,29 @@ end
 
 function KillConfirmed:DeathHandler(Victim, Killer, MetaID, _, _, _)
 
-    local victim = tonumber(Victim)
-    local killer = tonumber(Killer)
+    if (self.game_started) then
 
-    if (killer > 0) then
+        local victim = tonumber(Victim)
+        local killer = tonumber(Killer)
 
-        local k_team = get_var(killer, "$team")
-        local v_team = get_var(victim, "$team")
+        if (killer > 0) then
 
-        local suicide = (killer == victim)
-        local friendly_fire = (k_team == v_team and not suicide)
+            local k_team = get_var(killer, "$team")
+            local v_team = get_var(victim, "$team")
 
-        -- event_damage_application --
-        if (MetaID) then
-            return (self.block_friendly_fire and friendly_fire and false) or true
-        end
+            local suicide = (killer == victim)
+            local friendly_fire = (k_team == v_team and not suicide)
 
-        -- event_die --
-        if (not suicide and not friendly_fire) then
-            UpdateScore(Killer, true)
-            self:SpawnNewTag(victim, killer)
+            -- event_damage_application --
+            if (MetaID) then
+                return (self.block_friendly_fire and friendly_fire and false) or true
+            end
+
+            -- event_die --
+            if (not suicide and not friendly_fire) then
+                UpdateScore(Killer, true)
+                self:SpawnNewTag(victim, killer)
+            end
         end
     end
 end
@@ -198,7 +214,7 @@ local function Broadcast(Msg)
 end
 
 function KillConfirmed:OnWeaponPickUp(Ply, WeapIndex, Type)
-    if (tonumber(Type) == 1) then
+    if (tonumber(Type) == 1 and self.game_started) then
 
         WeapIndex = tonumber(WeapIndex)
 
