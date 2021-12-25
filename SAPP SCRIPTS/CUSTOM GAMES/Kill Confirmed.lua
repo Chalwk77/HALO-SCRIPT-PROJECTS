@@ -130,12 +130,13 @@ end
 local function GetXYZ(Ply)
     local DyN = get_dynamic_player(Ply)
     if (DyN ~= 0) then
-        local x, y, z = read_vector3d(DyN + 0x5C)
         local VehicleID = read_dword(DyN + 0x11C)
-        if (VehicleID ~= 0xFFFFFFFF) then
-            x, y, z = read_vector3d(VehicleID + 0x5C)
+        local VehicleObj = get_object_memory(VehicleID)
+        if (VehicleID == 0xFFFFFFFF) then
+            return read_vector3d(DyN + 0x5C)
+        elseif (VehicleObj ~= 0) then
+            return read_vector3d(VehicleObj + 0x5C)
         end
-        return x, y, z
     end
     return nil
 end
@@ -144,19 +145,22 @@ function KillConfirmed:SpawnNewTag(Victim, Killer)
 
     local x, y, z = GetXYZ(Victim)
 
-    local z_off = 0.2
+    if (x) then
 
-    local object = spawn_object("weap", self.tag_object, x, y, z + z_off)
-    local tag = get_object_memory(object)
+        local z_off = 0.2
 
-    self.dog_tags[tag] = {
-        timer = 0,
-        kid = Killer,
-        vid = Victim,
-        object = object,
-        v_name = get_var(Victim, "$name"),
-        k_name = get_var(Killer, "$name")
-    }
+        local object = spawn_object("weap", self.tag_object, x, y, z + z_off)
+        local tag = get_object_memory(object)
+
+        self.dog_tags[tag] = {
+            timer = 0,
+            kid = Killer,
+            vid = Victim,
+            object = object,
+            v_name = get_var(Victim, "$name"),
+            k_name = get_var(Killer, "$name")
+        }
+    end
 end
 
 local function UpdateScore(Ply, Deduct, Add)
