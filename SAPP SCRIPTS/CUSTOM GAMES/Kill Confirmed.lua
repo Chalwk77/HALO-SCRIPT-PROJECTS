@@ -40,7 +40,10 @@ local KillConfirmed = {
 
     -- Message sent when you confirm a kill:
     --
-    on_confirm = "$name confirmed a kill on $victim",
+    on_confirm = {
+        "$name confirmed a kill on $victim",
+        "$name confirmed $killer's kill on $victim"
+    },
 
     -- Message sent when an opponent denies your kill:
     --
@@ -247,16 +250,17 @@ function KillConfirmed:OnWeaponPickUp(Ply, WeapIndex, Type)
                             local confirmed = (Ply == v.kid) or (team == get_var(v.kid, "$team"))
                             local denied = (Ply == v.vid) or (team == get_var(v.vid, "$team"))
 
-                            local msg = self.on_confirm
+                            local msg = self.on_confirm[1]
                             if (confirmed) then
-                                msg = msg:gsub("$name", name):gsub("$victim", v.v_name)
+                                if (v.kid ~= Ply) then
+                                    msg = self.on_confirm[2]
+                                    msg = msg:gsub("$name", name):gsub("$killer", v.k_name):gsub("$victim", v.v_name)
+                                end
                                 UpdateScore(Ply, false, false)
-
                             elseif (denied) then
                                 msg = self.on_deny
                                 msg = msg:gsub("$name", name):gsub("$killer", v.k_name)
                             end
-
                             Broadcast(msg)
                             DestroyDogTag(k, v)
                             break
