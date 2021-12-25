@@ -6,7 +6,7 @@ Description: This is Kill Confirmed from Call of Duty Modern Warfare 3.
              * Teams score by collecting dog tags (skulls) that enemies drop upon death.
 			 * The first team to 65 points wins.
 			 * Dog tags (skulls) will despawn after 30 seconds (configurable).
-             * Players will not penalized points for suicide.
+             * Players will not be penalized points for suicide.
 
              NOTE: This script is designed to be run on TEAM SLAYER.
 
