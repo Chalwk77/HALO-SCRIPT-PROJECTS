@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Kill Confirmed, for SAPP (PC & CE)
+Script Name: Kill Confirmed (v1.0), for SAPP (PC & CE)
 Description: This is Kill Confirmed from Call of Duty: Modern Warfare 3.
 
              * Teams score by collecting dog tags (skulls) that enemies drop upon death.
