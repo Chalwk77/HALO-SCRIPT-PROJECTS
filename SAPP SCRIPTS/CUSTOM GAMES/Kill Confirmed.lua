@@ -4,12 +4,11 @@ Script Name: Kill Confirmed, for SAPP (PC & CE)
 Description: This is Kill Confirmed from Call of Duty: Modern Warfare 3.
 
              * Teams score by collecting dog tags (skulls) that enemies drop upon death.
-			 * The first team to 65 points wins (or the team with the most kills after the game time runs out wins).
+			 * The first team to 65 points wins (or the team with the most points after the game time runs out).
 			 * Dog tags (skulls) will despawn after 30 seconds (configurable).
              * Players will not be penalized points for suicide.
 
              NOTE: This script is designed to be run on TEAM SLAYER.
-
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -18,6 +17,8 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 ]]--
 
 local KillConfirmed = {
+
+    -- config starts --
 
     -- Team score limit required to win:
     --
@@ -51,17 +52,35 @@ local KillConfirmed = {
 
     -- A message relay function temporarily removes the server prefix
     -- and will restore it to this when the relay is finished
-    server_prefix = "**SAPP**"
+    server_prefix = "**SAPP**",
+    --
+
+    -- Script errors (if any) will be logged to this file:
+    error_file = "Kill Confirmed (errors).log",
+
+    -- config ends --
+
+    -- DO NOT TOUCH BELOW THIS POINT --
+    script_version = 1.0
     --
 }
 
+-- do not touch anything below this point --
+
 api_version = "1.12.0.0"
 
+-- Destroys a specific dog tag (skull) from the world
+-- and clears its array index.
+-- @param k (array index) [number]
+-- @param v (dog tag array) [table]
+--
 local function DestroyDogTag(k, v)
     destroy_object(v.object)
     KillConfirmed.dog_tags[k] = nil
 end
 
+-- Destroys existing dog tags (skulls) from the world
+--
 local function RemoveAllDogTags()
     for k, v in pairs(KillConfirmed.dog_tags) do
         if (k) then
@@ -70,6 +89,8 @@ local function RemoveAllDogTags()
     end
 end
 
+-- Register needed event callbacks:
+--
 local function EventsRegistered(gt)
 
     if (gt == "slayer" and get_var(0, "$ffa") == "0") then
@@ -89,10 +110,13 @@ local function EventsRegistered(gt)
     return false
 end
 
+-- Sets up pre-game parameters:
+--
 function KillConfirmed:Init()
 
     self.game_started = false
     self.dog_tags = self.dog_tags or { }
+
     RemoveAllDogTags()
 
     local gt = get_var(0, "$gt")
@@ -116,6 +140,9 @@ function OnGameEnd()
     KillConfirmed.game_started = false
 end
 
+-- This function is called once every 1/30th second (1 tick):
+-- Used to despawn dog tags (skulls).
+--
 function KillConfirmed:GameTick()
     if (self.game_started) then
         for k, v in pairs(self.dog_tags) do
@@ -130,6 +157,10 @@ function KillConfirmed:GameTick()
     end
 end
 
+-- Returns a players map coordinates
+-- @param Ply (player index) [number]
+-- @return (three 32-bit floating point numbers (player coordinates)) [float]
+--
 local function GetXYZ(Ply)
     local DyN = get_dynamic_player(Ply)
     if (DyN ~= 0) then
@@ -144,6 +175,10 @@ local function GetXYZ(Ply)
     return nil
 end
 
+-- Spawns a new "dog tag" (skull) at a players location upon death.
+-- @param Victim (player index) [number]
+-- @param Killer (player index) [number]
+--
 function KillConfirmed:SpawnNewTag(Victim, Killer)
 
     local x, y, z = GetXYZ(Victim)
@@ -166,6 +201,11 @@ function KillConfirmed:SpawnNewTag(Victim, Killer)
     end
 end
 
+-- Updates player score when confirming a kill or committing suicide.
+-- @param Ply (player index) [number]
+-- @param Deduct (deduct score) [bool]
+-- @param Add (add to score) [bool]
+--
 local function UpdateScore(Ply, Deduct, Add)
 
     local score = tonumber(get_var(Ply, "$score"))
@@ -184,6 +224,11 @@ local function UpdateScore(Ply, Deduct, Add)
     execute_command("score " .. Ply .. " " .. score)
 end
 
+-- This function is called during event_die and event_damage_application.
+-- @param Victim (Victim) [number]
+-- @param Killer (Killer) [number]
+-- @param MetaID (damage tag id) [number]
+--
 function KillConfirmed:DeathHandler(Victim, Killer, MetaID, _, _, _)
 
     if (self.game_started) then
@@ -215,6 +260,9 @@ function KillConfirmed:DeathHandler(Victim, Killer, MetaID, _, _, _)
     end
 end
 
+-- Returns the tag name of a given object.
+-- @param obj (object id) [number]
+-- @return object tag name [string]
 local function TagID(obj)
     if (obj ~= nil and obj ~= 0) then
         return read_string(read_dword(read_word(obj) * 32 + 0x40440038))
@@ -222,12 +270,21 @@ local function TagID(obj)
     return nil
 end
 
+--
+-- This function broadcasts a custom server message:
+-- @param Msg (message) [string]
+--
 local function Broadcast(Msg)
     execute_command("msg_prefix \"\"")
     say_all(Msg)
     execute_command("msg_prefix \" " .. KillConfirmed.server_prefix .. "\"")
 end
 
+-- This function is called every time a player picks up a weapon:
+-- @param Ply (player index) [number]
+-- @param WeapIndex (weapon index) [number]
+-- @param Type (weapon type) [string]
+--
 function KillConfirmed:OnWeaponPickUp(Ply, WeapIndex, Type)
     if (tonumber(Type) == 1 and self.game_started) then
 
@@ -287,4 +344,43 @@ end
 
 function OnScriptUnload()
     RemoveAllDogTags()
+end
+
+-- Error handler:
+--
+local function WriteError(err)
+    local file = io.open(KillConfirmed.error_file, "a+")
+    if (file) then
+        file:write(err .. "\n")
+        file:close()
+    end
+end
+
+-- This function is called every time an error is raised:
+--
+function OnError(Error)
+
+    local log = {
+
+        -- log format: {msg, console out [true/false], console color}
+        -- If console out = false, the message will not be logged to console.
+
+        { os.date("[%H:%M:%S - %d/%m/%Y]"), true, 12 },
+        { Error, false, 12 },
+        { debug.traceback(), true, 12 },
+        { "--------------------------------------------------------", true, 5 },
+        { "Please report this error on github:", true, 7 },
+        { "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", true, 7 },
+        { "Script Version: " .. KillConfirmed.script_version, true, 7 },
+        { "--------------------------------------------------------", true, 5 }
+    }
+
+    for _, v in pairs(log) do
+        WriteError(v[1])
+        if (v[2]) then
+            cprint(v[1], v[3])
+        end
+    end
+
+    WriteError("\n")
 end
