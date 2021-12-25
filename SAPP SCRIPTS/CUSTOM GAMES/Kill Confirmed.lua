@@ -60,24 +60,38 @@ local function RemoveAllDogTags()
     end
 end
 
+local function EventsRegistered(gt)
+
+    if (gt == "slayer" and get_var(0, "$ffa") == "0") then
+        register_callback(cb["EVENT_TICK"], "OnTick")
+        register_callback(cb["EVENT_DIE"], "DeathHandler")
+        register_callback(cb["EVENT_WEAPON_PICKUP"], "OnWeaponPickUp")
+        register_callback(cb["EVENT_DAMAGE_APPLICATION"], "DeathHandler")
+        return true
+    end
+
+    unregister_callback(cb["EVENT_TICK"])
+    unregister_callback(cb["EVENT_DIE"])
+    unregister_callback(cb["EVENT_WEAPON_PICKUP"])
+    unregister_callback(cb["EVENT_DAMAGE_APPLICATION"])
+    cprint("This game type is not supported! Must be Team Slayer", 12)
+
+    return false
+end
+
 function KillConfirmed:Init()
 
     self.dog_tags = self.dog_tags or { }
     RemoveAllDogTags()
 
-    if (get_var(0, "$gt") ~= "n/a") then
+    local gt = get_var(0, "$gt")
+    if (gt ~= "n/a" and EventsRegistered(gt)) then
         execute_command("scorelimit " .. self.score_limit)
     end
 end
 
 function OnScriptLoad()
-
-    register_callback(cb["EVENT_TICK"], "OnTick")
-    register_callback(cb["EVENT_DIE"], "DeathHandler")
     register_callback(cb["EVENT_GAME_START"], "OnNewGame")
-    register_callback(cb["EVENT_WEAPON_PICKUP"], "OnWeaponPickUp")
-    register_callback(cb["EVENT_DAMAGE_APPLICATION"], "DeathHandler")
-
     KillConfirmed:Init()
 end
 
