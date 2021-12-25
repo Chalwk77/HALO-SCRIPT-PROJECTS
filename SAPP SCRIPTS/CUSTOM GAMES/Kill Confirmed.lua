@@ -2,11 +2,14 @@
 --=====================================================================================================--
 Script Name: Kill Confirmed, for SAPP (PC & CE)
 Description: This is Kill Confirmed from Call of Duty Modern Warfare 3.
-             Teams score by collecting dog tags (skulls) that enemies drop upon death.
-			 The first team to 65 points wins.
-			 Dog tags (skulls) will despawn after 30 seconds (configurable).
 
-			 NOTE: This script is designed to be run on TEAM SLAYER.
+             * Teams score by collecting dog tags (skulls) that enemies drop upon death.
+			 * The first team to 65 points wins.
+			 * Dog tags (skulls) will despawn after 30 seconds (configurable).
+             * Players will not penalized points for suicide.
+
+             NOTE: This script is designed to be run on TEAM SLAYER.
+
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -156,12 +159,15 @@ function KillConfirmed:SpawnNewTag(Victim, Killer)
     }
 end
 
-local function UpdateScore(Ply, Deduct)
+local function UpdateScore(Ply, Deduct, Add)
 
     local score = tonumber(get_var(Ply, "$score"))
 
     if (Deduct) then
         score = (score - 1 <= 0 and 0) or score - 1
+        goto done
+    elseif (Add) then
+        score = score + 1
         goto done
     end
 
@@ -193,8 +199,10 @@ function KillConfirmed:DeathHandler(Victim, Killer, MetaID, _, _, _)
 
             -- event_die --
             if (not suicide and not friendly_fire) then
-                UpdateScore(Killer, true)
+                UpdateScore(Killer, true, false)
                 self:SpawnNewTag(victim, killer)
+            elseif (suicide) then
+                UpdateScore(victim, false, true)
             end
         end
     end
@@ -238,7 +246,7 @@ function KillConfirmed:OnWeaponPickUp(Ply, WeapIndex, Type)
                             local msg = self.on_confirm
                             if (confirmed) then
                                 msg = msg:gsub("$name", name):gsub("$victim", v.v_name)
-                                UpdateScore(Ply, false)
+                                UpdateScore(Ply, false, false)
 
                             elseif (denied) then
                                 msg = self.on_deny
@@ -246,7 +254,6 @@ function KillConfirmed:OnWeaponPickUp(Ply, WeapIndex, Type)
                             end
 
                             Broadcast(msg)
-
                             DestroyDogTag(k, v)
                             break
                         end
