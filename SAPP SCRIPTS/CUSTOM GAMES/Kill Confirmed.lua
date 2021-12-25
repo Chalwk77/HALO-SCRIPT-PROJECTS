@@ -252,6 +252,7 @@ function KillConfirmed:OnWeaponPickUp(Ply, WeapIndex, Type)
 
                             local msg = self.on_confirm[1]
                             if (confirmed) then
+                                msg = msg:gsub("$name", name):gsub("$victim", v.k_name)
                                 if (v.kid ~= Ply) then
                                     msg = self.on_confirm[2]
                                     msg = msg:gsub("$name", name):gsub("$killer", v.k_name):gsub("$victim", v.v_name)
