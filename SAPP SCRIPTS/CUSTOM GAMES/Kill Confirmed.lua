@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Kill Confirmed (v1.0), for SAPP (PC & CE)
+Script Name: Kill Confirmed (v1.1), for SAPP (PC & CE)
 Description: This is Kill Confirmed from Call of Duty: Modern Warfare 3.
 
              * Teams score by collecting dog tags (skulls) that enemies drop upon death.
@@ -25,7 +25,7 @@ local KillConfirmed = {
     score_limit = 65,
 
     -- Points added for confirming a kill:
-    points_on_claim = 2,
+    points_on_confirm = 2,
 
     -- Time (in seconds) until a dog tag will despawn:
     --
@@ -37,12 +37,16 @@ local KillConfirmed = {
 
     -- The object representing a dog tag:
     --
-    tag_object = "weapons\\ball\\ball",
+    dog_tag_object = "weapons\\ball\\ball",
 
-    -- Message sent when you confirm a kill:
+    -- Kill-Confirm messages:
     --
     on_confirm = {
+        -- Message sent when you confirm your own kill:
         "$name confirmed a kill on $victim",
+
+        -- Message sent when a team mate confirms your kill:
+        --
         "$name confirmed $killer's kill on $victim"
     },
 
@@ -56,21 +60,19 @@ local KillConfirmed = {
     --
 
     -- Script errors (if any) will be logged to this file:
+    --
     error_file = "Kill Confirmed (errors).log",
 
     -- config ends --
 
     -- DO NOT TOUCH BELOW THIS POINT --
-    script_version = 1.0
+    script_version = 1.1
     --
 }
 
--- do not touch anything below this point --
-
 api_version = "1.12.0.0"
 
--- Destroys a specific dog tag (skull) from the world
--- and clears its array index.
+-- Destroys a specific dog tag (skull) from the world and clears its array index:
 -- @param k (array index) [number]
 -- @param v (dog tag array) [table]
 --
@@ -79,7 +81,7 @@ local function DestroyDogTag(k, v)
     KillConfirmed.dog_tags[k] = nil
 end
 
--- Destroys existing dog tags (skulls) from the world
+-- Destroys existing dog tags (skulls) from the world:
 --
 local function RemoveAllDogTags()
     for k, v in pairs(KillConfirmed.dog_tags) do
@@ -90,6 +92,7 @@ local function RemoveAllDogTags()
 end
 
 -- Register needed event callbacks:
+-- Unregisters callbacks if the game mode is not Team Slayer.
 --
 local function EventsRegistered(gt)
 
@@ -126,16 +129,22 @@ function KillConfirmed:Init()
     end
 end
 
+-- This function is called when the script is loaded into SAPP:
+--
 function OnScriptLoad()
-    register_callback(cb["EVENT_GAME_START"], "OnNewGame")
     register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
+    register_callback(cb["EVENT_GAME_START"], "OnNewGame")
     KillConfirmed:Init()
 end
 
+-- This function is called when a new game has started:
+--
 function OnNewGame()
     KillConfirmed:Init()
 end
 
+-- This function is called when a game ends (pre post-game-carnage report):
+--
 function OnGameEnd()
     KillConfirmed.game_started = false
 end
@@ -157,7 +166,7 @@ function KillConfirmed:GameTick()
     end
 end
 
--- Returns a players map coordinates
+-- Returns a players map coordinates:
 -- @param Ply (player index) [number]
 -- @return (three 32-bit floating point numbers (player coordinates)) [float]
 --
@@ -175,7 +184,7 @@ local function GetXYZ(Ply)
     return nil
 end
 
--- Spawns a new "dog tag" (skull) at a players location upon death.
+-- Spawns a new "dog tag" (skull) at a players location upon death:
 -- @param Victim (player index) [number]
 -- @param Killer (player index) [number]
 --
@@ -185,9 +194,12 @@ function KillConfirmed:SpawnNewTag(Victim, Killer)
 
     if (x) then
 
+        -- Z-Offset used to prevent the object from falling through the map:
+        -- (In world units).
         local z_off = 0.2
+        --
 
-        local object = spawn_object("weap", self.tag_object, x, y, z + z_off)
+        local object = spawn_object("weap", self.dog_tag_object, x, y, z + z_off)
         local tag = get_object_memory(object)
 
         self.dog_tags[tag] = {
@@ -201,7 +213,7 @@ function KillConfirmed:SpawnNewTag(Victim, Killer)
     end
 end
 
--- Updates player score when confirming a kill or committing suicide.
+-- Updates player score when confirming a kill or committing suicide:
 -- @param Ply (player index) [number]
 -- @param Deduct (deduct score) [bool]
 -- @param Add (add to score) [bool]
@@ -216,51 +228,58 @@ local function UpdateScore(Ply, Deduct, Add)
     elseif (Add) then
         score = score + 1
         goto done
+    elseif (not Deduct and not Add) then
+        local team = get_var(Ply, "$team")
+        if (team == "red") then
+            score, team = get_var(0, "$redscore"), 0
+        else
+            score, team = get_var(0, "$bluescore"), 1
+        end
+        score = score + KillConfirmed.points_on_confirm
+        execute_command("team_score " .. team .. " " .. score)
+        return
     end
 
-    score = score + KillConfirmed.points_on_claim
+    score = score + KillConfirmed.points_on_confirm
 
     :: done ::
     execute_command("score " .. Ply .. " " .. score)
 end
 
--- This function is called during event_die and event_damage_application.
+-- This function is called during event_die and event_damage_application:
 -- @param Victim (Victim) [number]
 -- @param Killer (Killer) [number]
 -- @param MetaID (damage tag id) [number]
 --
 function KillConfirmed:DeathHandler(Victim, Killer, MetaID, _, _, _)
 
-    if (self.game_started) then
+    local victim = tonumber(Victim)
+    local killer = tonumber(Killer)
 
-        local victim = tonumber(Victim)
-        local killer = tonumber(Killer)
+    if (killer > 0 and self.game_started) then
 
-        if (killer > 0) then
+        local k_team = get_var(killer, "$team")
+        local v_team = get_var(victim, "$team")
 
-            local k_team = get_var(killer, "$team")
-            local v_team = get_var(victim, "$team")
+        local suicide = (killer == victim)
+        local friendly_fire = (k_team == v_team and not suicide)
 
-            local suicide = (killer == victim)
-            local friendly_fire = (k_team == v_team and not suicide)
+        -- event_damage_application --
+        if (MetaID) then
+            return (self.block_friendly_fire and friendly_fire and false) or true
+        end
 
-            -- event_damage_application --
-            if (MetaID) then
-                return (self.block_friendly_fire and friendly_fire and false) or true
-            end
-
-            -- event_die --
-            if (not suicide and not friendly_fire) then
-                UpdateScore(Killer, true, false)
-                self:SpawnNewTag(victim, killer)
-            elseif (suicide) then
-                UpdateScore(victim, false, true)
-            end
+        -- event_die --
+        if (not suicide and not friendly_fire) then
+            UpdateScore(Killer, true, false)
+            self:SpawnNewTag(victim, killer)
+        elseif (suicide) then
+            UpdateScore(victim, false, true)
         end
     end
 end
 
--- Returns the tag name of a given object.
+-- Returns the tag name of a given object:
 -- @param obj (object id) [number]
 -- @return object tag name [string]
 local function TagID(obj)
@@ -270,8 +289,8 @@ local function TagID(obj)
     return nil
 end
 
---
 -- This function broadcasts a custom server message:
+-- Temporarily removes the server message prefix and restores it.
 -- @param Msg (message) [string]
 --
 local function Broadcast(Msg)
@@ -282,7 +301,7 @@ end
 
 -- This function is called every time a player picks up a weapon:
 -- @param Ply (player index) [number]
--- @param WeapIndex (weapon index) [number]
+-- @param WeapIndex (weapon index (slot)) [number]
 -- @param Type (weapon type) [string]
 --
 function KillConfirmed:OnWeaponPickUp(Ply, WeapIndex, Type)
@@ -297,7 +316,7 @@ function KillConfirmed:OnWeaponPickUp(Ply, WeapIndex, Type)
             local object = get_object_memory(weapon)
             if (object ~= 0) then
 
-                if (TagID(object) == self.tag_object) then
+                if (TagID(object) == self.dog_tag_object) then
                     for k, v in pairs(self.dog_tags) do
                         if (k and k == object) then
 
@@ -319,6 +338,7 @@ function KillConfirmed:OnWeaponPickUp(Ply, WeapIndex, Type)
                                 msg = self.on_deny
                                 msg = msg:gsub("$name", name):gsub("$killer", v.k_name)
                             end
+
                             Broadcast(msg)
                             DestroyDogTag(k, v)
                             break
