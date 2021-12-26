@@ -46,7 +46,6 @@ local KillConfirmed = {
         "$name confirmed a kill on $victim",
 
         -- Message sent when a team mate confirms your kill:
-        --
         "$name confirmed $killer's kill on $victim"
     },
 
