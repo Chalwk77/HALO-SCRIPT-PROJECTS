@@ -212,6 +212,24 @@ function KillConfirmed:SpawnNewTag(Victim, Killer)
     end
 end
 
+-- Changes team score to reflect number of confirmed kills:
+-- @param Ply (player index) [number]
+-- @param Add (add to score) [bool]
+--
+local function EditTeamScore(Ply, Add)
+    local team = get_var(Ply, "$team")
+    local score
+    if (team == "red") then
+        team = 0
+        score = get_var(0, "$redscore")
+    else
+        team = 1
+        score = get_var(0, "$bluescore")
+    end
+    score = (Add and score + KillConfirmed.points_on_confirm) or score - 1
+    execute_command("team_score " .. team .. " " .. score)
+end
+
 -- Updates player score when confirming a kill or committing suicide:
 -- @param Ply (player index) [number]
 -- @param Deduct (deduct score) [bool]
@@ -223,22 +241,17 @@ local function UpdateScore(Ply, Deduct, Add)
 
     if (Deduct) then
         score = (score - 1 <= 0 and 0) or score - 1
+        EditTeamScore(Ply, false)
         goto done
     elseif (Add) then
         score = score + 1
         goto done
     elseif (not Deduct and not Add) then
-        local team = get_var(Ply, "$team")
-        if (team == "red") then
-            score, team = get_var(0, "$redscore"), 0
-        else
-            score, team = get_var(0, "$bluescore"), 1
-        end
-        score = score + KillConfirmed.points_on_confirm
-        execute_command("team_score " .. team .. " " .. score)
-        return
+        EditTeamScore(Ply, true)
+        goto next
     end
 
+    :: next ::
     score = score + KillConfirmed.points_on_confirm
 
     :: done ::
