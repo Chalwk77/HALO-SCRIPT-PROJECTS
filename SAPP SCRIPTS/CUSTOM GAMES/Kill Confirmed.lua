@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Kill Confirmed (v1.1), for SAPP (PC & CE)
+Script Name: Kill Confirmed (v1.2), for SAPP (PC & CE)
 Description: This is Kill Confirmed from Call of Duty: Modern Warfare 3.
 
              * Teams score by collecting dog tags (skulls) that enemies drop upon death.
@@ -39,13 +39,13 @@ local KillConfirmed = {
     --
     dog_tag_object = "weapons\\ball\\ball",
 
-    -- Kill-Confirm messages:
+    -- Kill confirm messages:
     --
     on_confirm = {
         -- Message sent when you confirm your own kill:
         "$name confirmed a kill on $victim",
 
-        -- Message sent when a team mate confirms your kill:
+        -- Message sent when a teammate confirms your kill:
         "$name confirmed $killer's kill on $victim"
     },
 
@@ -53,8 +53,8 @@ local KillConfirmed = {
     --
     on_deny = "$name denied $killer's kill",
 
-    -- A message relay function temporarily removes the server prefix
-    -- and will restore it to this when the relay is finished
+    -- A message relay function temporarily removes the server message prefix
+    -- and will restore it to this when the relay is finished:
     server_prefix = "**SAPP**",
     --
 
@@ -65,7 +65,7 @@ local KillConfirmed = {
     -- config ends --
 
     -- DO NOT TOUCH BELOW THIS POINT --
-    script_version = 1.1
+    script_version = 1.2
     --
 }
 
@@ -107,7 +107,7 @@ local function EventsRegistered(gt)
     unregister_callback(cb["EVENT_DIE"])
     unregister_callback(cb["EVENT_WEAPON_PICKUP"])
     unregister_callback(cb["EVENT_DAMAGE_APPLICATION"])
-    cprint("This game type is not supported! Must be Team Slayer", 12)
+    error("This game type is not supported! Must be Team Slayer")
 
     return false
 end
@@ -156,8 +156,7 @@ function KillConfirmed:GameTick()
         for k, v in pairs(self.dog_tags) do
             if (k) then
                 v.timer = v.timer + 1 / 30
-                local time_remaining = (self.despawn_delay - v.timer)
-                if (time_remaining <= 0) then
+                if (v.timer >= self.despawn_delay) then
                     DestroyDogTag(k, v)
                 end
             end
@@ -183,7 +182,7 @@ local function GetXYZ(Ply)
     return nil
 end
 
--- Spawns a new "dog tag" (skull) at a players location upon death:
+-- Spawns a new dog tag (skull) at a players location upon death:
 -- @param Victim (player index) [number]
 -- @param Killer (player index) [number]
 --
@@ -193,8 +192,7 @@ function KillConfirmed:SpawnNewTag(Victim, Killer)
 
     if (x) then
 
-        -- Z-Offset used to prevent the object from falling through the map:
-        -- (In world units).
+        -- Z-offset used to prevent the object from falling through the map (in world units):
         local z_off = 0.2
         --
 
@@ -259,6 +257,8 @@ local function UpdateScore(Ply, Deduct, Add)
 end
 
 -- This function is called during event_die and event_damage_application:
+-- Spawns a new dog tag (skull) during PvP.
+-- Updates player scores.
 -- @param Victim (Victim) [number]
 -- @param Killer (Killer) [number]
 -- @param MetaID (damage tag id) [number]
@@ -312,6 +312,7 @@ local function Broadcast(Msg)
 end
 
 -- This function is called every time a player picks up a weapon:
+-- Updates player score when confirming a kill and broadcasts a custom message.
 -- @param Ply (player index) [number]
 -- @param WeapIndex (weapon index (slot)) [number]
 -- @param Type (weapon type) [string]
@@ -338,18 +339,13 @@ function KillConfirmed:OnWeaponPickUp(Ply, WeapIndex, Type)
                             local confirmed = (Ply == v.kid) or (team == get_var(v.kid, "$team"))
                             local denied = (Ply == v.vid) or (team == get_var(v.vid, "$team"))
 
-                            local msg = self.on_confirm[1]
+                            local msg = (v.kid == Ply and self.on_confirm[1]) or self.on_confirm[2]
                             if (confirmed) then
-                                msg = msg:gsub("$name", name):gsub("$victim", v.v_name)
-                                if (v.kid ~= Ply) then
-                                    msg = self.on_confirm[2]
-                                    msg = msg:gsub("$name", name):gsub("$killer", v.k_name):gsub("$victim", v.v_name)
-                                end
                                 UpdateScore(Ply, false, false)
                             elseif (denied) then
                                 msg = self.on_deny
-                                msg = msg:gsub("$name", name):gsub("$killer", v.k_name)
                             end
+                            msg = msg:gsub("$name", name):gsub("$killer", v.k_name):gsub("$victim", v.v_name)
 
                             Broadcast(msg)
                             DestroyDogTag(k, v)
