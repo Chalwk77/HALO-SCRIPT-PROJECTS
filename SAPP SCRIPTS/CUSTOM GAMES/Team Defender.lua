@@ -432,7 +432,7 @@ end
 -- Error handler:
 --
 local function WriteError(err)
-    local file = io.open(KillConfirmed.error_file, "a+")
+    local file = io.open(TeamDefender.error_file, "a+")
     if (file) then
         file:write(err .. "\n")
         file:close()
