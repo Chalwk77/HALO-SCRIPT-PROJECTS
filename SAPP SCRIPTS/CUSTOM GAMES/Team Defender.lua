@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Team Defender (v1.0), for SAPP (PC & CE)
+Script Name: Team Defender (v1.2), for SAPP (PC & CE)
 Description: This is Team Defender from Call of Duty: Modern Warfare 3.
 
              * A flag will spawn somewhere on the map.
@@ -31,6 +31,13 @@ local TeamDefender = {
     --
     message_on_respawn = "The flag has respawned",
 
+    -- Nav Marker (on by default):
+    -- When enabled, the flag carrier will have a nav marker above his head.
+    -- Requires the kill in order game type flag to be set to YES.
+    -- Requires the objectives indicator to be st to NAV POINTS.
+    -- Default: false
+    --
+    nav_marker = false,
 
     -- Scoring and custom messages:
     -- Leave messages blank ("") to disable.
@@ -88,8 +95,12 @@ local TeamDefender = {
     -- and will restore it to this when the relay is finished:
     server_prefix = "**SAPP**",
 
+    -- Script errors (if any) will be logged to this file:
+    --
+    error_file = "Team Defender (errors).log",
+
     -- DO NOT TOUCH BELOW THIS POINT --
-    script_version = 1.0
+    script_version = 1.2
     --
 }
 -- config ends --
@@ -239,21 +250,48 @@ local function AtSpawn(x, y, z, self)
     return false
 end
 
+function TeamDefender:GetFlagPos()
+    local flag = self.flag.object
+    if (flag) then
+        local object = get_object_memory(flag)
+        if (object ~= 0) then
+            return read_vector3d(object + 0x5c)
+        end
+    end
+end
+
 -- This function is called once every 1/30th second (1 tick):
 -- Used to respawn the flag:
 --
 function TeamDefender:GameTick()
-    if (not self:GetFlagCarrier()) then
-        local flag = self.flag.object
-        if (flag) then
-            local object = get_object_memory(flag)
-            if (object ~= 0) then
-                local x, y, z = read_vector3d(object + 0x5c)
-                if (not AtSpawn(x, y, z, self)) then
-                    self.flag.timer = self.flag.timer + 1 / 30
-                    if (self.flag.timer >= self.respawn_delay) then
-                        self:SpawnFlag()
-                    end
+    local _, flag_carrier = self:GetFlagCarrier()
+    if (not flag_carrier) then
+        local x, y, z = self:GetFlagPos()
+        if (x and not AtSpawn(x, y, z, self)) then
+            self.flag.timer = self.flag.timer + 1 / 30
+            if (self.flag.timer >= self.respawn_delay) then
+                self:SpawnFlag()
+            end
+        end
+        return
+    end
+    self:SetNavMarker(flag_carrier)
+end
+
+-- This function sets a nav marker above the flag carrier's head:
+--
+function TeamDefender:SetNavMarker(Ply)
+    if (self.nav_marker) then
+        for i = 1, 16 do
+            -- Get static memory address of each player:
+            local player = get_player(i)
+            if (player ~= 0) then
+                -- Set slayer target indicator to the flag carrier:
+                if (Ply ~= nil and i ~= Ply and player_alive(i)) then
+                    write_word(player + 0x88, to_real_index(Ply))
+                else
+                    -- Set slayer target indicator to themselves:
+                    write_word(player + 0x88, to_real_index(i))
                 end
             end
         end
