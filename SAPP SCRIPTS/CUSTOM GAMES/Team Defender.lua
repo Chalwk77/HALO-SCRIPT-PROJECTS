@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Team Defender (v1.2), for SAPP (PC & CE)
+Script Name: Team Defender (v1.3), for SAPP (PC & CE)
 Description: This is Team Defender from Call of Duty: Modern Warfare 3.
 
              * A flag will spawn somewhere on the map.
@@ -25,6 +25,16 @@ local TeamDefender = {
     -- When enabled, friendly fire will be blocked:
     --
     block_friendly_fire = true,
+
+    -- Message broadcast when someone picks up the flag:
+    -- Leave blank ("") to disable.
+    --
+    on_pickup = "$team team has the flag",
+
+    -- Message sent when a flag was dropped (appears at respawn_delay/2 seconds)
+    -- Leave blank ("") to disable.
+    --
+    respawn_warning = "The flag was dropped and will respawn in $S second$s",
 
     -- Message broadcast when the flag respawns:
     -- Leave blank ("") to disable.
@@ -100,7 +110,7 @@ local TeamDefender = {
     error_file = "Team Defender (errors).log",
 
     -- DO NOT TOUCH BELOW THIS POINT --
-    script_version = 1.2
+    script_version = 1.3
     --
 }
 -- config ends --
@@ -237,6 +247,7 @@ function TeamDefender:GetFlagCarrier()
             return get_var(i, "$team"), i
         end
     end
+    self.announce_pickup = true
     return false
 end
 
@@ -260,21 +271,38 @@ function TeamDefender:GetFlagPos()
     end
 end
 
+local function Plural(n)
+    return (n > 1 and "s") or ""
+end
+
 -- This function is called once every 1/30th second (1 tick):
 -- Used to respawn the flag:
 --
 function TeamDefender:GameTick()
+
+    -- respawn the flag:
     local _, flag_carrier = self:GetFlagCarrier()
     if (not flag_carrier) then
-        local x, y, z = self:GetFlagPos()
-        if (x and not AtSpawn(x, y, z, self)) then
+
+        local fx, fy, fz = self:GetFlagPos()
+        if (fx and not AtSpawn(fx, fy, fz, self)) then
+
             self.flag.timer = self.flag.timer + 1 / 30
-            if (self.flag.timer >= self.respawn_delay) then
+            local time = self.respawn_delay - self.flag.timer % 60
+            time = tonumber(string.format("%.2" .. "f", time))
+
+            if (time == self.respawn_delay / 2) then
+                local msg = self.respawn_warning
+                msg = msg:gsub("$S", time):gsub("$s", Plural(time))
+                self:Broadcast(nil, msg)
+
+            elseif (self.flag.timer >= self.respawn_delay) then
                 self:SpawnFlag()
             end
         end
         return
     end
+
     self:SetNavMarker(flag_carrier)
 end
 
@@ -298,6 +326,20 @@ function TeamDefender:SetNavMarker(Ply)
     end
 end
 
+local function AnnouncePickup(Ply, self)
+    if (self.announce_pickup) then
+        self.announce_pickup = false
+        local msg = self.on_pickup
+
+        local team = get_var(Ply, "$team")
+        local char = team:sub(1, 1)
+        team = team:gsub(char, string.upper(char))
+
+        msg = msg:gsub("$team", team)
+        self:Broadcast(nil, msg)
+    end
+end
+
 -- Checks if a player is holding the flag:
 -- @param Ply (player index) [number]
 --
@@ -313,6 +355,7 @@ function TeamDefender:HasFlag(Ply)
                     local tag_data = read_dword(read_dword(0x40440000) + tag_address * 0x20 + 0x14)
                     if (read_bit(tag_data + 0x308, 3) == 1) then
                         self.flag.timer = 0
+                        AnnouncePickup(Ply, self)
                         return true
                     end
                 end
@@ -340,6 +383,8 @@ function TeamDefender:Init()
                 local tag_class = read_dword(tag)
                 local globals_tag = read_dword(tag + 0x14)
                 if (tag_class == 0x6D617467) then
+
+                    self.announce_pickup = false
                     self.flag.id = read_dword(read_dword(globals_tag + 0x164 + 4) + 0xC)
 
                     self.x = self[map][1]
