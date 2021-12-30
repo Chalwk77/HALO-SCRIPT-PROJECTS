@@ -99,10 +99,7 @@ api_version = "1.12.0.0"
 -- This function is called when the script is loaded into SAPP:
 --
 function OnScriptLoad()
-    register_callback(cb["EVENT_DIE"], "OnDeath")
-    register_callback(cb["EVENT_TICK"], "OnTick")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
-    register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDeath")
     OnGameStart()
 end
 
@@ -314,10 +311,20 @@ function TeamDefender:Init()
                     self:SpawnFlag()
 
                     execute_command("scorelimit " .. self.scoring[5])
-                    break
+
+                    register_callback(cb["EVENT_DIE"], "OnDeath")
+                    register_callback(cb["EVENT_TICK"], "OnTick")
+                    register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDeath")
+                    goto done
                 end
             end
         end
+
+        unregister_callback(cb["EVENT_DIE"])
+        unregister_callback(cb["EVENT_TICK"])
+        unregister_callback(cb["EVENT_DAMAGE_APPLICATION"])
+
+        :: done ::
     end
 end
 
