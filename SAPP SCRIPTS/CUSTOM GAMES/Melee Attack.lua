@@ -12,6 +12,8 @@ Settings:
 
 * Optionally prevent friendly fire.
 
+* Respawn time override
+
 * Define starting frag/plasma grenades (default: 0 each).
 
 * Works on any game type (if melee weapon is the oddball or flag, do not use on ctf or oddball).
@@ -31,9 +33,13 @@ local Melee = {
 
     -- Sets the game score limit:
     -- Set to nil to disable custom score limit.
-    -- Default: 50
+    -- Default: 25
     --
-    score_limit = 50,
+    score_limit = 25,
+
+    -- Respawn time delay (in seconds):
+    --
+    respawn_time = 0,
 
     -- Melee weapon (index from objects table):
     --
@@ -298,6 +304,12 @@ function Melee:DeathHandler(Victim, Killer, MetaID, Damage, _, _)
         -- event_die --
         -- destroy weapon from world:
         self:CleanUpDrones(victim, false)
+
+        -- set respawn time:
+        local Player = get_player(victim)
+        if (Player ~= 0) then
+            write_dword(Player + 0x2C, Melee.respawn_time * 33)
+        end
     end
 end
 
