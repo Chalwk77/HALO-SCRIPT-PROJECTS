@@ -10,6 +10,7 @@ Set the score limit (default 50)
 Easily define the melee weapon (default: skull)
 Optionally prevent friendly fire
 Define starting frag/plasma grenades (default: 0 each)
+Works on any game type (if melee weapon is skull, do not use on Oddball)
 Object interactions with equipment, vehicles & weapons can be individually disabled or enabled for everyone or a defined team.
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
@@ -285,7 +286,7 @@ function Melee:DeathHandler(Victim, Killer, MetaID, Damage, _, _)
             local v_team = get_var(Victim, "$team")
             local k_team = get_var(Killer, "$team")
             local friend_fire = (k_team == v_team and killer ~= victim)
-            return (killer > 0 and friend_fire and true) or Damage * 10
+            return (killer > 0 and friend_fire and true) or true, Damage * 10
         end
 
         -- event_die --
