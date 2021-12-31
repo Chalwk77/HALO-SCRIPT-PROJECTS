@@ -12,7 +12,7 @@ Settings:
 
 * Optionally prevent friendly fire.
 
-* Respawn time override
+* Change player respawn time: (default 1 second)
 
 * Define starting frag/plasma grenades (default: 0 each).
 
