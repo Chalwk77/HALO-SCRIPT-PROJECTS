@@ -6,12 +6,18 @@ Description: In Melee Attack, players are limited to melee-only combat and can o
 
 Settings:
 
-Set the score limit (default 50)
-Easily define the melee weapon (default: skull)
-Optionally prevent friendly fire
-Define starting frag/plasma grenades (default: 0 each)
-Works on any game type (if melee weapon is skull, do not use on Oddball)
-Object interactions with equipment, vehicles & weapons can be individually disabled or enabled for everyone or a defined team.
+* Set the score limit (default 50).
+
+* Easily define the melee weapon (default: skull).
+
+* Optionally prevent friendly fire.
+
+* Define starting frag/plasma grenades (default: 0 each).
+
+* Works on any game type (if melee weapon is the oddball or flag, do not use on ctf or oddball).
+
+* Object interactions with equipment, vehicles & weapons can
+  be individually disabled or enabled for everyone or a defined team.
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
