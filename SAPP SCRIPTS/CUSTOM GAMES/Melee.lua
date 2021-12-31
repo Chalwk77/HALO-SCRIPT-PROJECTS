@@ -1,7 +1,8 @@
 --[[
 --=====================================================================================================--
-Script Name: Melee, for SAPP (PC & CE)
-Description: Players are limited to melee-only combat and can only use an oddball (skull).
+Script Name: Melee Attack, for SAPP (PC & CE)
+Description: In Melee Attack, players are limited to melee-only combat and can only use an oddball (skull).
+             Attacking will insta-kill your opponent.
 
 Copyright (c) 2016-2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -262,7 +263,7 @@ end
 -- @param Killer (Killer) [number]
 -- @param MetaID (damage tag id) [number]
 --
-function Melee:DeathHandler(Victim, Killer, MetaID, _, _, _)
+function Melee:DeathHandler(Victim, Killer, MetaID, Damage, _, _)
 
     local victim = tonumber(Victim)
     local v = self.players[victim]
@@ -276,9 +277,7 @@ function Melee:DeathHandler(Victim, Killer, MetaID, _, _, _)
             local v_team = get_var(Victim, "$team")
             local k_team = get_var(Killer, "$team")
             local friend_fire = (k_team == v_team and killer ~= victim)
-            if (killer > 0 and friend_fire) then
-                return false
-            end
+            return (killer > 0 and friend_fire and true) or Damage * 10
         end
 
         -- event_die --
