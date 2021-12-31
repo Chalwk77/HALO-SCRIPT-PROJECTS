@@ -38,8 +38,9 @@ local Melee = {
     score_limit = 25,
 
     -- Respawn time delay (in seconds):
+    -- Default: 1 second
     --
-    respawn_time = 0,
+    respawn_time = 1,
 
     -- Melee weapon (index from objects table):
     --
@@ -308,7 +309,7 @@ function Melee:DeathHandler(Victim, Killer, MetaID, Damage, _, _)
         -- set respawn time:
         local Player = get_player(victim)
         if (Player ~= 0) then
-            write_dword(Player + 0x2C, Melee.respawn_time * 33)
+            write_dword(Player + 0x2C, self.respawn_time * 33)
         end
     end
 end
