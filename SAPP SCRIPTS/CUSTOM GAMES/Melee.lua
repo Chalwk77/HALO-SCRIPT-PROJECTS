@@ -1,176 +1,341 @@
 --[[
 --=====================================================================================================--
 Script Name: Melee, for SAPP (PC & CE)
-Description: Custom Melee game
+Description: Players are limited to melee-only combat and can only use an oddball (skull).
 
-Copyright (c) 2016-2020, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2016-2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
-api_version = "1.12.0.0"
-
 local Melee = {
-    -- Configuration [starts] >> ----------
-    scorelimit = 50,
-    -- Melee Object (weapon index from objects table)"
-    weapon = 12,
-    objects = {
-        -- false = prevent spawning | true = allow spawning
-        [1] = { "eqip", "powerups\\health pack", true },
-        [2] = { "eqip", "powerups\\over shield", true },
-        [3] = { "eqip", "powerups\\active camouflage", true },
-        [4] = { "eqip", "weapons\\frag grenade\\frag grenade", false },
-        [5] = { "eqip", "weapons\\plasma grenade\\plasma grenade", false },
 
-        [6] = { "vehi", "vehicles\\ghost\\ghost_mp", false },
-        [7] = { "vehi", "vehicles\\rwarthog\\rwarthog", false },
-        [8] = { "vehi", "vehicles\\banshee\\banshee_mp", false },
-        [9] = { "vehi", "vehicles\\warthog\\mp_warthog", false },
-        [10] = { "vehi", "vehicles\\scorpion\\scorpion_mp", false },
-        [11] = { "vehi", "vehicles\\c gun turret\\c gun turret_mp", false },
+    -- config starts --
 
-        [12] = { "weap", "weapons\\ball\\ball", true }, -- DO NOT DISABLE if this is the melee object.
-        [13] = { "weap", "weapons\\flag\\flag", false },
-        [14] = { "weap", "weapons\\pistol\\pistol", false },
-        [15] = { "weap", "weapons\\shotgun\\shotgun", false },
-        [16] = { "weap", "weapons\\needler\\mp_needler", false },
-        [17] = { "weap", "weapons\\flamethrower\\flamethrower", false },
-        [18] = { "weap", "weapons\\plasma rifle\\plasma rifle", false },
-        [19] = { "weap", "weapons\\sniper rifle\\sniper rifle", false },
-        [20] = { "weap", "weapons\\plasma pistol\\plasma pistol", false },
-        [21] = { "weap", "weapons\\plasma_cannon\\plasma_cannon", false },
-        [22] = { "weap", "weapons\\assault rifle\\assault rifle", false },
-        [23] = { "weap", "weapons\\rocket launcher\\rocket launcher", false }
-    },
-    -- Configuration [ends] << ----------
-
-    -- DO NOT TOUCH --
-    players = { }
+    -- Sets the game score limit:
+    -- Set to nil to disable custom score limit.
+    -- Default: 50
     --
+    score_limit = 50,
+
+    -- Melee weapon (index from objects table):
+    --
+    weapon = 12,
+
+    -- When enabled, friendly fire will be blocked:
+    --
+    block_friendly_fire = true,
+
+    -- Starting frag grenades:
+    --
+    frags = 0,
+
+    -- Starting plasma grenades:
+    --
+    plasmas = 0,
+
+    -- Game objects:
+    -- Interaction with objects in this list can be individually disabled or enabled.
+    -- Format: {tag type, tag name, enabled/disabled}.
+
+    -- Disabling/Enabling:
+    -- nil  =   enable for both teams
+    -- 0    =   disable for both teams
+    -- 1    =   enable for red team only
+    -- 2    =   enable for blue team only
+    -- If an object is disabled for both teams, it will not spawn (by design).
+    --
+    -- Note: Do not disable the melee object.
+    --
+    objects = {
+
+        -- equipment:
+        [1] = { "eqip", "powerups\\health pack", nil },
+        [2] = { "eqip", "powerups\\over shield", nil },
+        [3] = { "eqip", "powerups\\active camouflage", nil },
+        [4] = { "eqip", "weapons\\frag grenade\\frag grenade", 0 },
+        [5] = { "eqip", "weapons\\plasma grenade\\plasma grenade", 0 },
+
+        -- vehicles:
+        [6] = { "vehi", "vehicles\\ghost\\ghost_mp", 0 },
+        [7] = { "vehi", "vehicles\\rwarthog\\rwarthog", 0 },
+        [8] = { "vehi", "vehicles\\banshee\\banshee_mp", 0 },
+        [9] = { "vehi", "vehicles\\warthog\\mp_warthog", 0 },
+        [10] = { "vehi", "vehicles\\scorpion\\scorpion_mp", 0 },
+        [11] = { "vehi", "vehicles\\c gun turret\\c gun turret_mp", 0 },
+
+        -- weapons:
+        [12] = { "weap", "weapons\\ball\\ball", nil },
+        [13] = { "weap", "weapons\\flag\\flag", 0 },
+        [14] = { "weap", "weapons\\pistol\\pistol", 0 },
+        [15] = { "weap", "weapons\\shotgun\\shotgun", 0 },
+        [16] = { "weap", "weapons\\needler\\mp_needler", 0 },
+        [17] = { "weap", "weapons\\flamethrower\\flamethrower", 0 },
+        [18] = { "weap", "weapons\\plasma rifle\\plasma rifle", 0 },
+        [19] = { "weap", "weapons\\sniper rifle\\sniper rifle", 0 },
+        [20] = { "weap", "weapons\\plasma pistol\\plasma pistol", 0 },
+        [21] = { "weap", "weapons\\plasma_cannon\\plasma_cannon", 0 },
+        [22] = { "weap", "weapons\\assault rifle\\assault rifle", 0 },
+        [23] = { "weap", "weapons\\rocket launcher\\rocket launcher", 0 },
+
+        -- custom tags --
+        -- Put non-stock (custom) tags here:
+
+        --
+    }
+    -- config ends --
 }
+
+api_version = "1.12.0.0"
 
 function OnScriptLoad()
     register_callback(cb['EVENT_GAME_START'], "OnGameStart")
     OnGameStart()
 end
 
-function OnScriptUnload()
-    -- N/A
+local function RegisterSAPPEvents(Register)
+
+    if (Register) then
+        register_callback(cb['EVENT_TICK'], "OnTick")
+        register_callback(cb['EVENT_JOIN'], "OnJoin")
+        register_callback(cb['EVENT_LEAVE'], "OnQuit")
+        register_callback(cb['EVENT_SPAWN'], "OnSpawn")
+        register_callback(cb["EVENT_DIE"], "DeathHandler")
+        register_callback(cb["EVENT_WEAPON_DROP"], "OnWeaponDrop")
+        register_callback(cb['EVENT_OBJECT_SPAWN'], "OnObjectSpawn")
+        register_callback(cb["EVENT_DAMAGE_APPLICATION"], "DeathHandler")
+        return
+    end
+
+    unregister_callback(cb['EVENT_DIE'])
+    unregister_callback(cb['EVENT_TICK'])
+    unregister_callback(cb['EVENT_JOIN'])
+    unregister_callback(cb['EVENT_LEAVE'])
+    unregister_callback(cb['EVENT_SPAWN'])
+    unregister_callback(cb['EVENT_WEAPON_DROP'])
+    unregister_callback(cb['EVENT_OBJECT_SPAWN'])
+    unregister_callback(cb['EVENT_DAMAGE_APPLICATION'])
 end
 
-function OnGameStart()
+-- Create (new) or delete (old) player array:
+-- @param Ply (player index) [number]
+-- @param Reset (reset players array for this player) [boolean]
+--
+function Melee:InitPlayer(Ply, Reset)
+
+    if (not Reset) then
+        self.players[Ply] = {
+            -- Used to keep track of weapon assignments.
+            -- They are destroyed when a player dies, quits or attempts to drop it.
+            drones = {},
+
+            -- Used to determine when to assign weapons.
+            -- True when a player spawns or tries to drop their weapon.
+            assign = false
+        }
+        return
+    end
+
+    -- Delete their weapons from the world:
+    self:CleanUpDrones(Ply, false)
+
+    -- clear array index for this player:
+    self.players[Ply] = nil
+end
+
+local function GetTag(type, name)
+    local tag = lookup_tag(type, name)
+    return tag ~= 0 and read_dword(tag + 0xC) or nil
+end
+
+function Melee:Init()
+
+    self.players = { }
+    self.melee_weapon = nil
+
     if (get_var(0, "$gt") ~= "n/a") then
-        if (get_var(0, "$ffa") ~= "0") then
-            register_callback(cb['EVENT_TICK'], "OnTick")
-            register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
-            register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
-            register_callback(cb['EVENT_JOIN'], "OnPlayerConnect")
-            register_callback(cb['EVENT_LEAVE'], "OnPlayerDisconnect")
-            register_callback(cb['EVENT_WEAPON_DROP'], "OnWeaponDrop")
-            register_callback(cb['EVENT_OBJECT_SPAWN'], "OnObjectSpawn")
-            execute_command("disable_all_vehicles 0 1")
-            execute_command("scorelimit " .. Melee.scorelimit)
+
+        local object = self.objects[self.weapon]
+        local weapon_id = GetTag(object[1], object[2])
+        if (weapon_id) then
+
+            self.melee_weapon = weapon_id
+
+            execute_command("scorelimit " .. (self.score_limit or ""))
+
+            self:GameObjects(false)
+
             for i = 1, 16 do
                 if player_present(i) then
-                    Melee:CleanUpDrones(i, false)
-                    Melee:InitPlayer(i, false)
+                    self:InitPlayer(i, false)
                 end
             end
-        else
-            unregister_callback(cb['EVENT_DIE'])
-            unregister_callback(cb['EVENT_TICK'])
-            unregister_callback(cb['EVENT_JOIN'])
-            unregister_callback(cb['EVENT_LEAVE'])
-            unregister_callback(cb['EVENT_SPAWN'])
-            unregister_callback(cb['EVENT_WEAPON_DROP'])
-            unregister_callback(cb['EVENT_OBJECT_SPAWN'])
+
+            RegisterSAPPEvents(true)
+
+            return
+        end
+    end
+
+    RegisterSAPPEvents(false)
+end
+
+-- This function is responsible for enabling/disabling game objects:
+-- Applies to weapons, vehicles and equipment.
+--
+function Melee:GameObjects(State)
+
+    if (not State) then
+        State = "disable_object"
+
+    else
+        State = "enable_object"
+    end
+
+    -- Disable game objects:
+    for _, v in pairs(self.objects) do
+        if (v[3] ~= nil) then
+            execute_command(State .. " '" .. v[2] .. "' " .. v[3])
         end
     end
 end
 
-function OnPlayerConnect(Ply)
+-- This function is called when a player has connected:
+-- @param Ply (player index) [number]
+--
+function OnJoin(Ply)
     Melee:InitPlayer(Ply, false)
 end
 
-function OnPlayerDisconnect(Ply)
+-- This function is called when a player has disconnected:
+-- @param Ply (player index) [number]
+--
+function OnQuit(Ply)
     Melee:InitPlayer(Ply, true)
 end
 
-function Melee:InitPlayer(Ply, Reset)
-    if (not Reset) then
-        self.players[Ply] = { assign = false, drones = {} }
-    else
-        self:CleanUpDrones(Ply, false)
-    end
-end
+-- This function is called once every 1/30th second (1 tick):
+-- Used to assign weapons.
+--
+function Melee:GameTick()
+    for i, player in pairs(self.players) do
+        if (i) then
 
-function Melee:OnTick()
-    for i, v in pairs(self.players) do
-        if player_present(i) and player_alive(i) then
-            if (v.assign) then
-                v.assign = false
-                execute_command("nades " .. i .. " 0")
-                execute_command("wdel " .. i)
+            if (player.assign) then
+
                 local DyN = get_dynamic_player(i)
-                if (DyN ~= 0) then
-                    local x, y, z = read_vector3d(DyN + 0x5C)
-                    local weapon = spawn_object("weap", self.objects[self.weapon][2], x, y, z)
+                if (DyN ~= 0 and player_alive(i)) then
+
+                    player.assign = false
+
+                    execute_command("nades " .. i .. " " .. self.frags .. " 1")
+                    execute_command("nades " .. i .. " " .. self.plasmas .. " 2")
+
+                    -- Spawn this object under the map initially:
+                    local weapon = spawn_object("", "", 0, 0, -9999, 0, self.melee_weapon)
+
+                    -- Store a copy of this weapon to the drones table:
+                    table.insert(player.drones, { weapon = weapon, timer = 0, despawn = false })
+
+                    -- Assign this weapon:
                     assign_weapon(weapon, i)
-                    table.insert(v.drones, weapon)
                 end
             end
         end
     end
 end
 
-function OnPlayerSpawn(Ply)
-    Melee.players[Ply].assign = true
-end
-
-function OnPlayerDeath(Victim)
-    local DyN = get_dynamic_player(Victim)
-    local WeaponID = read_dword(DyN + 0x118)
-    if (WeaponID ~= 0) then
-        for j = 0, 3 do
-            destroy_object(read_dword(DyN + 0x2F8 + j * 4))
-        end
+--
+-- This function is called when a player has finished spawning:
+-- @param Ply (player index) [number]
+--
+function OnSpawn(Ply)
+    local player = Melee.players[Ply]
+    if (player) then
+        player.assign = true
     end
 end
 
+-- This function is called during event_die and event_damage_application.
+-- @param Victim (Victim) [number]
+-- @param Killer (Killer) [number]
+-- @param MetaID (damage tag id) [number]
+--
+function Melee:DeathHandler(Victim, Killer, MetaID, _, _, _)
+
+    local victim = tonumber(Victim)
+    local v = self.players[victim]
+
+    if (v) then
+
+        -- event_damage_application --
+        -- Block friendly fire:
+        if (MetaID and self.block_friendly_fire) then
+            local killer = tonumber(Killer)
+            local v_team = get_var(Victim, "$team")
+            local k_team = get_var(Killer, "$team")
+            local friend_fire = (k_team == v_team and killer ~= victim)
+            if (killer > 0 and friend_fire) then
+                return false
+            end
+        end
+
+        -- event_die --
+        -- destroy weapon from world:
+        self:CleanUpDrones(victim, false)
+    end
+end
+
+--
+-- Deletes player weapon drones:
+-- @param Victim (player index) [number]
+-- @param AssignWeapon (trigger assign logic) [boolean]
+--
 function Melee:CleanUpDrones(Ply, Assign)
-
-    for _, weapon in pairs(self.players[Ply].drones) do
-        if (weapon) then
-            destroy_object(weapon)
+    local player = self.players[Ply]
+    if (player) then
+        for _, v in pairs(player.drones) do
+            local object = get_object_memory(v.weapon)
+            if (object ~= 0 and object ~= 0xFFFFFFF) then
+                destroy_object(v.weapon)
+            end
         end
+        player.drones = {}
+        player.assign = Assign
     end
-
-    if (Assign) then
-        self.players[Ply].assign = true
-    else
-        self.players[Ply] = nil
-    end
-end
-
-function OnWeaponDrop(Ply)
-    Melee:CleanUpDrones(Ply, true)
-end
-
-local function GetTag(obj_type, obj_name)
-    local tag = lookup_tag(obj_type, obj_name)
-    return tag ~= 0 and read_dword(tag + 0xC) or nil
 end
 
 function OnObjectSpawn(_, MapID, _, _)
     for _, v in pairs(Melee.objects) do
-        if (MapID == GetTag(v[1], v[2])) and (not v[3]) then
+        if (MapID == GetTag(v[1], v[2]) and v[3] == 0) then
             return false
         end
     end
 end
 
+-- This function is called every time a player drops a weapon:
+-- @param Ply (player index) [number]
+--
+function OnWeaponDrop(Ply)
+    Melee:CleanUpDrones(Ply, true)
+end
+
+function DeathHandler(V, K, MID, D, _, _)
+    return Melee:DeathHandler(V, K, MID, D, _, _)
+end
+
 function OnTick()
-    return Melee:OnTick()
+    return Melee:GameTick()
+end
+
+function OnGameStart()
+    Melee:Init()
+end
+
+function OnScriptUnload()
+    -- Re-enable all game objects:
+    for _, v in pairs(Melee.objects) do
+        execute_command("enable_object '" .. v[2] .. "' 0")
+    end
 end
