@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Capture the Flag (v1.2), for SAPP (PC & CE)
+Script Name: Capture the Flag (v1.3), for SAPP (PC & CE)
 Description: This script brings CTF-like mechanics to any Slayer (FFA/Team) game type.
              A single flag will spawn somewhere on the map. Return it to any base to score.
 
@@ -14,15 +14,17 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 local CTF = {
 
     -- Time (in seconds) until a dropped flag will respawn:
-    -- Default: 15 seconds
+    -- Default: 15 seconds.
     --
     respawn_delay = 15,
 
     -- Radius (in world units) a player must be to capture:
     --
-    trigger_radius = 0.5,
+    trigger_radius = 1.1,
 
     -- Message sent when a flag was dropped (appears at respawn_delay/2 seconds)
+    -- $S will be replaced with the time remaining.
+    -- $s will be replaced with a lowercase "s" if $S>1.
     -- Leave blank ("") to disable.
     --
     respawn_warning = "The flag was dropped and will respawn in $S second$s",
@@ -33,6 +35,7 @@ local CTF = {
     message_on_respawn = "The flag has respawned",
 
     -- Message broadcast when someone captures the flag:
+    -- $name will be replaced with the players name.
     -- Leave blank ("") to disable.
     --
     message_on_capture = "$name captured a flag",
@@ -41,25 +44,44 @@ local CTF = {
     -- Leave blank ("") to disable.
     --
     on_pickup = {
-        -- message to all players:
-        "$name has the flag.",
-        -- message to flag carrier:
-        "Return the flag to ANY base to score!",
+
+        -- The following variables can be used in the first 2 messages ([1] & [2]):
+        -- $team will be replaced with the players team name (red/blue).
+        -- $name will be replaced with the players name.
+
+        -- Team slayer message:
+        [1] = "[$team team] $name has the flag!",
+
+        -- FFA message:
+        [2] = "$name has the flag!",
+
+        -- Message to the flag carrier:
+        -- $bonus will be replaced with the "points_on_capture" (see below).
+        [3] = "Return the flag to ANY base for $bonus points.",
     },
 
     -- Points received for capturing a flag:
-    -- Default: 5
+    -- Default: 5.
     --
     points_on_capture = 5,
 
     -- Set to nil to disable score limit:
-    -- Default: nil
+    -- Default: nil.
     --
     score_limit = nil,
+
+    -- When enabled, flag carriers occupying a vehicle will be able to capture the flag:
+    --
+    vehicle_capture = false,
 
     -----------------------------
     -- individual map settings --
     -----------------------------
+
+    -- To get location coordinates, use SAPP's /coord command:
+    -- Syntax: coord <player id>
+    -- Alternatively, use a tools like Spark Edit, HMT, Lethargy or HEK.
+
     ["bloodgulch"] = {
         spawn_location = { 65.749, -120.409, 0.118 },
         capture_points = {
@@ -203,7 +225,7 @@ local CTF = {
     error_file = "CTF (errors).log",
 
     -- DO NOT TOUCH BELOW THIS POINT --
-    script_version = 1.2
+    script_version = 1.3
     --
 }
 -- config ends --
@@ -220,16 +242,16 @@ end
 -- Sets up pre-game parameters:
 --
 function CTF:Init()
-    if (get_var(0, "$gt") ~= "n/a") then
+
+    local mode = get_var(0, "$gt")
+    if (mode ~= "n/a") then
 
         self.flag = { }
 
-        if (get_var(0, "$gt") ~= "slayer") then
-            return error("This game type is not supported")
-        end
+        self.game_started = false
+        local map = self:Proceed(mode)
 
-        local map = get_var(0, "$map")
-        if (self[map]) then
+        if (map) then
 
             local tag_address = read_dword(0x40440000)
             local tag_count = read_dword(0x4044000C)
@@ -240,7 +262,6 @@ function CTF:Init()
                 local globals_tag = read_dword(tag + 0x14)
                 if (tag_class == 0x6D617467) then
 
-                    self.announce_pickup = false
                     self.flag.id = read_dword(read_dword(globals_tag + 0x164 + 4) + 0xC)
 
                     self.z_off = 0.2
@@ -255,10 +276,12 @@ function CTF:Init()
                     -- Set the score limit:
                     execute_command("scorelimit " .. (self.score_limit or ""))
 
+                    self.game_started = true
+                    self.announce_pickup = false
                     self.team_play = (get_var(0, "$ffa") == "0")
 
                     register_callback(cb["EVENT_TICK"], "OnTick")
-                    register_callback(cb["EVENT_GAME_END"], "OnScriptUnload")
+                    register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
                     goto done
                 end
             end
@@ -266,6 +289,7 @@ function CTF:Init()
 
         unregister_callback(cb["EVENT_GAME_END"])
         unregister_callback(cb["EVENT_TICK"])
+
         :: done ::
     end
 end
@@ -320,8 +344,9 @@ end
 
 -- Distance function using pythagoras theorem:
 --
+local sqrt = math.sqrt
 local function GetDistance(x, y, z, x2, y2, z2, r)
-    return math.sqrt((x - x2) ^ 2 + (y - y2) ^ 2 + (z - z2) ^ 2) <= r
+    return sqrt((x - x2) ^ 2 + (y - y2) ^ 2 + (z - z2) ^ 2) <= r
 end
 
 -- Returns a players map coordinates:
@@ -333,10 +358,12 @@ local function GetXYZ(Ply)
     if (DyN ~= 0) then
         local VehicleID = read_dword(DyN + 0x11C)
         local VehicleObj = get_object_memory(VehicleID)
+        local x, y, z = read_vector3d(DyN + 0x5C)
         if (VehicleID == 0xFFFFFFFF) then
-            return read_vector3d(DyN + 0x5C)
+            return x, y, z, false
         elseif (VehicleObj ~= 0) then
-            return read_vector3d(VehicleObj + 0x5C)
+            x, y, z = read_vector3d(VehicleObj + 0x5C)
+            return x, y, z, true
         end
     end
     return nil
@@ -350,7 +377,7 @@ function CTF:GetFlagPos()
     if (flag) then
         local object = get_object_memory(flag)
         if (object ~= 0) then
-            return read_vector3d(object + 0x5c)
+            return read_vector3d(object + 0x5C)
         end
     end
     return nil
@@ -362,57 +389,68 @@ end
 
 -- This function is called once every 1/30th second (1 tick):
 --
+local format = string.format
 function CTF:GameTick()
 
-    -- respawn the flag:
-    local flag_carrier = self:GetFlagCarrier()
-    if (not flag_carrier) then
+    if (self.game_started) then
 
-        local fx, fy, fz = self:GetFlagPos()
-        if (fx and not GetDistance(fx, fy, fz, self.x, self.y, self.z - self.z_off, self.trigger_radius)) then
+        -- logic responsible for respawning the flag:
+        local flag_carrier = self:GetFlagCarrier()
+        if (not flag_carrier) then
 
-            self.flag.timer = self.flag.timer + 1 / 30
-            local time = self.respawn_delay - self.flag.timer % 60
-            time = tonumber(string.format("%.2" .. "f", time))
+            local fx, fy, fz = self:GetFlagPos()
+            if (fx and not GetDistance(fx, fy, fz, self.x, self.y, self.z - self.z_off, self.trigger_radius)) then
 
-            if (time == self.respawn_delay / 2) then
-                local msg = self.respawn_warning
-                msg = msg:gsub("$S", time):gsub("$s", Plural(time))
-                self:Broadcast(nil, msg)
+                self.flag.timer = self.flag.timer + 1 / 30
+                local time = self.respawn_delay - self.flag.timer % 60
+                time = tonumber(format("%.2" .. "f", time))
 
-            elseif (self.flag.timer >= self.respawn_delay) then
-                self:SpawnFlag()
+                if (time == self.respawn_delay / 2) then
+                    local msg = self.respawn_warning
+                    msg = msg:gsub("$S", time):gsub("$s", Plural(time))
+                    self:Broadcast(nil, msg)
+
+                elseif (self.flag.timer >= self.respawn_delay) then
+                    self:SpawnFlag()
+                end
             end
+            goto done
         end
-        goto done
-    end
 
-    -- check for flag capture:
-    for i = 1, 16 do
-        if player_present(i) and player_alive(i) and (i == flag_carrier) then
-            local px, py, pz = GetXYZ(i)
-            if (px) then
-                for _, v in pairs(self.capture_points) do
-                    if GetDistance(px, py, pz, v[1], v[2], v[3] - self.z_off, self.trigger_radius) then
+        -- check for flag capture:
+        for i = 1, 16 do
+            if player_present(i) and player_alive(i) and (i == flag_carrier) then
 
-                        -- spawn a new flag:
-                        self:SpawnFlag(i)
+                local px, py, pz, in_vehicle = GetXYZ(i)
 
-                        -- update score:
-                        if (self.team_play) then
-                            self:UpdateScore(i, true)
-                        else
-                            self:UpdateScore(i)
+                -- Prevent flag carriers from capturing the flag if (self.vehicle_capture is false):
+                if (in_vehicle and not self.vehicle_capture) then
+                    goto done
+                end
+
+                if (px) then
+                    for _, v in pairs(self.capture_points) do
+                        if GetDistance(px, py, pz, v[1], v[2], v[3] - self.z_off, self.trigger_radius) then
+
+                            -- spawn a new flag:
+                            self:SpawnFlag(i)
+
+                            -- update score:
+                            if (self.team_play) then
+                                self:UpdateScore(i, true)
+                            else
+                                self:UpdateScore(i)
+                            end
+
+                            goto done
                         end
-
-                        goto done
                     end
                 end
             end
         end
-    end
 
-    :: done ::
+        :: done ::
+    end
 end
 
 function CTF:UpdateScore(Ply, TeamScore)
@@ -421,8 +459,8 @@ function CTF:UpdateScore(Ply, TeamScore)
 
     -- Update team score:
     if (TeamScore) then
-        local team = get_var(Ply, "$team")
         local team_score
+        local team = get_var(Ply, "$team")
         if (team == "red") then
             team = 0
             team_score = get_var(0, "$redscore")
@@ -440,16 +478,31 @@ function CTF:UpdateScore(Ply, TeamScore)
     execute_command("score " .. Ply .. " " .. score)
 end
 
-local function AnnouncePickup(Ply, self)
+local upper = string.upper
+function CTF:AnnouncePickup(Ply)
+    self.flag.timer = 0
     if (self.announce_pickup) then
         self.announce_pickup = false
 
-        local msg = self.on_pickup[1]
+        local team_msg = self.on_pickup[1]
+        local sffa_msg = self.on_pickup[2]
+        local msg = (self.team_play and team_msg) or sffa_msg
+
+        local team = get_var(Ply, "$team")
         local name = get_var(Ply, "$name")
-        msg = msg:gsub("$name", name)
+
+        -- Convert first char in team name to upper.
+        local char = team:sub(1, 1)
+        team = team:gsub(char, upper(char))
+
+        -- Message to all players:
+        msg = msg:gsub("$team", team):gsub("$name", name)
         self:Broadcast(nil, msg)
 
-        self:Broadcast(Ply, self.on_pickup[2])
+        -- Message to the flag carrier:
+        msg = self.on_pickup[3]
+        msg = msg:gsub("$bonus", self.points_on_capture)
+        self:Broadcast(Ply, msg)
     end
 end
 
@@ -467,8 +520,7 @@ function CTF:HasFlag(Ply)
                     local tag_address = read_word(Weapon)
                     local tag_data = read_dword(read_dword(0x40440000) + tag_address * 0x20 + 0x14)
                     if (read_bit(tag_data + 0x308, 3) == 1) then
-                        self.flag.timer = 0
-                        AnnouncePickup(Ply, self)
+                        self:AnnouncePickup(Ply)
                         return true
                     end
                 end
@@ -476,6 +528,18 @@ function CTF:HasFlag(Ply)
         end
     end
     return false
+end
+
+function CTF:Proceed(mode)
+    local map = get_var(0, "$map")
+    local slayer = (mode == "slayer")
+    if (not slayer) then
+        cprint("Capture The Flag - [Only ffa/team slayer is supported]", 10)
+    end
+    if (not self[map]) then
+        cprint("Capture The Flag - [" .. map .. " is not configured]", 10)
+    end
+    return ((self[map] and slayer) and map) or false
 end
 
 -- Destroys the flag:
@@ -490,6 +554,10 @@ end
 
 function OnGameStart()
     CTF:Init()
+end
+
+function OnGameEnd()
+    CTF.game_started = false
 end
 
 function OnScriptUnload()
