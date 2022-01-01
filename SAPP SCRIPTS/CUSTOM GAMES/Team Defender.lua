@@ -286,7 +286,7 @@ function TeamDefender:GameTick()
     if (not flag_carrier) then
 
         local fx, fy, fz = self:GetFlagPos()
-        if (fx and not AtSpawn(fx, fy, fz - 0.2, self)) then
+        if (fx and not AtSpawn(fx, fy, fz - self.z_off, self)) then
 
             self.flag.timer = self.flag.timer + 1 / 30
             local time = self.respawn_delay - self.flag.timer % 60
@@ -388,9 +388,10 @@ function TeamDefender:Init()
                     self.announce_pickup = false
                     self.flag.id = read_dword(read_dword(globals_tag + 0x164 + 4) + 0xC)
 
+                    self.z_off = 0.2
                     self.x = self[map][1]
                     self.y = self[map][2]
-                    self.z = self[map][3] + 0.2
+                    self.z = self[map][3] + self.z_off
 
                     self:SpawnFlag()
 
