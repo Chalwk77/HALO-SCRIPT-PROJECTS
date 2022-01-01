@@ -286,7 +286,7 @@ function TeamDefender:GameTick()
     if (not flag_carrier) then
 
         local fx, fy, fz = self:GetFlagPos()
-        if (fx and not AtSpawn(fx, fy, fz, self)) then
+        if (fx and not AtSpawn(fx, fy, fz - 0.2, self)) then
 
             self.flag.timer = self.flag.timer + 1 / 30
             local time = self.respawn_delay - self.flag.timer % 60

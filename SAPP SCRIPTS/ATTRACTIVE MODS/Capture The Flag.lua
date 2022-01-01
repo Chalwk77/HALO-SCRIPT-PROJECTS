@@ -364,7 +364,7 @@ function CTF:GameTick()
     if (not flag_carrier) then
 
         local fx, fy, fz = self:GetFlagPos()
-        if (fx and not GetDistance(fx, fy, fz, self.x, self.y, self.z, 0.3)) then
+        if (fx and not GetDistance(fx, fy, fz, self.x, self.y, self.z - 0.2, 0.3)) then
 
             self.flag.timer = self.flag.timer + 1 / 30
             local time = self.respawn_delay - self.flag.timer % 60
@@ -388,7 +388,7 @@ function CTF:GameTick()
             local px, py, pz = GetXYZ(i)
             if (px) then
                 for _, v in pairs(self.capture_points) do
-                    if GetDistance(px, py, pz, v[1], v[2], v[3], 0.3) then
+                    if GetDistance(px, py, pz, v[1], v[2], v[3] - 0.2, 0.5) then
 
                         -- spawn a new flag:
                         self:SpawnFlag(i)
