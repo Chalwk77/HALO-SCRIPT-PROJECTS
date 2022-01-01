@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Capture the Flag (v1.1), for SAPP (PC & CE)
+Script Name: Capture the Flag (v1.2), for SAPP (PC & CE)
 Description: This script brings CTF-like mechanics to any Slayer (FFA/Team) game type.
              A single flag will spawn somewhere on the map. Return it to any base to score.
 
@@ -204,7 +204,7 @@ local CTF = {
     error_file = "CTF (errors).log",
 
     -- DO NOT TOUCH BELOW THIS POINT --
-    script_version = 1.1
+    script_version = 1.2
     --
 }
 -- config ends --
