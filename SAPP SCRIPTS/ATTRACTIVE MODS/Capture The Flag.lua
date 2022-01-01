@@ -18,8 +18,7 @@ local CTF = {
     --
     respawn_delay = 15,
 
-    -- Radius (in world units) a player must be standing from the flag podium to capture:
-    -- Default: 0.5
+    -- Radius (in world units) a player must be to capture:
     --
     trigger_radius = 0.5,
 
