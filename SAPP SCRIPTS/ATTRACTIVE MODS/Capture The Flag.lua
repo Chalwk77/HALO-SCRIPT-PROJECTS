@@ -18,6 +18,11 @@ local CTF = {
     --
     respawn_delay = 15,
 
+    -- Radius (in world units) a player must be standing from the flag podium to capture:
+    -- Default: 0.5
+    --
+    trigger_radius = 0.5,
+
     -- Message sent when a flag was dropped (appears at respawn_delay/2 seconds)
     -- Leave blank ("") to disable.
     --
@@ -365,7 +370,7 @@ function CTF:GameTick()
     if (not flag_carrier) then
 
         local fx, fy, fz = self:GetFlagPos()
-        if (fx and not GetDistance(fx, fy, fz, self.x, self.y, self.z - self.z_off, 0.3)) then
+        if (fx and not GetDistance(fx, fy, fz, self.x, self.y, self.z - self.z_off, self.trigger_radius)) then
 
             self.flag.timer = self.flag.timer + 1 / 30
             local time = self.respawn_delay - self.flag.timer % 60
@@ -389,7 +394,7 @@ function CTF:GameTick()
             local px, py, pz = GetXYZ(i)
             if (px) then
                 for _, v in pairs(self.capture_points) do
-                    if GetDistance(px, py, pz, v[1], v[2], v[3] - self.z_off, 0.5) then
+                    if GetDistance(px, py, pz, v[1], v[2], v[3] - self.z_off, self.trigger_radius) then
 
                         -- spawn a new flag:
                         self:SpawnFlag(i)
