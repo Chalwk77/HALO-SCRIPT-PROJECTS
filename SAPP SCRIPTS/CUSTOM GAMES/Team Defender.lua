@@ -254,8 +254,9 @@ end
 -- Distance function using pythagoras theorem:
 --
 local function AtSpawn(x, y, z, self)
+    local r = 0.3
     local sx, sy, sz = self.x, self.y, self.z
-    if math.sqrt((x - sx) ^ 2 + (y - sy) ^ 2 + (z - sz) ^ 2) <= 0.2 then
+    if math.sqrt((x - sx) ^ 2 + (y - sy) ^ 2 + (z - sz) ^ 2) <= r then
         return true
     end
     return false
