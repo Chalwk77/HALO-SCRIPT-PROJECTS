@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Team Defender (v1.3), for SAPP (PC & CE)
+Script Name: Team Defender (v1.4), for SAPP (PC & CE)
 Description: This is Team Defender from Call of Duty: Modern Warfare 3.
 
              * A flag will spawn somewhere on the map.
@@ -110,7 +110,7 @@ local TeamDefender = {
     error_file = "Team Defender (errors).log",
 
     -- DO NOT TOUCH BELOW THIS POINT --
-    script_version = 1.3
+    script_version = 1.4
     --
 }
 -- config ends --
