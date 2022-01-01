@@ -6,17 +6,18 @@ Description: In Melee Attack, players are limited to melee-only combat and can o
 
 Settings:
 
-* Set the score limit (default 50).
+* Set the score limit.
 
-* Easily define the melee weapon (default: skull).
+* Easily define the melee weapon.
 
 * Optionally prevent friendly fire.
 
-* Change player respawn time: (default 1 second)
+* Change player respawn time.
 
-* Define starting frag/plasma grenades (default: 0 each).
+* Define starting frag/plasma grenades.
 
-* Works on any game type (if melee weapon is the oddball or flag, do not use on ctf or oddball).
+* Works on any game type
+ NOTE: If melee weapon is the skull or flag, do not use on CTF or Oddball.
 
 * Object interactions with equipment, vehicles & weapons can
   be individually disabled or enabled for everyone or a defined team.
@@ -38,9 +39,9 @@ local Melee = {
     score_limit = 25,
 
     -- Respawn time delay (in seconds):
-    -- Default: 1 second
+    -- Default: 0 second
     --
-    respawn_time = 1,
+    respawn_time = 0,
 
     -- Melee weapon (index from objects table):
     --
@@ -360,8 +361,8 @@ function OnGameStart()
     Melee:Init()
 end
 
+-- Re-enable all game objects:
 function OnScriptUnload()
-    -- Re-enable all game objects:
     for _, v in pairs(Melee.objects) do
         execute_command("enable_object '" .. v[2] .. "' 0")
     end
