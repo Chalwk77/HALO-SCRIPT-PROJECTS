@@ -160,6 +160,9 @@ local function Modify(QUIT)
 end
 
 function OnStart()
+
+    game_in_progress = false
+
     local gt = get_var(0, "$gt")
     if (gt ~= "n/a") then
         SetScoreTable(gt)
