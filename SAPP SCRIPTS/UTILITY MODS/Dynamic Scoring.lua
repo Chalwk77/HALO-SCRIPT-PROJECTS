@@ -103,7 +103,6 @@ local score_limits = {
 }
 -- config ends --
 
-local game_in_progress
 local score_table, current_limit
 
 function OnScriptLoad()
@@ -119,7 +118,6 @@ end
 local function SetScoreTable(gt)
     local ffa = (get_var(0, "$ffa") == "1")
     score_table = (not ffa and score_limits[gt][1]) or score_limits[gt][2]
-    game_in_progress = true
 end
 
 local function getChar(n)
@@ -128,12 +126,10 @@ end
 
 local function Modify(QUIT)
 
-    if (game_in_progress) then
+    if (score_table) then
 
         for _, v in pairs(score_table) do
-
             local min, max, limit = v[1], v[2], v[3]
-
             if (min) then
 
                 local n = tonumber(get_var(0, "$pn"))
@@ -148,9 +144,7 @@ local function Modify(QUIT)
                     txt = txt:gsub("$limit", limit):gsub("$s", getChar(limit))
                     say_all(txt)
 
-                    cprint("---------------------------", 10)
                     cprint(txt, 10)
-                    cprint("---------------------------", 10)
 
                     break
                 end
@@ -161,7 +155,7 @@ end
 
 function OnStart()
 
-    game_in_progress = false
+    score_table, current_limit = nil, nil
 
     local gt = get_var(0, "$gt")
     if (gt ~= "n/a") then
@@ -171,7 +165,7 @@ function OnStart()
 end
 
 function OnGameEnd()
-    game_in_progress = false
+    score_table = nil
 end
 
 function OnJoin()
