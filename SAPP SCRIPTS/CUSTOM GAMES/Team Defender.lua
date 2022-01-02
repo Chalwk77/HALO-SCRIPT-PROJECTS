@@ -139,7 +139,7 @@ local function Modify(QUIT)
                 -- Technical note:
                 -- When a player quits, the $pn variable does not update immediately.
                 -- So we have to manually deduct one from the player count.
-                -- @Param QUITs tells us when a player has quit and thus deduct from n.
+                -- @Param QUIT is true when player has quit, thus we need to deduct 1 from n.
                 n = (QUIT and n - 1) or n
 
                 if (n >= min and n <= max and limit ~= current_limit) then
