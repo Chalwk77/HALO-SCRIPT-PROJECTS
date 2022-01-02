@@ -1,7 +1,7 @@
 --[[
 --=====================================================================================================--
 Script Name: Dynamic Scoring, for SAPP (PC & CE)
-Description: The score limit will change automatically depending on number of players currently online.
+Description: Automatically changes the score limit depending on the number of players currently online.
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
