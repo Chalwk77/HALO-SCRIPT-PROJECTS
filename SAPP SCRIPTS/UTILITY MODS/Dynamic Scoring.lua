@@ -21,11 +21,13 @@ local score_limits = {
 
     -- CAPTURE THE FLAG -------------------------------------
     ctf = {
-        { 1, 4, 1 }, -- 1-4 players
-        { 5, 8, 2 }, -- 5-8 players
-        { 9, 12, 3 }, -- 9-12 players
-        { 13, 16, 4 }, -- 13-16 players
-        "Score limit changed to: $limit",
+        {
+            { 1, 4, 1 }, -- 1-4 players
+            { 5, 8, 2 }, -- 5-8 players
+            { 9, 12, 3 }, -- 9-12 players
+            { 13, 16, 4 }, -- 13-16 players
+            "Score limit changed to: $limit",
+        }
     },
 
     -- SLAYER -----------------------------------------------
@@ -133,6 +135,10 @@ local function Modify(QUIT)
             if (min) then
 
                 local n = tonumber(get_var(0, "$pn"))
+
+                -- Technical note:
+                -- When a player quites, the $pn variable does not update immediately.
+                -- So we have to manually deduct one from the player count.
                 n = (QUIT and n - 1) or n
 
                 if (n >= min and n <= max and limit ~= current_limit) then
@@ -142,8 +148,8 @@ local function Modify(QUIT)
 
                     local txt = score_table[#score_table]
                     txt = txt:gsub("$limit", limit):gsub("$s", getChar(limit))
-                    say_all(txt)
 
+                    say_all(txt)
                     cprint(txt, 10)
 
                     break
@@ -154,9 +160,7 @@ local function Modify(QUIT)
 end
 
 function OnStart()
-
     score_table, current_limit = nil, nil
-
     local gt = get_var(0, "$gt")
     if (gt ~= "n/a") then
         SetScoreTable(gt)
