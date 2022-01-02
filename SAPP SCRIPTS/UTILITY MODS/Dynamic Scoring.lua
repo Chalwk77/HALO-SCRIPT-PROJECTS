@@ -11,7 +11,7 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 api_version = "1.12.0.0"
 
-local ScoreLimit = {
+local score_limits = {
 
     -- config starts --
 
@@ -103,73 +103,82 @@ local ScoreLimit = {
 }
 -- config ends --
 
-function OnScriptLoad()
+local game_in_progress
+local score_table, current_limit
 
-    ScoreLimit.limit = nil
-    ScoreLimit.scoretable = nil
+function OnScriptLoad()
 
     register_callback(cb["EVENT_JOIN"], "OnJoin")
     register_callback(cb["EVENT_LEAVE"], "OnQuit")
     register_callback(cb["EVENT_GAME_START"], "OnStart")
+    register_callback(cb["EVENT_GAME_END"], "OnEnd")
 
     OnStart()
 end
 
-function ScoreLimit:SetScoreTable(gt)
+local function SetScoreTable(gt)
     local ffa = (get_var(0, "$ffa") == "1")
-    self.scoretable = (not ffa and self[gt][1]) or self[gt][2]
-end
-
-function OnStart()
-    local mode = get_var(0, "$gt")
-    if (mode ~= "n/a") then
-        ScoreLimit:SetScoreTable(mode)
-        ScoreLimit:Modify()
-    end
-end
-
-function OnJoin(_)
-    ScoreLimit:Modify()
-end
-
-function OnQuit(_)
-    ScoreLimit:Modify(true)
+    score_table = (not ffa and score_limits[gt][1]) or score_limits[gt][2]
+    game_in_progress = true
 end
 
 local function getChar(n)
     return (n > 1 and "s") or ""
 end
 
-function ScoreLimit:Modify(QUIT)
-    for _, v in pairs(self.scoretable) do
-        local min, max, limit = v[1], v[2], v[3]
-        if (min) then
+local function Modify(QUIT)
 
-            local n = tonumber(get_var(0, "$pn"))
-            n = (QUIT and n - 1) or n
+    if (game_in_progress) then
 
-            if (n >= min and n <= max and limit ~= self.limit) then
+        for _, v in pairs(score_table) do
 
-                self.limit = limit
-                execute_command("scorelimit " .. limit)
+            local min, max, limit = v[1], v[2], v[3]
 
-                local txt = self.scoretable[5]
-                txt = txt:gsub("$limit", limit):gsub("$s", getChar(limit))
-                say_all(txt)
+            if (min) then
 
-                cprint("---------------------------", 10)
-                cprint(txt, 10)
-                cprint("---------------------------", 10)
+                local n = tonumber(get_var(0, "$pn"))
+                n = (QUIT and n - 1) or n
 
-                break
+                if (n >= min and n <= max and limit ~= current_limit) then
+
+                    current_limit = limit
+                    execute_command("scorelimit " .. limit)
+
+                    local txt = score_table[#score_table]
+                    txt = txt:gsub("$limit", limit):gsub("$s", getChar(limit))
+                    say_all(txt)
+
+                    cprint("---------------------------", 10)
+                    cprint(txt, 10)
+                    cprint("---------------------------", 10)
+
+                    break
+                end
             end
         end
     end
 end
 
+function OnStart()
+    local gt = get_var(0, "$gt")
+    if (gt ~= "n/a") then
+        SetScoreTable(gt)
+        Modify()
+    end
+end
+
+function OnGameEnd()
+    game_in_progress = false
+end
+
+function OnJoin()
+    Modify()
+end
+
+function OnQuit()
+    Modify(true)
+end
+
 function OnScriptUnload()
     -- N/A
 end
-
--- For a future update:
-return ScoreLimit
