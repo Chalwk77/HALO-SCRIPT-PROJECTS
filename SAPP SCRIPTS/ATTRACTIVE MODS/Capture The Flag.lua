@@ -247,10 +247,9 @@ function CTF:Init()
     if (mode ~= "n/a") then
 
         self.flag = { }
-
         self.game_started = false
-        local map = self:Proceed(mode)
 
+        local map = self:Proceed(mode)
         if (map) then
 
             local tag_address = read_dword(0x40440000)

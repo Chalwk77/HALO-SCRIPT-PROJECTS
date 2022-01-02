@@ -412,6 +412,7 @@ function TD:Init()
     if (mode ~= "n/a") then
 
         self.flag = { }
+        self.game_started = false
 
         local map = self:Proceed(mode)
         if (map) then
@@ -425,6 +426,7 @@ function TD:Init()
                 local globals_tag = read_dword(tag + 0x14)
                 if (tag_class == 0x6D617467) then
 
+                    self.game_started = true
                     self.announce_pickup = false
                     self.flag.id = read_dword(read_dword(globals_tag + 0x164 + 4) + 0xC)
 
