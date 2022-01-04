@@ -1,9 +1,9 @@
 --[[
 --=====================================================================================================--
 Script Name: Command Spy, for SAPP (PC & CE)
-Description: Get notified when a player executes a command.
+Description: Get notified when a player executes a command.
 
-Admins of level 1 or higher will be notified when someone executes a command originating from rcon or chat.
+Admins of level 1 or higher will be notified when someone executes a command originating from rcon or chat.
 Command Spy is enabled for all admins by default and can be turned on/off with /spy.
 
 Command(s) containing these words will not be seen:
@@ -147,8 +147,7 @@ function CSpy:SPY(Ply, CMD, ENV, _)
 
             local lvl = GetLevel(Ply)
             if (lvl >= 1 and self.ignore_admins) then
-                -- Do not return false here otherwise the command will be blocked.
-                goto done
+                goto done -- Do not return false here otherwise the command will be blocked.
             end
 
             for i = 1, 16 do
