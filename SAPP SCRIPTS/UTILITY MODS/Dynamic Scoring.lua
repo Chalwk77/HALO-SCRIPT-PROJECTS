@@ -140,7 +140,7 @@ local function Modify(QUIT)
                 -- When a player quits, the $pn variable does not update immediately.
                 -- So we have to manually deduct one from the player count.
 
-                -- @Param QUIT is true when a player quits.
+                -- @Param QUIT is true when a player disconnects from the server.
                 -- We use this to determine when to deduct one from n.
                 --
                 n = (QUIT and n - 1) or n
