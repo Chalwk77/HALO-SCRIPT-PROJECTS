@@ -1,16 +1,18 @@
 --[[
 --=====================================================================================================--
 Script Name: Command Spy, for SAPP (PC & CE)
-Description: Get notified when a player executes a command.
+Description: Get notified when a player executes a command.
 
-             - features -
-             Admins of level 1 (or higher) will be notified when
-             someone executes a command originating from rcon or chat (see "output_format" table).
+Admins of level 1 or higher will be notified when someone executes a command originating from rcon or chat.
+Command Spy is enabled for all admins by default and can be turned on/off with /spy.
 
-             Command Spy is enabled for all admins by default.
-             Command Spy can be turned on or off for yourself (or others players)
-
-             See config section for more information.
+Command(s) containing these words will not be seen:
+* 	login
+* 	admin_add
+* 	sv_password
+* 	change_password
+* 	admin_change_pw
+* 	admin_add_manually
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -23,20 +25,23 @@ local CSpy = {
 
     -- This is the custom command used to toggle command spy on or off:
     -- Command syntax: /command
+    --
     command = "spy",
-    --
 
-    -- Minimum permission required to execute /command (for yourself)
-    permission = 1,
+    -- Minimum permission required to execute /command:
     --
+    permission = 1,
 
     -- If true, command spy will be enabled for admins by default:
+    --
     enabled_by_default = true,
 
     -- If true, you will not see admin commands:
+    --
     ignore_admins = false,
 
     -- Command Spy message format:
+    --
     output = {
         -- RCON:
         [1] = "[R-SPY] $name: $cmd",
@@ -45,6 +50,7 @@ local CSpy = {
     },
 
     -- Command(s) containing these words will not be seen:
+    --
     blacklist = {
         "login",
         "admin_add",
@@ -86,9 +92,6 @@ local function Respond(Ply, Msg)
     return (Ply == 0 and cprint(Msg)) or rprint(Ply, Msg)
 end
 
---
--- This function checks if the command contains any blacklisted keywords:
---
 local function BlackListed(CMD)
     for _, word in pairs(CSpy.blacklist) do
         if CMD:lower():find(word) then
@@ -110,6 +113,14 @@ local function CMDSplit(CMD)
     return args
 end
 
+local function ConcatStr(Args)
+    local str = ""
+    for j = 1, #Args do
+        str = str .. Args[j] .. " "
+    end
+    return str
+end
+
 function CSpy:SPY(Ply, CMD, ENV, _)
 
     local args = CMDSplit(CMD)
@@ -125,11 +136,7 @@ function CSpy:SPY(Ply, CMD, ENV, _)
             local lvl = GetLevel(Ply)
             local spy = self.players[Ply]
             if (lvl >= self.permission) then
-                if (spy.state) then
-                    spy.state = false
-                else
-                    spy.state = true
-                end
+                spy.state = (spy.state and false or not spy.state and true)
                 Respond(Ply, "Command Spy " .. (spy.state and "enabled" or not spy.state and "disabled"))
             else
                 Respond(Ply, "You do not have permission to execute that command")
@@ -140,6 +147,7 @@ function CSpy:SPY(Ply, CMD, ENV, _)
 
             local lvl = GetLevel(Ply)
             if (lvl >= 1 and self.ignore_admins) then
+                -- Do not return false here otherwise the command will be blocked.
                 goto done
             end
 
@@ -148,10 +156,7 @@ function CSpy:SPY(Ply, CMD, ENV, _)
                     lvl = GetLevel(i)
                     local spy = self.players[i]
                     if (spy.state and lvl >= self.permission) then
-                        local cmd = ""
-                        for j = 1, #args do
-                            cmd = cmd .. args[j] .. " "
-                        end
+                        local cmd = ConcatStr(args)
                         local msg = self.output[ENV]
                         local name = get_var(Ply, "$name")
                         msg = msg:gsub("$name", name):gsub("$cmd", cmd)
