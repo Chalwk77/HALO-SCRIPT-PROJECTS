@@ -111,8 +111,8 @@ function OnScriptLoad()
 
     register_callback(cb["EVENT_JOIN"], "OnJoin")
     register_callback(cb["EVENT_LEAVE"], "OnQuit")
-    register_callback(cb["EVENT_GAME_START"], "OnStart")
     register_callback(cb["EVENT_GAME_END"], "OnEnd")
+    register_callback(cb["EVENT_GAME_START"], "OnStart")
 
     OnStart()
 end
@@ -172,7 +172,7 @@ function OnStart()
     end
 end
 
-function OnGameEnd()
+function OnEnd()
     score_table = nil
 end
 
