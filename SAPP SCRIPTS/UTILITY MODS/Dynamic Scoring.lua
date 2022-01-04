@@ -119,7 +119,7 @@ end
 
 local function SetScoreTable(gt)
     local ffa = (get_var(0, "$ffa") == "1")
-    score_table = (not ffa and score_limits[gt][1]) or score_limits[gt][2]
+    score_table = (ffa and score_limits[gt][1]) or score_limits[gt][2]
 end
 
 local function getChar(n)
