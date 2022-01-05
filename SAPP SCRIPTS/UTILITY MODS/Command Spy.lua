@@ -173,6 +173,10 @@ function OnCommand(P, C, E)
     return CSpy:SPY(P, C, E)
 end
 
+function OnScriptUnload()
+    -- N/A
+end
+
 -- for a future update:
 return CSpy
 --
