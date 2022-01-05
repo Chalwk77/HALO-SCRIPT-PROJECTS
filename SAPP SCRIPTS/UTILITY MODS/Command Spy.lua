@@ -113,14 +113,6 @@ local function CMDSplit(CMD)
     return args
 end
 
-local function ConcatStr(Args)
-    local str = ""
-    for j = 1, #Args do
-        str = str .. Args[j] .. " "
-    end
-    return str
-end
-
 function CSpy:SPY(Ply, CMD, ENV, _)
 
     local args = CMDSplit(CMD)
@@ -136,7 +128,7 @@ function CSpy:SPY(Ply, CMD, ENV, _)
             local lvl = GetLevel(Ply)
             local spy = self.players[Ply]
             if (lvl >= self.permission) then
-                spy.state = (spy.state and false or not spy.state and true)
+                spy.state = (not spy.state and true or false)
                 Respond(Ply, "Command Spy " .. (spy.state and "enabled" or not spy.state and "disabled"))
             else
                 Respond(Ply, "You do not have permission to execute that command")
@@ -155,10 +147,9 @@ function CSpy:SPY(Ply, CMD, ENV, _)
                     lvl = GetLevel(i)
                     local spy = self.players[i]
                     if (spy.state and lvl >= self.permission) then
-                        local cmd = ConcatStr(args)
                         local msg = self.output[ENV]
                         local name = get_var(Ply, "$name")
-                        msg = msg:gsub("$name", name):gsub("$cmd", cmd)
+                        msg = msg:gsub("$name", name):gsub("$cmd", CMD)
                         Respond(i, msg)
                     end
                 end
@@ -173,8 +164,8 @@ function CSpy:InitPlayer(Ply, Reset)
 
     if (not Reset) then
         local lvl = tonumber(get_var(Ply, "$lvl"))
-        local on_by_default = (lvl >= self.permission and self.enabled_by_default)
-        self.players[Ply] = { state = (on_by_default or false) }
+        local state = (lvl >= self.permission and self.enabled_by_default)
+        self.players[Ply] = { state = (state or false) }
         return
     end
 
