@@ -105,58 +105,47 @@ local function GetLevel(Ply)
     return tonumber(get_var(Ply, "$lvl"))
 end
 
-local function CMDSplit(CMD)
-    local args = { }
-    for Command in CMD:gmatch("([^%s]+)") do
-        args[#args + 1] = Command:lower()
-    end
-    return args
-end
-
 function CSpy:SPY(Ply, CMD, ENV, _)
 
-    local args = CMDSplit(CMD)
-    if (#args > 0) then
+    local this_cmd = CMD:sub(1, CMD:len()):lower()
+    if (this_cmd == self.command) then
 
-        if (args[1] == self.command) then
-
-            if (Ply == 0) then
-                Respond(Ply, "Server cannot execute this command.")
-                return false
-            end
-
-            local lvl = GetLevel(Ply)
-            local spy = self.players[Ply]
-            if (lvl >= self.permission) then
-                spy.state = (not spy.state and true or false)
-                Respond(Ply, "Command Spy " .. (spy.state and "enabled" or not spy.state and "disabled"))
-            else
-                Respond(Ply, "You do not have permission to execute that command")
-            end
+        if (Ply == 0) then
+            Respond(Ply, "Server cannot execute this command.")
             return false
+        end
 
-        elseif (Ply > 0 and not BlackListed(args[1])) then
+        local lvl = GetLevel(Ply)
+        local spy = self.players[Ply]
+        if (lvl >= self.permission) then
+            spy.state = (not spy.state and true or false)
+            Respond(Ply, "Command Spy " .. (spy.state and "enabled" or not spy.state and "disabled"))
+        else
+            Respond(Ply, "You do not have permission to execute that command")
+        end
+        return false
 
-            local lvl = GetLevel(Ply)
-            if (lvl >= 1 and self.ignore_admins) then
-                goto done -- Do not return false here otherwise the command will be blocked.
-            end
+    elseif (Ply > 0 and not BlackListed(this_cmd)) then
 
-            for i = 1, 16 do
-                if (player_present(i) and i ~= Ply) then
-                    lvl = GetLevel(i)
-                    local spy = self.players[i]
-                    if (spy.state and lvl >= self.permission) then
-                        local msg = self.output[ENV]
-                        local name = get_var(Ply, "$name")
-                        msg = msg:gsub("$name", name):gsub("$cmd", CMD)
-                        Respond(i, msg)
-                    end
+        local lvl = GetLevel(Ply)
+        if (lvl >= 1 and self.ignore_admins) then
+            goto done -- Do not return false here otherwise the command will be blocked.
+        end
+
+        for i = 1, 16 do
+            if (player_present(i) and i ~= Ply) then
+                lvl = GetLevel(i)
+                local spy = self.players[i]
+                if (spy.state and lvl >= self.permission) then
+                    local msg = self.output[ENV]
+                    local name = get_var(Ply, "$name")
+                    msg = msg:gsub("$name", name):gsub("$cmd", CMD)
+                    Respond(i, msg)
                 end
             end
-
-            :: done ::
         end
+
+        :: done ::
     end
 end
 
