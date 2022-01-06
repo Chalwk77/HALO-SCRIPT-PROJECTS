@@ -3,6 +3,10 @@
 Script Name: Dynamic Scoring, for SAPP (PC & CE)
 Description: Automatically changes the score limit depending on the number of players currently online.
 
+             * Supports custom game mode overrides.
+             * If your game mode is not configured in the score_limits table,
+               the server will use the pre-configured game type table instead.
+
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
@@ -15,9 +19,34 @@ local score_limits = {
 
     -- config starts --
 
+    --
+    -- The following variables are valid in the custom message:
+    -- $limit = the new score limit
+    -- $s = word pluralization character (s) (applies to minutes and laps)
+    --
+
     -- Format:
     -- { min players, max players, score limit }
+
+    -------------------------------------------------------------
+    -- CUSTOM GAME MODE TABLES:
+    -------------------------------------------------------------
+
+    ["example_game_mode"] = { -- replace with your own game mode name
+        { 1, 4, 1000 }, -- 1-4 players
+        { 5, 8, 35 }, -- 5-8 players
+        { 9, 12, 45 }, -- 9-12 players
+        { 13, 16, 50 }, -- 13-16 players
+        "Score limit changed to: $limit"
+    },
+
     --
+    -- repeat the structure to add more game mode entries.
+    --
+
+    -------------------------------------------------------------
+    -- DEFAULT GAME TYPE TABLES:
+    -------------------------------------------------------------
 
     -- CAPTURE THE FLAG -------------------------------------
     ctf = {
@@ -40,7 +69,7 @@ local score_limits = {
             "Score limit changed to: $limit"
         },
         {   -- TEAM:
-            { 1, 4, 25 }, -- 1-4 players
+            { 1, 4, 500 }, -- 1-4 players
             { 5, 8, 35 }, -- 5-8 players
             { 9, 12, 45 }, -- 9-12 players
             { 13, 16, 50 }, -- 13-16 players
@@ -117,9 +146,12 @@ function OnScriptLoad()
     OnStart()
 end
 
-local function SetScoreTable(gt)
-    local ffa = (get_var(0, "$ffa") == "1")
-    score_table = (ffa and score_limits[gt][1]) or score_limits[gt][2]
+local function SetScoreTable(m, gt)
+    score_table = score_limits[m]
+    if (not score_table) then
+        local ffa = (get_var(0, "$ffa") == "1")
+        score_table = (ffa and score_limits[gt][1]) or score_limits[gt][2]
+    end
 end
 
 local function getChar(n)
@@ -152,7 +184,6 @@ local function Modify(QUIT)
 
                     local txt = score_table[#score_table]
                     txt = txt:gsub("$limit", limit):gsub("$s", getChar(limit))
-
                     say_all(txt)
                     cprint(txt, 10)
 
@@ -164,10 +195,14 @@ local function Modify(QUIT)
 end
 
 function OnStart()
+
     score_table, current_limit = nil, nil
+
     local gt = get_var(0, "$gt")
+    local mode = get_var(0, "$mode")
+
     if (gt ~= "n/a") then
-        SetScoreTable(gt)
+        SetScoreTable(mode, gt)
         Modify()
     end
 end
