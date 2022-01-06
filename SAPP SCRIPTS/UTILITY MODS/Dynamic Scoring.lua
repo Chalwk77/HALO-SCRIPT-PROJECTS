@@ -3,9 +3,9 @@
 Script Name: Dynamic Scoring, for SAPP (PC & CE)
 Description: Automatically changes the score limit depending on the number of players currently online.
 
-             * Supports custom game mode overrides.
-             * If your game mode is not configured in the score_limits table,
-               the server will use the pre-configured game type table instead.
+            Supports custom game mode overrides.
+            If your game mode is not configured in the score_limits table,
+            the server will use the pre-configured game type table instead.
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -20,9 +20,9 @@ local score_limits = {
     -- config starts --
 
     --
-    -- The following variables are valid in the custom message:
-    -- $limit = the new score limit
-    -- $s = word pluralization character (s) (applies to minutes and laps)
+    -- The following variables can be used in custom messages:
+    -- $limit   = the new score limit
+    -- $s       = word pluralization character (s) (applies to minutes and laps)
     --
 
     -- Format:
@@ -33,7 +33,15 @@ local score_limits = {
     -------------------------------------------------------------
 
     ["example_game_mode"] = { -- replace with your own game mode name
-        { 1, 4, 1000 }, -- 1-4 players
+        { 1, 4, 25 }, -- 1-4 players
+        { 5, 8, 35 }, -- 5-8 players
+        { 9, 12, 45 }, -- 9-12 players
+        { 13, 16, 50 }, -- 13-16 players
+        "Score limit changed to: $limit"
+    },
+
+    ["another_example_game_mode"] = {
+        { 1, 4, 25 }, -- 1-4 players
         { 5, 8, 35 }, -- 5-8 players
         { 9, 12, 45 }, -- 9-12 players
         { 13, 16, 50 }, -- 13-16 players
@@ -41,25 +49,21 @@ local score_limits = {
     },
 
     --
-    -- repeat the structure to add more game mode entries.
+    -- repeat the above structure to add more game mode entries.
     --
 
     -------------------------------------------------------------
     -- DEFAULT GAME TYPE TABLES:
     -------------------------------------------------------------
 
-    -- CAPTURE THE FLAG -------------------------------------
     ctf = {
-        {
-            { 1, 4, 1 }, -- 1-4 players
-            { 5, 8, 2 }, -- 5-8 players
-            { 9, 12, 3 }, -- 9-12 players
-            { 13, 16, 4 }, -- 13-16 players
-            "Score limit changed to: $limit",
-        }
+        { 1, 4, 1 }, -- 1-4 players
+        { 5, 8, 2 }, -- 5-8 players
+        { 9, 12, 3 }, -- 9-12 players
+        { 13, 16, 4 }, -- 13-16 players
+        "Score limit changed to: $limit",
     },
 
-    -- SLAYER -----------------------------------------------
     slayer = {
         {   -- FFA:
             { 1, 4, 15 }, -- 1-4 players
@@ -69,7 +73,7 @@ local score_limits = {
             "Score limit changed to: $limit"
         },
         {   -- TEAM:
-            { 1, 4, 500 }, -- 1-4 players
+            { 1, 4, 25 }, -- 1-4 players
             { 5, 8, 35 }, -- 5-8 players
             { 9, 12, 45 }, -- 9-12 players
             { 13, 16, 50 }, -- 13-16 players
@@ -77,16 +81,15 @@ local score_limits = {
         }
     },
 
-    -- KING OF THE HILL -------------------------------------
     king = {
-        {   -- FFA
+        {   -- FFA:
             { 1, 4, 2 }, -- 1-4 players
             { 5, 8, 3 }, -- 5-8 players
             { 9, 12, 4 }, -- 9-12 players
             { 13, 16, 5 }, -- 13-16 players
             "Score limit changed to: $limit minute$s"
         },
-        {   -- TEAM
+        {   -- TEAM:
             { 1, 4, 3 }, -- 1-4 players
             { 5, 8, 4 }, -- 5-8 players
             { 9, 12, 5 }, -- 9-12 players
@@ -95,9 +98,8 @@ local score_limits = {
         }
     },
 
-    -- ODDBALL ----------------------------------------------
     oddball = {
-        {   -- FFA
+        {   -- FFA:
             { 1, 4, 2 }, -- 1-4 players
             { 5, 8, 3 }, -- 5-8 players
             { 9, 12, 4 }, -- 9-12 players
@@ -105,7 +107,7 @@ local score_limits = {
             "Score limit changed to: $limit minute$s"
 
         },
-        {   -- TEAM
+        {   -- TEAM:
             { 1, 4, 3 }, -- 1-4 players
             { 5, 8, 4 }, -- 5-8 players
             { 9, 12, 5 }, -- 9-12 players
@@ -114,16 +116,15 @@ local score_limits = {
         }
     },
 
-    -- RACE -------------------------------------------------
     race = {
-        {   -- FFA
+        {   -- FFA:
             { 1, 4, 4 }, -- 1-4 players
             { 5, 8, 4 }, -- 5-8 players
             { 9, 12, 5 }, -- 9-12 players
             { 13, 16, 6 }, -- 13-16 players
             "Score limit changed to: $limit lap$s"
         },
-        {   -- TEAM
+        {   -- TEAM:
             { 1, 4, 4 }, -- 1-4 players
             { 5, 8, 5 }, -- 5-8 players
             { 9, 12, 6 }, -- 9-12 players
