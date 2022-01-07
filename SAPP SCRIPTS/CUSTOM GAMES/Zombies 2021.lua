@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Zombies (v1.18), for SAPP (PC & CE)
+Script Name: Zombies (v1.19), for SAPP (PC & CE)
 
 -- Introduction --
 Players in zombies matches are split into two teams: Humans (red team) and Zombies (blue team).
@@ -348,7 +348,7 @@ local Zombies = {
     -- config ends --
 
     -- DO NOT TOUCH BELOW THIS POINT --
-    script_version = 1.18
+    script_version = 1.19
     --
 }
 
@@ -834,7 +834,7 @@ function Zombies:StartPreGameTimer()
 
             local players = { }
             for i = 1, 16 do
-                if player_present(i) then
+                if player_present(i) and self.players[i] then
                     table.insert(players, i)
                 end
             end
