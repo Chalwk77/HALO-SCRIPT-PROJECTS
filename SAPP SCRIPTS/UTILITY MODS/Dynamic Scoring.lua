@@ -57,11 +57,13 @@ local score_limits = {
     -------------------------------------------------------------
 
     ctf = {
-        { 1, 4, 1 }, -- 1-4 players
-        { 5, 8, 2 }, -- 5-8 players
-        { 9, 12, 3 }, -- 9-12 players
-        { 13, 16, 4 }, -- 13-16 players
-        "Score limit changed to: $limit",
+        {
+            { 1, 4, 1 }, -- 1-4 players
+            { 5, 8, 2 }, -- 5-8 players
+            { 9, 12, 3 }, -- 9-12 players
+            { 13, 16, 4 }, -- 13-16 players
+            "Score limit changed to: $limit",
+        }
     },
 
     slayer = {
