@@ -300,11 +300,12 @@ local Zombies = {
     -- Game objects to disable:
 
     -- Format: {tag name, team}
-    -- Teams: 0 = both, 1 = red, 2 = blue
+    -- Teams:
+    -- 0    = disabled for both teams
+    -- 1    = disabled for red team
+    -- 2    = disabled for blue team
+    -- nil  = enabled for both teams
 
-    -- To enable an object for both teams, prefix the line with a double-hyphen (--).
-    -- For example: -- { 'powerups\\health pack', 2 }
-    --
     objects = {
 
         -- vehicles:
@@ -334,7 +335,7 @@ local Zombies = {
 
         -- equipment:
         --
-        -- { 'powerups\\health pack', 0 },
+        { 'powerups\\health pack', nil }, -- enabled for both teams by default
         { 'powerups\\over shield', 2 },
         { 'powerups\\active camouflage', 2 },
         { 'weapons\\frag grenade\\frag grenade', 2 },
