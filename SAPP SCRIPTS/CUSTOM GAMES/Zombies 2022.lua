@@ -791,7 +791,9 @@ function Zombies:GameObjects(State)
 
     -- Disable game objects:
     for _, v in pairs(self.objects) do
-        execute_command(State .. " '" .. v[1] .. "' " .. v[2])
+        if (v[2] ~= nil) then
+            execute_command(State .. " '" .. v[1] .. "' " .. v[2])
+        end
     end
 end
 
