@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Zombies (v1.19), for SAPP (PC & CE)
+Script Name: Zombies (v1.20), for SAPP (PC & CE)
 
 -- Introduction --
 Players in zombies matches are split into two teams: Humans (red team) and Zombies (blue team).
@@ -29,7 +29,7 @@ Humans are given short - and medium-range firearms.
 Please report any bugs and feedback on the page linked below (script changelogs are posted on this page).
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/132
 
-Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
@@ -75,6 +75,10 @@ local Zombies = {
     -- Default: false
     --
     clear_chat = false,
+
+    -- When enabled, fall damage will be disabled for all players:
+    --
+    block_fall_damage = true,
 
     -- Time (in seconds) until a human is selected to become a zombie:
     -- Default: 5
@@ -132,7 +136,7 @@ local Zombies = {
 
             *   respawn_time:           Range from 0-999 (in seconds).
             *   weapons:                Leave the array blank to use default weapon sets.
-            *   damage_multiplier:      Units of damage range from 0-10.
+            *   damage_multiplier:      Units of damage range from 0-10 (1 = normal damage)
             *   nav_marker:             A NAV marker will appear above the last man standing's head.
             *   camo:                   Alpha-Zombies and Standard Zombies have optional Crouch Camo traits.
             *   grenades:               Allows you to define the starting number of frags & plasmas.
@@ -171,7 +175,7 @@ local Zombies = {
             respawn_time = 1.5,
             grenades = { 0, 2 },
             damage_multiplier = 10,
-            weapons = { 'weapons\\plasma rifle\\plasma rifle' }
+            weapons = { "weapons\\plasma rifle\\plasma rifle" }
         },
 
         ["Standard Zombies"] = {
@@ -348,7 +352,7 @@ local Zombies = {
     -- config ends --
 
     -- DO NOT TOUCH BELOW THIS POINT --
-    script_version = 1.19
+    script_version = 1.20
     --
 }
 
@@ -1297,8 +1301,8 @@ function Zombies:Broadcast(Ply, Msg)
     execute_command("msg_prefix \" " .. self.server_prefix .. "\"")
 end
 
-local function Falling(MetaID)
-    if (MetaID == Zombies.fall_damage or MetaID == Zombies.distance_damage) then
+function Zombies:Falling(MetaID)
+    if (MetaID == self.fall_damage or MetaID == self.distance_damage) then
         return true
     end
     return false
@@ -1351,10 +1355,17 @@ function Zombies:DeathHandler(Victim, Killer, MetaID, Damage, _, _)
 
     if (v) then
 
+
         -- event_damage_application:
         if (MetaID) then
 
             v.meta_id = MetaID
+
+            -- prevent dying from fall/distance damage (if self.block_fall_damage == true):
+            local falling = self:Falling(v.meta_id)
+            if (self.block_fall_damage and falling) then
+                return false
+            end
 
             if (killer > 0) then
 
@@ -1392,9 +1403,9 @@ function Zombies:DeathHandler(Victim, Killer, MetaID, Damage, _, _)
 
             local server = (killer == -1)
             local squashed = (killer == 0)
+            local falling = self:Falling(v.meta_id)
             local guardians = (v and k and killer == nil)
             local suicide = (v and killer == victim)
-            local falling = Falling(v.meta_id)
             local pvp = (killer > 0 and killer ~= victim)
 
             if (pvp) then
