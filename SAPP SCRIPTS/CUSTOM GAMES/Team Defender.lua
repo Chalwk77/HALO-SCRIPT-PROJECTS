@@ -1,186 +1,534 @@
 --[[
 --=====================================================================================================--
-Script Name: Dynamic Scoring, for SAPP (PC & CE)
-Description: Automatically changes the score limit depending on the number of players currently online.
+Script Name: Team Defender (v1.5), for SAPP (PC & CE)
+Description: This is Team Defender from Call of Duty: Modern Warfare 3.
 
-Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
+            * A flag will spawn somewhere on the map.
+            * One player must hold on to the flag for as long as possible, while his teammates defend him.
+            * The team holding the flag receives double points towards the match score.
+            * Players holding the flag will get +20 assist points for every kill that a teammate gets.
+            * The flag respawns after 15 seconds if not held.
+
+Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
-api_version = "1.12.0.0"
+-- config starts --
+local TD = {
 
-local score_limits = {
+    -- Time (in seconds) until a dropped flag will respawn:
+    -- Default: 15 seconds
+    respawn_delay = 15,
 
-    -- config starts --
+    -- When enabled, friendly fire will be blocked:
+    --
+    block_friendly_fire = true,
 
-    -- Format:
-    -- { min players, max players, score limit }
+    -- Message broadcast when someone picks up the flag:
+    -- $team will be replaced with the players team name (red/blue).
+    -- $name will be replaced with the players name.
+    -- Leave blank ("") to disable.
+    --
+    on_pickup = "[$team team] $name has the flag.",
+
+    -- Message sent when a flag was dropped (appears at respawn_delay/2 seconds)
+    -- $S will be replaced with the time remaining.
+    -- $s will be replaced with a lowercase "s" if $S>1.
+    -- Leave blank ("") to disable.
+    --
+    respawn_warning = "The flag was dropped and will respawn in $S second$s.",
+
+    -- Message broadcast when the flag respawns:
+    -- Leave blank ("") to disable.
+    --
+    message_on_respawn = "The flag has respawned.",
+
+    -- Nav Marker (on by default):
+    -- When enabled, the flag carrier will have a nav marker above his head.
+    -- Requires the kill in order game type flag to be set to YES.
+    -- Requires the objectives indicator to be st to NAV POINTS.
+    -- Default: false
+    --
+    nav_marker = false,
+
+    -- Scoring and custom messages:
+    -- Leave messages blank ("") to disable.
+    scoring = {
+
+        -- The player holding the flag will get this many assist points
+        -- for every kill that a teammate gets:
+        -- Default: 20
+        --
+        { 20, "+20 Team Assist" },
+
+        -- Team without flag (points per kill)
+        -- Default: 50
+        --
+        { 50, "+50 Kill Bonus" },
+
+        -- Team with flag (points per kill)
+        -- Default: 100
+        --
+        { 100, "+100 Defence" },
+
+        -- Flag carrier kill points:
+        -- Default: 250
+        --
+        { 250, "+250 Flag Carrier kill" },
+
+        -- Score limit:
+        -- Default: 7500
+        --
+        7500
+    },
+
+    -- Map flag spawn coordinates:
+    -- To get location coordinates, use SAPP's /coord command:
+    -- Syntax: coord <player id>
+    -- Alternatively, use a tools like Spark Edit, HMT, Lethargy or HEK.
+    --
+    ["bloodgulch"] = { 65.749, -120.409, 0.118 },
+    ["deathisland"] = { -30.282, 31.312, 16.601 },
+    ["icefields"] = { -26.032, 32.365, 9.007 },
+    ["infinity"] = { 9.631, -64.030, 7.776 },
+    ["sidewinder"] = { 2.051, 55.220, -2.801 },
+    ["timberland"] = { 1.250, -1.487, -21.264 },
+    ["dangercanyon"] = { -0.477, 55.331, 0.239 },
+    ["beavercreek"] = { 14.015, 14.238, -0.911 },
+    ["boardingaction"] = { 4.374, -12.832, 7.220 },
+    ["carousel"] = { 0.033, 0.003, -0.856 },
+    ["chillout"] = { 1.392, 4.700, 3.108 },
+    ["damnation"] = { -2.002, -4.301, 3.399 },
+    ["gephyrophobia"] = { 63.513, -74.088, -1.062 },
+    ["hangemhigh"] = { 21.020, -4.632, -4.229 },
+    ["longest"] = { -0.84, -14.54, 2.41 },
+    ["prisoner"] = { 0.902, 0.088, 1.392 },
+    ["putput"] = { -2.350, -21.121, 0.902 },
+    ["ratrace"] = { 8.662, -11.159, 0.221 },
+    ["wizard"] = { -5.035, -5.064, -2.750 },
+
+    -- Repeat the structure to add custom maps:
+    --
+    ["map_name"] = { x, y, z },
     --
 
-    -- CAPTURE THE FLAG -------------------------------------
-    ctf = {
-        {
-            { 1, 4, 1 }, -- 1-4 players
-            { 5, 8, 2 }, -- 5-8 players
-            { 9, 12, 3 }, -- 9-12 players
-            { 13, 16, 4 }, -- 13-16 players
-            "Score limit changed to: $limit",
-        }
-    },
+    -- A message relay function temporarily removes the server message prefix
+    -- and will restore it to this when the relay is finished:
+    server_prefix = "**SAPP**",
 
-    -- SLAYER -----------------------------------------------
-    slayer = {
-        {   -- FFA:
-            { 1, 4, 15 }, -- 1-4 players
-            { 5, 8, 25 }, -- 5-8 players
-            { 9, 12, 45 }, -- 9-12 players
-            { 13, 16, 50 }, -- 13-16 players
-            "Score limit changed to: $limit"
-        },
-        {   -- TEAM:
-            { 1, 4, 25 }, -- 1-4 players
-            { 5, 8, 35 }, -- 5-8 players
-            { 9, 12, 45 }, -- 9-12 players
-            { 13, 16, 50 }, -- 13-16 players
-            "Score limit changed to: $limit"
-        }
-    },
+    -- Script errors (if any) will be logged to this file:
+    --
+    error_file = "Team Defender (errors).log",
 
-    -- KING OF THE HILL -------------------------------------
-    king = {
-        {   -- FFA
-            { 1, 4, 2 }, -- 1-4 players
-            { 5, 8, 3 }, -- 5-8 players
-            { 9, 12, 4 }, -- 9-12 players
-            { 13, 16, 5 }, -- 13-16 players
-            "Score limit changed to: $limit minute$s"
-        },
-        {   -- TEAM
-            { 1, 4, 3 }, -- 1-4 players
-            { 5, 8, 4 }, -- 5-8 players
-            { 9, 12, 5 }, -- 9-12 players
-            { 13, 16, 6 }, -- 13-16 players
-            "Score limit changed to: $limit minute$s"
-        }
-    },
-
-    -- ODDBALL ----------------------------------------------
-    oddball = {
-        {   -- FFA
-            { 1, 4, 2 }, -- 1-4 players
-            { 5, 8, 3 }, -- 5-8 players
-            { 9, 12, 4 }, -- 9-12 players
-            { 13, 16, 5 }, -- 13-16 players
-            "Score limit changed to: $limit minute$s"
-
-        },
-        {   -- TEAM
-            { 1, 4, 3 }, -- 1-4 players
-            { 5, 8, 4 }, -- 5-8 players
-            { 9, 12, 5 }, -- 9-12 players
-            { 13, 16, 6 }, -- 13-16 players
-            "Score limit changed to: $limit minute$s"
-        }
-    },
-
-    -- RACE -------------------------------------------------
-    race = {
-        {   -- FFA
-            { 1, 4, 4 }, -- 1-4 players
-            { 5, 8, 4 }, -- 5-8 players
-            { 9, 12, 5 }, -- 9-12 players
-            { 13, 16, 6 }, -- 13-16 players
-            "Score limit changed to: $limit lap$s"
-        },
-        {   -- TEAM
-            { 1, 4, 4 }, -- 1-4 players
-            { 5, 8, 5 }, -- 5-8 players
-            { 9, 12, 6 }, -- 9-12 players
-            { 13, 16, 7 }, -- 13-16 players
-            "Score limit changed to: $limit lap$s"
-        }
-    }
+    -- DO NOT TOUCH BELOW THIS POINT --
+    script_version = 1.5
+    --
 }
 -- config ends --
 
-local score_table, current_limit
+api_version = "1.12.0.0"
 
+-- This function is called when the script is loaded into SAPP:
+--
 function OnScriptLoad()
-
-    register_callback(cb["EVENT_JOIN"], "OnJoin")
-    register_callback(cb["EVENT_LEAVE"], "OnQuit")
-    register_callback(cb["EVENT_GAME_START"], "OnStart")
-    register_callback(cb["EVENT_GAME_END"], "OnEnd")
-
-    OnStart()
+    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
+    OnGameStart()
 end
 
-local function SetScoreTable(gt)
-    local ffa = (get_var(0, "$ffa") == "1")
-    score_table = (not ffa and score_limits[gt][1]) or score_limits[gt][2]
+-- This function is called when a new game has started:
+--
+function OnGameStart()
+    TD:Init()
 end
 
-local function getChar(n)
+-- This function is called when a new game has started:
+--
+function OnGameEnd()
+    TD.game_started = false
+end
+
+-- This function broadcasts a custom server message:
+-- Temporarily removes the server message prefix and restores it.
+-- @param Ply (player index) [number]
+-- @param Msg (message) [string]
+--
+function TD:Broadcast(Ply, Msg)
+    if (Msg ~= "") then
+        execute_command("msg_prefix \"\"")
+        if (Ply) then
+            say(Ply, Msg)
+        else
+            say_all(Msg)
+        end
+        execute_command("msg_prefix \" " .. self.server_prefix .. "\"")
+    end
+end
+
+local function GetScore(Ply, Type)
+    return tonumber(get_var(Ply, "$" .. Type))
+end
+
+-- Updates player scores:
+-- @param Ply (killer index) [number]
+-- @param Team (killer team) [string]
+-- @param Amount (points to add) [number]
+-- @param FlagCarrier (flag carrier index) [number]
+--
+function TD:UpdateScores(Ply, Team, Amount, FlagCarrier)
+
+    -- Update team score:
+    local score
+    if (Team == "red") then
+        Team = 0
+        score = get_var(0, "$redscore")
+    else
+        Team = 1
+        score = get_var(0, "$bluescore")
+    end
+    score = (score - 1) + Amount
+    execute_command("team_score " .. Team .. " " .. score)
+
+    -- Update player score to reflect @param Amount:
+    score = GetScore(Ply, "score")
+    score = (score - 1) + Amount
+    execute_command("score " .. Ply .. " " .. score)
+
+    -- Update flag carrier assist points:
+    if (FlagCarrier and FlagCarrier ~= Ply) then
+
+        score = GetScore(FlagCarrier, "assists")
+        score = score + self.scoring[1][1]
+
+        execute_command("assists " .. FlagCarrier .. " " .. score)
+        self:Broadcast(FlagCarrier, self.scoring[1][2])
+    end
+end
+
+-- This function is called during event_die and event_damage_application:
+-- Updates player scores.
+-- @param Victim (Victim) [number]
+-- @param Killer (Killer) [number]
+-- @param MetaID (damage tag id) [number]
+--
+function TD:OnDeath(Victim, Killer, MetaID, _, _, _)
+
+    local victim = tonumber(Victim)
+    local killer = tonumber(Killer)
+
+    if (killer > 0) then
+
+        local k_team = get_var(killer, "$team")
+        local v_team = get_var(victim, "$team")
+
+        local suicide = (killer == victim)
+        local friendly_fire = (k_team == v_team and not suicide)
+
+        -- event_damage_application --
+        if (MetaID) then
+            return (self.block_friendly_fire and friendly_fire and false) or true
+        end
+
+        -- event_die --
+        if (not suicide and not friendly_fire) then
+
+            -- flag carrier kill:
+            if self:HasFlag(victim) then
+                self:Broadcast(killer, self.scoring[4][2])
+                self:UpdateScores(killer, k_team, self.scoring[4][1])
+                return
+            end
+
+            -- Team with flag:
+            local flag_carrier_team, flag_carrier = self:GetFlagCarrier()
+            if (flag_carrier_team == k_team) then
+                self:Broadcast(killer, self.scoring[3][2])
+                self:UpdateScores(killer, k_team, self.scoring[3][1], flag_carrier)
+            else
+                -- Team without flag:
+                self:Broadcast(killer, self.scoring[2][2])
+                self:UpdateScores(killer, k_team, self.scoring[2][1])
+            end
+        end
+    end
+end
+
+-- Teleports the flag back to its starting location:
+--
+function TD:SpawnFlag()
+    self:DestroyFlag()
+    self.flag.timer = 0
+    self.flag.object = spawn_object("", "", self.x, self.y, self.z, 0, self.flag.id)
+    self:Broadcast(nil, self.message_on_respawn)
+end
+
+-- Checks if a player is holding the flag:
+-- @return true if holding flag, false if not [bool]
+--
+function TD:GetFlagCarrier()
+    for i = 1, 16 do
+        if player_present(i) and player_alive(i) and self:HasFlag(i) then
+            return get_var(i, "$team"), i
+        end
+    end
+    self.announce_pickup = true
+    return false
+end
+
+-- Distance function using pythagoras theorem:
+--
+local sqrt = math.sqrt
+local function AtSpawn(x, y, z, self)
+    local r = 0.5
+    local sx, sy, sz = self.x, self.y, self.z
+    if sqrt((x - sx) ^ 2 + (y - sy) ^ 2 + (z - sz) ^ 2) <= r then
+        return true
+    end
+    return false
+end
+
+-- Returns the flag object coordinates:
+-- @return (three 32-bit floating point numbers [float]
+--
+function TD:GetFlagPos()
+    local flag = self.flag.object
+    if (flag) then
+        local object = get_object_memory(flag)
+        if (object ~= 0) then
+            return read_vector3d(object + 0x5C)
+        end
+    end
+    return nil
+end
+
+local function Plural(n)
     return (n > 1 and "s") or ""
 end
 
-local function Modify(QUIT)
+-- This function is called once every 1/30th second (1 tick):
+-- Used to respawn the flag:
+--
+local format = string.format
+function TD:GameTick()
 
-    if (score_table) then
+    if (self.game_started) then
 
-        for _, v in pairs(score_table) do
-            local min, max, limit = v[1], v[2], v[3]
-            if (min) then
+        -- logic responsible for respawning the flag:
+        local _, flag_carrier = self:GetFlagCarrier()
+        if (not flag_carrier) then
 
-                local n = tonumber(get_var(0, "$pn"))
+            local fx, fy, fz = self:GetFlagPos()
+            if (fx and not AtSpawn(fx, fy, fz - self.z_off, self)) then
 
-                -- Technical note:
-                -- When a player quits, the $pn variable does not update immediately.
-                -- So we have to manually deduct one from the player count.
-                -- @Param QUIT is true when player has quit, thus we need to deduct 1 from n.
-                n = (QUIT and n - 1) or n
+                self.flag.timer = self.flag.timer + 1 / 30
+                local time = self.respawn_delay - self.flag.timer % 60
+                time = tonumber(format("%.2" .. "f", time))
 
-                if (n >= min and n <= max and limit ~= current_limit) then
+                if (time == self.respawn_delay / 2) then
+                    local msg = self.respawn_warning
+                    msg = msg:gsub("$S", time):gsub("$s", Plural(time))
+                    self:Broadcast(nil, msg)
 
-                    current_limit = limit
-                    execute_command("scorelimit " .. limit)
+                elseif (self.flag.timer >= self.respawn_delay) then
+                    self:SpawnFlag()
+                end
+            end
+            return
+        end
 
-                    local txt = score_table[#score_table]
-                    txt = txt:gsub("$limit", limit):gsub("$s", getChar(limit))
+        self:SetNavMarker(flag_carrier)
+    end
+end
 
-                    say_all(txt)
-                    cprint(txt, 10)
-
-                    break
+-- This function sets a nav marker above the flag carrier's head:
+--
+function TD:SetNavMarker(Ply)
+    if (self.nav_marker) then
+        for i = 1, 16 do
+            -- Get static memory address of each player:
+            local player = get_player(i)
+            if (player ~= 0) then
+                -- Set slayer target indicator to the flag carrier:
+                if (Ply ~= nil and i ~= Ply and player_alive(i)) then
+                    write_word(player + 0x88, to_real_index(Ply))
+                else
+                    -- Set slayer target indicator to themselves:
+                    write_word(player + 0x88, to_real_index(i))
                 end
             end
         end
     end
 end
 
-function OnStart()
-    score_table, current_limit = nil, nil
-    local gt = get_var(0, "$gt")
-    if (gt ~= "n/a") then
-        SetScoreTable(gt)
-        Modify()
+local upper = string.upper
+function TD:AnnouncePickup(Ply)
+    self.flag.timer = 0
+    if (self.announce_pickup) then
+        self.announce_pickup = false
+
+        local msg = self.on_pickup
+
+        local team = get_var(Ply, "$team")
+        local name = get_var(Ply, '$name')
+
+        -- Convert first char in team name to upper.
+        local char = team:sub(1, 1)
+        team = team:gsub(char, upper(char))
+
+        msg = msg:gsub("$team", team):gsub("$name", name)
+        self:Broadcast(nil, msg)
     end
 end
 
-function OnGameEnd()
-    score_table = nil
+-- Checks if a player is holding the flag:
+-- @param Ply (player index) [number]
+--
+function TD:HasFlag(Ply)
+    local DyN = get_dynamic_player(Ply)
+    if (DyN ~= 0) then
+        for i = 0, 3 do
+            local WeaponID = read_dword(DyN + 0x2F8 + (i * 4))
+            if (WeaponID ~= 0xFFFFFFFF) then
+                local Weapon = get_object_memory(WeaponID)
+                if (Weapon ~= 0) then
+                    local tag_address = read_word(Weapon)
+                    local tag_data = read_dword(read_dword(0x40440000) + tag_address * 0x20 + 0x14)
+                    if (read_bit(tag_data + 0x308, 3) == 1) then
+                        self:AnnouncePickup(Ply)
+                        return true
+                    end
+                end
+            end
+        end
+    end
+    return false
 end
 
-function OnJoin()
-    Modify()
+-- Sets up pre-game parameters:
+--
+function TD:Init()
+    local mode = get_var(0, "$gt")
+    if (mode ~= "n/a") then
+
+        self.flag = { }
+        self.game_started = false
+
+        local map = self:Proceed(mode)
+        if (map) then
+
+            local tag_address = read_dword(0x40440000)
+            local tag_count = read_dword(0x4044000C)
+
+            for i = 0, tag_count - 1 do
+                local tag = (tag_address + 0x20 * i)
+                local tag_class = read_dword(tag)
+                local globals_tag = read_dword(tag + 0x14)
+                if (tag_class == 0x6D617467) then
+
+                    self.game_started = true
+                    self.announce_pickup = false
+                    self.flag.id = read_dword(read_dword(globals_tag + 0x164 + 4) + 0xC)
+
+                    self.z_off = 0.2
+                    self.x = self[map][1]
+                    self.y = self[map][2]
+                    self.z = self[map][3] + self.z_off
+
+                    self:SpawnFlag()
+
+                    execute_command("scorelimit " .. self.scoring[5])
+
+                    register_callback(cb["EVENT_DIE"], "OnDeath")
+                    register_callback(cb["EVENT_TICK"], "OnTick")
+                    register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
+                    register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDeath")
+                    goto done
+                end
+            end
+        end
+
+        unregister_callback(cb["EVENT_DIE"])
+        unregister_callback(cb["EVENT_TICK"])
+        unregister_callback(cb["EVENT_GAME_END"])
+        unregister_callback(cb["EVENT_DAMAGE_APPLICATION"])
+
+        :: done ::
+    end
 end
 
-function OnQuit()
-    Modify(true)
+-- Destroys the flag:
+--
+function TD:DestroyFlag()
+    destroy_object(self.flag and self.flag.object or 0)
+end
+
+function TD:Proceed(mode)
+
+    local map = get_var(0, "$map")
+
+    local valid_mode = (get_var(0, "$ffa") == "0" and mode == "slayer")
+    if (not valid_mode) then
+        cprint("Team Defender - [Only Team Slayer is supported]", 10)
+    end
+
+    if (not self[map]) then
+        cprint("Capture The Flag - [" .. map .. " is not configured]", 10)
+    end
+
+    return ((self[map] and valid_mode) and map) or false
+end
+
+function OnTick()
+    return TD:GameTick()
+end
+
+function OnDeath(V, K, MID)
+    return TD:OnDeath(V, K, MID)
 end
 
 function OnScriptUnload()
-    -- N/A
+    TD:DestroyFlag()
 end
+
+-- Error handler:
+--
+local function WriteError(err)
+    local file = io.open(TD.error_file, "a+")
+    if (file) then
+        file:write(err .. "\n")
+        file:close()
+    end
+end
+
+-- This function is called every time an error is raised:
+--
+function OnError(Error)
+
+    local log = {
+
+        -- log format: {msg, console out [true/false], console color}
+        -- If console out = false, the message will not be logged to console.
+
+        { os.date("[%H:%M:%S - %d/%m/%Y]"), true, 12 },
+        { Error, false, 12 },
+        { debug.traceback(), true, 12 },
+        { "--------------------------------------------------------", true, 5 },
+        { "Please report this error on github:", true, 7 },
+        { "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", true, 7 },
+        { "Script Version: " .. TD.script_version, true, 7 },
+        { "--------------------------------------------------------", true, 5 }
+    }
+
+    for _, v in pairs(log) do
+        WriteError(v[1])
+        if (v[2]) then
+            cprint(v[1], v[3])
+        end
+    end
+
+    WriteError("\n")
+end
+
+-- For a future update:
+return TD
