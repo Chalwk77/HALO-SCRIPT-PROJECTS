@@ -33,6 +33,7 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --]]
 
 local vehicles = {
+
     ["bloodgulch"] = {
         -- Example vehicle: (right of blue base):
         { "vehi", "vehicles\\warthog\\mp_warthog", 47.15, -79.28, 0.12, 0, 30, 1 },
@@ -139,7 +140,7 @@ end
 local function SpawnVehicle(v)
 
     -- Technical note:
-    -- Teleporting a vehicle using write_vector3d() causes unwanted behavior.
+    -- Teleporting an unoccupied vehicle using write_vector3d() seems to cause glitchy behavior.
     -- Therefore, we delete the object and re create it with spawn_object().
 
     -- Destroy previously created vehicle:
