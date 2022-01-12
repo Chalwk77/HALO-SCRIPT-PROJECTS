@@ -66,11 +66,9 @@ local function Occupied(v)
         if player_present(i) and player_alive(i) then
             local DyN = get_dynamic_player(i)
             if (DyN ~= 0) then
-                local VehicleID = read_dword(DyN + 0x11C)
-                local object = get_object_memory(VehicleID)
-                if (VehicleID ~= 0xFFFFFFFF and object ~= 0) then
-                    return (v.object == object)
-                end
+                local VID = read_dword(DyN + 0x11C)
+                local OBJ = get_object_memory(VID)
+                return (OBJ ~= 0 and VID ~= 0xFFFFFFFF and OBJ == v.object)
             end
         end
     end
