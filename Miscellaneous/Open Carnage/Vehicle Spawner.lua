@@ -34,7 +34,7 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 local vehicles = {
     ["bloodgulch"] = {
-        -- Example vehicle: (left of blue base)
+        -- Example vehicle: (right of blue base)
         { "vehi", "vehicles\\warthog\\mp_warthog", 47.15, -79.28, 0.12, 0, 30, 1 },
     },
     ["deathisland"] = {
@@ -96,6 +96,8 @@ local vehicles = {
 
 api_version = "1.12.0.0"
 
+-- Stores vehicles[map name]:
+--
 local object_spawns
 
 -- Register needed event callbacks:
@@ -127,8 +129,9 @@ local function SpawnVehicle(v)
 end
 
 -- Checks if a player is occupying a vehicle:
--- Compares the object memory address of the current vehicle against v.object.
 -- @Param v, vehicle object table.
+-- @return Returns true if vehicle memory address equals v.object.
+--
 local function Occupied(v)
     for i = 1, 16 do
         if player_present(i) and player_alive(i) then
@@ -144,8 +147,9 @@ local function Occupied(v)
 end
 
 -- Distance function using pythagoras theorem:
--- @Param x1, y1, z1 (origin x,y,z)
--- @Param x2, y2, z2 (current x,y,z)
+-- @Param x1, y1, z1 (origin x,y,z)  [floating point numbers]
+-- @Param x2, y2, z2 (current x,y,z) [floating point numbers]
+-- @return Sqrt of (x1-x2)*2(y1-y2)*(z1-z2)
 --
 local sqrt = math.sqrt
 local function GetDist(x1, y1, z1, x2, y2, z2)
@@ -170,7 +174,7 @@ function GameTick()
 end
 
 -- This function is called when a new game has started:
--- Responsible for spawning all vehicles initially.
+-- Responsible for all initial vehicle spawns.
 --
 function OnStart()
 
@@ -185,10 +189,13 @@ function OnStart()
             for _, v in pairs(object_spawns) do
                 SpawnVehicle(v)
             end
+
+            -- Register needed event callback:
             register_callback(cb["EVENT_TICK"], "GameTick")
             goto done
         end
 
+        -- Unregister if map not configured in vehicles array:
         unregister_callback(cb["EVENT_TICK"])
         :: done ::
     end

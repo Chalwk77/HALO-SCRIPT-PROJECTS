@@ -99,7 +99,6 @@ function CheckVehicles()
 
                 -- Check if its floating above the ground (z+0.2 w/units):
                 --
-
                 local height_offset = (vz - z) / vz * 100
                 if (height_offset > 0.10) then
 
