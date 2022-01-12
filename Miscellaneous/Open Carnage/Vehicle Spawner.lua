@@ -16,16 +16,14 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 -- config starts --
 
--- Distance (in world units) from origin x,y,z
--- that an unoccupied vehicle must be before the respawn timer is triggered:
+-- {type, name, x, y, z, rotation, respawn delay (in seconds), Distance offset}
 --
-local distance = 1
-
--- Custom object spawns:
--- {type, name, x, y, z, rotation, respawn delay (in seconds) }
+-- Technical note:
+-- The distance offset property is the distance (in world units) from the origin x,y,z
+-- that an unoccupied vehicle must be before the respawn timer for that vehicle is triggered.
 --
 local vehicles = {
-    { "vehi", "vehicles\\warthog\\mp_warthog", 47.15, -79.28, 0.12, 0, 30 },
+    { "vehi", "vehicles\\warthog\\mp_warthog", 47.15, -79.28, 0.12, 0, 1, 30 },
 }
 -- config ends --
 
@@ -95,7 +93,7 @@ function GameTick()
         if (object ~= 0 and not Occupied(v)) then
             local x, y, z = read_vector3d(object + 0x5C)
             local dist = GetDist(x, y, z, v[3], v[4], v[5])
-            v.timer = (dist > distance and v.timer + 1 / 30) or 0
+            v.timer = (dist > v[8] and v.timer + 1 / 30) or 0
             if (v.timer >= v[7]) then
                 SpawnVehicle(v)
             end
