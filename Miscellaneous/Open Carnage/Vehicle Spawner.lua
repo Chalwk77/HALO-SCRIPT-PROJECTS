@@ -19,8 +19,8 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 -- {type, name, x, y, z, rotation, respawn delay (in seconds), Distance offset}
 --
 -- Technical note:
--- The distance offset property is the distance (in world units) from the origin x,y,z
--- that an unoccupied vehicle must be before the respawn timer for that vehicle is triggered.
+-- The distance property is the distance (in world units) from the origin x,y,z
+-- that an unoccupied vehicle must be (or greater) before the respawn timer for that vehicle is triggered.
 --
 local vehicles = {
     { "vehi", "vehicles\\warthog\\mp_warthog", 47.15, -79.28, 0.12, 0, 30, 1 },
@@ -46,7 +46,7 @@ local function SpawnVehicle(v)
     -- Teleporting a vehicle using write_vector3d() causes unwanted behavior.
     -- Therefore, we delete the object and re create it with spawn_object().
 
-    -- Destroy existing:
+    -- Destroy previously created vehicle:
     --
     destroy_object(v.vehicle ~= 0 and v.vehicle or 0)
 
