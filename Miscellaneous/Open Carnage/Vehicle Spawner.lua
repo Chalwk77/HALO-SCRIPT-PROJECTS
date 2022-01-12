@@ -69,7 +69,7 @@ local function Occupied(v)
                 local VehicleID = read_dword(DyN + 0x11C)
                 local object = get_object_memory(VehicleID)
                 if (VehicleID ~= 0xFFFFFFFF and object ~= 0) then
-                    return (v.object == object or false)
+                    return (v.object == object)
                 end
             end
         end
