@@ -23,7 +23,7 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 -- that an unoccupied vehicle must be before the respawn timer for that vehicle is triggered.
 --
 local vehicles = {
-    { "vehi", "vehicles\\warthog\\mp_warthog", 47.15, -79.28, 0.12, 0, 1, 30 },
+    { "vehi", "vehicles\\warthog\\mp_warthog", 47.15, -79.28, 0.12, 0, 30, 1 },
 }
 -- config ends --
 
