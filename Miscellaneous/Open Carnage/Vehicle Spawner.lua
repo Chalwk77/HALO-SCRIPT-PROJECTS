@@ -195,12 +195,24 @@ end
 -- Called every 1/30th second.
 --
 function GameTick()
+
+    -- Loop through all tables in objects (vehicles[map name]):
     for _, v in pairs(objects) do
+
+        -- Check if vehicle is exists, is valid and isn't occupied:
         local object = get_object_memory(v.vehicle)
         if (object ~= 0 and not Occupied(v)) then
+
+            -- Get this vehicles x,y,z coordinates (three 32-bit floating point numbers):
             local x, y, z = read_vector3d(object + 0x5C)
+
+            -- Calculate distance from this vehicles origin x,y,z:
             local dist = GetDist(x, y, z, v[3], v[4], v[5])
+
+            -- Increment timer by itself + 1/30 if distance > v[8].
             v.timer = (dist > v[8] and v.timer + 1 / 30) or 0
+
+            -- Respawn this vehicle if the timer reaches v[7]:
             if (v.timer >= v[7]) then
                 SpawnVehicle(v)
             end
@@ -208,7 +220,7 @@ function GameTick()
     end
 end
 
--- This is our set up function. Called when a new game has started:
+-- This function is called when a new game has started:
 --
 function OnStart()
 
@@ -221,6 +233,8 @@ function OnStart()
 
         if (objects) then
 
+            -- Loop through all tables relevant to the current map and
+            -- call SpawnVehicle(); Pass the vehicle table to it.
             for _, v in pairs(objects) do
                 SpawnVehicle(v)
             end
@@ -233,6 +247,7 @@ function OnStart()
         -- Unregister if map not configured in vehicles array:
         unregister_callback(cb["EVENT_TICK"])
         cprint("[Vehicle Spawner] " .. map .. " is not configured in vehicles array", 12)
+
         :: done ::
     end
 end
