@@ -4,12 +4,12 @@ Script Name: Vehicle Spawner, for SAPP (PC & CE)
 Description: A custom vehicle spawner that works on any game mode.
 
              This was designed to fix a problem with vehicles that are created using
-             spawn_object() on race game modes - they do not respawn at the origin x,y,z.
+             spawn_object() or execute_command("spawn ... ") on race game types - they do not respawn at the origin x,y,z.
              This fixes that.
 
              NOTE:
-             If you're using this on any RACE game mode,
-             set the game type flag "VEHICLE RESPAWN TIME" to NEVER.
+             If you're using this on any RACE game type,
+             you must set the game type flag "VEHICLE RESPAWN TIME" to NEVER.
 
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
@@ -25,7 +25,7 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 	{type, name, x, y, z, rotation, respawn delay, distance}
 
 	TECHNICAL NOTES:
-	* Rotation must be in radians.
+	* Rotation must be in radians not degrees.
 	* Respawn Delay must be in seconds.
 	* The distance property is the distance (in world units) from the origin x,y,z
 	  that an unoccupied vehicle must be (or greater)
@@ -34,71 +34,97 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 local vehicles = {
     ["bloodgulch"] = {
-        -- Example vehicle: (right of blue base)
+        -- Example vehicle: (right of blue base):
         { "vehi", "vehicles\\warthog\\mp_warthog", 47.15, -79.28, 0.12, 0, 30, 1 },
+        --
+        -- repeat the structure to add more vehicle entries.
+        --
     },
+
     ["deathisland"] = {
         { "vehi", "", 0, 0, 0, 0, 30, 1 },
     },
+
     ["icefields"] = {
         { "vehi", "", 0, 0, 0, 0, 30, 1 },
     },
+
     ["infinity"] = {
         { "vehi", "", 0, 0, 0, 0, 30, 1 },
     },
+
     ["sidewinder"] = {
         { "vehi", "", 0, 0, 0, 0, 30, 1 },
     },
+
     ["timberland"] = {
         { "vehi", "", 0, 0, 0, 0, 30, 1 },
     },
+
     ["dangercanyon"] = {
         { "vehi", "", 0, 0, 0, 0, 30, 1 },
     },
+
     ["beavercreek"] = {
         { "vehi", "", 0, 0, 0, 0, 30, 1 },
     },
+
     ["boardingaction"] = {
         { "vehi", "", 0, 0, 0, 0, 30, 1 },
     },
+
     ["carousel"] = {
         { "vehi", "", 0, 0, 0, 0, 30, 1 },
     },
+
     ["chillout"] = {
         { "vehi", "", 0, 0, 0, 0, 30, 1 },
     },
+
     ["damnation"] = {
         { "vehi", "", 0, 0, 0, 0, 30, 1 },
     },
+
     ["gephyrophobia"] = {
         { "vehi", "", 0, 0, 0, 0, 30, 1 },
     },
+
     ["hangemhigh"] = {
         { "vehi", "", 0, 0, 0, 0, 30, 1 },
     },
+
     ["longest"] = {
         { "vehi", "", 0, 0, 0, 0, 30, 1 },
     },
+
     ["prisoner"] = {
         { "vehi", "", 0, 0, 0, 0, 30, 1 },
     },
+
     ["putput"] = {
         { "vehi", "", 0, 0, 0, 0, 30, 1 },
     },
+
     ["ratrace"] = {
         { "vehi", "", 0, 0, 0, 0, 30, 1 },
     },
+
     ["wizard"] = {
         { "vehi", "", 0, 0, 0, 0, 30, 1 },
     },
+
+    --
+    -- repeat the structure to add more map entries.
+    --
+
 }
 -- config ends --
 
 api_version = "1.12.0.0"
 
--- Stores vehicles[map name]:
+-- Stores a copy of vehicles[map name]:
 --
-local object_spawns
+local objects
 
 -- Register needed event callbacks:
 --
@@ -120,11 +146,20 @@ local function SpawnVehicle(v)
     --
     destroy_object(v.vehicle ~= 0 and v.vehicle or 0)
 
-    local type, name = v[1], v[2] -- tag name, tag type
+    -- tag name, tag type:
+    local type, name = v[1], v[2]
+
+    -- x,y,z, rotation coordinates:
     local x, y, z, r = v[3], v[4], v[5], v[6]
 
+    -- Set initial timer property to 0:
+    -- This is incremented automatically when we initialize a vehicles respawn timer.
     v.timer = 0
+
+    -- Spawn the vehicle and store its object id [number] in v.vehicle:
     v.vehicle = spawn_object(type, name, x, y, z, r)
+
+    -- Store its memory address [number] in property v.object:
     v.object = get_object_memory(v.vehicle)
 end
 
@@ -160,7 +195,7 @@ end
 -- Called every 1/30th second.
 --
 function GameTick()
-    for _, v in pairs(object_spawns) do
+    for _, v in pairs(objects) do
         local object = get_object_memory(v.vehicle)
         if (object ~= 0 and not Occupied(v)) then
             local x, y, z = read_vector3d(object + 0x5C)
@@ -173,20 +208,20 @@ function GameTick()
     end
 end
 
--- This function is called when a new game has started:
--- Responsible for all initial vehicle spawns.
+-- This is our set up function. Called when a new game has started:
 --
 function OnStart()
 
-    object_spawns = nil
+    objects = nil
 
     if (get_var(0, "$gt") ~= "n/a") then
 
         local map = get_var(0, "$map")
-        object_spawns = vehicles[map]
+        objects = vehicles[map]
 
-        if (object_spawns) then
-            for _, v in pairs(object_spawns) do
+        if (objects) then
+
+            for _, v in pairs(objects) do
                 SpawnVehicle(v)
             end
 
@@ -197,6 +232,7 @@ function OnStart()
 
         -- Unregister if map not configured in vehicles array:
         unregister_callback(cb["EVENT_TICK"])
+        cprint("[Vehicle Spawner] " .. map .. " is not configured in vehicles array", 12)
         :: done ::
     end
 end
