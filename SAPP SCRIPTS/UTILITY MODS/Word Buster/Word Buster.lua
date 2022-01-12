@@ -3,7 +3,7 @@
 Script Name: Word Buster, for SAPP (PC & CE)
 
 ----- [ Description ] -----
-WorldBuster is an advanced profanity filter mod that automatically censors, replaces or blocks chat messages containing profanity.
+WordBuster is an advanced profanity filter mod that automatically censors, replaces or blocks chat messages containing profanity.
 ___
 
 
