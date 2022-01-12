@@ -20,14 +20,19 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 -- config starts --
 
--- {type, name, x, y, z, rotation, respawn delay (in seconds), Distance offset}
+-- FORMAT:
+-- {type, name, x, y, z, rotation, respawn delay, Distance offset}
 --
--- Technical note:
--- The distance property is the distance (in world units) from the origin x,y,z
+-- TECHNICAL NOTES:
+-- * Rotation must be in radians.
+-- * Respawn Delay must be in seconds.
+-- * The distance property is the distance (in world units) from the origin x,y,z
 -- that an unoccupied vehicle must be (or greater) before the respawn timer for that vehicle is triggered.
 --
+
 local vehicles = {
     ["bloodgulch"] = {
+        -- Example vehicle: (left of blue base)
         { "vehi", "vehicles\\warthog\\mp_warthog", 47.15, -79.28, 0.12, 0, 30, 1 },
     },
     ["deathisland"] = {
@@ -148,20 +153,12 @@ end
 -- Respawn a vehicle that has moved from its starting location:
 -- Called every 1/30th second.
 --
-
 function GameTick()
     for _, v in pairs(object_spawns) do
         local object = get_object_memory(v.vehicle)
         if (object ~= 0 and not Occupied(v)) then
-
             local x, y, z = read_vector3d(object + 0x5C)
-            local fx, fy, fz = 40.240600585938, -79.123199462891, -0.10000000149012
-            local dist = GetDist(x, y, z, fx, fy, fz)
-            if (dist <= 3) then
-                return SpawnVehicle(v)
-            end
-
-            dist = GetDist(x, y, z, v[3], v[4], v[5])
+            local dist = GetDist(x, y, z, v[3], v[4], v[5])
             v.timer = (dist > v[8] and v.timer + 1 / 30) or 0
             if (v.timer >= v[7]) then
                 SpawnVehicle(v)
@@ -178,8 +175,10 @@ function OnStart()
     object_spawns = nil
 
     if (get_var(0, "$gt") ~= "n/a") then
+
         local map = get_var(0, "$map")
         object_spawns = vehicles[map]
+
         if (object_spawns) then
             for _, v in pairs(object_spawns) do
                 SpawnVehicle(v)
@@ -187,6 +186,7 @@ function OnStart()
             register_callback(cb["EVENT_TICK"], "GameTick")
             goto done
         end
+
         unregister_callback(cb["EVENT_TICK"])
         :: done ::
     end
