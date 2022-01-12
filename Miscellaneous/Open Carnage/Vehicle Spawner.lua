@@ -20,15 +20,17 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 -- config starts --
 
--- FORMAT:
--- {type, name, x, y, z, rotation, respawn delay, Distance offset}
---
--- TECHNICAL NOTES:
--- * Rotation must be in radians.
--- * Respawn Delay must be in seconds.
--- * The distance property is the distance (in world units) from the origin x,y,z
--- that an unoccupied vehicle must be (or greater) before the respawn timer for that vehicle is triggered.
---
+--[[
+	FORMAT:
+	{type, name, x, y, z, rotation, respawn delay, distance}
+
+	TECHNICAL NOTES:
+	* Rotation must be in radians.
+	* Respawn Delay must be in seconds.
+	* The distance property is the distance (in world units) from the origin x,y,z
+	  that an unoccupied vehicle must be (or greater)
+	  before the respawn timer for that vehicle is triggered.
+--]]
 
 local vehicles = {
     ["bloodgulch"] = {
