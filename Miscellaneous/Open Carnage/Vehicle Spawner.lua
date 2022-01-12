@@ -150,14 +150,14 @@ local function SpawnVehicle(v)
     -- tag name, tag type:
     local type, name = v[1], v[2]
 
-    -- x,y,z, rotation coordinates:
+    -- x,y,z,r coordinates:
     local x, y, z, r = v[3], v[4], v[5], v[6]
 
     -- Set initial timer property to 0:
     -- This is incremented automatically when we initialize a vehicles respawn timer.
     v.timer = 0
 
-    -- Spawn the vehicle and store its object id [number] in v.vehicle:
+    -- Spawn the vehicle and store its object id [number] in property v.vehicle:
     v.vehicle = spawn_object(type, name, x, y, z, r)
 
     -- Store its memory address [number] in property v.object:
@@ -185,7 +185,7 @@ end
 -- Distance function using pythagoras theorem:
 -- @Param x1, y1, z1 (origin x,y,z)  [floating point numbers]
 -- @Param x2, y2, z2 (current x,y,z) [floating point numbers]
--- @return Sqrt of (x1-x2)*2(y1-y2)*(z1-z2)
+-- @return Sqrt of (x1-x2)*2 + (y1-y2)*2 + (z1-z2)*2
 --
 local sqrt = math.sqrt
 local function GetDist(x1, y1, z1, x2, y2, z2)
@@ -197,7 +197,7 @@ end
 --
 function GameTick()
 
-    -- Loop through all tables in objects (vehicles[map name]):
+    -- Loop through objects table (vehicles[map name]):
     for _, v in pairs(objects) do
 
         -- Check if vehicle is exists, is valid and isn't occupied:
