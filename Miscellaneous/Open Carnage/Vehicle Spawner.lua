@@ -37,7 +37,7 @@ function OnScriptLoad()
     OnStart()
 end
 
--- Spawns a new vehicle object from vehicles{}
+-- Spawns a new vehicle object from vehicles{}:
 -- @Param v, vehicle object table.
 --
 local function SpawnVehicle(v)
@@ -78,6 +78,8 @@ local function Occupied(v)
 end
 
 -- Distance function using pythagoras theorem:
+-- @Param x1, y1, z1 (origin x,y,z)
+-- @Param x2, y2, z2 (current x,y,z)
 --
 local sqrt = math.sqrt
 local function GetDist(x1, y1, z1, x2, y2, z2)
@@ -85,7 +87,7 @@ local function GetDist(x1, y1, z1, x2, y2, z2)
 end
 
 -- Respawn a vehicle that has moved from its starting location:
--- Called every 1/30th second:
+-- Called every 1/30th second.
 --
 function GameTick()
     for _, v in pairs(vehicles) do
@@ -101,8 +103,8 @@ function GameTick()
     end
 end
 
--- Function is called when a new game has started.
--- Responsible for spawning all vehicles initially:
+-- This function is called when a new game has started:
+-- Responsible for spawning all vehicles initially.
 --
 function OnStart()
     if (get_var(0, "$gt") ~= "n/a") then
