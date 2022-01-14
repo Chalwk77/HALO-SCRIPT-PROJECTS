@@ -12,6 +12,8 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 api_version = "1.12.0.0"
 local WA = {
 
+    -- config starts --
+
     -- Weapon tags:
     --
     [1] = "weapons\\pistol\\pistol",
@@ -26,6 +28,11 @@ local WA = {
     [10] = "weapons\\shotgun\\shotgun",
     [11] = "weapons\\ball\\ball",
     [12] = "weapons\\gravity rifle\\gravity rifle",
+    --
+    -- repeat the structure to add custom tags.
+    --
+
+    -- Format: [weapon id (see above)] = {reserve ammo, loaded ammo, battery}
 
     -- map settings:
     --
@@ -340,6 +347,8 @@ local WA = {
         }
     }
 }
+
+-- config ends --
 
 function WA:Init()
 
