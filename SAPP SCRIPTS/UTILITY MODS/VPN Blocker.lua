@@ -54,9 +54,9 @@ local VPNBlocker = {
     -- I recommend reading the API Documentation before changing any settings:
     -- https://www.ipqualityscore.com/documentation/proxy-detection/overview
 
-    -- Paste your API KEY here (from the above link)
+    -- IP Quality Score API KEY:
     --
-    api_key = "api_key",
+    api_key = "PASTE_YOUR_API_KEY_HERE",
 
     -- If the player is using a VPN Connection, do this action:
     -- k = kick, b = ban
@@ -73,7 +73,7 @@ local VPNBlocker = {
 
     -- Message output to the joining player:
     --
-    feedback1 = "We\'ve detected that you\'re using a VPN or Proxy - we do not allow these!'",
+    feedback1 = "We've detected that you're using a VPN or Proxy - we do not allow these!'",
 
     -- Message output to Dedicated Server Console:
     --
@@ -157,7 +157,7 @@ local VPNBlocker = {
 
     -- Script errors (if any) will be logged to this file:
     --
-    error_file = "Team Defender (errors).log",
+    error_file = "VPN Blocker (errors).log",
 
     -- config ends --
 
@@ -312,8 +312,6 @@ function VPNBlocker:Query(URL)
     return returning
 end
 
--- Error handler:
---
 local function WriteError(err)
     local file = io.open(VPNBlocker.error_file, "a+")
     if (file) then
@@ -322,15 +320,8 @@ local function WriteError(err)
     end
 end
 
--- This function is called every time an error is raised:
---
 function OnError(Error)
-
     local log = {
-
-        -- log format: {msg, console out [true/false], console color}
-        -- If console out = false, the message will not be logged to console.
-
         { os.date("[%H:%M:%S - %d/%m/%Y]"), true, 12 },
         { Error, false, 12 },
         { debug.traceback(), true, 12 },
@@ -340,14 +331,12 @@ function OnError(Error)
         { "Script Version: " .. VPNBlocker.script_version, true, 7 },
         { "--------------------------------------------------------", true, 5 }
     }
-
     for _, v in pairs(log) do
         WriteError(v[1])
         if (v[2]) then
             cprint(v[1], v[3])
         end
     end
-
     WriteError("\n")
 end
 
