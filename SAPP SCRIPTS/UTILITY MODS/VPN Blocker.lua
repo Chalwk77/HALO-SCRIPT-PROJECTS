@@ -149,7 +149,7 @@ local VPNBlocker = {
     exclusion_list = {
 
         "127.0.0.1",
-        --"192.168.1.1",
+        "192.168.1.1",
         --
         -- Repeat the structure to add more entries ip entries
         --
