@@ -41,7 +41,7 @@ VPN Blocker cannot differentiate between good and bad intentions
 and will, therefore, kick or ban on sight if their IP is on the VPN Blocker database.
 --
 
-Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
