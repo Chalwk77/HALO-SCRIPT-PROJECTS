@@ -201,6 +201,8 @@ function OnCommand(Ply, CMD)
     end
 end
 
+-- Called every time a new game has started:
+--
 function OnStart()
     if (get_var(0, "$gt") ~= "n/a") then
         map = get_var(0, "$map"):lower()
