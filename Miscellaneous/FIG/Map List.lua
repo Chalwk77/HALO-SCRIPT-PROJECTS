@@ -6,8 +6,8 @@ Description: Display current/next map & mode in mapcycle.txt
 See config for command syntax.
 
 Known Issue:
-If there are duplicate map:mode entries in mapcycle.txt,
-you may get an incorrect map list output.
+If there are duplicate map:mode configurations in mapcycle.txt,
+you may get an incorrect map list readout when you type /map_list_command.
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -78,7 +78,7 @@ function OnScriptLoad()
     register_callback(cb["EVENT_GAME_START"], "OnStart")
 
     -- Open mapcycle.txt,
-    -- Iterate over all lines,
+    -- Iterate over all lines (ignores empty lines),
     -- Split map:mode and store as component properties of maps[i]
     --
     local file = io.open(path)
@@ -144,6 +144,7 @@ local function ShowCurrentMap(Ply)
 
     local next_map = { }
     local txt = output[1]
+
     for i, t in pairs(maps) do
         if (map == t.map and mode == t.mode) then
             next_map = GetNextMap(i)
