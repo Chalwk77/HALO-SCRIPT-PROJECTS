@@ -5,6 +5,10 @@ Description: Display current/next map & mode in mapcycle.txt
 
 See config for command syntax.
 
+Known Issue:
+If there are duplicate map:mode entries in mapcycle.txt,
+you may get an incorrect map list output.
+
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
@@ -36,7 +40,7 @@ local output = {
     -- $pos   = map cycle position
     -- $total = total number of maps in mapcycle.txt
 
-    -- Message outputs when you type /map_list_command:
+    -- Message output when you type /map_list_command:
     --
     "Current Map: $map ($mode) | Pos: ($pos/$total)",
     "Next Map: $map ($mode) | Pos: ($pos/$total)",
@@ -73,14 +77,16 @@ function OnScriptLoad()
     register_callback(cb["EVENT_COMMAND"], "OnCommand")
     register_callback(cb["EVENT_GAME_START"], "OnStart")
 
-    -- Loop through all lines in mapcycle.txt and save each entry to an array:
+    -- Open mapcycle.txt,
+    -- Iterate over all lines,
+    -- Split map:mode and store as component properties of maps[i]
+    --
     local file = io.open(path)
     if (file) then
         local i = 1
         for entry in file:lines() do
-            -- Split map name and mode into component parts:
-            local lines = STRSplit(entry, ":")
-            maps[i] = { map = lines[1], mode = lines[2] }
+            local line = STRSplit(entry, ":")
+            maps[i] = { map = line[1], mode = line[2] }
             i = i + 1
         end
         file:close()
@@ -201,8 +207,6 @@ function OnCommand(Ply, CMD)
     end
 end
 
--- Called every time a new game has started:
---
 function OnStart()
     if (get_var(0, "$gt") ~= "n/a") then
         map = get_var(0, "$map"):lower()
