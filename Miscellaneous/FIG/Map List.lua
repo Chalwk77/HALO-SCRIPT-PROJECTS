@@ -61,25 +61,15 @@ function OnScriptLoad()
     register_callback(cb["EVENT_COMMAND"], "OnCommand")
     register_callback(cb["EVENT_GAME_START"], "OnStart")
 
-    local entries = { }
     local file = io.open(path)
     if (file) then
+        local i = 1
         for entry in file:lines() do
-            table.insert(entries, entry)
+            local lines = STRSplit(entry, ":")
+            maps[i] = { map = lines[1], mode = lines[2] }
+            i = i + 1
         end
         file:close()
-    end
-
-    for pos, entry in pairs(entries) do
-        local lines = STRSplit(entry, ":")
-        maps[pos] = maps[pos] or {}
-        for i, v in pairs(lines) do
-            if (i == 1) then
-                maps[pos].map = v
-            else
-                maps[pos].mode = v
-            end
-        end
     end
 
     OnStart()
