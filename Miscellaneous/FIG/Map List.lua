@@ -112,6 +112,19 @@ local function FormatTxt(Str, Pos, Map, Mode, Total)
     return msg
 end
 
+-- Return the next map array:
+-- @Param i (map array index)
+-- @Return {next map array, next map array index}
+--
+local function GetNextMap(i)
+    i = (i + 1)
+    local next = maps[i]
+    return {
+        next and next or maps[1],
+        next and i or 1
+    }
+end
+
 -- Display current map:
 -- @Param Ply (player index id)
 -- @Return Next map array
@@ -122,7 +135,7 @@ local function ShowCurrentMap(Ply)
     local txt = output[1]
     for i, t in pairs(maps) do
         if (map == t.map and mode == t.mode) then
-            next_map = { maps[i + 1], i }
+            next_map = GetNextMap(i)
             Say(Ply, FormatTxt(txt, i, t.map, t.mode, #maps))
             break
         end
@@ -141,9 +154,9 @@ end
 -- @Param Ply (player index id)
 -- @Param t (next map array)
 --
-local function ShowNextMap(Ply, table)
+local function ShowNextMap(Ply, next_map)
     local txt = output[2]
-    local t, i = table[1], table[2]
+    local t, i = next_map[1], next_map[2]
     Say(Ply, FormatTxt(txt, i, t.map, t.mode, #maps))
 end
 
@@ -156,7 +169,6 @@ function OnCommand(Ply, CMD)
         if (Args[1] == map_list_command) then
 
             local next_map = ShowCurrentMap(Ply)
-
             if (next_map and #next_map > 0) then
                 ShowNextMap(Ply, next_map)
             end
@@ -165,7 +177,6 @@ function OnCommand(Ply, CMD)
 
             -- what is next command --
         elseif (Args[1] == what_is_next_command) then
-
             if (Args[2] ~= nil and Args[2]:match("%d+")) then
                 local i = tonumber(Args[2])
                 local t = maps[i]
