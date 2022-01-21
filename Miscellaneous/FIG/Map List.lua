@@ -1,7 +1,7 @@
 --[[
 --=====================================================================================================--
 Script Name: Map List, for SAPP (PC & CE)
-Description: Display current/next map cycle information:
+Description: Display current/next map & mode in mapcycle.txt
 
 See config for command syntax.
 
@@ -13,12 +13,12 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 -- config starts --
 
--- Command to show current/next map (and map cycle position):
+-- Command to show current/next map & mode:
 -- Syntax: /command
 --
 local map_list_command = "maplist"
 
--- Command to show map at specific map cycle position:
+-- Command to show map & mode at specific map cycle position:
 -- Syntax: /command [pos]
 --
 local what_is_next_command = "whatis"
@@ -31,6 +31,11 @@ local path = "cg/sapp/mapcycle.txt"
 --
 local output = {
 
+    -- $map   = map name
+    -- $mode  = game mode
+    -- $pos   = map cycle position
+    -- $total = total number of maps in mapcycle.txt
+
     -- Message outputs when you type /map_list_command:
     --
     "Current Map: $map ($mode) | Pos: ($pos/$total)",
@@ -38,7 +43,7 @@ local output = {
 
     -- message output when you type /what_is_next_command:
     --
-    "$map ($mode) | Pos: $pos/$total",
+    "$map ($mode) | Pos: $pos/$total"
 }
 
 -- config ends --
@@ -48,23 +53,32 @@ local maps = { }
 
 api_version = "1.12.0.0"
 
+-- Captures strings that contain at least one character of anything other than the Delimiter.
+-- @Param CMD (command string [string])
+-- @Param Delim (pattern separator [string])
+-- @Return An array of strings
+--
 local function STRSplit(CMD, Delim)
     local Args = { }
-    for line in CMD:gsub('"', ""):gmatch("([^" .. Delim .. "]+)") do
-        Args[#Args + 1] = line
+    for word in CMD:gsub('"', ""):gmatch("([^" .. Delim .. "]+)") do
+        Args[#Args + 1] = word
     end
     return Args
 end
 
+-- Register needed event call backs:
+--
 function OnScriptLoad()
 
     register_callback(cb["EVENT_COMMAND"], "OnCommand")
     register_callback(cb["EVENT_GAME_START"], "OnStart")
 
+    -- Loop through all lines in mapcycle.txt and save each entry to an array:
     local file = io.open(path)
     if (file) then
         local i = 1
         for entry in file:lines() do
+            -- Split map name and mode into component parts:
             local lines = STRSplit(entry, ":")
             maps[i] = { map = lines[1], mode = lines[2] }
             i = i + 1
@@ -84,6 +98,7 @@ local function Say(Ply, Msg)
 end
 
 -- Used to format messages:
+-- @Return Formatted message [string]
 --
 local function FormatTxt(Str, Pos, Map, Mode, Total)
 
