@@ -61,7 +61,7 @@ api_version = "1.12.0.0"
 local function STRSplit(CMD, Delim)
     local Args = { }
     for word in CMD:gsub('"', ""):gmatch("([^" .. Delim .. "]+)") do
-        Args[#Args + 1] = word
+        Args[#Args + 1] = word:lower()
     end
     return Args
 end
@@ -203,8 +203,8 @@ end
 
 function OnStart()
     if (get_var(0, "$gt") ~= "n/a") then
-        map = get_var(0, "$map")
-        mode = get_var(0, "$mode")
+        map = get_var(0, "$map"):lower()
+        mode = get_var(0, "$mode"):lower()
     end
 end
 
