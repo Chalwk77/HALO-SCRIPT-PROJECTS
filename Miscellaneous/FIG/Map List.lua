@@ -27,10 +27,6 @@ local map_list_command = "maplist"
 --
 local what_is_next_command = "whatis"
 
--- Path to the mapcycle.txt file:
---
-local path = "cg/sapp/mapcycle.txt"
-
 -- Customizable message output:
 --
 local output = {
@@ -74,25 +70,28 @@ end
 --
 function OnScriptLoad()
 
-    register_callback(cb["EVENT_COMMAND"], "OnCommand")
-    register_callback(cb["EVENT_GAME_START"], "OnStart")
-
     -- Open mapcycle.txt,
     -- Iterate over all lines (ignores empty lines),
     -- Split map:mode and store as component properties of maps[i]
     --
-    local file = io.open(path)
+    local cg_dir = read_string(read_dword(sig_scan("68??????008D54245468") + 0x1))
+    local file = cg_dir .. "\\sapp\\mapcycle.txt"
+    file = io.open(file)
     if (file) then
+
         local i = 1
         for entry in file:lines() do
-            local line = STRSplit(entry, ":")
-            maps[i] = { map = line[1], mode = line[2] }
+            local args = STRSplit(entry, ":")
+            maps[i] = { map = args[1], mode = args[2] }
             i = i + 1
         end
         file:close()
-    end
 
-    OnStart()
+        register_callback(cb["EVENT_COMMAND"], "OnCommand")
+        register_callback(cb["EVENT_GAME_START"], "OnStart")
+
+        OnStart()
+    end
 end
 
 -- Custom print function:
