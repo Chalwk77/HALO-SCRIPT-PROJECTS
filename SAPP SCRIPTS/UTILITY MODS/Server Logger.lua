@@ -14,7 +14,7 @@ Description: An advanced custom logger.
 
     See config section for more information.
 
-Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
@@ -28,20 +28,26 @@ local Logger = {
     -- CONFIGURATION STARTS HERE --
     --
 
-    -- Server log directory:
-    dir = "Server Log.txt",
+    -- Name of the log file for this server:
+    -- Stored in the same directory as mapcycle.txt
+    --
+    file = "Server Log.txt",
 
     -- Script errors (if any) will be logged to this file:
+    --
     error_file = "Server Log (errors).log",
 
     -- Timestamp format:
     -- For help with date & time format, refer to this page: www.lua.org/pil/22.1.html
+    --
     date_format = "!%a, %d %b %Y %H:%M:%S",
 
     -- IP Address of the server:
+    --
     ip = "localhost",
 
     -- Name for the server console:
+    --
     name = "SERVER CONSOLE",
 
     --====================--
@@ -65,6 +71,7 @@ local Logger = {
     -- SCRIPT LOAD & UNLOAD --
     --=========================--
     ["ScriptLoad"] = {
+        -- @Param f (self: Logger)
         Log = function(f)
             if (f.reloaded) then
                 f:Write("[SCRIPT RE-LOAD] Server Logger was re-loaded")
@@ -75,6 +82,7 @@ local Logger = {
     },
 
     ["ScriptUnload"] = {
+        -- @Param f (self: Logger)
         Log = function(f)
             f:Write("[SCRIPT UNLOAD] Advanced Server Logger was unloaded")
         end
@@ -84,12 +92,14 @@ local Logger = {
     -- GAME START & END --
     --=========================--
     ["GameStart"] = {
+        -- @Param f (self: Logger)
         Log = function(f)
             f:Write("[GAME START] A new game has started on [" .. f.map .. " - " .. f.gt .. " (" .. f.mode .. ")]")
         end
     },
 
     ["GameEnd"] = {
+        -- @Param f (self: Logger)
         Log = function(f)
             f:Write("[GAME END] The game has ended. Showing post game carnage report...")
         end
@@ -99,26 +109,30 @@ local Logger = {
     -- PLAYER JOIN & QUIT --
     --=========================--
     ["PlayerJoin"] = {
+        -- @Param f (self: Logger)
+        -- @Param p (player table [table])
         Log = function(f, p)
 
-            local a = p.name -- player name [string]
-            local b = p.id -- player id [string]
-            local c = p.ip -- player ip [string]
-            local d = p.hash -- player hash [string]
-            local e = f.pn -- player count [int]
+            local a = p.name    -- player name [string]
+            local b = p.id      -- player id [number]
+            local c = p.ip      -- player ip [string]
+            local d = p.hash    -- player hash [string]
+            local e = f.pn      -- player count [number]
 
             f:Write("[JOIN] Name: " .. a .. " [ID: " .. b .. " | IP: " .. c .. " | CD-Key Hash: " .. d .. " | Total Players: " .. e .. "/16]")
         end
     },
 
     ["PlayerQuit"] = {
+        -- @Param f (self: Logger)
+        -- @Param p (player table [table])
         Log = function(f, p)
 
-            local a = p.name -- player name [string]
-            local b = p.id -- player id [string]
-            local c = p.ip -- player ip [string]
-            local d = p.hash -- player hash [string]
-            local e = f.pn -- player count [int]
+            local a = p.name    -- player name [string]
+            local b = p.id      -- player id [number]
+            local c = p.ip      -- player ip [string]
+            local d = p.hash    -- player hash [string]
+            local e = f.pn      -- player count [number]
 
             f:Write("[QUIT] Name: " .. a .. " [ID: " .. b .. " | IP: " .. c .. " | CD-Key Hash: " .. d .. " | Total Players: " .. e .. "/16]")
         end
@@ -128,9 +142,11 @@ local Logger = {
     -- Team Change --
     --=========================--
     ["TeamChange"] = {
+        -- @Param f (self: Logger)
+        -- @Param p (player id [number])
         Log = function(f, p)
-            local n = f.players[p].name -- player name [string]
-            local t = f.players[p].team(p) -- player team [string]
+            local n = f.players[p].name      -- player name [string]
+            local t = f.players[p].team(p)   -- player team [string]
             f:Write("[TEAM CHANGE] " .. n .. " switched teams [New team: " .. t .. "]")
         end
     },
@@ -139,8 +155,9 @@ local Logger = {
     -- Admin Login --
     --=========================--
     ["AdminLogin"] = {
+        -- @Param f (self: Logger)
+        -- @Param n (player name [string])
         Log = function(f, n)
-            -- n = name
             f:Write("[LOGIN] " .. n .. " has logged in")
         end
     },
@@ -149,6 +166,7 @@ local Logger = {
     -- Map Reset --
     --=========================--
     ["MapReset"] = {
+        -- @Param f (self: Logger)
         Log = function(f)
             f:Write("[MAP RESET] The map has been reset.")
         end
@@ -158,13 +176,14 @@ local Logger = {
     -- CHAT MESSAGE & COMMAND --
     --=========================--
     ["MessageCreate"] = {
+        -- @Param f (self: Logger)
         Log = function(f)
 
             local str
             local a = f.chat[1] -- message [string]
-            local b = f.chat[2] -- message type [int]
+            local b = f.chat[2] -- message type [number]
             local c = f.chat[3] -- player name [string]
-            local d = f.chat[4] -- player id [int]
+            local d = f.chat[4] -- player id [number]
             f.chat = {}
 
             if (b == 0) then
@@ -181,27 +200,28 @@ local Logger = {
     },
 
     ["Command"] = {
-        Log = function(fun)
+        -- @Param f (self: Logger)
+        Log = function(f)
 
-            local a = fun.cmd[1] -- admin (true or false) [string NOT BOOLEAN]
-            local b = fun.cmd[2] -- admin level [int]
-            local c = fun.cmd[3] -- executor name [string]
-            local d = fun.cmd[4] -- executor id [int]
-            local e = fun.cmd[5] -- execute ip (or 127.0.0.1) [string]
-            local f = fun.cmd[6] -- command [string]
-            local g = fun.cmd[7] -- command environment
-            fun.cmd = {}
+            local A = f.cmd[1] -- admin (true or false) [string]
+            local B = f.cmd[2] -- admin level [number]
+            local C = f.cmd[3] -- executor name [string]
+            local D = f.cmd[4] -- executor id [number]
+            local E = f.cmd[5] -- execute ip (or 127.0.0.1) [string]
+            local F = f.cmd[6] -- command [string]
+            local G = f.cmd[7] -- command environment
+            f.cmd = {}
 
             local cmd
-            if (g == 0) then
-                cmd = "[CONSOLE COMMAND] " .. c .. ": " .. f .. " [Admin = " .. a .. " | Level: " .. b .. " | ID: " .. d .. " | IP: " .. e .. "]"
-            elseif (g == 1) then
-                cmd = "[RCON COMMAND] " .. c .. ": " .. f .. " [Admin = " .. a .. " | Level: " .. b .. " | ID: " .. d .. " | IP: " .. e .. "]"
-            elseif (g == 2) then
-                cmd = "[CHAT COMMAND] " .. c .. ": /" .. f .. " [Admin = " .. a .. " | Level: " .. b .. " | ID: " .. d .. " | IP: " .. e .. "]"
+            if (G == 0) then
+                cmd = "[CONSOLE COMMAND] " .. C .. ": " .. F .. " [Admin = " .. A .. " | Level: " .. B .. " | ID: " .. D .. " | IP: " .. E .. "]"
+            elseif (G == 1) then
+                cmd = "[RCON COMMAND] " .. C .. ": " .. F .. " [Admin = " .. A .. " | Level: " .. B .. " | ID: " .. D .. " | IP: " .. E .. "]"
+            elseif (G == 2) then
+                cmd = "[CHAT COMMAND] " .. C .. ": /" .. F .. " [Admin = " .. A .. " | Level: " .. B .. " | ID: " .. D .. " | IP: " .. E .. "]"
             end
 
-            fun:Write(cmd)
+            f:Write(cmd)
         end
     },
 
@@ -209,15 +229,20 @@ local Logger = {
     -- CONFIGURATION ENDS --
     --
 
-    Reset = function(l)
-        l.pn = 0
-        l.cmd = {}
-        l.chat = {}
-        l.players = {}
+    -- DO NOT TOUCH --
+    -- @Param f (self: Logger)
+    Reset = function(f)
+        f.pn = 0        -- player count
+        f.cmd = {}      -- command table
+        f.chat = {}     -- chat table
+        f.players = {}  -- player table
     end
 }
 
 function OnScriptLoad()
+
+    local cg_dir = read_string(read_dword(sig_scan("68??????008D54245468") + 0x1))
+    Logger.dir = cg_dir .. "\\sapp\\" .. Logger.file
 
     -- register needed event callbacks:
     register_callback(cb["EVENT_JOIN"], "PlayerJoin")
@@ -240,7 +265,7 @@ function OnScriptLoad()
     GameStart()
 end
 
-local script_version = 1.2
+local script_version = 1.3
 
 function OnScriptUnload()
     Logger["ScriptUnload"].Log(Logger)
@@ -372,8 +397,6 @@ function AdminLogin(P)
     end
 end
 
--- Start of the show; Responsible for logging messages to self.dir:
---
 function Logger:Write(STR)
     if (STR) then
         local file = io.open(self.dir, "a+")
