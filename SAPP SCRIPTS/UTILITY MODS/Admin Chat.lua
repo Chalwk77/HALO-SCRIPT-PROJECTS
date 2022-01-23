@@ -1,7 +1,8 @@
 --[[
 --=====================================================================================================--
 Script Name: Admin Chat, for SAPP (PC & CE)
-Description: This is a utility mod that allows you to chat privately with other admins.
+
+Description: This is a utility that allows you to chat privately with other admins.
              Command Syntax: /achat on|off [me | id | */all]
 
              When Admin Chat is enabled your messages will appear in the rcon console environment.
@@ -13,11 +14,11 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]] --
 
--- ============= Configuration Starts ============= --
 api_version = "1.12.0.0"
 
-local AdminChat = {
+-- config starts --
 
+local AdminChat = {
 
     -- Custom command used to toggle admin chat on/off:
     command = "achat",
@@ -32,29 +33,29 @@ local AdminChat = {
     messages = {
 
         -- Admin Chat output format:
-        [1] = "%name% [%id%]: %message%",
+        [1] = "$name [$id]: $message",
 
         -- This message is sent to (you) when you enable/disable for yourself.
-        [2] = "Admin Chat %state%!",
+        [2] = "Admin Chat $state!",
 
         -- This message is sent to (you) when you enable/disable for others.
-        [3] = "Admin Chat %state% for %target_name%",
+        [3] = "Admin Chat $state for $target_name",
 
         -- This message is sent to (target player) when you enable/disable for them.
-        [4] = "Your Admin Chat was %state% by %executor_name%",
+        [4] = "Your Admin Chat was $state by $executor_name",
 
         -- This message is sent to (you) when your Admin Chat is already enabled/disabled.
-        [5] = "Your Admin Chat is already %state%!",
+        [5] = "Your Admin Chat is already $state!",
 
         -- This message is sent to (target player) when their Admin Chat is already enabled/disabled.
-        [6] = "%target_name%%'s Admin Chat is already %state%!",
+        [6] = "$target_name's Admin Chat is already $state!",
 
         -- This message is sent when a player connects to the server (if previously activated).
         -- This requires the 'restore' setting to be TRUE.
         [7] = "Your Admin Chat is Enabled! (auto-restore)",
 
         -- This message is sent to (you) when there is a command syntax error.
-        [8] = "Invalid Syntax: Usage: /%cmd% on|off [me | id | */all]",
+        [8] = "Invalid Syntax: Usage: /$cmd on|off [me | id | */all]",
 
         -- If command executors permission level is < permission_others, send this message:
         [9] = "You lack permission to execute this command on other players",
@@ -67,24 +68,25 @@ local AdminChat = {
     -- Advanced users only:
     --
 
-    -- The array index for each client will either be "IP", or "IP:PORT".
+    -- The table index for each client will either be "IP", or "IP:PORT".
     -- Set to 1 for ip-only indexing.
+    -- Set to 2 for ip & port indexing.
     ClientIndexType = 2
 }
--- ============= Configuration Ends ============= --
+-- config ends --
 
 function OnScriptLoad()
 
+    register_callback(cb["EVENT_JOIN"], "OnJoin")
+    register_callback(cb["EVENT_LEAVE"], "OnQuit")
     register_callback(cb["EVENT_CHAT"], "SendMessage")
-    register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
-    register_callback(cb["EVENT_LEAVE"], "OnPlayerQuit")
-    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
-    register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
+    register_callback(cb["EVENT_COMMAND"], "OnCommand")
+    register_callback(cb["EVENT_GAME_START"], "OnStart")
 
-    OnGameStart()
+    OnStart()
 end
 
-function OnGameStart()
+function OnStart()
     if (get_var(0, "$gt") ~= "n/a") then
         for i = 1, 16 do
             if player_present(i) then
@@ -98,11 +100,11 @@ function OnScriptUnload()
     -- N/A
 end
 
-function OnPlayerJoin(Ply)
+function OnJoin(Ply)
     AdminChat:InitPlayer(Ply, false)
 end
 
-function OnPlayerQuit(Ply)
+function OnQuit(Ply)
     AdminChat:InitPlayer(Ply, true)
 end
 
@@ -124,8 +126,8 @@ function AdminChat:IsAdmin(Ply, CMD)
     end
 
     -- Return false if player is not admin.
-    -- Send player Insufficient Permission message if callback came from OnServerCommand()
-    return false, (CMD ~= nil and self:Respond(Ply, "Insufficient Permission", 10))
+    -- Send player Insufficient Permission message if callback came from OnCommand()
+    return false, (CMD and self:Respond(Ply, "Insufficient Permission", 10))
 end
 
 function AdminChat:InitPlayer(Ply, Reset)
@@ -163,13 +165,13 @@ function AdminChat:OnCommand(Executor, CMD)
                 if (pl) then
                     local params = { }
                     for i = 1, #pl do
-                        local TargetID = tonumber(pl[i])
-                        if (TargetID ~= Executor and lvl < self.permission_others and Executor ~= 0) then
+                        local player = tonumber(pl[i])
+                        if (player ~= Executor and lvl < self.permission_others and Executor ~= 0) then
                             self:Respond(Executor, self.messages[9], 10)
                         else
                             params.state = Args[2] -- on|off
                             params.eid, params.en = Executor, get_var(Executor, '$name')
-                            params.tid, params.tn, params.tip = TargetID, get_var(TargetID, '$name'), self:GetIP(TargetID)
+                            params.tid, params.tn, params.tip = player, get_var(player, '$name'), self:GetIP(player)
                             self:Toggle(params)
                         end
                     end
@@ -183,12 +185,12 @@ function AdminChat:OnCommand(Executor, CMD)
 end
 
 function AdminChat:ActivationState(Executor, State)
-    if (State == "on") or (State == "1") or (State == "true") then
+    if (State == "on" or State == "1" or State == "true") then
         return 1
-    elseif (State == "off") or (State == "0") or (State == "false") then
+    elseif (State == "off" or State == "0" or State == "false") then
         return 0
     else
-        return false, self:Respond(Executor, self.messages[8]:gsub("%%cmd%%", self.command), 12)
+        return false, self:Respond(Executor, self.messages[8]:gsub("$cmd", self.command), 12)
     end
 end
 
@@ -233,9 +235,9 @@ function AdminChat:Toggle(params)
 
             local Feedback = function(str)
                 local words = {
-                    ["%%state%%"] = state,
-                    ["%%executor_name%%"] = en,
-                    ["%%target_name%%"] = tn,
+                    ["$state"] = state,
+                    ["$executor_name"] = en,
+                    ["$target_name"] = tn,
                 }
                 for k, v in pairs(words) do
                     str = str:gsub(k, v)
@@ -329,11 +331,11 @@ function AdminChat:SendMessage(Ply, Msg, Type)
 
                     -- Admin Chat message formatter:
                     local name = get_var(Ply, "$name")
-                    local msg = self.messages[1]:gsub("%%name%%", name):gsub("%%id%%", Ply):gsub("%%message%%", Msg)
+                    local msg = self.messages[1]:gsub("$name", name):gsub("$id", Ply):gsub("$message", Msg)
 
+                    -- Check if player is an admin and send them the message:
                     for i = 1, 16 do
                         if player_present(i) then
-                            -- Check if player is an admin and send them the message:
                             if (tonumber(get_var(i, '$lvl')) >= self.permission) then
                                 rprint(i, "|l" .. msg)
                             end
@@ -347,7 +349,7 @@ function AdminChat:SendMessage(Ply, Msg, Type)
     end
 end
 
-function OnServerCommand(P, C)
+function OnCommand(P, C)
     return AdminChat:OnCommand(P, C)
 end
 function SendMessage(P, M, T)

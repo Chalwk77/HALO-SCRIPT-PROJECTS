@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Alias System (v1.3), for SAPP (PC & CE)
+Script Name: Alias System (v1.4), for SAPP (PC & CE)
 Description: Look up names linked to an IP address or hash.
 
 Alias results are displayed in columns of 5 and rows of 10 per page.
@@ -30,7 +30,7 @@ To view a specific page of results, simply define the page id as shown in the co
     Place "json.lua" in your servers root directory:
     http://regex.info/blog/lua/json
 
-Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
@@ -42,8 +42,9 @@ api_version = "1.12.0.0"
 
 local Alias = {
 
-    -- This is name of the alias database (saved to servers root directory).
-    dir = "alias.json",
+    -- Name of the JSON database containing player aliases:
+    -- This file will be located in the same directory as mapcycle.txt
+    file = "alias.json",
 
     -- The custom command;
     command = "alias",
@@ -112,27 +113,28 @@ local Alias = {
 
 -- Configuration Ends --
 
-local len, sub = string.len, string.sub
-local lower = string.lower
-local json, floor = (loadfile "json.lua")(), math.floor
-local concat, gmatch, gsub = table.concat, string.gmatch, string.gsub
+local json = (loadfile "json.lua")()
 
 function OnScriptLoad()
-    register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
-    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
-    register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
+
+    local cg_dir = read_string(read_dword(sig_scan("68??????008D54245468") + 0x1))
+    Alias.dir = cg_dir .. "\\sapp\\" .. Alias.file
+
+    register_callback(cb["EVENT_JOIN"], "OnJoin")
+    register_callback(cb["EVENT_COMMAND"], "OnCommand")
+    register_callback(cb["EVENT_GAME_START"], "OnStart")
     Alias:CheckFile(true)
 end
 
 function OnScriptUnload()
-
+    -- N/A
 end
 
-function OnGameStart()
+function OnStart()
     Alias:CheckFile()
 end
 
-function OnPlayerConnect(Ply)
+function OnJoin(Ply)
     Alias:UpdateRecords(Ply)
 end
 
@@ -148,7 +150,7 @@ function Alias:GetNames(Ply, t, name, CheckPirated)
     local count = 0
     for Artifact, TAB in pairs(t) do
         for _, NameRecord in pairs(TAB) do
-            if (lower(NameRecord) == lower(name)) then
+            if (NameRecord:lower() == name:lower()) then
                 count = count + 1
                 if (CheckPirated) then
                     local pirated = Alias:IsPirated(Artifact)
@@ -170,9 +172,10 @@ function Alias:GetPage(page)
     return startpage, endpage
 end
 
+local floor = math.floor
 function Alias:getPageCount(total_names)
     local pages = total_names / (self.max_results)
-    if ((pages) ~= floor(pages)) then
+    if (pages ~= floor(pages)) then
         pages = floor(pages) + 1
     end
     return pages
@@ -181,7 +184,7 @@ end
 local function spacing(n)
     local String, Seperator = "", ","
     for i = 1, n do
-        if i == math.floor(n / 2) then
+        if i == floor(n / 2) then
             String = String .. ""
         end
         String = String .. " "
@@ -189,12 +192,13 @@ local function spacing(n)
     return Seperator .. String
 end
 
+local concat = table.concat
 function Alias:FormatTable(table)
 
     local longest = 0
     for _, v in pairs(table) do
-        if (len(v) > longest) then
-            longest = len(v)
+        if (v:len() > longest) then
+            longest = v:len()
         end
     end
 
@@ -203,7 +207,7 @@ function Alias:FormatTable(table)
         if (count % self.max_results == 0) or (k == #table) then
             rows[row] = (rows[row] or "") .. v
         else
-            rows[row] = (rows[row] or "") .. v .. spacing(longest - len(v) + self.spaces)
+            rows[row] = (rows[row] or "") .. v .. spacing(longest - v:len() + self.spaces)
         end
         if (count % self.max_results == 0) then
             row = row + 1
@@ -243,7 +247,7 @@ function Alias:ShowResults(params)
                 end
 
                 if (row ~= nil and row ~= "" and row ~= " ") then
-                    self:Respond(params.executor, row, 10)
+                    self:Respond(params.Ply, row, 10)
                 end
 
                 startIndex = (endIndex + 1)
@@ -254,72 +258,73 @@ function Alias:ShowResults(params)
                 formatResults()
             end
 
-            self:Respond(params.executor, '[Page ' .. page .. '/' .. total_pages .. '] Showing ' .. #results .. '/' .. #tab .. ' aliases for: "' .. params.artifact .. '"', 2 + 8)
+            self:Respond(params.Ply, '[Page ' .. page .. '/' .. total_pages .. '] Showing ' .. #results .. '/' .. #tab .. ' aliases for: "' .. params.artifact .. '"', 2 + 8)
             if (params.pirated) then
                 if (params.name) then
-                    self:Respond(params.executor, params.name .. ' is using a pirated copy of Halo.', 2 + 8)
+                    self:Respond(params.Ply, params.name .. ' is using a pirated copy of Halo.', 2 + 8)
                 else
-                    self:Respond(params.executor, params.artifact .. ' is a pirated copy of Halo.', 2 + 8)
+                    self:Respond(params.Ply, params.artifact .. ' is a pirated copy of Halo.', 2 + 8)
                 end
             end
         else
-            self:Respond(params.executor, 'Invalid Page ID. Please type a page between 1-' .. total_pages)
+            self:Respond(params.Ply, 'Invalid Page ID. Please type a page between 1-' .. total_pages)
         end
     else
-        self:Respond(params.executor, 'No results for "' .. params.artifact .. '"')
+        self:Respond(params.Ply, 'No results for "' .. params.artifact .. '"')
     end
 end
 
-local function CmdSplit(CMD)
+local function STRSplit(CMD, Delim)
     local Args = { }
-    for Params in gmatch(CMD, "([^%s]+)") do
-        Args[#Args + 1] = lower(Params)
+    for word in CMD:gsub('"', ""):gmatch("([^" .. Delim .. "]+)") do
+        Args[#Args + 1] = word:lower()
     end
     return Args
 end
 
 function Alias:IsPirated(hash)
     for _, v in pairs(self.known_pirated_hashes) do
-        if (hash == v) then
+        if (v == hash) then
             return true
         end
     end
     return false
 end
 
-function Alias:CmdHelp(Executor)
-    self:Respond(Executor, "Invalid Command Syntax or Lookup Parameter.")
-    self:Respond(Executor, "Usage:")
-    self:Respond(Executor, "/" .. self.command .. " <pid> -ip <opt page>")
-    self:Respond(Executor, "/" .. self.command .. " <pid> -hash <opt page>")
-    self:Respond(Executor, "/" .. self.command .. " <ip> <opt page>")
-    self:Respond(Executor, "/" .. self.command .. " <32 char hash> <opt page>")
-    self:Respond(Executor, ".....................................................")
+function Alias:CmdHelp(Ply)
+    self:Respond(Ply, "Invalid Command Syntax or Lookup Parameter.")
+    self:Respond(Ply, "Usage:")
+    self:Respond(Ply, "/" .. self.command .. " <pid> -ip <opt page>")
+    self:Respond(Ply, "/" .. self.command .. " <pid> -hash <opt page>")
+    self:Respond(Ply, "/" .. self.command .. " <ip> <opt page>")
+    self:Respond(Ply, "/" .. self.command .. " <32 char hash> <opt page>")
+    self:Respond(Ply, ".....................................................")
 end
 
-function Alias:OnServerCommand(Executor, Command)
-    local Args = CmdSplit(Command)
-    if (Args) then
+function Alias:OnCommand(Ply, CMD)
 
-        local lvl = tonumber(get_var(Executor, "$lvl"))
+    local Args = STRSplit(CMD, "%s")
+
+    if (#Args > 0) then
+
+        CMD = CMD:lower()
+
+        local lvl = tonumber(get_var(Ply, "$lvl"))
         if (Args[1] == self.command) then
-            if (lvl >= self.permission) or (Executor == 0) then
+            if (lvl >= self.permission or Ply == 0) then
 
                 if (Args[2] ~= nil) then
 
                     local params, error = { }
-                    local player_id = (Args[2] ~= nil and Args[2]:match("^%d+$")) or 0
+                    local player = (Args[2] ~= nil and Args[2]:match("^%d+$")) or 0
 
-                    local name_search = Command:match("--search")
+                    local name_search = CMD:match("--search")
 
-                    if (not player_present(player_id) and player_id ~= 0) then
-                        self:Respond(Executor, "Player #" .. player_id .. " is not online.")
+                    if (not player_present(player) and player ~= 0) then
+                        self:Respond(Ply, "Player #" .. player .. " is not online.")
                         return false
                     elseif (Args[2] == "me") then
-                        if (Executor == 0) then
-                            return false, cprint("Please enter a valid player id!", 12)
-                        end
-                        player_id = Executor
+                        player = Ply
                     end
 
                     local ip_pattern = Args[2]:match("^%d+.%d+.%d+.%d+$")
@@ -332,97 +337,85 @@ function Alias:OnServerCommand(Executor, Command)
                     local hash_lookup = (hash_pattern)
 
                     -- /alias <pid> <-ip> <opt page>
-                    local player_ip_lookup = (player_id and Args[3] == "-ip")
+                    local player_ip_lookup = (player and Args[3] == "-ip")
 
                     -- /alias <pid> <-hash> <opt page>
-                    local player_hash_lookup = (player_id and Args[3] == "-hash")
+                    local player_hash_lookup = (player and Args[3] == "-hash")
 
                     -- /alias <pid>
-                    local player_lookup = (player_id and Args[3] == nil) and (not hash_pattern)
-
-                    local hash = get_var(player_id, "$hash")
-                    local name = get_var(player_id, "$name")
-                    params.name = name
+                    local player_lookup = (player and Args[3] == nil) and (not hash_pattern)
 
                     if (ip_lookup) then
-
                         params.page = (Args[3] ~= nil and Args[3]:match("^%d+$") or 1)
                         params.type = "ip_addresses"
                         params.artifact = ip_pattern
 
                     elseif (player_lookup) then
-
                         params.page = 1
                         params.type = self.default_table
-
+                        params.name = get_var(player, "$name")
                         if (self.default_table == "ip_addresses") then
-                            params.artifact = self:GetIP(player_id)
+                            params.artifact = self:GetIP(player)
                         elseif (self.default_table == "hashes") then
-                            params.artifact = hash
-                            params.pirated = self:IsPirated(hash)
+                            params.artifact = get_var(player, "$hash")
+                            params.pirated = self:IsPirated(get_var(player, "$hash"))
                         end
 
                     elseif (hash_lookup) then
-
                         params.page = (Args[3] ~= nil and Args[3]:match("^%d+$") or 1)
                         params.type = "hashes"
                         params.artifact = hash_pattern
                         params.pirated = self:IsPirated(hash_pattern)
 
                     elseif (player_ip_lookup) then
-
                         params.page = (Args[4] ~= nil and Args[4]:match("^%d+$") or 1)
                         params.type = "ip_addresses"
-                        params.artifact = self:GetIP(player_id)
+                        params.name = get_var(player, "$name")
+                        params.artifact = self:GetIP(player)
 
                     elseif (player_hash_lookup) then
-
                         params.type = "hashes"
                         params.page = (Args[4] ~= nil and Args[4]:match("^%d+$") or 1)
-                        params.artifact = hash
-                        params.pirated = self:IsPirated(hash)
+                        params.name = get_var(player, "$name")
+                        params.artifact = get_var(player, "$hash")
+                        params.pirated = self:IsPirated(get_var(player, "$hash"))
 
                     elseif (name_search) then
 
-                        local cmd_len = len(self.command)
-                        local cmd_to_replace = sub(Command, 1, cmd_len + 1)
-                        name = gsub(gsub(Command, cmd_to_replace, ""), " --search", "")
+                        local cmd_len = self.command:len()
+                        local cmd_to_replace = CMD:sub(1, cmd_len + 1)
+                        local name = CMD:gsub(cmd_to_replace, ""):gsub(" --search", "")
 
                         local records = self:CheckFile()
-                        local ip_count = Alias:GetNames(Executor, records.ip_addresses, name, false)
-                        local hash_count = Alias:GetNames(Executor, records.hashes, name, true)
+                        local ip_count = Alias:GetNames(Ply, records.ip_addresses, name, false)
+                        local hash_count = Alias:GetNames(Ply, records.hashes, name, true)
                         ip_count = ip_count + hash_count
-
                         if (ip_count == 0) then
-                            self:Respond(Executor, "No records found for [ " .. name .. " ]")
+                            self:Respond(Ply, "No records found for [ " .. name .. " ]")
                         end
                     else
                         error = true
-                        self:CmdHelp(Executor)
+                        self:CmdHelp(Ply)
                     end
 
                     if (not error) and (not name_search) then
-                        params.executor = Executor
+                        params.Ply = Ply
                         self:ShowResults(params)
                     end
                 else
-                    self:CmdHelp(Executor)
+                    self:CmdHelp(Ply)
                 end
             else
-                self:Respond(Executor, "You do not have permission to execute that command!")
+                self:Respond(Ply, "You do not have permission to execute that command!")
             end
             return false
         end
     end
 end
 
-function Alias:Respond(Ply, Message, Color)
+function Alias:Respond(Ply, Msg, Color)
     Color = Color or 10
-    if (Ply == 0) then
-        cprint(Message, Color)
-    else
-        rprint(Ply, Message)
-    end
+    return (Ply == 0 and cprint(Msg, Color) or rprint(Ply, Msg))
 end
 
 function Alias:NameOnRecord(Records, Name)
@@ -449,7 +442,6 @@ function Alias:UpdateRecords(Ply)
         records.hashes[hash] = {}
         table.insert(records.hashes[hash], name)
         update = true
-
         -- Add it:
     elseif not self:NameOnRecord(records.hashes[hash], name) then
         table.insert(records.hashes[hash], name)
@@ -476,7 +468,7 @@ function Alias:UpdateRecords(Ply)
         local file = assert(io.open(self.dir, "w"))
         if (file) then
             file:write(json:encode_pretty(records))
-            file:close()
+            io.close(file)
         end
     end
 end
@@ -494,7 +486,7 @@ function Alias:CheckFile(INIT)
             local file = io.open(self.dir, "r")
             if (file) then
                 content = file:read("*all")
-                file:close()
+                io.close(file)
             end
 
             local records = json:decode(content)
@@ -503,7 +495,7 @@ function Alias:CheckFile(INIT)
                 if (file) then
                     records = { hashes = {}, ip_addresses = {} }
                     file:write(json:encode_pretty(records))
-                    file:close()
+                    io.close(file)
                 end
             end
 
@@ -514,6 +506,6 @@ function Alias:CheckFile(INIT)
     end
 end
 
-function OnServerCommand(P, C)
-    return Alias:OnServerCommand(P, C)
+function OnCommand(P, C)
+    return Alias:OnCommand(P, C)
 end
