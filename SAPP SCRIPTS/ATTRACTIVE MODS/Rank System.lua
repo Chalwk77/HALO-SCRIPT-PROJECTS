@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Rank System (v1.29), for SAPP (PC & CE)
+Script Name: Rank System (v1.30), for SAPP (PC & CE)
 Description: Rank System is fully integrated halo 3 style ranking system for SAPP servers.
 
 Players earn credits for killing, scoring and achievements, such as sprees, kill-combos and more.
@@ -25,8 +25,8 @@ api_version = "1.12.0.0"
 local Rank = {
 
     -- A JSON database containing information about all player ranks.
-    -- This file will be located in the server's root directory.
-    dir = "ranks.json",
+    -- This file will be located in the same directory as mapcycle.txt
+    file = "ranks.json",
 
     -- Suggestions: cR, $, Points, Candy
     currency_symbol = "cR",
@@ -45,8 +45,8 @@ local Rank = {
     -- may cause undesirable (albeit temporary) lag.
     update_file_database = {
         ["OnGameEnd"] = true,
-        ["OnPlayerConnect"] = false,
-        ["OnPlayerDisconnect"] = false
+        ["OnJoin"] = false,
+        ["OnQuit"] = false
     },
 
     -- Use this command to view stats on your current rank:
@@ -59,10 +59,10 @@ local Rank = {
     -- Command Syntax: /toplist_cmd
     toplist_cmd = "toplist",
     toplist_cmd_permission = -1,
-    toplist_format = "Rank#: [%pos%] %name% | Credits: %cr%",
+    toplist_format = "Rank#: [$pos] $name | Credits: $cr",
     topplayers = {
         header = "--------------------------------------",
-        txt = "Rank#: [%pos%] %name% | Credits: %cr%",
+        txt = "Rank#: [$pos] $name | Credits: $cr",
         footer = "--------------------------------------",
     },
     --
@@ -86,15 +86,15 @@ local Rank = {
 
         -- This message is sent to a player when they join:
         [1] = {
-            "You are rank [%rank%] Grade [%grade%] Position: [%pos%/%totalplayers%]",
-            "Credits: %credits%",
+            "You are rank [$rank] Grade [$grade] Position: [$pos/$total_players]",
+            "Credits: $credits",
         },
         --
 
         -- This message is broadcast server-wide when someone joins:
         [2] = { -- /rank command output (other player)
-            "%name% is rank [%rank%] Grade [%grade%] Position: [%pos%/%totalplayers%]",
-            "Credits: %credits%",
+            "$name is rank [$rank] Grade [$grade] Position: [$pos/$total_players]",
+            "Credits: $credits",
         },
 
         -- Messages sent to player lacking permission to execute a X command:
@@ -102,25 +102,25 @@ local Rank = {
         [4] = { "You do not have permission to execute this command on other players" },
 
         -- This message is broadcast server-wide when someone tea bags a body:
-        [5] = "%name% is t-bagging %victim%",
+        [5] = "$name is t-bagging $victim",
         --
 
         -- This message is broadcast server-wide when someone ranks up:
-        [6] = "%name% is now rank [%rank%] grade [%grade%]",
+        [6] = "$name is now rank [$rank] grade [$grade]",
 
         -- This message is broadcast server-wide when someone completes all ranks:
-        [7] = "%name% has completed all ranks!",
+        [7] = "$name has completed all ranks!",
 
         -- This message is broadcast server-wide when someone completes all ranks:
-        [8] = "%name% was downgraded and is now rank [%rank%] grade [%grade%]",
+        [8] = "$name was downgraded and is now rank [$rank] grade [$grade]",
 
         -- This message is sent to a player they execute "/rank" command:
         [9] = {
-            "You are rank [%rank%] Grade [%grade%] Position: [%pos%/%totalplayers%]",
-            "Credits: %credits%",
+            "You are rank [$rank] Grade [$grade] Position: [$pos/$total_players]",
+            "Credits: $credits",
             " ",
-            "Next Rank: [%next_rank% Grade %next_grade%]",
-            "[Credits Required: %req%]"
+            "Next Rank: [$next_rank Grade $next_grade]",
+            "[Credits Required: $req]"
         }
     },
 
@@ -135,60 +135,60 @@ local Rank = {
             --
             human_team = "red",
             zombie_team = "blue",
-            credits = { 25, "+25 %currency_symbol% (Zombie-Bite)" },
+            credits = { 25, "+25 $currency_symbol (Zombie-Bite)" },
         },
 
         -- Tea Bagging (credits added):
-        tbag = { 1, "+1 %currency_symbol% (T-Bagging)" },
+        tbag = { 1, "+1 $currency_symbol (T-Bagging)" },
 
         -- Score (credits added):
-        score = { 5, "+5 %currency_symbol% (Flag Cap)" },
+        score = { 5, "+5 $currency_symbol (Flag Cap)" },
 
         -- Killed by Server (credits deducted):
-        server = { -0, "-0 %currency_symbol% (Server)" },
+        server = { -0, "-0 $currency_symbol (Server)" },
 
         -- killed by guardians (credits deducted):
-        guardians = { -5, "-5 %currency_symbol% (Guardians)" },
+        guardians = { -5, "-5 $currency_symbol (Guardians)" },
 
         -- suicide (credits deducted):
-        suicide = { -10, "-10 %currency_symbol% (Suicide)" },
+        suicide = { -10, "-10 $currency_symbol (Suicide)" },
 
         -- betrayal (credits deducted):
-        betrayal = { -15, "-15 %currency_symbol% (Betrayal)" },
+        betrayal = { -15, "-15 $currency_symbol (Betrayal)" },
 
         -- Killed from the grave (credits added to killer)
-        killed_from_the_grave = { 5, "+5 %currency_symbol% (Killed From Grave)" },
+        killed_from_the_grave = { 5, "+5 $currency_symbol (Killed From Grave)" },
 
         -- Bonus points for getting the first kill
         first_blood = { 30, "+30cR (First Blood)" },
 
         -- {consecutive kills, xp rewarded}
         spree = {
-            { 5, 5, "+5 %currency_symbol% (spree)" },
-            { 10, 10, "+10 %currency_symbol% (spree)" },
-            { 15, 15, "+15 %currency_symbol% (spree)" },
-            { 20, 20, "+20 %currency_symbol% (spree)" },
-            { 25, 25, "+25 %currency_symbol% (spree)" },
-            { 30, 30, "+30 %currency_symbol% (spree)" },
-            { 35, 35, "+35 %currency_symbol% (spree)" },
-            { 40, 40, "+40 %currency_symbol% (spree)" },
-            { 45, 45, "+45 %currency_symbol% (spree)" },
+            { 5, 5, "+5 $currency_symbol (spree)" },
+            { 10, 10, "+10 $currency_symbol (spree)" },
+            { 15, 15, "+15 $currency_symbol (spree)" },
+            { 20, 20, "+20 $currency_symbol (spree)" },
+            { 25, 25, "+25 $currency_symbol (spree)" },
+            { 30, 30, "+30 $currency_symbol (spree)" },
+            { 35, 35, "+35 $currency_symbol (spree)" },
+            { 40, 40, "+40 $currency_symbol (spree)" },
+            { 45, 45, "+45 $currency_symbol (spree)" },
             -- Award 50 credits for every 5 kills at or above 50
-            { 50, 50, "+50 %currency_symbol% (spree)" },
+            { 50, 50, "+50 $currency_symbol (spree)" },
         },
 
         -- kill-combo required, credits awarded
         multi_kill = {
-            { 2, 8, "+8 %currency_symbol% (multi-kill)" },
-            { 3, 10, "+10 %currency_symbol% (multi-kill)" },
-            { 4, 12, "+12 %currency_symbol% (multi-kill)" },
-            { 5, 14, "+14 %currency_symbol% (multi-kill)" },
-            { 6, 16, "+16 %currency_symbol% (multi-kill)" },
-            { 7, 18, "+18 %currency_symbol% (multi-kill)" },
-            { 8, 20, "+20 %currency_symbol% (multi-kill)" },
-            { 9, 23, "+23 %currency_symbol% (multi-kill)" },
+            { 2, 8, "+8 $currency_symbol (multi-kill)" },
+            { 3, 10, "+10 $currency_symbol (multi-kill)" },
+            { 4, 12, "+12 $currency_symbol (multi-kill)" },
+            { 5, 14, "+14 $currency_symbol (multi-kill)" },
+            { 6, 16, "+16 $currency_symbol (multi-kill)" },
+            { 7, 18, "+18 $currency_symbol (multi-kill)" },
+            { 8, 20, "+20 $currency_symbol (multi-kill)" },
+            { 9, 23, "+23 $currency_symbol (multi-kill)" },
             -- Award 25 credits every 2 kills at or above 10 kill-combos
-            { 10, 25, "+25 %currency_symbol% (multi-kill)" },
+            { 10, 25, "+25 $currency_symbol (multi-kill)" },
         },
 
         tags = {
@@ -199,68 +199,68 @@ local Rank = {
 
             -- FALL DAMAGE --
             --
-            { "jpt!", "globals\\falling", -3, "-3 %currency_symbol% (Fall Damage)" },
-            { "jpt!", "globals\\distance", -4, "-4 %currency_symbol% (Distance Damage)" },
+            { "jpt!", "globals\\falling", -3, "-3 $currency_symbol (Fall Damage)" },
+            { "jpt!", "globals\\distance", -4, "-4 $currency_symbol (Distance Damage)" },
 
             -- VEHICLE PROJECTILES --
             --
-            { "jpt!", "vehicles\\ghost\\ghost bolt", 7, "+7 %currency_symbol% (Ghost Bolt)" },
-            { "jpt!", "vehicles\\scorpion\\bullet", 6, "+6 %currency_symbol% (Tank Bullet)" },
-            { "jpt!", "vehicles\\warthog\\bullet", 6, "+6 %currency_symbol% (Warthog Bullet)" },
-            { "jpt!", "vehicles\\c gun turret\\mp bolt", 7, "+7 %currency_symbol% (Turret Bolt)" },
-            { "jpt!", "vehicles\\banshee\\banshee bolt", 7, "+7 %currency_symbol% (Banshee Bolt)" },
-            { "jpt!", "vehicles\\scorpion\\shell explosion", 10, "+10 %currency_symbol% (Tank Shell)" },
-            { "jpt!", "vehicles\\banshee\\mp_fuel rod explosion", 10, "+10 %currency_symbol% (Banshee Fuel-Rod Explosion)" },
+            { "jpt!", "vehicles\\ghost\\ghost bolt", 7, "+7 $currency_symbol (Ghost Bolt)" },
+            { "jpt!", "vehicles\\scorpion\\bullet", 6, "+6 $currency_symbol (Tank Bullet)" },
+            { "jpt!", "vehicles\\warthog\\bullet", 6, "+6 $currency_symbol (Warthog Bullet)" },
+            { "jpt!", "vehicles\\c gun turret\\mp bolt", 7, "+7 $currency_symbol (Turret Bolt)" },
+            { "jpt!", "vehicles\\banshee\\banshee bolt", 7, "+7 $currency_symbol (Banshee Bolt)" },
+            { "jpt!", "vehicles\\scorpion\\shell explosion", 10, "+10 $currency_symbol (Tank Shell)" },
+            { "jpt!", "vehicles\\banshee\\mp_fuel rod explosion", 10, "+10 $currency_symbol (Banshee Fuel-Rod Explosion)" },
 
             -- WEAPON PROJECTILES --
             --
-            { "jpt!", "weapons\\pistol\\bullet", 5, "+5 %currency_symbol% (Pistol Bullet)" },
-            { "jpt!", "weapons\\shotgun\\pellet", 6, "+6 %currency_symbol% (Shotgun Pallet)" },
-            { "jpt!", "weapons\\plasma rifle\\bolt", 4, "+4 %currency_symbol% (Plasma Rifle Bolt)" },
-            { "jpt!", "weapons\\needler\\explosion", 8, "+8 %currency_symbol% (Needler Explosion)" },
-            { "jpt!", "weapons\\plasma pistol\\bolt", 4, "+4 %currency_symbol% (Plasma Bolt)" },
-            { "jpt!", "weapons\\assault rifle\\bullet", 5, "+5 %currency_symbol% (Assault Rifle Bullet)" },
-            { "jpt!", "weapons\\needler\\impact damage", 4, "+4 %currency_symbol% (Needler Impact Damage)" },
-            { "jpt!", "weapons\\flamethrower\\explosion", 5, "+5 %currency_symbol% (Flamethrower)" },
-            { "jpt!", "weapons\\flamethrower\\burning", 5, "+5 %currency_symbol% (Flamethrower)" },
-            { "jpt!", "weapons\\flamethrower\\impact damage", 5, "+5 %currency_symbol% (Flamethrower)" },
-            { "jpt!", "weapons\\rocket launcher\\explosion", 8, "+8 %currency_symbol% (Rocket Launcher Explosion)" },
-            { "jpt!", "weapons\\needler\\detonation damage", 3, "+3 %currency_symbol% (Needler Detonation Damage)" },
-            { "jpt!", "weapons\\plasma rifle\\charged bolt", 4, "+4 %currency_symbol% (Plasma Rifle Bolt)" },
-            { "jpt!", "weapons\\sniper rifle\\sniper bullet", 6, "+6 %currency_symbol% (Sniper Rifle Bullet)" },
-            { "jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_explosion", 8, "+8 %currency_symbol% (Plasma Cannon Explosion)" },
+            { "jpt!", "weapons\\pistol\\bullet", 5, "+5 $currency_symbol (Pistol Bullet)" },
+            { "jpt!", "weapons\\shotgun\\pellet", 6, "+6 $currency_symbol (Shotgun Pallet)" },
+            { "jpt!", "weapons\\plasma rifle\\bolt", 4, "+4 $currency_symbol (Plasma Rifle Bolt)" },
+            { "jpt!", "weapons\\needler\\explosion", 8, "+8 $currency_symbol (Needler Explosion)" },
+            { "jpt!", "weapons\\plasma pistol\\bolt", 4, "+4 $currency_symbol (Plasma Bolt)" },
+            { "jpt!", "weapons\\assault rifle\\bullet", 5, "+5 $currency_symbol (Assault Rifle Bullet)" },
+            { "jpt!", "weapons\\needler\\impact damage", 4, "+4 $currency_symbol (Needler Impact Damage)" },
+            { "jpt!", "weapons\\flamethrower\\explosion", 5, "+5 $currency_symbol (Flamethrower)" },
+            { "jpt!", "weapons\\flamethrower\\burning", 5, "+5 $currency_symbol (Flamethrower)" },
+            { "jpt!", "weapons\\flamethrower\\impact damage", 5, "+5 $currency_symbol (Flamethrower)" },
+            { "jpt!", "weapons\\rocket launcher\\explosion", 8, "+8 $currency_symbol (Rocket Launcher Explosion)" },
+            { "jpt!", "weapons\\needler\\detonation damage", 3, "+3 $currency_symbol (Needler Detonation Damage)" },
+            { "jpt!", "weapons\\plasma rifle\\charged bolt", 4, "+4 $currency_symbol (Plasma Rifle Bolt)" },
+            { "jpt!", "weapons\\sniper rifle\\sniper bullet", 6, "+6 $currency_symbol (Sniper Rifle Bullet)" },
+            { "jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_explosion", 8, "+8 $currency_symbol (Plasma Cannon Explosion)" },
 
             -- GRENADES --
             --
-            { "jpt!", "weapons\\frag grenade\\explosion", 8, "+8 %currency_symbol% (Frag Explosion)" },
-            { "jpt!", "weapons\\plasma grenade\\attached", 7, "+7 %currency_symbol% (Plasma Grenade - attached)" },
-            { "jpt!", "weapons\\plasma grenade\\explosion", 5, "+5 %currency_symbol% (Plasma Grenade explosion)" },
+            { "jpt!", "weapons\\frag grenade\\explosion", 8, "+8 $currency_symbol (Frag Explosion)" },
+            { "jpt!", "weapons\\plasma grenade\\attached", 7, "+7 $currency_symbol (Plasma Grenade - attached)" },
+            { "jpt!", "weapons\\plasma grenade\\explosion", 5, "+5 $currency_symbol (Plasma Grenade explosion)" },
 
             -- MELEE --
             --
-            { "jpt!", "weapons\\flag\\melee", 5, "+5 %currency_symbol% (Melee: Flag)" },
-            { "jpt!", "weapons\\ball\\melee", 5, "+5 %currency_symbol% (Melee: Ball)" },
-            { "jpt!", "weapons\\pistol\\melee", 4, "+4 %currency_symbol% (Melee: Pistol)" },
-            { "jpt!", "weapons\\needler\\melee", 4, "+4 %currency_symbol% (Melee: Needler)" },
-            { "jpt!", "weapons\\shotgun\\melee", 5, "+5 %currency_symbol% (Melee: Shotgun)" },
-            { "jpt!", "weapons\\flamethrower\\melee", 5, "+5 %currency_symbol% (Melee: Flamethrower)" },
-            { "jpt!", "weapons\\sniper rifle\\melee", 5, "+5 %currency_symbol% (Melee: Sniper Rifle)" },
-            { "jpt!", "weapons\\plasma rifle\\melee", 4, "+4 %currency_symbol% (Melee: Plasma Rifle)" },
-            { "jpt!", "weapons\\plasma pistol\\melee", 4, "+4 %currency_symbol% (Melee: Plasma Pistol)" },
-            { "jpt!", "weapons\\assault rifle\\melee", 4, "+4 %currency_symbol% (Melee: Assault Rifle)" },
-            { "jpt!", "weapons\\rocket launcher\\melee", 10, "+10 %currency_symbol% (Melee: Rocket Launcher)" },
-            { "jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_melee", 10, "+10 %currency_symbol% (Melee: Plasma Cannon)" },
+            { "jpt!", "weapons\\flag\\melee", 5, "+5 $currency_symbol (Melee: Flag)" },
+            { "jpt!", "weapons\\ball\\melee", 5, "+5 $currency_symbol (Melee: Ball)" },
+            { "jpt!", "weapons\\pistol\\melee", 4, "+4 $currency_symbol (Melee: Pistol)" },
+            { "jpt!", "weapons\\needler\\melee", 4, "+4 $currency_symbol (Melee: Needler)" },
+            { "jpt!", "weapons\\shotgun\\melee", 5, "+5 $currency_symbol (Melee: Shotgun)" },
+            { "jpt!", "weapons\\flamethrower\\melee", 5, "+5 $currency_symbol (Melee: Flamethrower)" },
+            { "jpt!", "weapons\\sniper rifle\\melee", 5, "+5 $currency_symbol (Melee: Sniper Rifle)" },
+            { "jpt!", "weapons\\plasma rifle\\melee", 4, "+4 $currency_symbol (Melee: Plasma Rifle)" },
+            { "jpt!", "weapons\\plasma pistol\\melee", 4, "+4 $currency_symbol (Melee: Plasma Pistol)" },
+            { "jpt!", "weapons\\assault rifle\\melee", 4, "+4 $currency_symbol (Melee: Assault Rifle)" },
+            { "jpt!", "weapons\\rocket launcher\\melee", 10, "+10 $currency_symbol (Melee: Rocket Launcher)" },
+            { "jpt!", "weapons\\plasma_cannon\\effects\\plasma_cannon_melee", 10, "+10 $currency_symbol (Melee: Plasma Cannon)" },
 
             -- VEHICLE COLLISION --
             --
             vehicles = {
                 collision = { "jpt!", "globals\\vehicle_collision" },
-                { "vehi", "vehicles\\ghost\\ghost_mp", 5, "+5 %currency_symbol% (Vehicle Squash: GHOST)" },
-                { "vehi", "vehicles\\rwarthog\\rwarthog", 6, "+6 %currency_symbol% (Vehicle Squash: R-Hog)" },
-                { "vehi", "vehicles\\warthog\\mp_warthog", 7, "+7 %currency_symbol% (Vehicle Squash: Warthog)" },
-                { "vehi", "vehicles\\banshee\\banshee_mp", 8, "+8 %currency_symbol% (Vehicle Squash: Banshee)" },
-                { "vehi", "vehicles\\scorpion\\scorpion_mp", 10, "+10 %currency_symbol% (Vehicle Squash: Tank)" },
-                { "vehi", "vehicles\\c gun turret\\c gun turret_mp", 1000, "+1000 %currency_symbol% (Vehicle Squash: Turret)" },
+                { "vehi", "vehicles\\ghost\\ghost_mp", 5, "+5 $currency_symbol (Vehicle Squash: GHOST)" },
+                { "vehi", "vehicles\\rwarthog\\rwarthog", 6, "+6 $currency_symbol (Vehicle Squash: R-Hog)" },
+                { "vehi", "vehicles\\warthog\\mp_warthog", 7, "+7 $currency_symbol (Vehicle Squash: Warthog)" },
+                { "vehi", "vehicles\\banshee\\banshee_mp", 8, "+8 $currency_symbol (Vehicle Squash: Banshee)" },
+                { "vehi", "vehicles\\scorpion\\scorpion_mp", 10, "+10 $currency_symbol (Vehicle Squash: Tank)" },
+                { "vehi", "vehicles\\c gun turret\\c gun turret_mp", 1000, "+1000 $currency_symbol (Vehicle Squash: Turret)" },
             }
         }
     },
@@ -397,9 +397,8 @@ local Rank = {
 }
 
 local time_scale = 1 / 30
-local script_version = 1.29
+local script_version = 1.30
 
-local sqrt = math.sqrt
 local gsub = string.gsub
 
 -- Preload JSON Interpreter Library:
@@ -408,19 +407,22 @@ local json = (loadfile "json.lua")()
 
 function OnScriptLoad()
 
+    local cg_dir = read_string(read_dword(sig_scan("68??????008D54245468") + 0x1))
+    Rank.dir = cg_dir .. "\\sapp\\" .. Rank.file
+
     -- register needed event callbacks:
     --
 
     register_callback(cb["EVENT_TICK"], "OnTick")
-    register_callback(cb["EVENT_DIE"], "OnPlayerDeath")
+    register_callback(cb["EVENT_DIE"], "OnDeath")
     register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
-    register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
-    register_callback(cb["EVENT_SCORE"], "OnPlayerScore")
-    register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
+    register_callback(cb["EVENT_SPAWN"], "OnSpawn")
+    register_callback(cb["EVENT_SCORE"], "OnScore")
+    register_callback(cb["EVENT_JOIN"], "OnJoin")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
-    register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
-    register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
-    register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamageApplication")
+    register_callback(cb["EVENT_COMMAND"], "OnCommand")
+    register_callback(cb["EVENT_LEAVE"], "OnQuit")
+    register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamage")
     --
 
     Rank:CheckFile(true)
@@ -494,10 +496,9 @@ function Rank:ShowEndResults()
                         i = "3rd"
                     end
 
-                    local str = gsub(gsub(gsub(self.topplayers.txt,
-                            "%%pos%%", i),
-                            "%%name%%", v.name),
-                            "%%cr%%", v.credits)
+                    local str = self.topplayers.txt:gsub("$pos", i)
+                    str = str:gsub("$name", v.name)
+                    str = str:gsub("$cr", v.credits)
                     self:Respond(_, str, say_all, 10)
                 end
             end
@@ -506,6 +507,7 @@ function Rank:ShowEndResults()
     end
 end
 
+local sqrt = math.sqrt
 function Rank:InProximity(pX, pY, pZ, X, Y, Z)
     return sqrt((pX - X) ^ 2 + (pY - Y) ^ 2 + (pZ - Z) ^ 2) <= self.tbag_trigger_radius
 end
@@ -563,7 +565,7 @@ function Rank:OnTick()
                                     -- Broadcast tea bag message:
                                     --
                                 elseif (itab.crouch_count >= self.tbag_crouch_count) then
-                                    local str = gsub(gsub(self.messages[5], "%%name%%", itab.name), "%%victim%%", jtab.name)
+                                    local str = gsub(gsub(self.messages[5], "$name", itab.name), "$victim", jtab.name)
                                     self:Respond(i, str, say, 10, true)
                                     self:UpdateCredits(i, { self.credits.tbag[1], self.credits.tbag[2] })
                                     itab.crouch_count = 0
@@ -580,23 +582,23 @@ function Rank:OnTick()
     end
 end
 
-function OnPlayerConnect(Ply)
+function OnJoin(Ply)
     Rank:AddNewPlayer(Ply, false)
 end
 
-function OnPlayerSpawn(Ply)
+function OnSpawn(Ply)
     if (Rank.players[Ply]) then
         Rank.players[Ply].crouch_state = 0
         Rank.players[Ply].crouch_count = 0
     end
 end
 
-function OnPlayerDisconnect(Ply)
-    Rank:UpdateJSON("OnPlayerDisconnect")
+function OnQuit(Ply)
+    Rank:UpdateJSON("OnQuit")
     Rank.players[Ply ~= nil and Ply] = nil
 end
 
-function OnPlayerScore(Ply)
+function OnScore(Ply)
     Rank:UpdateCredits(tonumber(Ply), {
         Rank.credits.score[1],
         Rank.credits.score[2]
@@ -653,9 +655,9 @@ function Rank:AddNewPlayer(Ply, ManualLoad)
     self.players[Ply].crouch_count = 0
     --
 
-    -- false when called from OnPlayerConnect()
+    -- false when called from OnJoin()
     if (not ManualLoad) then
-        self:UpdateJSON("OnPlayerConnect")
+        self:UpdateJSON("OnJoin")
         self:GetRank(Ply, IP)
     end
 end
@@ -705,15 +707,15 @@ end
 
 function Rank:PrintRank(Ply, Pos, Stats, Total, I, NextRank, NextGrade, Required)
     local replace = {
-        ["%%pos%%"] = Pos,
-        ["%%req%%"] = Required,
-        ["%%name%%"] = Stats.name,
-        ["%%rank%%"] = Stats.rank,
-        ["%%grade%%"] = Stats.grade,
-        ["%%totalplayers%%"] = Total,
-        ["%%next_rank%%"] = NextRank,
-        ["%%next_grade%%"] = NextGrade,
-        ["%%credits%%"] = Stats.credits
+        ["$pos"] = Pos,
+        ["$req"] = Required,
+        ["$name"] = Stats.name,
+        ["$rank"] = Stats.rank,
+        ["$grade"] = Stats.grade,
+        ["$total_players"] = Total,
+        ["$next_rank"] = NextRank,
+        ["$next_grade"] = NextGrade,
+        ["$credits"] = Stats.credits
     }
     for _, str in pairs(self.messages[I]) do
         for key, value in pairs(replace) do
@@ -900,7 +902,7 @@ function Rank:GetXYZ(Ply)
     return (pos.x and pos) or nil
 end
 
-function Rank:OnPlayerDeath(V, K)
+function Rank:OnDeath(V, K)
 
     local killer, victim = tonumber(K), tonumber(V)
 
@@ -993,7 +995,7 @@ function Rank:UpdateCredits(Ply, Params)
     local str = Params[2]
     self.players[Ply].credits = self.players[Ply].credits + cr
 
-    str = gsub(str, "%%currency_symbol%%", self.currency_symbol)
+    str = gsub(str, "$currency_symbol", self.currency_symbol)
     self:Respond(Ply, str, rprint, 10)
 
     if (self.players[Ply].credits < 0) then
@@ -1025,7 +1027,7 @@ function Rank:UpdateRank(Ply, Silent)
                     self.players[Ply].done[i][#stats.grade] = true
                     if (not Silent) then
                         local str = self.messages[7]
-                        str = gsub(str, "%%name%%", name)
+                        str = gsub(str, "$name", name)
                         self:Respond(_, str, say_all, 10)
                     end
                     return
@@ -1034,7 +1036,7 @@ function Rank:UpdateRank(Ply, Silent)
                     self.players[Ply].done[i][k] = true
                     if (not Silent) then
                         local str = self.messages[6]
-                        str = gsub(gsub(gsub(str, "%%name%%", name), "%%grade%%", k), "%%rank%%", stats.rank)
+                        str = gsub(gsub(gsub(str, "$name", name), "$grade", k), "$rank", stats.rank)
                         self:Respond(_, str, say_all, 10)
                     end
                     return
@@ -1054,9 +1056,9 @@ function Rank:UpdateRank(Ply, Silent)
                     if (not Silent) then
                         local str = self.messages[8]
                         str = gsub(gsub(gsub(str,
-                                "%%name%%", name),
-                                "%%grade%%", self.players[Ply].grade),
-                                "%%rank%%", self.players[Ply].rank)
+                                "$name", name),
+                                "$grade", self.players[Ply].grade),
+                                "$rank", self.players[Ply].rank)
                         self:Respond(_, str, say_all, 10)
                     end
                 end
@@ -1113,7 +1115,7 @@ local function CMDSplit(CMD)
     return Args
 end
 
-function Rank:OnServerCommand(Ply, Command)
+function Rank:OnCommand(Ply, Command)
     local Args = CMDSplit(Command)
     if (Args) then
         local lvl = tonumber(get_var(Ply, "$lvl"))
@@ -1141,9 +1143,9 @@ function Rank:OnServerCommand(Ply, Command)
                     for i, v in pairs(results) do
                         if (i > 0 and i < 11) then
                             local str = gsub(gsub(gsub(self.toplist_format,
-                                    "%%pos%%", i),
-                                    "%%name%%", v.name),
-                                    "%%cr%%", v.credits)
+                                    "$pos", i),
+                                    "$name", v.name),
+                                    "$cr", v.credits)
                             self:Respond(Ply, str, rprint, 10)
                         end
                     end
@@ -1199,15 +1201,15 @@ function UpdateRageQuit(IP, Amount)
     end
 end
 
-function OnServerCommand(P, C)
-    return Rank:OnServerCommand(P, C)
+function OnCommand(P, C)
+    return Rank:OnCommand(P, C)
 end
 
-function OnPlayerDeath(V, K)
-    return Rank:OnPlayerDeath(V, K)
+function OnDeath(V, K)
+    return Rank:OnDeath(V, K)
 end
 
-function OnDamageApplication(V, K, M, _, _, _)
+function OnDamage(V, K, M, _, _, _)
     return Rank:OnDamage(V, K, M, _, _, _)
 end
 
