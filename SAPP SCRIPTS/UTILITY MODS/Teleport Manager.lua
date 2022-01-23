@@ -29,8 +29,12 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 api_version = "1.12.0.0"
 
 -- Configuration Starts ----------------------------------------------------
-local TeleportManager = {
-    dir = "teleports.json",
+local TPM = {
+
+    -- Name of the JSON database containing custom teleport locations:
+    -- This file will be located in the same directory as mapcycle.txt
+    file = "teleports.json",
+
     --
     -- When viewing the warp list, results are split up into pages:
     -- Max results to load per page:
@@ -68,114 +72,130 @@ local TeleportManager = {
 }
 -- Configuration Ends -
 
+local floor = math.floor
+local format = string.format
 local json = (loadfile "json.lua")()
-local len, floor, concat = string.len, math.floor, table.concat
-local gmatch, lower, format = string.gmatch, string.lower, string.format
 
 function OnScriptLoad()
-    register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
-    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
-    register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
-    register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
-    TeleportManager:CheckFile(true)
+
+    local cg_dir = read_string(read_dword(sig_scan("68??????008D54245468") + 0x1))
+    TPM.dir = cg_dir .. "\\sapp\\" .. TPM.file
+
+    register_callback(cb["EVENT_LEAVE"], "OnQuit")
+    register_callback(cb["EVENT_JOIN"], "OnConnect")
+    register_callback(cb["EVENT_COMMAND"], "OnCommand")
+    register_callback(cb["EVENT_GAME_START"], "OnStart")
+    TPM:CheckFile(true)
 end
 
 function OnScriptUnload()
-
+    -- N/A
 end
 
-function OnGameStart()
-    TeleportManager:CheckFile(true)
+function OnStart()
+    TPM:CheckFile(true)
 end
 
-function InitPlayer(Ply, Reset)
-    if (Reset) then
-        TeleportManager.players[Ply] = nil
-    else
-        TeleportManager.players[Ply] = { }
-    end
+function OnConnect(Ply)
+    TPM:InitPlayer(Ply, false)
 end
 
-function OnPlayerConnect(Ply)
-    InitPlayer(Ply, false)
-end
-
-function OnPlayerDisconnect(Ply)
-    InitPlayer(Ply, false)
+function OnQuit(Ply)
+    TPM:InitPlayer(Ply, false)
 end
 
 local function CMDSplit(CMD)
-    local Args, index = { }, 1
-    for Params in gmatch(CMD, "([^%s]+)") do
-        Args[index] = lower(Params)
-        index = index + 1
+    local Args = { }
+    for word in CMD:gsub('"', ""):gmatch("([^%s]+)") do
+        Args[#Args + 1] = word:lower()
     end
     return Args
 end
 
-function TeleportManager:OnServerCommand(Executor, Command)
+local function Respond(Ply, Msg, Color)
+    Color = Color or 10
+    return (Ply == 0 and cprint(Msg, Color) or rprint(Ply, Msg))
+end
+
+function TPM:OnCommand(Ply, Command)
     local Args = CMDSplit(Command)
     for cmd, v in pairs(self.commands) do
         if (Args[1] == cmd) then
-            local lvl = tonumber(get_var(Executor, "$lvl"))
-            if (lvl >= v.permission or Executor == 0) then
+            local lvl = tonumber(get_var(Ply, "$lvl"))
+            if (lvl >= v.permission or Ply == 0) then
                 if (v.cmd_index == 1) then
-                    self:Warp(Executor, Args)
+                    self:Warp(Ply, Args)
                 elseif (v.cmd_index == 2) then
-                    self:Back(Executor)
+                    self:Back(Ply)
                 elseif (v.cmd_index == 3) then
-                    self:SetWarp(Executor, Args)
+                    self:SetWarp(Ply, Args)
                 elseif (v.cmd_index == 4) then
-                    self:DeleteWarp(Executor, Args)
+                    self:DeleteWarp(Ply, Args)
                 elseif (v.cmd_index == 5) then
-                    self:WarpList(Executor, Args)
+                    self:WarpList(Ply, Args)
                 end
             else
-                self:Respond(Executor, "Insufficient Permission")
+                Respond(Ply, "Insufficient Permission")
             end
             return false
         end
     end
 end
 
-function TeleportManager:Warp(Ply, Args)
+function TPM:Warp(Ply, Args)
     if player_alive(Ply) then
         if (Args[2] ~= nil) then
             local records, map = self:CheckFile(), get_var(0, "$map")
             local w = records[map][Args[2]]
             if (w ~= nil) then
-                self:Respond(Ply, "Teleporting to [" .. Args[2] .. "] at X: " .. w.x .. ", Y: " .. w.y .. ", Z: " .. w.z)
+                Respond(Ply, "Teleporting to [" .. Args[2] .. "] at X: " .. w.x .. ", Y: " .. w.y .. ", Z: " .. w.z)
                 self:Teleport(Ply, w.x, w.y, w.z)
             else
-                self:Respond(Ply, "Warp name not found!")
+                Respond(Ply, "Warp name not found!")
             end
         else
-            self:Respond(Ply, "Please enter a warp name")
+            Respond(Ply, "Please enter a warp name")
         end
     else
-        self:Respond(Ply, "Please wait until you respawn.")
+        Respond(Ply, "Please wait until you respawn.")
     end
 end
 
-function TeleportManager:Back(Ply)
+function TPM:Back(Ply)
     if player_alive(Ply) then
         local t = self.players[Ply]
         if (t) then
             local back = self:Teleport(Ply, t[1], t[2], t[3])
             if (back) then
-                self:Respond(Ply, "Returning to previous location")
+                Respond(Ply, "Returning to previous location")
             else
-                self:Respond(Ply, "Previous location not saved.")
+                Respond(Ply, "Previous location not saved.")
             end
         else
-            self:Respond(Ply, "Unable to return to previous location.")
+            Respond(Ply, "Unable to return to previous location.")
         end
     else
-        self:Respond(Ply, "Please wait until you respawn.")
+        Respond(Ply, "Please wait until you respawn.")
     end
 end
 
-function TeleportManager:SetWarp(Ply, Args)
+local function GetXYZ(Ply)
+    local pos, x, y, z = { }
+    local DyN = get_dynamic_player(Ply)
+    if (DyN ~= 0) then
+        local VehicleID = read_dword(DyN + 0x11C)
+        local VehicleObj = get_object_memory(VehicleID)
+        if (VehicleID == 0xFFFFFFFF) then
+            x, y, z = read_vector3d(DyN + 0x5c)
+        elseif (VehicleObj ~= 0) then
+            x, y, z = read_vector3d(VehicleObj + 0x5c)
+        end
+        pos.x, pos.y, pos.z, pos.dyn, pos.obj = x, y, z, DyN, VehicleObj
+    end
+    return pos
+end
+
+function TPM:SetWarp(Ply, Args)
     if player_alive(Ply) then
         if (Args[2] ~= nil) then
 
@@ -186,15 +206,15 @@ function TeleportManager:SetWarp(Ply, Args)
                 local file = assert(io.open(self.dir, "w"))
                 if (file) then
 
-                    local pos = self:GetXYZ(Ply)
+                    local pos = GetXYZ(Ply)
                     local x = format("%0.3f", pos.x)
                     local y = format("%0.3f", pos.y)
                     local z = format("%0.3f", pos.z)
 
                     if (records[map][Args[2]] == nil) then
-                        self:Respond(Ply, 'Location Saved: X: ' .. x .. ", Y: " .. y .. ", Z: " .. z)
+                        Respond(Ply, 'Location Saved: X: ' .. x .. ", Y: " .. y .. ", Z: " .. z)
                     elseif (overwrite) then
-                        self:Respond(Ply, 'Location Updated: X: ' .. x .. ", Y: " .. y .. ", Z: " .. z)
+                        Respond(Ply, 'Location Updated: X: ' .. x .. ", Y: " .. y .. ", Z: " .. z)
                     end
 
                     records[map][Args[2]] = {
@@ -207,18 +227,18 @@ function TeleportManager:SetWarp(Ply, Args)
                     io.close(file)
                 end
             else
-                self:Respond(Ply, 'A location with that name already exists. Use parameter "-o" to overwrite')
-                self:Respond(Ply, 'Example: /' .. Args[1] .. " " .. Args[2] .. " -o")
+                Respond(Ply, 'A location with that name already exists. Use parameter "-o" to overwrite')
+                Respond(Ply, 'Example: /' .. Args[1] .. " " .. Args[2] .. " -o")
             end
         else
-            self:Respond(Ply, "Please enter a warp name")
+            Respond(Ply, "Please enter a warp name")
         end
     else
-        self:Respond(Ply, "Please wait until you respawn.")
+        Respond(Ply, "Please wait until you respawn.")
     end
 end
 
-function TeleportManager:DeleteWarp(Ply, Args)
+function TPM:DeleteWarp(Ply, Args)
     if (Args[2] ~= nil) then
         local map = get_var(0, "$map")
         local records = self:CheckFile()
@@ -228,13 +248,13 @@ function TeleportManager:DeleteWarp(Ply, Args)
             if (file) then
                 file:write(json:encode_pretty(records))
                 io.close(file)
-                self:Respond(Ply, 'Successfully deleted warp "' .. Args[2] .. '"')
+                Respond(Ply, 'Successfully deleted warp "' .. Args[2] .. '"')
             end
         else
-            self:Respond(Ply, "Warp name not found!")
+            Respond(Ply, "Warp name not found!")
         end
     else
-        self:Respond(Ply, "Please enter a warp name")
+        Respond(Ply, "Please enter a warp name")
     end
 end
 
@@ -249,11 +269,12 @@ local function spacing(n)
     return Sep .. Str
 end
 
-function TeleportManager:FormatTable(t)
+local concat = table.concat
+function TPM:FormatTable(t)
     local longest = 0
     for _, v in pairs(t) do
-        if (len(v) > longest) then
-            longest = len(v)
+        if (v:len() > longest) then
+            longest = v:len()
         end
     end
     local rows, row, count = {}, 1, 1
@@ -261,7 +282,7 @@ function TeleportManager:FormatTable(t)
         if (count % self.max_results == 0) or (k == #t) then
             rows[row] = (rows[row] or "") .. v
         else
-            rows[row] = (rows[row] or "") .. v .. spacing(longest - len(v) + self.spaces)
+            rows[row] = (rows[row] or "") .. v .. spacing(longest - v:len() + self.spaces)
         end
         if (count % self.max_results == 0) then
             row = row + 1
@@ -271,7 +292,7 @@ function TeleportManager:FormatTable(t)
     return concat(rows)
 end
 
-function TeleportManager:GetPage(page)
+function TPM:GetPage(page)
     local max = self.max_results
     local start = (max) * page
     local startpage = (start - max + 1)
@@ -279,7 +300,7 @@ function TeleportManager:GetPage(page)
     return startpage, endpage
 end
 
-function TeleportManager:getPageCount(total_names)
+function TPM:getPageCount(total_names)
     local pages = total_names / (self.max_results)
     if ((pages) ~= floor(pages)) then
         pages = floor(pages) + 1
@@ -287,7 +308,7 @@ function TeleportManager:getPageCount(total_names)
     return pages
 end
 
-function TeleportManager:WarpList(Ply, Args)
+function TPM:WarpList(Ply, Args)
 
     local tab = { }
     local map = get_var(0, "$map")
@@ -323,7 +344,7 @@ function TeleportManager:WarpList(Ply, Args)
                 end
 
                 if (row ~= nil and row ~= "" and row ~= " ") then
-                    self:Respond(Ply, row, 10)
+                    Respond(Ply, row, 10)
                 end
 
                 startIndex = (endIndex + 1)
@@ -334,18 +355,18 @@ function TeleportManager:WarpList(Ply, Args)
                 formatResults()
             end
 
-            self:Respond(Ply, '[Page ' .. page .. '/' .. total_pages .. ']', 2 + 8)
+            Respond(Ply, '[Page ' .. page .. '/' .. total_pages .. ']', 2 + 8)
         else
-            self:Respond(Ply, 'Invalid Page ID. Please type a page between 1-' .. total_pages)
+            Respond(Ply, 'Invalid Page ID. Please type a page between 1-' .. total_pages)
         end
     else
-        self:Respond(Ply, 'No warps on record for [' .. map .. ']')
+        Respond(Ply, 'No warps on record for [' .. map .. ']')
     end
 end
 
-function TeleportManager:Teleport(Ply, x, y, z)
+function TPM:Teleport(Ply, x, y, z)
     if (x) then
-        local pos = self:GetXYZ(Ply)
+        local pos = GetXYZ(Ply)
         self.players[Ply] = { pos.x, pos.y, pos.z }
         write_vector3d((pos.obj ~= 0 and pos.obj or pos.dyn) + 0x5C, x, y, (pos.obj ~= 0 and z + 0.5 or z))
         return true
@@ -353,29 +374,23 @@ function TeleportManager:Teleport(Ply, x, y, z)
     return false
 end
 
-function TeleportManager:GetXYZ(Ply)
-    local pos, x, y, z = { }
-    local DyN = get_dynamic_player(Ply)
-    if (DyN ~= 0) then
-        local VehicleID = read_dword(DyN + 0x11C)
-        local VehicleObj = get_object_memory(VehicleID)
-        if (VehicleID == 0xFFFFFFFF) then
-            x, y, z = read_vector3d(DyN + 0x5c)
-        elseif (VehicleObj ~= 0) then
-            x, y, z = read_vector3d(VehicleObj + 0x5c)
-        end
-        pos.x, pos.y, pos.z, pos.dyn, pos.obj = x, y, z, DyN, VehicleObj
+function TPM:InitPlayer(Ply, Reset)
+    if (not Reset) then
+        self.players[Ply] = { }
+    else
+        self.players[Ply] = nil
     end
-    return pos
 end
 
-function TeleportManager:CheckFile(init)
+function TPM:CheckFile(init)
 
     if (init) then
+
         self.players = { }
+
         for i = 1, 16 do
             if player_present(i) then
-                InitPlayer(i, false)
+                self:InitPlayer(i, false)
             end
         end
     end
@@ -403,15 +418,6 @@ function TeleportManager:CheckFile(init)
     end
 end
 
-function TeleportManager:Respond(Ply, Message, Color)
-    Color = Color or 10
-    if (Ply == 0) then
-        cprint(Message, Color)
-    else
-        rprint(Ply, Message)
-    end
-end
-
-function OnServerCommand(P, C)
-    return TeleportManager:OnServerCommand(P, C)
+function OnCommand(P, C)
+    return TPM:OnCommand(P, C)
 end
