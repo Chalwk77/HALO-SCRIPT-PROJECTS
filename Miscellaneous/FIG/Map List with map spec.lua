@@ -5,10 +5,6 @@ Description: Display current/next map & mode in mapcycle.txt
 
 See config for command syntax.
 
-Known Issue:
-If there are duplicate map:mode configurations in mapcycle.txt,
-you may get an incorrect map list readout when you type /map_list_command.
-
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
@@ -38,18 +34,19 @@ local output = {
 
     -- Message output when you type /map_list_command:
     --
-    "Current Map: $map ($mode) | Pos: ($pos/$total)",
-    "Next Map: $map ($mode) | Pos: ($pos/$total)",
+    "Current Map: $map ($mode) | Map Spec Index: ($pos/$total)",
+    "Next Map: $map ($mode) | Map Spec Index: ($pos/$total)",
 
     -- message output when you type /what_is_next_command:
     --
-    "$map ($mode) | Pos: $pos/$total"
+    "$map ($mode) | Map Spec Index: $pos/$total"
 }
 
 -- config ends --
 
 local map, mode
 local maps = { }
+local map_spec_index
 
 api_version = "1.12.0.0"
 
@@ -63,7 +60,13 @@ local function STRSplit(CMD, Delim)
     for word in CMD:gsub('"', ""):gmatch("([^" .. Delim .. "]+)") do
         Args[#Args + 1] = word:lower()
     end
+
     return Args
+end
+
+local function GetMapCycleDir()
+    local path = read_string(read_dword(sig_scan("68??????008D54245468") + 0x1))
+    return (path .. "\\sapp\\mapcycle.txt")
 end
 
 -- Register needed event call backs:
@@ -74,23 +77,39 @@ function OnScriptLoad()
     -- Iterate over all lines (ignores empty lines),
     -- Split map:mode and store as component properties of maps[i]
     --
-    local cg_dir = read_string(read_dword(sig_scan("68??????008D54245468") + 0x1))
-    local file = cg_dir .. "\\sapp\\mapcycle.txt"
-    file = io.open(file)
+    local path = GetMapCycleDir()
+    local file = io.open(path)
     if (file) then
 
-        local i = 1
+        local i = 0
         for entry in file:lines() do
             local args = STRSplit(entry, ":")
-            maps[i] = { map = args[1], mode = args[2] }
+            maps[i] = { map = args[1], mode = args[2], done = false }
             i = i + 1
         end
         file:close()
 
+        register_callback(cb["EVENT_GAME_END"], "OnEnd")
         register_callback(cb["EVENT_COMMAND"], "OnCommand")
         register_callback(cb["EVENT_GAME_START"], "OnStart")
 
         OnStart()
+    end
+end
+
+function OnEnd()
+
+    if (not maps[map_spec_index + 1]) then
+        for _, v in pairs(maps) do
+            v.done = false
+        end
+        return
+    end
+
+    for _, t in pairs(maps) do
+        if (map == t.map and mode == t.mode and not t.done) then
+            t.done = true
+        end
     end
 end
 
@@ -145,7 +164,7 @@ local function ShowCurrentMap(Ply)
     local txt = output[1]
 
     for i, t in pairs(maps) do
-        if (map == t.map and mode == t.mode) then
+        if (map == t.map and mode == t.mode and not t.done) then
             next_map = GetNextMap(i)
             Say(Ply, FormatTxt(txt, i, t.map, t.mode, #maps))
             break
@@ -171,13 +190,30 @@ local function ShowNextMap(Ply, next_map)
     Say(Ply, FormatTxt(txt, i, t.map, t.mode, #maps))
 end
 
+local function UpdateCurIndex(Ply, Args)
+
+    local cmd = Args[1]
+    local index = Args[2]
+
+    if (cmd == "map_spec" and index:match("%d+")) then
+        index = tonumber(index)
+        if (index >= 0 and index <= #maps) then
+            map_spec_index = index
+            return true
+        else
+            Say(Ply, "Please enter a number between 0/" .. #maps)
+        end
+    end
+    return false
+end
+
 function OnCommand(Ply, CMD)
 
     local Args = STRSplit(CMD, "%s")
     if (#Args > 0) then
 
         -- map list command --
-        if (Args[1] == map_list_command) then
+        if not UpdateCurIndex(Ply, Args) and (Args[1] == map_list_command) then
 
             local next_map = ShowCurrentMap(Ply)
             if (next_map and #next_map > 0) then
@@ -187,6 +223,7 @@ function OnCommand(Ply, CMD)
             return false
 
             -- what is next command --
+
         elseif (Args[1] == what_is_next_command) then
             if (Args[2] ~= nil and Args[2]:match("%d+")) then
                 local i = tonumber(Args[2])
@@ -201,7 +238,7 @@ function OnCommand(Ply, CMD)
             end
 
             :: error ::
-            Say(Ply, "Please enter a number between 1/" .. #maps)
+            Say(Ply, "Please enter a number between 0/" .. #maps)
             return false
         end
     end
@@ -209,8 +246,16 @@ end
 
 function OnStart()
     if (get_var(0, "$gt") ~= "n/a") then
+
         map = get_var(0, "$map"):lower()
         mode = get_var(0, "$mode"):lower()
+
+        for i, t in pairs(maps) do
+            if (map == t.map and mode == t.mode and not t.done) then
+                map_spec_index = i
+                break
+            end
+        end
     end
 end
 
