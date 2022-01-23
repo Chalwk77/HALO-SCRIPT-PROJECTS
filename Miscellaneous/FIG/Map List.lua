@@ -5,10 +5,6 @@ Description: Display current/next map & mode in mapcycle.txt
 
 See config for command syntax.
 
-Known Issue:
-If there are duplicate map:mode configurations in mapcycle.txt,
-you may get an incorrect map list readout when you type /map_list_command.
-
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
@@ -63,7 +59,13 @@ local function STRSplit(CMD, Delim)
     for word in CMD:gsub('"', ""):gmatch("([^" .. Delim .. "]+)") do
         Args[#Args + 1] = word:lower()
     end
+
     return Args
+end
+
+local function GetMapCycleDir()
+    local path = read_string(read_dword(sig_scan("68??????008D54245468") + 0x1))
+    return (path .. "\\sapp\\mapcycle.txt")
 end
 
 -- Register needed event call backs:
@@ -74,23 +76,35 @@ function OnScriptLoad()
     -- Iterate over all lines (ignores empty lines),
     -- Split map:mode and store as component properties of maps[i]
     --
-    local cg_dir = read_string(read_dword(sig_scan("68??????008D54245468") + 0x1))
-    local file = cg_dir .. "\\sapp\\mapcycle.txt"
-    file = io.open(file)
+    local path = GetMapCycleDir()
+    local file = io.open(path)
     if (file) then
 
         local i = 1
         for entry in file:lines() do
             local args = STRSplit(entry, ":")
-            maps[i] = { map = args[1], mode = args[2] }
+            maps[i] = { map = args[1], mode = args[2], done = false }
             i = i + 1
         end
         file:close()
 
+        register_callback(cb["EVENT_GAME_END"], "OnEnd")
         register_callback(cb["EVENT_COMMAND"], "OnCommand")
         register_callback(cb["EVENT_GAME_START"], "OnStart")
 
         OnStart()
+    end
+end
+
+function OnEnd()
+    for i, t in pairs(maps) do
+        if (not maps[i + 1]) then
+            for _, v in pairs(maps) do
+                v.done = false
+            end
+        elseif (map == t.map and mode == t.mode and not t.done) then
+            t.done = true
+        end
     end
 end
 
@@ -145,7 +159,7 @@ local function ShowCurrentMap(Ply)
     local txt = output[1]
 
     for i, t in pairs(maps) do
-        if (map == t.map and mode == t.mode) then
+        if (map == t.map and mode == t.mode and not t.done) then
             next_map = GetNextMap(i)
             Say(Ply, FormatTxt(txt, i, t.map, t.mode, #maps))
             break
@@ -187,6 +201,7 @@ function OnCommand(Ply, CMD)
             return false
 
             -- what is next command --
+
         elseif (Args[1] == what_is_next_command) then
             if (Args[2] ~= nil and Args[2]:match("%d+")) then
                 local i = tonumber(Args[2])
@@ -209,6 +224,7 @@ end
 
 function OnStart()
     if (get_var(0, "$gt") ~= "n/a") then
+
         map = get_var(0, "$map"):lower()
         mode = get_var(0, "$mode"):lower()
     end
