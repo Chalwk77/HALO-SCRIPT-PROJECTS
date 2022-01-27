@@ -159,17 +159,15 @@ function OnTick()
                 local shooting = read_float(DyN + 0x490)
                 local crouching = read_float(DyN + 0x50C)
 
-                local case1 = (shooting ~= v.shooting and shooting == 1)
-                local case2 = (crouching ~= v.crouching and crouching == 1)
-
-                if (case1 and case2) then
+                if (crouching == 1 and shooting ~= v.shooting) then
                     execute_command("boost " .. v.id)
+                    goto next
                 end
 
                 v.shooting = shooting
-                v.crouching = crouching
             end
         end
+        :: next ::
     end
 end
 
@@ -250,7 +248,7 @@ function PortalGun:Toggle(params)
         if (state == 1) then
             state = "enabled"
             if (self.players[tip] == nil) then
-                self.players[tip] = { id = tid, crouching = 0, shooting = 0 }
+                self.players[tip] = { id = tid, shooting = 0 }
             else
                 already_set = true
             end
