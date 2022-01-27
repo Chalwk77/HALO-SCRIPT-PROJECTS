@@ -152,22 +152,16 @@ function OnTick()
     for _, v in pairs(PortalGun.players) do
         local DyN = get_dynamic_player(v.id)
         if (DyN ~= 0) then
-
             local vehicle = read_dword(DyN + 0x11C)
             if (vehicle == 0xFFFFFFFF) then
-
                 local shooting = read_float(DyN + 0x490)
                 local crouching = read_float(DyN + 0x50C)
-
                 if (crouching == 1 and shooting ~= v.shooting) then
                     execute_command("boost " .. v.id)
-                    goto next
                 end
-
                 v.shooting = shooting
             end
         end
-        :: next ::
     end
 end
 
