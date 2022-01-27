@@ -2,106 +2,323 @@
 --=====================================================================================================--
 Script Name: Portal Gun, for SAPP (PC & CE)
 
-Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
-Notice: You can use this document subject to the following conditions:
+Description: Aim and crouch to teleport where you're looking!
+
+Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
+* Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
-]]
+]] --
 
-api_version = '1.12.0.0'
+api_version = "1.12.0.0"
 
-portalgun_command = "portalgun"
-permission_level = 1
+-- config starts --
 
-weapon_status = {}
-portalgun_mode = {}
+local PortalGun = {
+
+    -- Custom command used to toggle Portal Gun on/off:
+    command = "portalgun",
+
+    -- Minimum permission needed to execute the custom command:
+    permission = 1,
+
+    -- Minimum permission needed to toggle Portal Gun for other players:
+    permission_others = 4,
+
+    -- Fully customizable messages:
+    messages = {
+
+        -- Portal Gun output format:
+        [1] = "$name [$id]: $message",
+
+        -- This message is sent to (you) when you enable/disable for yourself.
+        [2] = "Portal Gun $state!",
+
+        -- This message is sent to (you) when you enable/disable for others.
+        [3] = "Portal Gun $state for $target_name",
+
+        -- This message is sent to (target player) when you enable/disable for them.
+        [4] = "Your Portal Gun was $state by $admin_name",
+
+        -- This message is sent to (you) when your Portal Gun is already enabled/disabled.
+        [5] = "Your Portal Gun is already $state!",
+
+        -- This message is sent to (target player) when their Portal Gun is already enabled/disabled.
+        [6] = "$target_name's Portal Gun is already $state!",
+
+        -- This message is sent when a player connects to the server (if previously activated).
+        -- This requires the 'restore' setting to be TRUE.
+        [7] = "Portal Gun is Enabled! (auto-restore)",
+
+        -- This message is sent to (you) when there is a command syntax error.
+        [8] = "Invalid Syntax: Usage: /$cmd on|off [me | id | */all]",
+
+        -- If command Ply permission level is < permission_others, send this message:
+        [9] = "You lack permission to execute this command on other players",
+    },
+
+    -- Should Portal Gun be restored for returning players? (if previously activated)
+    restore = true,
+
+    --
+    -- Advanced users only:
+    --
+
+    -- The table index for each client will either be "IP", or "IP:PORT".
+    -- Set to 1 for ip-only indexing.
+    -- Set to 2 for ip & port indexing.
+    ClientIndexType = 2
+}
+-- config ends --
+
 function OnScriptLoad()
-    register_callback(cb['EVENT_TICK'], "OnTick")
-    register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
-    register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
+
+    register_callback(cb["EVENT_TICK"], "OnTick")
+    register_callback(cb["EVENT_JOIN"], "OnJoin")
+    register_callback(cb["EVENT_LEAVE"], "OnQuit")
+    register_callback(cb["EVENT_COMMAND"], "OnCommand")
+    register_callback(cb["EVENT_GAME_START"], "OnStart")
+
+    OnStart()
+end
+
+function OnStart()
+    if (get_var(0, "$gt") ~= "n/a") then
+        PortalGun.players = { }
+        for i = 1, 16 do
+            if player_present(i) then
+                PortalGun:InitPlayer(i)
+            end
+        end
+    end
 end
 
 function OnScriptUnload()
-
+    -- N/A
 end
 
-function OnPlayerSpawn(PlayerIndex)
-    weapon_status[PlayerIndex] = 0
-    portalgun_mode[PlayerIndex] = false
+function OnJoin(Ply)
+    PortalGun:InitPlayer(Ply)
+end
+
+function OnQuit(Ply)
+    PortalGun:InitPlayer(Ply, true)
+end
+
+local function STRSplit(CMD)
+    local Args = { }
+
+    for Params in CMD:gsub('"', ""):gmatch("([^%s]+)") do
+        Args[#Args + 1] = Params:lower()
+    end
+
+    return Args
+end
+
+function PortalGun:IsAdmin(Ply, CMD)
+
+    local lvl = tonumber(get_var(Ply, "$lvl"))
+    if (lvl >= self.permission) or (Ply == 0) then
+        return true, lvl
+    end
+
+    -- Return false if player is not admin:
+    -- Send player Insufficient Permission message if callback came from OnCommand()
+    return false, (CMD and self:Respond(Ply, "Insufficient Permission", 10))
+end
+
+function PortalGun:InitPlayer(Ply, Reset)
+
+    if (self:IsAdmin(Ply)) then
+
+        local ip = self:GetIP(Ply)
+        if (not Reset) then
+
+            self.players[ip] = self.players[ip] or nil
+
+            -- Restore Portal Gun to the state before they quit:
+            if (self.restore and self.players[ip]) then
+                self:Respond(Ply, self.messages[7])
+            end
+
+            -- Disable Portal Gun:
+        elseif (not self.restore or not self.players[ip]) then
+            self.players[ip] = nil
+        end
+    end
 end
 
 function OnTick()
-    for i = 1, 16 do
-        if (player_present(i) and player_alive(i)) then
-            if (portalgun_mode[i] == true) then
-                local player_object = get_dynamic_player(i)
-                local playerX, playerY, playerZ = read_float(player_object + 0x230), read_float(player_object + 0x234), read_float(player_object + 0x238)
-                local shot_fired
-                local couching = read_float(player_object + 0x50C)
-                local px, py, pz = read_vector3d(player_object + 0x5c)
-                if (couching == 0) then
-                    pz = pz + 0.65
-                else
-                    pz = pz + (0.35 * couching)
-                end
-                local ignore_player = read_dword(get_player(i) + 0x34)
-                local success, a, b, c, target = intersect(px, py, pz, playerX * 1000, playerY * 1000, playerZ * 1000, ignore_player)
-                if (success == true and target ~= nil) then
-                    shot_fired = read_float(player_object + 0x490)
-                    if (shot_fired ~= weapon_status[i] and shot_fired == 1) then
-                        execute_command("boost " .. i)
-                        rprint(i, "Teleporting!")
-                    end
-                    weapon_status[i] = shot_fired
-                end
+    for _, v in pairs(PortalGun.players) do
+        local DyN = get_dynamic_player(v.id)
+        if (DyN ~= 0) then
+            local vehicle = read_dword(DyN + 0x11C)
+            local crouching = read_float(DyN + 0x50C)
+            if (vehicle == 0xFFFFFFFF and crouching ~= v.crouching and crouching == 1) then
+                execute_command("boost " .. v.id)
             end
+            v.crouching = crouching
         end
     end
 end
 
-function OnServerCommand(PlayerIndex, Command)
-    local UnknownCMD
-    local t = tokenizestring(Command)
-    if t[1] ~= nil then
-        if t[1] == string.lower(portalgun_command) then
-            if tonumber(get_var(PlayerIndex, "$lvl")) >= permission_level then
-                if t[2] ~= nil then
-                    if t[2] == "on" or t[2] == "1" or t[2] == "true" then
-                        portalgun_mode[PlayerIndex] = true
-                        rprint(PlayerIndex, "Portalgun Mode enabled.")
-                        UnknownCMD = false
-                    elseif t[2] == "off" or t[2] == "0" or t[2] == "false" then
-                        portalgun_mode[PlayerIndex] = false
-                        rprint(PlayerIndex, "Portalgun Mode disabled.")
-                        UnknownCMD = false
+function PortalGun:OnCommand(Ply, CMD)
+
+    local Args = STRSplit(CMD)
+    if (#Args > 0 and Args[1] == self.command) then
+
+        -- Admin [boolean], lvl [int]
+        local Admin, lvl = self:IsAdmin(Ply, true)
+
+        if (Admin) then
+            if (Args[2] ~= nil) then
+                local pl = self:GetPlayers(Ply, Args[3])
+                if (pl) then
+                    local params = { }
+                    for i = 1, #pl do
+                        local player = tonumber(pl[i])
+                        if (player ~= Ply and lvl < self.permission_others and Ply ~= 0) then
+                            self:Respond(Ply, self.messages[9], 10)
+                        else
+                            params.state = Args[2] -- on|off
+                            params.eid, params.en = Ply, get_var(Ply, '$name')
+                            params.tid, params.tn, params.tip = player, get_var(player, '$name'), self:GetIP(player)
+                            self:Toggle(params)
+                        end
                     end
-                else
-                    rprint(PlayerIndex, "Invalid Syntax")
-                    UnknownCMD = false
                 end
             else
-                rprint(PlayerIndex, "You do not have permission to execute that command!")
-                UnknownCMD = false
+                self:Respond(Ply, "Invalid Syntax. Usage: /" .. self.command .. " on|off [me | id | */all]", 10)
             end
         end
-        return UnknownCMD
+        return false
+    end
+    return true
+end
+
+function PortalGun:GetState(Ply, State)
+    if (State == "on" or State == "1" or State == "true") then
+        return 1
+    elseif (State == "off" or State == "0" or State == "false") then
+        return 0
+    else
+        return false, self:Respond(Ply, self.messages[8]:gsub("$cmd", self.command), 12)
     end
 end
 
-function TagInfo(obj_type, obj_name)
-    local tag_id = lookup_tag(obj_type, obj_name)
-    return tag_id ~= 0 and read_dword(tag_id + 0xC) or nil
+local function FormatTxt(MsgID, State, AdminName, TargetName)
+    local Txt = PortalGun.messages[MsgID]
+    local words = {
+        ["$state"] = State,
+        ["$admin_name"] = AdminName,
+        ["$target_name"] = TargetName,
+    }
+    for k, v in pairs(words) do
+        Txt = Txt:gsub(k, v)
+    end
+    return Txt
 end
 
-function tokenizestring(inputstr, sep)
-    if sep == nil then
-        sep = "%s"
+function PortalGun:Toggle(params)
+
+    -- Target:
+    local tid, tip, tn = params.tid, params.tip, params.tn
+
+    -- Admin:
+    local eid, en = params.eid, params.en
+    if (eid == 0) then
+        en = "SERVER"
     end
-    local t = { };
-    i = 1
-    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
-        t[i] = str
-        i = i + 1
+
+    local state = self:GetState(eid, params.state)
+    if (state) then
+
+        local already_set
+        self.players[tip] = self.players[tip] or nil
+
+        if (state == 1) then
+            state = "enabled"
+            if (self.players[tip] == nil) then
+                self.players[tip] = { id = tid, crouching = 0 }
+            else
+                already_set = true
+            end
+        elseif (state == 0) then
+            state = "disabled"
+            if (self.players[tip] ~= nil) then
+                self.players[tip] = nil
+            else
+                already_set = true
+            end
+        end
+
+        -- Send "enable/disable" message:
+        if (not already_set) then
+            if (eid == tid) then
+                self:Respond(eid, FormatTxt(2, state, en, tn), 10)
+                return
+            else
+                self:Respond(eid, FormatTxt(3, state, en, tn), 10)
+                self:Respond(tid, FormatTxt(4, state, en, tn), 10)
+                return
+            end
+            -- Send "already set" message:
+        else
+            if (eid == tid) then
+                self:Respond(eid, FormatTxt(5, state, en, tn), 12)
+            else
+                self:Respond(eid, FormatTxt(6, state, en, tn), 12)
+            end
+        end
     end
-    return t
 end
+
+function PortalGun:GetPlayers(Ply, Arg)
+    local pl = { }
+    if (Arg == nil or Arg == "me") then
+        if (Ply ~= 0) then
+            table.insert(pl, Ply)
+        else
+            self:Respond(Ply, "Please enter a valid player id", 10)
+        end
+    elseif (Arg ~= nil and Arg:match("^%d+$")) then
+        if player_present(Arg) then
+            table.insert(pl, Arg)
+        else
+            self:Respond(Ply, "Player #" .. Arg .. " is not online", 10)
+        end
+    elseif (Arg == "all" or Arg == "*") then
+        for i = 1, 16 do
+            if player_present(i) then
+                table.insert(pl, i)
+            end
+        end
+        if (#pl == 0) then
+            self:Respond(Ply, "There are no players online!", 10)
+        end
+    else
+        self:Respond(Ply, "Invalid Command Syntax. Please try again!", 10)
+    end
+    return pl
+end
+
+function PortalGun:Respond(Ply, Msg, Color)
+    return (Ply == 0 and cprint(Msg, Color or 10) or rprint(Ply, Msg))
+end
+
+function PortalGun:GetIP(Ply)
+    local IP = get_var(Ply, "$ip")
+
+    if (self.ClientIndexType == 1) then
+        IP = IP:match("%d+.%d+.%d+.%d+")
+    end
+
+    return IP
+end
+
+function OnCommand(P, C)
+    return PortalGun:OnCommand(P, C)
+end
+
+-- for a future update:
+return PortalGun
