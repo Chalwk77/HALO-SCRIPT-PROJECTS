@@ -96,17 +96,17 @@ function OnGameStart()
     end
 end
 
-function OnPlayerConnect(PlayerIndex)
-    uber:InitPlayer(PlayerIndex, true)
+function OnPlayerConnect(Ply)
+    uber:InitPlayer(Ply, true)
 end
 
-function OnPlayerDisconnect(PlayerIndex)
-    uber:InitPlayer(PlayerIndex, false)
-    CheckSeats(PlayerIndex, true)
+function OnPlayerDisconnect(Ply)
+    uber:InitPlayer(Ply, false)
+    CheckSeats(Ply, true)
 end
 
-function OnPlayerDeath(PlayerIndex)
-    CheckSeats(PlayerIndex, true)
+function OnPlayerDeath(Ply)
+    CheckSeats(Ply, true)
 end
 
 function OnTick()
@@ -179,13 +179,13 @@ function OnTick()
     uber:CheckForReset()
 end
 
-function OnPlayerSpawn(PlayerIndex)
-    players[PlayerIndex].crouch_state = 0
-    players[PlayerIndex].cooldown = false
-    players[PlayerIndex].cooldown_timer = 0
+function OnPlayerSpawn(Ply)
+    players[Ply].crouch_state = 0
+    players[Ply].cooldown = false
+    players[Ply].cooldown_timer = 0
 end
 
-function OnServerChat(Executor, Message, Type)
+function OnServerChat(Ply, Message, Type)
     local Str = StrSplit(Message)
     if (#Str == 0) then
         return
@@ -193,24 +193,24 @@ function OnServerChat(Executor, Message, Type)
         Str[1] = lower(Str[1]) or upper(Str[1])
         for i = 1, #uber.command do
             if (Str[1] == uber.command[i]) then
-                if (Executor ~= 0) then
-                    cls(Executor, 25)
+                if (Ply ~= 0) then
+                    cls(Ply, 25)
                     if (not uber.protected) then
-                        if player_alive(Executor) then
-                            if (players[Executor].calls > 0) then
-                                if (not uber:isInVehicle(Executor)) then
-                                    uber:CheckVehicles(Executor)
+                        if player_alive(Ply) then
+                            if (players[Ply].calls > 0) then
+                                if (not uber:isInVehicle(Ply)) then
+                                    uber:CheckVehicles(Ply)
                                 else
-                                    rprint(Executor, uber.messages[2])
+                                    rprint(Ply, uber.messages[2])
                                 end
                             else
-                                rprint(Executor, uber.messages[3])
+                                rprint(Ply, uber.messages[3])
                             end
                         else
-                            rprint(Executor, uber.messages[4])
+                            rprint(Ply, uber.messages[4])
                         end
                     else
-                        rprint(Executor, uber.messages[8])
+                        rprint(Ply, uber.messages[8])
                     end
                 else
                     cprint("This command can only be executed by a player", 4 + 8)
@@ -221,25 +221,25 @@ function OnServerChat(Executor, Message, Type)
     end
 end
 
-function uber:CheckVehicles(Executor)
-    if (not uber.block_objective) or (uber.block_objective and not uber:HasObjective(Executor)) then
+function uber:CheckVehicles(Ply)
+    if (not uber.block_objective) or (uber.block_objective and not uber:HasObjective(Ply)) then
         local driver_count = 0
-        local team = get_var(Executor, "$team")
+        local team = get_var(Ply, "$team")
         if (uber.use_cooldown) then
-            players[Executor].cooldown, players[Executor].cooldown_timer = true, 0
+            players[Ply].cooldown, players[Ply].cooldown_timer = true, 0
         else
-            players[Executor].cooldown = false
+            players[Ply].cooldown = false
         end
         for _, v in pairs(vehicles) do
             if (v.driver and v.team == team and v.valid) then
                 driver_count = driver_count + 1
                 if (v.gunner) then
                     v.gunner = false
-                    uber:InsertPlayer(v.vehicle, Executor, 2)
+                    uber:InsertPlayer(v.vehicle, Ply, 2)
                     break
                 elseif (v.passenger) then
                     v.passenger = false
-                    uber:InsertPlayer(v.vehicle, Executor, 1)
+                    uber:InsertPlayer(v.vehicle, Ply, 1)
                     break
                 else
                     count = 0
@@ -247,25 +247,25 @@ function uber:CheckVehicles(Executor)
             end
         end
         if (driver_count == 0) then
-            cls(Executor, 25)
-            rprint(Executor, uber.messages[1])
+            cls(Ply, 25)
+            rprint(Ply, uber.messages[1])
         end
     end
 end
 
-function uber:InsertPlayer(Vehicle, PlayerIndex, Seat)
-    players[PlayerIndex].calls = players[PlayerIndex].calls - 1
-    enter_vehicle(Vehicle, PlayerIndex, Seat)
+function uber:InsertPlayer(Vehicle, Ply, Seat)
+    players[Ply].calls = players[Ply].calls - 1
+    enter_vehicle(Vehicle, Ply, Seat)
 end
 
-function OnVehicleEntry(PlayerIndex)
-    CheckSeats(PlayerIndex, false, true)
+function OnVehicleEntry(Ply)
+    CheckSeats(Ply, false, true)
 end
 
-function OnVehicleExit(PlayerIndex)
-    CheckSeats(PlayerIndex, true)
-    players[PlayerIndex].eject = false
-    players[PlayerIndex].eject_timer = 0
+function OnVehicleExit(Ply)
+    CheckSeats(Ply, true)
+    players[Ply].eject = false
+    players[Ply].eject_timer = 0
 end
 
 local SetTeam = function(State, Vehicle)
@@ -278,16 +278,16 @@ local SetTeam = function(State, Vehicle)
     end
 end
 
-function CheckSeats(PlayerIndex, State, Enter)
+function CheckSeats(Ply, State, Enter)
     if (not uber.protected) then
-        local dynamic_player = get_dynamic_player(PlayerIndex)
+        local dynamic_player = get_dynamic_player(Ply)
         if (dynamic_player ~= 0) then
             local CurrentVehicle = read_dword(dynamic_player + 0x11C)
             local VehicleObjectMemory = get_object_memory(CurrentVehicle)
             if (VehicleObjectMemory ~= 0 and CurrentVehicle ~= 0xFFFFFFFF) then
 
-                local team = get_var(PlayerIndex, "$team")
-                local name = get_var(PlayerIndex, "$name")
+                local team = get_var(Ply, "$team")
+                local name = get_var(Ply, "$name")
 
                 local seat = read_word(dynamic_player + 0x2F0)
                 local previous_state = vehicles[VehicleObjectMemory]
@@ -347,15 +347,15 @@ function CheckSeats(PlayerIndex, State, Enter)
                     }
                 end
                 if (Enter) then
-                    cls(PlayerIndex, 25)
+                    cls(Ply, 25)
                     local t, msg = vehicles[VehicleObjectMemory], ""
                     for i = 1, #uber.messages[9] do
                         msg = gsub(gsub(gsub(gsub(uber.messages[9][i],
                                 "%%dname%%", t.d_name),
                                 "%%gname%%", t.g_name),
                                 "%%pname%%", t.p_name),
-                                "%%remaining%%", players[PlayerIndex].calls)
-                        rprint(PlayerIndex, msg)
+                                "%%remaining%%", players[Ply].calls)
+                        rprint(Ply, msg)
                     end
                 end
             end
@@ -363,8 +363,8 @@ function CheckSeats(PlayerIndex, State, Enter)
     end
 end
 
-function uber:isInVehicle(PlayerIndex)
-    local dynamic_player = get_dynamic_player(PlayerIndex)
+function uber:isInVehicle(Ply)
+    local dynamic_player = get_dynamic_player(Ply)
     local CurrentVehicle = read_dword(dynamic_player + 0x11C)
     local VehicleObjectMemory = get_object_memory(CurrentVehicle)
     if (CurrentVehicle ~= 0xFFFFFFFF) then
@@ -421,9 +421,9 @@ function uber:InitPlayer(Ply, Reset)
     end
 end
 
-function cls(PlayerIndex, Count)
+function cls(Ply, Count)
     for _ = 1, Count do
-        rprint(PlayerIndex, " ")
+        rprint(Ply, " ")
     end
 end
 
@@ -480,12 +480,12 @@ function RegisterSAPPEvents()
     return false
 end
 
-function uber:HasObjective(PlayerIndex)
+function uber:HasObjective(Ply)
     -- Credits to Kavawuvi for this block of code:
     local has_objective
     if (get_var(0, "$gt") == "ctf") or (get_var(0, "$gt") == "oddball") then
-        local player_object = get_dynamic_player(PlayerIndex)
-        if player_alive(PlayerIndex) then
+        local player_object = get_dynamic_player(Ply)
+        if player_alive(Ply) then
             for i = 0, 3 do
                 local weapon_id = read_dword(player_object + 0x2F8 + 0x4 * i)
                 if (weapon_id ~= 0xFFFFFFFF) then
@@ -506,8 +506,8 @@ function uber:HasObjective(PlayerIndex)
     --
     --
     if (has_objective) then
-        cls(PlayerIndex, 25)
-        rprint(PlayerIndex, uber.messages[6])
+        cls(Ply, 25)
+        rprint(Ply, uber.messages[6])
     end
     return has_objective
 end

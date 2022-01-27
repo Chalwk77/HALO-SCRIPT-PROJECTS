@@ -166,25 +166,25 @@ local vehicles = {
 
 api_version = "1.12.0.0"
 
--- Stores a copy of vehicles[map name]:
+-- Stores a copy of vehicles[map][mode]:
 --
 local objects
 
--- Register needed event callbacks:
+-- Register needed event callback:
 --
 function OnScriptLoad()
     register_callback(cb["EVENT_GAME_START"], "OnStart")
     OnStart()
 end
 
--- Spawns a new vehicle object from vehicles{}:
+-- Spawns a new vehicle object from objects{}:
 -- @Param v, vehicle object table.
 --
 local function SpawnVehicle(v)
 
     -- Technical note:
-    -- Teleporting an unoccupied vehicle using write_vector3d() seems to cause glitchy behavior.
-    -- Therefore, we delete the object and re create it with spawn_object().
+    -- Teleporting an unoccupied vehicle using write_vector3d() can cause glitchy behavior.
+    -- Therefore, we destroy the object and re create it with spawn_object().
 
     -- Destroy previously created vehicle:
     --
@@ -209,7 +209,7 @@ end
 
 -- Checks if a player is occupying a vehicle:
 -- @Param v, vehicle object table.
--- @return Returns true if vehicle memory address equals v.object.
+-- @return Returns true if vehicle is occupied and vehicle memory address equals v.object.
 --
 local function Occupied(v)
     for i = 1, 16 do
@@ -243,10 +243,10 @@ end
 --
 function GameTick()
 
-    -- Loop through objects table (vehicles[map name]):
+    -- Loop through objects table (vehicles[map][mode]):
     for _, v in pairs(objects) do
 
-        -- Check if vehicle is exists, is valid and isn't occupied:
+        -- Check if vehicle isn't occupied:
         local object = get_object_memory(v.vehicle)
         if (object ~= 0 and not Occupied(v)) then
 
@@ -282,8 +282,8 @@ function OnStart()
         if (objects and objects[mode]) then
             objects = objects[mode]
 
-            -- Loop through all tables relevant to the current map and
-            -- call SpawnVehicle(); Pass the vehicle table to it.
+            -- Loop through objects table (vehicles[map][mode]).
+            -- Pass vehicle table (v) to SpawnVehicle():
             for _, v in pairs(objects) do
                 SpawnVehicle(v)
             end
