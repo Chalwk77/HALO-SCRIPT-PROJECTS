@@ -17,43 +17,56 @@ api_version = "1.12.0.0"
 local PortalGun = {
 
     -- Custom command used to toggle Portal Gun on/off:
+    --
     command = "portalgun",
 
     -- Minimum permission needed to execute the custom command:
+    --
     permission = 1,
 
     -- Minimum permission needed to toggle Portal Gun for other players:
+    --
     permission_others = 4,
 
     -- Fully customizable messages:
+    --
     messages = {
 
         -- Portal Gun output format:
+        --
         [1] = "$name [$id]: $message",
 
         -- This message is sent to (you) when you enable/disable for yourself.
+        --
         [2] = "Portal Gun $state!",
 
         -- This message is sent to (you) when you enable/disable for others.
+        --
         [3] = "Portal Gun $state for $target_name",
 
         -- This message is sent to (target player) when you enable/disable for them.
+        --
         [4] = "Your Portal Gun was $state by $admin_name",
 
         -- This message is sent to (you) when your Portal Gun is already enabled/disabled.
+        --
         [5] = "Your Portal Gun is already $state!",
 
         -- This message is sent to (target player) when their Portal Gun is already enabled/disabled.
+        --
         [6] = "$target_name's Portal Gun is already $state!",
 
-        -- This message is sent when a player connects to the server (if previously activated).
+        -- This message is sent when a player connects to the server (if previously activated):
         -- This requires the 'restore' setting to be TRUE.
+        --
         [7] = "Portal Gun is Enabled! (auto-restore)",
 
-        -- This message is sent to (you) when there is a command syntax error.
+        -- This message is sent to (you) when there is a command syntax error:
+        --
         [8] = "Invalid Syntax: Usage: /$cmd on|off [me | id | */all]",
 
         -- If command Ply permission level is < permission_others, send this message:
+        --
         [9] = "You lack permission to execute this command on other players",
     },
 
