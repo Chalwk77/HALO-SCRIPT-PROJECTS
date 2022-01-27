@@ -2,7 +2,7 @@
 --=====================================================================================================--
 Script Name: Portal Gun, for SAPP (PC & CE)
 
-Description: Aim and crouch to teleport where you're looking!
+Description:
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -152,12 +152,23 @@ function OnTick()
     for _, v in pairs(PortalGun.players) do
         local DyN = get_dynamic_player(v.id)
         if (DyN ~= 0) then
+
             local vehicle = read_dword(DyN + 0x11C)
-            local crouching = read_float(DyN + 0x50C)
-            if (vehicle == 0xFFFFFFFF and crouching ~= v.crouching and crouching == 1) then
-                execute_command("boost " .. v.id)
+            if (vehicle ~= 0xFFFFFFFF) then
+
+                local shooting = read_float(DyN + 0x490)
+                local crouching = read_float(DyN + 0x50C)
+
+                local case1 = (shooting ~= v.shooting and shooting == 1)
+                local case2 = (crouching ~= v.crouching and crouching == 1)
+
+                if (case1 and case2) then
+                    execute_command("boost " .. v.id)
+                end
+
+                v.shooting = shooting
+                v.crouching = crouching
             end
-            v.crouching = crouching
         end
     end
 end
@@ -239,7 +250,7 @@ function PortalGun:Toggle(params)
         if (state == 1) then
             state = "enabled"
             if (self.players[tip] == nil) then
-                self.players[tip] = { id = tid, crouching = 0 }
+                self.players[tip] = { id = tid, crouching = 0, shooting = 0 }
             else
                 already_set = true
             end
