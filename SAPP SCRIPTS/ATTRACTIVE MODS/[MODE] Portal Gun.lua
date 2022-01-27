@@ -2,7 +2,7 @@
 --=====================================================================================================--
 Script Name: Portal Gun, for SAPP (PC & CE)
 
-Description:
+Description: Crouch, Aim & Shoot to teleport to whatever your crosshair intersects with.
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
