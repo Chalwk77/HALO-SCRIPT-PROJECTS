@@ -154,7 +154,7 @@ function OnTick()
         if (DyN ~= 0) then
 
             local vehicle = read_dword(DyN + 0x11C)
-            if (vehicle ~= 0xFFFFFFFF) then
+            if (vehicle == 0xFFFFFFFF) then
 
                 local shooting = read_float(DyN + 0x490)
                 local crouching = read_float(DyN + 0x50C)
