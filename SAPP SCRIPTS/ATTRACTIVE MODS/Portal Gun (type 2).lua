@@ -1,11 +1,11 @@
 --[[
 --=====================================================================================================--
-Script Name: Portal Gun (type 1), for SAPP (PC & CE)
-Description: Aim & Shoot to teleport.
+Script Name: Portal Gun (type 2), for SAPP (PC & CE)
+Description: Crouch, Aim & Shoot to teleport.
 
 ----------------------------------------------------------------
-NOTE: In this version, you can portal-gun while in a vehicle.
-Players do not need to crouch to teleport.
+NOTE: In this version, you can only portal-gun while walking.
+Players need to crouch & fire to teleport.
 ----------------------------------------------------------------
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
@@ -157,27 +157,14 @@ function PortalGun:InitPlayer(Ply, Reset)
 end
 
 local function GetXYZ(DyN)
-
-    -- Get vehicle id:
-    local vehicle = read_dword(DyN + 0x11C)
-    local object = get_object_memory(vehicle)
-
     -- Get player coordinates:
-    local x, y, z = read_vector3d(DyN + 0x5C)
-
-    -- Return vehicle coordinates if they're in one:
-    if (vehicle ~= 0xFFFFFFFF and object ~= 0) then
-        x, y, z = read_vector3d(object + 0x5C)
-        return x, y, z, object
-    end
-
-    return x, y, z, DyN
+    return read_vector3d(DyN + 0x5C)
 end
 
 local function GetLocation(Ply, DyN)
 
     -- Get player x,y,z:
-    local x, y, z, object_to_move = GetXYZ(DyN)
+    local x, y, z = GetXYZ(DyN)
 
     -- Account for crouch height:
     local crouching = read_float(DyN + 0x50C)
@@ -196,7 +183,7 @@ local function GetLocation(Ply, DyN)
     local ignore_player = read_dword(get_player(Ply) + 0x34)
     local success, new_x, new_y, new_z, object = intersect(x, y, z, cx, cy, cz, ignore_player)
     if (success and object) then
-        return new_x, new_y, new_z, object_to_move
+        return new_x, new_y, new_z
     end
 end
 
@@ -207,11 +194,13 @@ function OnTick()
         if (DyN ~= 0 and player_alive(v.id)) then
 
             local shooting = read_float(DyN + 0x490)
-            if (shooting ~= v.shooting) then
-                local x, y, z, object = GetLocation(v.id, DyN)
-                if (x and object) then
+            local crouching = read_float(DyN + 0x50C)
+
+            if (crouching == 1 and shooting ~= v.shooting) then
+                local x, y, z = GetLocation(v.id, DyN)
+                if (x) then
                     local z_off = 0.3
-                    write_vector3d(object + 0x5C, x, y, z + z_off)
+                    write_vector3d(DyN + 0x5C, x, y, z + z_off)
                 end
             end
             v.shooting = shooting
