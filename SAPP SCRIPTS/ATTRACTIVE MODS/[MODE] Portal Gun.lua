@@ -17,56 +17,43 @@ api_version = "1.12.0.0"
 local PortalGun = {
 
     -- Custom command used to toggle Portal Gun on/off:
-    --
     command = "portalgun",
 
     -- Minimum permission needed to execute the custom command:
-    --
     permission = 1,
 
     -- Minimum permission needed to toggle Portal Gun for other players:
-    --
     permission_others = 4,
 
     -- Fully customizable messages:
-    --
     messages = {
 
         -- Portal Gun output format:
-        --
         [1] = "$name [$id]: $message",
 
         -- This message is sent to (you) when you enable/disable for yourself.
-        --
         [2] = "Portal Gun $state!",
 
         -- This message is sent to (you) when you enable/disable for others.
-        --
         [3] = "Portal Gun $state for $target_name",
 
         -- This message is sent to (target player) when you enable/disable for them.
-        --
         [4] = "Your Portal Gun was $state by $admin_name",
 
         -- This message is sent to (you) when your Portal Gun is already enabled/disabled.
-        --
         [5] = "Your Portal Gun is already $state!",
 
         -- This message is sent to (target player) when their Portal Gun is already enabled/disabled.
-        --
         [6] = "$target_name's Portal Gun is already $state!",
 
-        -- This message is sent when a player connects to the server (if previously activated):
+        -- This message is sent when a player connects to the server (if previously activated).
         -- This requires the 'restore' setting to be TRUE.
-        --
         [7] = "Portal Gun is Enabled! (auto-restore)",
 
-        -- This message is sent to (you) when there is a command syntax error:
-        --
+        -- This message is sent to (you) when there is a command syntax error.
         [8] = "Invalid Syntax: Usage: /$cmd on|off [me | id | */all]",
 
         -- If command Ply permission level is < permission_others, send this message:
-        --
         [9] = "You lack permission to execute this command on other players",
     },
 
@@ -128,6 +115,10 @@ local function STRSplit(CMD)
     return Args
 end
 
+local function Respond(Ply, Msg, Color)
+    return (Ply == 0 and cprint(Msg, Color or 10) or rprint(Ply, Msg))
+end
+
 function PortalGun:IsAdmin(Ply, CMD)
 
     local lvl = tonumber(get_var(Ply, "$lvl"))
@@ -137,7 +128,7 @@ function PortalGun:IsAdmin(Ply, CMD)
 
     -- Return false if player is not admin:
     -- Send player Insufficient Permission message if callback came from OnCommand()
-    return false, (CMD and self:Respond(Ply, "Insufficient Permission", 10))
+    return false, (CMD and Respond(Ply, "Insufficient Permission", 10))
 end
 
 function PortalGun:InitPlayer(Ply, Reset)
@@ -151,7 +142,7 @@ function PortalGun:InitPlayer(Ply, Reset)
 
             -- Restore Portal Gun to the state before they quit:
             if (self.restore and self.players[ip]) then
-                self:Respond(Ply, self.messages[7])
+                Respond(Ply, self.messages[7])
             end
 
             -- Disable Portal Gun:
@@ -194,7 +185,7 @@ function PortalGun:OnCommand(Ply, CMD)
                     for i = 1, #pl do
                         local player = tonumber(pl[i])
                         if (player ~= Ply and lvl < self.permission_others and Ply ~= 0) then
-                            self:Respond(Ply, self.messages[9], 10)
+                            Respond(Ply, self.messages[9], 10)
                         else
                             params.state = Args[2] -- on|off
                             params.eid, params.en = Ply, get_var(Ply, '$name')
@@ -204,7 +195,7 @@ function PortalGun:OnCommand(Ply, CMD)
                     end
                 end
             else
-                self:Respond(Ply, "Invalid Syntax. Usage: /" .. self.command .. " on|off [me | id | */all]", 10)
+                Respond(Ply, "Invalid Syntax. Usage: /" .. self.command .. " on|off [me | id | */all]", 10)
             end
         end
         return false
@@ -218,7 +209,7 @@ function PortalGun:GetState(Ply, State)
     elseif (State == "off" or State == "0" or State == "false") then
         return 0
     else
-        return false, self:Respond(Ply, self.messages[8]:gsub("$cmd", self.command), 12)
+        return false, Respond(Ply, self.messages[8]:gsub("$cmd", self.command), 12)
     end
 end
 
@@ -271,19 +262,19 @@ function PortalGun:Toggle(params)
         -- Send "enable/disable" message:
         if (not already_set) then
             if (eid == tid) then
-                self:Respond(eid, FormatTxt(2, state, en, tn), 10)
+                Respond(eid, FormatTxt(2, state, en, tn), 10)
                 return
             else
-                self:Respond(eid, FormatTxt(3, state, en, tn), 10)
-                self:Respond(tid, FormatTxt(4, state, en, tn), 10)
+                Respond(eid, FormatTxt(3, state, en, tn), 10)
+                Respond(tid, FormatTxt(4, state, en, tn), 10)
                 return
             end
             -- Send "already set" message:
         else
             if (eid == tid) then
-                self:Respond(eid, FormatTxt(5, state, en, tn), 12)
+                Respond(eid, FormatTxt(5, state, en, tn), 12)
             else
-                self:Respond(eid, FormatTxt(6, state, en, tn), 12)
+                Respond(eid, FormatTxt(6, state, en, tn), 12)
             end
         end
     end
@@ -295,13 +286,13 @@ function PortalGun:GetPlayers(Ply, Arg)
         if (Ply ~= 0) then
             table.insert(pl, Ply)
         else
-            self:Respond(Ply, "Please enter a valid player id", 10)
+            Respond(Ply, "Please enter a valid player id", 10)
         end
     elseif (Arg ~= nil and Arg:match("^%d+$")) then
         if player_present(Arg) then
             table.insert(pl, Arg)
         else
-            self:Respond(Ply, "Player #" .. Arg .. " is not online", 10)
+            Respond(Ply, "Player #" .. Arg .. " is not online", 10)
         end
     elseif (Arg == "all" or Arg == "*") then
         for i = 1, 16 do
@@ -310,16 +301,12 @@ function PortalGun:GetPlayers(Ply, Arg)
             end
         end
         if (#pl == 0) then
-            self:Respond(Ply, "There are no players online!", 10)
+            Respond(Ply, "There are no players online!", 10)
         end
     else
-        self:Respond(Ply, "Invalid Command Syntax. Please try again!", 10)
+        Respond(Ply, "Invalid Command Syntax. Please try again!", 10)
     end
     return pl
-end
-
-function PortalGun:Respond(Ply, Msg, Color)
-    return (Ply == 0 and cprint(Msg, Color or 10) or rprint(Ply, Msg))
 end
 
 function PortalGun:GetIP(Ply)
