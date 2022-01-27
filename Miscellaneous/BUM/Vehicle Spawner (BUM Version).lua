@@ -218,7 +218,10 @@ local function Occupied(v)
             if (DyN ~= 0) then
                 local VID = read_dword(DyN + 0x11C)
                 local OBJ = get_object_memory(VID)
-                return (OBJ ~= 0 and VID ~= 0xFFFFFFFF and OBJ == v.object)
+                if (OBJ ~= 0 and VID ~= 0xFFFFFFFF and OBJ == v.object) then
+                    v.timer = 0 -- reset respawn timer
+                    return true
+                end
             end
         end
     end
