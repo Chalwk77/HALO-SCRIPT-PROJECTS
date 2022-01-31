@@ -27,6 +27,8 @@ local time = 10
 --
 local reason = "Inappropriate name. Please change it!"
 
+-- List of names to kick/ban:
+--
 local banned_names = {
     "penis",
     "nigger",
@@ -35,6 +37,8 @@ local banned_names = {
     --
 }
 
+-- Advanced users only:
+--
 local patterns = {
     ["a"] = { "[aA@]" },
     ["b"] = { "[bB]" },
@@ -72,7 +76,7 @@ local bad_names = { }
 
 function OnScriptLoad()
 
-    action = (action == "kick" and 'k $n "' .. reason .. '"' or 'ipban $n ' .. time .. ' "' .. reason .. '"')
+    action = (action == "kick" and 'k $n' or 'ipban $n ' .. time) .. ' "' .. reason .. '"'
 
     for _, name in pairs(banned_names) do
 
