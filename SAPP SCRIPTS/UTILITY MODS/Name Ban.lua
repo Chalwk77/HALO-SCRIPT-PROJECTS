@@ -17,13 +17,13 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 -- This script will kick or ban a player if they use a vulgar name:
 -- Valid actions: "kick" or "ban"
 --
-local action = "k"
+local action = "kick"
 
 -- Ban time (in minutes), requires action to be set to "ban".
 --
 local time = 10
 
--- Kick reason:
+-- Action reason:
 --
 local reason = "Inappropriate name. Please change it!"
 
@@ -63,6 +63,8 @@ local patterns = {
     ["y"] = { "[yY]" },
     ["z"] = { "[zZ2]" },
 }
+
+-- config ends --
 
 api_version = "1.12.0.0"
 
