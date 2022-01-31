@@ -46,7 +46,7 @@ Website | Discord
 [Chimera](https://opencarnage.net/index.php?/topic/6916-chimera-download-source-code-and-discord/) | [link](https://discord.gg/ZwQeBE2)
 [Halo Net](https://opencarnage.net) | [link](https://discord.gg/9HMDFa)
 [XG Gaming](https://www.xgclan.com) | [link](https://discord.gg/djqM24x8)
-[JeriCraft](https://discord.gg/mEjbFJWpe5) | [link](http://jericraft.enjin.com)
+[JeriCraft](https://discord.gg/vcyM6epaqg)
 - - - -
 ##### Contributors: [weblink](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/CONTRIBUTING.md)
 > Contributors are those whom have directly contributed code or allowed me to use portions of their code from existing projects. 
