@@ -1,15 +1,15 @@
+This is a basic, step-by-step tutorial that covers installing a Ubnutu-Linux VPS with Wine and a VNC server for remote connection, with a hosting company called Vultr. 
+
 # Prerequisite applications:
+- [BitVise SSH Client](https://www.bitvise.com/ssh-client-download) (for remote access to the terminal).
+- [FileZilla Client](https://filezilla-project.org/download.php?platform=win64) (to upload files via FTP to the VPS).
+- [TightVNC (client)](https://www.tightvnc.com/download.php) (for remote desktop connections)
+- [Halo Server](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/tag/v1.0.7-Multi-Server)
 
-[BitVise SSH Client](https://www.bitvise.com/ssh-client-download) (for remote access to the terminal).
-
-[FileZilla Client](https://filezilla-project.org/download.php?platform=win64) (to upload files via FTP to the VPS).
-
-[TightVNC (client)](https://www.tightvnc.com/download.php) (for remote desktop connections)
-
-[Halo Servers](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/tag/v1.0.7-Multi-Server)
+Technical notes on Vultr subscription plans:
+You pay for whatever you need. However, you need at least 150 MiB *per server* to cover peak times. Multiply that by the number of servers you need and that'll tell you much you should expect to pay. However, I have 9 servers (and a Discord Bot) running on a $5 monthly plan, but then again, my servers are never full simultaneously so the OS can handle it.
 
 ## STEPS:
-
 ### 1). Download and install **BitVise SSH Client**, **FileZilla Client** and **TightNC Client**.
 
 ### 2). Install Ubuntu, Linux (version **21.10 x64**).
