@@ -13,7 +13,7 @@ You pay for whatever you need. However, you need at least 150 MiB *per server* t
 ## STEPS:
 ##### 1). Download and install [BitVise SSH Client](https://www.bitvise.com/ssh-client-download), [FileZilla Client](https://filezilla-project.org/download.php?platform=win64) and [TightVNC (client)](https://www.tightvnc.com/download.php).
 
-##### 2). Install Ubuntu-Linux (version **21.10 x64**).
+##### 2). Select Cloud Compute and install Ubuntu-Linux (version **21.10 x64**).
 
 ##### 3). Open BitVise SSH Client.
 - Fill in the host & username (get from VPS control panel).
