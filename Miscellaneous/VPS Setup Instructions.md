@@ -83,9 +83,6 @@ ExecStop=/usr/bin/vncserver -kill :%i
 WantedBy=multi-user.target
 ```
 
-> Start the server again:
-- *vncserver*
-
 > Reload systemd:
 - *systemctl daemon-reload*
 
