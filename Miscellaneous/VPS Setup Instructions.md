@@ -23,7 +23,7 @@
 - *wget -nc https://dl.winehq.org/wine-builds/winehq.key*
 
 > Get and install the repository key.
-- *udo -H gpg -o /etc/apt/trusted.gpg.d/winehq.key.gpg --dearmor winehq.key*
+- *sudo -H gpg -o /etc/apt/trusted.gpg.d/winehq.key.gpg --dearmor winehq.key*
 
 > Add the repository.
 - *sudo add-apt-repository 'deb https://dl.winehq.org/wine-builds/ubuntu/ impish main'*
