@@ -4,6 +4,8 @@
 
 [FileZilla Client](https://filezilla-project.org/download.php?platform=win64) (to upload files via FTP to the VPS).
 
+[TightVNC (client)](https://www.tightvnc.com/download.php)
+
 ## STEPS:
 
 ### 1). Download and install "BitVise SSH Client" and "FileZilla Client".
