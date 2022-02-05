@@ -69,7 +69,7 @@ Open the TightVNC config file with. Add the following line to the end: *startxfc
 
 By default, TightVNC does not have a daemon and does not turn on after a system reboot. To fix this, let's create a new
 unit in systemd:
-> nano /etc/systemd/system/vncserver.service*
+> nano /etc/systemd/system/vncserver.service
 
 Insert the following config there:
 
