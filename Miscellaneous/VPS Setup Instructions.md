@@ -56,9 +56,6 @@
 > Add the following line to the end:
 - *startxfce4*
 
-> Start the server again:
-- *vncserver*
-
 ### 6). Setting up autorun.
 
 > By default, TightVNC does not have a daemon and does not turn on after a system reboot. To fix this, let's create a new unit in systemd.
@@ -85,6 +82,9 @@ ExecStop=/usr/bin/vncserver -kill :%i
 [Install]
 WantedBy=multi-user.target
 ```
+
+> Start the server again:
+- *vncserver*
 
 > Reload systemd:
 - *systemctl daemon-reload*
