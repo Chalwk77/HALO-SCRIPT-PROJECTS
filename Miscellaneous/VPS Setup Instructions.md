@@ -1,8 +1,8 @@
 # Prerequisite applications:
 
-[BitVise SSH Client](https://www.bitvise.com/ssh-client-download) (for remote access to the terminal)
+[BitVise SSH Client](https://www.bitvise.com/ssh-client-download) (for remote access to the terminal).
 
-[FileZilla Client](https://filezilla-project.org/download.php?platform=win64) (to upload files via FTP to the VPS)
+[FileZilla Client](https://filezilla-project.org/download.php?platform=win64) (to upload files via FTP to the VPS).
 
 ## STEPS:
 
@@ -43,29 +43,23 @@
 
 > Let's start the TightVNC Server for the first time. It will create the files necessary for work and ask to create a password.
 > If you need to restrict remote desktop control, select a read-only password.
-
 - vncserver
 
 > Now stop your TightVNC session to adjust other settings.
-
 - vncserver -kill :1
 
 > Open the TightVNC config file with:
-
 - nano ~/.vnc/xstartup
 
 > Add the following line to the end:
-
 - startxfce4
 
 > Start the server again:
-
 - vncserver
 
 ### 6). Setting up autorun.
 
 > By default, TightVNC does not have a daemon and does not turn on after a system reboot. To fix this, let's create a new unit in systemd.
-
 - nano /etc/systemd/system/vncserver.service
 
 > Insert the following config there:
@@ -89,11 +83,26 @@ WantedBy=multi-user.target
 ```
 
 > Reload systemd:
-
 - systemctl daemon-reload
 
 > Enable autorun of the TightVNC server and start it.
 
 - systemctl enable --now vncserver
 
-## 6). Upload the **HPC Multi-Server** folder to /root/Desktop
+### 7). Set up UFW (firewall)
+> First, you need to sudo-allow UDP connections to 2302, 2303 and your server port(s), with:
+- sudo ufw allow 2302/udp
+- sudo ufw allow 2303/udp
+- sudo ufw allow 2310/udp
+- sudo ufw allow 2311/udp
+- sudo ufw allow 2312/udp
+> Now sudo-allow your IP Address:
+- sudo ufw allow from 0.0.0.0 (replace 0.0.0.0 with your own ipv4 address)
+> Sudo-allow port 5901/tcp for incoming VNC connections:
+- ufw allow 5901/tcp
+> Then sudo-reject all other inbound connections and enable the UFW:
+- sudo ufw default reject incoming
+- sudo ufw enable
+
+
+## 8). Upload the **HPC Multi-Server** folder to /root/Desktop
