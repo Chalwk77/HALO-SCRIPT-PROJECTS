@@ -7,7 +7,7 @@ This is a basic, step-by-step tutorial that covers installing a Ubnutu-Linux VPS
 - [Halo Server](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/tag/v1.0.7-Multi-Server)
 
 Technical notes on Vultr subscription plans:
-You pay for whatever you need. However, you need at least 150 MiB *per server* to cover peak times. Multiply that by the number of servers you need and that'll tell you much you should expect to pay. However, I have 9 servers (and a Discord Bot) running on a $5 monthly plan, but then again, my servers are never full simultaneously so the OS can handle it.
+You pay for whatever you need. However, you need at least 150 MiB *per server* to cover peak times. Multiply that by the number of servers you need and that'll tell you much you should expect to pay. However, I have 9 servers (and a Discord Bot) running on a $5 monthly plan, but then again, my servers are never full simultaneously so the OS can handle it. Also note that each plan allocates you a defined amount of storage space. You may need more depending on how many maps you intend to upload.
 
 ## STEPS:
 ### 1). Download and install **BitVise SSH Client**, **FileZilla Client** and **TightNC Client**.
