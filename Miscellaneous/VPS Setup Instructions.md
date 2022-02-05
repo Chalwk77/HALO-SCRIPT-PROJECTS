@@ -6,6 +6,8 @@
 
 [TightVNC (client)](https://www.tightvnc.com/download.php) (for remote desktop connections)
 
+[Halo Servers](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/tag/v1.0.7-Multi-Server)
+
 ## STEPS:
 
 ### 1). Download and install **BitVise SSH Client**, **FileZilla Client** and **TightNC Client**.
