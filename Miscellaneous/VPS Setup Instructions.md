@@ -18,50 +18,39 @@
 ### 4). Enter the following commands (in order):
 
 > Verify 64-bit architecture. The following command should respond with "amd64":
-
 - **dpkg --print-architecture**
 
 > See if 32-bit architecture is installed. The following command should respond with "i386":
-
 - dpkg --print-foreign-architectures
 
 > If "i386" is not displayed, execute the following:
-
 - sudo dpkg --add-architecture i386
 
 > Recheck with:
-
 - dpkg --print-foreign-architectures
 
 > Add the WineHQ Ubuntu repository.
-
 - wget -nc https://dl.winehq.org/wine-builds/winehq.key
 
 > Get and install the repository key.
-
 - sudo -H gpg -o /etc/apt/trusted.gpg.d/winehq.key.gpg --dearmor winehq.key
 
 > Add the repository.
-
 - sudo add-apt-repository 'deb https://dl.winehq.org/wine-builds/ubuntu/ impish main'
 
 > Update the package database.
-
 - sudo apt update
 
 > Install Wine.
 > The next command will install Wine Stable. If you prefer Wine Development or Wine Staging, replace winehq-stable with either winehq-devel or with winehq-staging.
-
 - sudo apt install --install-recommends winehq-stable
 
 > Verify the installation succeeded
-
 - wine --version
 
 ### 5). Installing TightVNC Server.
 
 > The graphical environment is not installed by default on server versions of Ubuntu. Therefore, if we want to connect to a remote desktop, we need to install a graphical shell. Let’s install the TightVNC Server itself at the same time.
-
 - apt install xfce4 xfce4-goodies tightvncserver
 
 > Let's start the TightVNC Server for the first time. It will create the files necessary for work and ask to create a password.
@@ -78,8 +67,10 @@
 - nano ~/.vnc/xstartup
 
 > Add the following line to the end:
-> startxfce4
-> Start the server again.
+
+- startxfce4
+
+> Start the server again:
 
 - vncserver
 
