@@ -96,4 +96,4 @@
 
 - systemctl enable --now vncserver
 
-## 6). Upload Server files.
+## 6). Upload the **HPC Multi-Server** folder to /root/Desktop
