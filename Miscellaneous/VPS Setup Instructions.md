@@ -8,7 +8,7 @@ This is a basic, step-by-step tutorial that covers installing a Ubnutu-Linux VPS
 
 Technical note on Vultr subscription plans:
 
-You pay for whatever you need. However, you need at least 150 MiB *per server* to cover peak times. Multiply that by the number of servers you need and that'll tell you much you should expect to pay. However, I have 9 servers (and a Discord Bot) running on a $5 monthly plan, but then again, my servers are never full simultaneously so the OS can handle it. Also note that each plan allocates you a defined amount of storage space. You may need more depending on how many maps you intend to upload.
+You pay for whatever you need. However, you need at least 150 MiB *per server* to cover peak times. Multiply that by the number of servers you need and that'll tell you much you should expect to pay. Also note that each plan allocates you a defined amount of storage space. You may need more depending on how many maps you intend to upload.
 
 ## STEPS:
 ##### 1). Download and install [BitVise SSH Client](https://www.bitvise.com/ssh-client-download), [FileZilla Client](https://filezilla-project.org/download.php?platform=win64) and [TightVNC (client)](https://www.tightvnc.com/download.php).
