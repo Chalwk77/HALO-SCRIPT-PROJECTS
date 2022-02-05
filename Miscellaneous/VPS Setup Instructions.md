@@ -1,8 +1,8 @@
 # Prerequisite applications:
 
-[BitVise SSH Client](https://www.bitvise.com/ssh-client-download)
+[BitVise SSH Client](https://www.bitvise.com/ssh-client-download) (for remote access to the terminal)
 
-[FileZilla Client](https://filezilla-project.org/download.php?platform=win64)
+[FileZilla Client](https://filezilla-project.org/download.php?platform=win64) (to upload files via FTP to the VPS)
 
 ## STEPS:
 
