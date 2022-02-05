@@ -11,23 +11,11 @@
 ### 2). Install Ubuntu, Linux (version 21.10x64).
 
 ### 3). Open BitVise SSH Client.
-
 - Fill in the host/username/password fields (get from VPS control panel).
 - Click the "New Terminal Window" button.
 
 ### 4). Enter the following commands (in order):
-
-> Verify 64-bit architecture. The following command should respond with "amd64":
-- **dpkg --print-architecture**
-
-> See if 32-bit architecture is installed. The following command should respond with "i386":
-- dpkg --print-foreign-architectures
-
-> If "i386" is not displayed, execute the following:
 - sudo dpkg --add-architecture i386
-
-> Recheck with:
-- dpkg --print-foreign-architectures
 
 > Add the WineHQ Ubuntu repository.
 - wget -nc https://dl.winehq.org/wine-builds/winehq.key
