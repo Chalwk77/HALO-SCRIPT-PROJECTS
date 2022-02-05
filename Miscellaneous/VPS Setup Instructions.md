@@ -68,17 +68,19 @@
 
 ```diff
 [Unit]
-Description=TightVNC server
+Description=Start TightVNC server at startup
 After=syslog.target network.target
 
 [Service]
 Type=forking
 User=root
-PAMName=login
-PIDFile=/root/.vnc/%H:1.pid
-ExecStartPre=-/usr/bin/vncserver -kill :1 > /dev/null 2>&1
-ExecStart=/usr/bin/vncserver
-ExecStop=/usr/bin/vncserver -kill :1
+Group=root
+WorkingDirectory=/root
+
+PIDFile=/root/.vnc/%H:%i.pid
+ExecStartPre=-/usr/bin/vncserver -kill :%i > /dev/null 2>&1
+ExecStart=/usr/bin/vncserver -depth 24 -geometry 1920x1080 :%i
+ExecStop=/usr/bin/vncserver -kill :%i
 
 [Install]
 WantedBy=multi-user.target
