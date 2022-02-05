@@ -20,7 +20,7 @@
 
 ### 4). Enter the following commands (in order):
 
-> Install 32-bit architecture.
+> Add multiarch support.
 - *sudo dpkg --add-architecture i386*
 
 > Add the WineHQ Ubuntu repository.
