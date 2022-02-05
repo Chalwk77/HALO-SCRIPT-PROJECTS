@@ -14,7 +14,7 @@
 
 ### 3). Open BitVise SSH Client.
 - Fill in the host/username/password fields (get from VPS control panel).
-- Click the "New Terminal Window" button.
+- Click the "New Terminal Console" button.
 
 ### 4). Enter the following commands (in order):
 - *sudo dpkg --add-architecture i386*
