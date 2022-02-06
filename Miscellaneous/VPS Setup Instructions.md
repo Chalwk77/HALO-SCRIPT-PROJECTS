@@ -1,8 +1,10 @@
-This is a step-by-step tutorial that covers the installation of a Ubnutu-Linux VPS with Wine and a VNC server for remote connection.
+This is a step-by-step tutorial that covers the installation of a Ubnutu-Linux VPS with Wine and a VNC server for remote
+connection.
 
-The hosting company I will be using in this tutorial is [Vultr](https://www.vultr.com/). 
+The hosting company I will be using in this tutorial is [Vultr](https://www.vultr.com/).
 
 # Prerequisite applications:
+
 - [BitVise SSH Client](https://www.bitvise.com/ssh-client-download) (for remote access to the terminal).
 - [FileZilla Client](https://filezilla-project.org/download.php?platform=win64) (to upload files via FTP to the VPS).
 - [TightVNC (client)](https://www.tightvnc.com/download.php) (for remote desktop connections)
@@ -11,16 +13,18 @@ The hosting company I will be using in this tutorial is [Vultr](https://www.vult
     * [HCE.Multi-Server.zip](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/download/v1.0.7-Multi-Server/HCE.Multi-Server.zip)
       or [HPC.Multi-Server.zip](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/download/v1.0.7-Multi-Server/HPC.Multi-Server.zip)
 
-Technical note on Vultr subscription plans:
+#### Technical note on Vultr subscription plans:
 
 You pay for whatever you need. However, you need at least 150 MiB *per server* to cover peak times. Multiply that by the
 number of servers you need and that'll tell you much you should expect to pay. Also note that each plan allocates you a
 defined amount of storage space. You may need more depending on how many maps you intend to upload.
----
 
 ## STEPS:
+
 ##### 1). Download and install [BitVise SSH Client](https://www.bitvise.com/ssh-client-download), [FileZilla Client](https://filezilla-project.org/download.php?platform=win64) and [TightVNC (client)](https://www.tightvnc.com/download.php).
+
 ##### 2). Select Cloud Compute and install Ubuntu-Linux (version **21.10 x64**).
+
 ##### 3). Open BitVise SSH Client:
 
 - Fill in the host & username (get from VPS control panel).
