@@ -131,7 +131,16 @@ If you didn't do the previous step, skip to the next step.*
 *Next step - Enable the UFW:*
 > sudo ufw enable
 
-#### 8). Upload the **HPC Multi-Server** folder to */root/Desktop*
+#### 8). Configure FileZilla:
+
+- File -> Site manager -> New site
+- Protocol: SFTP - SSH File Transfer Protocol
+- Fill in host/user/password fields (get from VPS control panel).
+- Save site and connect.
+
+#### 9). Upload the extracted **HPC Multi-Server** or **HCE Multi-Server** folder to:
+
+> /root/Desktop
 
 Note: You will need a file decompression tool like [WinRAR](https://www.win-rar.com/start.html?&L=0)
 or [7-zip](https://www.7-zip.org/download.html) to extract the HPC Multi-Server or HCE Multi-Server.
