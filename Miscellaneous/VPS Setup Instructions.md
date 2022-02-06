@@ -1,11 +1,12 @@
 This is a step-by-step tutorial that covers the installation of a Ubnutu-Linux VPS with Wine and a VNC server for remote connection.
+
 The hosting company I will be using in this tutorial is [Vultr](https://www.vultr.com/). 
 
 # Prerequisite applications:
 - [BitVise SSH Client](https://www.bitvise.com/ssh-client-download) (for remote access to the terminal).
 - [FileZilla Client](https://filezilla-project.org/download.php?platform=win64) (to upload files via FTP to the VPS).
 - [TightVNC (client)](https://www.tightvnc.com/download.php) (for remote desktop connections)
-- [Halo Server](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/tag/v1.0.7-Multi-Server)
+- [Halo Servers](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/tag/v1.0.7-Multi-Server)
 
 Technical note on Vultr subscription plans:
 
