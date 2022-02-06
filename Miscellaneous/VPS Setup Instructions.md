@@ -1,4 +1,5 @@
-This is a basic, step-by-step tutorial that covers installing a Ubnutu-Linux VPS with Wine and a VNC server for remote connection, with a hosting company called Vultr. 
+This is a step-by-step tutorial that covers the installation of a Ubnutu-Linux VPS with Wine and a VNC server for remote connection.
+The hosting company I will be using in this tutorial is [Vultr](https://www.vultr.com/). 
 
 # Prerequisite applications:
 - [BitVise SSH Client](https://www.bitvise.com/ssh-client-download) (for remote access to the terminal).
