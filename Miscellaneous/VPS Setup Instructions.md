@@ -13,8 +13,7 @@ The hosting company I will be using in this tutorial is [Vultr](https://www.vult
     * [HCE.Multi-Server.zip](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/download/v1.0.7-Multi-Server/HCE.Multi-Server.zip)
       or [HPC.Multi-Server.zip](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/download/v1.0.7-Multi-Server/HPC.Multi-Server.zip)
 
-#### Technical note on Vultr subscription plans:
-
+#### Technical note on [Vultr](https://www.vultr.com/) subscription plans:
 You pay for whatever you need. However, you need at least 150 MiB *per server* to cover peak times. Multiply that by the
 number of servers you need and that'll tell you much you should expect to pay. Also note that each plan allocates you a
 defined amount of storage space. You may need more depending on how many maps you intend to upload.
@@ -22,7 +21,6 @@ defined amount of storage space. You may need more depending on how many maps yo
 ## STEPS:
 
 ##### 1). Download the pre-configured Multi-Server (linked above).
-
 Note: You will need a file decompression tool like [WinRAR](https://www.win-rar.com/start.html?&L=0)
 or [7-zip](https://www.7-zip.org/download.html) to extract the HPC Multi-Server or HCE Multi-Server.
 
