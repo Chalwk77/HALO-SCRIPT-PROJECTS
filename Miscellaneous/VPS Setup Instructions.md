@@ -163,6 +163,7 @@ The Port directive is commented out by default, which means SSH daemon listens o
 > grep -i port /etc/ssh/sshd_config
 
 If you want to change the default SSH port in Ubuntu, perform the following steps with root privileges:
+
 Technical note: To save and exit nano screen, press CTRL-S (save), CTRL-X (exit).
 
 - Open the /etc/ssh/sshd_config file with the following command:
