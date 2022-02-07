@@ -122,7 +122,7 @@ sudo ufw allow 2312/udp
 
 *Optionally allow your IP Address and reject all others:
 This will make it so that only the specified IP(s) can connect to the vnc server.*
-> sudo ufw allow from 0.0.0.0* (replace 0.0.0.0 with your own ipv4 address)
+> sudo ufw allow from 0.0.0.0 (replace 0.0.0.0 with your own ipv4 address)
 
 *If you did the previous step, then we also need to reject other inbound connections:
 If you didn't do the previous step, skip to the next step.*
