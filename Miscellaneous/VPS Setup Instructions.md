@@ -74,8 +74,7 @@ or [7-zip](https://www.7-zip.org/download.html) to extract the HPC Multi-Server 
 a remote desktop, we need to install a graphical shell. Let’s install the TightVNC Server itself at the same time:*
 > apt install xfce4 xfce4-goodies tightvncserver
 
-*Start the TightVNC Server for the first time. It will create the files necessary for work and ask to create a
-password.:
+*Start the TightVNC Server for the first time. It will create the files necessary for work and ask to create a password:
 If you need to restrict remote desktop control, select a read-only password.*
 > vncserver
 
@@ -83,7 +82,8 @@ If you need to restrict remote desktop control, select a read-only password.*
 > vncserver -kill :1
 
 *Open the TightVNC config file with the below command. Add the following line to the end:* **startxfce4**
-Technical note: To save and exit a nano, press CTRL-S (save), CTRL-X (exit).
+
+Technical note: To save and exit nano screen, press CTRL-S (save), CTRL-X (exit).
 > nano ~/.vnc/xstartup
 
 ---
@@ -92,7 +92,8 @@ Technical note: To save and exit a nano, press CTRL-S (save), CTRL-X (exit).
 
 *By default, TightVNC does not have a daemon and does not turn on after a system reboot. To fix this, let's create a new
 unit in systemd:*
-Technical note: To save and exit a nano, press CTRL-S (save), CTRL-X (exit).
+
+Technical note: To save and exit nano screen, press CTRL-S (save), CTRL-X (exit).
 > nano /etc/systemd/system/vncserver.service
 
 *Insert the following config there:*
