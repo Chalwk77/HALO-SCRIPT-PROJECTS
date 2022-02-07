@@ -149,7 +149,11 @@ The Port directive is commented out by default, which means SSH daemon listens o
 
 If you want to change the default SSH port in Ubuntu, perform the following steps with root privileges:
 
-- Open the /etc/ssh/sshd_config file and locate the line:
+- Open the /etc/ssh/sshd_config file with the following command:
+
+> nano /etc/ssh/sshd_config
+
+Locate this line:
 
 ```none
 #Port 22
@@ -163,7 +167,6 @@ Port 22000
 ```
 
 - Restart the SSH server:
-
 > systemctl restart sshd
 
 After that, run the netstat command and make sure that the ssh daemon now listen on the new ssh port:
