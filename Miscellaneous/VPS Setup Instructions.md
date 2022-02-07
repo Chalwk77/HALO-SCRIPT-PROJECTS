@@ -82,7 +82,8 @@ If you need to restrict remote desktop control, select a read-only password.*
 *Now stop your TightVNC session to adjust other settings:*
 > vncserver -kill :1
 
-*Open the TightVNC config file with. Add the following line to the end:* **startxfce4**
+*Open the TightVNC config file with the below command. Add the following line to the end:* **startxfce4**
+Technical note: To save and exit a nano, press CTRL-S (save), CTRL-X (exit).
 > nano ~/.vnc/xstartup
 
 ---
@@ -91,6 +92,7 @@ If you need to restrict remote desktop control, select a read-only password.*
 
 *By default, TightVNC does not have a daemon and does not turn on after a system reboot. To fix this, let's create a new
 unit in systemd:*
+Technical note: To save and exit a nano, press CTRL-S (save), CTRL-X (exit).
 > nano /etc/systemd/system/vncserver.service
 
 *Insert the following config there:*
