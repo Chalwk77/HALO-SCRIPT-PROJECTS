@@ -18,6 +18,7 @@ The hosting company I will be using in this tutorial is [Vultr](https://www.vult
 You pay for whatever you need. However, you need at least 150 MiB *per server* to cover peak times. Multiply that by the
 number of servers you need and that'll tell you much you should expect to pay. Also note that each plan allocates you a
 defined amount of storage space. You may need more depending on how many maps you intend to upload.
+---
 
 ## STEPS:
 
@@ -26,10 +27,13 @@ defined amount of storage space. You may need more depending on how many maps yo
 Note: You will need a file decompression tool like [WinRAR](https://www.win-rar.com/start.html?&L=0)
 or [7-zip](https://www.7-zip.org/download.html) to extract the HPC Multi-Server or HCE Multi-Server.
 
+---
 ##### 2). Download and install [BitVise SSH Client](https://www.bitvise.com/ssh-client-download), [FileZilla Client](https://filezilla-project.org/download.php?platform=win64) and [TightVNC (client)](https://www.tightvnc.com/download.php).
 
+---
 ##### 3). Select Cloud Compute and install Ubuntu-Linux (version **21.10 x64**).
 
+---
 ##### 4). Open BitVise SSH Client:
 
 - Fill in the host & username (get from VPS control panel).
@@ -38,6 +42,7 @@ or [7-zip](https://www.7-zip.org/download.html) to extract the HPC Multi-Server 
 - Enter your password (get from VPS control panel).
 - Click the "New Terminal Console" button.
 
+---
 ##### 5). Enter the following commands (in order):
 
 *Add multiarch support:*
@@ -61,6 +66,7 @@ or [7-zip](https://www.7-zip.org/download.html) to extract the HPC Multi-Server 
 *Verify the installation has succeeded:*
 > wine --version
 
+---
 #### 6). Installing TightVNC Server:
 
 *The graphical environment is not installed by default on server versions of Ubuntu. Therefore, if we want to connect to
@@ -78,6 +84,7 @@ If you need to restrict remote desktop control, select a read-only password.*
 *Open the TightVNC config file with. Add the following line to the end:* **startxfce4**
 > nano ~/.vnc/xstartup
 
+---
 #### 7). Setting up autorun:
 
 *By default, TightVNC does not have a daemon and does not turn on after a system reboot. To fix this, let's create a new
@@ -110,6 +117,7 @@ WantedBy=multi-user.target
 *Enable autorun of the TightVNC server and start it.*
 > systemctl enable --now vncserver
 
+---
 #### 8). Set up UFW (firewall)
 
 *Allow port 5901 for incoming VNC connections:*
@@ -136,6 +144,7 @@ step, skip to the next step.*
 *Next step - Enable the UFW:*
 > sudo ufw enable
 
+---
 #### 9). Change SSH Port:
 
 By default, SSH listens on port 22. Changing the default SSH port adds an extra layer of security to your server by
@@ -178,6 +187,7 @@ When connecting to the server using the ssh command, you need to specify the por
 Note that if the Firewall is enabled, you need to add a rule to allow new SSH port:
 > sudo ufw allow 22000/tcp
 
+---
 #### 10). Configure FileZilla:
 
 - File -> Site manager -> New site
@@ -185,6 +195,7 @@ Note that if the Firewall is enabled, you need to add a rule to allow new SSH po
 - Fill in host/user/password fields (get from VPS control panel).
 - Save site and connect.
 
+---
 #### 11). Upload the extracted **HPC Multi-Server** or **HCE Multi-Server** folder to:
 
 > /root/Desktop
