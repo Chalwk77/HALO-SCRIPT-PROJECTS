@@ -46,67 +46,28 @@ Command | Description
 -- | --
 sudo dpkg --add-architecture i386|Add multiarch support
 wget -nc https://dl.winehq.org/wine-builds/winehq.key|Add the WineHQ Ubuntu repository
-sudo -H gpg -o /etc/apt/trusted.gpg.d/winehq.key.gpg --dearmor winehq.key|et and install the repository key:
-sudo add-apt-repository 'deb https://dl.winehq.org/wine-builds/ubuntu/ impish main'|Add the repository:
-sudo apt update|Update the package database:
-sudo apt install --install-recommends winehq-stable|Install Wine:
-wine --version|Verify the installation has succeeded:
-
+sudo -H gpg -o /etc/apt/trusted.gpg.d/winehq.key.gpg --dearmor winehq.key|Get and install the repository key.
+sudo add-apt-repository 'deb https://dl.winehq.org/wine-builds/ubuntu/ impish main'|Add the repository.
+sudo apt update|Update the package database.
+sudo apt install --install-recommends winehq-stable|Install Wine.
+wine --version|Verify the installation has succeeded.
 ---
 
 #### 6). Installing TightVNC Server:
-
-*The graphical environment is not installed by default on server versions of Ubuntu. Therefore, if we want to connect to
-a remote desktop, we need to install a graphical shell. Let’s install the TightVNC Server itself at the same time:*
-> apt install xfce4 xfce4-goodies tightvncserver
-
-*Start the TightVNC Server for the first time. It will create the files necessary for work and ask to create a password:
-If you need to restrict remote desktop control, select a read-only password.*
-> vncserver
-
-*Now stop your TightVNC session to adjust other settings:*
-> vncserver -kill :1
-
-*Open the TightVNC config file with the below command. Add the following line to the end:* **startxfce4**
-
-Technical note: To save and exit nano screen, press CTRL-S (save), CTRL-X (exit).
-> nano ~/.vnc/xstartup
-
+Command | Description
+-- | --
+apt install xfce4 xfce4-goodies tightvncserver|The graphical environment is not installed by default on server versions of Ubuntu.<br/>Therefore, if we want to connect to a remote desktop, we need to install a graphical shell.<br/>Let’s install the TightVNC Server itself at the same time.
+vncserver|Start the TightVNC Server for the first time.<br/>It will create the files necessary for work and ask to create a password.<br/>If you need to restrict remote desktop control, select a read-only password.
+ncserver -kill :1|Now stop your TightVNC session to adjust other settings:
+nano ~/.vnc/xstartup|Open the TightVNC config file.<br/><br/>*Add the following line to the end:*<br/>**startxfce4**<br/><br/>**Technical note: To save and exit nano screen, press CTRL-S (save), CTRL-X (exit).**
 ---
 
 #### 7). Setting up autorun:
-
-*By default, TightVNC does not have a daemon and does not turn on after a system reboot. To fix this, let's create a new
-unit in systemd:*
-
-Technical note: To save and exit nano screen, press CTRL-S (save), CTRL-X (exit).
-> nano /etc/systemd/system/vncserver.service
-
-*Insert the following config there:*
-```
-[Unit]
-Description=TightVNC server
-After=syslog.target network.target
-
-[Service]
-Type=forking
-User=root
-PAMName=login
-PIDFile=/root/.vnc/%H:1.pid
-ExecStartPre=-/usr/bin/vncserver -kill :1 > /dev/null 2>&1
-ExecStart=/usr/bin/vncserver -geometry 1920x1080
-ExecStop=/usr/bin/vncserver -kill :1
-
-[Install]
-WantedBy=multi-user.target
-```
-
-*Reload systemd:*
-> systemctl daemon-reload
-
-*Enable autorun of the TightVNC server and start it.*
-> systemctl enable --now vncserver
-
+Command | Description
+-- | --
+nano /etc/systemd/system/vncserver.service|By default, TightVNC does not have a daemon and does not turn on after a system reboot.<br/>To fix this, let's create a new unit in systemd.<br/><br/>-**Technical note: To save and exit nano screen, press CTRL-S (save), CTRL-X (exit).**<br/>Insert the following config there:<br/><br/>**[Unit]<br/>Description=TightVNC server<br/>After=syslog.target network.target<br/><br/>[Service]<br/>Type=forking<br/>User=root<br/>PAMName=login<br/>PIDFile=/root/.vnc/%H:1.pid<br/>ExecStartPre=-/usr/bin/vncserver -kill :1 > /dev/null 2>&1<br/>ExecStart=/usr/bin/vncserver -geometry 1920x1080<br/>ExecStop=/usr/bin/vncserver -kill :1<br/><br/>[Install]<br/>WantedBy=multi-user.target**
+systemctl daemon-reload|Reload systemd
+systemctl enable --now vncserver|Enable autorun of the TightVNC server and start it.
 ---
 
 #### 8). Set up UFW (firewall)
