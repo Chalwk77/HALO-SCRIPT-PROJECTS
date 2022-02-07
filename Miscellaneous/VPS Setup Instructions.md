@@ -44,27 +44,13 @@ or [7-zip](https://www.7-zip.org/download.html) to extract the HPC Multi-Server 
 ---
 
 ##### 5). Enter the following commands (in order):
-
-*Add multiarch support:*
-> sudo dpkg --add-architecture i386
-
-*Add the WineHQ Ubuntu repository:*
-> wget -nc https://dl.winehq.org/wine-builds/winehq.key
-
-*Get and install the repository key:*
-> sudo -H gpg -o /etc/apt/trusted.gpg.d/winehq.key.gpg --dearmor winehq.key
-
-*Add the repository:*
-> sudo add-apt-repository 'deb https://dl.winehq.org/wine-builds/ubuntu/ impish main'
-
-*Update the package database:*
-> sudo apt update
-
-*Install Wine:*
-> sudo apt install --install-recommends winehq-stable
-
-*Verify the installation has succeeded:*
-> wine --version
+Command | Description -- | -- sudo dpkg --add-architecture i386|Add multiarch support wget
+-nc https://dl.winehq.org/wine-builds/winehq.key|Add the WineHQ Ubuntu repository sudo -H gpg -o
+/etc/apt/trusted.gpg.d/winehq.key.gpg --dearmor winehq.key|et and install the repository key:
+sudo add-apt-repository 'deb https://dl.winehq.org/wine-builds/ubuntu/ impish main'|Add the repository:
+sudo apt update|Update the package database:
+sudo apt install --install-recommends winehq-stable|Install Wine:
+wine --version|Verify the installation has succeeded:
 
 ---
 
