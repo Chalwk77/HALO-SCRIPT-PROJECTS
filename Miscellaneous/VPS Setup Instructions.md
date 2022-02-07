@@ -92,7 +92,7 @@ User=root
 PAMName=login
 PIDFile=/root/.vnc/%H:1.pid
 ExecStartPre=-/usr/bin/vncserver -kill :1 > /dev/null 2>&1
-ExecStart=/usr/bin/vncserver
+ExecStart=/usr/bin/vncserver -depth 24 -geometry 1920x1080 :%i
 ExecStop=/usr/bin/vncserver -kill :1
 
 [Install]
