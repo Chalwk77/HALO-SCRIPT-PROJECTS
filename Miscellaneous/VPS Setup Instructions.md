@@ -8,7 +8,7 @@ The hosting company I will be using in this tutorial is [Vultr](https://www.vult
 - [BitVise SSH Client](https://www.bitvise.com/ssh-client-download) (for remote access to the terminal).
 - [FileZilla Client](https://filezilla-project.org/download.php?platform=win64) (to upload files via FTP to the VPS).
 - [TightVNC (client)](https://www.tightvnc.com/download.php) (for remote desktop connections)
-- Pre-Configured Halo servers:
+- Pre-Configured Halo servers (these are compatible with Linux):
 -
     * [HCE.Multi-Server.zip](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/download/v1.0.7-Multi-Server/HCE.Multi-Server.zip)
       or [HPC.Multi-Server.zip](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/download/v1.0.7-Multi-Server/HPC.Multi-Server.zip)
