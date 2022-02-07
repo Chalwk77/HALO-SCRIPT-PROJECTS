@@ -183,8 +183,8 @@ After that, run the netstat command and make sure that the ssh daemon now listen
 When connecting to the server using the ssh command, you need to specify the port to connect using the -p flag:
 > ssh -p 22000 192.168.1.100
 
-Note that if the Firewall is enabled, you need to add a rule to allow new SSH port and future SSH connections with
-BitVise will require you to specify the port in the port field:
+Note that if the Firewall is enabled, you need to add a rule to allow new SSH port. Furthermore, future SSH connections
+with BitVise will require you to specify the port in the port field:
 > sudo ufw allow 22000/tcp
 
 
