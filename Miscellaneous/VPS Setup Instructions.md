@@ -18,7 +18,6 @@ The hosting company I will be using in this tutorial is [Vultr](https://www.vult
 You pay for whatever you need. However, you need at least 150 MiB *per server* to cover peak times. Multiply that by the
 number of servers you need and that'll tell you much you should expect to pay. Also note that each plan allocates you a
 defined amount of storage space. You may need more depending on how many maps you intend to upload.
----
 
 ## STEPS:
 
