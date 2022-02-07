@@ -8,8 +8,7 @@
 - [TightVNC (client)](https://www.tightvnc.com/download.php) (for remote desktop connections)
 - Pre-Configured Halo servers (these are compatible with Linux):
 -
-    * [HCE.Multi-Server.zip](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/download/v1.0.7-Multi-Server/HCE.Multi-Server.zip)
-      or [HPC.Multi-Server.zip](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/download/v1.0.7-Multi-Server/HPC.Multi-Server.zip)
+    * [HCE.Multi-Server.zip](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/download/v1.0.7-Multi-Server/HCE.Multi-Server.zip) or [HPC.Multi-Server.zip](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/download/v1.0.7-Multi-Server/HPC.Multi-Server.zip)
 
 #### Technical note on [Vultr](https://www.vultr.com/) subscription plans:
 You pay for whatever you need. However, you need at least 150 MiB *per server* to cover peak times. Multiply that by the
@@ -18,30 +17,22 @@ defined amount of storage space. You may need more depending on how many maps yo
 
 ## STEPS:
 
-##### 1). Download the pre-configured Multi-Server (linked above).
+### 1). Download the pre-configured Multi-Server (linked above).
 Note: You will need a file decompression tool like [WinRAR](https://www.win-rar.com/start.html?&L=0)
 or [7-zip](https://www.7-zip.org/download.html) to extract the HPC Multi-Server or HCE Multi-Server.
 
----
+### 2). Download and install [BitVise SSH Client](https://www.bitvise.com/ssh-client-download), [FileZilla Client](https://filezilla-project.org/download.php?platform=win64) and [TightVNC (client)](https://www.tightvnc.com/download.php).
 
-##### 2). Download and install [BitVise SSH Client](https://www.bitvise.com/ssh-client-download), [FileZilla Client](https://filezilla-project.org/download.php?platform=win64) and [TightVNC (client)](https://www.tightvnc.com/download.php).
+### 3). Select Cloud Compute and install Ubuntu-Linux (version **21.10 x64**).
 
----
-
-##### 3). Select Cloud Compute and install Ubuntu-Linux (version **21.10 x64**).
-
----
-
-##### 4). Open BitVise SSH Client:
+### 4). Open BitVise SSH Client:
 - Fill in the host & username (get from VPS control panel).
 - Click login.
 - You will be prompted to accept and save a host key. Click accept and save.
 - Enter your password (get from VPS control panel).
 - Click the "New Terminal Console" button.
 
----
-
-##### 5). Enter the following commands (in order):
+### 5). Enter the following commands (in order):
 Command | Description
 -- | --
 sudo dpkg --add-architecture i386|Add multiarch support
@@ -51,54 +42,33 @@ sudo add-apt-repository 'deb https://dl.winehq.org/wine-builds/ubuntu/ impish ma
 sudo apt update|Update the package database.
 sudo apt install --install-recommends winehq-stable|Install Wine.
 wine --version|Verify the installation has succeeded.
----
 
-#### 6). Installing TightVNC Server:
+### 6). Installing TightVNC Server:
 Command | Description
 -- | --
 apt install xfce4 xfce4-goodies tightvncserver|The graphical environment is not installed by default on server versions of Ubuntu.<br/>Therefore, if we want to connect to a remote desktop, we need to install a graphical shell.<br/>Let’s install the TightVNC Server itself at the same time.
 vncserver|Start the TightVNC Server for the first time.<br/>It will create the files necessary for work and ask to create a password.<br/>If you need to restrict remote desktop control, select a read-only password.
 ncserver -kill :1|Now stop your TightVNC session to adjust other settings:
 nano ~/.vnc/xstartup|Open the TightVNC config file.<br/><br/>*Add the following line to the end:*<br/>**startxfce4**<br/><br/>**Technical note: To save and exit nano screen, press CTRL-S (save), CTRL-X (exit).**
----
 
-#### 7). Setting up autorun:
+### 7). Setting up autorun:
 Command | Description
 -- | --
-nano /etc/systemd/system/vncserver.service|By default, TightVNC does not have a daemon and does not turn on after a system reboot.<br/>To fix this, let's create a new unit in systemd.<br/><br/>-**Technical note: To save and exit nano screen, press CTRL-S (save), CTRL-X (exit).**<br/>Insert the following config there:<br/><br/>**[Unit]<br/>Description=TightVNC server<br/>After=syslog.target network.target<br/><br/>[Service]<br/>Type=forking<br/>User=root<br/>PAMName=login<br/>PIDFile=/root/.vnc/%H:1.pid<br/>ExecStartPre=-/usr/bin/vncserver -kill :1 > /dev/null 2>&1<br/>ExecStart=/usr/bin/vncserver -geometry 1920x1080<br/>ExecStop=/usr/bin/vncserver -kill :1<br/><br/>[Install]<br/>WantedBy=multi-user.target**
+nano /etc/systemd/system/vncserver.service|By default, TightVNC does not have a daemon and does not turn on after a system reboot.<br/>To fix this, let's create a new unit in systemd.<br/><br/>**Technical note: To save and exit nano screen, press CTRL-S (save), CTRL-X (exit).**<br/><br/>*Insert the following config there:*<br/>**[Unit]<br/>Description=TightVNC server<br/>After=syslog.target network.target<br/><br/>[Service]<br/>Type=forking<br/>User=root<br/>PAMName=login<br/>PIDFile=/root/.vnc/%H:1.pid<br/>ExecStartPre=-/usr/bin/vncserver -kill :1 > /dev/null 2>&1<br/>ExecStart=/usr/bin/vncserver -geometry 1920x1080<br/>ExecStop=/usr/bin/vncserver -kill :1<br/><br/>[Install]<br/>WantedBy=multi-user.target**
 systemctl daemon-reload|Reload systemd
 systemctl enable --now vncserver|Enable autorun of the TightVNC server and start it.
----
 
-#### 8). Set up UFW (firewall)
+### 8). Set up UFW (firewall)
+Command | Description
+-- | --
+ufw allow 5901/tcp|Allow port 5901 for incoming VNC connections:
+sudo ufw allow 2302:2303/udp|Then allow UDP connections for Halo on ports 2302, 2303
+sudo ufw allow 2310:2312/udp|Then allow UDP connections for server ports
+sudo ufw allow from 0.0.0.0|Optionally allow your IP Address and reject all others.<br/>This will make it so that only the specified IP(s) can connect to the vnc server.*<br/><br/>Replace 0.0.0.0 with your own ipv4 address
+sudo ufw default reject incoming|If you did the previous step, then we also need to reject other inbound connections. If you didn't do the previous step, skip to the next step.
+sudo ufw enable|Next step - Enable the UFW
 
-*Allow port 5901 for incoming VNC connections:*
-> ufw allow 5901/tcp
-
-*Then allow UDP connections for Halo on ports 2302, 2303 and your server port(s), with:*
-
-```
-sudo ufw allow 2302/udp
-sudo ufw allow 2303/udp
-sudo ufw allow 2310/udp
-sudo ufw allow 2311/udp
-sudo ufw allow 2312/udp
-```
-
-*Optionally allow your IP Address and reject all others:
-This will make it so that only the specified IP(s) can connect to the vnc server.*
-> sudo ufw allow from 0.0.0.0 (replace 0.0.0.0 with your own ipv4 address)
-
-*If you did the previous step, then we also need to reject other inbound connections. If you didn't do the previous
-step, skip to the next step.*
-> sudo ufw default reject incoming
-
-*Next step - Enable the UFW:*
-> sudo ufw enable
-
----
-
-#### 9). Change SSH Port:
+### 9). Change SSH Port:
 
 By default, SSH listens on port 22. Changing the default SSH port adds an extra layer of security to your server by
 reducing the risk of automated attacks. The following command is used to check the current configuration:
@@ -140,18 +110,13 @@ Note that if the Firewall is enabled, you need to add a rule to allow new SSH po
 with BitVise will require you to specify the port in the port field:
 > sudo ufw allow 22000/tcp
 
-
----
-
-#### 10). Configure FileZilla:
+### 10). Configure FileZilla:
 
 - File -> Site manager -> New site
 - Protocol: SFTP - SSH File Transfer Protocol
 - Fill in host/user/password fields (get from VPS control panel).
 - Save site and connect.
 
----
-
-#### 11). Upload the extracted **HPC Multi-Server** or **HCE Multi-Server** folder to:
+### 11). Upload the extracted **HPC Multi-Server** or **HCE Multi-Server** folder to:
 
 > /root/Desktop
