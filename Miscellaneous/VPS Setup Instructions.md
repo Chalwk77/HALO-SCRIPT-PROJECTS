@@ -113,7 +113,7 @@ Follow the on-screen prompts to do this. It's straight forward.
    
 ----
 
-### REMOTE CONNECTING WITH TIGHT VNC:<br/>
+### REMOTE CONNECTING WITH TIGHT VNC CLIENT:<br/>
 When filling in the IP Address field on TightVNC Client, be sure to suffix the IP with Display Port **:5901**<br/>
 For example: **127.0.0.1:5901**
 
