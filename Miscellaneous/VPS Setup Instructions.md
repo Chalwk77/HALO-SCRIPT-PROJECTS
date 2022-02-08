@@ -91,7 +91,7 @@ sudo ufw allow 22000/tcp|Add a rule to allow new SSH port.<br/>Furthermore, futu
 > /root/Desktop
 
 ----
-CONNECTING WITH TIGHT VNC:<br/>
+REMOTE CONNECTING WITH TIGHT VNC:<br/>
 When filling in the IP Address field on TightVNC Client, be sure to suffix the IP with Display Port **:5901**<br/>
 For example: **127.0.0.1:5901**
 
