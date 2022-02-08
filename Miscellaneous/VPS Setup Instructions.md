@@ -99,9 +99,11 @@ sudo ufw allow 22000/tcp|Add a rule to allow new SSH port.<br/>Furthermore, futu
 - Fill in host/user/password/port fields (get user/pass from VPS control panel, port is SSH port)
 - Save site and connect.
 
-### 11). Upload the extracted **HPC Multi-Server** or **HCE Multi-Server** folder to:
-
-> /root/Desktop
+### 11). Uploading Servers Files:
+- Open BitVise and login.
+- Click **New SFTP window** button.
+- Navigate to */root/Desktop*
+- Transfer the **HPC|CE Multi-Server** folder
 
 ### 12). Launching your server(s):
 Navigate to */root/Desktop/\<server folder>/Wine Launch Files*<br/>
