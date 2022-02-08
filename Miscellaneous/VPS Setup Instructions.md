@@ -85,3 +85,7 @@ sudo ufw allow 22000/tcp|Add a rule to allow new SSH port.<br/>Furthermore, futu
 ### 11). Upload the extracted **HPC Multi-Server** or **HCE Multi-Server** folder to:
 
 > /root/Desktop
+
+----
+NOTES:
+When filling out the password filed on TightVNC Client, be sure to suffix the ip with :5901
