@@ -9,11 +9,12 @@ This method will save a lot of time so you don't have to write out each command 
 ****
 
 # Prerequisite applications:
-
-- [BitVise SSH Client](https://www.bitvise.com/ssh-client-download) (for remote access to the terminal).
-- [FileZilla Client](https://filezilla-project.org/download.php?platform=win64) (to upload files via FTP to the VPS).
-- [TightVNC (client)](https://www.tightvnc.com/download.php) (for remote desktop connections)
-- Pre-Configured Halo servers (these are compatible with Linux):<br/>[HCE.Multi-Server.zip](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/download/v1.0.7-Multi-Server/HCE.Multi-Server.zip) | [HPC.Multi-Server.zip](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/download/v1.0.7-Multi-Server/HPC.Multi-Server.zip)
+Application | Description
+-- | --
+[BitVise SSH Client](https://www.bitvise.com/ssh-client-download)|For remote access to the terminal.
+[FileZilla Client](https://filezilla-project.org/download.php?platform=win64)|To upload files via FTP to the VPS.
+[TightVNC (client)](https://www.tightvnc.com/download.php)|For remote desktop connections
+[HCE.Multi-Server.zip](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/download/v1.0.7-Multi-Server/HCE.Multi-Server.zip) or [HPC.Multi-Server.zip](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/download/v1.0.7-Multi-Server/HPC.Multi-Server.zip)|Pre-Configured Halo servers (these are compatible with Linux)
 
 #### Technical note on [Vultr](https://www.vultr.com/) subscription plans:
 You pay for whatever you need.<br/>
