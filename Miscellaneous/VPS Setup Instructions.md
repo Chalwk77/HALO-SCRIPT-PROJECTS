@@ -10,7 +10,7 @@
     * [HCE.Multi-Server.zip](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/download/v1.0.7-Multi-Server/HCE.Multi-Server.zip) or [HPC.Multi-Server.zip](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/download/v1.0.7-Multi-Server/HPC.Multi-Server.zip)
 
 #### Technical note on [Vultr](https://www.vultr.com/) subscription plans:
-You pay for whatever you need. However, you need at least 150 MiB *per server* to cover peak times. Multiply that by the
+You pay for whatever you need. However, you need at least 150 MiB RAM *per server* to cover peak times. Multiply that by the
 number of servers you need and that'll tell you much you should expect to pay. Also note that each plan allocates you a
 defined amount of storage space. You may need more depending on how many maps you intend to upload.
 
