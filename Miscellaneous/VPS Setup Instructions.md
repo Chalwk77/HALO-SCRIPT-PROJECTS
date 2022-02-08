@@ -31,7 +31,7 @@ Note that plan allocates you a defined amount of storage space. You may need mor
 Note: You will need a file decompression tool like [WinRAR](https://www.win-rar.com/start.html?&L=0)
 or [7-zip](https://www.7-zip.org/download.html) to extract the HPC Multi-Server or HCE Multi-Server.
 
-### 2). Download and install [BitVise SSH Client](https://www.bitvise.com/ssh-client-download), [FileZilla Client](https://filezilla-project.org/download.php?platform=win64) and [TightVNC (client)](https://www.tightvnc.com/download.php) to your PC.
+### 2). Download and install [BitVise SSH Client](https://www.bitvise.com/ssh-client-download) and [TightVNC (client)](https://www.tightvnc.com/download.php) to your PC.
 
 ### 3). Deploying a new VPS on Vultr:
 - Navigate to the [Deploy](https://my.vultr.com/deploy/) page on Vultr
@@ -92,20 +92,13 @@ systemctl restart sshd|Restart the SSH server
 netstat -tulpn \| grep ssh|After that, run the netstat command and make sure that the ssh daemon now listen on the new ssh port
 sudo ufw allow 22000/tcp|Add a rule to allow new SSH port.<br/>Furthermore, future SSH connections with BitVise will require you to specify the port in the port field.
 
-### 10). Configure FileZilla:
-
-- File -> Site manager -> New site
-- Protocol: SFTP - SSH File Transfer Protocol
-- Fill in host/user/password/port fields (get user/pass from VPS control panel, port is SSH port)
-- Save site and connect.
-
-### 11). Uploading Servers Files:
+### 10). Uploading Servers Files:
 - Open BitVise and login.
 - Click **New SFTP window** button.
 - Navigate to */root/Desktop*
 - Transfer the **HPC|CE Multi-Server** folder
 
-### 12). Launching your server(s):
+### 11). Launching your server(s):
 Navigate to */root/Desktop/\<server folder>/Wine Launch Files*<br/>
 Double-click on *SV#.desktop* to launch your server.<br/>
 Upon first launch, you may be prompted to install some mono software in order to launch the server.<br/>
