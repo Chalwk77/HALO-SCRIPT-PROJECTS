@@ -1,5 +1,4 @@
-#### This is a step-by-step tutorial that covers the installation of a Ubnutu-Linux VPS with Wine and a VNC server for remote connection.
-#### The hosting company I will be using in this tutorial is [Vultr](https://www.vultr.com/).
+#### This is a step-by-step tutorial that covers the installation of a Ubnutu-Linux VPS with Wine and a VNC server for remote connection.<br/>The hosting company I will be using in this tutorial is [Vultr](https://www.vultr.com/).
 
 # Prerequisite applications:
 
@@ -54,7 +53,7 @@ nano ~/.vnc/xstartup|Open the TightVNC config file.<br/><br/>*Add the following 
 ### 7). Setting up autorun:
 Command | Description
 -- | --
-nano /etc/systemd/system/vncserver.service|By default, TightVNC does not have a daemon and does not turn on after a system reboot.<br/>To fix this, let's create a new unit in systemd.<br/><br/>**Technical note: To save and exit nano screen, press CTRL-S (save), CTRL-X (exit).**<br/><br/>*Insert the following config there:*<br/>**<br/>[Unit]<br/>Description=TightVNC server<br/>After=syslog.target network.target<br/><br/>[Service]<br/>Type=forking<br/>User=root<br/>PAMName=login<br/>PIDFile=/root/.vnc/%H:1.pid<br/>ExecStartPre=-/usr/bin/vncserver -kill :1 > /dev/null 2>&1<br/>ExecStart=/usr/bin/vncserver -geometry 1920x1080<br/>ExecStop=/usr/bin/vncserver -kill :1<br/><br/>[Install]<br/>WantedBy=multi-user.target**<br/>
+nano /etc/systemd/system/vncserver.service|By default, TightVNC does not have a daemon and does not turn on after a system reboot.<br/>To fix this, let's create a new unit in systemd.<br/><br/>**Technical note: To save and exit nano screen, press CTRL-S (save), CTRL-X (exit).**<br/><br/>*Insert the following config there:*<br/>**<br/>[Unit]<br/>Description=TightVNC server<br/>After=syslog.target network.target<br/><br/>[Service]<br/>Type=forking<br/>User=root<br/>PAMName=login<br/>PIDFile=/root/.vnc/%H:1.pid<br/>ExecStartPre=-/usr/bin/vncserver -kill :1 > /dev/null 2>&1<br/>ExecStart=/usr/bin/vncserver -geometry 1920x1080<br/>ExecStop=/usr/bin/vncserver -kill :1<br/><br/>[Install]<br/>WantedBy=multi-user.target**
 systemctl daemon-reload|Reload systemd
 systemctl enable --now vncserver|Enable autorun of the TightVNC server and start it.
 
