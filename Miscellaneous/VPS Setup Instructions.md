@@ -64,51 +64,18 @@ Command | Description
 ufw allow 5901/tcp|Allow port 5901 for incoming VNC connections:
 sudo ufw allow 2302:2303/udp|Then allow UDP connections for Halo on ports 2302, 2303
 sudo ufw allow 2310:2312/udp|Then allow UDP connections for server ports
-sudo ufw allow from 0.0.0.0|Optionally allow your IP Address and reject all others.<br/>This will make it so that only the specified IP(s) can connect to the vnc server.*<br/><br/>Replace 0.0.0.0 with your own ipv4 address
-sudo ufw default reject incoming|If you did the previous step, then we also need to reject other inbound connections. If you didn't do the previous step, skip to the next step.
-sudo ufw enable|Next step - Enable the UFW
+sudo ufw allow from 0.0.0.0|Optionally allow your IP Address and reject all others.<br/>This will make it so that only the specified IP(s) can connect to the vnc server.<br/><br/>Replace 0.0.0.0 with your own ipv4 address.
+sudo ufw default reject incoming|If you did the previous step, then we also need to reject other inbound connections. If you didn't do the previous step, skip to the next command.
+sudo ufw enable|Enable the UFW
 
 ### 9). Change SSH Port:
-
-By default, SSH listens on port 22. Changing the default SSH port adds an extra layer of security to your server by
-reducing the risk of automated attacks. The following command is used to check the current configuration:
-> netstat -tulnp | grep ssh
-
-The Port directive of the sshd_config file specifies the port number that ssh server listens on. You can check the
-current configuration with following command:
-The Port directive is commented out by default, which means SSH daemon listens on the default port 22.
-> grep -i port /etc/ssh/sshd_config
-
-If you want to change the default SSH port in Ubuntu, perform the following steps with root privileges:
-
-Technical note: To save and exit nano screen, press CTRL-S (save), CTRL-X (exit).
-
-- Open the /etc/ssh/sshd_config file with the following command:
-> nano /etc/ssh/sshd_config
-
-Locate this line:
-```none
-#Port 22
-```
-
-- Then, uncomment (Remove the leading # character) it and change the value with an appropriate port number (for example,
-  22000):
-```none
-Port 22000
-```
-
-- Restart the SSH server:
-> systemctl restart sshd
-
-After that, run the netstat command and make sure that the ssh daemon now listen on the new ssh port:
-> netstat -tulpn | grep ssh
-
-When connecting to the server using the ssh command, you need to specify the port to connect using the -p flag:
-> ssh -p 22000 192.168.1.100
-
-Note that if the Firewall is enabled, you need to add a rule to allow new SSH port. Furthermore, future SSH connections
-with BitVise will require you to specify the port in the port field:
-> sudo ufw allow 22000/tcp
+Command | Description
+-- | --
+nano /etc/ssh/sshd_config|By default, SSH listens on port 22.<br/>Changing the default SSH port adds an extra layer of security to your server by reducing the risk of automated attacks.<br/>To change the default SSH port in Ubuntu, Open the **sshd_config** file and execute this command.<br/><br/>**Technical note: To save and exit nano screen, press CTRL-S (save), CTRL-X (exit).**<br/><br/>*Locate this line:*<br/>#Port 22<br/>Uncomment (remove the leading # character) it and change the value with an appropriate port number (for example, 22000):<br/><br/>Port 22000
+systemctl restart sshd|Restart the SSH server
+netstat -tulpn | grep ssh|After that, run the netstat command and make sure that the ssh daemon now listen on the new ssh port
+sudo ufw allow 22000/tcp|Add a rule to allow new SSH port.<br/>Furthermore, future SSH connections
+with BitVise will require you to specify the port in the port field.
 
 ### 10). Configure FileZilla:
 
