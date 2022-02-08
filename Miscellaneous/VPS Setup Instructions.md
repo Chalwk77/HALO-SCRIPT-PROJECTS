@@ -42,10 +42,10 @@ or [7-zip](https://www.7-zip.org/download.html) to extract the HPC Multi-Server 
 - Label your VPS instance and click **Deploy Now**
 
 ### 4). Open BitVise SSH Client:
-- Fill in the host & username (get from VPS control panel).
+- Fill in the host & username (get from VPS control panel overview page).
 - Click login.
 - You will be prompted to accept and save a host key. Click accept and save.
-- Enter your password (get from VPS control panel).
+- Enter your password (get from VPS control panel overview page).
 - Click the "New Terminal Console" button.
 
 ### 5). Enter the following commands (in order):
