@@ -26,13 +26,20 @@ Note that plan allocates you a defined amount of storage space. You may need mor
 
 ## STEPS:
 
-### 1). Download the pre-configured Multi-Server (linked above).
+### 1). Download the pre-configured Multi-Server of your choice (linked above).
 Note: You will need a file decompression tool like [WinRAR](https://www.win-rar.com/start.html?&L=0)
 or [7-zip](https://www.7-zip.org/download.html) to extract the HPC Multi-Server or HCE Multi-Server.
 
-### 2). Download and install [BitVise SSH Client](https://www.bitvise.com/ssh-client-download), [FileZilla Client](https://filezilla-project.org/download.php?platform=win64) and [TightVNC (client)](https://www.tightvnc.com/download.php).
+### 2). Download and install [BitVise SSH Client](https://www.bitvise.com/ssh-client-download), [FileZilla Client](https://filezilla-project.org/download.php?platform=win64) and [TightVNC (client)](https://www.tightvnc.com/download.php) to your PC.
 
-### 3). Select Cloud Compute and install Ubuntu-Linux (version **21.10 x64**).
+### 3). Deploying a new VPS on Vultr:
+- Navigate to the [Deploy](https://my.vultr.com/deploy/) page on Vultr
+- Select Cloud Compute
+- Choose your server location
+- Under Server Type, select **Ubuntu 21.10 x64**
+- Choose your monthly subscription plan.
+- Select any Additional Features you require (optional)
+- Label your VPS instance and click **Deploy Now**
 
 ### 4). Open BitVise SSH Client:
 - Fill in the host & username (get from VPS control panel).
