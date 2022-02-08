@@ -21,6 +21,8 @@ However, you need at least 150 MiB RAM *per server* to cover peak times.<br/>
 Multiply that by the number of servers you need and that'll tell you much you should expect to pay.<br/>
 Note that plan allocates you a defined amount of storage space. You may need more depending on how many maps you intend to upload.
 
+****
+
 ## STEPS:
 
 ### 1). Download the pre-configured Multi-Server (linked above).
