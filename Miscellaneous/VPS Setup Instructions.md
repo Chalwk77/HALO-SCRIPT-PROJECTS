@@ -44,11 +44,11 @@ or [7-zip](https://www.7-zip.org/download.html) to extract the HPC Multi-Server 
 
 ### 4). Open BitVise SSH Client:
 - Fill in the host & username (get from VPS control panel overview page).
-- In the **Initial method** drop-down box, select *password*.<br/>Paste your password in the password field (get from VPS control panel overview page).<br/>Make sure *Store encrypted password in profile* is ticked.<br/>**Click Save profile as**
+- In the **Initial method** drop-down box, select *password*.<br/>Paste your password in the password field (get from VPS control panel overview page).<br/>Make sure *Store encrypted password in profile* is ticked.<br/>Click **Save profile as** and save.
 - Click login.<br/>You will be prompted to accept and save a host key. Click accept and save.
 - Click the "New Terminal Console" button.
 
-### 5). Enter the following commands (in order):
+### 5). Enter the following commands into the SSH Terminal(in order):
 Command | Description
 -- | --
 sudo dpkg --add-architecture i386|Add multiarch support
