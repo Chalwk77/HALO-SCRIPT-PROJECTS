@@ -47,7 +47,7 @@ Command | Description
 -- | --
 apt install xfce4 xfce4-goodies tightvncserver|The graphical environment is not installed by default on server versions of Ubuntu.<br/>Therefore, if we want to connect to a remote desktop, we need to install a graphical shell.<br/>Let’s install the TightVNC Server itself at the same time.
 vncserver|Start the TightVNC Server for the first time.<br/>It will create the files necessary for work and ask to create a password.<br/>If you need to restrict remote desktop control, select a read-only password.
-ncserver -kill :1|Now stop your TightVNC session to adjust other settings:
+vncserver -kill :1|Now stop your TightVNC session to adjust other settings:
 nano ~/.vnc/xstartup|Open the TightVNC config file.<br/><br/>*Add the following line to the end:*<br/>**startxfce4**<br/><br/>**Technical note: To save and exit nano screen, press CTRL-S (save), CTRL-X (exit).**
 
 ### 7). Setting up autorun:
