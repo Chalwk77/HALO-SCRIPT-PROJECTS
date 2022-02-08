@@ -11,9 +11,8 @@ This method will save a lot of time so you don't have to write out each command 
 # Prerequisite applications:
 Application | Description
 -- | --
-[BitVise SSH Client](https://www.bitvise.com/ssh-client-download)|For remote access to the terminal.
-[FileZilla Client](https://filezilla-project.org/download.php?platform=win64)|To upload files via FTP to the VPS.
-[TightVNC (client)](https://www.tightvnc.com/download.php)|For remote desktop connections
+[BitVise SSH Client](https://www.bitvise.com/ssh-client-download)|For remote access to the terminal
+[TightVNC (client)](https://www.tightvnc.com/download.php)|For remote desktop connections and to upload files via SFTP
 [HCE.Multi-Server.zip](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/download/v1.0.7-Multi-Server/HCE.Multi-Server.zip) or [HPC.Multi-Server.zip](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/download/v1.0.7-Multi-Server/HPC.Multi-Server.zip)|Pre-Configured Halo servers (these are compatible with Linux)
 
 For information on how the Multi-Server is set up, please see [this page](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/tag/v1.0.7-Multi-Server).
@@ -45,9 +44,8 @@ or [7-zip](https://www.7-zip.org/download.html) to extract the HPC Multi-Server 
 
 ### 4). Open BitVise SSH Client:
 - Fill in the host & username (get from VPS control panel overview page).
-- Click login.
-- You will be prompted to accept and save a host key. Click accept and save.
-- Enter your password (get from VPS control panel overview page).
+- In the **Initial method** drop-down box, select *password*.<br/>Paste your password in the password field (get from VPS control panel overview page).<br/>Make sure *Store encrypted password in profile* is ticked.<br/>**Click Save profile as**
+- Click login.<br/>You will be prompted to accept and save a host key. Click accept and save.
 - Click the "New Terminal Console" button.
 
 ### 5). Enter the following commands (in order):
