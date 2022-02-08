@@ -92,4 +92,4 @@ sudo ufw allow 22000/tcp|Add a rule to allow new SSH port.<br/>Furthermore, futu
 
 ----
 NOTES:<br/>
-When filling out the password filed on TightVNC Client, be sure to suffix the ip with :5901
+When filling in the IP Address filed on TightVNC Client, be sure to suffix the IP with Display Port **:5901**
