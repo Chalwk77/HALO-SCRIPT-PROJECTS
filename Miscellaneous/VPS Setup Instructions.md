@@ -37,7 +37,7 @@ or [7-zip](https://www.7-zip.org/download.html) to extract the HPC Multi-Server 
 - Select Cloud Compute
 - Choose your server location
 - Under Server Type, select **Ubuntu 21.10 x64**
-- Choose your monthly subscription plan.
+- Choose your monthly subscription plan
 - Select any Additional Features you require (optional)
 - Label your VPS instance and click **Deploy Now**
 
