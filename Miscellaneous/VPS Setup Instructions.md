@@ -73,14 +73,14 @@ Command | Description
 -- | --
 nano /etc/ssh/sshd_config|By default, SSH listens on port 22.<br/>Changing the default SSH port adds an extra layer of security to your server by reducing the risk of automated attacks.<br/>To change the default SSH port in Ubuntu, Open the **sshd_config** file and execute this command.<br/><br/>**Technical note: To save and exit nano screen, press CTRL-S (save), CTRL-X (exit).**<br/><br/>*Locate this line:*<br/>**#Port 22**<br/><br/>*Uncomment (remove the leading # character) it and change the value with an appropriate port number (for example, 22000):*<br/>**Port 22000**
 systemctl restart sshd|Restart the SSH server
-netstat -tulpn | grep ssh|After that, run the netstat command and make sure that the ssh daemon now listen on the new ssh port
+netstat -tulpn \| grep ssh|After that, run the netstat command and make sure that the ssh daemon now listen on the new ssh port
 sudo ufw allow 22000/tcp|Add a rule to allow new SSH port.<br/>Furthermore, future SSH connections with BitVise will require you to specify the port in the port field.
 
 ### 10). Configure FileZilla:
 
 - File -> Site manager -> New site
 - Protocol: SFTP - SSH File Transfer Protocol
-- Fill in host/user/password fields (get from VPS control panel).
+- Fill in host/user/password/port fields (get user/pass from VPS control panel, port is SSH port)
 - Save site and connect.
 
 ### 11). Upload the extracted **HPC Multi-Server** or **HCE Multi-Server** folder to:
