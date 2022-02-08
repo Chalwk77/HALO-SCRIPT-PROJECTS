@@ -90,6 +90,11 @@ sudo ufw allow 22000/tcp|Add a rule to allow new SSH port.<br/>Furthermore, futu
 
 > /root/Desktop
 
+### 12). Launching your server(s):
+Navigate to /root/Desktop/<server folder>/Wine Launch Files
+Double-click on *SV#.desktop* to launch your server.
+Upon first launch, you may be prompted to install some mono software in order to launch the server. Follow the on-screen prompts to do this. It's straight forward.
+   
 ----
 REMOTE CONNECTING WITH TIGHT VNC:<br/>
 When filling in the IP Address field on TightVNC Client, be sure to suffix the IP with Display Port **:5901**<br/>
