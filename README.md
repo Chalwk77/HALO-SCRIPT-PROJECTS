@@ -28,8 +28,8 @@ Check out my:
 - - - -
 > ## [CLICK TO REQUEST AN ADDON](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues/new?template=feature_request.md)
 
-What's hot right now?
-[VPS Setup Instructions](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/Miscellaneous/VPS%20Setup%20Instructions.md)
+### What's hot right now?
+> [VPS Setup Instructions](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/Miscellaneous/VPS%20Setup%20Instructions.md)
 
 ### SAPP LINKS:
 > * Sapp Forums: [weblink](http://halo.isimaginary.com/) (Unfortuntaely, the public forum has been taken offline, but you can still download SAPP from the home page.)
