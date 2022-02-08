@@ -91,7 +91,7 @@ sudo ufw allow 22000/tcp|Add a rule to allow new SSH port.<br/>Furthermore, futu
 > /root/Desktop
 
 ### 12). Launching your server(s):
-Navigate to /root/Desktop/\<server folder>/Wine Launch Files<br/>
+Navigate to */root/Desktop/\<server folder>/Wine Launch Files*<br/>
 Double-click on *SV#.desktop* to launch your server.<br/>
 Upon first launch, you may be prompted to install some mono software in order to launch the server.<br/>
 Follow the on-screen prompts to do this. It's straight forward.
