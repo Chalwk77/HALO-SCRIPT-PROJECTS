@@ -85,7 +85,7 @@ sudo ufw allow from 0.0.0.0|Optionally allow your IP Address and reject all othe
 sudo ufw default reject incoming|If you did the previous step, then we also need to reject other inbound connections. If you didn't do the previous step, skip to the next command.
 sudo ufw enable|Enable the UFW
 
-### 9). Change SSH Port (optional):
+### 9). Change SSH Port (optional but recommended):
 Command | Description
 -- | --
 nano /etc/ssh/sshd_config|By default, SSH listens on port 22.<br/>Changing the default SSH port adds an extra layer of security to your server by reducing the risk of automated attacks.<br/><br/>To change the default SSH port in Ubuntu, Open the **sshd_config** file this command.<br/><br/>**Technical note: To save and exit nano screen, press CTRL-S (save), CTRL-X (exit).**<br/><br/>*Locate this line:*<br/>**#Port 22**<br/><br/>*Uncomment (remove the leading # character) it and change the value with an appropriate port number (for example, 22000):*<br/>**Port 22000**
