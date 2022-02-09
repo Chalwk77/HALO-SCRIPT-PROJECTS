@@ -1,6 +1,6 @@
 # VPS Setup Instructions
 
-This is a step-by-step tutorial that covers the installation of a Ubnutu-Linux VPS with Wine and a VNC server for remote connection.<br/>The hosting company I will be using in this tutorial is [Vultr](https://www.vultr.com/).
+This is a step-by-step tutorial that covers the installation of a Ubuntu VPS with Wine and a VNC server for remote connection.<br/>The hosting company I will be using in this tutorial is [Vultr](https://www.vultr.com/).
 
 Quality of life advice:<br/>
 Copy & paste commands into the SSH Terminal by highlighting the command/text block in this guide, press CTRL-C to copy, then right-click into the SSH Terminal.
