@@ -21,7 +21,7 @@ For information on how the Multi-Server is set up, please see [this page](https:
 You pay for whatever you need.<br/>
 However, you need at least 150 MiB RAM *per server* to cover peak times.<br/>
 Multiply that by the number of servers you need and that'll tell you much you should expect to pay.<br/>
-Note that plan allocates you a defined amount of storage space. You may need more depending on how many maps you intend to upload.
+Note that each plan allocates you a defined amount of storage space. You may need more depending on how many maps you intend to upload.
 
 ****
 
