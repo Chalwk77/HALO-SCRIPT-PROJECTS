@@ -67,7 +67,7 @@ vncserver|Start the TightVNC Server for the first time.<br/>It will create the f
 vncserver -kill :1|Now stop your TightVNC session to adjust other settings:
 nano ~/.vnc/xstartup|Open the TightVNC config file.<br/><br/>*Add the following line to the end:*<br/>**startxfce4**<br/><br/>**Technical note: To save and exit nano screen, press CTRL-S (save), CTRL-X (exit).**
 
-### 7). Setting up autorun:
+### 7). Setting up autorun for VNC Server:
 Command | Description
 -- | --
 nano /etc/systemd/system/vncserver.service|By default, TightVNC does not have a daemon and does not turn on after a system reboot.<br/>To fix this, let's create a new unit in systemd.<br/><---Execute this command.<br/><br/>**Technical note: To save and exit nano screen, press CTRL-S (save), CTRL-X (exit).**<br/><br/>*Insert the following config there:*<br/>**<br/>[Unit]<br/>Description=TightVNC server<br/>After=syslog.target network.target<br/><br/>[Service]<br/>Type=forking<br/>User=root<br/>PAMName=login<br/>PIDFile=/root/.vnc/%H:1.pid<br/>ExecStartPre=-/usr/bin/vncserver -kill :1 > /dev/null 2>&1<br/>ExecStart=/usr/bin/vncserver -geometry 1920x1080<br/>ExecStop=/usr/bin/vncserver -kill :1<br/><br/>[Install]<br/>WantedBy=multi-user.target**
