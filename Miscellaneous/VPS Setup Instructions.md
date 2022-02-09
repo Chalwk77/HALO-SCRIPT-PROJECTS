@@ -78,8 +78,8 @@ systemctl enable --now vncserver|Enable autorun of the TightVNC server and start
 We need to enable the firwewall so that only certain ports are accessible from the outside world.
 Command | Description
 -- | --
-sudo ufw allow 2302:2303/udp|Then allow UDP connections for Halo on ports 2302, 2303
-sudo ufw allow 2310:2312/udp|Then allow UDP connections for server ports
+sudo ufw allow 2302:2303/udp|Allow UDP connections for Halo on ports 2302, 2303
+sudo ufw allow 2310:2312/udp|Allow UDP connections for server ports (or any port range you desire)
 ufw allow 5901/tcp|If you don't have a static ip, do this command (and skip the next two commands).
 ufw allow from 0.0.0.0 proto tcp to any port 5901|Optionally allow your IP Address and reject all others.<br/>This will make it so that only the specified IP(s) can connect to the vnc server.<br/><br/>Replace 0.0.0.0 with your own ipv4 address.
 ufw default deny incoming|If you did the previous step, then we also need to deny other inbound connections. If you didn't do the previous step, skip to the next command.
