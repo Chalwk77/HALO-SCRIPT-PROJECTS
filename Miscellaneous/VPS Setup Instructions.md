@@ -75,6 +75,7 @@ systemctl daemon-reload|Reload systemd
 systemctl enable --now vncserver|Enable autorun of the TightVNC server and start it.
 
 ### 8). Set up UFW (firewall)
+We need to enable the firwewall so that only certain ports are accessible from the outside world.
 Command | Description
 -- | --
 ufw allow 5901/tcp|Allow port 5901 for incoming VNC connections:
@@ -91,6 +92,16 @@ nano /etc/ssh/sshd_config|By default, SSH listens on port 22.<br/>Changing the d
 systemctl restart sshd|Restart the SSH server
 netstat -tulpn \| grep ssh|After that, run the netstat command and make sure that the ssh daemon now listen on the new ssh port
 sudo ufw allow 22000/tcp|Add a rule to allow new SSH port.<br/>Furthermore, future SSH connections with BitVise will require you to specify the port in the port field.
+
+### 9). Enable fail2ban (optional but recommended):
+Fail 2 Ban will monitor all incoming traffic.<br/>There's often a lot of bots trying to see if you have any open loopholes within your VPS to see if they can exploit something.<br/>One of the features of Fail 2 Ban is to automatically monitor those types of IPs and block them from connecting in general.
+ 
+In a BitVise SSH terminal window, execute the following commands:
+
+Command | Description
+-- | --
+apt install fail2ban -y|Install Fail 2 Ban
+systemctl enable fail2ban|Auto start this service the VPS is restarted.
 
 ### 10). Uploading Servers Files:
 - Open BitVise and login.
