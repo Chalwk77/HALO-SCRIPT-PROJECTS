@@ -48,7 +48,7 @@ or [7-zip](https://www.7-zip.org/download.html) to extract the HPC Multi-Server 
 - Click login.<br/>You will be prompted to accept and save a host key. Click accept and save.
 - Click the "New Terminal Console" button.
 
-### 5). Enter the following commands into the SSH Terminal(in order):
+### 5). Enter the following commands into the SSH Terminal (in order):
 Command | Description
 -- | --
 sudo dpkg --add-architecture i386|Add multiarch support
