@@ -101,7 +101,7 @@ In a BitVise SSH terminal window, execute the following commands:
 Command | Description
 -- | --
 apt install fail2ban -y|Install Fail 2 Ban
-systemctl enable fail2ban|Will force fail2ban service to start automatically when the VPS is restarted.
+systemctl enable fail2ban|Ensures the fail2ban service is started automatically when the VPS is restarted.
 
 ### 11). Uploading Servers Files:
 - Open BitVise and login.
