@@ -36,14 +36,14 @@ local permission_level = 1
 
 -- If a player votes to skip and they quit before the game ends,
 -- this option determines whether to include their vote to skip.
--- If true, update_on_skip must be false.
+-- If true, update_on_skip must be false (see below).
 -- Default: true
 --
 local deduct_on_quit = true
 
 -- Update the database immediately upon skipping?
 -- Database will be updated when the game ends if false.
--- If true, deduct_on_quit must be false.
+-- If true, deduct_on_quit must be false (see above).
 -- Default: false
 --
 local update_on_skip = false
