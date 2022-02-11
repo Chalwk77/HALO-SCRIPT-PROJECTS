@@ -150,12 +150,14 @@ local function Respond(Ply, Msg)
 end
 
 local function HasPermission(Ply)
-    local has_perm = (tonumber(get_var(Ply, "$lvl")) >= permission_level)
-    return (Ply == 0 or has_perm or Respond(Ply, "Insufficient Permission"))
+    local lvl = tonumber(get_var(Ply, "$lvl"))
+    local case = (lvl >= permission_level)
+    return (Ply == 0 or case or Respond(Ply, "Insufficient Permission"))
 end
 
 function QuerySkips(Ply, CMD, _, _)
-    if (CMD:sub(1, query_cmd:len()):lower() == query_cmd and HasPermission(Ply)) then
+    local cmd = CMD:sub(1, query_cmd:len()):lower()
+    if (cmd == query_cmd and HasPermission(Ply)) then
         Respond(Ply, map .. "/" .. mode .. ": " .. records[map][mode])
         return false
     end
