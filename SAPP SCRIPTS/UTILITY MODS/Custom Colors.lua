@@ -1,7 +1,8 @@
 --[[
 --=====================================================================================================--
 Script Name: Custom Colors, for SAPP (PC & CE)
-Description: Custom Team/FFA spartan colors.
+Description: Sick of the default team colors? I've got you covered!
+             Want players on FFA to have a random color? You got it!
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -12,11 +13,16 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 -- config starts --
 local colors = {
 
+    -- TEAM GAMES:
+    --
     team = {
         red = 5, -- yellow
         blue = 3, -- blue
     },
 
+    -- FFA:
+    -- Players will be given a random color every time the spawn:
+    --
     ffa = {
         0, -- white
         1, -- black
