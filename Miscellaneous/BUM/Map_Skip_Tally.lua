@@ -40,12 +40,6 @@ local permission_level = 1
 --
 local deduct_on_quit = true
 
--- Update the database immediately upon skipping?
--- Database will be updated when the game ends if false.
--- Default: false
---
-local update_on_skip = false
-
 -- config ends --
 
 api_version = "1.12.0.0"
@@ -118,12 +112,10 @@ function OnQuit(Ply)
 end
 
 function OnEnd()
-    if (not update_on_skip) then
-        for i = 1, #skipped do
-            if (skipped[i]) then
-                Write(records)
-                break
-            end
+    for i = 1, #skipped do
+        if (skipped[i]) then
+            Write(records)
+            break
         end
     end
 end
@@ -132,9 +124,6 @@ function OnChat(Ply, Msg)
     if (Msg:lower():match("skip") and not skipped[Ply]) then
         skipped[Ply] = true
         records[map][mode] = records[map][mode] + 1
-        if (update_on_skip) then
-            Write(records)
-        end
     end
 end
 
