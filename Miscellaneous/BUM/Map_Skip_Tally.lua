@@ -41,7 +41,7 @@ local permission_level = 1
 --
 local deduct_on_quit = true
 
--- Update teh database immediately upon skipping?
+-- Update the database immediately upon skipping?
 -- Database will be updated when the game ends if false.
 -- Default: false
 --
