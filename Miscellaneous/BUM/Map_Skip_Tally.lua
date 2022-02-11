@@ -32,6 +32,10 @@ local query_cmd = "tally"
 --
 local permission_level = 1
 
+-- If true, a quitting players skip will not be included in the tally:
+--
+local deduct_on_quit = true
+
 -- config ends --
 
 api_version = "1.12.0.0"
@@ -64,7 +68,7 @@ function OnJoin(Ply)
 end
 
 function OnQuit(Ply)
-    if (skipped[Ply]) then
+    if (deduct_on_quit and skipped[Ply]) then
         records[map][mode] = records[map][mode] - 1
     end
 end
