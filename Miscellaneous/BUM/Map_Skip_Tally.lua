@@ -125,7 +125,7 @@ function OnQuit(Ply)
 end
 
 function OnEnd()
-    if (not update_on_skip) then
+    if (not update_on_skip and deduct_on_quit) then
         for i = 1, #skipped do
             if (skipped[i]) then
                 Write(records)
