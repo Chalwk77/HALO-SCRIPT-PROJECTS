@@ -36,14 +36,12 @@ local permission_level = 1
 
 -- If a player votes to skip and they quit before the game ends,
 -- this option determines whether to include their vote to skip.
--- If true, update_on_skip must be false (see below).
 -- Default: true
 --
 local deduct_on_quit = true
 
 -- Update the database immediately upon skipping?
 -- Database will be updated when the game ends if false.
--- If true, deduct_on_quit must be false (see above).
 -- Default: false
 --
 local update_on_skip = false
@@ -118,14 +116,13 @@ function OnJoin(Ply)
 end
 
 function OnQuit(Ply)
-    local case = (not update_on_skip and deduct_on_quit)
-    if (case and skipped[Ply]) then
+    if (deduct_on_quit and skipped[Ply]) then
         records[map][mode] = records[map][mode] - 1
     end
 end
 
 function OnEnd()
-    if (not update_on_skip and deduct_on_quit) then
+    if (not update_on_skip) then
         for i = 1, #skipped do
             if (skipped[i]) then
                 Write(records)
@@ -139,7 +136,7 @@ function OnChat(Ply, Msg)
     if (Msg:lower():match("skip") and not skipped[Ply]) then
         skipped[Ply] = true
         records[map][mode] = records[map][mode] + 1
-        if (update_on_skip and not deduct_on_quit) then
+        if (update_on_skip) then
             Write(records)
         end
     end
