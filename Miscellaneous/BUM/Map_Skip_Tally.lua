@@ -105,7 +105,7 @@ function QuerySkips(Ply, CMD, _, _)
 end
 
 function Setup()
-    if get_var(0, "$gt") ~= "n/a" then
+    if (get_var(0, "$gt") ~= "n/a") then
 
         records = { }
         map = get_var(0, "$map")
