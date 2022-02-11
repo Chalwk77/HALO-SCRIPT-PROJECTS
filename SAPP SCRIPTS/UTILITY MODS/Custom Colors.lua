@@ -1,28 +1,11 @@
---[[
---=====================================================================================================--
-Script Name: Custom Colors, for SAPP (PC & CE)
-Description: Sick of the default team colors? I've got you covered!
-             Want players on FFA to have a random color? You got it!
-
-Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
-* Notice: You can use this document subject to the following conditions:
-https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
---=====================================================================================================--
-]]--
-
 -- config starts --
 local colors = {
 
-    -- TEAM GAMES:
-    --
     team = {
         red = 5, -- yellow
         blue = 3, -- blue
     },
 
-    -- FFA:
-    -- Players will be given a random color every time the spawn:
-    --
     ffa = {
         0, -- white
         1, -- black
@@ -82,8 +65,8 @@ function OnStart()
         WriteSig(true)
         ffa = get_var(0, "$ffa")
 
-        register_callback(cb["EVENT_DIE"], "SetColor")
         register_callback(cb["EVENT_JOIN"], "SetColor")
+        register_callback(cb["EVENT_TEAM_SWITCH"], "SetColor")
     end
 end
 
