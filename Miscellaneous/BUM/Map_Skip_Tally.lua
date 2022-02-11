@@ -109,6 +109,7 @@ function OnQuit(Ply)
     if (deduct_on_quit and skipped[Ply]) then
         records[map][mode] = records[map][mode] - 1
     end
+    skipped[Ply] = nil
 end
 
 function OnEnd()
