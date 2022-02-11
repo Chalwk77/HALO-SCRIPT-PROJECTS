@@ -56,6 +56,36 @@ local dir, map, mode
 local skipped, records = { }, { }
 local json = (loadfile "json.lua")()
 
+local function Setup()
+    if (get_var(0, "$gt") ~= "n/a") then
+
+        records = { }
+        map = get_var(0, "$map")
+        mode = get_var(0, "$mode")
+
+        local content = ""
+        local file = io.open(dir, "r")
+        if (file) then
+            content = file:read("*all")
+            io.close(file)
+        end
+
+        local data = json:decode(content)
+        if (not data) then
+            data = { [map] = { [mode] = 0 } }
+            Write(data)
+        elseif (not data[map]) then
+            data[map] = { [mode] = 0 }
+            Write(data)
+        elseif (not data[map][mode]) then
+            data[map][mode] = 0
+            Write(data)
+        end
+
+        records = data
+    end
+end
+
 function OnScriptLoad()
 
     local path = read_string(read_dword(sig_scan("68??????008D54245468") + 0x1))
@@ -130,36 +160,6 @@ function QuerySkips(Ply, CMD, _, _)
     if (CMD:sub(1, query_cmd:len()):lower() == query_cmd and HasPermission(Ply)) then
         Respond(Ply, map .. "/" .. mode .. ": " .. records[map][mode])
         return false
-    end
-end
-
-function Setup()
-    if (get_var(0, "$gt") ~= "n/a") then
-
-        records = { }
-        map = get_var(0, "$map")
-        mode = get_var(0, "$mode")
-
-        local content = ""
-        local file = io.open(dir, "r")
-        if (file) then
-            content = file:read("*all")
-            io.close(file)
-        end
-
-        local data = json:decode(content)
-        if (not data) then
-            data = { [map] = { [mode] = 0 } }
-            Write(data)
-        elseif (not data[map]) then
-            data[map] = { [mode] = 0 }
-            Write(data)
-        elseif (not data[map][mode]) then
-            data[map][mode] = 0
-            Write(data)
-        end
-
-        records = data
     end
 end
 
