@@ -56,6 +56,14 @@ local dir, map, mode
 local skipped, records = { }, { }
 local json = (loadfile "json.lua")()
 
+local function Write(Content)
+    local file = assert(io.open(dir, "w"))
+    if (file) then
+        file:write(json:encode_pretty(Content))
+        io.close(file)
+    end
+end
+
 local function Setup()
     if (get_var(0, "$gt") ~= "n/a") then
 
@@ -113,14 +121,6 @@ function OnQuit(Ply)
     local case = (not update_on_skip and deduct_on_quit)
     if (case and skipped[Ply]) then
         records[map][mode] = records[map][mode] - 1
-    end
-end
-
-local function Write(Content)
-    local file = assert(io.open(dir, "w"))
-    if (file) then
-        file:write(json:encode_pretty(Content))
-        io.close(file)
     end
 end
 
