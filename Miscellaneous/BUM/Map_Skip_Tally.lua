@@ -1,19 +1,16 @@
 --[[
 --=====================================================================================================--
 Script Name: Map Skip Tally, for SAPP (PC & CE)
-Description: This script will create a historical record of map skips.
+Description: This script will create a historical record of map skips on a per-mode basis.
 
-This script requires that the following json library is installed to your server:
-Place "json.lua" in your servers root directory (same location as sapp.dll).
-
+This script requires that the following JSON library is installed to your server:
 http://regex.info/blog/lua/json
 
---
---
-The database of historical skips will be in a 
+Place "json.lua" in your servers root directory (same location as sapp.dll).
+
+The database of historical skips will be in a
 file called "skip_tally.json" (located in the same directory as mapcycle.txt).
---
---
+
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -85,7 +82,7 @@ function OnEnd()
 end
 
 function OnChat(Ply, Msg)
-    if Msg:lower():match("skip") and not skipped[Ply] then
+    if (Msg:lower():match("skip") and not skipped[Ply]) then
         skipped[Ply] = true
         records[map][mode] = records[map][mode] + 1
     end
@@ -96,8 +93,8 @@ local function Respond(Ply, Msg)
 end
 
 local function HasPermission(Ply)
-    local lvl = tonumber(get_var(Ply, "$lvl"))
-    return (Ply == 0 or lvl >= permission_level or Respond(Ply, "Insufficient Permission"))
+    local has_perm = (tonumber(get_var(Ply, "$lvl")) >= permission_level)
+    return (Ply == 0 or has_perm or Respond(Ply, "Insufficient Permission"))
 end
 
 function QuerySkips(Ply, CMD, _, _)
