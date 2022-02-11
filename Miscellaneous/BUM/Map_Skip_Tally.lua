@@ -127,6 +127,7 @@ function Setup()
             Write(data)
         elseif (not data[map]) then
             data[map] = { [mode] = 0 }
+            Write(data)
         elseif (not data[map][mode]) then
             data[map][mode] = 0
             Write(data)
