@@ -21,18 +21,23 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 -- config starts --
 
 -- Name of the database file:
+-- Default: skip_tally.json
 --
 local file_name = "skip_tally.json"
 
 -- Command used to check historical skips:
+-- Default: tally
 --
 local query_cmd = "tally"
 
 -- Minimum permission level required to execute /query_cmd:
+-- Default: 1
 --
 local permission_level = 1
 
--- If true, a quitting players skip will not be included in the tally:
+-- If a player votes to skip and they quit before the game ends,
+-- this option determines whether to include their vote to skip.
+-- Default: true
 --
 local deduct_on_quit = true
 
