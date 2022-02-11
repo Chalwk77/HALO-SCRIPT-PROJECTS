@@ -112,7 +112,7 @@ function OnChat(Ply, Msg)
     if (Msg:lower():match("skip") and not skipped[Ply]) then
         skipped[Ply] = true
         records[map][mode] = records[map][mode] + 1
-        if (update_on_skip) then
+        if (update_on_skip and not deduct_on_quit) then
             Write(records)
         end
     end
