@@ -54,6 +54,21 @@ local dir, map, mode
 local skipped, records = { }, { }
 local json = (loadfile "json.lua")()
 
+function OnScriptLoad()
+
+    local path = read_string(read_dword(sig_scan("68??????008D54245468") + 0x1))
+    dir = path .. "\\sapp\\" .. file_name
+
+    register_callback(cb["EVENT_CHAT"], "OnChat")
+    register_callback(cb["EVENT_JOIN"], "OnJoin")
+    register_callback(cb["EVENT_LEAVE"], "OnQuit")
+    register_callback(cb["EVENT_GAME_END"], "OnEnd")
+    register_callback(cb["EVENT_COMMAND"], "QuerySkips")
+    register_callback(cb["EVENT_GAME_START"], "OnStart")
+
+    OnStart()
+end
+
 local function Write(Content)
     local file = assert(io.open(dir, "w"))
     if (file) then
@@ -62,7 +77,7 @@ local function Write(Content)
     end
 end
 
-local function Setup()
+function OnStart()
     if (get_var(0, "$gt") ~= "n/a") then
 
         records = { }
@@ -90,25 +105,6 @@ local function Setup()
 
         records = data
     end
-end
-
-function OnScriptLoad()
-
-    local path = read_string(read_dword(sig_scan("68??????008D54245468") + 0x1))
-    dir = path .. "\\sapp\\" .. file_name
-
-    register_callback(cb["EVENT_CHAT"], "OnChat")
-    register_callback(cb["EVENT_JOIN"], "OnJoin")
-    register_callback(cb["EVENT_LEAVE"], "OnQuit")
-    register_callback(cb["EVENT_GAME_END"], "OnEnd")
-    register_callback(cb["EVENT_COMMAND"], "QuerySkips")
-    register_callback(cb["EVENT_GAME_START"], "OnStart")
-
-    Setup()
-end
-
-function OnStart()
-    Setup()
 end
 
 function OnJoin(Ply)
