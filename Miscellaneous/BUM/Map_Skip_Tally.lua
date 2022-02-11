@@ -125,8 +125,6 @@ local function Write(Content)
 end
 
 function OnEnd()
-    -- Only update the database if someone has skipped.
-    -- No need to do file i/o logic if we don't need to update.
     if (not update_on_skip) then
         for i = 1, #skipped do
             if (skipped[i]) then
