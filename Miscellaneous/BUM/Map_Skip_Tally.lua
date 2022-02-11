@@ -37,12 +37,14 @@ local permission_level = 1
 
 -- If a player votes to skip and they quit before the game ends,
 -- this option determines whether to include their vote to skip.
+-- If true, update_on_skip must be false.
 -- Default: true
 --
 local deduct_on_quit = true
 
 -- Update the database immediately upon skipping?
 -- Database will be updated when the game ends if false.
+-- If true, deduct_on_quit must be false.
 -- Default: false
 --
 local update_on_skip = false
@@ -79,7 +81,8 @@ function OnJoin(Ply)
 end
 
 function OnQuit(Ply)
-    if (deduct_on_quit and skipped[Ply]) then
+    local case = (not update_on_skip and deduct_on_quit)
+    if (case and skipped[Ply]) then
         records[map][mode] = records[map][mode] - 1
     end
 end
