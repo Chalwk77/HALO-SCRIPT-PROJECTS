@@ -11,7 +11,7 @@ http://regex.info/blog/lua/json
 --
 --
 The database of historical skips will be in a 
-file called "skip_tally.json" (locatd in the same directory as mapcycle.txt).
+file called "skip_tally.json" (located in the same directory as mapcycle.txt).
 --
 --
 
@@ -72,12 +72,16 @@ function OnQuit(Ply)
     end
 end
 
-function OnEnd()
+local function Write(Content)
     local file = assert(io.open(dir, "w"))
     if (file) then
-        file:write(json:encode_pretty(records))
+        file:write(json:encode_pretty(Content))
         io.close(file)
     end
+end
+
+function OnEnd()
+    Write(records)
 end
 
 function OnChat(Ply, Msg)
@@ -103,14 +107,6 @@ function QuerySkips(Ply, CMD, _, _)
     end
 end
 
-local function Write(Content)
-    local file = assert(io.open(dir, "w"))
-    if (file) then
-        file:write(json:encode_pretty(Content))
-        io.close(file)
-    end
-end
-
 function Setup()
     if get_var(0, "$gt") ~= "n/a" then
 
@@ -126,9 +122,11 @@ function Setup()
         end
 
         local data = json:decode(content)
-        if (not data or not data[map]) then
+        if (not data) then
             data = { [map] = { [mode] = 0 } }
             Write(data)
+        elseif (not data[map]) then
+            data[map] = { [mode] = 0 }
         elseif (not data[map][mode]) then
             data[map][mode] = 0
             Write(data)
