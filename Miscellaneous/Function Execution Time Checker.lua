@@ -1,32 +1,38 @@
 -- Table that holds the averages:
--- t[1]{} = msg:gsub(...)  method
--- t[2]{} = gsub(msg, ...) method
 local times = { {}, {} }
 
--- How many times to execute the performance test:
-local iterations = 10000000 -- 10mil iterations
+-- How many times to execute the functions in question:
+local iterations = 100000 -- 10mil iterations
+
+-- How many times to run the test per function in question:
+local test_iterations = 100
 
 -- Performance test function:
 local function PerformanceTest(method, func)
-    local t = os.clock()
-    for i = 1, iterations do
-        if (method == 1) then
-            func(i)
-        else
-            func(i)
+    for _ = 1, test_iterations do
+        local t = os.clock()
+        for i = 1, iterations do
+            if (method == 1) then
+                func(i)
+            else
+                func(i)
+            end
+            times[method][#times[method] + 1] = os.clock() - t
         end
-        times[method][#times[method] + 1] = os.clock() - t
     end
 end
 
+--
 -- Execute performance tests:
--- first method
+--
+
+-- first method:
 PerformanceTest(1, function(i)
     local t = {}
     t[#t + 1] = i
 end)
 
--- second method
+-- second method:
 PerformanceTest(2, function(i)
     local t = {}
     table.insert(t, i)
