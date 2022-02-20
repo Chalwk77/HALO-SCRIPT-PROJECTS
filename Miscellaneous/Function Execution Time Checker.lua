@@ -4,39 +4,36 @@
 local times = { {}, {} }
 
 -- How many times to execute the performance test:
-local function_iterations = 100
-
--- How many times to execute the two different gsub methods:
-local gsub_iterations = 1000
-
--- A string to execute gsub on:
-local msg = "$var1"
-
--- Store gsub from string library as a variable (for the 2nd method):
-local gsub = string.gsub
+local iterations = 10000000 -- 10mil iterations
 
 -- Performance test function:
-local function PerformanceTest(TYPE)
-    local time = os.clock
-    local t1 = time()
-    for _ = 1, gsub_iterations do
-        if (TYPE == 1) then
-            msg = msg:gsub('$var1', "1")
+local function PerformanceTest(method, func)
+    local t = os.clock()
+    for i = 1, iterations do
+        if (method == 1) then
+            func(i)
         else
-            msg = gsub(msg, '$var1', "1")
+            func(i)
         end
+        times[method][#times[method] + 1] = os.clock() - t
     end
-    table.insert(times[TYPE], time() - t1)
 end
 
--- Execute performance test:
-for _ = 1, function_iterations do
-    PerformanceTest(1)
-    PerformanceTest(2)
-end
+-- Execute performance tests:
+-- first method
+PerformanceTest(1, function(i)
+    local t = {}
+    t[#t + 1] = i
+end)
+
+-- second method
+PerformanceTest(2, function(i)
+    local t = {}
+    table.insert(t, i)
+end)
 
 -- Gets the average times of t{}:
-function math.average(t)
+local function GetAverage(t)
     local time = 0
     for _, v in pairs(t) do
         time = time + v
@@ -44,36 +41,45 @@ function math.average(t)
     return time / #t
 end
 
--- Store averages:
-local t1 = math.average(times[1])
-local t2 = math.average(times[2])
-
--- Get longest/shortest times:
-local longest = math.max(t1, t2)
-local shortest = math.min(t1, t2)
-
 -- Format @n to @p decimal places:
-local function f(n, p)
+local function _nFormat(n, p)
     return ("%." .. p .. "f"):format(n)
 end
 
--- Calculate fastest %:
-local remainder = (longest - shortest)
-local p = f(remainder / longest * 100, 3)
-
+-- Return seconds/ms based on n:
 local function ms(n)
     return (n >= 1 and " seconds") or " ms"
 end
 
--- Format averages:
-local s1 = f(t1, 7) .. ms(t1)
-local s2 = f(t2, 7) .. ms(t2)
+local min = math.min
+local max = math.max
+local function PrintResults()
 
--- Print results:
-if (t1 < t2) then
-    print("msg:gsub(...) / " .. p .. "% faster / Average time " .. s1)
-    print("gsub(msg, ...) finished in " .. s2)
-else
-    print("gsub(msg, ...) / " .. p .. "% faster / Average time " .. s2)
-    print("msg:gsub(...) finished in " .. s1)
+    -- Store averages:
+    local t1 = GetAverage(times[1])
+    local t2 = GetAverage(times[2])
+
+    -- Get longest/shortest times:
+    local longest = max(t1, t2)
+    local shortest = min(t1, t2)
+
+    -- Calculate fastest %:
+    local remainder = (longest - shortest)
+    local percent = _nFormat(remainder / longest * 100, 3)
+
+    -- Format averages:
+    local s1 = _nFormat(t1, 7) .. ms(t1)
+    local s2 = _nFormat(t2, 7) .. ms(t2)
+
+    -- Print results:
+    if (t1 < t2) then
+        print("METHOD 1 / " .. percent .. "% faster / Average time " .. s1)
+        print("METHOD 2 finished in " .. s2)
+    else
+        print("METHOD 2 / " .. percent .. "% faster / Average time " .. s2)
+        print("METHOD 1 finished in " .. s1)
+    end
+    print("Iterations: " .. iterations)
 end
+
+PrintResults()
