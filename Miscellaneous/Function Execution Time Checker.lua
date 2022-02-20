@@ -4,7 +4,7 @@
 local times = { {}, {} }
 
 -- How many times to execute the performance test:
-local function_iterations = 100000
+local function_iterations = 100
 
 -- How many times to execute the two different gsub methods:
 local gsub_iterations = 1000
@@ -61,15 +61,19 @@ end
 local remainder = (longest - shortest)
 local p = f(remainder / longest * 100, 3)
 
+local function ms(n)
+    return (n >= 1 and " seconds") or " ms"
+end
+
 -- Format averages:
-local s1 = f(t1, 7)
-local s2 = f(t2, 7)
+local s1 = f(t1, 7) .. ms(t1)
+local s2 = f(t2, 7) .. ms(t2)
 
 -- Print results:
 if (t1 < t2) then
-    print("msg:gsub(...) / " .. p .. "% faster / Average time " .. s1 .. "s")
-    print("gsub(msg, ...) finished in " .. s2 .. "s")
+    print("msg:gsub(...) / " .. p .. "% faster / Average time " .. s1)
+    print("gsub(msg, ...) finished in " .. s2)
 else
-    print("gsub(msg, ...) / " .. p .. "% faster / Average time " .. s2 .. "s")
-    print("msg:gsub(...) finished in " .. s1 .. "s")
+    print("gsub(msg, ...) / " .. p .. "% faster / Average time " .. s2)
+    print("msg:gsub(...) finished in " .. s1)
 end
