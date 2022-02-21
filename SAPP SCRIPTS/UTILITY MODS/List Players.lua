@@ -2,7 +2,7 @@
 --=====================================================================================================--
 Script Name: List Players, for SAPP (PC & CE)
 Description: An alternative player list mod (Overrides SAPP's built in /pl command.)
-     
+
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
@@ -11,172 +11,112 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 api_version = '1.12.0.0'
 
--- Config [starts]
-local command_aliases = {
-    "pl",
-    "players",
-    "playerlist",
-    "playerslist",
-}
+-- config starts --
+-- Command to show custom player list:
+local command = "pl"
 
--- Minimum privilege level required to execute (-1 for all players, 1-4 for admins):
-local permission_level = 1
+-- Minimum level required to execute custom command:
+local level = 1
 
--- Config [ends]
+-- config ends --
 
-local gsub, len = string.gsub, string.len
+local ffa
+local players = {}
+
+local len = string.len
+local lower = string.lower
+local match = string.match
+local concat = table.concat
+local gmatch = string.gmatch
 
 function OnScriptLoad()
-    register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
+    register_callback(cb['EVENT_JOIN'], "OnJoin")
+    register_callback(cb['EVENT_LEAVE'], "OnQuit")
+    register_callback(cb['EVENT_COMMAND'], "OnCommand")
+    register_callback(cb['EVENT_GAME_START'], "OnStart")
+    OnStart()
+end
+
+local function InitPlayer(Ply)
+    local team = (not ffa and get_var(Ply, "$team") or "FFA")
+    players[Ply] = {
+        id = Ply,
+        team = team,
+        name = get_var(Ply, "$name"),
+        ip = match(get_var(Ply, "$ip"), "%d+.%d+.%d+.%d+")
+    }
+end
+
+function OnStart()
+    if (get_var(0, "$gt") ~= 'n/a') then
+        ffa = (get_var(0, "$ffa") == "1")
+        for i = 1, 16 do
+            if player_present(i) then
+                InitPlayer(i)
+            end
+        end
+    end
+end
+
+function OnJoin(Ply)
+    InitPlayer(Ply)
+end
+
+function OnQuit(Ply)
+    players[Ply] = nil
+end
+
+local function CMDSplit(CMD)
+    local args = {}
+    for params in gmatch(CMD, "([^%s]+)") do
+        args[#args + 1] = lower(params)
+    end
+    return args
+end
+
+local function Respond(Ply, Msg)
+    return (Ply == 0 and cprint(Msg) or rprint(Ply, Msg))
+end
+
+local function NoPerm(Ply)
+    Respond(Ply, "You do not have permission to execute that command")
+    return false
+end
+
+local function HasPermission(Ply)
+    local lvl = tonumber(get_var(Ply, "$lvl"))
+    return (Ply == 0 or lvl >= level or NoPerm(Ply))
+end
+
+local function Spaces(str, pos)
+    local spaces = ""
+    for _ = 1, pos - len(str) do
+        spaces = spaces .. " "
+    end
+    return spaces
+end
+
+function OnCommand(Ply, CMD)
+    local args = CMDSplit(CMD)
+    if (#args > 0) then
+        if (args[1] == command and HasPermission(Ply)) then
+            local t = {}
+            for i, v in pairs(players) do
+                local name = v.name
+                local team = v.team
+                local ip = v.ip
+                t[i] = name .. Spaces(name, 16) .. team .. Spaces(team, 16) .. ip
+            end
+            local list = (#t > 0 and concat(t, '\n') or Respond(Ply, "No players online"))
+            if (list) then
+                Respond(Ply, "NAME            TEAM            IP\n")
+                Respond(Ply, list)
+            end
+        end
+        return false
+    end
 end
 
 function OnScriptUnload()
-    --
-end
-
-function OnServerCommand(PlayerIndex, Command, Environment, Password)
-    local command, args = cmdsplit(Command)
-    local executor = tonumber(PlayerIndex)
-    local level = tonumber(get_var(executor, "$lvl"))
-
-    local function checkAccess(e, level)
-        if (e ~= -1 and e >= 1 and e < 16) then
-            if (level >= permission_level) then
-                return true
-            else
-                respond(e, "Command failed. Insufficient Permission.", "rcon", 4 + 8)
-                return false
-            end
-        else
-            return true
-        end
-    end
-    for i = 1, #command_aliases do
-        if (command == command_aliases[i]) then
-            if (checkAccess(executor, level)) then
-                if (args[1] == nil) then
-                    showlist(executor)
-                else
-                    respond(executor, "Invalid Syntax. Usage: /" .. command, "rcon", 4 + 8)
-                end
-            end
-            return false
-        end
-    end
-end
-
-local function isConsole(e)
-    if (e) then
-        if (e ~= -1 and e >= 1 and e < 16) then
-            return false
-        else
-            return true
-        end
-    end
-end
-
-function showlist(e)
-    local pl = {}
-    for i = 1, 16 do
-        if player_present(i) then
-            pl[#pl + 1] = {
-                id = i,
-                name = get_var(i, "$name"),
-                team = get_var(i, "$team"),
-                ip = get_var(i, "$ip"),
-            }
-        end
-    end
-    if (#pl > 0) then
-        local header = "[ ID.    -    Name.    -    Team.    -    IP.    -    Total Players: %total%/16 ]"
-        respond(e, gsub(header, "%%total%%", #pl), "rcon", 2 + 8)
-        for i = 1, #pl do
-            if (get_var(0, "$ffa") ~= "0") then
-                pl[i].team = "ffa"
-            end
-            local seperator = " | "
-            local str = "     " .. pl[i].id .. ".         " .. pl[i].name .. seperator .. pl[i].team .. seperator .. pl[i].ip
-            if not (isConsole(e)) then
-                respond(e, str, "rcon")
-            else
-                respond(e, str, "rcon", 5 + 8)
-            end
-        end
-    else
-        respond(e, "------------------------------------", "rcon", 5 + 8)
-        respond(e, "There are no players online", 4 + 8)
-        respond(e, "------------------------------------", "rcon", 5 + 8)
-    end
-end
-
-function respond(executor, message, environment, color)
-    if (executor) then
-        color = color or 4 + 8
-        if not (isConsole(executor)) then
-            if (environment == "chat") then
-                say(executor, message)
-            elseif (environment == "rcon") then
-                rprint(executor, message)
-            end
-        else
-            cprint(message, color)
-        end
-    end
-end
-
-function cmdsplit(str)
-    local subs = {}
-    local sub = ""
-    local ignore_quote, inquote, endquote
-    for i = 1, string.len(str) do
-        local bool
-        local char = string.sub(str, i, i)
-        if char == " " then
-            if (inquote and endquote) or (not inquote and not endquote) then
-                bool = true
-            end
-        elseif char == "\\" then
-            ignore_quote = true
-        elseif char == "\"" then
-            if not ignore_quote then
-                if not inquote then
-                    inquote = true
-                else
-                    endquote = true
-                end
-            end
-        end
-
-        if char ~= "\\" then
-            ignore_quote = false
-        end
-
-        if bool then
-            if inquote and endquote then
-                sub = string.sub(sub, 2, string.len(sub) - 1)
-            end
-
-            if sub ~= "" then
-                table.insert(subs, sub)
-            end
-            sub = ""
-            inquote = false
-            endquote = false
-        else
-            sub = sub .. char
-        end
-
-        if i == string.len(str) then
-            if string.sub(sub, 1, 1) == "\"" and string.sub(sub, string.len(sub), string.len(sub)) == "\"" then
-                sub = string.sub(sub, 2, string.len(sub) - 1)
-            end
-            table.insert(subs, sub)
-        end
-    end
-
-    local cmd = subs[1]
-    local args = subs
-    table.remove(args, 1)
-
-    return cmd, args
+    -- N/A
 end
