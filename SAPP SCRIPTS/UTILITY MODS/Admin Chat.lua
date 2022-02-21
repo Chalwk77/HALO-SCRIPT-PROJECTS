@@ -8,6 +8,8 @@ Description: This is a utility that allows you to chat privately with other admi
              When Admin Chat is enabled your messages will appear in the rcon console environment.
              Only admins will see these messages.
 
+            -
+
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
