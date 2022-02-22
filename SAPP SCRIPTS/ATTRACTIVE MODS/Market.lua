@@ -46,6 +46,13 @@ local Account = {
     get_balance_command = "money",
 
 
+    -- Command used to add funds:
+    --
+    -- Syntax: /deposit <pid> <amount>
+    add_funds_command = "deposit",
+    on_add = "Deposited $$amount into $name's account",
+
+
     -- Money deposited/withdrawn during these events:
     --
     -- deposit:
@@ -67,7 +74,7 @@ local Account = {
     ----------------------------------------------------
     -- COMMAND SETTINGS --------------------------------
     ----------------------------------------------------
-    Commands = {
+    buy_commands = {
 
         -- Camouflage:
         -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, duration, catalogue message}
@@ -110,8 +117,8 @@ local Account = {
 local players = { }
 local time = os.time
 local ffa, falling, distance, first_blood
-local interval = Account.Commands['god'][3]
-local gmatch, lower = string.gmatch, string.lower
+local interval = Account.buy_commands['god'][3]
+local gmatch, lower, match, gsub = string.gmatch, string.lower, string.match, string.gsub
 
 api_version = '1.12.0.0'
 
@@ -227,12 +234,37 @@ function OnCommand(Ply, CMD, _, _)
 
             local response = true
             local t = players[GetIP(Ply)]
+
             if (args[1] == t.get_balance_command) then
                 t:respond("You have $" .. t.balance)
                 response = false
+                goto next
+            elseif (args[1] == t.add_funds_command) then
+                response = false
+                if (not args[2] or not match(args[2], "%d+")) then
+                    t:respond("Invalid Command syntax. Usage: /" .. args[1] .. " <pid> <amount>")
+                    response = false
+                    goto next
+                elseif not player_present(args[2]) then
+                    t:respond("Player #" .. args[2] .. " is not online.")
+                    response = false
+                    goto next
+                elseif (not args[3] or not match(args[3], "%d+")) then
+                    t:respond("Invalid amount")
+                    response = false
+                    goto next
+                else
+                    local p = players[GetIP(args[2])]
+                    p:deposit({
+                        args[3],
+                        gsub(gsub(p.on_add, "$amount", args[3]), "$name", p.name)
+                    })
+                    response = false
+                    goto next
+                end
             end
 
-            for cmd, v in pairs(t.Commands) do
+            for cmd, v in pairs(t.buy_commands) do
                 if (args[1] == t.catalogue_command) then
                     t:respond("/" .. v[1] .. " " .. v[#v])
                     response = false
@@ -253,6 +285,8 @@ function OnCommand(Ply, CMD, _, _)
                     response = false
                 end
             end
+
+            :: next ::
 
             return response
         end
