@@ -110,6 +110,7 @@ local Account = {
 local players = { }
 local time = os.time
 local ffa, falling, distance, first_blood
+local interval = Account.Commands['god'][3]
 local gmatch, lower = string.gmatch, string.lower
 
 api_version = '1.12.0.0'
@@ -162,7 +163,6 @@ local function GetTag(Type, Name)
     return Tag ~= 0 and read_dword(Tag + 0xC) or nil
 end
 
-local interval = Account.Commands['god'][3]
 local function NewTimes()
     local now = time
     local finish = now() + interval
