@@ -11,7 +11,7 @@ Description: Earn money for killing!
              5. Health ($100, full health)
              6. Speed Boost ($60, 1.3x)
 
-             Easily edit custom command, price, duration and catalogue message.
+             Easily edit custom command, price, state and catalogue message.
 
              Command to view available items for purchase: /market
              Command to view current balance: /money
