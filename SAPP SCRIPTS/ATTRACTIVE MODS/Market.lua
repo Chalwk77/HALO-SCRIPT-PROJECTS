@@ -135,10 +135,12 @@ function Account:deposit(amount)
     self:Respond("+ $" .. amount)
 end
 
-function Account:withdraw(amount)
+function Account:withdraw(amount, respond)
     self.balance = self.balance + amount
     self.balance = (self.balance < 0 and 0 or self.balance)
-    self:Respond("$" .. amount)
+    if (respond) then
+        self:Respond("$" .. amount)
+    end
 end
 
 function Account:Respond(msg)
@@ -210,7 +212,7 @@ function OnCommand(Ply, CMD, _, _)
                 elseif (args[1] == v[1]) then
                     if (t.balance >= v[2]) then
                         t:Respond(v[#v])
-                        t:withdraw(v[2])
+                        t:withdraw(-v[2], false)
                         execute_command(cmd .. " " .. Ply .. " " .. v[3])
                     else
                         t:Respond("You do not have enough money!")
