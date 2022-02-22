@@ -1,7 +1,7 @@
 --[[
 --=====================================================================================================--
 Script Name: Market, for SAPP (PC & CE)
-Description: Earn money for killing! +30 points for every kill.
+Description: Earn money for killing!
 
              Use these points to buy one of the following:
              1. Camouflage ($60, 30 seconds)
