@@ -306,18 +306,15 @@ function OnCommand(Ply, CMD, _, _)
                         if (cmd == "god") then
                             t.god = true
                             execute_command(cmd .. " " .. Ply)
-                            goto done
+                            return false
                         end
                         execute_command(cmd .. " " .. Ply .. " " .. v[3])
                     else
                         t:respond("You do not have enough money!")
                     end
-                    :: done ::
-                    response = false
+                    return false
                 end
             end
-
-            :: next ::
 
             return response
         end
