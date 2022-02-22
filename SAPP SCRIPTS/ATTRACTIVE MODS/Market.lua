@@ -234,7 +234,7 @@ function OnCommand(Ply, CMD, _, _)
 
             for cmd, v in pairs(t.Commands) do
                 if (args[1] == t.catalogue_command) then
-                    t:Respond("/" .. cmd .. " " .. v[#v])
+                    t:Respond("/" .. v[1] .. " " .. v[#v])
                     response = false
                 elseif (args[1] == v[1]) then
                     if (t.balance >= v[2]) then
