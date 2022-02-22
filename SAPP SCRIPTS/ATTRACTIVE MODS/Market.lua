@@ -42,7 +42,7 @@ local Account = {
 
     -- Command used to view available items for purchase:
     --
-    catalogue_command = 'buy',
+    catalogue_command = 'market',
 
 
     -- Command used to view current balance:
