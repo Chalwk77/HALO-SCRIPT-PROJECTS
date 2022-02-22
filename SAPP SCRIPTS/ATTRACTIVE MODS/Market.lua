@@ -97,6 +97,10 @@ local Account = {
     ----------------------------------------------------
     buy_commands = {
 
+        --
+        -- SET THE PRICE TO 0 to disable.
+        --
+
         -- Camouflage:
         -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, duration, cooldown period, catalogue message}
         ['camo'] = { 'm1', 60, 30, 60, "-$60 -> Camo (30 seconds)" },
@@ -254,6 +258,10 @@ function OnTick()
             local flashlight = read_bit(DyN + 0x208, 4)
             if (flashlight ~= v.flashlight and flashlight == 1) then
                 local cmd = v.buy_commands["boost"]
+                if (cmd[2] == 0) then
+                    v:respond("Boost currently disabled")
+                    goto next
+                end
                 if (cmd.start) then
                     v:respond("Boost on cooldown. Please wait " .. cmd.finish - cmd.time() .. " seconds")
                     goto next
@@ -346,6 +354,10 @@ function OnCommand(Ply, CMD, _, _)
                     t:respond("/" .. v[1] .. " " .. v[#v])
                     response = false
                 elseif (args[1] == v[1] and v[1] ~= 'n/a') then
+                    if (v[2] == 0) then
+                        t:respond("Command disabled")
+                        return false
+                    end
                     if (v.start) then
                         t:respond("Command on cooldown. Please wait " .. v.finish - v.time() .. " seconds")
                         return false
