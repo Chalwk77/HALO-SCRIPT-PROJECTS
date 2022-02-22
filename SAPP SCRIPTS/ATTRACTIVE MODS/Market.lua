@@ -33,7 +33,7 @@ local Account = {
 
     -- Starting balance:
     --
-    balance = 5000,
+    balance = 0,
 
 
     -- Command used to view available items for purchase:
@@ -108,12 +108,14 @@ local Account = {
 -- config ends --
 
 local players = { }
+local time = os.time
 local ffa, falling, distance, first_blood
 local gmatch, lower = string.gmatch, string.lower
 
 api_version = '1.12.0.0'
 
 function OnScriptLoad()
+    register_callback(cb['EVENT_TICK'], 'OnTick')
     register_callback(cb['EVENT_DIE'], 'OnDeath')
     register_callback(cb['EVENT_JOIN'], 'OnJoin')
     register_callback(cb['EVENT_COMMAND'], 'OnCommand')
@@ -126,6 +128,10 @@ function Account:new(t)
     t = t or {}
     setmetatable(t, self)
     self.meta_id = 0
+    self.god = false
+    self.god_timer = function(self)
+        return (self.time() >= self.finish)
+    end
     self.__index = self
     return t
 end
@@ -156,13 +162,34 @@ local function GetTag(Type, Name)
     return Tag ~= 0 and read_dword(Tag + 0xC) or nil
 end
 
+local function NewTimes()
+    local now = time
+    local interval = Account.Commands['god'][3]
+    local finish = now() + interval
+    return now, finish
+end
+
 function OnJoin(Ply)
     local ip = GetIP(Ply)
+    local now, finish = NewTimes()
     players[ip] = Account:new({
         pid = Ply,
+        time = now,
+        finish = finish,
         team = get_var(Ply, '$team'),
         name = get_var(Ply, '$name')
     })
+end
+
+function OnTick()
+    for _, v in pairs(players) do
+        if (v.god and v.god_timer(v)) then
+            v.god = false
+            v.time, v.finish = NewTimes()
+            v:Respond("God Mode has expired")
+            execute_command("ungod " .. v.pid)
+        end
+    end
 end
 
 function OnSwitch(Ply)
@@ -213,16 +240,20 @@ function OnCommand(Ply, CMD, _, _)
                     if (t.balance >= v[2]) then
                         t:Respond(v[#v])
                         t:withdraw(-v[2], false)
+                        if (cmd == "god") then
+                            t.god = true
+                            execute_command(cmd .. " " .. Ply)
+                            goto done
+                        end
                         execute_command(cmd .. " " .. Ply .. " " .. v[3])
                     else
                         t:Respond("You do not have enough money!")
                     end
+                    :: done ::
                     response = false
-                    goto done
                 end
             end
 
-            :: done ::
             return response
         end
     end
@@ -243,6 +274,9 @@ function OnDeath(Victim, Killer, MetaID)
             v.meta_id = MetaID
             goto done
         end
+
+        v.god = false
+        v.time, v.finish = NewTimes()
 
         -- event_die:
         local squashed = (killer == 0)
