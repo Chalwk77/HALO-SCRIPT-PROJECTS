@@ -151,10 +151,9 @@ function OnScriptLoad()
 end
 
 function Account:new(t)
-    t = t or {}
+
     setmetatable(t, self)
     self.__index = self
-
     self.meta_id = 0
     self.god = false
 
@@ -171,16 +170,12 @@ function Account:new(t)
             p:respond("Invalid amount")
         else
             local ply = players[self:GetIP(args[2])]
-            if (args[1] == p.add_funds_command) then
-                ply:deposit({
-                    args[3],
-                    gsub(gsub(p.on_add, '$amount', args[3]), '$name', ply.name)
-                })
+            if (args[1] == self.add_funds_command) then
+                ply.balance = ply.balance + args[3]
+                p:respond(gsub(gsub(self.on_add, '$amount', args[3]), '$name', ply.name))
             else
-                ply:withdraw({
-                    args[3],
-                    gsub(gsub(ply.on_remove, '$amount', args[3]), '$name', ply.name)
-                })
+                ply.balance = ply.balance - args[3]
+                p:respond(gsub(gsub(self.on_remove, '$amount', args[3]), '$name', ply.name))
             end
         end
     end
@@ -195,15 +190,18 @@ function Account:deposit(t)
     self:respond(t[2])
 end
 
-function Account:withdraw(t, respond)
+function Account:withdraw(t)
     if (t[1] == 0) then
         return
     end
+
     self.balance = self.balance - t[1]
     self.balance = (self.balance < 0 and 0 or self.balance)
-    if (not respond) then
-        self:respond(t[2])
+
+    if (not t[2]) then
+        return
     end
+    self:respond(t[2])
 end
 
 function Account:respond(msg)
@@ -301,7 +299,7 @@ function OnCommand(Ply, CMD, _, _)
                 return false
             elseif (args[1] == t.add_funds_command or args[1] == t.remove_funds_command) then
                 if HasPermission(t) then
-                    t:admin_override(args, t)
+                    t:admin_override(args)
                 end
                 return false
             end
@@ -314,7 +312,7 @@ function OnCommand(Ply, CMD, _, _)
                 elseif (args[1] == v[1]) then
                     if (t.balance >= v[2]) then
                         t:respond(v[#v])
-                        t:withdraw({ v[2] }, true)
+                        t:withdraw({ v[2] })
                         if (cmd == 'god') then
                             t.god = true
                             execute_command(cmd .. ' ' .. Ply)
