@@ -26,6 +26,45 @@ local kick_reason = "AFK for too long!"
 api_version = "1.12.0.0"
 
 local players = {}
+local mt = { __index = {
+
+    timer = 0,
+
+    update_aim = false,
+
+    camera = {
+
+        -- current:
+        { 0, 0, 0 },
+
+        -- old:
+        { 0, 0, 0 }
+    },
+
+    inputs = {
+
+        -- shooting:
+        { read_float, 0x490, state = 0 },
+
+        -- forward, backward, left, right, grenade throw:
+        { read_byte, 0x2A3, state = 0 },
+
+        -- weapon switch:
+        { read_byte, 0x47C, state = 0 },
+
+        -- grenade switch:
+        { read_byte, 0x47E, state = 0 },
+
+        -- weapon reload:
+        { read_byte, 0x2A4, state = 0 },
+
+        -- zoom:
+        { read_word, 0x480, state = 0 },
+
+        -- melee, flashlight, action, crouch, jump:
+        { read_word, 0x208, state = 0 }
+    }
+} }
 
 function OnScriptLoad()
     register_callback(cb["EVENT_TICK"], "OnTick")
@@ -36,65 +75,22 @@ function OnScriptLoad()
     register_callback(cb["EVENT_GAME_START"], "OnStart")
     register_callback(cb["EVENT_PRESPAWN"], "OnPreSpawn")
     register_callback(cb["EVENT_COMMAND"], "ChatCommand")
+    OnStart()
 end
 
-local function InitPlayer(Ply, Reset)
-    if (not Reset) then
-        players[Ply] = {
-            timer = 0,
-
-            update_aim = false,
-
-            camera = {
-
-                -- current:
-                { 0, 0, 0 },
-
-                -- old:
-                { 0, 0, 0 }
-            },
-
-            inputs = {
-
-                -- shooting:
-                { read_float, 0x490, state = 0 },
-
-                -- forward, backward, left, right, grenade throw:
-                { read_byte, 0x2A3, state = 0 },
-
-                -- weapon switch:
-                { read_byte, 0x47C, state = 0 },
-
-                -- grenade switch:
-                { read_byte, 0x47E, state = 0 },
-
-                -- weapon reload:
-                { read_byte, 0x2A4, state = 0 },
-
-                -- zoom:
-                { read_word, 0x480, state = 0 },
-
-                -- melee, flashlight, action, crouch, jump:
-                { read_word, 0x208, state = 0 }
-            }
-        }
-        return
-    end
-
-    players[Ply] = nil
+local function NewPlayer(Ply)
+    local name = get_var(Ply, "$name")
+    players[Ply] = setmetatable({ name = name }, mt)
 end
 
 function OnStart()
+    players = { }
     if (get_var(0, '$gt') ~= "n/a") then
-
-        players = { }
-
         for i = 1, 16 do
             if player_present(i) then
-                InitPlayer(i)
+                NewPlayer(i)
             end
         end
-
     end
 end
 
@@ -134,7 +130,6 @@ end
 function OnTick()
 
     for i, v in pairs(players) do
-
         local DyN = get_dynamic_player(i)
 
         CheckInputs(DyN, v)
@@ -181,11 +176,11 @@ function OnSpawn(Ply, DelayUpdate)
 end
 
 function OnJoin(Ply)
-    InitPlayer(Ply)
+    NewPlayer(Ply)
 end
 
 function OnQuit(Ply)
-    InitPlayer(Ply, true)
+    players[Ply] = nil
 end
 
 function OnScriptUnload()
