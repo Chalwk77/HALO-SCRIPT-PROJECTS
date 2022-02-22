@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Market, for SAPP (PC & CE)
+Script Name: Market (v 1.2), for SAPP (PC & CE)
 Description: Earn money for killing!
 
              Use your money to buy one of the following:
@@ -125,8 +125,8 @@ local Account = {
 
         --
         -- Boost:
-        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, n/a, cooldown period, catalogue message}
-        ['boost'] = { 'm7', 350, "n/a", 60, "-$350 -> Teleport (where aiming)" },
+        -- ["SAPP COMMAND EXECUTED"] = {"n/a", price, n/a, cooldown period, catalogue message}
+        ['boost'] = { 'n/a', 350, "n/a", 60, "-$350 -> Teleport (where aiming)" },
     }
 }
 
@@ -159,6 +159,11 @@ function Account:new(t)
     self.meta_id = 0
     self.god = false
     self.flashlight = 0
+
+    self.cooldown = function(self)
+        -- WIP
+        return (self.time() >= self.finish)
+    end
 
     self.god_timer = function(self)
         return (self.time() >= self.finish)
@@ -329,7 +334,7 @@ function OnCommand(Ply, CMD, _, _)
                 if (args[1] == t.catalogue_command) then
                     t:respond("/" .. v[1] .. " " .. v[#v])
                     response = false
-                elseif (args[1] == v[1]) then
+                elseif (args[1] == v[1] and v[1] ~= 'n/a') then
                     if (t.balance >= v[2]) then
                         t:respond(v[#v])
                         t:withdraw({ v[2] })
@@ -346,6 +351,7 @@ function OnCommand(Ply, CMD, _, _)
                 end
             end
 
+            :: next ::
             return response
         end
     end
