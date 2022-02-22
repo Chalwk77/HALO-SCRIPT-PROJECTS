@@ -19,6 +19,8 @@ Description: Earn money for killing!
              Accounts are linked to your IP:PORT.
              If you have an existing account, your balance will be restored upon joining.
 
+             Balances are reset when the server is restarted.
+
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
