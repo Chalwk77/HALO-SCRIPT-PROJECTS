@@ -49,19 +49,19 @@ local Account = {
     -- Money deposited/withdrawn during these events:
     --
     -- deposit:
-    ['pvp'] = 8,
-    ['run_over'] = 5,
-    ['guardians'] = 5,
-    ['first_blood'] = 15,
-    ['killed_from_grave'] = 25,
+    ['pvp'] = { 8, "+$8 (pvp)" },
+    ['run_over'] = { 5, "+$5 (run over)" },
+    ['guardians'] = { 6, "+$5 (guardians)" },
+    ['first_blood'] = { 10, "+$5 (first blood)" },
+    ['killed_from_grave'] = { 25, "+$25 (killed from grave)" },
     --
     -- withdraw:
-    ['suicide'] = -4,
-    ['squashed'] = -2,
-    ['betrayal'] = -7,
-    ['fall_damage'] = -5,
-    ['died/unknown'] = -5,
-    ['distance_damage'] = -5,
+    ['suicide'] = { -4, "-$4 (suicide)" },
+    ['squashed'] = { -2, "-$2 (squashed)" },
+    ['betrayal'] = { -7, "-$7 (betrayal)" },
+    ['fall_damage'] = { -5, "-$5 (fall damage)" },
+    ['died/unknown'] = { -5, "-$5 (died/unknown)" },
+    ['distance_damage'] = { -5, "-$5 (distance damage" },
 
 
     ----------------------------------------------------
@@ -137,16 +137,16 @@ function Account:new(t)
     return t
 end
 
-function Account:deposit(amount)
-    self.balance = self.balance + amount
-    self:respond("+ $" .. amount)
+function Account:deposit(t)
+    self.balance = self.balance + t[1]
+    self:respond(t[2])
 end
 
-function Account:withdraw(amount, respond)
-    self.balance = self.balance + amount
+function Account:withdraw(t, respond)
+    self.balance = self.balance - t[1]
     self.balance = (self.balance < 0 and 0 or self.balance)
-    if (respond) then
-        self:respond("$" .. amount)
+    if (not respond) then
+        self:respond(t[2])
     end
 end
 
@@ -239,7 +239,7 @@ function OnCommand(Ply, CMD, _, _)
                 elseif (args[1] == v[1]) then
                     if (t.balance >= v[2]) then
                         t:respond(v[#v])
-                        t:withdraw(-v[2], false)
+                        t:withdraw({ v[2] }, true)
                         if (cmd == "god") then
                             t.god = true
                             execute_command(cmd .. " " .. Ply)
@@ -300,8 +300,8 @@ function OnDeath(Victim, Killer, MetaID)
 
             local DyN = get_dynamic_player(killer)
             if (DyN ~= 0) then
-                local VehicleID = read_dword(DyN + 0x11C)
-                if (VehicleID ~= 0xFFFFFFFF) then
+                local vehicle = read_dword(DyN + 0x11C)
+                if (vehicle ~= 0xFFFFFFFF) then
                     k:deposit(k['run_over'])
                     goto done
                 end
