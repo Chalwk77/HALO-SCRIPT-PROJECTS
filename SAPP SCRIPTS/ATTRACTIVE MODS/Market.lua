@@ -259,7 +259,14 @@ function OnTick()
             local flashlight = read_bit(DyN + 0x208, 4)
             if (flashlight ~= v.flashlight and flashlight == 1) then
                 local cmd = v.buy_commands["boost"]
+                if (cmd.start) then
+                    v:respond("Boost on cooldown. Please wait " .. cmd.finish - cmd.time() .. " seconds")
+                    goto next
+                end
                 if (v.balance >= cmd[2]) then
+                    cmd.time = time
+                    cmd.start = true
+                    cmd.finish = time() + cmd[4]
                     v:respond(cmd[#cmd])
                     v:withdraw({ cmd[2] })
                     execute_command("boost " .. v.pid)
@@ -267,6 +274,7 @@ function OnTick()
                     v:respond("You do not have enough money!")
                 end
             end
+            :: next ::
             v.flashlight = flashlight
         end
 
