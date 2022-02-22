@@ -150,6 +150,11 @@ local function GetIP(Ply)
     return get_var(Ply, '$ip')
 end
 
+local function GetTag(Type, Name)
+    local Tag = lookup_tag(Type, Name)
+    return Tag ~= 0 and read_dword(Tag + 0xC) or nil
+end
+
 function OnJoin(Ply)
     local ip = GetIP(Ply)
     players[ip] = Account:new({
@@ -161,11 +166,6 @@ end
 
 function OnSwitch(Ply)
     players[GetIP(Ply)].team = get_var(Ply, '$team')
-end
-
-local function GetTag(Type, Name)
-    local Tag = lookup_tag(Type, Name)
-    return Tag ~= 0 and read_dword(Tag + 0xC) or nil
 end
 
 function OnStart()
