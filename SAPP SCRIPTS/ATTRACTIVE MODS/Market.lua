@@ -162,9 +162,9 @@ local function GetTag(Type, Name)
     return Tag ~= 0 and read_dword(Tag + 0xC) or nil
 end
 
+local interval = Account.Commands['god'][3]
 local function NewTimes()
     local now = time
-    local interval = Account.Commands['god'][3]
     local finish = now() + interval
     return now, finish
 end
