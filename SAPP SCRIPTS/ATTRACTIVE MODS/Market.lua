@@ -145,12 +145,40 @@ end
 function Account:new(t)
     t = t or {}
     setmetatable(t, self)
+    self.__index = self
+
     self.meta_id = 0
     self.god = false
+
     self.god_timer = function(self)
         return (self.time() >= self.finish)
     end
-    self.__index = self
+
+    self.admin_override = function(p, args)
+        if (not args[2] or not match(args[2], "%d+")) then
+            p:respond("Invalid Command syntax. Usage: /" .. args[1] .. " <pid> <amount>")
+            return false
+        elseif not player_present(args[2]) then
+            p:respond("Player #" .. args[2] .. " is not online.")
+            return false
+        elseif (not args[3] or not match(args[3], "%d+")) then
+            p:respond("Invalid amount")
+            return false
+        else
+            local ply = players[self:GetIP(args[2])]
+            if (args[1] == p.add_funds_command) then
+                ply:deposit({
+                    args[3],
+                    gsub(gsub(p.on_add, "$amount", args[3]), "$name", ply.name)
+                })
+            else
+                ply:withdraw({
+                    args[3],
+                    gsub(gsub(ply.on_remove, "$amount", args[3]), "$name", ply.name)
+                })
+            end
+        end
+    end
     return t
 end
 
@@ -171,7 +199,7 @@ function Account:respond(msg)
     rprint(self.pid, msg)
 end
 
-local function GetIP(Ply)
+function Account:GetIP(Ply)
     return get_var(Ply, '$ip')
 end
 
@@ -187,7 +215,7 @@ local function NewTimes()
 end
 
 function OnJoin(Ply)
-    local ip = GetIP(Ply)
+    local ip = Account:GetIP(Ply)
     local now, finish = NewTimes()
     players[ip] = Account:new({
         pid = Ply,
@@ -210,7 +238,8 @@ function OnTick()
 end
 
 function OnSwitch(Ply)
-    players[GetIP(Ply)].team = get_var(Ply, '$team')
+    local ip = Account:GetIP(Ply)
+    players[ip].team = get_var(Ply, '$team')
 end
 
 function OnStart()
@@ -248,49 +277,15 @@ function OnCommand(Ply, CMD, _, _)
         if (#args > 0) then
 
             local response = true
-            local t = players[GetIP(Ply)]
+            local ip = Account:GetIP(Ply)
+            local t = players[ip]
 
             if (args[1] == t.get_balance_command) then
                 t:respond("You have $" .. t.balance)
                 return false
-            elseif (args[1] == t.add_funds_command) then
+            elseif (args[1] == t.add_funds_command or t.remove_funds_command) then
                 if HasPermission(t) then
-                    if (not args[2] or not match(args[2], "%d+")) then
-                        t:respond("Invalid Command syntax. Usage: /" .. args[1] .. " <pid> <amount>")
-                        return false
-                    elseif not player_present(args[2]) then
-                        t:respond("Player #" .. args[2] .. " is not online.")
-                        return false
-                    elseif (not args[3] or not match(args[3], "%d+")) then
-                        t:respond("Invalid amount")
-                        return false
-                    else
-                        local p = players[GetIP(args[2])]
-                        p:deposit({
-                            args[3],
-                            gsub(gsub(p.on_add, "$amount", args[3]), "$name", p.name)
-                        })
-                    end
-                end
-                return false
-            elseif (args[1] == t.remove_funds_command) then
-                if HasPermission(t) then
-                    if (not args[2] or not match(args[2], "%d+")) then
-                        t:respond("Invalid Command syntax. Usage: /" .. args[1] .. " <pid> <amount>")
-                        return false
-                    elseif not player_present(args[2]) then
-                        t:respond("Player #" .. args[2] .. " is not online.")
-                        return false
-                    elseif (not args[3] or not match(args[3], "%d+")) then
-                        t:respond("Invalid amount")
-                        return false
-                    else
-                        local p = players[GetIP(args[2])]
-                        p:withdraw({
-                            args[3],
-                            gsub(gsub(p.on_remove, "$amount", args[3]), "$name", p.name)
-                        })
-                    end
+                    t:admin_override(args, t)
                 end
                 return false
             end
@@ -326,8 +321,8 @@ function OnDeath(Victim, Killer, MetaID)
     local victim = tonumber(Victim)
     local killer = tonumber(Killer)
 
-    local v = players[GetIP(victim)]
-    local k = players[GetIP(killer)]
+    local v = players[Account:GetIP(victim)]
+    local k = players[Account:GetIP(killer)]
 
     if (v) then
 
