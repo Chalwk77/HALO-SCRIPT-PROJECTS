@@ -33,7 +33,7 @@ local Account = {
 
     -- Starting balance:
     --
-    balance = 0,
+    balance = 5000,
 
 
     -- Command used to view available items for purchase:
@@ -137,7 +137,7 @@ end
 
 function Account:withdraw(amount)
     local bal = self.balance - amount
-    self.balance = (bal ~= 0 and 0 or bal)
+    self.balance = (bal < 0 and 0) or bal
     self:Respond("$" .. amount)
 end
 
