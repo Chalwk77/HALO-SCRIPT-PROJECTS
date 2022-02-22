@@ -3,7 +3,7 @@
 Script Name: Market, for SAPP (PC & CE)
 Description: Earn money for killing!
 
-             Use these points to buy one of the following:
+             Use your money to buy one of the following:
              1. Camouflage ($60, 30 seconds)
              2. God Mode ($200, 30 seconds)
              3. Grenades (frags/plasmas) - ($30 each, 2x)
