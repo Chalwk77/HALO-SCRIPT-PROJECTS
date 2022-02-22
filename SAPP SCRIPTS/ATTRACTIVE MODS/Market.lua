@@ -104,34 +104,29 @@ local Account = {
         ['god'] = { 'm2', 200, 30, 60, "-$200 -> God (30 seconds)" },
 
         --
-        -- Frags:
+        -- Grenades:
         -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, total, cooldown period, catalogue message}
-        ['nades'] = { 'm3', 30, 2, 60, "-$30 -> Frags (x2)" },
-
-        --
-        -- Plasmas:
-        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, total, cooldown period, catalogue message}
-        ['plasmas'] = { 'm4', 30, 2, 60, "-$30 -> Plasmas (x2)" },
+        ['nades'] = { 'm3', 30, 2, 60, "-$30 -> Frags/Plasmas (x2 each)" },
 
         --
         -- Speed Boost:
         -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, speed, cooldown period, catalogue message}
-        ['s'] = { 'm5', 60, 1.3, 60, "-$60 -> Speed Boost (1.3x)" },
+        ['s'] = { 'm4', 60, 1.3, 60, "-$60 -> Speed Boost (1.3x)" },
 
         --
         -- Overshield:
         -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, state, cooldown period, catalogue message}
-        ['sh'] = { 'm6', 100, 1, 60, "-$100 -> Camo (full shield)" },
+        ['sh'] = { 'm5', 100, 1, 60, "-$100 -> Camo (full shield)" },
 
         --
         -- Health:
         -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, h-points, cooldown period, catalogue message}
-        ['hp'] = { 'm7', 100, 1, 60, "-$100 -> HP (full health)" },
+        ['hp'] = { 'm6', 100, 1, 60, "-$100 -> HP (full health)" },
 
         --
         -- Boost:
         -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, n/a, cooldown period, catalogue message}
-        ['boost'] = { 'm8', 350, "n/a", 60, "-$350 -> Teleport (where aiming)" },
+        ['boost'] = { 'm7', 350, "n/a", 60, "-$350 -> Teleport (where aiming)" },
     }
 }
 
