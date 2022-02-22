@@ -52,6 +52,16 @@ local Account = {
     add_funds_command = "deposit",
     on_add = "Deposited $$amount into $name's account",
 
+    -- Command used to remove funds:
+    --
+    -- Syntax: /withdraw <pid> <amount>
+    remove_funds_command = "withdraw",
+    on_remove = "Withdrew $$amount from $name's account",
+
+    -- Players must be this level (or higher) to add/remove funds from an account:
+    required_level = 1,
+    --
+
 
     -- Money deposited/withdrawn during these events:
     --
@@ -221,6 +231,11 @@ function OnStart()
     end
 end
 
+local function HasPermission(t)
+    local l = tonumber(get_var(t.pid, "$lvl"))
+    return (l >= t.required_level or t:respond("Insufficient Permission") and false)
+end
+
 function OnCommand(Ply, CMD, _, _)
 
     if (Ply > 0) then
@@ -237,31 +252,47 @@ function OnCommand(Ply, CMD, _, _)
 
             if (args[1] == t.get_balance_command) then
                 t:respond("You have $" .. t.balance)
-                response = false
-                goto next
+                return false
             elseif (args[1] == t.add_funds_command) then
-                response = false
-                if (not args[2] or not match(args[2], "%d+")) then
-                    t:respond("Invalid Command syntax. Usage: /" .. args[1] .. " <pid> <amount>")
-                    response = false
-                    goto next
-                elseif not player_present(args[2]) then
-                    t:respond("Player #" .. args[2] .. " is not online.")
-                    response = false
-                    goto next
-                elseif (not args[3] or not match(args[3], "%d+")) then
-                    t:respond("Invalid amount")
-                    response = false
-                    goto next
-                else
-                    local p = players[GetIP(args[2])]
-                    p:deposit({
-                        args[3],
-                        gsub(gsub(p.on_add, "$amount", args[3]), "$name", p.name)
-                    })
-                    response = false
-                    goto next
+                if HasPermission(t) then
+                    if (not args[2] or not match(args[2], "%d+")) then
+                        t:respond("Invalid Command syntax. Usage: /" .. args[1] .. " <pid> <amount>")
+                        return false
+                    elseif not player_present(args[2]) then
+                        t:respond("Player #" .. args[2] .. " is not online.")
+                        return false
+                    elseif (not args[3] or not match(args[3], "%d+")) then
+                        t:respond("Invalid amount")
+                        return false
+                    else
+                        local p = players[GetIP(args[2])]
+                        p:deposit({
+                            args[3],
+                            gsub(gsub(p.on_add, "$amount", args[3]), "$name", p.name)
+                        })
+                    end
                 end
+                return false
+            elseif (args[1] == t.remove_funds_command) then
+                if HasPermission(t) then
+                    if (not args[2] or not match(args[2], "%d+")) then
+                        t:respond("Invalid Command syntax. Usage: /" .. args[1] .. " <pid> <amount>")
+                        return false
+                    elseif not player_present(args[2]) then
+                        t:respond("Player #" .. args[2] .. " is not online.")
+                        return false
+                    elseif (not args[3] or not match(args[3], "%d+")) then
+                        t:respond("Invalid amount")
+                        return false
+                    else
+                        local p = players[GetIP(args[2])]
+                        p:withdraw({
+                            args[3],
+                            gsub(gsub(p.on_remove, "$amount", args[3]), "$name", p.name)
+                        })
+                    end
+                end
+                return false
             end
 
             for cmd, v in pairs(t.buy_commands) do
