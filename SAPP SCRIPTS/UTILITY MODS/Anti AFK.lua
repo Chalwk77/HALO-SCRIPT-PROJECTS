@@ -1,12 +1,12 @@
 --[[
 --=====================================================================================================--
-Script Name: Anti AFK (ALPHA), for SAPP (PC & CE)
-Description: An unreleased beta version of my new Anti AFK kick script.
+Script Name: Anti AFK, for SAPP (PC & CE)
+Description: If you move your mouse, fire your gun, move forward,
+             backward, left, right, throw a grenade, switch weapon,
+             switch grenade, reload, zoom, melee, activate flashlight,
+             press your action key, crouch or jump it will consider you no longer afk.
 
-If you move your mouse, fire your gun, move forward,
-backward, left, right, throw a grenade, switch weapon,
-switch grenade, reload, zoom, melee, activate flashlight,
-press your action key, crouch or jump it will consider you no longer afk.
+             This script is in ALPHA and may have bugs.
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
