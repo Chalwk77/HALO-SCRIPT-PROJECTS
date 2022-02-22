@@ -47,19 +47,19 @@ local Account = {
 
     -- Command used to view current balance:
     --
-    get_balance_command = "money",
+    get_balance_command = 'money',
 
 
     -- Command used to add funds:
     --
     -- Syntax: /deposit <pid> <amount>
-    add_funds_command = "deposit",
+    add_funds_command = 'deposit',
     on_add = "Deposited $$amount into $name's account",
 
     -- Command used to remove funds:
     --
     -- Syntax: /withdraw <pid> <amount>
-    remove_funds_command = "withdraw",
+    remove_funds_command = 'withdraw',
     on_remove = "Withdrew $$amount from $name's account",
 
     -- Players must be this level (or higher) to add/remove funds from an account:
@@ -97,7 +97,7 @@ local Account = {
         --
         -- God Mode:
         -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, duration, catalogue message}
-        ['god'] = { "m2", 200, 30, "-$200 -> God (30 seconds)" },
+        ['god'] = { 'm2', 200, 30, "-$200 -> God (30 seconds)" },
 
         --
         -- Frags:
@@ -159,7 +159,7 @@ function Account:new(t)
     end
 
     self.admin_override = function(p, args)
-        if (not args[2] or not match(args[2], "%d+")) then
+        if (not args[2] or not match(args[2], '%d+')) then
             p:respond("Invalid Command syntax. Usage: /" .. args[1] .. " <pid> <amount>")
             return false
         elseif not player_present(args[2]) then
@@ -173,12 +173,12 @@ function Account:new(t)
             if (args[1] == p.add_funds_command) then
                 ply:deposit({
                     args[3],
-                    gsub(gsub(p.on_add, "$amount", args[3]), "$name", ply.name)
+                    gsub(gsub(p.on_add, '$amount', args[3]), '$name', ply.name)
                 })
             else
                 ply:withdraw({
                     args[3],
-                    gsub(gsub(ply.on_remove, "$amount", args[3]), "$name", ply.name)
+                    gsub(gsub(ply.on_remove, '$amount', args[3]), '$name', ply.name)
                 })
             end
         end
@@ -236,7 +236,7 @@ function OnTick()
             v.god = false
             v.time, v.finish = NewTimes()
             v:respond("God Mode has expired")
-            execute_command("ungod " .. v.pid)
+            execute_command('ungod ' .. v.pid)
         end
     end
 end
@@ -265,7 +265,7 @@ function OnStart()
 end
 
 local function HasPermission(t)
-    local l = tonumber(get_var(t.pid, "$lvl"))
+    local l = tonumber(get_var(t.pid, '$lvl'))
     return (l >= t.required_level or t:respond("Insufficient Permission") and false)
 end
 
@@ -302,12 +302,12 @@ function OnCommand(Ply, CMD, _, _)
                     if (t.balance >= v[2]) then
                         t:respond(v[#v])
                         t:withdraw({ v[2] }, true)
-                        if (cmd == "god") then
+                        if (cmd == 'god') then
                             t.god = true
-                            execute_command(cmd .. " " .. Ply)
+                            execute_command(cmd .. ' ' .. Ply)
                             return false
                         end
-                        execute_command(cmd .. " " .. Ply .. " " .. v[3])
+                        execute_command(cmd .. ' ' .. Ply .. ' ' .. v[3])
                     else
                         t:respond("You do not have enough money!")
                     end
