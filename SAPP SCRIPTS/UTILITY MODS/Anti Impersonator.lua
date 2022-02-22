@@ -55,14 +55,16 @@ local function takeAction(id, name)
     end
 end
 
-function OnPlayerConnect(PlayerIndex)
+local var = get_var
 
-    local name = get_var(PlayerIndex, "$name")
-    local hash = get_var(PlayerIndex, "$hash")
-    local index = get_var(PlayerIndex, "$n")
+function OnPlayerConnect(Ply)
+
+    local name = var(Ply, "$name")
+    local hash = var(Ply, "$hash")
+    local index = var(Ply, "$n")
 
     -- Port will change automatically if player is using Multi Client, so we only match the physical ip address itself.  
-    local ip = get_var(PlayerIndex, "$ip"):match("(%d+.%d+.%d+.%d+)")
+    local ip = var(Ply, "$ip"):match("(%d+.%d+.%d+.%d+)")
 
     local found
     for key, _ in ipairs(settings.users) do

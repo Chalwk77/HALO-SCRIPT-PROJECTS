@@ -13,7 +13,7 @@ api_version = '1.12.0.0'
 
 -- config starts --
 -- Command to show custom player list:
-local command = "pl"
+local command = "pls"
 
 -- Minimum level required to execute custom command:
 local level = 1
@@ -79,7 +79,7 @@ local function Respond(Ply, Msg)
 end
 
 local function NoPerm(Ply)
-    Respond(Ply, "You do not have permission to execute that command")
+    Respond(Ply, "Such command, much nope.")
     return false
 end
 
@@ -99,21 +99,23 @@ end
 function OnCommand(Ply, CMD)
     local args = CMDSplit(CMD)
     if (#args > 0) then
-        if (args[1] == command and HasPermission(Ply)) then
-            local t = {}
-            for i, v in pairs(players) do
-                local name = v.name
-                local team = v.team
-                local ip = v.ip
-                t[i] = name .. Spaces(name, 16) .. team .. Spaces(team, 16) .. ip
+        if (args[1] == command) then
+            if HasPermission(Ply) then
+                local t = {}
+                for i, v in pairs(players) do
+                    local name = v.name
+                    local team = v.team
+                    local ip = v.ip
+                    t[i] = name .. Spaces(name, 16) .. team .. Spaces(team, 16) .. ip
+                end
+                local list = (#t > 0 and concat(t, '\n') or Respond(Ply, "No players online"))
+                if (list) then
+                    Respond(Ply, "NAME            TEAM            IP\n")
+                    Respond(Ply, list)
+                end
             end
-            local list = (#t > 0 and concat(t, '\n') or Respond(Ply, "No players online"))
-            if (list) then
-                Respond(Ply, "NAME            TEAM            IP\n")
-                Respond(Ply, list)
-            end
+            return false
         end
-        return false
     end
 end
 
