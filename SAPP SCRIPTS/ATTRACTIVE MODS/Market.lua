@@ -161,13 +161,10 @@ function Account:new(t)
     self.admin_override = function(p, args)
         if (not args[2] or not match(args[2], '%d+')) then
             p:respond("Invalid Command syntax. Usage: /" .. args[1] .. " <pid> <amount>")
-            return false
         elseif not player_present(args[2]) then
             p:respond("Player #" .. args[2] .. " is not online.")
-            return false
         elseif (not args[3] or not match(args[3], "%d+")) then
             p:respond("Invalid amount")
-            return false
         else
             local ply = players[self:GetIP(args[2])]
             if (args[1] == p.add_funds_command) then
