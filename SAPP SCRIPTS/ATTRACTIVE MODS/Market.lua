@@ -16,6 +16,9 @@ Description: Earn money for killing!
              Command to view available items for purchase: /market
              Command to view current balance: /money
 
+             Account are linked to the players IP:PORT.
+             If you have an existing account, your balance will be restored upon joining.
+
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
@@ -157,6 +160,10 @@ function OnJoin(Ply)
     })
 end
 
+function OnSwitch(Ply)
+    players[GetIP(Ply)].team = get_var(Ply, '$team')
+end
+
 local function GetTag(Type, Name)
     local Tag = lookup_tag(Type, Name)
     return Tag ~= 0 and read_dword(Tag + 0xC) or nil
@@ -283,11 +290,6 @@ function OnDeath(Victim, Killer, MetaID)
 
         :: done ::
     end
-end
-
-function OnSwitch(Ply)
-    local ip = GetIP(Ply)
-    players[ip].team = get_var(Ply, '$team')
 end
 
 function OnScriptUnload()
