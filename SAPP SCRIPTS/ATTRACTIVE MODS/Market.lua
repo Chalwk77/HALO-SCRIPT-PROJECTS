@@ -10,6 +10,7 @@ Description: Earn money for killing!
              4. Overshield ($60, full shield)
              5. Health ($100, full health)
              6. Speed Boost ($60, 1.3x)
+             7. Teleport ($350)
 
              Easily edit custom command, price, state and catalogue message.
 
