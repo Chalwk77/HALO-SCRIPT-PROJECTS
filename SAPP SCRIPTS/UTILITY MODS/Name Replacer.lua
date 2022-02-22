@@ -122,6 +122,11 @@ local NameReplacer = {
 
 local network_struct
 
+local sub = string.sub
+local byte = string.byte
+local char = string.char
+local random = math.random
+
 function OnScriptLoad()
 
     register_callback(cb["EVENT_LEAVE"], "OnQuit")
@@ -193,8 +198,8 @@ function NameReplacer:GetRandomName(Ply)
     -- If the script was unable to pick a random name,
     -- generate a random 11 character
     local name = ""
-    for _ = 1, math.random(1, 11) do
-        name = name .. string.char(math.random(97, 122))
+    for _ = 1, random(1, 11) do
+        name = name .. char(random(97, 122))
     end
 
     return name
@@ -221,11 +226,11 @@ function NameReplacer:PreJoin(Ply)
 
             count = 0
 
-            local str = new_name:sub(1, 11)
+            local str = sub(new_name, 1, 11)
             local length = str:len()
 
             for j = 1, length do
-                local new_byte = string.byte(str:sub(j, j))
+                local new_byte = byte(sub(str, j, j))
                 write_byte(address + count, new_byte)
                 count = count + 2
             end
