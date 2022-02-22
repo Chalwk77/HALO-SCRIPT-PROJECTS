@@ -79,8 +79,7 @@ function OnScriptLoad()
 end
 
 local function NewPlayer(Ply)
-    local name = get_var(Ply, "$name")
-    players[Ply] = setmetatable({ name = name }, mt)
+    players[Ply] = setmetatable({}, mt)
 end
 
 function OnStart()
