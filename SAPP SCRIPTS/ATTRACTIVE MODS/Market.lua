@@ -160,9 +160,12 @@ function Account:new(t)
     self.god = false
     self.flashlight = 0
 
-    self.cooldown = function(self)
-        -- WIP
-        return (self.time() >= self.finish)
+    for _, v in pairs(self.buy_commands) do
+        v.cooldown = function(self)
+            if (self.time() >= self.finish) then
+                self.start = false
+            end
+        end
     end
 
     self.god_timer = function(self)
@@ -251,7 +254,6 @@ end
 
 function OnTick()
     for _, v in pairs(players) do
-
         if player_alive(v.pid) then
             local DyN = get_dynamic_player(v.pid)
             local flashlight = read_bit(DyN + 0x208, 4)
@@ -273,6 +275,12 @@ function OnTick()
             v.time, v.finish = NewTimes()
             v:respond("God Mode has expired")
             execute_command('ungod ' .. v.pid)
+        end
+
+        for _, t in pairs(v.buy_commands) do
+            if (t.start) then
+                t.cooldown(t)
+            end
         end
     end
 end
@@ -335,7 +343,13 @@ function OnCommand(Ply, CMD, _, _)
                     t:respond("/" .. v[1] .. " " .. v[#v])
                     response = false
                 elseif (args[1] == v[1] and v[1] ~= 'n/a') then
-                    if (t.balance >= v[2]) then
+                    if (v.start) then
+                        t:respond("Command on cooldown. Please wait " .. v.finish - v.time() .. " seconds")
+                        return false
+                    elseif (t.balance >= v[2]) then
+                        v.time = time
+                        v.start = true
+                        v.finish = time() + v[4]
                         t:respond(v[#v])
                         t:withdraw({ v[2] })
                         if (cmd == 'god') then
