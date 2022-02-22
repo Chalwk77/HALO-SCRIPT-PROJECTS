@@ -66,14 +66,6 @@ function OnQuit(Ply)
     players[Ply] = nil
 end
 
-local function CMDSplit(CMD)
-    local args = {}
-    for params in gmatch(CMD, "([^%s]+)") do
-        args[#args + 1] = lower(params)
-    end
-    return args
-end
-
 local function Respond(Ply, Msg)
     return (Ply == 0 and cprint(Msg) or rprint(Ply, Msg))
 end
@@ -97,25 +89,22 @@ local function Spaces(str, pos)
 end
 
 function OnCommand(Ply, CMD)
-    local args = CMDSplit(CMD)
-    if (#args > 0) then
-        if (args[1] == command) then
-            if HasPermission(Ply) then
-                local t = {}
-                for i, v in pairs(players) do
-                    local name = v.name
-                    local team = v.team
-                    local ip = v.ip
-                    t[i] = name .. Spaces(name, 16) .. team .. Spaces(team, 16) .. ip
-                end
-                local list = (#t > 0 and concat(t, '\n') or Respond(Ply, "No players online"))
-                if (list) then
-                    Respond(Ply, "NAME            TEAM            IP\n")
-                    Respond(Ply, list)
-                end
+    if (CMD:match('([^%s]+)') == command) then
+        if HasPermission(Ply) then
+            local t = {}
+            for i, v in pairs(players) do
+                local name = v.name
+                local team = v.team
+                local ip = v.ip
+                t[i] = name .. Spaces(name, 16) .. team .. Spaces(team, 16) .. ip
             end
-            return false
+            local list = (#t > 0 and concat(t, '\n') or Respond(Ply, "No players online"))
+            if (list) then
+                Respond(Ply, "NAME            TEAM            IP\n")
+                Respond(Ply, list)
+            end
         end
+        return false
     end
 end
 
