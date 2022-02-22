@@ -288,7 +288,6 @@ function OnCommand(Ply, CMD, _, _)
 
         if (#args > 0) then
 
-            local response = true
             local ip = Account:GetIP(Ply)
             local t = players[ip]
 
@@ -302,6 +301,7 @@ function OnCommand(Ply, CMD, _, _)
                 return false
             end
 
+            local response = true
             for cmd, v in pairs(t.buy_commands) do
                 if (args[1] == t.catalogue_command) then
                     t:respond("/" .. v[1] .. " " .. v[#v])
