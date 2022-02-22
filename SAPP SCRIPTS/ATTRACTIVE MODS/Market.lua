@@ -21,6 +21,9 @@ Description: Earn money for killing!
              1. /deposit <pid> <amount>
              2. /withdraw <pid> <amount>
 
+             All commands have a cooldown.
+             Default: 60 seconds each.
+
              Accounts are linked to your IP:PORT.
              If you have an existing account, your balance will be restored upon joining.
 
