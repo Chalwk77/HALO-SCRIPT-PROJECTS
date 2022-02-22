@@ -69,6 +69,8 @@ local Account = {
 
     -- Money deposited/withdrawn during these events:
     --
+    -- Set the money value to 0 to disable event.
+    --
     -- deposit:
     ['pvp'] = { 8, "+$8 (pvp)" },
     ['on_score'] = { 10, "+$10 (score)" },
@@ -194,6 +196,9 @@ function Account:deposit(t)
 end
 
 function Account:withdraw(t, respond)
+    if (t[1] == 0) then
+        return
+    end
     self.balance = self.balance - t[1]
     self.balance = (self.balance < 0 and 0 or self.balance)
     if (not respond) then
