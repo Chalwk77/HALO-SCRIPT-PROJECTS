@@ -136,8 +136,8 @@ function Account:deposit(amount)
 end
 
 function Account:withdraw(amount)
-    local bal = self.balance - amount
-    self.balance = (bal < 0 and 0) or bal
+    self.balance = self.balance + amount
+    self.balance = (self.balance < 0 and 0 or self.balance)
     self:Respond("$" .. amount)
 end
 
