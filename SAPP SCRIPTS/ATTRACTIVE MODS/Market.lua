@@ -31,7 +31,7 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 local Account = {
 
-    -- Starting balance (on join):
+    -- Starting balance:
     --
     balance = 0,
 
@@ -41,18 +41,21 @@ local Account = {
     catalogue_command = 'buy',
 
 
-    -- Command used to view balance:
+    -- Command used to view current balance:
     --
     get_balance_command = "money",
 
 
-    -- Money given/taken during these events:
+    -- Money deposited/withdrawn during these events:
     --
+    -- deposit:
     ['pvp'] = 8,
     ['run_over'] = 5,
     ['guardians'] = 5,
     ['first_blood'] = 15,
     ['killed_from_grave'] = 25,
+    --
+    -- withdraw:
     ['suicide'] = -4,
     ['squashed'] = -2,
     ['betrayal'] = -7,
@@ -70,36 +73,30 @@ local Account = {
         -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, duration, catalogue message}
         ['camo'] = { 'm1', 60, 30, "-$60 -> Camo (30 seconds)" },
 
-
         --
         -- God Mode:
         -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, duration, catalogue message}
         ['god'] = { "m2", 200, 30, "-$200 -> God (30 seconds)" },
-
 
         --
         -- Frags:
         -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, total, catalogue message}
         ['nades'] = { 'm3', 30, 2, "-$30 -> Frags (x2)" },
 
-
         --
         -- Plasmas:
         -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, total, catalogue message}
         ['plasmas'] = { 'm4', 30, 2, "-$30 -> Plasmas (x2)" },
-
 
         --
         -- Speed Boost:
         -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, speed, catalogue message}
         ['s'] = { 'm5', 60, 1.3, "-$60 -> Speed Boost (1.3x)" },
 
-
         --
         -- Overshield:
         -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, state, catalogue message}
         ['sh'] = { 'm6', 100, 1, "-$100 -> Camo (full shield)" },
-
 
         --
         -- Health:
