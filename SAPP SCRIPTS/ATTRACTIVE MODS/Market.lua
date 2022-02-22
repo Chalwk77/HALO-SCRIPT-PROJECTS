@@ -126,6 +126,11 @@ local Account = {
         -- Health:
         -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, h-points, cooldown period, catalogue message}
         ['hp'] = { 'm7', 100, 1, 60, "-$100 -> HP (full health)" },
+
+        --
+        -- Boost:
+        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, n/a, cooldown period, catalogue message}
+        ['boost'] = { 'm8', 350, "n/a", 60, "-$350 -> Teleport (where aiming)" },
     }
 }
 
@@ -157,6 +162,7 @@ function Account:new(t)
     self.__index = self
     self.meta_id = 0
     self.god = false
+    self.flashlight = 0
 
     self.god_timer = function(self)
         return (self.time() >= self.finish)
@@ -244,6 +250,23 @@ end
 
 function OnTick()
     for _, v in pairs(players) do
+
+        if player_alive(v.pid) then
+            local DyN = get_dynamic_player(v.pid)
+            local flashlight = read_bit(DyN + 0x208, 4)
+            if (flashlight ~= v.flashlight and flashlight == 1) then
+                local cmd = v.buy_commands["boost"]
+                if (v.balance >= cmd[2]) then
+                    v:respond(cmd[#cmd])
+                    v:withdraw({ cmd[2] })
+                    execute_command("boost " .. v.pid)
+                else
+                    v:respond("You do not have enough money!")
+                end
+            end
+            v.flashlight = flashlight
+        end
+
         if (v.god and v.god_timer(v)) then
             v.god = false
             v.time, v.finish = NewTimes()
