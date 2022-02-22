@@ -13,11 +13,8 @@ Description: Earn money for killing! +30 points for every kill.
 
              Easily edit custom command, price, duration and catalogue message.
 
-             Catalogue command: /market
-             Used to view available items for purchase.
-
-             Balance command: /money
-             Command used to view current balance:
+             Command to view available items for purchase: /market
+             Command to view current balance: /money
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
