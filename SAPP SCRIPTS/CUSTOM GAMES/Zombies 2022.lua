@@ -361,6 +361,24 @@ local Zombies = {
 -- do not touch anything below this point --
 --
 
+local player_defaults = { __index = {
+
+    -- Used to track applied damage tag ids (meta id)
+    -- to distinguish fall damage from distance damage.
+    meta_id = 0,
+
+    -- Used to keep track of zombie weapon objects.
+    -- They are deleted from the world when a zombie dies/quits/cured.
+    drones = {},
+
+    -- Player alpha-zombie status (false initially):
+    alpha = false,
+
+    -- Used to determine when to assign weapons.
+    -- True when a player spawns or when a zombie tries to drop their weapon.
+    assign = false
+} }
+
 api_version = "1.12.0.0"
 
 -- This function registers needed event callbacks:
@@ -407,34 +425,35 @@ end
 --
 function Zombies:Init()
 
-    self.players = { }
-    self.last_man = nil
-    self.switching = false
     self.game_started = false
-    self.block_death_messages = true
-
-    self.timers = {
-
-        ["Not Enough Players"] = {
-            timer = 0,
-            init = false
-        },
-
-        ["Pre-Game Countdown"] = {
-            timer = 0,
-            init = false,
-            enough_players = false,
-            delay = self.game_start_delay + 1
-        },
-
-        ["No Zombies"] = {
-            timer = 0,
-            init = false,
-            delay = self.no_zombies_delay + 1
-        }
-    }
 
     if (get_var(0, "$gt") ~= "n/a") then
+
+        self.players = { }
+        self.last_man = nil
+        self.switching = false
+        self.block_death_messages = true
+
+        self.timers = {
+
+            ["Not Enough Players"] = {
+                timer = 0,
+                init = false
+            },
+
+            ["Pre-Game Countdown"] = {
+                timer = 0,
+                init = false,
+                enough_players = false,
+                delay = self.game_start_delay + 1
+            },
+
+            ["No Zombies"] = {
+                timer = 0,
+                init = false,
+                delay = self.no_zombies_delay + 1
+            }
+        }
 
         self.fall_damage = GetTag("jpt!", "globals\\falling")
         self.distance_damage = GetTag("jpt!", "globals\\distance")
@@ -452,6 +471,10 @@ function Zombies:Init()
     end
 end
 
+local function NewPlayer(t)
+    return setmetatable(t, player_defaults)
+end
+
 -- Create (new) or delete (old) player array:
 -- @param Ply (player index) [number]
 -- @param Reset (reset players array for this player) [boolean]
@@ -461,27 +484,7 @@ function Zombies:InitPlayer(Ply, Reset)
     Ply = tonumber(Ply)
 
     if (not Reset) then
-        self.players[Ply] = {
-
-            -- Used to track applied damage tag ids (meta id)
-            -- to distinguish fall damage from distance damage.
-            meta_id = 0,
-
-            -- Used to keep track of zombie weapon objects.
-            -- They are deleted from the world when a zombie dies/quits/cured.
-            drones = {},
-
-            -- Player alpha-zombie status (false initially):
-            alpha = false,
-
-            -- Used to determine when to assign weapons.
-            -- True when a player spawns or when a zombie tries to drop their weapon.
-            assign = false,
-
-            -- One-time save of their name so we don't have to keep calling get_var(Ply, "$name").
-            name = get_var(Ply, "$name")
-        }
-
+        self.players[Ply] = NewPlayer({ name = get_var(Ply, "$name") })
         return
     end
 
@@ -687,9 +690,13 @@ function Zombies:GameTick()
 
     self:SetNavMarker()
 
-    for i, player in pairs(self.players) do
-        if (i and self.game_started) then
+    --for i, player in pairs(self.players) do
+    for i = 1, #self.players do
 
+        local player = self.players[i]
+        if (player and self.game_started) then
+
+            -- Destroy drones:
             for k, drone in pairs(player.drones) do
                 if (k and drone.despawn) and (not player_alive(i)) then
                     local object = get_object_memory(drone.weapon)
@@ -732,7 +739,7 @@ function Zombies:GameTick()
                                 local weapon = spawn_object("weap", v, 0, 0, -9999)
 
                                 -- Store a copy of this weapon to the drones table:
-                                table.insert(player.drones, { weapon = weapon, timer = 0, despawn = false })
+                                player.drones[#player.drones + 1] = { weapon = weapon, timer = 0, despawn = false }
 
                                 -- Assign this weapon:
                                 assign_weapon(weapon, i)
@@ -842,7 +849,7 @@ function Zombies:StartPreGameTimer()
             local players = { }
             for i = 1, 16 do
                 if player_present(i) and self.players[i] then
-                    table.insert(players, i)
+                    players[#players + 1] = i
                 end
             end
             players = shuffle(players)
@@ -909,6 +916,10 @@ function Zombies:NotEnoughPlayers()
     return (countdown.init)
 end
 
+local _time = os.time
+local random = math.random
+local randomseed = math.randomseed
+
 -- This function chooses a random human to become a zombie
 -- when there are no zombies left:
 --
@@ -933,11 +944,11 @@ function Zombies:SwitchHumanToZombie()
             end
 
             --Pick a random human (from humans array) to become the zombie:
-            math.randomseed(os.time())
-            math.random();
-            math.random();
-            math.random();
-            local new_zombie = humans[math.random(1, #humans)]
+            randomseed(_time())
+            random();
+            random();
+            random();
+            local new_zombie = humans[random(1, #humans)]
             local name = self.players[new_zombie].name
 
             -- Tell player what team they're on:
@@ -1020,8 +1031,8 @@ end
 function DelaySecQuat(Ply, Tag)
     Ply = tonumber(Ply)
     local weapon = spawn_object("weap", Tag, 0, 0, -9999)
-    local drones = Zombies.players[Ply].drones
-    table.insert(drones, { weapon = weapon, timer = 0, despawn = false })
+    local t = Zombies.players[Ply].drones
+    t[#t + 1] = { weapon = weapon, timer = 0, despawn = false }
     assign_weapon(weapon, Ply)
 end
 
