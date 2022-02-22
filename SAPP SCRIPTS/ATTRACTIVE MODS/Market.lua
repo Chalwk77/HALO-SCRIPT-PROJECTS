@@ -16,7 +16,7 @@ Description: Earn money for killing!
              Command to view available items for purchase: /market
              Command to view current balance: /money
 
-             Account are linked to the players IP:PORT.
+             Accounts are linked to your IP:PORT.
              If you have an existing account, your balance will be restored upon joining.
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
