@@ -210,6 +210,7 @@ function OnCommand(Ply, CMD, _, _)
                 elseif (args[1] == v[1]) then
                     if (t.balance >= v[2]) then
                         t:Respond(v[#v])
+                        t:withdraw(v[2])
                         execute_command(cmd .. " " .. Ply .. " " .. v[3])
                     else
                         t:Respond("You do not have enough money!")
