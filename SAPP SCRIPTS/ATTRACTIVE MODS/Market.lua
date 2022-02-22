@@ -139,18 +139,18 @@ end
 
 function Account:deposit(amount)
     self.balance = self.balance + amount
-    self:Respond("+ $" .. amount)
+    self:respond("+ $" .. amount)
 end
 
 function Account:withdraw(amount, respond)
     self.balance = self.balance + amount
     self.balance = (self.balance < 0 and 0 or self.balance)
     if (respond) then
-        self:Respond("$" .. amount)
+        self:respond("$" .. amount)
     end
 end
 
-function Account:Respond(msg)
+function Account:respond(msg)
     rprint(self.pid, msg)
 end
 
@@ -186,7 +186,7 @@ function OnTick()
         if (v.god and v.god_timer(v)) then
             v.god = false
             v.time, v.finish = NewTimes()
-            v:Respond("God Mode has expired")
+            v:respond("God Mode has expired")
             execute_command("ungod " .. v.pid)
         end
     end
@@ -228,17 +228,17 @@ function OnCommand(Ply, CMD, _, _)
             local response = true
             local t = players[GetIP(Ply)]
             if (args[1] == t.get_balance_command) then
-                t:Respond("You have $" .. t.balance)
+                t:respond("You have $" .. t.balance)
                 response = false
             end
 
             for cmd, v in pairs(t.Commands) do
                 if (args[1] == t.catalogue_command) then
-                    t:Respond("/" .. v[1] .. " " .. v[#v])
+                    t:respond("/" .. v[1] .. " " .. v[#v])
                     response = false
                 elseif (args[1] == v[1]) then
                     if (t.balance >= v[2]) then
-                        t:Respond(v[#v])
+                        t:respond(v[#v])
                         t:withdraw(-v[2], false)
                         if (cmd == "god") then
                             t.god = true
@@ -247,7 +247,7 @@ function OnCommand(Ply, CMD, _, _)
                         end
                         execute_command(cmd .. " " .. Ply .. " " .. v[3])
                     else
-                        t:Respond("You do not have enough money!")
+                        t:respond("You do not have enough money!")
                     end
                     :: done ::
                     response = false
