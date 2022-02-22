@@ -71,6 +71,7 @@ local Account = {
     --
     -- deposit:
     ['pvp'] = { 8, "+$8 (pvp)" },
+    ['on_score'] = { 10, "+$10 (score)" },
     ['run_over'] = { 5, "+$5 (run over)" },
     ['guardians'] = { 6, "+$5 (guardians)" },
     ['first_blood'] = { 10, "+$5 (first blood)" },
@@ -140,6 +141,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], 'OnTick')
     register_callback(cb['EVENT_DIE'], 'OnDeath')
     register_callback(cb['EVENT_JOIN'], 'OnJoin')
+    register_callback(cb['EVENT_SCORE'], 'OnScore')
     register_callback(cb['EVENT_COMMAND'], 'OnCommand')
     register_callback(cb['EVENT_TEAM_SWITCH'], 'OnSwitch')
     register_callback(cb['EVENT_DAMAGE_APPLICATION'], 'OnDeath')
@@ -184,6 +186,9 @@ function Account:new(t)
 end
 
 function Account:deposit(t)
+    if (t[1] == 0) then
+        return
+    end
     self.balance = self.balance + t[1]
     self:respond(t[2])
 end
@@ -225,6 +230,12 @@ function OnJoin(Ply)
         team = get_var(Ply, '$team'),
         name = get_var(Ply, '$name')
     })
+end
+
+function OnScore(Ply)
+    local ip = Account:GetIP(Ply)
+    local t = players[ip]
+    t:deposit(t['on_score'])
 end
 
 function OnTick()
@@ -284,7 +295,7 @@ function OnCommand(Ply, CMD, _, _)
             if (args[1] == t.get_balance_command) then
                 t:respond("You have $" .. t.balance)
                 return false
-            elseif (args[1] == t.add_funds_command or t.remove_funds_command) then
+            elseif (args[1] == t.add_funds_command or args[1] == t.remove_funds_command) then
                 if HasPermission(t) then
                     t:admin_override(args, t)
                 end
