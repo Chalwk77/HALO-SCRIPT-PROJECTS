@@ -16,6 +16,10 @@ Description: Earn money for killing!
              Command to view available items for purchase: /market
              Command to view current balance: /money
 
+             Two available admin-override commands:
+             1. /deposit <pid> <amount>
+             2. /withdraw <pid> <amount>
+
              Accounts are linked to your IP:PORT.
              If you have an existing account, your balance will be restored upon joining.
 
