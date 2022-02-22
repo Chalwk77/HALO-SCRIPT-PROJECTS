@@ -160,14 +160,6 @@ function Account:new(t)
     self.god = false
     self.flashlight = 0
 
-    for _, v in pairs(self.buy_commands) do
-        v.cooldown = function(self)
-            if (self.time() >= self.finish) then
-                self.start = false
-            end
-        end
-    end
-
     self.god_timer = function(self)
         return (self.time() >= self.finish)
     end
@@ -286,8 +278,8 @@ function OnTick()
         end
 
         for _, t in pairs(v.buy_commands) do
-            if (t.start) then
-                t.cooldown(t)
+            if (t.start and t.time() >= t.finish) then
+                t.start = false
             end
         end
     end
