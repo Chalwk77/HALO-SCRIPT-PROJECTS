@@ -94,38 +94,38 @@ local Account = {
     buy_commands = {
 
         -- Camouflage:
-        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, duration, catalogue message}
-        ['camo'] = { 'm1', 60, 30, "-$60 -> Camo (30 seconds)" },
+        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, duration, cooldown period, catalogue message}
+        ['camo'] = { 'm1', 60, 30, 60, "-$60 -> Camo (30 seconds)" },
 
         --
         -- God Mode:
-        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, duration, catalogue message}
-        ['god'] = { 'm2', 200, 30, "-$200 -> God (30 seconds)" },
+        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, duration, cooldown period, catalogue message}
+        ['god'] = { 'm2', 200, 30, 60, "-$200 -> God (30 seconds)" },
 
         --
         -- Frags:
-        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, total, catalogue message}
-        ['nades'] = { 'm3', 30, 2, "-$30 -> Frags (x2)" },
+        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, total, cooldown period, catalogue message}
+        ['nades'] = { 'm3', 30, 2, 60, "-$30 -> Frags (x2)" },
 
         --
         -- Plasmas:
-        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, total, catalogue message}
-        ['plasmas'] = { 'm4', 30, 2, "-$30 -> Plasmas (x2)" },
+        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, total, cooldown period, catalogue message}
+        ['plasmas'] = { 'm4', 30, 2, 60, "-$30 -> Plasmas (x2)" },
 
         --
         -- Speed Boost:
-        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, speed, catalogue message}
-        ['s'] = { 'm5', 60, 1.3, "-$60 -> Speed Boost (1.3x)" },
+        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, speed, cooldown period, catalogue message}
+        ['s'] = { 'm5', 60, 1.3, 60, "-$60 -> Speed Boost (1.3x)" },
 
         --
         -- Overshield:
-        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, state, catalogue message}
-        ['sh'] = { 'm6', 100, 1, "-$100 -> Camo (full shield)" },
+        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, state, cooldown period, catalogue message}
+        ['sh'] = { 'm6', 100, 1, 60, "-$100 -> Camo (full shield)" },
 
         --
         -- Health:
-        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, h-points, catalogue message}
-        ['hp'] = { 'm7', 100, 1, "-$100 -> HP (full health)" },
+        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, h-points, cooldown period, catalogue message}
+        ['hp'] = { 'm7', 100, 1, 60, "-$100 -> HP (full health)" },
     }
 }
 
@@ -145,6 +145,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_JOIN'], 'OnJoin')
     register_callback(cb['EVENT_SCORE'], 'OnScore')
     register_callback(cb['EVENT_COMMAND'], 'OnCommand')
+    register_callback(cb['EVENT_GAME_START'], 'OnStart')
     register_callback(cb['EVENT_TEAM_SWITCH'], 'OnSwitch')
     register_callback(cb['EVENT_DAMAGE_APPLICATION'], 'OnDeath')
     OnStart()
