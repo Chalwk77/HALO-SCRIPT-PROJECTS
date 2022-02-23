@@ -1,43 +1,40 @@
 --[[
 --=====================================================================================================--
-Script Name: Market (v 1.3), for SAPP (PC & CE)
-Description: Earn money for killing!
+Script Name: Market (v 1.4), for SAPP (PC & CE)
+Description: Earn money for killing and scoring.
 
+Use your money to buy the following:
 
-            VERSION WITH ACCOUNT SAVING COMING IN THE NEXT UPDATE
-            VERSION WITH ACCOUNT SAVING COMING IN THE NEXT UPDATE
-            VERSION WITH ACCOUNT SAVING COMING IN THE NEXT UPDATE
-            VERSION WITH ACCOUNT SAVING COMING IN THE NEXT UPDATE
-            VERSION WITH ACCOUNT SAVING COMING IN THE NEXT UPDATE
-            VERSION WITH ACCOUNT SAVING COMING IN THE NEXT UPDATE
-            Accounts are currently linked to your IP:PORT.
+Type			Command        Price        Catalogue Message
+----			-------	       -----        -----------------
+Camouflage      m1             $60          Duration: 30 seconds
+God Mode        m2             $200         Duration: 30 seconds
+Grenades        m3             $30          2x of each
+Overshield      m4             $60          Shield Percentage: Full Shield
+Health          m5             $100         Health Percentage: Full
+Speed Boost     m6             $60          1.3x
+Teleport        n/a            $350         Teleport with flashlight key.
 
+All commands (including teleport) have a cooldown.
+Default: 60 seconds each.
 
-             Use your money to buy one of the following:
-             1. Camouflage ($60, 30 seconds)
-             2. God Mode ($200, 30 seconds)
-             3. Grenades (frags/plasmas) - ($30 each, 2x)
-             4. Overshield ($60, full shield)
-             5. Health ($100, full health)
-             6. Speed Boost ($60, 1.3x)
-             7. Teleport ($350)
+---------------------------------------------------------------------------------------------------------------
+Players are required to create an account (in-game) to use this script.
+Account Management Commands:
 
-             Easily edit custom command, price, state and catalogue message.
+1. /account create <username> <password>
+2. /account login <username> <password>
 
-             Command to view available items for purchase: /market
-             Command to view current balance: /money
+If you have an existing account, your balance will be restored upon joining.
+Your login session will expire after a period of time and you will have to login again.
+---------------------------------------------------------------------------------------------------------------
 
-             Two available admin-override commands:
-             1. /deposit <pid> <amount>
-             2. /withdraw <pid> <amount>
+Command to view available items for purchase: /market
+Command to view current balance: /money
 
-             All commands have a cooldown.
-             Default: 60 seconds each.
-
-             Accounts are linked to your IP:PORT.
-             If you have an existing account, your balance will be restored upon joining.
-
-             Balances are reset when the server is restarted.
+Two available admin-override commands:
+1. /deposit <pid> <amount>
+2. /withdraw <pid> <amount>
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -52,6 +49,11 @@ local Account = {
     -- Starting balance:
     --
     balance = 0,
+
+
+    -- File that contains the user accounts:
+    --
+    file = 'accounts.json',
 
 
     -- Command used to view available items for purchase:
@@ -70,11 +72,13 @@ local Account = {
     add_funds_command = 'deposit',
     on_add = "Deposited $$amount into $name's account",
 
+
     -- Command used to remove funds:
     --
     -- Syntax: /withdraw <pid> <amount>
     remove_funds_command = 'withdraw',
     on_remove = "Withdrew $$amount from $name's account",
+
 
     -- Players must be this level (or higher) to add/remove funds from an account:
     required_level = 1,
@@ -150,23 +154,38 @@ local Account = {
 -- config ends --
 
 local players = { }
-local time = os.time
 local ffa, falling, distance, first_blood
 local interval = Account.buy_commands['god'][3]
-local gmatch, lower, match, gsub = string.gmatch, string.lower, string.match, string.gsub
+
+local time = os.time
+local open = io.open
+local json = loadfile('./json.lua')()
+local match, gsub = string.match, string.gsub
+local gmatch, lower = string.gmatch, string.lower
 
 api_version = '1.12.0.0'
 
 function OnScriptLoad()
+
+    local dir = read_string(read_dword(sig_scan("68??????008D54245468") + 0x1))
+    Account.dir = dir .. "\\sapp\\" .. Account.file
+
     register_callback(cb['EVENT_TICK'], 'OnTick')
     register_callback(cb['EVENT_DIE'], 'OnDeath')
     register_callback(cb['EVENT_JOIN'], 'OnJoin')
     register_callback(cb['EVENT_SCORE'], 'OnScore')
+    register_callback(cb['EVENT_GAME_END'], 'OnEnd')
     register_callback(cb['EVENT_COMMAND'], 'OnCommand')
     register_callback(cb['EVENT_GAME_START'], 'OnStart')
     register_callback(cb['EVENT_TEAM_SWITCH'], 'OnSwitch')
     register_callback(cb['EVENT_DAMAGE_APPLICATION'], 'OnDeath')
     OnStart()
+
+    Account:CheckFile(true)
+end
+
+local function GetIP(Ply)
+    return get_var(Ply, '$ip')
 end
 
 function Account:new(t)
@@ -176,6 +195,7 @@ function Account:new(t)
     self.meta_id = 0
     self.god = false
     self.flashlight = 0
+    self.logged_in = false
 
     self.god_timer = function(self)
         return (self.time() >= self.finish)
@@ -189,7 +209,7 @@ function Account:new(t)
         elseif (not args[3] or not match(args[3], "%d+")) then
             p:respond("Invalid amount")
         else
-            local ply = players[self:GetIP(args[2])]
+            local ply = players[GetIP(args[2])]
             if (args[1] == self.add_funds_command) then
                 ply.balance = ply.balance + args[3]
                 p:respond(gsub(gsub(self.on_add, '$amount', args[3]), '$name', ply.name))
@@ -203,7 +223,7 @@ function Account:new(t)
 end
 
 function Account:deposit(t)
-    if (t[1] == 0) then
+    if (t[1] == 0 or not self.logged_in) then
         return
     end
     self.balance = self.balance + t[1]
@@ -211,25 +231,79 @@ function Account:deposit(t)
 end
 
 function Account:withdraw(t)
-    if (t[1] == 0) then
+    if (t[1] == 0 or not self.logged_in) then
         return
     end
-
     self.balance = self.balance - t[1]
     self.balance = (self.balance < 0 and 0 or self.balance)
-
     if (not t[2]) then
         return
     end
     self:respond(t[2])
 end
 
-function Account:respond(msg)
-    rprint(self.pid, msg)
+function Account:get()
+
+    local accounts
+    local file = open(self.dir, 'r')
+    if (file) then
+        local contents = file:read('*all')
+        accounts = (contents and json:decode(contents)) or nil
+        file:close()
+    end
+
+    return accounts
 end
 
-function Account:GetIP(Ply)
-    return get_var(Ply, '$ip')
+function Account:UpdateDatabase()
+    local file = open(self.dir, 'w')
+    if (file) then
+        for _, t in pairs(players) do
+            if (type(t) == "table") then
+                for username, tmp in pairs(t.tmp) do
+                    Account.database[username] = tmp
+                end
+            end
+        end
+        local content = json:encode_pretty(self.database)
+        file:write(content)
+        file:close()
+    end
+end
+
+function Account:CheckFile(ScriptLoad)
+
+    if (ScriptLoad) then
+        self.database = nil
+    end
+
+    if (get_var(0, "$gt") ~= "n/a") then
+
+        if (self.database == nil) then
+
+            local content = ""
+            local file = open(self.dir, "r")
+            if (file) then
+                content = file:read("*all")
+                file:close()
+            end
+
+            local data = json:decode(content)
+            if (not data) then
+                file = open(self.dir, "w")
+                if (file) then
+                    data = { }
+                    file:write(json:encode_pretty(data))
+                    file:close()
+                end
+            end
+            self.database = data
+        end
+    end
+end
+
+function Account:respond(msg)
+    rprint(self.pid, msg)
 end
 
 local function GetTag(Type, Name)
@@ -246,13 +320,20 @@ end
 function OnJoin(Ply)
     local ip = Account:GetIP(Ply)
     local now, finish = NewTimes()
-    players[ip] = Account:new({
+    local t = {
         pid = Ply,
         time = now,
         finish = finish,
         team = get_var(Ply, '$team'),
         name = get_var(Ply, '$name')
-    })
+    }
+    if (players[ip]) then
+        for k, v in pairs(t) do
+            players[ip][k] = v
+        end
+    else
+        players[ip] = Account:new(t)
+    end
 end
 
 function OnScore(Ply)
@@ -263,32 +344,34 @@ end
 
 function OnTick()
     for _, v in pairs(players) do
-        if player_alive(v.pid) then
-            local DyN = get_dynamic_player(v.pid)
-            local flashlight = read_bit(DyN + 0x208, 4)
-            if (flashlight ~= v.flashlight and flashlight == 1) then
-                local cmd = v.buy_commands["boost"]
-                if (cmd[2] == 0) then
-                    v:respond("Boost currently disabled")
-                    goto next
+        if (v.logged_in) then
+            if player_alive(v.pid) then
+                local DyN = get_dynamic_player(v.pid)
+                local flashlight = read_bit(DyN + 0x208, 4)
+                if (flashlight ~= v.flashlight and flashlight == 1) then
+                    local cmd = v.buy_commands["boost"]
+                    if (cmd[2] == 0) then
+                        v:respond("Boost currently disabled")
+                        goto next
+                    end
+                    if (cmd.start) then
+                        v:respond("Boost on cooldown. Please wait " .. cmd.finish - cmd.time() .. " seconds")
+                        goto next
+                    end
+                    if (v.balance >= cmd[2]) then
+                        cmd.time = time
+                        cmd.start = true
+                        cmd.finish = time() + cmd[4]
+                        v:respond(cmd[#cmd])
+                        v:withdraw({ cmd[2] })
+                        execute_command("boost " .. v.pid)
+                    else
+                        v:respond("You do not have enough money!")
+                    end
                 end
-                if (cmd.start) then
-                    v:respond("Boost on cooldown. Please wait " .. cmd.finish - cmd.time() .. " seconds")
-                    goto next
-                end
-                if (v.balance >= cmd[2]) then
-                    cmd.time = time
-                    cmd.start = true
-                    cmd.finish = time() + cmd[4]
-                    v:respond(cmd[#cmd])
-                    v:withdraw({ cmd[2] })
-                    execute_command("boost " .. v.pid)
-                else
-                    v:respond("You do not have enough money!")
-                end
+                :: next ::
+                v.flashlight = flashlight
             end
-            :: next ::
-            v.flashlight = flashlight
         end
 
         if (v.god and v.god_timer(v)) then
@@ -314,8 +397,11 @@ end
 function OnStart()
     if (get_var(0, '$gt') ~= 'n/a') then
 
+        Account:CheckFile(false)
+
         players = {}
         first_blood = true
+
         ffa = (get_var(0, '$ffa') == '1')
 
         falling = GetTag('jpt!', 'globals\\falling')
@@ -329,6 +415,10 @@ function OnStart()
     end
 end
 
+function OnEnd()
+    Account:UpdateDatabase()
+end
+
 local function HasPermission(t)
     local l = tonumber(get_var(t.pid, '$lvl'))
     return (l >= t.required_level or t:respond("Insufficient Permission") and false)
@@ -340,7 +430,7 @@ function OnCommand(Ply, CMD, _, _)
 
         local args = { }
         for arg in gmatch(CMD, '([^%s]+)') do
-            args[#args + 1] = lower(arg)
+            args[#args + 1] = arg
         end
 
         if (#args > 0) then
@@ -348,12 +438,65 @@ function OnCommand(Ply, CMD, _, _)
             local ip = Account:GetIP(Ply)
             local t = players[ip]
 
+            args[1], args[2] = lower(args[1]), lower(args[2] or "")
+
+            if (args[1] == "account") then
+
+                local name = args[3]
+                local password = args[4]
+
+                if (args[2] == "create" and args[3]) then
+
+                    if (t.logged_in) then
+                        local acc = t:get()
+                        for username, _ in pairs(acc) do
+                            if (username == name) then
+                                t:respond("That account already exists.")
+                                return false
+                            end
+                        end
+                        t:respond("You already have an account")
+                        return false
+                    end
+
+                    t.tmp = { [name] = { password = password, balance = t.balance } }
+                    t.logged_in = true
+                    t:respond("Account successfully created. Auto logging in...")
+                    t:UpdateDatabase()
+                    return false
+
+                elseif (args[2] == "login" and args[3]) then
+                    local acc = t:get()
+                    if (acc[name]) then
+                        if (password == acc[name].password) then
+                            t.balance = acc[name].balance
+                            t.logged_in = true
+                            t.tmp = { [name] = { password = password, balance = t.balance } }
+                            t:respond("Successfully logged in. Balance: $" .. t.balance)
+                        else
+                            t:respond("Invalid name or password")
+                        end
+                    else
+                        t:respond("Account does not exist")
+                    end
+                    return false
+                end
+            end
+
             if (args[1] == t.get_balance_command) then
-                t:respond("You have $" .. t.balance)
+                if (t.logged_in) then
+                    t:respond("You have $" .. t.balance)
+                else
+                    t:respond("You are not logged in")
+                end
                 return false
             elseif (args[1] == t.add_funds_command or args[1] == t.remove_funds_command) then
-                if HasPermission(t) then
-                    t:admin_override(args)
+                if (t.logged_in) then
+                    if HasPermission(t) then
+                        t:admin_override(args)
+                    end
+                else
+                    t:respond("You are not logged in")
                 end
                 return false
             end
@@ -390,7 +533,6 @@ function OnCommand(Ply, CMD, _, _)
                 end
             end
 
-            :: next ::
             return response
         end
     end
