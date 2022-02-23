@@ -63,6 +63,11 @@ local Account = {
     file = 'accounts.json',
 
 
+    -- Account management command syntax:
+    --
+    account_management_syntax = { "account", "create", "login" },
+
+
     -- Command used to view available items for purchase:
     --
     catalogue_command = 'market',
@@ -268,19 +273,10 @@ function Account:get()
     return accounts
 end
 
-function Account:UpdateDatabase()
-    local file = open(self.dir, 'w')
+local function WriteToFile(self, t)
+    local file = open(self.dir, "w")
     if (file) then
-        for _, t in pairs(players) do
-            if (type(t) == "table" and t.tmp) then
-                for username, tmp in pairs(t.tmp) do
-                    tmp.balance = t.balance
-                    self.database[username] = tmp
-                end
-            end
-        end
-        local content = json:encode_pretty(self.database)
-        file:write(content)
+        file:write(json:encode_pretty(t))
         file:close()
     end
 end
@@ -304,14 +300,9 @@ function Account:CheckFile(ScriptLoad)
 
             local data = json:decode(content)
             if (not data) then
-                file = open(self.dir, "w")
-                if (file) then
-                    data = { }
-                    file:write(json:encode_pretty(data))
-                    file:close()
-                end
+                WriteToFile(self, {})
             end
-            self.database = data
+            self.database = data or {}
         end
     end
 end
@@ -430,7 +421,16 @@ function OnStart()
 end
 
 function OnEnd()
-    Account:UpdateDatabase()
+    local self = Account
+    for _, t in pairs(players) do
+        if (type(t) == "table" and t.tmp) then
+            for username, tmp in pairs(t.tmp) do
+                tmp.balance = t.balance
+                self.database[username] = tmp
+            end
+        end
+    end
+    WriteToFile(self, self.database)
 end
 
 local function HasPermission(t)
@@ -454,12 +454,13 @@ function OnCommand(Ply, CMD, _, _)
 
             args[1], args[2] = lower(args[1]), lower(args[2] or "")
 
-            if (args[1] == "account") then
+            local management = t.account_management_syntax
+            if (args[1] == management[1]) then
 
                 local name = args[3]
                 local password = args[4]
 
-                if (args[2] == "create" and args[3]) then
+                if (args[2] == management[2] and args[3]) then
                     if (not t.logged_in) then
                         local acc = t:get()
                         for username, _ in pairs(acc) do
@@ -477,7 +478,7 @@ function OnCommand(Ply, CMD, _, _)
                     end
                     return false
 
-                elseif (args[2] == "login" and args[3]) then
+                elseif (args[2] == management[3] and args[3]) then
                     local acc = t:get()
                     if (acc[name]) then
                         if (password == acc[name].password) then
