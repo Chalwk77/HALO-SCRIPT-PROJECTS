@@ -24,11 +24,15 @@ Description: Earn money for killing!
              All commands have a cooldown.
              Default: 60 seconds each.
 
+             ------------------------------------------
              Players are required to create an account.
+             ------------------------------------------
              Commands:
              1. /account create <username> <password>
              2. /account login <username> <password>
+
              If you have an existing account, your balance will be restored upon joining.
+             * Your login session will expire after a period of time and you will have to login again.
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
