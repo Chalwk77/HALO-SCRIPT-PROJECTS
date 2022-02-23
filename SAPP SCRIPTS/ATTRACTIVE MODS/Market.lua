@@ -1,38 +1,40 @@
 --[[
 --=====================================================================================================--
 Script Name: Market (v 1.3), for SAPP (PC & CE)
-Description: Earn money for killing!
+Description: Earn money for killing and scoring.
 
-             Use your money to buy one of the following:
-             1. Camouflage ($60, 30 seconds)
-             2. God Mode ($200, 30 seconds)
-             3. Grenades (frags/plasmas) - ($30 each, 2x)
-             4. Overshield ($60, full shield)
-             5. Health ($100, full health)
-             6. Speed Boost ($60, 1.3x)
-             7. Teleport ($350)
+Use your money to buy the following:
 
-             Easily edit custom command, price, state and catalogue message.
+Type			Command        Price        Catalogue Message
+----			-------	       -----        -----------------
+Camouflage      m1             $60          Duration: 30 seconds
+God Mode        m2             $200         Duration: 30 seconds
+Grenades        m3             $30          2x of each
+Overshield      m4             $60          Shield Percentage: Full Shield
+Health          m5             $100         Health Percentage: Full
+Speed Boost     m6             $60          1.3x
+Teleport        n/a            $350         Teleport with flashlight key.
 
-             Command to view available items for purchase: /market
-             Command to view current balance: /money
+All commands (including teleport) have a cooldown.
+Default: 60 seconds each.
 
-             Two available admin-override commands:
-             1. /deposit <pid> <amount>
-             2. /withdraw <pid> <amount>
+---------------------------------------------------------------------------------------------------------------
+Players are required to create an account (in-game) to use this script.
+Account Management Commands:
 
-             All commands have a cooldown.
-             Default: 60 seconds each.
+1. /account create <username> <password>
+2. /account login <username> <password>
 
-             ------------------------------------------
-             Players are required to create an account.
-             ------------------------------------------
-             Commands:
-             1. /account create <username> <password>
-             2. /account login <username> <password>
+If you have an existing account, your balance will be restored upon joining.
+Your login session will expire after a period of time and you will have to login again.
+---------------------------------------------------------------------------------------------------------------
 
-             If you have an existing account, your balance will be restored upon joining.
-             * Your login session will expire after a period of time and you will have to login again.
+Command to view available items for purchase: /market
+Command to view current balance: /money
+
+Two available admin-override commands:
+1. /deposit <pid> <amount>
+2. /withdraw <pid> <amount>
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
