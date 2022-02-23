@@ -159,7 +159,7 @@ local Account = {
         --
         -- Boost:
         -- ["SAPP COMMAND EXECUTED"] = {"n/a", price, n/a, cooldown period, catalogue message}
-        ['boost'] = { 'n/a', 350, "n/a", 60, "-$350 -> Teleport (where aiming)" },
+        ['boost'] = { 'n/a', 350, 'n/a', 60, "-$350 -> Teleport (where aiming)" },
     }
 }
 
@@ -179,8 +179,8 @@ api_version = '1.12.0.0'
 
 function OnScriptLoad()
 
-    local dir = read_string(read_dword(sig_scan("68??????008D54245468") + 0x1))
-    Account.dir = dir .. "\\sapp\\" .. Account.file
+    local dir = read_string(read_dword(sig_scan('68??????008D54245468') + 0x1))
+    Account.dir = dir .. '\\sapp\\' .. Account.file
 
     register_callback(cb['EVENT_TICK'], 'OnTick')
     register_callback(cb['EVENT_DIE'], 'OnDeath')
@@ -358,18 +358,16 @@ function OnTick()
                     if (cmd[2] == 0) then
                         v:respond("Boost currently disabled")
                         goto next
-                    end
-                    if (cmd.start) then
+                    elseif (cmd.start) then
                         v:respond("Boost on cooldown. Please wait " .. cmd.finish - cmd.time() .. " seconds")
                         goto next
-                    end
-                    if (v.balance >= cmd[2]) then
+                    elseif (v.balance >= cmd[2]) then
                         cmd.time = time
                         cmd.start = true
                         cmd.finish = time() + cmd[4]
                         v:respond(cmd[#cmd])
                         v:withdraw({ cmd[2] })
-                        execute_command("boost " .. v.pid)
+                        execute_command('boost ' .. v.pid)
                     else
                         v:respond("You do not have enough money!")
                     end
@@ -377,18 +375,16 @@ function OnTick()
                 :: next ::
                 v.flashlight = flashlight
             end
-        end
-
-        if (v.god and v.god_timer(v)) then
-            v.god = false
-            v.time, v.finish = NewTimes()
-            v:respond("God Mode has expired")
-            execute_command('ungod ' .. v.pid)
-        end
-
-        for _, t in pairs(v.buy_commands) do
-            if (t.start and t.time() >= t.finish) then
-                t.start = false
+            if (v.god and v.god_timer(v)) then
+                v.god = false
+                v.time, v.finish = NewTimes()
+                v:respond("God Mode has expired")
+                execute_command('ungod ' .. v.pid)
+            end
+            for _, t in pairs(v.buy_commands) do
+                if (t.start and t.time() >= t.finish) then
+                    t.start = false
+                end
             end
         end
     end
