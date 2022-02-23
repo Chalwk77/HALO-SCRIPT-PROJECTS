@@ -460,8 +460,7 @@ function OnCommand(Ply, CMD, _, _)
                 local password = args[4]
 
                 if (args[2] == "create" and args[3]) then
-
-                    if (t.logged_in) then
+                    if (not t.logged_in) then
                         local acc = t:get()
                         for username, _ in pairs(acc) do
                             if (username == name) then
@@ -469,13 +468,13 @@ function OnCommand(Ply, CMD, _, _)
                                 return false
                             end
                         end
-                        t:respond("You already have an account")
+                        t.tmp = { [name] = { password = password, balance = t.balance } }
+                        t.logged_in = true
+                        t:respond("Account successfully created. Auto logging in...")
                         return false
+                    else
+                        t:respond("You already have an account.")
                     end
-
-                    t.tmp = { [name] = { password = password, balance = t.balance } }
-                    t.logged_in = true
-                    t:respond("Account successfully created. Auto logging in...")
                     return false
 
                 elseif (args[2] == "login" and args[3]) then
