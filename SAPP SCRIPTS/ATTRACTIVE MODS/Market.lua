@@ -465,13 +465,13 @@ function OnCommand(Ply, CMD, _, _)
                         local acc = t:get()
                         for username, _ in pairs(acc) do
                             if (username == name) then
-                                t:respond("That account already exists.")
+                                t:respond("That account username already exists.")
                                 return false
                             end
                         end
                         t.tmp = { [name] = { password = password, balance = t.balance } }
                         t.logged_in = true
-                        t:respond("Account successfully created. Auto logging in...")
+                        t:respond("Account successfully created. [Auto logging in].")
                         return false
                     else
                         t:respond("You already have an account.")
@@ -487,10 +487,10 @@ function OnCommand(Ply, CMD, _, _)
                             t.tmp = { [name] = { password = password, balance = t.balance } }
                             t:respond("Successfully logged in. Balance: $" .. t.balance)
                         else
-                            t:respond("Invalid name or password")
+                            t:respond("Invalid password")
                         end
                     else
-                        t:respond("Account does not exist")
+                        t:respond("Account username does not exist")
                     end
                     return false
                 end
@@ -500,7 +500,7 @@ function OnCommand(Ply, CMD, _, _)
                 if (t.logged_in) then
                     t:respond("You have $" .. t.balance)
                 else
-                    t:respond("You are not logged in")
+                    t:respond("You are not logged in.")
                 end
                 return false
             elseif (args[1] == t.add_funds_command or args[1] == t.remove_funds_command) then
@@ -509,7 +509,7 @@ function OnCommand(Ply, CMD, _, _)
                         t:admin_override(args)
                     end
                 else
-                    t:respond("You are not logged in")
+                    t:respond("You are not logged in.")
                 end
                 return false
             end
@@ -520,11 +520,13 @@ function OnCommand(Ply, CMD, _, _)
                     t:respond("/" .. v[1] .. " " .. v[#v])
                     response = false
                 elseif (args[1] == v[1] and v[1] ~= 'n/a') then
-                    if (v[2] == 0) then
+                    if (not t.logged_in) then
+                        t:respond("You are not logged in.")
+                        return false
+                    elseif (v[2] == 0) then
                         t:respond("Command disabled")
                         return false
-                    end
-                    if (v.start) then
+                    elseif (v.start) then
                         t:respond("Command on cooldown. Please wait " .. v.finish - v.time() .. " seconds")
                         return false
                     elseif (t.balance >= v[2]) then
