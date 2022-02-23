@@ -452,7 +452,6 @@ function OnCommand(Ply, CMD, _, _)
                         t.tmp = { [name] = { password = password, balance = t.balance } }
                         t.logged_in = true
                         t:respond("Account successfully created. [Auto logging in].")
-                        return false
                     else
                         t:respond("You already have an account.")
                     end
