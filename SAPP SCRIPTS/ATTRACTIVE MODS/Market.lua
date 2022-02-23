@@ -239,7 +239,13 @@ function Account:withdraw(t)
     if (t[1] == 0 or not self.logged_in) then
         return
     end
-    self.balance = self.balance - t[1]
+
+    if (t[1] < 0) then
+        self.balance = self.balance + t[1]
+    else
+        self.balance = self.balance - t[1]
+    end
+
     self.balance = (self.balance < 0 and 0 or self.balance)
     if (not t[2]) then
         return
@@ -264,8 +270,9 @@ function Account:UpdateDatabase()
     local file = open(self.dir, 'w')
     if (file) then
         for _, t in pairs(players) do
-            if (type(t) == "table") then
+            if (type(t) == "table" and t.tmp) then
                 for username, tmp in pairs(t.tmp) do
+                    tmp.balance = t.balance
                     Account.database[username] = tmp
                 end
             end
@@ -323,7 +330,7 @@ local function NewTimes()
 end
 
 function OnJoin(Ply)
-    local ip = Account:GetIP(Ply)
+    local ip = GetIP(Ply)
     local now, finish = NewTimes()
     local t = {
         pid = Ply,
@@ -342,7 +349,7 @@ function OnJoin(Ply)
 end
 
 function OnScore(Ply)
-    local ip = Account:GetIP(Ply)
+    local ip = GetIP(Ply)
     local t = players[ip]
     t:deposit(t['on_score'])
 end
@@ -395,7 +402,7 @@ function OnTick()
 end
 
 function OnSwitch(Ply)
-    local ip = Account:GetIP(Ply)
+    local ip = GetIP(Ply)
     players[ip].team = get_var(Ply, '$team')
 end
 
@@ -440,7 +447,7 @@ function OnCommand(Ply, CMD, _, _)
 
         if (#args > 0) then
 
-            local ip = Account:GetIP(Ply)
+            local ip = GetIP(Ply)
             local t = players[ip]
 
             args[1], args[2] = lower(args[1]), lower(args[2] or "")
@@ -467,7 +474,6 @@ function OnCommand(Ply, CMD, _, _)
                     t.tmp = { [name] = { password = password, balance = t.balance } }
                     t.logged_in = true
                     t:respond("Account successfully created. Auto logging in...")
-                    t:UpdateDatabase()
                     return false
 
                 elseif (args[2] == "login" and args[3]) then
@@ -548,8 +554,8 @@ function OnDeath(Victim, Killer, MetaID)
     local victim = tonumber(Victim)
     local killer = tonumber(Killer)
 
-    local v = players[Account:GetIP(victim)]
-    local k = players[Account:GetIP(killer)]
+    local v = players[GetIP(victim)]
+    local k = players[GetIP(killer)]
 
     if (v) then
 
