@@ -26,9 +26,8 @@ Description: Earn money for killing!
 
              Players are required to create an account.
              Commands:
-
              1. /account create <username> <password>
-             1. /account login <username> <password>
+             2. /account login <username> <password>
              If you have an existing account, your balance will be restored upon joining.
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
