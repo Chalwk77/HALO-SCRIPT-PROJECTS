@@ -438,7 +438,11 @@ function OnCommand(Ply, CMD, _, _)
                 local password = args[4]
 
                 if (args[2] == management[2] and args[3]) then
-                    if (not t.logged_in) then
+                    if (#args > 4) then
+                        t:respond("Too many arguments!")
+                        t:respond("Make sure username/password do not contain spaces.")
+                        return false
+                    elseif (not t.logged_in) then
                         local acc = t:get()
                         for username, _ in pairs(acc) do
                             if (username == name) then
@@ -456,19 +460,26 @@ function OnCommand(Ply, CMD, _, _)
                     return false
 
                 elseif (args[2] == management[3] and args[3]) then
-                    local acc = t:get()
-                    if (acc[name]) then
-                        if (password == acc[name].password) then
-                            t.balance = acc[name].balance
-                            t.logged_in = true
-                            t.tmp = { [name] = { password = password, balance = t.balance } }
-                            t:respond("Successfully logged in. Balance: $" .. t.balance)
-                        else
-                            t:respond("Invalid password")
-                        end
+                    if (#args > 4) then
+                        t:respond("Too many arguments!")
+                        t:respond("Make sure username/password do not contain spaces.")
+                        return false
                     else
-                        t:respond("Account username does not exist")
+                        local acc = t:get()
+                        if (acc[name]) then
+                            if (password == acc[name].password) then
+                                t.balance = acc[name].balance
+                                t.logged_in = true
+                                t.tmp = { [name] = { password = password, balance = t.balance } }
+                                t:respond("Successfully logged in. Balance: $" .. t.balance)
+                            else
+                                t:respond("Invalid password")
+                            end
+                        else
+                            t:respond("Account username does not exist")
+                        end
                     end
+
                     return false
                 end
             end
