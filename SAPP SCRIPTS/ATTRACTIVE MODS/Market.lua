@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Market (v 1.4), for SAPP (PC & CE)
+Script Name: Market (v 1.5), for SAPP (PC & CE)
 Description: Earn money for killing and scoring.
 
 Use your money to buy the following:
@@ -25,8 +25,10 @@ Account Management Commands:
 1. /account create <username> <password>
 2. /account login <username> <password>
 
-If you have an existing account, your balance will be restored upon joining.
-Your login session will expire after a period of time and you will have to login again.
+If you have an existing account, your balance will be restored when you log into your account.
+
+Some data is cached for a period of time based on your IP address.
+If your IP changes or the server is restarted, you will have to login again.
 ---------------------------------------------------------------------------------------------------------------
 
 Command to view available items for purchase: /market
