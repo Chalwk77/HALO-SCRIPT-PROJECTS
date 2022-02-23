@@ -522,13 +522,10 @@ function OnCommand(Ply, CMD, _, _)
                 elseif (args[1] == v[1] and v[1] ~= 'n/a') then
                     if (not t.logged_in) then
                         t:respond("You are not logged in.")
-                        return false
                     elseif (v[2] == 0) then
                         t:respond("Command disabled")
-                        return false
                     elseif (v.start) then
                         t:respond("Command on cooldown. Please wait " .. v.finish - v.time() .. " seconds")
-                        return false
                     elseif (t.balance >= v[2]) then
                         v.time = time
                         v.start = true
