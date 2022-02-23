@@ -24,10 +24,12 @@ Description: Earn money for killing!
              All commands have a cooldown.
              Default: 60 seconds each.
 
-             Accounts are linked to your IP:PORT.
-             If you have an existing account, your balance will be restored upon joining.
+             Players are required to create an account.
+             Commands:
 
-             Balances are reset when the server is restarted.
+             1. /account create <username> <password>
+             1. /account login <username> <password>
+             If you have an existing account, your balance will be restored upon joining.
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
