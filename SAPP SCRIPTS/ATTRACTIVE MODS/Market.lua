@@ -275,7 +275,7 @@ function Account:UpdateDatabase()
             if (type(t) == "table" and t.tmp) then
                 for username, tmp in pairs(t.tmp) do
                     tmp.balance = t.balance
-                    Account.database[username] = tmp
+                    self.database[username] = tmp
                 end
             end
         end
