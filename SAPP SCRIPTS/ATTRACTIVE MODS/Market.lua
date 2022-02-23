@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Market (v 1.2), for SAPP (PC & CE)
+Script Name: Market (v 1.3), for SAPP (PC & CE)
 Description: Earn money for killing!
 
              Use your money to buy one of the following:
