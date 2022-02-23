@@ -36,6 +36,12 @@ Two available admin-override commands:
 1. /deposit <pid> <amount>
 2. /withdraw <pid> <amount>
 
+----
+This script requires that the following JSON library is installed to your server.
+Place in the same location as strings.dll & sapp.dll:
+http://regex.info/blog/lua/json
+----
+
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
