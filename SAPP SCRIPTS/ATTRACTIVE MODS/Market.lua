@@ -37,9 +37,8 @@ Two available admin-override commands:
 2. /withdraw <pid> <amount>
 
 ----
-This script requires that the following JSON library is installed to your server.
-Place in the same location as strings.dll & sapp.dll:
-http://regex.info/blog/lua/json
+This script requires that the following JSON library be installed on your server.
+Place in the same location as strings.dll & sapp.dll: http://regex.info/blog/lua/json
 ----
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
