@@ -3,6 +3,11 @@
 Script Name: Market (v 1.3), for SAPP (PC & CE)
 Description: Earn money for killing and scoring.
 
+--------------------------------------------------
+AS OF VERSION 1.3, ACCOUNT SAVING IS DISABLED.
+WILL BE FIXED IN VERSION 1.4
+--------------------------------------------------
+
 Use your money to buy the following:
 
 Type			Command        Price        Catalogue Message
@@ -50,9 +55,11 @@ local Account = {
     --
     balance = 0,
 
+
     -- File that contains the user accounts:
     --
     file = 'accounts.json',
+
 
     -- Command used to view available items for purchase:
     --
@@ -70,11 +77,13 @@ local Account = {
     add_funds_command = 'deposit',
     on_add = "Deposited $$amount into $name's account",
 
+
     -- Command used to remove funds:
     --
     -- Syntax: /withdraw <pid> <amount>
     remove_funds_command = 'withdraw',
     on_remove = "Withdrew $$amount from $name's account",
+
 
     -- Players must be this level (or higher) to add/remove funds from an account:
     required_level = 1,
@@ -170,6 +179,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_DIE'], 'OnDeath')
     register_callback(cb['EVENT_JOIN'], 'OnJoin')
     register_callback(cb['EVENT_SCORE'], 'OnScore')
+    register_callback(cb['EVENT_GAME_END'], 'OnEnd')
     register_callback(cb['EVENT_COMMAND'], 'OnCommand')
     register_callback(cb['EVENT_GAME_START'], 'OnStart')
     register_callback(cb['EVENT_TEAM_SWITCH'], 'OnSwitch')
@@ -184,6 +194,7 @@ function Account:new(t)
     setmetatable(t, self)
     self.__index = self
 
+    self.tmp = {}
     self.logged_in = false
 
     self.meta_id = 0
@@ -216,7 +227,6 @@ function Account:new(t)
 end
 
 function Account:deposit(t)
-
     if (t[1] == 0 or not self.logged_in) then
         return
     end
@@ -225,14 +235,11 @@ function Account:deposit(t)
 end
 
 function Account:withdraw(t)
-
     if (t[1] == 0 or not self.logged_in) then
         return
     end
-
     self.balance = self.balance - t[1]
     self.balance = (self.balance < 0 and 0 or self.balance)
-
     if (not t[2]) then
         return
     end
@@ -255,6 +262,13 @@ end
 function Account:UpdateDatabase()
     local file = open(self.dir, 'w')
     if (file) then
+        for _, v in pairs(self) do
+            if (type(v) == "table" and v.tmp) then
+                for a, b in ipairs(v.tmp) do
+                    self.database[a] = b
+                end
+            end
+        end
         local content = json:encode_pretty(self.database)
         file:write(content)
         file:close()
@@ -324,12 +338,10 @@ function OnJoin(Ply)
         name = get_var(Ply, '$name')
     }
     if (players[ip]) then
-        print("Updating parameters")
         for k, v in pairs(t) do
             players[ip][k] = v
         end
     else
-        print("creating new account")
         players[ip] = Account:new(t)
     end
 end
@@ -414,6 +426,10 @@ function OnStart()
     end
 end
 
+function OnEnd()
+    Account:UpdateDatabase()
+end
+
 local function HasPermission(t)
     local l = tonumber(get_var(t.pid, '$lvl'))
     return (l >= t.required_level or t:respond("Insufficient Permission") and false)
@@ -450,10 +466,9 @@ function OnCommand(Ply, CMD, _, _)
                         end
                     end
 
-                    t.database[name] = { password = password, balance = t.balance }
+                    t.tmp = { [name] = { password = password, balance = t.balance } }
                     t.logged_in = true
-                    t:UpdateDatabase()
-                    t:respond("Account successfully created")
+                    t:respond("Account successfully created. Auto logging in...")
                     return false
 
                 elseif (args[2] == "login" and args[3]) then
@@ -462,6 +477,7 @@ function OnCommand(Ply, CMD, _, _)
                         if (password == acc[name].password) then
                             t.balance = acc[name].balance
                             t.logged_in = true
+                            t.tmp = { [name] = { password = password, balance = t.balance } }
                             t:respond("Successfully logged in. Balance: $" .. t.balance)
                         else
                             t:respond("Invalid name or password")
@@ -474,11 +490,19 @@ function OnCommand(Ply, CMD, _, _)
             end
 
             if (args[1] == t.get_balance_command) then
-                t:respond("You have $" .. t.balance)
+                if (t.logged_in) then
+                    t:respond("You have $" .. t.balance)
+                else
+                    t:respond("You are not logged in")
+                end
                 return false
             elseif (args[1] == t.add_funds_command or args[1] == t.remove_funds_command) then
-                if HasPermission(t) then
-                    t:admin_override(args)
+                if (t.logged_in) then
+                    if HasPermission(t) then
+                        t:admin_override(args)
+                    end
+                else
+                    t:respond("You are not logged in")
                 end
                 return false
             end
