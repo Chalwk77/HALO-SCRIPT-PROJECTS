@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Market (v 1.5), for SAPP (PC & CE)
+Script Name: Market (v 1.6), for SAPP (PC & CE)
 Description: Earn money for killing and scoring.
 
 Use your money to buy the following:
@@ -212,25 +212,6 @@ function Account:new(t)
     self.god_timer = function(self)
         return (self.time() >= self.finish)
     end
-
-    self.admin_override = function(p, args)
-        if (not args[2] or not match(args[2], '%d+')) then
-            p:respond("Invalid Command syntax. Usage: /" .. args[1] .. " <pid> <amount>")
-        elseif not player_present(args[2]) then
-            p:respond("Player #" .. args[2] .. " is not online.")
-        elseif (not args[3] or not match(args[3], "%d+")) then
-            p:respond("Invalid amount")
-        else
-            local ply = players[GetIP(args[2])]
-            if (args[1] == self.add_funds_command) then
-                ply.balance = ply.balance + args[3]
-                p:respond(gsub(gsub(self.on_add, '$amount', args[3]), '$name', ply.name))
-            else
-                ply.balance = ply.balance - args[3]
-                p:respond(gsub(gsub(self.on_remove, '$amount', args[3]), '$name', ply.name))
-            end
-        end
-    end
     return t
 end
 
@@ -274,7 +255,7 @@ function Account:get()
 end
 
 local function WriteToFile(self, t)
-    local file = open(self.dir, "w")
+    local file = open(self.dir, 'w')
     if (file) then
         file:write(json:encode_pretty(t))
         file:close()
@@ -287,14 +268,14 @@ function Account:CheckFile(ScriptLoad)
         self.database = nil
     end
 
-    if (get_var(0, "$gt") ~= "n/a") then
+    if (get_var(0, '$gt') ~= ' "n/a"') then
 
         if (self.database == nil) then
 
-            local content = ""
-            local file = open(self.dir, "r")
+            local content = ''
+            local file = open(self.dir, 'r')
             if (file) then
-                content = file:read("*all")
+                content = file:read('*all')
                 file:close()
             end
 
@@ -354,7 +335,7 @@ function OnTick()
                 local DyN = get_dynamic_player(v.pid)
                 local flashlight = read_bit(DyN + 0x208, 4)
                 if (flashlight ~= v.flashlight and flashlight == 1) then
-                    local cmd = v.buy_commands["boost"]
+                    local cmd = v.buy_commands['boost']
                     if (cmd[2] == 0) then
                         v:respond("Boost currently disabled")
                         goto next
@@ -419,7 +400,7 @@ end
 function OnEnd()
     local self = Account
     for _, t in pairs(players) do
-        if (type(t) == "table" and t.tmp) then
+        if (type(t) == 'table' and t.tmp) then
             for username, tmp in pairs(t.tmp) do
                 tmp.balance = t.balance
                 self.database[username] = tmp
@@ -448,7 +429,7 @@ function OnCommand(Ply, CMD, _, _)
             local ip = GetIP(Ply)
             local t = players[ip]
 
-            args[1], args[2] = lower(args[1]), lower(args[2] or "")
+            args[1], args[2] = lower(args[1]), lower(args[2] or '')
 
             local management = t.account_management_syntax
             if (args[1] == management[1]) then
@@ -500,12 +481,25 @@ function OnCommand(Ply, CMD, _, _)
                 end
                 return false
             elseif (args[1] == t.add_funds_command or args[1] == t.remove_funds_command) then
-                if (t.logged_in) then
-                    if HasPermission(t) then
-                        t:admin_override(args)
+                if HasPermission(t) then
+                    local p = players[GetIP(args[2])]
+                    if not player_present(args[2]) then
+                        t:respond("Player #" .. args[2] .. " is not online.")
+                    elseif (p.pid == t.pid and not p.logged_in) then
+                        t:respond("You are not logged in.")
+                    elseif (p.pid ~= t.pid and not p.logged_in) then
+                        t:respond(p.name .. " is not logged in.")
+                    elseif (not args[2] or not match(args[2], '%d+')) then
+                        t:respond("Invalid Command syntax. Usage: /" .. args[1] .. " <pid> <amount>")
+                    elseif (not args[3] or not match(args[3], '%d+')) then
+                        t:respond("Invalid amount")
+                    elseif (args[1] == t.add_funds_command) then
+                        p.balance = p.balance + args[3]
+                        t:respond(gsub(gsub(t.on_add, '$amount', args[3]), '$name', p.name))
+                    elseif (args[1] == t.remove_funds_command) then
+                        p.balance = p.balance - args[3]
+                        t:respond(gsub(gsub(t.on_remove, '$amount', args[3]), '$name', p.name))
                     end
-                else
-                    t:respond("You are not logged in.")
                 end
                 return false
             end
@@ -513,7 +507,7 @@ function OnCommand(Ply, CMD, _, _)
             local response = true
             for cmd, v in pairs(t.buy_commands) do
                 if (args[1] == t.catalogue_command) then
-                    t:respond("/" .. v[1] .. " " .. v[#v])
+                    t:respond('/' .. v[1] .. ' ' .. v[#v])
                     response = false
                 elseif (args[1] == v[1] and v[1] ~= 'n/a') then
                     if (not t.logged_in) then
