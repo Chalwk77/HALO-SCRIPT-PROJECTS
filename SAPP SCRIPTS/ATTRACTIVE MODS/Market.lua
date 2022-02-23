@@ -27,8 +27,8 @@ Account Management Commands:
 
 If you have an existing account, your balance will be restored when you log into your account.
 
-Some data is cached for a period of time based on your IP address.
-If your IP changes or the server is restarted, you will have to login again.
+Some data is cached for a period of time, based on your IP address.
+If your IP changes or the server is restarted, you will have to log in again.
 ---------------------------------------------------------------------------------------------------------------
 
 Command to view available items for purchase: /market
