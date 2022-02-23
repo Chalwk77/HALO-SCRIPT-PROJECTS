@@ -440,8 +440,7 @@ function OnCommand(Ply, CMD, _, _)
                 if (args[2] == management[2] and args[3]) then
                     if (#args > 4) then
                         t:respond("Too many arguments!")
-                        t:respond("Make sure username/password do not contain spaces.")
-                        return false
+                        t:respond("Make sure username & password do not contain spaces.")
                     elseif (not t.logged_in) then
                         local acc = t:get()
                         for username, _ in pairs(acc) do
@@ -462,8 +461,7 @@ function OnCommand(Ply, CMD, _, _)
                 elseif (args[2] == management[3] and args[3]) then
                     if (#args > 4) then
                         t:respond("Too many arguments!")
-                        t:respond("Make sure username/password do not contain spaces.")
-                        return false
+                        t:respond("Make sure username & password do not contain spaces.")
                     else
                         local acc = t:get()
                         if (acc[name]) then
@@ -479,7 +477,6 @@ function OnCommand(Ply, CMD, _, _)
                             t:respond("Account username does not exist")
                         end
                     end
-
                     return false
                 end
             end
