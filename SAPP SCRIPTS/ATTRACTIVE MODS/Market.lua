@@ -257,20 +257,18 @@ end
 
 function Account:CheckFile(ScriptLoad)
     self.database = (ScriptLoad and nil or self.database)
-    if (get_var(0, '$gt') ~= ' "n/a"') then
-        if (self.database == nil) then
-            local content = ''
-            local file = open(self.dir, 'r')
-            if (file) then
-                content = file:read('*all')
-                file:close()
-            end
-            local data = json:decode(content)
-            if (not data) then
-                WriteToFile(self, {})
-            end
-            self.database = data or {}
+    if (get_var(0, '$gt') ~= 'n/a' and self.database == nil) then
+        local content = ''
+        local file = open(self.dir, 'r')
+        if (file) then
+            content = file:read('*all')
+            file:close()
         end
+        local data = json:decode(content)
+        if (not data) then
+            WriteToFile(self, {})
+        end
+        self.database = data or {}
     end
 end
 
