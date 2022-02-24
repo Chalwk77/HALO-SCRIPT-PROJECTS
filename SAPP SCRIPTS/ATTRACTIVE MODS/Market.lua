@@ -165,7 +165,7 @@ local Account = {
         --
         -- Boost:
         -- ["SAPP COMMAND EXECUTED"] = {"n/a", price, n/a, cooldown period, catalogue message}
-        ['boost'] = { 'n/a', 350, 'n/a', 60, "-$350 -> Teleport (where aiming)" },
+        ['boost'] = { 'n/a', 350, 'n/a', 60, "-$350 -> Teleport with flashlight key" },
     }
 }
 
