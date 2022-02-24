@@ -398,16 +398,7 @@ function OnStart()
 end
 
 function OnEnd()
-    local self = Account
-    for _, t in pairs(players) do
-        if (type(t) == 'table' and t.tmp) then
-            for username, tmp in pairs(t.tmp) do
-                tmp.balance = t.balance
-                self.database[username] = tmp
-            end
-        end
-    end
-    WriteToFile(self, self.database)
+    WriteToFile(Account, Account.database)
 end
 
 local function HasPermission(t)
@@ -442,16 +433,13 @@ function OnCommand(Ply, CMD, _, _)
                         t:respond("Too many arguments!")
                         t:respond("Make sure username & password do not contain spaces.")
                     elseif (not t.logged_in) then
-                        local acc = t:get()
-                        for username, _ in pairs(acc) do
-                            if (username == name) then
-                                t:respond("That account username already exists.")
-                                return false
-                            end
+                        if (t.database[name]) then
+                            t:respond("That account username already exists.")
+                        else
+                            t.database[name] = { [name] = { password = password, balance = t.balance } }
+                            t.logged_in = true
+                            t:respond("Account successfully created.")
                         end
-                        t.tmp = { [name] = { password = password, balance = t.balance } }
-                        t.logged_in = true
-                        t:respond("Account successfully created.")
                     else
                         t:respond("You already have an account.")
                     end
@@ -461,20 +449,18 @@ function OnCommand(Ply, CMD, _, _)
                     if (#args > 4) then
                         t:respond("Too many arguments!")
                         t:respond("Make sure username & password do not contain spaces.")
-                    else
-                        local acc = t:get()
-                        if (acc[name]) then
-                            if (password == acc[name].password) then
-                                t.balance = acc[name].balance
-                                t.logged_in = true
-                                t.tmp = { [name] = { password = password, balance = t.balance } }
-                                t:respond("Successfully logged in. Balance: $" .. t.balance)
-                            else
-                                t:respond("Invalid password")
-                            end
+                    elseif (t.database[name]) then
+                        if (password == t.database[name].password) then
+                            t.logged_in = true
+                            t.balance = t.database[name].balance
+                            -- todo: save login time here for stale-account checks:
+                            t.database[name] = { [name] = { password = password, balance = t.balance } }
+                            t:respond("Successfully logged in. Balance: $" .. t.balance)
                         else
-                            t:respond("Account username does not exist")
+                            t:respond("Invalid password. Please try again.")
                         end
+                    else
+                        t:respond("Account username does not exist")
                     end
                     return false
                 end
