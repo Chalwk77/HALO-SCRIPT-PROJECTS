@@ -15,6 +15,7 @@ Overshield      m4             $60          Shield Percentage: Full Shield
 Health          m5             $100         Health Percentage: Full
 Speed Boost     m6             $60          1.3x
 Teleport        m7             $350         Teleport where aiming
+Damage Boost    m8             $500         1.3x damage infliction
 
 All perks (including teleport) have a cooldown.
 Default: 60 seconds each.
