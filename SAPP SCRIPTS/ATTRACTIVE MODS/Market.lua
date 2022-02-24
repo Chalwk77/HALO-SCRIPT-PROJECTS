@@ -274,9 +274,9 @@ end
 
 function Account:Cache(name, password, balance)
 
-    local day = date("*t").day
-    local month = date("*t").month
-    local year = date("*t").year
+    local day = date('*t').day
+    local month = date('*t').month
+    local year = date('*t').year
 
     self.logged_in = true
     self.database[name] = {
