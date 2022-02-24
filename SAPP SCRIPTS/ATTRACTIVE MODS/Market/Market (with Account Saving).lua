@@ -4,7 +4,7 @@ Script Name: Market (with account saving), for SAPP (PC & CE)
 Description: Earn money for killing and scoring.
 Version: 1.09
 
-Use your money to buy the following:
+Use your money to buy the following perks:
 
 Type			Command        Price        Catalogue Message
 ----			-------	       -----        -----------------
@@ -14,9 +14,9 @@ Grenades        m3             $30          2x of each
 Overshield      m4             $60          Shield Percentage: Full Shield
 Health          m5             $100         Health Percentage: Full
 Speed Boost     m6             $60          1.3x
-Teleport        n/a            $350         Teleport where aiming
+Teleport        m7             $350         Teleport where aiming
 
-All commands (including teleport) have a cooldown.
+All perks (including teleport) have a cooldown.
 Default: 60 seconds each.
 
 ---------------------------------------------------------------------------------------------------------------
@@ -32,7 +32,7 @@ Your login session will expire if your ip address changes or the server is reboo
 If this happens, you will need to log into your account using the above command.
 ---------------------------------------------------------------------------------------------------------------
 
-Command to view available items for purchase: /market
+Command to view available perks for purchase: /market
 Command to view current balance: /money
 
 Two available admin-override commands:
@@ -223,12 +223,6 @@ local function WriteToFile(self, t)
     end
 end
 
-local function NewTimes()
-    local now = time
-    local finish = now() + Account.buy_commands['god'][3]
-    return now, finish
-end
-
 function Account:new(t)
 
     setmetatable(t, self)
@@ -238,24 +232,24 @@ function Account:new(t)
     self.god = false
     self.logged_in = false
 
-    for cmd, b in pairs(t.buy_commands) do
-        b.execute = function()
+    for cmd, perk in pairs(t.buy_commands) do
+        perk.execute = function()
             if (cmd == 'god') then
                 t.god = true
-                t.time, t.finish = NewTimes()
+                t.god_time = time
+                t.god_finish = time() + perk[3]
                 execute_command(cmd .. ' ' .. t.pid)
             elseif (cmd == 'boost') then
                 execute_command(cmd .. ' ' .. t.pid)
             else
-                t.time = time
-                t.start = true
-                t.finish = time() + b[4]
-                execute_command(cmd .. ' ' .. t.pid .. ' ' .. b[3])
+                execute_command(cmd .. ' ' .. t.pid .. ' ' .. perk[3])
             end
+            perk.cooldown_time = time
+            perk.cooldown_start = true
+            perk.cooldown_finish = time() + perk[4]
         end
-        b.ungod = function()
+        perk.ungod = function()
             t.god = false
-            t.time, t.finish = NewTimes()
             t:respond("God Mode perk has expired.")
             execute_command('ungod ' .. t.pid)
         end
@@ -331,10 +325,9 @@ end
 
 function OnJoin(Ply)
     local ip = GetIP(Ply)
-    local now, finish = NewTimes()
     local name = get_var(Ply, '$name')
     local team = get_var(Ply, '$team')
-    local t = { pid = Ply, time = now, team = team, name = name, finish = finish }
+    local t = { pid = Ply, team = team, name = name }
     if (players[ip]) then
         for k, v in pairs(t) do
             players[ip][k] = v
@@ -357,11 +350,11 @@ end
 function OnTick()
 
     -- Delete stale accounts:
-    for username, v in pairs(Account.database) do
+    for username, acc in pairs(Account.database) do
         if (username) then
-            local day = v.last_login.day
-            local month = v.last_login.month
-            local year = v.last_login.year
+            local day = acc.last_login.day
+            local month = acc.last_login.month
+            local year = acc.last_login.year
             local reference = time { day = day, month = month, year = year }
             local days_from = diff(time(), reference) / (24 * 60 * 60)
             local whole_days = floor(days_from)
@@ -374,12 +367,12 @@ function OnTick()
 
     for _, t in pairs(players) do
         if (t.logged_in) then
-            for cmd, b in pairs(t.buy_commands) do
-                if (cmd == 'god' and t.god and t.time() >= t.finish) then
-                    b:ungod()
+            for cmd, perk in pairs(t.buy_commands) do
+                if (cmd == 'god' and t.god and t.god_time() >= t.god_finish) then
+                    perk:ungod()
                 end
-                if (b.cooldown_start and b.cooldown_time() >= b.cooldown_finish) then
-                    b.cooldown_start = false
+                if (perk.cooldown_start and perk.cooldown_time() >= perk.cooldown_finish) then
+                    perk.cooldown_start = false
                     t:respond("Perk /", cmd .. " cooldown has expired.")
                 end
             end
@@ -446,12 +439,13 @@ function OnCommand(Ply, CMD, _, _)
                 local name = args[3]
                 local password = args[4]
 
+                local acc = t.database[name]
                 if (args[2] == management[2] and args[3]) then
                     if (#args > 4) then
                         t:respond("Too many arguments!")
                         t:respond("Make sure username & password do not contain spaces.")
                     elseif (not t.logged_in) then
-                        if (t.database[name]) then
+                        if (acc) then
                             t:respond("That account username already exists.")
                         else
                             t:Cache(name, password, t.balance)
@@ -466,10 +460,12 @@ function OnCommand(Ply, CMD, _, _)
                     if (#args > 4) then
                         t:respond("Too many arguments!")
                         t:respond("Make sure username & password do not contain spaces.")
-                    elseif (t.database[name]) then
-                        if (password == t.database[name].password) then
-                            t:Cache(name, password, t.balance)
-                            t:respond("Successfully logged in. Balance: $" .. t.balance)
+                    elseif (acc) then
+                        if (password == acc.password) then
+                            local balance = acc.balance
+                            t.balance = balance
+                            t:Cache(name, password, balance)
+                            t:respond("Successfully logged in. Balance: $" .. balance)
                         else
                             t:respond("Invalid password. Please try again.")
                         end
@@ -512,26 +508,26 @@ function OnCommand(Ply, CMD, _, _)
             end
 
             local response = true
-            for _, v in pairs(t.buy_commands) do
+            for _, perk in pairs(t.buy_commands) do
                 if (args[1] == t.catalogue_command) then
-                    t:respond('/' .. v[1] .. ' ' .. v[#v])
+                    t:respond('/' .. perk[1] .. ' ' .. perk[#perk])
                     response = false
-                elseif (args[1] == v[1] and v[1] ~= 'n/a') then
+                elseif (args[1] == perk[1] and perk[1] ~= 'n/a') then
                     if (not t.logged_in) then
                         t:respond("You are not logged in.")
-                    elseif (v[2] == 0) then
+                    elseif (perk[2] == 0) then
                         t:respond("Command disabled")
-                    elseif (v.start) then
-                        local time_remaining = v.finish - v.time()
+                    elseif (perk.cooldown_start) then
+                        local time_remaining = perk.cooldown_finish - perk.cooldown_time()
                         t:respond("Command on cooldown")
                         t:respond("Please wait " .. time_remaining .. " second" .. Plural(time_remaining))
-                    elseif (t.balance >= v[2]) then
-                        t:respond(v[#v])
-                        t:withdraw({ v[2] })
-                        v:execute()
+                    elseif (t.balance >= perk[2]) then
+                        t:respond(perk[#perk])
+                        t:withdraw({ perk[2] })
+                        perk:execute()
                     else
                         t:respond("You do not have enough money!")
-                        t:respond("You need $" .. v[2] - t.balance)
+                        t:respond("You need $" .. perk[2] - t.balance)
                     end
                     return false
                 end
@@ -559,7 +555,6 @@ function OnDeath(Victim, Killer, MetaID)
         end
 
         v.god = false
-        v.time, v.finish = NewTimes()
 
         -- event_die:
         local squashed = (killer == 0)
