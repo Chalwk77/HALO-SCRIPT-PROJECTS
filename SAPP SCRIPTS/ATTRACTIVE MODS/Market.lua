@@ -38,6 +38,8 @@ Two available admin-override commands:
 1. /deposit <pid> <amount>
 2. /withdraw <pid> <amount>
 
+If a user doesn't log into an account after 30 days, it's considered stale and will be deleted.
+
 ----
 This script requires that the following JSON library be installed on your server.
 Place in the same location as strings.dll & sapp.dll: http://regex.info/blog/lua/json
