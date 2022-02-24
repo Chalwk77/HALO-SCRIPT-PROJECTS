@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Market (v 1.8), for SAPP (PC & CE)
+Script Name: Market (v 1.9), for SAPP (PC & CE)
 Description: Earn money for killing and scoring.
 
 Use your money to buy the following:
@@ -218,14 +218,11 @@ function Account:new(t)
 
     setmetatable(t, self)
     self.__index = self
+
     self.meta_id = 0
     self.god = false
     self.flashlight = 0
     self.logged_in = false
-
-    self.god_timer = function(self)
-        return (self.time() >= self.finish)
-    end
     return t
 end
 
@@ -296,6 +293,7 @@ local function GetTag(Type, Name)
 end
 
 local function NewTimes()
+    -- god mode
     local now = time
     local finish = now() + Account.buy_commands['god'][3]
     return now, finish
@@ -329,8 +327,8 @@ end
 function OnTick()
 
     -- Delete stale accounts:
-    for k, v in pairs(Account.database) do
-        if (k) then
+    for username, v in pairs(Account.database) do
+        if (username) then
             local day = v.last_login.day
             local month = v.last_login.month
             local year = v.last_login.year
@@ -338,52 +336,52 @@ function OnTick()
             local days_from = diff(time(), reference) / (24 * 60 * 60)
             local whole_days = floor(days_from)
             if (whole_days >= Account.stale_account_period) then
-                cprint("Deleting stale account for user " .. k, 12)
-                Account.database[k] = nil
+                cprint("Deleting stale account for user " .. username, 12)
+                Account.database[username] = nil
             end
         end
     end
 
-    for _, v in pairs(players) do
-        if (v.logged_in) then
-            if player_alive(v.pid) then
-                local DyN = get_dynamic_player(v.pid)
+    for _, t in pairs(players) do
+        if (t.logged_in) then
+            if player_alive(t.pid) then
+                local DyN = get_dynamic_player(t.pid)
                 local flashlight = read_bit(DyN + 0x208, 4)
-                if (flashlight ~= v.flashlight and flashlight == 1) then
-                    local cmd = v.buy_commands['boost']
+                if (flashlight ~= t.flashlight and flashlight == 1) then
+                    local cmd = t.buy_commands['boost']
                     if (cmd[2] == 0) then
-                        v:respond("Boost currently disabled.")
+                        t:respond("Boost currently disabled.")
                         goto next
                     elseif (cmd.start) then
                         local time_remaining = cmd.finish - cmd.time()
-                        v:respond("Command on cooldown")
-                        v:respond("Please wait " .. time_remaining .. " second" .. Plural(time_remaining))
+                        t:respond("Command on cooldown")
+                        t:respond("Please wait " .. time_remaining .. " second" .. Plural(time_remaining))
                         goto next
-                    elseif (v.balance >= cmd[2]) then
+                    elseif (t.balance >= cmd[2]) then
                         cmd.time = time
                         cmd.start = true
                         cmd.finish = time() + cmd[4]
-                        v:respond(cmd[#cmd])
-                        v:withdraw({ cmd[2] })
-                        execute_command('boost ' .. v.pid)
+                        t:respond(cmd[#cmd])
+                        t:withdraw({ cmd[2] })
+                        execute_command('boost ' .. t.pid)
                     else
-                        v:respond("You do not have enough money!")
-                        v:respond("You need $" .. cmd[2] - v.balance)
+                        t:respond("You do not have enough money!")
+                        t:respond("You need $" .. cmd[2] - t.balance)
                     end
                 end
                 :: next ::
-                v.flashlight = flashlight
+                t.flashlight = flashlight
+                if (t.god and t.time() >= t.finish) then
+                    t.god = false
+                    t.time, t.finish = NewTimes()
+                    t:respond("God Mode perk has expired.")
+                    execute_command('ungod ' .. t.pid)
+                end
             end
-            if (v.god and v.god_timer(v)) then
-                v.god = false
-                v.time, v.finish = NewTimes()
-                v:respond("God Mode perk has expired.")
-                execute_command('ungod ' .. v.pid)
-            end
-            for cmd, t in pairs(v.buy_commands) do
-                if (t.start and t.time() >= t.finish) then
-                    t.start = false
-                    v:respond("Perk /", cmd .. " cooldown has expired.")
+            for cmd, b in pairs(t.buy_commands) do
+                if (b.start and b.time() >= b.finish) then
+                    b.start = false
+                    t:respond("Perk /", cmd .. " cooldown has expired.")
                 end
             end
         end
@@ -534,6 +532,7 @@ function OnCommand(Ply, CMD, _, _)
                         t:withdraw({ v[2] })
                         if (cmd == 'god') then
                             t.god = true
+                            t.time, t.finish = NewTimes()
                             execute_command(cmd .. ' ' .. Ply)
                             return false
                         end
