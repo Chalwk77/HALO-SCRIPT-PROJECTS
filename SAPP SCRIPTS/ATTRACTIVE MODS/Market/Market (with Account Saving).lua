@@ -14,7 +14,7 @@ Grenades        m3             $30          2x of each
 Overshield      m4             $60          Shield Percentage: Full Shield
 Health          m5             $100         Health Percentage: Full
 Speed Boost     m6             $60          1.3x
-Teleport        n/a            $350         Teleport with flashlight key.
+Teleport        n/a            $350         Teleport where aiming
 
 All commands (including teleport) have a cooldown.
 Default: 60 seconds each.
@@ -165,8 +165,8 @@ local Account = {
 
         --
         -- Boost:
-        -- ["SAPP COMMAND EXECUTED"] = {"n/a", price, n/a, cooldown period, catalogue message}
-        ['boost'] = { 'n/a', 350, 'n/a', 60, "-$350 -> Teleport with flashlight key" }
+        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, n/a, cooldown period, catalogue message}
+        ['boost'] = { 'm7', 350, 'n/a', 60, "-$350 -> Teleport where aiming" }
 
 
         --
@@ -223,6 +223,12 @@ local function WriteToFile(self, t)
     end
 end
 
+local function NewTimes()
+    local now = time
+    local finish = now() + Account.buy_commands['god'][3]
+    return now, finish
+end
+
 function Account:new(t)
 
     setmetatable(t, self)
@@ -230,8 +236,30 @@ function Account:new(t)
 
     self.meta_id = 0
     self.god = false
-    self.flashlight = 0
     self.logged_in = false
+
+    for cmd, b in pairs(t.buy_commands) do
+        b.execute = function()
+            if (cmd == 'god') then
+                t.god = true
+                t.time, t.finish = NewTimes()
+                execute_command(cmd .. ' ' .. t.pid)
+            elseif (cmd == 'boost') then
+                execute_command(cmd .. ' ' .. t.pid)
+            else
+                t.time = time
+                t.start = true
+                t.finish = time() + b[4]
+                execute_command(cmd .. ' ' .. t.pid .. ' ' .. b[3])
+            end
+        end
+        b.ungod = function()
+            t.god = false
+            t.time, t.finish = NewTimes()
+            t:respond("God Mode perk has expired.")
+            execute_command('ungod ' .. t.pid)
+        end
+    end
     return t
 end
 
@@ -301,12 +329,6 @@ local function GetTag(Type, Name)
     return Tag ~= 0 and read_dword(Tag + 0xC) or nil
 end
 
-local function NewTimes()
-    local now = time
-    local finish = now() + Account.buy_commands['god'][3]
-    return now, finish
-end
-
 function OnJoin(Ply)
     local ip = GetIP(Ply)
     local now, finish = NewTimes()
@@ -352,43 +374,12 @@ function OnTick()
 
     for _, t in pairs(players) do
         if (t.logged_in) then
-            if player_alive(t.pid) then
-                local DyN = get_dynamic_player(t.pid)
-                local flashlight = read_bit(DyN + 0x208, 4)
-                if (flashlight ~= t.flashlight and flashlight == 1) then
-                    local cmd = t.buy_commands['boost']
-                    if (cmd[2] == 0) then
-                        t:respond("Boost currently disabled.")
-                        goto next
-                    elseif (cmd.start) then
-                        local time_remaining = cmd.finish - cmd.time()
-                        t:respond("Command on cooldown")
-                        t:respond("Please wait " .. time_remaining .. " second" .. Plural(time_remaining))
-                        goto next
-                    elseif (t.balance >= cmd[2]) then
-                        cmd.time = time
-                        cmd.start = true
-                        cmd.finish = time() + cmd[4]
-                        t:respond(cmd[#cmd])
-                        t:withdraw({ cmd[2] })
-                        execute_command('boost ' .. t.pid)
-                    else
-                        t:respond("You do not have enough money!")
-                        t:respond("You need $" .. cmd[2] - t.balance)
-                    end
-                end
-                :: next ::
-                t.flashlight = flashlight
-                if (t.god and t.time() >= t.finish) then
-                    t.god = false
-                    t.time, t.finish = NewTimes()
-                    t:respond("God Mode perk has expired.")
-                    execute_command('ungod ' .. t.pid)
-                end
-            end
             for cmd, b in pairs(t.buy_commands) do
-                if (b.start and b.time() >= b.finish) then
-                    b.start = false
+                if (cmd == 'god' and t.god and t.time() >= t.finish) then
+                    b:ungod()
+                end
+                if (b.cooldown_start and b.cooldown_time() >= b.cooldown_finish) then
+                    b.cooldown_start = false
                     t:respond("Perk /", cmd .. " cooldown has expired.")
                 end
             end
@@ -521,7 +512,7 @@ function OnCommand(Ply, CMD, _, _)
             end
 
             local response = true
-            for cmd, v in pairs(t.buy_commands) do
+            for _, v in pairs(t.buy_commands) do
                 if (args[1] == t.catalogue_command) then
                     t:respond('/' .. v[1] .. ' ' .. v[#v])
                     response = false
@@ -535,18 +526,9 @@ function OnCommand(Ply, CMD, _, _)
                         t:respond("Command on cooldown")
                         t:respond("Please wait " .. time_remaining .. " second" .. Plural(time_remaining))
                     elseif (t.balance >= v[2]) then
-                        v.time = time
-                        v.start = true
-                        v.finish = time() + v[4]
                         t:respond(v[#v])
                         t:withdraw({ v[2] })
-                        if (cmd == 'god') then
-                            t.god = true
-                            t.time, t.finish = NewTimes()
-                            execute_command(cmd .. ' ' .. Ply)
-                            return false
-                        end
-                        execute_command(cmd .. ' ' .. Ply .. ' ' .. v[3])
+                        v:execute()
                     else
                         t:respond("You do not have enough money!")
                         t:respond("You need $" .. v[2] - t.balance)
