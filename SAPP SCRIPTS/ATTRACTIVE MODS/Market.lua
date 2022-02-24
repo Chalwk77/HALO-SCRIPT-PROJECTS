@@ -436,7 +436,7 @@ function OnCommand(Ply, CMD, _, _)
                         if (t.database[name]) then
                             t:respond("That account username already exists.")
                         else
-                            t.database[name] = { [name] = { password = password, balance = t.balance } }
+                            t.database[name] = { password = password, balance = t.balance }
                             t.logged_in = true
                             t:respond("Account successfully created.")
                         end
@@ -454,7 +454,7 @@ function OnCommand(Ply, CMD, _, _)
                             t.logged_in = true
                             t.balance = t.database[name].balance
                             -- todo: save login time here for stale-account checks:
-                            t.database[name] = { [name] = { password = password, balance = t.balance } }
+                            t.database[name] = { password = password, balance = t.balance }
                             t:respond("Successfully logged in. Balance: $" .. t.balance)
                         else
                             t:respond("Invalid password. Please try again.")
