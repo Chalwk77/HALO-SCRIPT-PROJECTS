@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Market (v 1.7), for SAPP (PC & CE)
+Script Name: Market (v 1.8), for SAPP (PC & CE)
 Description: Earn money for killing and scoring.
 
 Use your money to buy the following:
@@ -322,6 +322,10 @@ function OnScore(Ply)
     t:deposit(t['on_score'])
 end
 
+local function Plural(n)
+    return (n > 1 and "s" or "")
+end
+
 function OnTick()
 
     -- Delete stale accounts:
@@ -348,10 +352,11 @@ function OnTick()
                 if (flashlight ~= v.flashlight and flashlight == 1) then
                     local cmd = v.buy_commands['boost']
                     if (cmd[2] == 0) then
-                        v:respond("Boost currently disabled")
+                        v:respond("Boost currently disabled.")
                         goto next
                     elseif (cmd.start) then
-                        v:respond("Boost on cooldown. Please wait " .. cmd.finish - cmd.time() .. " seconds")
+                        local time_remaining = cmd.finish - cmd.time()
+                        v:respond("Boost on cooldown. Please wait " .. time_remaining .. " second" .. Plural(time_remaining))
                         goto next
                     elseif (v.balance >= cmd[2]) then
                         cmd.time = time
@@ -362,6 +367,7 @@ function OnTick()
                         execute_command('boost ' .. v.pid)
                     else
                         v:respond("You do not have enough money!")
+                        v:respond("You need $" .. cmd[2] - v.balance)
                     end
                 end
                 :: next ::
@@ -373,9 +379,10 @@ function OnTick()
                 v:respond("God Mode has expired")
                 execute_command('ungod ' .. v.pid)
             end
-            for _, t in pairs(v.buy_commands) do
+            for cmd, t in pairs(v.buy_commands) do
                 if (t.start and t.time() >= t.finish) then
                     t.start = false
+                    v:respond("Perk: /", cmd .. " cooldown has expired")
                 end
             end
         end
@@ -515,7 +522,8 @@ function OnCommand(Ply, CMD, _, _)
                     elseif (v[2] == 0) then
                         t:respond("Command disabled")
                     elseif (v.start) then
-                        t:respond("Command on cooldown. Please wait " .. v.finish - v.time() .. " seconds")
+                        local time_remaining = v.finish - v.time()
+                        t:respond("Command on cooldown. Please wait " .. time_remaining .. " second" .. Plural(time_remaining))
                     elseif (t.balance >= v[2]) then
                         v.time = time
                         v.start = true
@@ -530,6 +538,7 @@ function OnCommand(Ply, CMD, _, _)
                         execute_command(cmd .. ' ' .. Ply .. ' ' .. v[3])
                     else
                         t:respond("You do not have enough money!")
+                        t:respond("You need $" .. v[2] - t.balance)
                     end
                     return false
                 end
