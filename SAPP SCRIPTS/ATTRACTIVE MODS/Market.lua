@@ -204,6 +204,14 @@ local function GetIP(Ply)
     return get_var(Ply, '$ip')
 end
 
+local function WriteToFile(self, t)
+    local file = open(self.dir, 'w')
+    if (file) then
+        file:write(json:encode_pretty(t))
+        file:close()
+    end
+end
+
 function Account:new(t)
 
     setmetatable(t, self)
@@ -245,14 +253,6 @@ function Account:withdraw(t)
     self:respond(t[2])
 end
 
-local function WriteToFile(self, t)
-    local file = open(self.dir, 'w')
-    if (file) then
-        file:write(json:encode_pretty(t))
-        file:close()
-    end
-end
-
 function Account:CheckFile(ScriptLoad)
     self.database = (ScriptLoad and nil or self.database)
     if (get_var(0, '$gt') ~= ' "n/a"') then
@@ -270,6 +270,20 @@ function Account:CheckFile(ScriptLoad)
             self.database = data or {}
         end
     end
+end
+
+function Account:Cache(name, password, balance)
+
+    local day = date("*t").day
+    local month = date("*t").month
+    local year = date("*t").year
+
+    self.logged_in = true
+    self.database[name] = {
+        password = password,
+        balance = balance,
+        last_login = { day = day, month = month, year = year }
+    }
 end
 
 function Account:respond(msg)
@@ -401,20 +415,6 @@ end
 local function HasPermission(t)
     local l = tonumber(get_var(t.pid, '$lvl'))
     return (l >= t.required_level or t:respond("Insufficient Permission") and false)
-end
-
-function Account:Cache(name, password, balance)
-
-    local day = date("*t").day
-    local month = date("*t").month
-    local year = date("*t").year
-
-    self.logged_in = true
-    self.database[name] = {
-        password = password,
-        balance = balance,
-        last_login = { day = day, month = month, year = year }
-    }
 end
 
 function OnCommand(Ply, CMD, _, _)
