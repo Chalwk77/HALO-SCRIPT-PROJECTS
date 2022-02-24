@@ -356,7 +356,8 @@ function OnTick()
                         goto next
                     elseif (cmd.start) then
                         local time_remaining = cmd.finish - cmd.time()
-                        v:respond("Boost on cooldown. Please wait " .. time_remaining .. " second" .. Plural(time_remaining))
+                        v:respond("Command on cooldown")
+                        v:respond("Please wait " .. time_remaining .. " second" .. Plural(time_remaining))
                         goto next
                     elseif (v.balance >= cmd[2]) then
                         cmd.time = time
@@ -376,13 +377,13 @@ function OnTick()
             if (v.god and v.god_timer(v)) then
                 v.god = false
                 v.time, v.finish = NewTimes()
-                v:respond("God Mode has expired")
+                v:respond("God Mode perk has expired.")
                 execute_command('ungod ' .. v.pid)
             end
             for cmd, t in pairs(v.buy_commands) do
                 if (t.start and t.time() >= t.finish) then
                     t.start = false
-                    v:respond("Perk: /", cmd .. " cooldown has expired")
+                    v:respond("Perk /", cmd .. " cooldown has expired.")
                 end
             end
         end
@@ -523,7 +524,8 @@ function OnCommand(Ply, CMD, _, _)
                         t:respond("Command disabled")
                     elseif (v.start) then
                         local time_remaining = v.finish - v.time()
-                        t:respond("Command on cooldown. Please wait " .. time_remaining .. " second" .. Plural(time_remaining))
+                        t:respond("Command on cooldown")
+                        t:respond("Please wait " .. time_remaining .. " second" .. Plural(time_remaining))
                     elseif (t.balance >= v[2]) then
                         v.time = time
                         v.start = true
