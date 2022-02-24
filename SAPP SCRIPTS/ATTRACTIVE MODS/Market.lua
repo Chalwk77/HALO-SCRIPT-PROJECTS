@@ -119,9 +119,9 @@ local Account = {
     ['suicide'] = { -4, "-$4 (suicide)" },
     ['squashed'] = { -2, "-$2 (squashed)" },
     ['betrayal'] = { -7, "-$7 (betrayal)" },
-    ['fall_damage'] = { -5, "-$5 (fall damage)" },
+    ['fall_damage'] = { -5, "-$5 (fall damage)" }, -- doesn't work on protected maps, but wont break the script
     ['died/unknown'] = { -5, "-$5 (died/unknown)" },
-    ['distance_damage'] = { -5, "-$5 (distance damage" },
+    ['distance_damage'] = { -5, "-$5 (distance damage" }, -- doesn't work on protected maps, but wont break the script
 
 
     ----------------------------------------------------
@@ -165,20 +165,28 @@ local Account = {
         --
         -- Boost:
         -- ["SAPP COMMAND EXECUTED"] = {"n/a", price, n/a, cooldown period, catalogue message}
-        ['boost'] = { 'n/a', 350, 'n/a', 60, "-$350 -> Teleport with flashlight key" },
+        ['boost'] = { 'n/a', 350, 'n/a', 60, "-$350 -> Teleport with flashlight key" }
+
+
+        --
+        -- MORE FEATURES ARE COMING IN FUTURE UPDATES
+        -- MORE FEATURES ARE COMING IN FUTURE UPDATES
+        -- MORE FEATURES ARE COMING IN FUTURE UPDATES
+        --
     }
 }
-
 -- config ends --
 
 local players = { }
 local ffa, falling, distance, first_blood
 
-local open = io.open
-local floor = math.floor
 local json = loadfile('./json.lua')()
+local floor = math.floor
+
 local match, gsub = string.match, string.gsub
 local gmatch, lower = string.gmatch, string.lower
+
+local open = io.open
 local time, date, diff = os.time, os.date, os.difftime
 
 api_version = '1.12.0.0'
@@ -293,7 +301,6 @@ local function GetTag(Type, Name)
 end
 
 local function NewTimes()
-    -- god mode
     local now = time
     local finish = now() + Account.buy_commands['god'][3]
     return now, finish
@@ -403,8 +410,10 @@ function OnStart()
 
         ffa = (get_var(0, '$ffa') == '1')
 
+        -- these will not work on protected maps:
         falling = GetTag('jpt!', 'globals\\falling')
         distance = GetTag('jpt!', 'globals\\distance')
+        --
 
         for i = 1, 16 do
             if player_present(i) then
