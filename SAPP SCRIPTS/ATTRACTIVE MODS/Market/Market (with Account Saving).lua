@@ -15,6 +15,7 @@ Overshield      m4             $60          Shield Percentage: Full Shield
 Health          m5             $100         Health Percentage: Full
 Speed Boost     m6             $60          1.3x
 Teleport        m7             $350         Teleport where aiming
+Damage Boost    m8             $500         1.3x damage infliction
 
 All perks (including teleport) have a cooldown.
 Default: 60 seconds each.
@@ -135,39 +136,49 @@ local Account = {
         --
 
         -- Camouflage:
-        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, duration, cooldown period, catalogue message}
+        -- ["SAPP COMMAND EXECUTED"] = {custom command, price, duration, cooldown period, catalogue message}
         ['camo'] = { 'm1', 60, 30, 60, "-$60 -> Camo (30 seconds)" },
 
         --
         -- God Mode:
-        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, duration, cooldown period, catalogue message}
+        -- ["SAPP COMMAND EXECUTED"] = {custom command, price, duration, cooldown period, catalogue message}
         ['god'] = { 'm2', 200, 30, 60, "-$200 -> God (30 seconds)" },
 
         --
         -- Grenades:
-        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, total, cooldown period, catalogue message}
+        -- ["SAPP COMMAND EXECUTED"] = {custom command, price, total, cooldown period, catalogue message}
         ['nades'] = { 'm3', 30, 2, 60, "-$30 -> Frags/Plasmas (x2 each)" },
 
         --
         -- Speed Boost:
-        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, speed, cooldown period, catalogue message}
+        -- ["SAPP COMMAND EXECUTED"] = {custom command, price, speed, cooldown period, catalogue message}
         ['s'] = { 'm4', 60, 1.3, 60, "-$60 -> Speed Boost (1.3x)" },
 
         --
         -- Overshield:
-        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, state, cooldown period, catalogue message}
+        -- ["SAPP COMMAND EXECUTED"] = {custom command, price, state, cooldown period, catalogue message}
         ['sh'] = { 'm5', 100, 1, 60, "-$100 -> Camo (full shield)" },
 
         --
         -- Health:
-        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, h-points, cooldown period, catalogue message}
+        -- ["SAPP COMMAND EXECUTED"] = {custom command, price, h-points, cooldown period, catalogue message}
         ['hp'] = { 'm6', 100, 1, 60, "-$100 -> HP (full health)" },
 
         --
         -- Boost:
-        -- ["SAPP COMMAND EXECUTED"] = {"custom command", price, n/a, cooldown period, catalogue message}
-        ['boost'] = { 'm7', 350, 'n/a', 60, "-$350 -> Teleport where aiming" }
+        -- ["SAPP COMMAND EXECUTED"] = {custom command, price, n/a, cooldown period, catalogue message}
+        ['boost'] = { 'm7', 350, nil, 60, "-$350 -> Teleport where aiming" },
 
+        --
+        -- Damage Boost:
+        ['damage_multiplier'] = {
+            'm8', -- custom command
+            500, -- price
+            1.3, -- multiplier (1 is normal damage)
+            120, -- duration
+            60, -- cooldown period
+            "-$500 -> 1.3x damage" -- catalogue message
+        }
 
         --
         -- MORE FEATURES ARE COMING IN FUTURE UPDATES
@@ -200,6 +211,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], 'OnTick')
     register_callback(cb['EVENT_DIE'], 'OnDeath')
     register_callback(cb['EVENT_JOIN'], 'OnJoin')
+    register_callback(cb['EVENT_SPAWN'], 'OnSpawn')
     register_callback(cb['EVENT_SCORE'], 'OnScore')
     register_callback(cb['EVENT_GAME_END'], 'OnEnd')
     register_callback(cb['EVENT_COMMAND'], 'OnCommand')
@@ -231,6 +243,7 @@ function Account:new(t)
     self.meta_id = 0
     self.god = false
     self.logged_in = false
+    self.damage_multiplier = 1
     return t
 end
 
@@ -320,6 +333,14 @@ function OnScore(Ply)
     t:deposit(t['on_score'])
 end
 
+function OnSpawn(Ply)
+    local ip = GetIP(Ply)
+    local t = players[ip]
+    if (t.god) then
+        execute_command("w8 1;god " .. Ply)
+    end
+end
+
 local function Plural(n)
     return (n > 1 and "s" or "")
 end
@@ -345,7 +366,10 @@ function OnTick()
     for _, t in pairs(players) do
         if (t.logged_in) then
             for cmd, perk in pairs(t.buy_commands) do
-                if (cmd == 'god' and t.god and t.god_time() >= t.god_finish) then
+                if (cmd == 'damage_multiplier' and t.damage_multiplier > 1 and t.damage_time() >= t.damage_finish) then
+                    t.damage_multiplier = 1
+                    t:respond("Damage Multiplier has expired.")
+                elseif (cmd == 'god' and t.god and t.god_time() >= t.god_finish) then
                     t.god = false
                     t:respond("God Mode perk has expired.")
                     execute_command('ungod ' .. t.pid)
@@ -493,7 +517,7 @@ function OnCommand(Ply, CMD, _, _)
                 if (args[1] == t.catalogue_command) then
                     t:respond('/' .. perk[1] .. ' ' .. perk[#perk])
                     response = false
-                elseif (args[1] == perk[1] and perk[1] ~= 'n/a') then
+                elseif (args[1] == perk[1]) then
                     if (not t.logged_in) then
                         t:respond("You are not logged in.")
                     elseif (perk[2] == 0) then
@@ -505,7 +529,13 @@ function OnCommand(Ply, CMD, _, _)
                     elseif (t.balance >= perk[2]) then
                         t:respond(perk[#perk])
                         t:withdraw({ perk[2] })
-                        if (cmd == 'god') then
+                        local finish
+                        if (cmd == "damage_multiplier") then
+                            t.damage_multiplier = perk[3]
+                            t.damage_time = time
+                            t.damage_finish = time() + perk[4]
+                            finish = perk[5] -- finish table index changed for this cmd
+                        elseif (cmd == 'god') then
                             t.god = true
                             t.god_time = time
                             t.god_finish = time() + perk[3]
@@ -517,7 +547,7 @@ function OnCommand(Ply, CMD, _, _)
                         end
                         perk.cooldown_time = time
                         perk.cooldown_start = true
-                        perk.cooldown_finish = time() + perk[4]
+                        perk.cooldown_finish = time() + (finish and finish or perk[4])
                     else
                         t:respond("You do not have enough money!")
                         t:respond("You need $" .. perk[2] - t.balance)
@@ -531,7 +561,7 @@ function OnCommand(Ply, CMD, _, _)
     end
 end
 
-function OnDeath(Victim, Killer, MetaID)
+function OnDeath(Victim, Killer, MetaID, Damage)
 
     local victim = tonumber(Victim)
     local killer = tonumber(Killer)
@@ -544,10 +574,8 @@ function OnDeath(Victim, Killer, MetaID)
         -- event_damage_application:
         if (MetaID) then
             v.meta_id = MetaID
-            goto done
+            return true, (k and Damage * k.damage_multiplier or 1)
         end
-
-        v.god = false
 
         -- event_die:
         local squashed = (killer == 0)
