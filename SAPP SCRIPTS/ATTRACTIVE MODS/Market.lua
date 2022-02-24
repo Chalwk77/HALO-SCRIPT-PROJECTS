@@ -241,19 +241,6 @@ function Account:withdraw(t)
     self:respond(t[2])
 end
 
-function Account:get()
-
-    local accounts
-    local file = open(self.dir, 'r')
-    if (file) then
-        local contents = file:read('*all')
-        accounts = (contents and json:decode(contents)) or nil
-        file:close()
-    end
-
-    return accounts
-end
-
 local function WriteToFile(self, t)
     local file = open(self.dir, 'w')
     if (file) then
