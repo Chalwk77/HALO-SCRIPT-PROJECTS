@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Market (v 1.6), for SAPP (PC & CE)
+Script Name: Market (v 1.7), for SAPP (PC & CE)
 Description: Earn money for killing and scoring.
 
 Use your money to buy the following:
@@ -96,6 +96,10 @@ local Account = {
     required_level = 1,
     --
 
+    -- If a user doesn't log into an account after this many days, it's considered
+    -- stale and will be deleted:
+    stale_account_period = 30,
+
 
     -- Money deposited/withdrawn during these events:
     --
@@ -167,13 +171,13 @@ local Account = {
 
 local players = { }
 local ffa, falling, distance, first_blood
-local interval = Account.buy_commands['god'][3]
 
-local time = os.time
 local open = io.open
+local floor = math.floor
 local json = loadfile('./json.lua')()
 local match, gsub = string.match, string.gsub
 local gmatch, lower = string.gmatch, string.lower
+local time, date, diff = os.time, os.date, os.difftime
 
 api_version = '1.12.0.0'
 
@@ -250,22 +254,15 @@ local function WriteToFile(self, t)
 end
 
 function Account:CheckFile(ScriptLoad)
-
-    if (ScriptLoad) then
-        self.database = nil
-    end
-
+    self.database = (ScriptLoad and nil or self.database)
     if (get_var(0, '$gt') ~= ' "n/a"') then
-
         if (self.database == nil) then
-
             local content = ''
             local file = open(self.dir, 'r')
             if (file) then
                 content = file:read('*all')
                 file:close()
             end
-
             local data = json:decode(content)
             if (not data) then
                 WriteToFile(self, {})
@@ -286,20 +283,16 @@ end
 
 local function NewTimes()
     local now = time
-    local finish = now() + interval
+    local finish = now() + Account.buy_commands['god'][3]
     return now, finish
 end
 
 function OnJoin(Ply)
     local ip = GetIP(Ply)
     local now, finish = NewTimes()
-    local t = {
-        pid = Ply,
-        time = now,
-        finish = finish,
-        team = get_var(Ply, '$team'),
-        name = get_var(Ply, '$name')
-    }
+    local name = get_var(Ply, '$name')
+    local team = get_var(Ply, '$team')
+    local t = { pid = Ply, time = now, team = team, name = name, finish = finish }
     if (players[ip]) then
         for k, v in pairs(t) do
             players[ip][k] = v
@@ -316,6 +309,23 @@ function OnScore(Ply)
 end
 
 function OnTick()
+
+    -- Delete stale accounts:
+    for k, v in pairs(Account.database) do
+        if (k) then
+            local day = v.last_login.day
+            local month = v.last_login.month
+            local year = v.last_login.year
+            local reference = time { day = day, month = month, year = year }
+            local days_from = diff(time(), reference) / (24 * 60 * 60)
+            local whole_days = floor(days_from)
+            if (whole_days >= Account.stale_account_period) then
+                cprint("Deleting stale account for user " .. k, 12)
+                Account.database[k] = nil
+            end
+        end
+    end
+
     for _, v in pairs(players) do
         if (v.logged_in) then
             if player_alive(v.pid) then
@@ -393,6 +403,20 @@ local function HasPermission(t)
     return (l >= t.required_level or t:respond("Insufficient Permission") and false)
 end
 
+function Account:Cache(name, password, balance)
+
+    local day = date("*t").day
+    local month = date("*t").month
+    local year = date("*t").year
+
+    self.logged_in = true
+    self.database[name] = {
+        password = password,
+        balance = balance,
+        last_login = { day = day, month = month, year = year }
+    }
+end
+
 function OnCommand(Ply, CMD, _, _)
 
     if (Ply > 0) then
@@ -423,8 +447,7 @@ function OnCommand(Ply, CMD, _, _)
                         if (t.database[name]) then
                             t:respond("That account username already exists.")
                         else
-                            t.database[name] = { password = password, balance = t.balance }
-                            t.logged_in = true
+                            t:Cache(name, password, t.balance)
                             t:respond("Account successfully created.")
                         end
                     else
@@ -438,10 +461,7 @@ function OnCommand(Ply, CMD, _, _)
                         t:respond("Make sure username & password do not contain spaces.")
                     elseif (t.database[name]) then
                         if (password == t.database[name].password) then
-                            t.logged_in = true
-                            t.balance = t.database[name].balance
-                            -- todo: save login time here for stale-account checks:
-                            t.database[name] = { password = password, balance = t.balance }
+                            t:Cache(name, password, t.balance)
                             t:respond("Successfully logged in. Balance: $" .. t.balance)
                         else
                             t:respond("Invalid password. Please try again.")
