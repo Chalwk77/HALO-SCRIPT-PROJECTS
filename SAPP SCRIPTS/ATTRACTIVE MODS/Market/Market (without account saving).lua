@@ -326,7 +326,7 @@ function OnCommand(Ply, CMD, _, _)
                 return false
             elseif (args[1] == t.add_funds_command or args[1] == t.remove_funds_command) then
                 if HasPermission(t) then
-                    local p = players[args[2]]
+                    local p = players[tonumber(args[2])]
                     if not player_present(args[2]) then
                         t:respond("Player #" .. args[2] .. " is not online.")
                     elseif (not args[2] or not match(args[2], '%d+')) then
