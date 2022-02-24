@@ -157,14 +157,9 @@ local Account = {
 local players = { }
 local ffa, falling, distance, first_blood
 
-local json = loadfile('./json.lua')()
-local floor = math.floor
-
+local time = os.time
 local match, gsub = string.match, string.gsub
 local gmatch, lower = string.gmatch, string.lower
-
-local open = io.open
-local time, date, diff = os.time, os.date, os.difftime
 
 api_version = '1.12.0.0'
 
@@ -254,14 +249,17 @@ end
 function OnTick()
     for _, t in pairs(players) do
         for cmd, perk in pairs(t.buy_commands) do
-            if (cmd == 'god' and t.god and t.god_time() >= t.god_finish) then
+            if (cmd == 'damage_multiplier' and t.damage_multiplier > 1 and t.damage_time() >= t.damage_finish) then
+                t.damage_multiplier = 1
+                t:respond("Damage Multiplier Perk has expired.")
+            elseif (cmd == 'god' and t.god and t.god_time() >= t.god_finish) then
                 t.god = false
                 t:respond("God Mode perk has expired.")
                 execute_command('ungod ' .. t.pid)
             end
             if (perk.cooldown_start and perk.cooldown_time() >= perk.cooldown_finish) then
                 perk.cooldown_start = false
-                t:respond("Perk /", cmd .. " cooldown has expired.")
+                t:respond("/", cmd .. " cooldown has expired.")
             end
         end
     end
