@@ -156,6 +156,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], 'OnTick')
     register_callback(cb['EVENT_DIE'], 'OnDeath')
     register_callback(cb['EVENT_JOIN'], 'OnJoin')
+    register_callback(cb['EVENT_LEAVE'], 'OnQuit')
     register_callback(cb['EVENT_SCORE'], 'OnScore')
     register_callback(cb['EVENT_GAME_END'], 'OnEnd')
     register_callback(cb['EVENT_COMMAND'], 'OnCommand')
@@ -222,6 +223,10 @@ function OnJoin(Ply)
     local name = get_var(Ply, '$name')
     local team = get_var(Ply, '$team')
     players[Ply] = Account:new({ pid = Ply, time = now, team = team, name = name, finish = finish })
+end
+
+function OnQuit(Ply)
+    players[Ply] = nil
 end
 
 function OnScore(Ply)
