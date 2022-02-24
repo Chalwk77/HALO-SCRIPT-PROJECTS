@@ -327,8 +327,6 @@ function OnCommand(Ply, CMD, _, _)
                     elseif (t.balance >= perk[2]) then
                         t:respond(perk[#perk])
                         t:withdraw({ perk[2] })
-                        t:respond(perk[#perk])
-                        t:withdraw({ perk[2] })
                         if (cmd == 'god') then
                             t.god = true
                             t.god_time = time
