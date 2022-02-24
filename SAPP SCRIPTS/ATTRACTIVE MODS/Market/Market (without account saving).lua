@@ -2,11 +2,9 @@
 --=====================================================================================================--
 Script Name: Market (without account saving), for SAPP (PC & CE)
 Description: Earn money for killing and scoring.
-Version: 1.0
+Version: 1.10
 
-* In this version, player stats are reset at the beginning of each game.
-
-Use your money to buy the following:
+Use your money to buy the following perks:
 
 Type			Command        Price        Catalogue Message
 ----			-------	       -----        -----------------
@@ -16,13 +14,17 @@ Grenades        m3             $30          2x of each
 Overshield      m4             $60          Shield Percentage: Full Shield
 Health          m5             $100         Health Percentage: Full
 Speed Boost     m6             $60          1.3x
-Teleport        n/a            $350         Teleport where aiming
+Teleport        m7             $350         Teleport where aiming
 
-All commands (including teleport) have a cooldown.
+All perks (including teleport) have a cooldown.
 Default: 60 seconds each.
 
-Command to view available items for purchase: /market
+Command to view available perks for purchase: /market
 Command to view current balance: /money
+
+Two available admin-override commands:
+1. /deposit <pid> <amount>
+2. /withdraw <pid> <amount>
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -36,8 +38,7 @@ local Account = {
 
     -- Starting balance:
     --
-    balance = 0,
-
+    balance = 5000,
 
     -- Command used to view available items for purchase:
     --
@@ -66,7 +67,6 @@ local Account = {
     -- Players must be this level (or higher) to add/remove funds from an account:
     required_level = 1,
     --
-
 
     -- Money deposited/withdrawn during these events:
     --
@@ -145,9 +145,14 @@ local Account = {
 local players = { }
 local ffa, falling, distance, first_blood
 
-local time = os.time
+local json = loadfile('./json.lua')()
+local floor = math.floor
+
 local match, gsub = string.match, string.gsub
 local gmatch, lower = string.gmatch, string.lower
+
+local open = io.open
+local time, date, diff = os.time, os.date, os.difftime
 
 api_version = '1.12.0.0'
 
@@ -156,20 +161,14 @@ function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], 'OnTick')
     register_callback(cb['EVENT_DIE'], 'OnDeath')
     register_callback(cb['EVENT_JOIN'], 'OnJoin')
-    register_callback(cb['EVENT_LEAVE'], 'OnQuit')
     register_callback(cb['EVENT_SCORE'], 'OnScore')
-    register_callback(cb['EVENT_GAME_END'], 'OnEnd')
     register_callback(cb['EVENT_COMMAND'], 'OnCommand')
     register_callback(cb['EVENT_GAME_START'], 'OnStart')
     register_callback(cb['EVENT_TEAM_SWITCH'], 'OnSwitch')
     register_callback(cb['EVENT_DAMAGE_APPLICATION'], 'OnDeath')
     OnStart()
-end
 
-local function NewTimes()
-    local now = time
-    local finish = now() + Account.buy_commands['god'][3]
-    return now, finish
+    Account:CheckFile(true)
 end
 
 function Account:new(t)
@@ -179,30 +178,6 @@ function Account:new(t)
 
     self.meta_id = 0
     self.god = false
-
-    for cmd, b in pairs(t.buy_commands) do
-        b.execute = function()
-            if (cmd == 'god') then
-                t.god = true
-                t.time, t.finish = NewTimes()
-                execute_command(cmd .. ' ' .. t.pid)
-            elseif (cmd == 'boost') then
-                execute_command(cmd .. ' ' .. t.pid)
-            else
-                t.time = time
-                t.start = true
-                t.finish = time() + b[4]
-                execute_command(cmd .. ' ' .. t.pid .. ' ' .. b[3])
-            end
-        end
-        b.ungod = function()
-            t.god = false
-            t.time, t.finish = NewTimes()
-            t:respond("God Mode perk has expired.")
-            execute_command('ungod ' .. t.pid)
-        end
-    end
-
     return t
 end
 
@@ -242,14 +217,9 @@ local function GetTag(Type, Name)
 end
 
 function OnJoin(Ply)
-    local now, finish = NewTimes()
     local name = get_var(Ply, '$name')
     local team = get_var(Ply, '$team')
-    players[Ply] = Account:new({ pid = Ply, time = now, team = team, name = name, finish = finish })
-end
-
-function OnQuit(Ply)
-    players[Ply] = nil
+    players[Ply] = Account:new({ pid = Ply, team = team, name = name })
 end
 
 function OnScore(Ply)
@@ -263,12 +233,14 @@ end
 
 function OnTick()
     for _, t in pairs(players) do
-        for cmd, b in pairs(t.buy_commands) do
-            if (cmd == 'god' and t.god and t.time() >= t.finish) then
-                b:ungod()
+        for cmd, perk in pairs(t.buy_commands) do
+            if (cmd == 'god' and t.god and t.god_time() >= t.god_finish) then
+                t.god = false
+                t:respond("God Mode perk has expired.")
+                execute_command('ungod ' .. t.pid)
             end
-            if (b.cooldown_start and b.cooldown_time() >= b.cooldown_finish) then
-                b.cooldown_start = false
+            if (perk.cooldown_start and perk.cooldown_time() >= perk.cooldown_finish) then
+                perk.cooldown_start = false
                 t:respond("Perk /", cmd .. " cooldown has expired.")
             end
         end
@@ -317,7 +289,6 @@ function OnCommand(Ply, CMD, _, _)
         if (#args > 0) then
 
             local t = players[Ply]
-
             if (args[1] == t.get_balance_command) then
                 t:respond("You have $" .. t.balance)
                 return false
@@ -342,24 +313,38 @@ function OnCommand(Ply, CMD, _, _)
             end
 
             local response = true
-            for _, v in pairs(t.buy_commands) do
+            for cmd, perk in pairs(t.buy_commands) do
                 if (args[1] == t.catalogue_command) then
-                    t:respond('/' .. v[1] .. ' ' .. v[#v])
+                    t:respond('/' .. perk[1] .. ' ' .. perk[#perk])
                     response = false
-                elseif (args[1] == v[1] and v[1] ~= 'n/a') then
-                    if (v[2] == 0) then
+                elseif (args[1] == perk[1] and perk[1] ~= 'n/a') then
+                    if (perk[2] == 0) then
                         t:respond("Command disabled")
-                    elseif (v.cooldown_start) then
-                        local time_remaining = v.cooldown_finish - v.cooldown_time()
+                    elseif (perk.cooldown_start) then
+                        local time_remaining = perk.cooldown_finish - perk.cooldown_time()
                         t:respond("Command on cooldown")
                         t:respond("Please wait " .. time_remaining .. " second" .. Plural(time_remaining))
-                    elseif (t.balance >= v[2]) then
-                        t:respond(v[#v])
-                        t:withdraw({ v[2] })
-                        v:execute()
+                    elseif (t.balance >= perk[2]) then
+                        t:respond(perk[#perk])
+                        t:withdraw({ perk[2] })
+                        t:respond(perk[#perk])
+                        t:withdraw({ perk[2] })
+                        if (cmd == 'god') then
+                            t.god = true
+                            t.god_time = time
+                            t.god_finish = time() + perk[3]
+                            execute_command(cmd .. ' ' .. t.pid)
+                        elseif (cmd == 'boost') then
+                            execute_command(cmd .. ' ' .. t.pid)
+                        else
+                            execute_command(cmd .. ' ' .. t.pid .. ' ' .. perk[3])
+                        end
+                        perk.cooldown_time = time
+                        perk.cooldown_start = true
+                        perk.cooldown_finish = time() + perk[4]
                     else
                         t:respond("You do not have enough money!")
-                        t:respond("You need $" .. v[2] - t.balance)
+                        t:respond("You need $" .. perk[2] - t.balance)
                     end
                     return false
                 end
@@ -387,7 +372,6 @@ function OnDeath(Victim, Killer, MetaID)
         end
 
         v.god = false
-        v.time, v.finish = NewTimes()
 
         -- event_die:
         local squashed = (killer == 0)

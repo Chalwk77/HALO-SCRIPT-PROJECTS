@@ -2,7 +2,7 @@
 --=====================================================================================================--
 Script Name: Market (with account saving), for SAPP (PC & CE)
 Description: Earn money for killing and scoring.
-Version: 1.09
+Version: 1.10
 
 Use your money to buy the following perks:
 
@@ -231,29 +231,6 @@ function Account:new(t)
     self.meta_id = 0
     self.god = false
     self.logged_in = false
-
-    for cmd, perk in pairs(t.buy_commands) do
-        perk.execute = function()
-            if (cmd == 'god') then
-                t.god = true
-                t.god_time = time
-                t.god_finish = time() + perk[3]
-                execute_command(cmd .. ' ' .. t.pid)
-            elseif (cmd == 'boost') then
-                execute_command(cmd .. ' ' .. t.pid)
-            else
-                execute_command(cmd .. ' ' .. t.pid .. ' ' .. perk[3])
-            end
-            perk.cooldown_time = time
-            perk.cooldown_start = true
-            perk.cooldown_finish = time() + perk[4]
-        end
-        perk.ungod = function()
-            t.god = false
-            t:respond("God Mode perk has expired.")
-            execute_command('ungod ' .. t.pid)
-        end
-    end
     return t
 end
 
@@ -369,7 +346,9 @@ function OnTick()
         if (t.logged_in) then
             for cmd, perk in pairs(t.buy_commands) do
                 if (cmd == 'god' and t.god and t.god_time() >= t.god_finish) then
-                    perk:ungod()
+                    t.god = false
+                    t:respond("God Mode perk has expired.")
+                    execute_command('ungod ' .. t.pid)
                 end
                 if (perk.cooldown_start and perk.cooldown_time() >= perk.cooldown_finish) then
                     perk.cooldown_start = false
@@ -461,7 +440,9 @@ function OnCommand(Ply, CMD, _, _)
                         t:respond("Too many arguments!")
                         t:respond("Make sure username & password do not contain spaces.")
                     elseif (acc) then
-                        if (password == acc.password) then
+                        if (t.logged_in) then
+                            t:respond("You are already logged in.")
+                        elseif (password == acc.password) then
                             local balance = acc.balance
                             t.balance = balance
                             t:Cache(name, password, balance)
@@ -508,7 +489,7 @@ function OnCommand(Ply, CMD, _, _)
             end
 
             local response = true
-            for _, perk in pairs(t.buy_commands) do
+            for cmd, perk in pairs(t.buy_commands) do
                 if (args[1] == t.catalogue_command) then
                     t:respond('/' .. perk[1] .. ' ' .. perk[#perk])
                     response = false
@@ -524,7 +505,19 @@ function OnCommand(Ply, CMD, _, _)
                     elseif (t.balance >= perk[2]) then
                         t:respond(perk[#perk])
                         t:withdraw({ perk[2] })
-                        perk:execute()
+                        if (cmd == 'god') then
+                            t.god = true
+                            t.god_time = time
+                            t.god_finish = time() + perk[3]
+                            execute_command(cmd .. ' ' .. t.pid)
+                        elseif (cmd == 'boost') then
+                            execute_command(cmd .. ' ' .. t.pid)
+                        else
+                            execute_command(cmd .. ' ' .. t.pid .. ' ' .. perk[3])
+                        end
+                        perk.cooldown_time = time
+                        perk.cooldown_start = true
+                        perk.cooldown_finish = time() + perk[4]
                     else
                         t:respond("You do not have enough money!")
                         t:respond("You need $" .. perk[2] - t.balance)
