@@ -27,8 +27,8 @@ Account Management Commands:
 
 If you have an existing account, your balance will be restored when you log into your account.
 
-Some data is cached for a period of time, based on your IP address.
-If your IP changes or the server is restarted, you will have to log in again.
+Your login session will expire if your ip address changes or the server is rebooted.
+If this happens, you will need to log into your account using the above command.
 ---------------------------------------------------------------------------------------------------------------
 
 Command to view available items for purchase: /market
@@ -105,8 +105,8 @@ local Account = {
     ['pvp'] = { 8, "+$8 (pvp)" },
     ['on_score'] = { 10, "+$10 (score)" },
     ['run_over'] = { 5, "+$5 (run over)" },
-    ['guardians'] = { 6, "+$5 (guardians)" },
-    ['first_blood'] = { 10, "+$5 (first blood)" },
+    ['guardians'] = { 6, "+$6 (guardians)" },
+    ['first_blood'] = { 10, "+$10 (first blood)" },
     ['killed_from_grave'] = { 25, "+$25 (killed from grave)" },
     --
     -- withdraw:
@@ -451,7 +451,7 @@ function OnCommand(Ply, CMD, _, _)
                         end
                         t.tmp = { [name] = { password = password, balance = t.balance } }
                         t.logged_in = true
-                        t:respond("Account successfully created. [Auto logging in].")
+                        t:respond("Account successfully created.")
                     else
                         t:respond("You already have an account.")
                     end
