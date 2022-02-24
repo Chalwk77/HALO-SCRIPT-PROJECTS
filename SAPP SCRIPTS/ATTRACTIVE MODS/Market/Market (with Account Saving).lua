@@ -2,7 +2,7 @@
 --=====================================================================================================--
 Script Name: Market (with account saving), for SAPP (PC & CE)
 Description: Earn money for killing and scoring.
-Version: 1.10
+Version: 1.11
 
 Use your money to buy the following perks:
 
@@ -17,8 +17,7 @@ Speed Boost     m6             $60          1.3x
 Teleport        m7             $350         Teleport where aiming
 Damage Boost    m8             $500         1.3x damage infliction
 
-All perks (including teleport) have a cooldown.
-Default: 60 seconds each.
+All perks have a cooldown. Default 60 seconds each.
 
 ---------------------------------------------------------------------------------------------------------------
 Players are required to create an account (in-game) to use this script.
