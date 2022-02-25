@@ -2,7 +2,7 @@
 --=====================================================================================================--
 Script Name: Market (without account saving), for SAPP (PC & CE)
 Description: Earn money for killing and scoring.
-Version: 1.12
+Version: 1.13
 
 Use your money to buy the following perks:
 
