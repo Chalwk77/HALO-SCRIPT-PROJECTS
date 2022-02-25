@@ -171,8 +171,6 @@ function OnScriptLoad()
     register_callback(cb['EVENT_TEAM_SWITCH'], 'OnSwitch')
     register_callback(cb['EVENT_DAMAGE_APPLICATION'], 'OnDeath')
     OnStart()
-
-    Account:CheckFile(true)
 end
 
 function Account:new(t)
