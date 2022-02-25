@@ -65,7 +65,7 @@ local VPNBlocker = {
 
     -- If action is "b" the player will be banned for this amount of time ((in minutes) set to 0 for permanent ban):
     --
-    bantime = 10,
+    ban_time = 10,
 
     -- The reason for being kicked or banned:
     --
@@ -82,7 +82,7 @@ local VPNBlocker = {
     -- A message relay function temporarily removes the server prefix
     -- and will restore it to this when the relay is finished:
     --
-    serverPrefix = "**SAPP**",
+    server_prefix = "**SAPP**",
 
     -- Request Parameters:
     checks = {
@@ -148,8 +148,8 @@ local VPNBlocker = {
 
     exclusion_list = {
 
-        "127.0.0.1",
-        "192.168.1.1",
+        --"127.0.0.1",
+        --"192.168.1.1",
         --
         -- Repeat the structure to add more entries ip entries
         --
@@ -162,16 +162,39 @@ local VPNBlocker = {
     -- config ends --
 
     -- DO NOT TOUCH BELOW THIS POINT --
-    script_version = 1.4,
+    script_version = 1.5,
     site = "https://www.ipqualityscore.com/api/json/ip/api_key/"
 }
 
 api_version = "1.12.0.0"
+
 local json = (loadfile "json.lua")()
+local ffi = require("ffi")
+ffi.cdef [[
+    typedef void http_response;
+    http_response *http_get(const char *url, bool async);
+    void http_destroy_response(http_response *);
+    void http_wait_async(const http_response *);
+    bool http_response_is_null(const http_response *);
+    bool http_response_received(const http_response *);
+    const char *http_read_response(const http_response *);
+    uint32_t http_response_length(const http_response *);
+]]
+local http_client = ffi.load("lua_http_client")
+local async_table = {}
 
 function OnScriptLoad()
-    VPNBlocker:RegisterKey()
+    VPNBlocker.key = VPNBlocker.site:gsub("api_key", VPNBlocker.api_key)
     register_callback(cb["EVENT_PREJOIN"], "PreJoin")
+end
+
+local function GenerateLink(player)
+    local i = 0
+    local link = tostring(VPNBlocker.key .. player.ip .. "?")
+    for k, v in pairs(VPNBlocker.parameters) do
+        link = (i < 1 and link .. k .. "=" .. tostring(v) or link .. "&" .. k .. "=" .. tostring(v))
+    end
+    return link
 end
 
 local function IsConnected(t)
@@ -195,25 +218,6 @@ local function SilentKick(p)
     end
 end
 
-function VPNBlocker:GenerateLink(Ply)
-    local i = 0
-    local link = tostring(self.key .. Ply.ip .. "?")
-    for k, v in pairs(self.parameters) do
-        link = (i < 1 and link .. k .. "=" .. tostring(v) or link .. "&" .. k .. "=" .. tostring(v))
-    end
-    return link
-end
-
-function VPNBlocker:Say(Ply, Msg)
-    execute_command("msg_prefix \"\"")
-    if (not Ply) then
-        say_all(Msg)
-    else
-        say(Ply, Msg)
-    end
-    execute_command("msg_prefix \" " .. self.serverPrefix .. "\"")
-end
-
 local function Excluded(IP)
     for _, v in pairs(VPNBlocker.exclusion_list) do
         if (IP == v) then
@@ -225,124 +229,65 @@ end
 
 local function GetPlayer(Ply)
     local ip = get_var(Ply, "$ip"):match('(%d+.%d+.%d+.%d+)')
-    if (not Excluded(ip)) then
-        return {
-            ip = ip,
-            name = get_var(Ply, "$name")
-        }
-    end
-    return nil
+    return (not Excluded(ip) and { ip = ip, name = get_var(Ply, "$name") }) or nil
 end
 
-function VPNBlocker:PreJoin(Ply)
+function CheckResult(Ply)
 
-    local player = GetPlayer(Ply)
-    if (player) then
+    local o = VPNBlocker
+    local t = async_table[Ply]
 
-        local link = self:GenerateLink(player)
-        local JsonData = self:Query(link)
-
-        if (JsonData) then
-
-            local ip_lookup = json:decode(JsonData)
-            if (ip_lookup.success) then
-
-                local allowed = IsConnected(ip_lookup)
+    local response = http_client.http_response_received(t[1])
+    if (response) then
+        if (not http_client.http_response_is_null(t[1])) then
+            local results = ffi.string(http_client.http_read_response(t[1]))
+            local data = json:decode(results)
+            if (data) then
+                local allowed = IsConnected(data)
                 if (not allowed) then
+                    execute_command("msg_prefix \"\"")
 
-                    self:Say(Ply, self.feedback1)
+                    local player = t[2]
+                    Ply = tonumber(Ply)
+
+                    say(Ply, o.feedback1)
+
                     local state = "none"
-
-                    if (self.action == "k") then
+                    if (o.action == "k") then
                         state = "kicked"
                         SilentKick(Ply)
-                    elseif (self.action == "b") then
+                    elseif (o.action == "b") then
                         state = "banned"
-                        execute_command("b" .. " " .. Ply .. " " .. self.bantime .. " \"" .. self.reason .. "\"")
+                        execute_command("b" .. " " .. Ply .. " " .. o.ban_time .. " \"" .. o.reason .. "\"")
                     end
 
-                    local msg = self.feedback2:gsub("$name", player.name)
+                    local msg = o.feedback2:gsub("$name", player.name)
                     msg = msg:gsub("$action", state):gsub("$ip", player.ip)
-                    self:Say(_, msg)
+                    say_all(msg)
                     cprint(msg, 4 + 8)
-                end
-                return
-            end
 
-            -- Error Handling:
-            cprint("[VPN BLOCKER ERROR]", 4 + 8)
-            for k, v in pairs(ip_lookup) do
-                print(k, v)
+                    execute_command("msg_prefix \" " .. o.server_prefix .. "\"")
+                end
             end
-            cprint("=========================================================", 12)
         end
+
+        http_client.http_destroy_response(t[1])
+        async_table[tostring(Ply)] = nil
+        return false
     end
+    return true
 end
 
 function PreJoin(Ply)
-    VPNBlocker:PreJoin(Ply)
-end
-
-function VPNBlocker:RegisterKey()
-    self.key = self.site:gsub("api_key", self.api_key)
-end
-
--- Credits to Kavawuvi or HTTP client functionality:
-local ffi = require("ffi")
-ffi.cdef [[
-    typedef void http_response;
-    http_response *http_get(const char *url, bool async);
-    void http_destroy_response(http_response *);
-    void http_wait_async(const http_response *);
-    bool http_response_is_null(const http_response *);
-    bool http_response_received(const http_response *);
-    const char *http_read_response(const http_response *);
-    uint32_t http_response_length(const http_response *);
-]]
-local http_client = ffi.load("lua_http_client")
-
-function VPNBlocker:Query(URL)
-    local returning
-    local response = http_client.http_get(URL, false)
-    if (http_client.http_response_is_null(response) ~= true) then
-        local response_text_ptr = http_client.http_read_response(response)
-        returning = ffi.string(response_text_ptr)
+    local player = GetPlayer(Ply)
+    if (player) then
+        local link = GenerateLink(player)
+        Ply = tostring(Ply)
+        async_table[Ply] = { http_client.http_get(link, true), player }
+        timer(1, "CheckResult", Ply)
     end
-    http_client.http_destroy_response(response)
-    return returning
-end
-
-local function WriteError(err)
-    local file = io.open(VPNBlocker.error_file, "a+")
-    if (file) then
-        file:write(err .. "\n")
-        file:close()
-    end
-end
-
-function OnError(Error)
-    local log = {
-        { os.date("[%H:%M:%S - %d/%m/%Y]"), true, 12 },
-        { Error, false, 12 },
-        { debug.traceback(), true, 12 },
-        { "--------------------------------------------------------", true, 5 },
-        { "Please report this error on github:", true, 7 },
-        { "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", true, 7 },
-        { "Script Version: " .. VPNBlocker.script_version, true, 7 },
-        { "--------------------------------------------------------", true, 5 }
-    }
-    for _, v in pairs(log) do
-        WriteError(v[1])
-        if (v[2]) then
-            cprint(v[1], v[3])
-        end
-    end
-    WriteError("\n")
 end
 
 function OnScriptUnload()
-    --
+    -- N/A
 end
-
--- For a future update:
-return VPNBlocker
