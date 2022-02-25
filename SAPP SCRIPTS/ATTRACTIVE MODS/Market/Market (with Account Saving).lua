@@ -134,56 +134,60 @@ local Account = {
         -- SET THE PRICE TO 0 to disable.
         --
 
+        --
+        -- DO NOT CHANGE THE SAPP COMMAND OR LABEL
+        -- DO NOT CHANGE THE SAPP COMMAND OR LABEL
+        -- DO NOT CHANGE THE SAPP COMMAND OR LABEL
+        --
+
         -- Camouflage:
-        -- ["SAPP COMMAND EXECUTED"] = {custom command, price, duration, cooldown period, catalogue message}
-        ['camo'] = { 'm1', 60, 30, 60, "-$60 -> Camo (30 seconds)" },
+        -- ["LABEL"] = {sapp command, trigger command, price, duration, cooldown period, catalogue message}
+        ['CAMO'] = { 'camo', 'm1', 60, 30, 60, "-$60 -> (camo | 30s)" },
 
         --
         -- God Mode:
-        -- ["SAPP COMMAND EXECUTED"] = {custom command, price, duration, cooldown period, catalogue message}
-        ['god'] = { 'm2', 200, 30, 60, "-$200 -> God (30 seconds)" },
+        -- ["LABEL"] = {sapp command, trigger command, price, duration, cooldown period, catalogue message}
+        ['GOD'] = { 'god', 'm2', 200, 30, 60, "-$200 -> (god | 30s)" },
 
         --
         -- Grenades:
-        -- ["SAPP COMMAND EXECUTED"] = {custom command, price, total, cooldown period, catalogue message}
-        ['nades'] = { 'm3', 30, 2, 60, "-$30 -> Frags/Plasmas (x2 each)" },
+        -- ["LABEL"] = {sapp command, trigger command, price, amount, cooldown period, catalogue message}
+        ['GRENADES'] = { 'nades', 'm3', 30, 7, 60, "-$30 -> (grenades | 2x each)" },
 
         --
-        -- Speed Boost:
-        -- ["SAPP COMMAND EXECUTED"] = {custom command, price, speed, cooldown period, catalogue message}
-        ['s'] = { 'm4', 60, 1.3, 60, "-$60 -> Speed Boost (1.3x)" },
+        -- Speed Boost (normal speed = 1):
+        -- ["LABEL"] = {sapp command, trigger command, price, speed%, cooldown period, catalogue message}
+        ['SPEED'] = { 's', 'm4', 60, 1.3, 60, "-$60 -> (speed boost | 1.3x)" },
 
         --
-        -- Overshield:
-        -- ["SAPP COMMAND EXECUTED"] = {custom command, price, state, cooldown period, catalogue message}
-        ['sh'] = { 'm5', 100, 1, 60, "-$100 -> Camo (full shield)" },
+        -- Overshield (full shield = 1):
+        -- ["LABEL"] = {sapp command, trigger command, price, shield%, cooldown period, catalogue message}
+        ['OVERSHIELD'] = { 'sh', 'm5', 100, 1, 60, "-$100 -> (full shield)" },
 
         --
-        -- Health:
-        -- ["SAPP COMMAND EXECUTED"] = {custom command, price, h-points, cooldown period, catalogue message}
-        ['hp'] = { 'm6', 100, 1, 60, "-$100 -> HP (full health)" },
+        -- Health (full health = 1):
+        -- ["LABEL"] = {sapp command, trigger command, price, health%, cooldown period, catalogue message}
+        ['HEALTH'] = { 'hp', 'm6', 100, 1, 60, "-$100 -> (full health)" },
 
         --
-        -- Boost:
-        -- ["SAPP COMMAND EXECUTED"] = {custom command, price, n/a, cooldown period, catalogue message}
-        ['boost'] = { 'm7', 350, nil, 60, "-$350 -> Teleport where aiming" },
+        -- Teleport:
+        -- ["LABEL"] = {sapp command, trigger command, price, N/A, cooldown period, catalogue message}
+        ['TELEPORT'] = { 'boost', 'm7', 350, 'N/A', 60, "-$350 -> (teleport where aiming)" },
+
+
+        -----------------------------------
+        -- special commands:
+        -----------------------------------
+
+        --
+        -- Nuke:
+        -- ["LABEL"] = {N/A, trigger command, price, N/A, cooldown period, catalogue message}
+        ['NUKE'] = { 'N/A', 'm8', 500, 'N/A', 60, "-$500 -> (nuke | random player)" },
 
         --
         -- Damage Boost:
-        ['damage_multiplier'] = {
-            'm8', -- custom command
-            500, -- price
-            1.3, -- multiplier (1 is normal damage)
-            120, -- duration
-            60, -- cooldown period
-            "-$500 -> 1.3x damage" -- catalogue message
-        }
-
-        --
-        -- MORE FEATURES ARE COMING IN FUTURE UPDATES
-        -- MORE FEATURES ARE COMING IN FUTURE UPDATES
-        -- MORE FEATURES ARE COMING IN FUTURE UPDATES
-        --
+        -- ["LABEL"] = {N/A, trigger command, price, multiplier, duration, cooldown period, catalogue message}
+        ['DAMAGE'] = { 'N/A', 'm9', 500, 1.3, 120, 60, "-$500 -> (1.3x damage)" }
     }
 }
 -- config ends --
@@ -513,10 +517,17 @@ function OnCommand(Ply, CMD, _, _)
 
             local response = true
             for cmd, perk in pairs(t.buy_commands) do
+
+                local cost = perk[3]
+                local command = perk[2]
+                local duration = perk[4] -- or extra data (like damage multiplier number)
+                local cooldown = perk[#perk - 1]
+                local catalogue_message = perk[#perk]
+
                 if (args[1] == t.catalogue_command) then
-                    t:respond('/' .. perk[1] .. ' ' .. perk[#perk])
+                    t:respond('/' .. command .. ' ' .. catalogue_message)
                     response = false
-                elseif (args[1] == perk[1]) then
+                elseif (args[1] == command) then
                     if (not t.logged_in) then
                         t:respond("You are not logged in.")
                     elseif (perk[2] == 0) then
@@ -525,31 +536,37 @@ function OnCommand(Ply, CMD, _, _)
                         local time_remaining = perk.cooldown_finish - perk.cooldown_time()
                         t:respond("Command on cooldown")
                         t:respond("Please wait " .. time_remaining .. " second" .. Plural(time_remaining))
-                    elseif (t.balance >= perk[2]) then
-                        t:respond(perk[#perk])
-                        t:withdraw({ perk[2] })
-                        local finish
-                        if (cmd == "damage_multiplier") then
-                            t.damage_multiplier = perk[3]
-                            t.damage_time = time
-                            t.damage_finish = time() + perk[4]
-                            finish = perk[5] -- finish table index changed for this cmd
-                        elseif (cmd == 'god') then
-                            t.god = true
-                            t.god_time = time
-                            t.god_finish = time() + perk[3]
-                            execute_command(cmd .. ' ' .. t.pid)
-                        elseif (cmd == 'boost') then
-                            execute_command(cmd .. ' ' .. t.pid)
+                    elseif (args[1] == command) then
+                        if (cost == 0) then
+                            t:respond("Command disabled")
+                        elseif (perk.cooldown_start) then
+                            local time_remaining = perk.cooldown_finish - perk.cooldown_time()
+                            t:respond("Command on cooldown")
+                            t:respond("Please wait " .. time_remaining .. " second" .. Plural(time_remaining))
+                        elseif (t.balance >= cost) then
+                            t:respond(catalogue_message)
+                            t:withdraw({ cost })
+                            if (cmd == "DAMAGE") then
+                                t.damage_time = time
+                                t.damage_multiplier = perk[4]
+                                t.damage_finish = time() + perk[5]
+                            elseif (cmd == 'GOD') then
+                                t.god = true
+                                t.god_time = time
+                                t.god_finish = time() + duration
+                                execute_command(cmd .. ' ' .. t.pid)
+                            elseif (cmd == 'TELEPORT') then
+                                execute_command(cmd .. ' ' .. t.pid)
+                            else
+                                execute_command(cmd .. ' ' .. t.pid .. ' ' .. duration)
+                            end
+                            perk.cooldown_time = time
+                            perk.cooldown_start = true
+                            perk.cooldown_finish = time() + cooldown
                         else
-                            execute_command(cmd .. ' ' .. t.pid .. ' ' .. perk[3])
+                            t:respond("You do not have enough money!")
+                            t:respond("You need $" .. cost - t.balance)
                         end
-                        perk.cooldown_time = time
-                        perk.cooldown_start = true
-                        perk.cooldown_finish = time() + (finish and finish or perk[4])
-                    else
-                        t:respond("You do not have enough money!")
-                        t:respond("You need $" .. perk[2] - t.balance)
                     end
                     return false
                 end
