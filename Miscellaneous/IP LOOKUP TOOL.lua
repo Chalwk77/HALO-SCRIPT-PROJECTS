@@ -1,7 +1,24 @@
-api_version = "1.12.0.0"
-local vpn_blocker = {
-    ip = "ip_address_here",
-    api_key = "YOUR_API_KEY",
+--[[
+--=====================================================================================================--
+Script Name: IP Lookup Tool, for SAPP (PC & CE)
+
+Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
+* Notice: You can use this document subject to the following conditions:
+https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
+--=====================================================================================================--
+]] --
+
+local VPNBlocker = {
+    ip = "35.136.253.186",
+    api_key = function()
+        local api_key = ""
+        local file = io.open("api_key.data")
+        if (file) then
+            api_key = file:read()
+            file:close()
+        end
+        return api_key
+    end,
     checks = {
         is_crawler = true,
         vpn = true,
@@ -15,43 +32,16 @@ local vpn_blocker = {
         allow_public_access_points = true,
         lighter_penalties = false,
         fast = false,
-        mobile = false,
-    }
+        mobile = false
+    },
+
+    script_version = 1.5,
+    site = "https://www.ipqualityscore.com/api/json/ip/api_key/"
 }
 
-local gsub = string.gsub
+api_version = "1.12.0.0"
+
 local json = (loadfile "json.lua")()
-
-function OnScriptLoad()
-    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
-end
-
-function OnGameStart()
-    local site = "https://www.ipqualityscore.com/api/json/ip/api_key/"
-    local key = gsub(site, "api_key", vpn_blocker.api_key)
-    local query_link = tostring(key .. vpn_blocker.ip .. "?")
-    local i = 0
-    for k, v in pairs(vpn_blocker.parameters) do
-        if (i == 0) then
-            query_link = query_link .. k .. "=" .. tostring(v)
-        else
-            query_link = query_link .. "&" .. k .. "=" .. tostring(v)
-        end
-        i = i + 1
-    end
-    local JsonData = vpn_blocker:Query(query_link)
-    if (JsonData) then
-        local ip_lookup = json:decode(JsonData)
-        if (ip_lookup.success) then
-            print(" ")
-            for k,v in pairs(ip_lookup) do
-                print(k,v)
-            end
-        end
-    end
-end
-
--- Credits to Kavawuvi (002) for HTTP client functionality:
 local ffi = require("ffi")
 ffi.cdef [[
     typedef void http_response;
@@ -64,18 +54,50 @@ ffi.cdef [[
     uint32_t http_response_length(const http_response *);
 ]]
 local http_client = ffi.load("lua_http_client")
+local async_table = {}
 
-function vpn_blocker:Query(URL)
-    local response = http_client.http_get(URL, false)
-    local returning = nil
-    if http_client.http_response_is_null(response) ~= true then
-        local response_text_ptr = http_client.http_read_response(response)
-        returning = ffi.string(response_text_ptr)
+function OnScriptLoad()
+    VPNBlocker.key = VPNBlocker.site:gsub("api_key", VPNBlocker.api_key)
+    register_callback(cb["EVENT_GAME_START"], "OnStart")
+end
+
+local function GenerateLink(IP)
+    local i = 0
+    local link = tostring(VPNBlocker.key .. IP .. "?")
+    for k, v in pairs(VPNBlocker.parameters) do
+        link = (i < 1 and link .. k .. "=" .. tostring(v) or link .. "&" .. k .. "=" .. tostring(v))
     end
-    http_client.http_destroy_response(response)
-    return returning
+    return link
+end
+
+function OnStart()
+    local link = GenerateLink(VPNBlocker.ip)
+    async_table["VPN"] = http_client.http_get(link, true)
+    timer(1, "CheckResult", "VPN")
+end
+
+function CheckResult(ID)
+    local t = async_table[ID]
+    local response = http_client.http_response_received(t)
+    if (response) then
+        if (not http_client.http_response_is_null(t)) then
+            local results = ffi.string(http_client.http_read_response(t))
+            local data = json:decode(results)
+            if (data) then
+                print(" ")
+                for k, v in pairs(data) do
+                    print(k, v)
+                end
+                print(" ")
+            end
+        end
+        http_client.http_destroy_response(t)
+        async_table[ID] = nil
+        return false
+    end
+    return true
 end
 
 function OnScriptUnload()
-    --
+    -- N/A
 end
