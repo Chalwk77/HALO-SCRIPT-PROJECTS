@@ -162,7 +162,7 @@ local VPNBlocker = {
     -- config ends --
 
     -- DO NOT TOUCH BELOW THIS POINT --
-    script_version = 1.3,
+    script_version = 1.4,
     site = "https://www.ipqualityscore.com/api/json/ip/api_key/"
 }
 
