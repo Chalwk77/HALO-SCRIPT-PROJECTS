@@ -29,7 +29,7 @@ I M P O R T A N T
 
 3): Sign up for an account at www.ipqualityscore.com.
     Navigate to Proxy Detection Overview page: https://www.ipqualityscore.com/documentation/proxy-detection/overview
-    Copy your unique "Private Key" from that page and paste it into the API_KEY field (line 62) in this script (see config below).
+    Copy your unique "Private Key" from that page and paste it into the API_KEY field (line 59) in this script (see config below).
 
     If VPN Blocker kicks or bans someone it will log the details of that action
     to a file called "VPN Blocker.log" in the servers root directory.
@@ -56,7 +56,7 @@ local VPNBlocker = {
 
     -- IP Quality Score API KEY:
     --
-    api_key = "PASTE_YOUR_API_KEY_HERE",
+    api_key = "API_KEY",
 
     -- If the player is using a VPN Connection, do this action:
     -- k = kick, b = ban
