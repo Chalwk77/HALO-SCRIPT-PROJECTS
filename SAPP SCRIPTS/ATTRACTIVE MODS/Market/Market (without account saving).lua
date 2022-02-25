@@ -133,20 +133,14 @@ local Account = {
         -- ["LABEL"] = {sapp command, trigger command, price, health%, cooldown period, catalogue message}
         ['HEALTH'] = { 'hp', 'm6', 100, 1, 60, "-$100 -> (full health)" },
 
-        --
-        -- Teleport:
-        -- ["LABEL"] = {sapp command, trigger command, price, N/A, cooldown period, catalogue message}
-        ['TELEPORT'] = { 'boost', 'm7', 350, 'N/A', 60, "-$350 -> (teleport where aiming)" },
-
-
         -----------------------------------
         -- special commands:
         -----------------------------------
 
         --
-        -- Nuke:
-        -- ["LABEL"] = {N/A, trigger command, price, N/A, cooldown period, catalogue message}
-        ['NUKE'] = { 'N/A', 'm8', 500, 'N/A', 60, "-$500 -> (nuke | random player)" },
+        -- Teleport:
+        -- ["LABEL"] = {sapp command, trigger command, price, N/A, cooldown period, catalogue message}
+        ['TELEPORT'] = { 'boost', 'm7', 350, 'N/A', 60, "-$350 -> (teleport where aiming)" },
 
         --
         -- Damage Boost:

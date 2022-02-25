@@ -2,7 +2,7 @@
 --=====================================================================================================--
 Script Name: Market (with account saving), for SAPP (PC & CE)
 Description: Earn money for killing and scoring.
-Version: 1.11
+Version: 1.12
 
 Use your money to buy the following perks:
 
@@ -169,20 +169,14 @@ local Account = {
         -- ["LABEL"] = {sapp command, trigger command, price, health%, cooldown period, catalogue message}
         ['HEALTH'] = { 'hp', 'm6', 100, 1, 60, "-$100 -> (full health)" },
 
-        --
-        -- Teleport:
-        -- ["LABEL"] = {sapp command, trigger command, price, N/A, cooldown period, catalogue message}
-        ['TELEPORT'] = { 'boost', 'm7', 350, 'N/A', 60, "-$350 -> (teleport where aiming)" },
-
-
         -----------------------------------
         -- special commands:
         -----------------------------------
 
         --
-        -- Nuke:
-        -- ["LABEL"] = {N/A, trigger command, price, N/A, cooldown period, catalogue message}
-        ['NUKE'] = { 'N/A', 'm8', 500, 'N/A', 60, "-$500 -> (nuke | random player)" },
+        -- Teleport:
+        -- ["LABEL"] = {sapp command, trigger command, price, N/A, cooldown period, catalogue message}
+        ['TELEPORT'] = { 'boost', 'm7', 350, 'N/A', 60, "-$350 -> (teleport where aiming)" },
 
         --
         -- Damage Boost:
