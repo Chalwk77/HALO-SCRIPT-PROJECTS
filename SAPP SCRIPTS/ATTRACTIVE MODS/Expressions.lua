@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Expressions (v2.0), for SAPP (PC & CE)
+Script Name: Expressions (v2.1), for SAPP (PC & CE)
 Description: Want to express your rage, taunt your opponents or
              cuss in a family-friendly-ish way? Look no further!
 
