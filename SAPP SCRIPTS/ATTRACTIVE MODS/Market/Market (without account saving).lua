@@ -143,7 +143,7 @@ local Account = {
         ['TELEPORT'] = { 'boost', 'm7', 350, 'N/A', 60, "-$350 -> (teleport where aiming)" },
 
         --
-        -- Damage Boost:
+        -- Damage Boost (normal damage = 1):
         -- ["LABEL"] = {N/A, trigger command, price, multiplier, duration, cooldown period, catalogue message}
         ['DAMAGE'] = { 'N/A', 'm9', 500, 1.3, 120, 60, "-$500 -> (1.3x damage)" }
     }
