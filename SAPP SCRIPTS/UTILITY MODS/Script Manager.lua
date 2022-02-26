@@ -29,66 +29,70 @@ local ScriptManager = {
 
     maps = {
         ["chillout"] = {
-            ["gamemode_here"] = { "script name here" },
+            ["gamemode_here"] = { "script_name_here" },
         },
         ["sidewinder"] = {
-            ["gamemode_here"] = { "script name here" }
+            ["gamemode_here"] = { "script_name_here" }
         },
         ["ratrace"] = {
-            ["gamemode_here"] = { "script name here" }
+            ["gamemode_here"] = { "script_name_here" }
         },
         ["bloodgulch"] = {
-            ["LNZ-OITC"] = { "Market" }
+            ["gamemode_here"] = { "script_name_here" }
         },
         ["beavercreek"] = {
-            ["gamemode_here"] = { "script name here" }
+            ["gamemode_here"] = { "script_name_here" }
         },
         ["boardingaction"] = {
-            ["gamemode_here"] = { "script name here" }
+            ["gamemode_here"] = { "script_name_here" }
         },
         ["carousel"] = {
-            ["gamemode_here"] = { "script name here" }
+            ["gamemode_here"] = { "script_name_here" }
         },
         ["dangercanyon"] = {
-            ["gamemode_here"] = { "script name here" }
+            ["gamemode_here"] = { "script_name_here" }
         },
         ["deathisland"] = {
-            ["gamemode_here"] = { "script name here" }
+            ["gamemode_here"] = { "script_name_here" }
         },
         ["gephyrophobia"] = {
-            ["gamemode_here"] = { "script name here" }
+            ["gamemode_here"] = { "script_name_here" }
         },
         ["icefields"] = {
-            ["gamemode_here"] = { "script name here" }
+            ["gamemode_here"] = { "script_name_here" }
         },
         ["infinity"] = {
-            ["gamemode_here"] = { "script name here" }
+            ["gamemode_here"] = { "script_name_here" }
         },
         ["timberland"] = {
-            ["gamemode_here"] = { "script name here" }
+            ["gamemode_here"] = { "script_name_here" }
         },
         ["hangemhigh"] = {
-            ["gamemode_here"] = { "script name here" }
+            ["gamemode_here"] = { "script_name_here" }
         },
         ["damnation"] = {
-            ["gamemode_here"] = { "script name here" }
+            ["gamemode_here"] = { "script_name_here" }
         },
         ["putput"] = {
-            ["gamemode_here"] = { "script name here" }
+            ["gamemode_here"] = { "script_name_here" }
         },
         ["prisoner"] = {
-            ["gamemode_here"] = { "script name here" }
+            ["gamemode_here"] = { "script_name_here" }
         },
         ["wizard"] = {
-            ["gamemode_here"] = { "script name here" }
+            ["gamemode_here"] = { "script_name_here" }
         },
         ["longest"] = {
-            ["gamemode_here"] = { "script name here" }
-        }
+            ["gamemode_here"] = { "script_name_here" }
+        },
+        --
+        -- repeat the structure to add more configurations:
+        --
     },
 
-    -- DO NOT TOUCH --
+    -- do not touch --
     loaded = { }
+    --
 }
 -- ======================= CONFIGURATION ENDS ======================= --
 
