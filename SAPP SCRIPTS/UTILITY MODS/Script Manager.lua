@@ -1,9 +1,9 @@
 --[[
 --=====================================================================================================--
-Script Name: Script Manager (v1.1), for SAPP (PC & CE)
-Description: This utility mod will enable you to load scripts on a per map-per game mode basis.
+Script Name: Script Manager (v1.2), for SAPP (PC & CE)
+Description: This utility mod will enable you to load scripts on a per map, per game mode basis.
 
-Copyright (c) 2019-2020, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
@@ -24,6 +24,7 @@ local ScriptManager = {
     -- Example Usage:
     --["mapname"] = {
     --    ["FFA Swat"] = { "No Grenades", "No Fall Damage", "Another Script" },
+    --    ["another game mode"] = { "some script", "another script" },
     --},
 
     maps = {
@@ -152,5 +153,3 @@ function ScriptManager:UnloadScript(script)
     cprint("[Script Manager] Unloading Script: " .. script, 2 + 8)
     execute_command('lua_unload ' .. ' "' .. script .. '"')
 end
-
-return ScriptManager
