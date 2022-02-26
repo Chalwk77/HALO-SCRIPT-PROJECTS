@@ -159,7 +159,9 @@ local VPNBlocker = {
     --
     error_file = "VPN Blocker (errors).log",
 
+    --
     -- config ends --
+    --
 
     -- DO NOT TOUCH BELOW THIS POINT --
     script_version = 1.5,
@@ -168,8 +170,11 @@ local VPNBlocker = {
 
 api_version = "1.12.0.0"
 
+local async_table = {}
+
 local json = (loadfile "json.lua")()
 local ffi = require("ffi")
+
 ffi.cdef [[
     typedef void http_response;
     http_response *http_get(const char *url, bool async);
@@ -180,8 +185,7 @@ ffi.cdef [[
     const char *http_read_response(const http_response *);
     uint32_t http_response_length(const http_response *);
 ]]
-local http_client = ffi.load("lua_http_client")
-local async_table = {}
+local client = ffi.load("lua_http_client")
 
 function OnScriptLoad()
     VPNBlocker.key = VPNBlocker.site:gsub("api_key", VPNBlocker.api_key)
@@ -197,7 +201,7 @@ local function GenerateLink(player)
     return link
 end
 
-local function IsConnected(t)
+local function CanConnect(t)
     for k, v in pairs(VPNBlocker.checks) do
         if (type(v) == "boolean") then
             if (v) and (t[k]) then
@@ -232,18 +236,18 @@ local function GetPlayer(Ply)
     return (not Excluded(ip) and { ip = ip, name = get_var(Ply, "$name") }) or nil
 end
 
-function CheckResult(Ply)
+function CheckForVPN(Ply)
 
     local o = VPNBlocker
     local t = async_table[Ply]
 
-    local response = http_client.http_response_received(t[1])
+    local response = client.http_response_received(t[1])
     if (response) then
-        if (not http_client.http_response_is_null(t[1])) then
-            local results = ffi.string(http_client.http_read_response(t[1]))
+        if (not client.http_response_is_null(t[1])) then
+            local results = ffi.string(client.http_read_response(t[1]))
             local data = json:decode(results)
             if (data) then
-                local allowed = IsConnected(data)
+                local allowed = CanConnect(data)
                 if (not allowed) then
                     execute_command("msg_prefix \"\"")
 
@@ -270,8 +274,7 @@ function CheckResult(Ply)
                 end
             end
         end
-
-        http_client.http_destroy_response(t[1])
+        client.http_destroy_response(t[1])
         async_table[tostring(Ply)] = nil
         return false
     end
@@ -281,10 +284,10 @@ end
 function PreJoin(Ply)
     local player = GetPlayer(Ply)
     if (player) then
-        local link = GenerateLink(player)
         Ply = tostring(Ply)
-        async_table[Ply] = { http_client.http_get(link, true), player }
-        timer(1, "CheckResult", Ply)
+        local link = GenerateLink(player)
+        async_table[Ply] = { client.http_get(link, true), player }
+        timer(1, "CheckForVPN", Ply)
     end
 end
 
