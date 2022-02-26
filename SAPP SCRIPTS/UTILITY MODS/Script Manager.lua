@@ -38,7 +38,7 @@ local ScriptManager = {
             ["gamemode_here"] = { "script name here" }
         },
         ["bloodgulch"] = {
-            ["gamemode_here"] = { "script name here" }
+            ["LNZ-OITC"] = { "Market" }
         },
         ["beavercreek"] = {
             ["gamemode_here"] = { "script name here" }
@@ -93,26 +93,22 @@ local ScriptManager = {
 -- ======================= CONFIGURATION ENDS ======================= --
 
 function OnScriptLoad()
-    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
+    register_callback(cb['EVENT_GAME_START'], 'OnStart')
     ScriptManager:Init()
 end
 
-function OnScriptUnload()
-    -- N/A
-end
-
-function OnGameStart()
+function OnStart()
     ScriptManager:Init()
 end
 
 function ScriptManager:Init()
-    if (get_var(0, "$gt") ~= "n/a") then
+    if (get_var(0, '$gt') ~= 'n/a') then
         local scripts = { }
-        local map, mode = get_var(0, "$map"), get_var(0, "$mode")
+        local map, mode = get_var(0, '$map'), get_var(0, '$mode')
         for a, b in pairs(self.maps[map] or {}) do
             if (a == mode) then
                 for _, script in pairs(b) do
-                    if (script and script ~= "") then
+                    if (script and script ~= '') then
                         scripts[#scripts + 1] = script
                         if (not self.loaded[script]) then
                             self.loaded[script] = true
@@ -133,23 +129,27 @@ function ScriptManager:DetermineState(ScriptsToLoad)
                 unload = false
                 if (Load) then
                     Load = false
-                    self:LoadScript(Script)
+                    self:Load(Script)
                 end
             end
         end
         if (unload) then
             self.loaded[LoadedScript] = nil
-            self:UnloadScript(LoadedScript)
+            self:Unload(LoadedScript)
         end
     end
 end
 
-function ScriptManager:LoadScript(script)
-    cprint("[Script Manager] Loading Script: " .. script, 2 + 8)
-    execute_command('lua_load ' .. ' "' .. script .. '"')
+function ScriptManager:Load(script)
+    cprint("[Script Manager] Loading Script: " .. script, 10)
+    execute_command('lua_load' .. ' "' .. script .. '"')
 end
 
-function ScriptManager:UnloadScript(script)
-    cprint("[Script Manager] Unloading Script: " .. script, 2 + 8)
-    execute_command('lua_unload ' .. ' "' .. script .. '"')
+function ScriptManager:Unload(script)
+    cprint("[Script Manager] Unloading Script: " .. script, 10)
+    execute_command('lua_unload' .. ' "' .. script .. '"')
+end
+
+function OnScriptUnload()
+    -- N/A
 end
