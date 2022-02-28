@@ -2,7 +2,7 @@
 --=====================================================================================================--
 Script Name: Market (without account saving), for SAPP (PC & CE)
 Description: Earn money for killing and scoring.
-Version: 1.13
+Version: 1.14
 
 Use your money to buy the following perks:
 
@@ -38,7 +38,7 @@ local Account = {
 
     -- Starting balance:
     --
-    balance = 0,
+    balance = 5000,
 
     -- Command used to view available items for purchase:
     --
@@ -116,7 +116,7 @@ local Account = {
         --
         -- Grenades:
         -- ["LABEL"] = {sapp command, trigger command, price, amount, cooldown period, catalogue message}
-        ['GRENADES'] = { 'nades', 'm3', 30, 7, 60, "-$30 -> (grenades | 2x each)" },
+        ['GRENADES'] = { 'nades', 'm3', 30, 2, 60, "-$30 -> (grenades | 2x each)" },
 
         --
         -- Speed Boost (normal speed = 1):
@@ -143,7 +143,7 @@ local Account = {
         ['TELEPORT'] = { 'boost', 'm7', 350, 'N/A', 60, "-$350 -> (teleport where aiming)" },
 
         --
-        -- Damage Boost (normal damage = 1):
+        -- Damage Boost:
         -- ["LABEL"] = {N/A, trigger command, price, multiplier, duration, cooldown period, catalogue message}
         ['DAMAGE'] = { 'N/A', 'm9', 500, 1.3, 120, 60, "-$500 -> (1.3x damage)" }
     }
@@ -328,6 +328,7 @@ function OnCommand(Ply, CMD, _, _)
             local response = true
             for cmd, perk in pairs(t.buy_commands) do
 
+                local sapp_command = perk[1]
                 local cost = perk[3]
                 local command = perk[2]
                 local duration = perk[4] -- or extra data (like damage multiplier number)
@@ -338,35 +339,39 @@ function OnCommand(Ply, CMD, _, _)
                     t:respond('/' .. command .. " " .. catalogue_message)
                     response = false
                 elseif (args[1] == command) then
-                    if (cost == 0) then
-                        t:respond("Command disabled")
-                    elseif (perk.cooldown_start) then
-                        local time_remaining = perk.cooldown_finish - perk.cooldown_time()
-                        t:respond("Command on cooldown")
-                        t:respond("Please wait " .. time_remaining .. " second" .. Plural(time_remaining))
-                    elseif (t.balance >= cost) then
-                        t:respond(catalogue_message)
-                        t:withdraw({ cost })
-                        if (cmd == "DAMAGE") then
-                            t.damage_time = time
-                            t.damage_multiplier = perk[4]
-                            t.damage_finish = time() + perk[5]
-                        elseif (cmd == 'GOD') then
-                            t.god = true
-                            t.god_time = time
-                            t.god_finish = time() + duration
-                            execute_command(cmd .. ' ' .. t.pid)
-                        elseif (cmd == 'TELEPORT') then
-                            execute_command(cmd .. ' ' .. t.pid)
+                    if player_alive(Ply) then
+                        if (cost == 0) then
+                            t:respond("Command disabled")
+                        elseif (perk.cooldown_start) then
+                            local time_remaining = perk.cooldown_finish - perk.cooldown_time()
+                            t:respond("Command on cooldown")
+                            t:respond("Please wait " .. time_remaining .. " second" .. Plural(time_remaining))
+                        elseif (t.balance >= cost) then
+                            t:respond(catalogue_message)
+                            t:withdraw({ cost })
+                            if (cmd == "DAMAGE") then
+                                t.damage_time = time
+                                t.damage_multiplier = perk[4]
+                                t.damage_finish = time() + perk[5]
+                            elseif (cmd == 'GOD') then
+                                t.god = true
+                                t.god_time = time
+                                t.god_finish = time() + duration
+                                execute_command(sapp_command .. ' ' .. t.pid)
+                            elseif (cmd == 'TELEPORT') then
+                                execute_command(sapp_command .. ' ' .. t.pid)
+                            else
+                                execute_command(sapp_command .. ' ' .. t.pid .. ' ' .. duration)
+                            end
+                            perk.cooldown_time = time
+                            perk.cooldown_start = true
+                            perk.cooldown_finish = time() + cooldown
                         else
-                            execute_command(cmd .. ' ' .. t.pid .. ' ' .. duration)
+                            t:respond("You do not have enough money!")
+                            t:respond("You need $" .. cost - t.balance)
                         end
-                        perk.cooldown_time = time
-                        perk.cooldown_start = true
-                        perk.cooldown_finish = time() + cooldown
                     else
-                        t:respond("You do not have enough money!")
-                        t:respond("You need $" .. cost - t.balance)
+                        t:respond("Please wait until you respawn")
                     end
                     return false
                 end
