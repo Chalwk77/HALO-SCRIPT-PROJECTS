@@ -2,7 +2,7 @@
 --=====================================================================================================--
 Script Name: Market (with account saving), for SAPP (PC & CE)
 Description: Earn money for killing and scoring.
-Version: 1.14
+Version: 1.15
 
 Use your money to buy the following perks:
 
@@ -249,6 +249,7 @@ function Account:deposit(t)
         return
     end
     self.balance = self.balance + t[1]
+    self.database[self.username].balance = self.balance
     self:respond(t[2])
 end
 
@@ -264,6 +265,7 @@ function Account:withdraw(t)
     end
 
     self.balance = (self.balance < 0 and 0 or self.balance)
+    self.database[self.username].balance = self.balance
     if (not t[2]) then
         return
     end
@@ -272,6 +274,7 @@ end
 
 function Account:CheckFile(ScriptLoad)
     self.database = (ScriptLoad and nil or self.database)
+
     if (get_var(0, '$gt') ~= 'n/a' and self.database == nil) then
         local content = ''
         local file = open(self.dir, 'r')
@@ -293,6 +296,7 @@ function Account:Cache(name, password, balance)
     local month = date('*t').month
     local year = date('*t').year
 
+    self.username = name
     self.logged_in = true
     self.database[name] = {
         password = password,
