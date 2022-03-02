@@ -13,13 +13,25 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 local GunGame = {
 
+    -- Game messages:
     messages = {
+
+        -- On level up:
         [1] = 'You are now level $level of 10',
+
+        -- Announced to the whole server when player reaches max level:
         [2] = '$name is now max level',
+
+        -- When someone wins:
         [3] = '$name won the game!'
     },
 
     starting_level = 1,
+
+    -- Should players have infinite ammo?
+    -- Default: true
+    --
+    infinite_ammo = true,
 
     levels = {
         [1] = 'weapons\\rocket launcher\\rocket launcher',
@@ -32,6 +44,42 @@ local GunGame = {
         [8] = 'weapons\\plasma rifle\\plasma rifle',
         [9] = 'weapons\\needler\\mp_needler',
         [10] = 'weapons\\plasma pistol\\plasma pistol',
+    },
+
+    --
+    ------------------------------------------------------------
+    -- [!] Do not touch unless you know what you're doing [!] --
+    ------------------------------------------------------------
+    -- To prevent a player from picking up specific weapons or
+    -- entering specific vehicles, enter the tag address of that object here:
+    --
+    --
+    objects = {
+
+        'weapons\\assault rifle\\assault rifle',
+        'weapons\\flamethrower\\flamethrower',
+        'weapons\\needler\\mp_needler',
+        'weapons\\pistol\\pistol',
+        'weapons\\plasma pistol\\plasma pistol',
+        'weapons\\plasma rifle\\plasma rifle',
+        'weapons\\plasma_cannon\\plasma_cannon',
+        'weapons\\rocket launcher\\rocket launcher',
+        'weapons\\shotgun\\shotgun',
+        'weapons\\sniper rifle\\sniper rifle',
+
+        'weapons\\frag grenade\\frag grenade',
+        'weapons\\plasma grenade\\plasma grenade',
+
+        'vehicles\\ghost\\ghost_mp',
+        'vehicles\\rwarthog\\rwarthog',
+        'vehicles\\banshee\\banshee_mp',
+        'vehicles\\warthog\\mp_warthog',
+        'vehicles\\scorpion\\scorpion_mp',
+        'vehicles\\c gun turret\\c gun turret_mp',
+
+        --
+        -- repeat the structure to add more entries
+        --
     }
 }
 
@@ -92,24 +140,9 @@ function OnStart()
         -- # Prevent the game from ending too quickly:
         execute_command("scorelimit 9999")
 
-        -- # Disable interaction with vehicles:
-        execute_command("disable_all_vehicles 0 1")
-
-        -- # Disable interaction with weapons:
-        execute_command("disable_object 'weapons\\assault rifle\\assault rifle'")
-        execute_command("disable_object 'weapons\\flamethrower\\flamethrower'")
-        execute_command("disable_object 'weapons\\needler\\mp_needler'")
-        execute_command("disable_object 'weapons\\pistol\\pistol'")
-        execute_command("disable_object 'weapons\\plasma pistol\\plasma pistol'")
-        execute_command("disable_object 'weapons\\plasma rifle\\plasma rifle'")
-        execute_command("disable_object 'weapons\\plasma_cannon\\plasma_cannon'")
-        execute_command("disable_object 'weapons\\rocket launcher\\rocket launcher'")
-        execute_command("disable_object 'weapons\\shotgun\\shotgun'")
-        execute_command("disable_object 'weapons\\sniper rifle\\sniper rifle'")
-
-        -- # Disable interaction with grenades:
-        execute_command("disable_object 'weapons\\frag grenade\\frag grenade'")
-        execute_command("disable_object 'weapons\\plasma grenade\\plasma grenade'")
+        for _, v in pairs(GunGame.objects) do
+            execute_command("disable_object '" .. v .. "'")
+        end
 
         players = {}
 
@@ -127,8 +160,12 @@ end
 
 function OnTick()
     for i, v in pairs(players) do
-        if (i and player_alive(i) and v.assign) then
-            v:AssignWeapon()
+        if (i and player_alive(i)) then
+            if (v.assign) then
+                v:AssignWeapon()
+            elseif (v.infinite_ammo) then
+                execute_command_sequence('ammo ' .. i .. ' 999; battery ' .. i .. ' 100')
+            end
         end
     end
 end
