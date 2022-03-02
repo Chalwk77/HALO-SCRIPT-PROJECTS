@@ -11,7 +11,11 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 local GunGame = {
 
-    level_up_message = 'You are now level $level of 10',
+    messages = {
+        [1] = 'You are now level $level of 10',
+        [2] = '$name is now max level',
+        [3] = '$name won the game!'
+    },
 
     starting_level = 1,
 
@@ -52,15 +56,16 @@ end
 function GunGame:LevelUP()
 
     self.level = self.level + 1
+    local name = self.name
 
     if (self.level == #self.levels) then
-        say_all(self.name .. ' is now max level')
+        say_all(self.messages[2]:gsub('$name', name))
     elseif (self.level > #self.levels) then
         execute_command('map_next')
-        say_all(self.name .. ' won the game!')
+        say_all(self.messages[3]:gsub('$name', name))
         return
     else
-        say(self.pid, self.level_up_message:gsub('$level', self.level))
+        say(self.pid, self.messages[1]:gsub('$level', self.level))
     end
 
     self.assign = true
@@ -80,6 +85,25 @@ end
 
 function OnStart()
     if (get_var(9, '$gt') ~= 'n/a') then
+
+        -- # Disable Vehicles:
+        execute_command("disable_all_vehicles 0 1")
+
+        -- # Disable Weapon Pick Ups
+        execute_command("disable_object 'weapons\\assault rifle\\assault rifle'")
+        execute_command("disable_object 'weapons\\flamethrower\\flamethrower'")
+        execute_command("disable_object 'weapons\\needler\\mp_needler'")
+        execute_command("disable_object 'weapons\\pistol\\pistol'")
+        execute_command("disable_object 'weapons\\plasma pistol\\plasma pistol'")
+        execute_command("disable_object 'weapons\\plasma rifle\\plasma rifle'")
+        execute_command("disable_object 'weapons\\plasma_cannon\\plasma_cannon'")
+        execute_command("disable_object 'weapons\\rocket launcher\\rocket launcher'")
+        execute_command("disable_object 'weapons\\shotgun\\shotgun'")
+        execute_command("disable_object 'weapons\\sniper rifle\\sniper rifle'")
+
+        -- # Disable Grenade Pick Ups
+        execute_command("disable_object 'weapons\\frag grenade\\frag grenade'")
+        execute_command("disable_object 'weapons\\plasma grenade\\plasma grenade'")
 
         players = {}
 
