@@ -115,14 +115,14 @@ end
 
 function GunGame:LevelUP()
     if (not game_over) then
+
         self.level = self.level + 1
-        local name = self.name
 
         if (self.level == #self.levels) then
-            say_all(self.messages[2]:gsub('$name', name))
+            say_all(self.messages[2]:gsub('$name', self.name))
         elseif (self.level > #self.levels) then
             execute_command('map_next')
-            say_all(self.messages[3]:gsub('$name', name))
+            say_all(self.messages[3]:gsub('$name', self.name))
             return
         else
             say(self.pid, self.messages[1]:gsub('$level', self.level))
@@ -133,10 +133,16 @@ function GunGame:LevelUP()
 end
 
 function GunGame:AssignWeapon()
+
     self.assign = false
+
     execute_command('wdel ' .. self.pid)
     execute_command('nades ' .. self.pid .. ' 0')
-    assign_weapon(spawn_object('', '', 0, 0, 0, 0, self.levels[self.level]), self.pid)
+
+    local weapon_id = self.levels[self.level]
+    local object = spawn_object('', '', 0, 0, 0, 0, weapon_id)
+
+    assign_weapon(object, self.pid)
 end
 
 local function GetTag(Type, Name)
