@@ -11,6 +11,8 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 local GunGame = {
 
+    level_up_message = 'You are now level $level of 10',
+
     starting_level = 1,
 
     levels = {
@@ -48,6 +50,7 @@ function GunGame:NewPlayer(t)
 end
 
 function GunGame:LevelUP()
+
     self.level = self.level + 1
 
     if (self.level == #self.levels) then
@@ -56,6 +59,8 @@ function GunGame:LevelUP()
         execute_command('map_next')
         say_all(self.name .. ' won the game!')
         return
+    else
+        say(self.pid, self.level_up_message:gsub('$level', self.level))
     end
 
     self.assign = true
@@ -63,8 +68,8 @@ end
 
 function GunGame:AssignWeapon()
     self.assign = false
-    local lvl = self.level
-    local weapon = self.levels[lvl]
+    execute_command('wdel ' .. self.pid)
+    local weapon = self.levels[self.level]
     assign_weapon(spawn_object('', '', 0, 0, 0, 0, weapon), self.pid)
 end
 
@@ -93,7 +98,6 @@ end
 function OnTick()
     for i, v in pairs(players) do
         if (i and player_alive(i) and v.assign) then
-            execute_command('wdel ' .. i)
             v:AssignWeapon()
         end
     end
