@@ -86,6 +86,9 @@ end
 function OnStart()
     if (get_var(9, '$gt') ~= 'n/a') then
 
+        -- Prevent the game from ending too quickly:
+        execute_command("scorelimit 9999")
+
         -- # Disable Vehicles:
         execute_command("disable_all_vehicles 0 1")
 
