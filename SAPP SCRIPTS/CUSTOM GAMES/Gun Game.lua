@@ -11,6 +11,8 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
+-- config starts --
+
 local GunGame = {
 
     -- Game messages:
@@ -26,6 +28,9 @@ local GunGame = {
         [3] = '$name won the game!'
     },
 
+    -- Starting level:
+    -- Default: 1
+    --
     starting_level = 1,
 
     -- Should players have infinite ammo?
@@ -83,8 +88,11 @@ local GunGame = {
     }
 }
 
+-- config ends --
+
 api_version = "1.12.0.0"
 
+local game_over
 local players = {}
 
 function OnScriptLoad()
@@ -93,6 +101,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], 'OnTick')
     register_callback(cb['EVENT_LEAVE'], 'OnQuit')
     register_callback(cb['EVENT_SPAWN'], 'OnSpawn')
+    register_callback(cb['EVENT_GAME_END'], 'OnEnd')
     register_callback(cb['EVENT_GAME_START'], 'OnStart')
     OnStart()
 end
@@ -105,21 +114,22 @@ function GunGame:NewPlayer(t)
 end
 
 function GunGame:LevelUP()
+    if (not game_over) then
+        self.level = self.level + 1
+        local name = self.name
 
-    self.level = self.level + 1
-    local name = self.name
+        if (self.level == #self.levels) then
+            say_all(self.messages[2]:gsub('$name', name))
+        elseif (self.level > #self.levels) then
+            execute_command('map_next')
+            say_all(self.messages[3]:gsub('$name', name))
+            return
+        else
+            say(self.pid, self.messages[1]:gsub('$level', self.level))
+        end
 
-    if (self.level == #self.levels) then
-        say_all(self.messages[2]:gsub('$name', name))
-    elseif (self.level > #self.levels) then
-        execute_command('map_next')
-        say_all(self.messages[3]:gsub('$name', name))
-        return
-    else
-        say(self.pid, self.messages[1]:gsub('$level', self.level))
+        self.assign = true
     end
-
-    self.assign = true
 end
 
 function GunGame:AssignWeapon()
@@ -134,17 +144,22 @@ local function GetTag(Type, Name)
     return Tag ~= 0 and read_dword(Tag + 0xC) or nil
 end
 
+local function EnableDisableWeapons(state)
+    state = (state and 'enable_object') or 'disable_object'
+    for _, v in pairs(GunGame.objects) do
+        execute_command(state .. " '" .. v .. "'")
+    end
+end
+
 function OnStart()
     if (get_var(9, '$gt') ~= 'n/a') then
 
         -- # Prevent the game from ending too quickly:
         execute_command("scorelimit 9999")
-
-        for _, v in pairs(GunGame.objects) do
-            execute_command("disable_object '" .. v .. "'")
-        end
+        EnableDisableWeapons()
 
         players = {}
+        game_over = false
 
         for i = 1, #GunGame.levels do
             GunGame.levels[i] = GetTag('weap', GunGame.levels[i])
@@ -158,9 +173,13 @@ function OnStart()
     end
 end
 
+function OnEnd()
+    game_over = true
+end
+
 function OnTick()
     for i, v in pairs(players) do
-        if (i and player_alive(i)) then
+        if (i and player_alive(i) and not game_over) then
             if (v.assign) then
                 v:AssignWeapon()
             elseif (v.infinite_ammo) then
@@ -188,14 +207,16 @@ function OnSpawn(Ply)
 end
 
 function OnDeath(Victim, Killer)
-    local victim = tonumber(Victim)
-    local killer = tonumber(Killer)
-    local k = players[killer]
-    if (k and killer > 0 and killer ~= victim) then
-        k:LevelUP()
+    if (not game_over) then
+        local victim = tonumber(Victim)
+        local killer = tonumber(Killer)
+        local k = players[killer]
+        if (k and killer > 0 and killer ~= victim) then
+            k:LevelUP()
+        end
     end
 end
 
 function OnScriptUnload()
-    -- N/A
+    EnableDisableWeapons(true)
 end
