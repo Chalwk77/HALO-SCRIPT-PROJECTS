@@ -43,6 +43,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_DIE'], 'OnDeath')
     register_callback(cb['EVENT_JOIN'], 'OnJoin')
     register_callback(cb['EVENT_TICK'], 'OnTick')
+    register_callback(cb['EVENT_LEAVE'], 'OnQuit')
     register_callback(cb['EVENT_SPAWN'], 'OnSpawn')
     register_callback(cb['EVENT_GAME_START'], 'OnStart')
     OnStart()
@@ -137,6 +138,10 @@ function OnJoin(Ply)
         pid = Ply,
         name = get_var(Ply, "$name")
     })
+end
+
+function OnQuit(Ply)
+    players[Ply] = nil
 end
 
 function OnSpawn(Ply)
