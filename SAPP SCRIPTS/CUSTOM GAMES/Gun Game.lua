@@ -79,6 +79,15 @@ end
 
 function OnStart()
     if (get_var(9, '$gt') ~= 'n/a') then
+
+        players = {}
+
+        for i = 1, #players do
+            if player_present(i) then
+                OnJoin(i)
+            end
+        end
+
         for i = 1, #GunGame.levels do
             GunGame.levels[i].weapon = GetTag('weap', GunGame.levels[i].weapon)
         end
