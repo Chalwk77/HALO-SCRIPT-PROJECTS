@@ -14,24 +14,16 @@ local GunGame = {
     starting_level = 1,
 
     levels = {
-        [1] = {
-            weapon = "weapons\\pistol\\pistol",
-        },
-        [2] = {
-            weapon = "weapons\\assault rifle\\assault rifle",
-        },
-        [3] = {
-            weapon = "weapons\\shotgun\\shotgun",
-        },
-        [4] = {
-            weapon = "weapons\\sniper rifle\\sniper rifle",
-        },
-        [5] = {
-            weapon = "weapons\\rocket launcher\\rocket launcher",
-        },
-        [6] = {
-            weapon = "weapons\\plasma_cannon\\plasma_cannon",
-        }
+        [1] = 'weapons\\rocket launcher\\rocket launcher',
+        [2] = 'weapons\\plasma_cannon\\plasma_cannon',
+        [3] = 'weapons\\sniper rifle\\sniper rifle',
+        [4] = 'weapons\\shotgun\\shotgun',
+        [5] = 'weapons\\pistol\\pistol',
+        [6] = 'weapons\\assault rifle\\assault rifle',
+        [7] = 'weapons\\flamethrower\\flamethrower',
+        [8] = 'weapons\\plasma rifle\\plasma rifle',
+        [9] = 'weapons\\needler\\mp_needler',
+        [10] = 'weapons\\plasma pistol\\plasma pistol',
     }
 }
 
@@ -57,18 +49,22 @@ end
 
 function GunGame:LevelUP()
     self.level = self.level + 1
-    if (self.level > #self.levels) then
+
+    if (self.level == #self.levels) then
+        say_all(self.name .. ' is now max level')
+    elseif (self.level > #self.levels) then
         execute_command('map_next')
         say_all(self.name .. ' won the game!')
         return
     end
+
     self.assign = true
 end
 
 function GunGame:AssignWeapon()
     self.assign = false
     local lvl = self.level
-    local weapon = self.levels[lvl].weapon
+    local weapon = self.levels[lvl]
     assign_weapon(spawn_object('', '', 0, 0, 0, 0, weapon), self.pid)
 end
 
@@ -89,7 +85,7 @@ function OnStart()
         end
 
         for i = 1, #GunGame.levels do
-            GunGame.levels[i].weapon = GetTag('weap', GunGame.levels[i].weapon)
+            GunGame.levels[i] = GetTag('weap', GunGame.levels[i])
         end
     end
 end
