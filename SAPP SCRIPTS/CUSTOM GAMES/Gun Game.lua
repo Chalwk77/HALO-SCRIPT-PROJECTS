@@ -1,7 +1,9 @@
 --[[
 --=====================================================================================================--
 Script Name: Gun Game (v1.0), for SAPP (PC & CE)
-Description: A simple progression based game similar to COD's Gun Game.
+Description: A simple progression based game inspired by COD's Gun Game.
+             Every kill rewards the player with a new weapon.
+             The first player to reach the last weapon with 10 kills wins.
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
