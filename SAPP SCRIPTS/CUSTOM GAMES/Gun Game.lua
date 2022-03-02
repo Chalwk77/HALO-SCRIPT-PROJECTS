@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Simple Gun Game (v1.0), for SAPP (PC & CE)
+Script Name: Gun Game (v1.0), for SAPP (PC & CE)
 Description: A simple progression based game similar to COD's Gun Game.
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
