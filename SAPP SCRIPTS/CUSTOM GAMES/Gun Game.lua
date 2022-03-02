@@ -110,14 +110,14 @@ function OnStart()
 
         players = {}
 
+        for i = 1, #GunGame.levels do
+            GunGame.levels[i] = GetTag('weap', GunGame.levels[i])
+        end
+
         for i = 1, #players do
             if player_present(i) then
                 OnJoin(i)
             end
-        end
-
-        for i = 1, #GunGame.levels do
-            GunGame.levels[i] = GetTag('weap', GunGame.levels[i])
         end
     end
 end
