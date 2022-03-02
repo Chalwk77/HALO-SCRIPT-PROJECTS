@@ -74,8 +74,8 @@ end
 function GunGame:AssignWeapon()
     self.assign = false
     execute_command('wdel ' .. self.pid)
-    local weapon = self.levels[self.level]
-    assign_weapon(spawn_object('', '', 0, 0, 0, 0, weapon), self.pid)
+    execute_command('nades ' .. self.pid .. ' 0')
+    assign_weapon(spawn_object('', '', 0, 0, 0, 0, self.levels[self.level]), self.pid)
 end
 
 local function GetTag(Type, Name)
@@ -89,10 +89,10 @@ function OnStart()
         -- Prevent the game from ending too quickly:
         execute_command("scorelimit 9999")
 
-        -- # Disable Vehicles:
+        -- # Disable interaction with vehicles:
         execute_command("disable_all_vehicles 0 1")
 
-        -- # Disable Weapon Pick Ups
+        -- # Disable interaction with weapons:
         execute_command("disable_object 'weapons\\assault rifle\\assault rifle'")
         execute_command("disable_object 'weapons\\flamethrower\\flamethrower'")
         execute_command("disable_object 'weapons\\needler\\mp_needler'")
@@ -104,7 +104,7 @@ function OnStart()
         execute_command("disable_object 'weapons\\shotgun\\shotgun'")
         execute_command("disable_object 'weapons\\sniper rifle\\sniper rifle'")
 
-        -- # Disable Grenade Pick Ups
+        -- # Disable interaction with grenades:
         execute_command("disable_object 'weapons\\frag grenade\\frag grenade'")
         execute_command("disable_object 'weapons\\plasma grenade\\plasma grenade'")
 
