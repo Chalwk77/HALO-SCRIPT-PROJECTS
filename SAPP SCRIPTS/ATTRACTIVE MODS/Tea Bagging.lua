@@ -1,139 +1,117 @@
 --[[
 --=====================================================================================================--
-Script Name: T-Bagging, for SAPP (PC & CE)
-Description: Description: Humiliate your friends with this nifty little script.
-Crouch over your victims corpse 3 times to trigger a funny message "name is t-bagging victim".
-T-bag any corpse within 30 seconds after they die.
+Script Name: Tea Bagging, for SAPP (PC & CE)
+Description: Humiliate your friends with this nifty little script.
 
-Copyright (c) 2020-2021, Jericho Crosby <jericho.crosby227@gmail.com>
+Crouch over your victims corpse 3 times to trigger a funny message "$name is lap-dancing on $victim's body!".
+T-bag any corpse within 60 seconds after they die.
+
+Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
-api_version = "1.12.0.0"
-
--- Configuration Starts --
 local TBag = {
 
-    -- Message sent when a player is t-bagging
+    -- config starts --
+
+    -- Message announced when a player is t-bagging:
     --
-    on_tbag = "%name% is lap-dancing on %victim%'s body!",
+    on_tbag = "$name is lap-dancing on $victim's body!",
+
 
     -- Radius (in w/units) a player must be from a victim's corpse to trigger a t-bag:
     --
     radius = 2.5,
 
+
     -- A player's death coordinates expire after this many seconds:
     --
-    coordinate_expiration = 60,
+    expiration = 60,
 
-    -- A player must crouch over a victim's corpse this many times in order to trigger the t-bag:
+
+    -- A player must crouch over a victim's corpse this
+    -- many times in order to trigger t-bag:
     --
-    crouch_count = 4,
+    crouch_count = 3,
 
 
     -- A message relay function temporarily removes the server prefix
-    -- and will restore it to this when the relay is finished
-    server_prefix = "**SAPP**",
+    -- and will restore it to this when the relay is finished:
+    server_prefix = "**ADMIN**"
     --
 
-    -- Configuration Ends --
+    -- config ends --
 }
 
-local time_scale = 1 / 30
-local sqrt, gsub = math.sqrt, string.gsub
+local players = {}
+
+local time = os.time
+local sqrt = math.sqrt
+
+api_version = '1.12.0.0'
 
 function OnScriptLoad()
-    register_callback(cb["EVENT_TICK"], "OnTick")
-    register_callback(cb["EVENT_DIE"], "OnPlayerDeath")
-    register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
-    register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
-    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
-    register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
-    TBag:Init()
+    register_callback(cb['EVENT_DIE'], 'OnDeath')
+    register_callback(cb['EVENT_JOIN'], 'OnJoin')
+    register_callback(cb['EVENT_TICK'], 'OnTick')
+    register_callback(cb['EVENT_LEAVE'], 'OnQuit')
+    register_callback(cb["EVENT_SPAWN"], "OnSpawn")
+    register_callback(cb['EVENT_GAME_START'], 'OnStart')
 end
 
-function OnGameStart()
-    TBag:Init()
+function TBag:NewPlayer(t)
+    t.loc, t.count, t.state = {}, 0, 0
+    setmetatable(t, self)
+    self.__index = self
+    return t
 end
 
-function TBag:Init()
-    if (get_var(0, "$gt") ~= "n/a") then
-        self.players = { }
-        for i = 1, 16 do
-            if player_present(i) then
-                TBag:InitPlayer(i, false)
-            end
+function TBag:Announce(msg)
+    execute_command("msg_prefix \"\"")
+    say_all(msg)
+    execute_command("msg_prefix \" " .. self.server_prefix .. "\"")
+end
+
+local function GetXYZ(Ply)
+    local x, y, z
+    local DyN = get_dynamic_player(Ply)
+    if (DyN ~= 0) then
+        local vehicle = read_dword(DyN + 0x11C)
+        local object = get_object_memory(vehicle)
+        if (vehicle == 0xFFFFFFFF) then
+            x, y, z = read_vector3d(DyN + 0x5c)
+        elseif (object ~= 0) then
+            x, y, z = read_vector3d(object + 0x5c)
         end
     end
+    return x, y, z, DyN
 end
 
-function TBag:InProximity(pX, pY, pZ, X, Y, Z)
-    return sqrt((pX - X) ^ 2 + (pY - Y) ^ 2 + (pZ - Z) ^ 2) <= self.radius
+local function Dist(x1, y1, z1, x2, y2, z2, r)
+    return sqrt((x1 - x2) ^ 2 + (y1 - y2) ^ 2 + (z1 - z2) ^ 2) <= r
 end
 
-function TBag:Monitor()
-
-    -- 1st Loop (tea baggers)
-    --
-    for i, itab in pairs(self.players) do
-
-        -- 2nd Loop (victims)
-        --
-
-        for j, jtab in pairs(self.players) do
-            if (i ~= j and jtab.coordinates and #jtab.coordinates > 0) then
-
-                -- Get x,y,z position of tea bagger:
-                local pos = self:GetXYZ(i)
-
-                -- Loop through all victim coordinate tables:
-                --
-                for cIndex, CTab in pairs(jtab.coordinates) do
-
-                    -- increment expiration timer:
-                    --
-                    CTab.timer = CTab.timer + time_scale
-
-                    -- Delete coordinate table on expire:
-                    --
-                    if (CTab.timer >= self.coordinate_expiration) then
-                        jtab.coordinates[cIndex] = nil
-
-                        -- Monitor tea bagger position --
-                    elseif (pos and not pos.in_vehicle) then
-
-                        -- tea bagger coordinates:
-                        local px, py, pz = pos.x, pos.y, pos.z
-                        --
-
-                        -- corpse coordinates:
-                        local x, y, z = CTab.x, CTab.y, CTab.z
-                        --
-
-                        -- Check if tea bagger is within proximity of victim's corpse:
-                        if self:InProximity(px, py, pz, x, y, z) then
-
-                            -- Check if player is crouching & increment crouch count:
-                            local crouch = read_bit(pos.dyn + 0x208, 0)
-                            if (crouch ~= itab.crouch_state and crouch == 1) then
-                                itab.crouch_count = itab.crouch_count + 1
-
-
-                                -- Broadcast tea bag message:
-                                --
-                            elseif (itab.crouch_count >= self.crouch_count) then
-
-                                execute_command("msg_prefix \"\"")
-                                say_all(gsub(gsub(self.on_tbag, "%%name%%", itab.name), "%%victim%%", jtab.name))
-                                execute_command("msg_prefix \" " .. self.server_prefix .. "\"")
-
-                                itab.crouch_count = 0
-                                itab.crouch_state = 0
-                                jtab.coordinates[cIndex] = nil
+function OnTick()
+    for _, k in pairs(players) do
+        for _, v in pairs(players) do
+            if (k and v and k.pid ~= v.pid and #v.loc > 0) then
+                for i, pos in pairs(v.loc) do
+                    local x2, y2, z2 = pos.x, pos.y, pos.z
+                    if (pos.start() >= pos.finish) then
+                        v.loc[i] = nil
+                    elseif player_alive(k.pid) then
+                        local x1, y1, z1, dyn = GetXYZ(k.pid)
+                        if Dist(x1, y1, z1, x2, y2, z2, k.radius) then
+                            local crouch = read_bit(dyn + 0x208, 0)
+                            if (crouch ~= k.state and crouch == 1) then
+                                k.count = k.count + 1
+                            elseif (k.count >= k.crouch_count) then
+                                v.loc[i], k.count = nil, 0
+                                k:Announce(k.on_tbag:gsub("$name", k.name):gsub("$victim", v.name))
                             end
-                            itab.crouch_state = crouch
+                            k.state = crouch
                         end
                     end
                 end
@@ -142,67 +120,48 @@ function TBag:Monitor()
     end
 end
 
-function TBag:OnDeath(Ply)
-    local pos = self:GetXYZ(Ply)
-    if (pos and self.players[Ply]) then
-        table.insert(self.players[Ply].coordinates, {
-            timer = 0,
-            x = pos.x,
-            y = pos.y,
-            z = pos.z
-        })
-    end
-end
-
-function OnPlayerConnect(Ply)
-    TBag:InitPlayer(Ply, false)
-end
-
-function OnPlayerDisconnect(Ply)
-    TBag:InitPlayer(Ply, true)
-end
-
-function OnPlayerSpawn(Ply)
-    TBag.players[Ply].crouch_state = 0
-    TBag.players[Ply].crouch_count = 0
-end
-
-function TBag:InitPlayer(Ply, Reset)
-    if (not Reset) then
-        self.players[Ply] = {
-            coordinates = { },
-            name = get_var(Ply, "$name")
-        }
-        return
-    end
-    self.players[Ply] = nil
-end
-
-function TBag:GetXYZ(Ply)
-    local pos = { }
-    local DyN = get_dynamic_player(Ply)
-    if (player_alive(Ply) and DyN ~= 0) then
-        pos.dyn = DyN
-        local VehicleID = read_dword(DyN + 0x11C)
-        local VObject = get_object_memory(VehicleID)
-        if (VehicleID == 0xFFFFFFFF) then
-            pos.in_vehicle = false
-            pos.x, pos.y, pos.z = read_vector3d(DyN + 0x5c)
-        elseif (VObject ~= 0) then
-            pos.in_vehicle = true
-            pos.x, pos.y, pos.z = read_vector3d(VObject + 0x5c)
+function OnStart()
+    if (get_var(0, '$gt') ~= 'n/a') then
+        players = {}
+        for i = 1, 16 do
+            if player_present(i) then
+                OnJoin(i)
+            end
         end
     end
-    return (pos.x and pos) or nil
+end
+
+function OnDeath(Victim)
+    local victim = tonumber(Victim)
+    local v = players[victim]
+    if (v) then
+        local x, y, z = GetXYZ(victim)
+        v.loc[#v.loc + 1] = {
+            x = x,
+            y = y,
+            z = z,
+            start = time,
+            finish = time() + v.expiration
+        }
+    end
+end
+
+function OnJoin(Ply)
+    players[Ply] = TBag:NewPlayer({
+        pid = Ply,
+        name = get_var(Ply, '$name')
+    })
+end
+
+function OnQuit(Ply)
+    players[Ply] = nil
+end
+
+function OnSpawn(Ply)
+    players[Ply].state = 0
+    players[Ply].count = 0
 end
 
 function OnScriptUnload()
     -- N/A
-end
-
-function OnTick()
-    return TBag:Monitor()
-end
-function OnPlayerDeath(P)
-    return TBag:OnDeath(P)
 end

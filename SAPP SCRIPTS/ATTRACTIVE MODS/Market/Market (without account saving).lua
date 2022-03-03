@@ -2,7 +2,7 @@
 --=====================================================================================================--
 Script Name: Market (without account saving), for SAPP (PC & CE)
 Description: Earn money for killing and scoring.
-Version: 1.14
+Version: 1.16
 
 Use your money to buy the following perks:
 
@@ -178,9 +178,9 @@ function Account:new(t)
     setmetatable(t, self)
     self.__index = self
 
-    self.meta_id = 0
-    self.god = false
-    self.damage_multiplier = 1
+    t.meta_id = 0
+    t.god = false
+    t.damage_multiplier = 1
     return t
 end
 

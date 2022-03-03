@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Gun Game (v1.1), for SAPP (PC & CE)
+Script Name: Gun Game (v1.2), for SAPP (PC & CE)
 Description: A simple progression based game inspired by COD's Gun Game.
              Every kill rewards the player with a new weapon.
              The first player to reach the last weapon with 10 kills wins.
@@ -46,8 +46,8 @@ local GunGame = {
         [5] = 'weapons\\pistol\\pistol',
         [6] = 'weapons\\assault rifle\\assault rifle',
         [7] = 'weapons\\flamethrower\\flamethrower',
-        [8] = 'weapons\\plasma rifle\\plasma rifle',
-        [9] = 'weapons\\needler\\mp_needler',
+        [8] = 'weapons\\needler\\mp_needler',
+        [9] = 'weapons\\plasma rifle\\plasma rifle',
         [10] = 'weapons\\plasma pistol\\plasma pistol',
     },
 
@@ -108,8 +108,8 @@ end
 
 function GunGame:NewPlayer(t)
     setmetatable(t, self)
-    self.__index = self
-    self.level = self.starting_level
+    t.__index = self
+    t.level = self.starting_level
     return t
 end
 
