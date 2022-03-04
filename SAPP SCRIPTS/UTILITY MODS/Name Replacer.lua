@@ -9,6 +9,8 @@ Description: Change blacklisted names into something funny!
              As random names get assigned, they become marked as "used" until the player quits the server.
              This is to prevent someone else from being assigned the same random name.
 
+todo: [~] FIX: Names are not changing?
+
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
@@ -25,6 +27,7 @@ local NameReplacer = {
     -- BLACKLIST TABLE:
     --
     blacklist = {
+        "Chalwk",
         "Butcher",
         "Caboose",
         "Crazy",
@@ -122,7 +125,6 @@ local NameReplacer = {
 
 local network_struct
 
-local sub = string.sub
 local byte = string.byte
 local char = string.char
 local random = math.random
@@ -226,11 +228,11 @@ function NameReplacer:PreJoin(Ply)
 
             count = 0
 
-            local str = sub(new_name, 1, 11)
+            local str = new_name:sub(1, 11)
             local length = str:len()
 
             for j = 1, length do
-                local new_byte = byte(sub(str, j, j))
+                local new_byte = byte(str:sub(j, j))
                 write_byte(address + count, new_byte)
                 count = count + 2
             end
