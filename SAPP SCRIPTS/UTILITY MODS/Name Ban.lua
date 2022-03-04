@@ -74,16 +74,26 @@ api_version = "1.12.0.0"
 
 local bad_names = { }
 
+local function StringToTable(str)
+    local t = {}
+    for i = 1, str:len() do
+        t[#t + 1] = str:sub(i, i)
+    end
+    return t
+end
+
 function OnScriptLoad()
 
     action = (action == "kick" and 'k $n' or 'ipban $n ' .. time) .. ' "' .. reason .. '"'
 
-    for _, name in pairs(banned_names) do
+    for i = 1, #banned_names do
 
         local word = ""
-        local t = string.totable(name)
+        local name = banned_names[i]
+        local t = StringToTable(name)
 
-        for _, char in pairs(t) do
+        for j = 1, #t do
+            local char = t[j]
             if (patterns[char]) then
                 for k, v in pairs(patterns[char]) do
                     if (patterns[char][k]) then
@@ -92,23 +102,16 @@ function OnScriptLoad()
                 end
             end
         end
-        table.insert(bad_names, word)
+        bad_names[#bad_names + 1] = word
     end
 
     register_callback(cb["EVENT_JOIN"], "OnJoin")
 end
 
-function string.totable(str)
-    local t = {}
-    for i = 1, str:len() do
-        table.insert(t, str:sub(i, i))
-    end
-    return t
-end
-
-local function NameIsBanned(name)
-    for _, v in pairs(bad_names) do
-        if name:match(v) then
+local function NameIsBanned(Ply)
+    local name = get_var(Ply, "$name")
+    for i = 1, #bad_names do
+        if name:match(bad_names[i]) then
             return true
         end
     end
@@ -116,10 +119,8 @@ local function NameIsBanned(name)
 end
 
 function OnJoin(Ply)
-    local name = get_var(Ply, "$name")
-    if NameIsBanned(name) then
-        local cmd = action:gsub("$n", Ply)
-        execute_command(cmd)
+    if NameIsBanned(Ply) then
+        execute_command(action:gsub("$n", Ply))
     end
 end
 
