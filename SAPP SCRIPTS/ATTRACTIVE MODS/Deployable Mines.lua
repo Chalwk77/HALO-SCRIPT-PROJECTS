@@ -9,6 +9,12 @@ Description: Deploy super-explosive mines (disguised as health packs) while driv
              Mines despawn after 60 seconds (by default).
              Deploy using your flashlight key.
 
+             [!] NOTE [!]
+
+             This script will not work on maps that don't have the following tags:
+             'proj', 'weapons\\rocket launcher\\rocket'
+             'jpt!', 'weapons\\rocket launcher\\explosion'
+
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
@@ -53,11 +59,6 @@ local Mines = {
 
     ]]
     mine_object = { 'eqip', 'powerups\\health pack' },
-
-    -- Tags used to simulate an explosion:
-    --
-    mine_explosion_projectile = { 'proj', 'weapons\\rocket launcher\\rocket' },
-    mine_explosion_tag = { 'jpt!', 'weapons\\rocket launcher\\explosion' },
 
 
     -- Vehicles | Set to false to disable vehicle dispensing:
@@ -167,8 +168,8 @@ function Mines:NewMine(pos)
 
                 if (mx) then
                     EditRocket()
-                    local rocket = spawn_projectile(self.projectile, 0, mx, my, mz)
-                    local object = get_object_memory(rocket)
+                    local proj = spawn_projectile(self.projectile, 0, mx, my, mz)
+                    local object = get_object_memory(proj)
                     write_float(object + 0x68, 0)
                     write_float(object + 0x6C, 0)
                     write_float(object + 0x70, -9999)
@@ -312,8 +313,8 @@ function OnStart()
     if (get_var(0, '$gt') ~= 'n/a') then
 
         Mines.mine = GetTag(Mines.mine_object[1], Mines.mine_object[2])
-        Mines.explosion = GetTag(Mines.mine_explosion_tag[1], Mines.mine_explosion_tag[2])
-        Mines.projectile = GetTag(Mines.mine_explosion_projectile[1], Mines.mine_explosion_projectile[2])
+        Mines.explosion = GetTag('jpt!', 'weapons\\rocket launcher\\explosion')
+        Mines.projectile = GetTag('proj', 'weapons\\rocket launcher\\rocket')
 
         if (Mines.mine and Mines.explosion and Mines.projectile) then
 
