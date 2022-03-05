@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Gun Game (v1.2), for SAPP (PC & CE)
+Script Name: Gun Game (v1.3), for SAPP (PC & CE)
 Description: A simple progression based game inspired by COD's Gun Game.
              Every kill rewards the player with a new weapon.
              The first player to reach the last weapon with 10 kills wins.
@@ -17,9 +17,9 @@ local GunGame = {
 
     -- Game messages:
     messages = {
-
         -- On level up:
-        [1] = 'You are now level $level of 10',
+
+        [1] = 'Level: $lvl/10 [$label]',
 
         -- Announced to the whole server when player reaches max level:
         [2] = '$name is now max level',
@@ -38,18 +38,28 @@ local GunGame = {
     --
     infinite_ammo = true,
 
+
+    -- Format:
+    -- [level id] = {[WEAPON LABEL] = {'weapon tag'}, nades, plasmas}
+
     levels = {
-        [1] = 'weapons\\rocket launcher\\rocket launcher',
-        [2] = 'weapons\\plasma_cannon\\plasma_cannon',
-        [3] = 'weapons\\sniper rifle\\sniper rifle',
-        [4] = 'weapons\\shotgun\\shotgun',
-        [5] = 'weapons\\pistol\\pistol',
-        [6] = 'weapons\\assault rifle\\assault rifle',
-        [7] = 'weapons\\flamethrower\\flamethrower',
-        [8] = 'weapons\\needler\\mp_needler',
-        [9] = 'weapons\\plasma rifle\\plasma rifle',
-        [10] = 'weapons\\plasma pistol\\plasma pistol',
+        [1] = { ['Rocket Launcher'] = { 'weapons\\rocket launcher\\rocket launcher', 1, 1 } },
+        [2] = { ['Plasma Cannon'] = { 'weapons\\plasma_cannon\\plasma_cannon', 1, 1 } },
+        [3] = { ['Sniper Rifle'] = { 'weapons\\sniper rifle\\sniper rifle', 1, 1 } },
+        [4] = { ['Shotgun'] = { 'weapons\\shotgun\\shotgun', 1, 0 } },
+        [5] = { ['Pistol'] = { 'weapons\\pistol\\pistol', 1, 0 } },
+        [6] = { ['Assault Rifle'] = { 'weapons\\assault rifle\\assault rifle', 1, 0 } },
+        [7] = { ['Flamethrower'] = { 'weapons\\flamethrower\\flamethrower', 0, 1 } },
+        [8] = { ['Needler'] = { 'weapons\\needler\\mp_needler', 0, 1 } },
+        [9] = { ['Plasma Rifle'] = { 'weapons\\plasma rifle\\plasma rifle', 0, 1 } },
+        [10] = { ['Plasma Pistol'] = { 'weapons\\plasma pistol\\plasma pistol', 0, 0 } },
     },
+
+
+    -- A message relay function temporarily removes the server prefix
+    -- and will restore it to this when the relay is finished
+    server_prefix = "**SAPP**",
+    --
 
     --
     ------------------------------------------------------------
@@ -108,7 +118,8 @@ end
 
 function GunGame:NewPlayer(t)
     setmetatable(t, self)
-    t.__index = self
+    self.__index = self
+
     t.level = self.starting_level
     return t
 end
@@ -118,16 +129,15 @@ function GunGame:LevelUP()
 
         self.level = self.level + 1
 
+        execute_command("msg_prefix \"\"")
         if (self.level == #self.levels) then
             say_all(self.messages[2]:gsub('$name', self.name))
         elseif (self.level > #self.levels) then
             execute_command('map_next')
             say_all(self.messages[3]:gsub('$name', self.name))
             return
-        else
-            say(self.pid, self.messages[1]:gsub('$level', self.level))
         end
-
+        execute_command("msg_prefix \" " .. self.server_prefix .. "\"")
         self.assign = true
     end
 end
@@ -139,10 +149,25 @@ function GunGame:AssignWeapon()
     execute_command('wdel ' .. self.pid)
     execute_command('nades ' .. self.pid .. ' 0')
 
-    local weapon_id = self.levels[self.level]
-    local object = spawn_object('', '', 0, 0, 0, 0, weapon_id)
+    local weapon = self.levels[self.level]
+    for Label, t in pairs(weapon) do
 
-    assign_weapon(object, self.pid)
+        if (t[2] ~= 0) then
+            execute_command('nades ' .. self.pid .. ' ' .. t[2] .. ' 1')
+        end
+        if (t[3] ~= nil) then
+            execute_command('nades ' .. self.pid .. ' ' .. t[3] .. ' 2')
+        end
+
+        local object = spawn_object('', '', 0, 0, 0, 0, t[1])
+        assign_weapon(object, self.pid)
+
+        local msg = self.messages[1]
+        msg = msg:gsub('$lvl', self.level):gsub('$label', Label)
+        execute_command("msg_prefix \"\"")
+        say(self.pid, msg)
+        execute_command("msg_prefix \" " .. self.server_prefix .. "\"")
+    end
 end
 
 local function GetTag(Type, Name)
@@ -168,7 +193,9 @@ function OnStart()
         game_over = false
 
         for i = 1, #GunGame.levels do
-            GunGame.levels[i] = GetTag('weap', GunGame.levels[i])
+            for k, v in pairs(GunGame.levels[i]) do
+                GunGame.levels[i][k][1] = GetTag('weap', v[1])
+            end
         end
 
         for i = 1, #players do
