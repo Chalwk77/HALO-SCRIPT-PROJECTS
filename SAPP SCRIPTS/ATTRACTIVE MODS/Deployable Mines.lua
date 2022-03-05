@@ -26,6 +26,35 @@ local Mines = {
     --
     radius = 0.7,
 
+    --[[
+
+    Available object tags that can represent mines:
+    Default: 'powerups\\health pack'
+
+    'powerups\\active camouflage'
+    'powerups\\health pack'
+    'powerups\\over shield'
+    'powerups\\double speed'
+    'powerups\\full-spectrum vision'
+    'weapons\\frag grenade\\frag grenade'
+    'weapons\\plasma grenade\\plasma grenade'
+    'powerups\\needler ammo\\needler ammo'
+    'powerups\\assault rifle ammo\\assault rifle ammo'
+    'powerups\\pistol ammo\\pistol ammo'
+    'powerups\\rocket launcher ammo\\rocket launcher ammo'
+    'powerups\\shotgun ammo\\shotgun ammo'
+    'powerups\\sniper rifle ammo\\sniper rifle ammo'
+    'powerups\\flamethrower ammo\\flamethrower ammo'
+
+    ]]
+    mine_object = { 'eqip', 'powerups\\health pack' },
+
+    -- Tags used ot simulate an explosion:
+    --
+    mine_explosion_projectile = { 'proj', 'weapons\\rocket launcher\\rocket' },
+    mine_explosion_tag = { 'jpt!', 'weapons\\rocket launcher\\explosion' },
+
+
     -- vehicle tag paths --
     -- Set to false to disable vehicle dispensing:
     --
@@ -121,7 +150,7 @@ function Mines:NewMine(pos)
 
             if (mx) then
                 EditRocket()
-                local rocket = spawn_projectile(self.rocket, 0, mx, my, mz)
+                local rocket = spawn_projectile(self.projectile, 0, mx, my, mz)
                 local object = get_object_memory(rocket)
                 write_float(object + 0x68, 0)
                 write_float(object + 0x6C, 0)
@@ -228,7 +257,7 @@ function CheckDamage(Victim, Killer, MetaID, _, _)
             local betrayal = (k and not ffa and (v.team == k.team and killer ~= victim))
 
             execute_command("msg_prefix \"\"")
-            if (v.meta == Mines.rocket_explosion and mine_k) then
+            if (v.meta == Mines.explosion and mine_k) then
                 say_all(v.name .. " was blown up by " .. mine_k.name .. "'s mine!")
             elseif (guardians) then
                 say_all(v.name .. ' killed by guardians')
@@ -264,13 +293,17 @@ end
 function OnStart()
     if (get_var(0, '$gt') ~= 'n/a') then
 
-        Mines.mine = GetTag('eqip', 'powerups\\health pack')
-        Mines.rocket = GetTag('proj', 'weapons\\rocket launcher\\rocket')
-        Mines.rocket_explosion = GetTag('jpt!', 'weapons\\rocket launcher\\explosion')
-        falling = GetTag('jpt!', 'globals\\falling')
-        distance = GetTag('jpt!', 'globals\\distance')
+        Mines.mine = GetTag(Mines.mine_object[1], Mines.mine_object[2])
+        Mines.explosion = GetTag(Mines.mine_explosion_tag[1], Mines.mine_explosion_tag[2])
+        Mines.projectile = GetTag(Mines.mine_explosion_projectile[1], Mines.mine_explosion_projectile[2])
 
-        if (Mines.mine and Mines.rocket and Mines.rocket_explosion) then
+        if (Mines.mine and Mines.explosion and Mines.projectile) then
+
+            -- May not work on all maps:
+            --
+            falling = GetTag('jpt!', 'globals\\falling')
+            distance = GetTag('jpt!', 'globals\\distance')
+            --
 
             ffa = (get_var(0, '$ffa') == '1')
 
@@ -284,7 +317,7 @@ function OnStart()
                 local tag = tag_address + 0x20 * i
                 local tag_name = read_string(read_dword(tag + 0x10))
                 local tag_class = read_dword(tag)
-                if (tag_class == 1785754657 and tag_name == 'weapons\\rocket launcher\\explosion') then
+                if (tag_class == 1785754657 and tag_name == Mines.mine_explosion_tag[2]) then
                     local tag_data = read_dword(tag + 0x14)
                     Mines.jpt = {
                         [tag_data + 0x1d0] = { 1148846080, 1117782016 },
