@@ -82,6 +82,12 @@ function Mines:NewMine(pos)
     if (self.mines == 0) then
         rprint(Ply, "No more mines for this life!")
         return
+    elseif (not pos.seat) then
+        rprint(Ply, 'You must be in the drivers seat of a vehicle!')
+        return
+    elseif (pos.seat ~= 0) then
+        rprint(Ply, 'You must be in the drivers seat')
+        return
     end
 
     local x, y, z = pos.x, pos.y, pos.z
@@ -119,7 +125,6 @@ local function GetPos(DyN)
     if (VehicleID == 0xFFFFFFFF) then
         pos.x, pos.y, pos.z = read_vector3d(DyN + 0x5c)
     elseif (vehicle ~= 0) then
-        pos.vehicle = vehicle
         pos.seat = read_word(DyN + 0x2F0)
         pos.x, pos.y, pos.z = read_vector3d(vehicle + 0x5c)
     end
