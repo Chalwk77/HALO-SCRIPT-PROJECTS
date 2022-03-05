@@ -76,24 +76,21 @@ end
 
 function Mines:NewMine(pos)
 
-    local max = self.mines_per_life
-    local Ply = self.pid
-
     if (self.mines == 0) then
-        rprint(Ply, "No more mines for this life!")
+        rprint(self.pid, "No more mines for this life!")
         return
     elseif (not pos.seat) then
-        rprint(Ply, 'You must be in the drivers seat of a vehicle!')
+        rprint(self.pid, 'You must be in the drivers seat of a vehicle!')
         return
     elseif (pos.seat ~= 0) then
-        rprint(Ply, 'You must be in the drivers seat')
+        rprint(self.pid, 'You must be in the drivers seat')
         return
     end
 
     local x, y, z = pos.x, pos.y, pos.z
     local mine = spawn_object('', '', x, y, z, 0, self.mine)
     self.objects[mine] = {
-        owner = Ply,
+        owner = self.pid,
         expiration = time() + self.despawn_rate,
         destroy = function(m, mx, my, mz)
 
@@ -113,7 +110,8 @@ function Mines:NewMine(pos)
     }
 
     self.mines = self.mines - 1
-    rprint(Ply, 'Mine Deployed! ' .. self.mines .. '/' .. max)
+    local max = self.mines_per_life
+    rprint(self.pid, 'Mine Deployed! ' .. self.mines .. '/' .. max)
 end
 
 local function GetPos(DyN)
