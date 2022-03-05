@@ -36,7 +36,12 @@ local Mines = {
         ['vehicles\\banshee\\banshee_mp'] = true,
         ['vehicles\\scorpion\\scorpion_mp'] = false,
         ['vehicles\\c gun turret\\c gun turret_mp'] = false
-    }
+    },
+
+    -- A message relay function temporarily removes the server prefix
+    -- and will restore it to this when the relay is finished:
+    server_prefix = "**SAPP**"
+    --
 }
 
 -- config ends --
@@ -44,8 +49,24 @@ local Mines = {
 local players = { }
 local time = os.time
 local sqrt = math.sqrt
+local dma_original, dma
+local ffa, falling, distance
 
 api_version = '1.12.0.0'
+
+local function DisableDeathMessages()
+    dma = sig_scan("8B42348A8C28D500000084C9") + 3
+    dma_original = read_dword(dma)
+    safe_write(true)
+    write_dword(dma, 0x03EB01B1)
+    safe_write(false)
+end
+
+local function EnableDeathMessages()
+    safe_write(true)
+    write_dword(dma, dma_original)
+    safe_write(false)
+end
 
 function OnScriptLoad()
     register_callback(cb['EVENT_GAME_START'], 'OnStart')
@@ -156,6 +177,7 @@ function OnTick()
                     if (object ~= 0) then
                         local mx, my, mz = read_vector3d(object + 0x5C)
                         if Dist(pos.x, pos.y, pos.z, mx, my, mz) <= v.radius then
+                            v.killer = t.owner
                             t.destroy(mine, mx, my, mz)
                         end
                     end
@@ -168,7 +190,8 @@ end
 function OnJoin(Ply)
     players[Ply] = Mines:NewPlayer({
         pid = Ply,
-        name = get_var(Ply, '$name')
+        name = get_var(Ply, '$name'),
+        team = get_var(Ply, '$team')
     })
 end
 
@@ -180,8 +203,57 @@ function OnQuit(Ply)
     end
 end
 
+function CheckDamage(Victim, Killer, MetaID, _, _)
+
+    local killer, victim = tonumber(Killer), tonumber(Victim)
+
+    local v = players[victim]
+    if (v) then
+
+        -- event_damage_application:
+        if (MetaID) then
+            v.meta = MetaID
+        else
+
+            -- event_die:
+            local k = players[killer]
+            local mine_k = players[v.killer]
+
+            local squashed = (killer == 0)
+            local guardians = (killer == nil)
+            local suicide = (killer == victim)
+            local pvp = (killer > 0 and killer ~= victim)
+            local fell = (v.meta_id == falling or v.meta_id == distance)
+            local betrayal = (k and not ffa and (v.team == k.team and killer ~= victim))
+
+            execute_command("msg_prefix \"\"")
+            if (v.meta == Mines.rocket_explosion and mine_k) then
+                say_all(v.name .. " was blown up by " .. mine_k.name .. "'s mine!")
+            elseif (squashed) then
+                say_all(v.name .. ' was squashed by a vehicle')
+            elseif (guardians) then
+                say_all(v.name .. ' killed by guardians')
+            elseif (suicide) then
+                say_all(v.name .. ' committed suicide')
+            elseif (fell) then
+                say_all(v.name .. ' died')
+            elseif (betrayal) then
+                say_all(v.name .. ' was betrayed by ' .. k.name)
+            elseif (pvp) then
+                say_all(v.name .. ' was killed by ' .. k.name)
+            end
+            execute_command("msg_prefix \" **" .. Mines.server_prefix .. "**\"")
+        end
+    end
+end
+
 function OnSpawn(Ply)
+    players[Ply].meta = 0
     players[Ply].mines = Mines.mines_per_life
+end
+
+function OnSwitch(Ply)
+    players[Ply].team = get_var(Ply, '$team')
 end
 
 local function GetTag(Type, Name)
@@ -195,8 +267,12 @@ function OnStart()
         Mines.mine = GetTag('eqip', 'powerups\\health pack')
         Mines.rocket = GetTag('proj', 'weapons\\rocket launcher\\rocket')
         Mines.rocket_explosion = GetTag('jpt!', 'weapons\\rocket launcher\\explosion')
+        falling = GetTag('jpt!', 'globals\\falling')
+        distance = GetTag('jpt!', 'globals\\distance')
 
         if (Mines.mine and Mines.rocket and Mines.rocket_explosion) then
+
+            ffa = (get_var(0, '$ffa') == '1')
 
             Mines.jpt = {}
             Mines.objects = {}
@@ -226,20 +302,29 @@ function OnStart()
                 end
             end
 
+            DisableDeathMessages()
+
             register_callback(cb['EVENT_JOIN'], 'OnJoin')
             register_callback(cb['EVENT_TICK'], 'OnTick')
             register_callback(cb['EVENT_LEAVE'], 'OnQuit')
             register_callback(cb['EVENT_SPAWN'], 'OnSpawn')
+            register_callback(cb["EVENT_DIE"], 'CheckDamage')
+            register_callback(cb['EVENT_TEAM_SWITCH'], 'OnSwitch')
+            register_callback(cb["EVENT_DAMAGE_APPLICATION"], 'CheckDamage')
             return
         end
 
+        EnableDeathMessages()
+        unregister_callback(cb["EVENT_DIE"])
         unregister_callback(cb['EVENT_JOIN'])
         unregister_callback(cb['EVENT_TICK'])
         unregister_callback(cb['EVENT_LEAVE'])
         unregister_callback(cb['EVENT_SPAWN'])
+        unregister_callback(cb['EVENT_TEAM_SWITCH'])
+        unregister_callback(cb["EVENT_DAMAGE_APPLICATION"])
     end
 end
 
 function OnScriptUnload()
-    -- N/A
+    EnableDeathMessages()
 end
