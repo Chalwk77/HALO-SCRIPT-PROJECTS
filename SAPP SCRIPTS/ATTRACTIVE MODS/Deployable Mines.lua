@@ -336,7 +336,7 @@ function OnStart()
                 local tag = tag_address + 0x20 * i
                 local tag_name = read_string(read_dword(tag + 0x10))
                 local tag_class = read_dword(tag)
-                if (tag_class == 1785754657 and tag_name == Mines.mine_explosion_tag[2]) then
+                if (tag_class == 1785754657 and tag_name == 'weapons\\rocket launcher\\explosion') then
                     local tag_data = read_dword(tag + 0x14)
                     Mines.jpt = {
                         [tag_data + 0x1d0] = { 1148846080, 1117782016 },
