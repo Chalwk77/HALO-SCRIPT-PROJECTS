@@ -30,7 +30,7 @@ local TBag = {
 
     -- A player's death coordinates expire after this many seconds:
     --
-    expiration = 60,
+    expiration = 120,
 
 
     -- A player must crouch over a victim's corpse this
