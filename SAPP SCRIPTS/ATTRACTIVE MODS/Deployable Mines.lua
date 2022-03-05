@@ -125,44 +125,57 @@ function Mines:NewPlayer(o)
     return o
 end
 
+local function CorrectVehicle(self, vehicle)
+    for tag, enabled in pairs(self.vehicles) do
+        if (enabled and read_string(read_dword(read_word(vehicle) * 32 + 0x40440038)) == tag) then
+            return true
+        end
+    end
+    return false
+end
+
 function Mines:NewMine(pos)
 
     if (self.mines == 0) then
         rprint(self.pid, "No more mines for this life!")
         return
-    elseif (not pos.seat) then
-        rprint(self.pid, 'You must be in the drivers seat of a vehicle!')
-        return
-    elseif (pos.seat ~= 0) then
-        rprint(self.pid, 'You must be in the drivers seat')
-        return
-    end
+    elseif (pos.seat) then
 
-    local x, y, z = pos.x, pos.y, pos.z
-    local mine = spawn_object('', '', x, y, z, 0, self.mine)
-    self.objects[mine] = {
-        owner = self.pid,
-        expiration = time() + self.despawn_rate,
-        destroy = function(m, mx, my, mz)
-
-            destroy_object(m)
-            Mines.objects[m] = nil
-
-            if (mx) then
-                EditRocket()
-                local rocket = spawn_projectile(self.projectile, 0, mx, my, mz)
-                local object = get_object_memory(rocket)
-                write_float(object + 0x68, 0)
-                write_float(object + 0x6C, 0)
-                write_float(object + 0x70, -9999)
-                timer(1000, "EditRocket", "true")
-            end
+        if (pos.seat ~= 0) then
+            rprint(self.pid, 'You must be in the drivers seat')
+            return
+        elseif (not CorrectVehicle(self, pos.vehicle)) then
+            rprint(self.pid, 'This vehicle cannot deploy mines')
+            return
         end
-    }
 
-    self.mines = self.mines - 1
-    local max = self.mines_per_life
-    rprint(self.pid, 'Mine Deployed! ' .. self.mines .. '/' .. max)
+        local x, y, z = pos.x, pos.y, pos.z
+        local mine = spawn_object('', '', x, y, z, 0, self.mine)
+        self.objects[mine] = {
+
+            owner = self.pid,
+            expiration = time() + self.despawn_rate,
+
+            destroy = function(m, mx, my, mz)
+
+                destroy_object(m)
+                Mines.objects[m] = nil
+
+                if (mx) then
+                    EditRocket()
+                    local rocket = spawn_projectile(self.projectile, 0, mx, my, mz)
+                    local object = get_object_memory(rocket)
+                    write_float(object + 0x68, 0)
+                    write_float(object + 0x6C, 0)
+                    write_float(object + 0x70, -9999)
+                    timer(1000, "EditRocket", "true")
+                end
+            end
+        }
+
+        self.mines = self.mines - 1
+        rprint(self.pid, 'Mine Deployed! ' .. self.mines .. '/' .. self.mines_per_life)
+    end
 end
 
 local function GetPos(DyN)
@@ -174,6 +187,7 @@ local function GetPos(DyN)
     if (VehicleID == 0xFFFFFFFF) then
         pos.x, pos.y, pos.z = read_vector3d(DyN + 0x5c)
     elseif (vehicle ~= 0) then
+        pos.vehicle = vehicle
         pos.seat = read_word(DyN + 0x2F0)
         pos.x, pos.y, pos.z = read_vector3d(vehicle + 0x5c)
     end
