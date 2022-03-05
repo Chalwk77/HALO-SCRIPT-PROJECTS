@@ -54,14 +54,13 @@ local Mines = {
     ]]
     mine_object = { 'eqip', 'powerups\\health pack' },
 
-    -- Tags used ot simulate an explosion:
+    -- Tags used to simulate an explosion:
     --
     mine_explosion_projectile = { 'proj', 'weapons\\rocket launcher\\rocket' },
     mine_explosion_tag = { 'jpt!', 'weapons\\rocket launcher\\explosion' },
 
 
-    -- vehicle tag paths --
-    -- Set to false to disable vehicle dispensing:
+    -- Vehicles | Set to false to disable vehicle dispensing:
     --
     vehicles = {
         ['vehicles\\ghost\\ghost_mp'] = true,
