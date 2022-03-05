@@ -1,7 +1,7 @@
 --[[
 --=====================================================================================================--
 Script Name: Deployable Mines, for SAPP (PC & CE)
-Description: Deploy super-explosive (disguised as health packs) mines while driving.
+Description: Deploy super-explosive mines (disguised as health packs) while driving.
              To Deploy a mine, press your flashlight key.
 
              When an enemy walks/drives over them they explode.
