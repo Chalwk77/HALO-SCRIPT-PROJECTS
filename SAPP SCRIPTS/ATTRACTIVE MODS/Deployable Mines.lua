@@ -89,6 +89,7 @@ function Mines:NewPlayer(o)
     self.__index = self
 
     o.meta = 0
+    o.killer = 0
     o.flashlight = 0
     o.mines = self.mines_per_life
 
@@ -229,13 +230,11 @@ function CheckDamage(Victim, Killer, MetaID, _, _)
             execute_command("msg_prefix \"\"")
             if (v.meta == Mines.rocket_explosion and mine_k) then
                 say_all(v.name .. " was blown up by " .. mine_k.name .. "'s mine!")
-            elseif (squashed) then
-                say_all(v.name .. ' was squashed by a vehicle')
             elseif (guardians) then
                 say_all(v.name .. ' killed by guardians')
             elseif (suicide) then
                 say_all(v.name .. ' committed suicide')
-            elseif (fell) then
+            elseif (fell or squashed) then
                 say_all(v.name .. ' died')
             elseif (betrayal) then
                 say_all(v.name .. ' was betrayed by ' .. k.name)
@@ -249,6 +248,7 @@ end
 
 function OnSpawn(Ply)
     players[Ply].meta = 0
+    players[Ply].killer = 0
     players[Ply].mines = Mines.mines_per_life
 end
 
