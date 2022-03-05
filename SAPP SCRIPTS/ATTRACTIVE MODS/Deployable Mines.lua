@@ -7,13 +7,9 @@ Description: Deploy super-explosive mines (disguised as health packs) while driv
              When an enemy walks/drives over them they explode.
              You cannot die by your own mines.
              Mines despawn after 60 seconds (by default).
-             Deploy using your flashlight key.
 
              [!] NOTE [!]
-
-             This script will not work on maps that don't have the following tags:
-             'proj', 'weapons\\rocket launcher\\rocket'
-             'jpt!', 'weapons\\rocket launcher\\explosion'
+             This script is designed to work on maps with stock tags.
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
