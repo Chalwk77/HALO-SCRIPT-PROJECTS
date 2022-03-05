@@ -216,9 +216,9 @@ function OnTick()
                 if (time() >= t.expiration) then
                     t.destroy(mine)
                 elseif (t.owner ~= i and player_alive(i) and DyN ~= 0) then
-                    local pos = GetPos(DyN)
                     local object = get_object_memory(mine)
                     if (object ~= 0) then
+                        local pos = GetPos(DyN)
                         local mx, my, mz = read_vector3d(object + 0x5C)
                         if Dist(pos.x, pos.y, pos.z, mx, my, mz) <= v.radius then
                             v.killer = t.owner
