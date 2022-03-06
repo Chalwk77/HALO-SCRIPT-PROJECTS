@@ -1,7 +1,7 @@
 --[[
 --=====================================================================================================--
-Script Name: Gun Game (v1.3), for SAPP (PC & CE)
-Description: A simple progression based game inspired by COD's Gun Game.
+Script Name: Gun Game (v1.4), for SAPP (PC & CE)
+Description: A simple progression based game inspired by Call of Duty's Gun Game mode.
              Every kill rewards the player with a new weapon.
              The first player to reach the last weapon with 10 kills wins.
 
@@ -17,8 +17,8 @@ local GunGame = {
 
     -- Game messages:
     messages = {
-        -- On level up:
 
+        -- On level up:
         [1] = 'Level: $lvl/10 [$label]',
 
         -- Announced to the whole server when player reaches max level:
@@ -40,7 +40,7 @@ local GunGame = {
 
 
     -- Format:
-    -- [level id] = {[WEAPON LABEL] = {'weapon tag'}, nades, plasmas}
+    -- [level id] = {['WEAPON LABEL'] = {'weapon tag', nades, plasmas } },
 
     levels = {
         [1] = { ['Rocket Launcher'] = { 'weapons\\rocket launcher\\rocket launcher', 1, 1 } },
@@ -152,10 +152,10 @@ function GunGame:AssignWeapon()
     local weapon = self.levels[self.level]
     for Label, t in pairs(weapon) do
 
-        if (t[2] ~= 0) then
+        if (t[2] > 0) then
             execute_command('nades ' .. self.pid .. ' ' .. t[2] .. ' 1')
         end
-        if (t[3] ~= nil) then
+        if (t[3] > 0) then
             execute_command('nades ' .. self.pid .. ' ' .. t[3] .. ' 2')
         end
 
@@ -164,6 +164,7 @@ function GunGame:AssignWeapon()
 
         local msg = self.messages[1]
         msg = msg:gsub('$lvl', self.level):gsub('$label', Label)
+
         execute_command("msg_prefix \"\"")
         say(self.pid, msg)
         execute_command("msg_prefix \" " .. self.server_prefix .. "\"")
