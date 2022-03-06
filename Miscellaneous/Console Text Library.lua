@@ -19,7 +19,7 @@ Steps to configure:
     ConsoleText:NewMessage(pid, m, duration)
 
     pid      =  player id [number]
-    m        =  message string or table of strings, e.g {{string, string}}}
+    m        =  message string or table of strings, e.g {string, string, string, string}
     duration =  time [number] (in seconds) a message will appear on screen.
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
