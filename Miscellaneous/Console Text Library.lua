@@ -30,8 +30,8 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 ]]--
 
 local time = os.time
-
 local ConsoleText = { messages = {} }
+
 function ConsoleText:NewMessage(Ply, Content, Duration, Clear)
     self.messages[#self.messages + 1] = {
         player = Ply,
@@ -60,7 +60,7 @@ function ConsoleText:GameTick()
         if (not player_present(v.player) or time() >= v.finish) then
             self.messages[k] = nil
         else
-            v.stdout(v.player, v.content)
+            v.stdout(v.player, v.content, v.clear)
         end
     end
 end
