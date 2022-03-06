@@ -20,7 +20,7 @@ Steps to configure:
 
     pid      =  player id [number]
     m        =  message string or table of strings, e.g {{string, string}}}
-    duration =  time (in seconds) a message will appear on screen.
+    duration =  time [number] (in seconds) a message will appear on screen.
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
