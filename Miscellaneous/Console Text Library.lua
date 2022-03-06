@@ -1,11 +1,12 @@
 --[[
 --=====================================================================================================--
 Script Name: Console Text Override, for SAPP (PC & CE)
-Description: This library let you send timed rcon messages.
+Description: This library lets you send timed rcon messages to a player.
+             Console messages appear for
 
-Steps to configure.
+Steps to configure:
 
-1.  Place 'Console Text Library.lua' in the servers root directory (same location as sapp.dll).
+1.  Place 'Console Text Library.lua' in the server's root directory (same location as sapp.dll).
     Do not change the name of the .lua file.
 
 2.  Place this at the top of your Lua script:
