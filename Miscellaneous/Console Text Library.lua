@@ -1,73 +1,61 @@
 --[[
 --=====================================================================================================--
 Script Name: Console Text Override, for SAPP (PC & CE)
-Description: This library will print defined messages for a specified period of time.
+Description: This library let you send timed rcon messages.
 
-Important: This library MUST be placed inside your servers root directory (the same directory where sapp.dll is located).
-Ensure the file name matches exactly "Console Text Library.lua".
+Steps to configure.
 
-Initialize this library like so:
-1). Place this at the top of your script:
-local ConsoleText = (loadfile "Console Text Library.lua")()
+1.  Place 'Console Text Library.lua' in the servers root directory (same location as sapp.dll).
+    Do not change the name of the .lua file.
 
-2). Place this inside the function registered to EVENT_TICK.
-ConsoleText:GameTick()
+2.  Place this at the top of your Lua script:
+    local ConsoleText = (loadfile "Console Text Library.lua")()
 
-Creating a new message:
-ConsoleText:NewMessage(PID, "MESSAGE STRING", 10, "|l", true)
+3.  Place this inside the function registered to EVENT_TICK.
+    ConsoleText:GameTick()
 
-or 
-ConsoleText:NewMessage(PID, table_of_strings, 10, "|l", true)
+4.  Creating a new message:
+    ConsoleText:NewMessage(pid, m, duration)
 
-ConsoleText:NewMessage expects 5 parameters:
-Target Player ID
-Message Content (string or table of strings)
-Message Duration
-Message Alignment ("|l", "|r", "|c", "|t" = Left, Right, Center, Tab)
-Console-Clear boolean (true/false)
+    pid      =  player id [number]
+    m        =  message string or table of strings, e.g {{string, string}}}
+    duration =  time (in seconds) a message will appear on screen.
 
-Copyright (c) 2020-2021, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
-local time_scale = 1 / 30
+local time = os.time
 
 local ConsoleText = { messages = {} }
-function ConsoleText:NewMessage(Player, Content, Time, Alignment, Clear)
+function ConsoleText:NewMessage(Ply, Content, Duration)
     self.messages[#self.messages + 1] = {
-        player = Player,
+        player = Ply,
         content = Content,
-        timer = Time,
-        clear = Clear,
-        alignment = Alignment or "|l"
+        finish = time() + Duration,
+        stdout = function(p, m)
+            for _ = 1, 25 do
+                rprint(p, ' ')
+            end
+            if (type(m) == 'table') then
+                for _ = 1, #m do
+                    rprint(p, m)
+                end
+            else
+                rprint(p, m)
+            end
+        end
     }
 end
 
 function ConsoleText:GameTick()
-    if (#self.messages > 0) then
-        for k, v in pairs(self.messages) do
-            if (v.player and player_present(v.player)) then
-                v.timer = v.timer - time_scale
-                if (v.timer <= 0) then
-                    self.messages[k] = nil
-                    return
-                elseif (v.clear) then
-                    for _ = 1, 25 do
-                        rprint(v.player, " ")
-                    end
-                end
-                if type(v.content == "table") then
-                    for i = 1, #v.content do
-                        rprint(v.player, v.alignment .. " " .. v.content[i])
-                    end
-                else
-                    rprint(v.player, v.alignment .. " " .. v.content)
-                end
-            else
-                self.messages[k] = nil
-            end
+    for k, v in pairs(self.messages) do
+        if (not player_present(v.player) or time() >= v.finish) then
+            self.messages[k] = nil
+        else
+            v.stdout(v.player, v.content)
         end
     end
 end
