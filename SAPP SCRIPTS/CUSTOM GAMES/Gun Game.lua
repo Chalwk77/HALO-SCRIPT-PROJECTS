@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Gun Game (v1.4), for SAPP (PC & CE)
+Script Name: Gun Game (v1.5), for SAPP (PC & CE)
 Description: A simple progression based game inspired by Call of Duty's Gun Game mode.
              Every kill rewards the player with a new weapon.
              The first player to reach the last weapon with 10 kills wins.
@@ -135,10 +135,11 @@ function GunGame:LevelUP()
         elseif (self.level > #self.levels) then
             execute_command('map_next')
             say_all(self.messages[3]:gsub('$name', self.name))
-            return
+            goto done
         end
-        execute_command("msg_prefix \" " .. self.server_prefix .. "\"")
         self.assign = true
+        :: done ::
+        execute_command("msg_prefix \" " .. self.server_prefix .. "\"")
     end
 end
 
