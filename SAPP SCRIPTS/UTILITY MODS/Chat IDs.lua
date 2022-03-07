@@ -1,196 +1,65 @@
 --[[
 --=====================================================================================================--
-Script Name: ChatIDs, for SAPP (PC & CE)
-Implementing API version: 1.11.0.0
-Description:    This script will modify your players message chat format
-                by adding an IndexID in front of their name in square brackets.
+Script Name: Chat IDs.lua, for SAPP (PC & CE)
+Description: Appends the player id to their message.
 
-                [!] WARNING: This mod does not respect SAPP's built-in mute system (yet).
-
-Team output: [Chalwk] [1]: This is a test message
-Global output: Chalwk [1]: This is a test message
-
- ~ Change Log:
- - Jan 5th, 2019: Bug fixes and performance enhancements
-
-Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
-api_version = "1.11.0.0"
--- configuration starts
-local global_format = "%sender_name% [%index%]: %message%"
-local team_format = "[%sender_name%] [%index%]: %message%"
+local Chat = {
 
--- If you're using my Admin Chat Script with this, set this to TRUE!
-local admin_chat = false
--- configuration ends
+    -- global:
+    [0] = "$name [$id]: $msg",
 
--- do not touch
-local player_count = 0
---
+    -- team:
+    [1] = "[$name] [$id]: $msg",
+
+    -- vehicle:
+    [2] = "[$name] [$id]: $msg",
+
+
+    -- The server prefix is temporarily removed
+    -- and will restored to this after formatting the chat message:
+    server_prefix = "**SAPP**"
+}
+
+api_version = "1.12.0.0"
 
 function OnScriptLoad()
-    register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
-    register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
-    register_callback(cb['EVENT_GAME_START'], "OnNewGame")
-    register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
-    register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
-    LoadTable()
+    register_callback(cb['EVENT_CHAT'], 'ShowChatIDs')
 end
 
-function OnScriptUnload()
-    ignore_list = { }
+local function IsChatCMD(msg)
+    return (msg:sub(1, 1) == '/' or msg:sub(1, 1) == '\\') or false
 end
 
-function OnPlayerJoin(PlayerIndex)
-    player_count = player_count + 1
-end
+function ShowChatIDs(Ply, Msg, Type)
+    if (not IsChatCMD(Msg)) then
 
-function OnPlayerLeave(PlayerIndex)
-    player_count = player_count - 1
-end
+        local name = get_var(Ply, '$name')
+        local team = get_var(Ply, '$team')
 
-function OnPlayerChat(PlayerIndex, Message, type)
-    if (game_over == false) then
-        local message = tokenizestring(Message)
-        if #message == 0 then
-            return nil
-        end
-        if not (table.match(ignore_list, message[1])) then
-            if (getAchat(PlayerIndex) == false) then
-                for i = 0, #message do
-                    if message[i] then
-                        if string.sub(message[1], 1, 1) == "/" or string.sub(message[1], 1, 1) == "\\" then
-                            return true
-                        else
-                            if GetTeamPlay() == true then
-                                if type == 0 or type == 2 then
-                                    SendToAll(Message, PlayerIndex)
-                                elseif type == 1 then
-                                    SendToTeam(Message, PlayerIndex)
-                                end
-                            else
-                                SendToAll(Message, PlayerIndex)
-                            end
-                            return false
-                        end
-                    end
+        local msg = Chat[Type]
+        msg = msg:gsub('$name', name):gsub('$msg', Msg):gsub('$id', Ply)
+
+        execute_command('msg_prefix ""')
+        if (Type == 0) then
+            say_all(msg)
+        elseif (Type == 1 or Type == 2) then
+            for i = 1, 16 do
+                if player_present(i) and get_var(i, '$team') == team then
+                    say(i, msg)
                 end
             end
         end
-    end
-end
-
-function SendToTeam(Message, PlayerIndex)
-    for i = 1, player_count do
-        if player_present(i) then
-            local name = get_var(PlayerIndex, "$name")
-            local index_id = get_var(PlayerIndex, "$n")
-            if (get_var(i, "$team")) == (get_var(PlayerIndex, "$team")) then
-                local team_format = string.gsub(team_format, "%%sender_name%%", name)
-                local team_format = string.gsub(team_format, "%%index%%", index_id)
-                local team_format = string.gsub(team_format, "%%message%%", Message)
-                execute_command("msg_prefix \"\"")
-                say(i, team_format)
-                execute_command("msg_prefix \" *  * SERVER *  * \"")
-            end
-        end
-    end
-end
-
-function SendToAll(Message, PlayerIndex)
-    if player_present(PlayerIndex) then
-        local name = get_var(PlayerIndex, "$name")
-        local index_id = get_var(PlayerIndex, "$n")
-        local global_format = string.gsub(global_format, "%%sender_name%%", name)
-        local global_format = string.gsub(global_format, "%%index%%", index_id)
-        local global_format = string.gsub(global_format, "%%message%%", Message)
-        execute_command("msg_prefix \"\"")
-        say_all(global_format)
-        execute_command("msg_prefix \" *  * SERVER *  * \"")
-    end
-end
-
-function GetTeamPlay()
-    if get_var(0, "$ffa") == "0" then
-        return true
-    else
+        execute_command('msg_prefix "' .. Chat.server_prefix .. ' "')
         return false
     end
 end
 
-function tokenizestring(inputstr, sep)
-    if sep == nil then
-        sep = "%s"
-    end
-    local t = {};
-    i = 1
-    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
-        t[i] = str
-        i = i + 1
-    end
-    return t
-end
-
-function OnNewGame()
-    game_over = false
-    LoadTable()
-end
-
-function OnGameEnd()
-    game_over = true
-end
-
-function LoadTable()
-    ignore_list = {}
-    ignore_list = {
-        "skip",
-        "rtv",
-        "keyword_3",
-        "keyword_4",
-        "keyword_5" -- Make sure the last entry in the table doesn't have a comma
-    }
-end
-
-function table.match(table, value)
-    for k, v in pairs(table) do
-        if v == value then
-            return k
-        end
-    end
-end
-
-function lines_from(file)
-    lines = {}
-    for line in io.lines(file) do
-        lines[#lines + 1] = line
-    end
-    return lines
-end
-
-function getAchat(PlayerIndex)
-    local bool = nil
-    if admin_chat then
-        if (tonumber(get_var(PlayerIndex, "$lvl"))) >= 1 then
-            local name = get_var(PlayerIndex, "$name")
-            local hash = get_var(PlayerIndex, "$hash")
-            local lines = lines_from('sapp\\achat.temp')
-            for k, v in pairs(lines) do
-                if string.match(v, name .. ":" .. hash) then
-                    bool = true
-                    break
-                else
-                    bool = false
-                end
-            end
-        else
-            bool = false
-        end
-    else
-        bool = false
-    end
-    return bool
+function OnScriptUnload()
+    -- N/A
 end
