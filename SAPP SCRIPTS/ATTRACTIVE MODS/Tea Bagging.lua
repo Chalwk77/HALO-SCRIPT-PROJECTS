@@ -100,10 +100,10 @@ function OnTick()
         for _, v in pairs(players) do
             if (k and v and k.pid ~= v.pid and #v.loc > 0) then
                 for i, pos in pairs(v.loc) do
-                    local x1, y1, z1 = pos.x, pos.y, pos.z
                     if (time() >= pos.finish) then
                         v.loc[i] = nil
                     elseif player_alive(k.pid) then
+                        local x1, y1, z1 = pos.x, pos.y, pos.z
                         local x2, y2, z2, dyn = GetXYZ(k.pid)
                         if (x2 and Dist(x1, y1, z1, x2, y2, z2, k.radius)) then
                             local crouch = read_bit(dyn + 0x208, 0)
@@ -159,7 +159,6 @@ function OnQuit(Ply)
 end
 
 function OnSpawn(Ply)
-    players[Ply].state = 0
     players[Ply].count = 0
 end
 
