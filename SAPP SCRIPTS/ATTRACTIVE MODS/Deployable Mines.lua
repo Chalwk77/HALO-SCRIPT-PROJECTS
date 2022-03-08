@@ -138,15 +138,6 @@ function Mines:NewPlayer(o)
     return o
 end
 
-local function CorrectVehicle(self, vehicle)
-    for tag, enabled in pairs(self.vehicles) do
-        if (enabled and read_string(read_dword(read_word(vehicle) * 32 + 0x40440038)) == tag) then
-            return true
-        end
-    end
-    return false
-end
-
 function Mines:NewMine(pos)
 
     if (self.mines == 0) then
@@ -157,7 +148,7 @@ function Mines:NewMine(pos)
         if (pos.seat ~= 0) then
             rprint(self.pid, 'You must be in the drivers seat')
             return
-        elseif (not CorrectVehicle(self, pos.vehicle)) then
+        elseif (not self.vehicles[read_string(read_dword(read_word(pos.vehicle) * 32 + 0x40440038))]) then
             rprint(self.pid, 'This vehicle cannot deploy mines')
             return
         end
