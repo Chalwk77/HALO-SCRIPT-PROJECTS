@@ -38,7 +38,7 @@ local CSpy = {
 
     -- If true, you will not see admin commands:
     --
-    ignore_admins = false,
+    ignore_admins = true,
 
     -- Command Spy message format:
     --
@@ -63,33 +63,83 @@ local CSpy = {
 }
 -- config ends --
 
+local players = {}
+
 api_version = "1.12.0.0"
 
 function OnScriptLoad()
 
     register_callback(cb["EVENT_JOIN"], "OnJoin")
     register_callback(cb["EVENT_LEAVE"], "OnQuit")
-
     register_callback(cb["EVENT_COMMAND"], "OnCommand")
+    register_callback(cb["EVENT_GAME_START"], "OnStart")
 
-    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
-
-    OnGameStart()
-end
-
-function OnGameStart()
-    if (get_var(0, "$gt") ~= "n/a") then
-        CSpy.players = { }
-        for i = 1, 16 do
-            if player_present(i) then
-                CSpy:InitPlayer(i, false)
-            end
-        end
-    end
+    OnStart()
 end
 
 local function Respond(Ply, Msg)
     return (Ply == 0 and cprint(Msg)) or rprint(Ply, Msg)
+end
+
+local function GetLevel(Ply)
+    return tonumber(get_var(Ply, "$lvl"))
+end
+
+function CSpy:NewPlayer(o)
+
+    setmetatable(o, self)
+    self.__index = self
+
+    local lvl = tonumber(get_var(o.pid, "$lvl"))
+    local state = (lvl >= self.permission and self.enabled_by_default)
+    o.state = (state or false)
+
+    return o
+end
+
+function CSpy:Toggle()
+    local lvl = GetLevel(self.pid)
+    if (lvl >= self.permission) then
+        self.state = (not self.state and true or false)
+        Respond(self.pid, "Command Spy " .. (self.state and "enabled" or not self.state and "disabled"))
+    else
+        Respond(self.pid, "Insufficient Permission")
+    end
+    return true
+end
+
+function CSpy:ShowCommand(ENV, CMD)
+
+    local lvl = GetLevel(self.pid)
+    if (lvl >= 1 and self.ignore_admins) then
+        goto done
+    end
+
+    for i = 1, 16 do
+        if (player_present(i) and i ~= self.pid) then
+            lvl = GetLevel(i)
+            local spy = players[i]
+            if (spy.state and lvl >= self.permission) then
+                local msg = self.output[ENV]
+                local name = get_var(self.pid, "$name")
+                msg = msg:gsub("$name", name):gsub("$cmd", CMD)
+                Respond(i, msg)
+            end
+        end
+    end
+
+    :: done ::
+end
+
+function OnStart()
+    if (get_var(0, "$gt") ~= "n/a") then
+        players = { }
+        for i = 1, 16 do
+            if player_present(i) then
+                OnJoin(i)
+            end
+        end
+    end
 end
 
 local function BlackListed(CMD)
@@ -101,82 +151,29 @@ local function BlackListed(CMD)
     return false
 end
 
-local function GetLevel(Ply)
-    return tonumber(get_var(Ply, "$lvl"))
-end
-
-function CSpy:SPY(Ply, CMD, ENV, _)
-
-    local this_cmd = CMD:sub(1, CMD:len()):lower()
-    if (this_cmd == self.command) then
-
-        if (Ply == 0) then
-            Respond(Ply, "Server cannot execute this command.")
+function OnCommand(Ply, CMD, ENV, _)
+    local t = players[Ply]
+    if (t) then
+        local cmd = CMD:sub(1, CMD:len()):lower()
+        if (cmd == t.command and t:Toggle()) then
             return false
+        elseif (Ply > 0 and not BlackListed(cmd)) then
+            t:ShowCommand(ENV, CMD)
         end
-
-        local lvl = GetLevel(Ply)
-        local spy = self.players[Ply]
-        if (lvl >= self.permission) then
-            spy.state = (not spy.state and true or false)
-            Respond(Ply, "Command Spy " .. (spy.state and "enabled" or not spy.state and "disabled"))
-        else
-            Respond(Ply, "You do not have permission to execute that command")
-        end
-        return false
-
-    elseif (Ply > 0 and not BlackListed(this_cmd)) then
-
-        local lvl = GetLevel(Ply)
-        if (lvl >= 1 and self.ignore_admins) then
-            goto done -- Do not return false here otherwise the command will be blocked.
-        end
-
-        for i = 1, 16 do
-            if (player_present(i) and i ~= Ply) then
-                lvl = GetLevel(i)
-                local spy = self.players[i]
-                if (spy.state and lvl >= self.permission) then
-                    local msg = self.output[ENV]
-                    local name = get_var(Ply, "$name")
-                    msg = msg:gsub("$name", name):gsub("$cmd", CMD)
-                    Respond(i, msg)
-                end
-            end
-        end
-
-        :: done ::
     end
-end
-
-function CSpy:InitPlayer(Ply, Reset)
-
-    if (not Reset) then
-        local lvl = tonumber(get_var(Ply, "$lvl"))
-        local state = (lvl >= self.permission and self.enabled_by_default)
-        self.players[Ply] = { state = (state or false) }
-        return
-    end
-
-    self.players[Ply] = nil
 end
 
 function OnJoin(Ply)
-    CSpy:InitPlayer(Ply, false)
+    players[Ply] = CSpy:NewPlayer({
+        pid = Ply,
+        name = get_var(Ply, '$name')
+    })
 end
 
 function OnQuit(Ply)
-    CSpy:InitPlayer(Ply, true)
-end
-
-function OnCommand(P, C, E)
-    return CSpy:SPY(P, C, E)
+    players[Ply] = nil
 end
 
 function OnScriptUnload()
     -- N/A
 end
-
--- for a future update:
-return CSpy
---
