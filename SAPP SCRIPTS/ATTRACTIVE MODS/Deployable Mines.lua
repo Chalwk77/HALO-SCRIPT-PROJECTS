@@ -21,7 +21,7 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 local Mines = {
 
-    -- The number of mines players will spawn with:
+    -- The number of mines players will spawn with (per life):
     --
     mines_per_life = 20,
 
@@ -29,9 +29,19 @@ local Mines = {
     --
     despawn_rate = 60,
 
-    -- Trigger explosion when player is <= this many w/units
+    -- Trigger an explosion when a player is <= this many w/units from a mine:
     --
     radius = 0.7,
+
+    -- Death message override:
+    -- Explosions are simulated with rocket projectiles that spawn at ground zero.
+    -- By default, it's the rocket explosion that kills the player.
+    -- Since the rocket is not spawned by a player, the death message will be "PlayerX died".
+    --
+    -- When this feature is enabled, the script will output custom death messages instead.
+    -- Note: Custom death messages are server messages (and may look strange for people with Chimera).
+    --
+    death_messages = false,
 
     --[[
 
@@ -85,11 +95,13 @@ local ffa, falling, distance
 api_version = '1.12.0.0'
 
 local function DisableDeathMessages()
-    dma = sig_scan("8B42348A8C28D500000084C9") + 3
-    dma_original = read_dword(dma)
-    safe_write(true)
-    write_dword(dma, 0x03EB01B1)
-    safe_write(false)
+    if (Mines.death_messages) then
+        dma = sig_scan("8B42348A8C28D500000084C9") + 3
+        dma_original = read_dword(dma)
+        safe_write(true)
+        write_dword(dma, 0x03EB01B1)
+        safe_write(false)
+    end
 end
 
 local function EnableDeathMessages()
@@ -250,42 +262,44 @@ end
 
 function CheckDamage(Victim, Killer, MetaID, _, _)
 
-    local killer, victim = tonumber(Killer), tonumber(Victim)
+    if (Mines.death_messages) then
+        local killer, victim = tonumber(Killer), tonumber(Victim)
 
-    local v = players[victim]
-    if (v) then
+        local v = players[victim]
+        if (v) then
 
-        -- event_damage_application:
-        if (MetaID) then
-            v.meta = MetaID
-        else
+            -- event_damage_application:
+            if (MetaID) then
+                v.meta = MetaID
+            else
 
-            -- event_die:
-            local k = players[killer]
-            local mine_k = players[v.killer]
+                -- event_die:
+                local k = players[killer]
+                local mine_k = players[v.killer]
 
-            local squashed = (killer == 0)
-            local guardians = (killer == nil)
-            local suicide = (killer == victim)
-            local pvp = (killer > 0 and killer ~= victim)
-            local fell = (v.meta_id == falling or v.meta_id == distance)
-            local betrayal = (k and not ffa and (v.team == k.team and killer ~= victim))
+                local squashed = (killer == 0)
+                local guardians = (killer == nil)
+                local suicide = (killer == victim)
+                local pvp = (killer > 0 and killer ~= victim)
+                local fell = (v.meta_id == falling or v.meta_id == distance)
+                local betrayal = (k and not ffa and (v.team == k.team and killer ~= victim))
 
-            execute_command("msg_prefix \"\"")
-            if (v.meta == Mines.explosion and mine_k) then
-                say_all(v.name .. " was blown up by " .. mine_k.name .. "'s mine!")
-            elseif (guardians) then
-                say_all(v.name .. ' killed by guardians')
-            elseif (suicide) then
-                say_all(v.name .. ' committed suicide')
-            elseif (fell or squashed) then
-                say_all(v.name .. ' died')
-            elseif (betrayal) then
-                say_all(v.name .. ' was betrayed by ' .. k.name)
-            elseif (pvp) then
-                say_all(v.name .. ' was killed by ' .. k.name)
+                execute_command("msg_prefix \"\"")
+                if (v.meta == Mines.explosion and mine_k) then
+                    say_all(v.name .. " was blown up by " .. mine_k.name .. "'s mine!")
+                elseif (guardians) then
+                    say_all(v.name .. ' killed by guardians')
+                elseif (suicide) then
+                    say_all(v.name .. ' committed suicide')
+                elseif (fell or squashed) then
+                    say_all(v.name .. ' died')
+                elseif (betrayal) then
+                    say_all(v.name .. ' was betrayed by ' .. k.name)
+                elseif (pvp) then
+                    say_all(v.name .. ' was killed by ' .. k.name)
+                end
+                execute_command("msg_prefix \" **" .. Mines.server_prefix .. "**\"")
             end
-            execute_command("msg_prefix \" **" .. Mines.server_prefix .. "**\"")
         end
     end
 end
