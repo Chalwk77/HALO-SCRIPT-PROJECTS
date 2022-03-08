@@ -25,13 +25,16 @@ local Mines = {
     --
     mines_per_life = 20,
 
+
     -- Time (in seconds) until a mine despawns:
     --
     despawn_rate = 60,
 
+
     -- Trigger an explosion when a player is <= this many w/units from a mine:
     --
     radius = 0.7,
+
 
     -- Death message override:
     -- Explosions are simulated with rocket projectiles that spawn at ground zero.
@@ -42,6 +45,11 @@ local Mines = {
     -- Note: Custom death messages are server messages (and may look strange for people with Chimera).
     --
     death_messages = false,
+
+
+    -- If true, your mines will kill team mates:
+    --
+    mines_kill_teammates = false,
 
     --[[
 
@@ -222,6 +230,11 @@ function OnTick()
                 elseif (t.owner ~= i and player_alive(i) and DyN ~= 0) then
                     local object = get_object_memory(mine)
                     if (object ~= 0) then
+
+                        if (not v.ffa and not v.mines_kill_teammates and v.team == get_var(t.owner, '$team')) then
+                            goto next
+                        end
+
                         local pos = GetPos(DyN)
                         local mx, my, mz = read_vector3d(object + 0x5C)
                         if Dist(pos.x, pos.y, pos.z, mx, my, mz) <= v.radius then
@@ -229,6 +242,7 @@ function OnTick()
                             t.destroy(mine, mx, my, mz)
                         end
                     end
+                    :: next ::
                 end
             end
         end
