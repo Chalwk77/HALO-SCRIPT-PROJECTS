@@ -1,8 +1,7 @@
 --[[
 --=====================================================================================================--
-Script Name: Block or Replace, for SAPP (PC & CE)
-Description: Block or replace objects easily
-
+Script Name: Block or Replace Objects, for SAPP (PC & CE)
+Description: Block or replace objects easily.
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -16,7 +15,7 @@ local tags = {
     -- {tag path to replace, replacement tag path}
 
     -- Block format:
-    -- {tag path to block}
+    -- {tag path to replace}
 
     ["mode_name_here"] = {
 
@@ -60,28 +59,23 @@ function OnStart()
             for i = 1, #tags[mode] do
                 local t = tags[mode][i]
                 if (#t > 2) then
-                    replace[#replace + 1] = { GetTag(t[1], t[2]), GetTag(t[3], t[4]) }
+                    replace[GetTag(t[1], t[2])] = GetTag(t[3], t[4])
                 else
-                    block[#block + 1] = GetTag(t[1], t[2])
+                    block[GetTag(t[1], t[2])] = true
                 end
             end
-            register_callback(cb['EVENT_OBJECT_SPAWN'], "ObjectHandler")
+            register_callback(cb['EVENT_OBJECT_SPAWN'], "BlockReplace")
             return
         end
         unregister_callback(cb['EVENT_OBJECT_SPAWN'])
     end
 end
 
-function ObjectHandler(_, MapID)
-    for i = 1, #block do
-        if (MapID == block[i]) then
-            return false
-        end
-    end
-    for i = 1, #replace do
-        if (MapID == replace[i][1]) then
-            return true, replace[i][2]
-        end
+function BlockReplace(_, MapID)
+    if (replace[MapID]) then
+        return true, replace[MapID]
+    elseif (block[MapID]) then
+        return false
     end
 end
 
