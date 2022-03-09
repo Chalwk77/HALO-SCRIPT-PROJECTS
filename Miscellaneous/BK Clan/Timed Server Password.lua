@@ -10,13 +10,12 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 ]]--
 
 -- Config [starts] ------------------------------
-local duration = 1 -- in seconds
+local duration = 300 -- in seconds
 -- Config [ends] --------------------------------
 
 api_version = '1.12.0.0'
 
-local countdown
-local time = os.time
+local time, countdown = os.time
 
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], 'OnTick')
