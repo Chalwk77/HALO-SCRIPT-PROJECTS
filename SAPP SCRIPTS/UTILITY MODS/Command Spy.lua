@@ -38,7 +38,7 @@ local CSpy = {
 
     -- If true, you will not see admin commands:
     --
-    ignore_admins = true,
+    ignore_admins = false,
 
     -- Command Spy message format:
     --
@@ -81,27 +81,25 @@ local function Respond(Ply, Msg)
     return (Ply == 0 and cprint(Msg)) or rprint(Ply, Msg)
 end
 
-local function GetLevel(Ply)
-    return tonumber(get_var(Ply, "$lvl"))
-end
-
 function CSpy:NewPlayer(o)
 
     setmetatable(o, self)
     self.__index = self
 
-    local lvl = tonumber(get_var(o.pid, "$lvl"))
-    local state = (lvl >= self.permission and self.enabled_by_default)
+    o.lvl = function()
+        return tonumber(get_var(o.pid, "$lvl"))
+    end
+
+    local state = (o.lvl() >= self.permission and self.enabled_by_default)
     o.state = (state or false)
 
     return o
 end
 
 function CSpy:Toggle()
-    local lvl = GetLevel(self.pid)
-    if (lvl >= self.permission) then
+    if (self.lvl() >= self.permission) then
         self.state = (not self.state and true or false)
-        Respond(self.pid, "Command Spy " .. (self.state and "enabled" or not self.state and "disabled"))
+        Respond(self.pid, "Command Spy " .. (self.state and "on" or not self.state and "off"))
     else
         Respond(self.pid, "Insufficient Permission")
     end
@@ -110,16 +108,14 @@ end
 
 function CSpy:ShowCommand(ENV, CMD)
 
-    local lvl = GetLevel(self.pid)
-    if (lvl >= 1 and self.ignore_admins) then
+    if (self.lvl() >= 1 and self.ignore_admins) then
         goto done
     end
 
     for i = 1, 16 do
         if (player_present(i) and i ~= self.pid) then
-            lvl = GetLevel(i)
             local spy = players[i]
-            if (spy.state and lvl >= self.permission) then
+            if (spy.state and spy.lvl() >= self.permission) then
                 local msg = self.output[ENV]
                 local name = get_var(self.pid, "$name")
                 msg = msg:gsub("$name", name):gsub("$cmd", CMD)
