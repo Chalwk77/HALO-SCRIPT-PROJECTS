@@ -11,7 +11,7 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 local Mod = {
 
-    -- File that contains the json databasee:
+    -- File that contains the json database:
     --
     file = 'file_name.json',
 }
