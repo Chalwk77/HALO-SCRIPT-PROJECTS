@@ -74,7 +74,6 @@ function OnTick()
     for i = 1, 16 do
         local dyn = get_dynamic_player(i)
         if (player_present(i) and player_alive(i) and dyn ~= 0) then
-            print(GetSpeed(dyn))
             execute_command('s ' .. i .. ' ' .. GetSpeed(dyn))
         end
     end
