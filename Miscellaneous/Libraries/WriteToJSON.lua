@@ -11,7 +11,7 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 local Mod = {
 
-    -- File that contains the json database:
+    -- File that contains the json databasee:
     --
     file = 'file_name.json',
 }
@@ -42,9 +42,9 @@ function Mod:CheckFile(ScriptLoad)
     local dir = read_string(read_dword(sig_scan('68??????008D54245468') + 0x1))
     self.dir = dir .. '\\sapp\\' .. self.file
 
-    self.databas = (ScriptLoad and nil or self.databas)
+    self.database = (ScriptLoad and nil or self.database)
 
-    if (get_var(0, '$gt') ~= 'n/a' and self.databas == nil) then
+    if (get_var(0, '$gt') ~= 'n/a' and self.database == nil) then
         local content = ''
         local file = open(self.dir, 'r')
         if (file) then
@@ -55,7 +55,7 @@ function Mod:CheckFile(ScriptLoad)
         if (not data) then
             WriteToFile(self, {})
         end
-        self.databas = data or {}
+        self.database = data or {}
     end
 end
 
