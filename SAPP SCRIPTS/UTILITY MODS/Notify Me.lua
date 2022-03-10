@@ -49,6 +49,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_TEAM_SWITCH'], 'OnSwitch')
     register_callback(cb['EVENT_DAMAGE_APPLICATION'], 'OnDeath')
     OnStart()
+    timer(50, "Logo")
 end
 
 local function Notify(msg)
@@ -63,6 +64,7 @@ local function GetTag(Type, Name)
 end
 
 function OnStart()
+
     if (get_var(0, "$gt") ~= "n/a") then
 
         players = { }
@@ -77,7 +79,6 @@ function OnStart()
         local mode = get_var(0, "$mode")
 
         Notify({ { "A new game has started on " .. map .. " - " .. mode, 5 } })
-        timer(50, "Logo")
 
         for i = 1, 16 do
             if player_present(i) then
