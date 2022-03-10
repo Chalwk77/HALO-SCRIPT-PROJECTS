@@ -3,6 +3,14 @@
 Script Name: Alias System, for SAPP (PC & CE)
 Description: Look up names linked to an IP address or hash.
 
+--------------------------------------------------------------------------
+IMPORTANT:
+This script requires that you install a JSON library on your server.
+Place json.lua in the same location as strings.dll.
+See this page for the download:
+https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/tag/AliasSystem
+--------------------------------------------------------------------------
+
 Alias results are split into in rows & columns on a per-page basis.
 To view a specific page of results, simply define the page id as shown in the command syntax examples below.
 
@@ -20,6 +28,39 @@ To view a specific page of results, simply define the page id as shown in the co
 
 * /alias [hash] [opt page]
 > Check aliases for a specific hash.
+
+Additional Features:
+This system will know whether someone has a pirated hash or not.
+This is important for determining whether you can hash-ban someone or not.
+
+Furthermore, hash or ip tables that have not been modified for 30 days will be considered stale and will be deleted.
+
+Example of the Alias Database:
+The 'last_activity' table keeps track of when a named was linked to an ip or hash.
+If no names were logged to the has or ip table for 30 days, the table entry for that hash or ip will be deleted.
+
+{
+  "hashes": {
+    "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx": {
+      "Chalwk": "Last Login: Thursday, 03 March 2022",
+      "last_activity": {
+        "day": 10,
+        "month": 3,
+        "year": 2022
+      }
+    }
+  },
+  "ip_addresses": {
+    "127.0.0.1": {
+      "FIG-Chalwk": "Last Login: Thursday, 03 March 2022",
+      "last_activity": {
+        "day": 10,
+        "month": 3,
+        "year": 2022
+      }
+    }
+  }
+}
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -84,7 +125,7 @@ local Alias = {
 
 
     -- List of all known pirated hashes:
-    -- If someone has a pirated hash, the script will tell you when you hash-alias them:
+    -- If someone has a pirated hash, the script will tell you upon querying the hash:
     --
     known_pirated_hashes = {
         ['388e89e69b4cc08b3441f25959f74103'] = true,
