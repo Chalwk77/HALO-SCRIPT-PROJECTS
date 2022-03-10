@@ -157,13 +157,15 @@ function Alias:AddRecord(o)
 
     local hashes = self.records.hashes
     local ip_addresses = self.records.ip_addresses
-    local last_login = { day = day, month = month, year = year }
+    local last_activity = { day = day, month = month, year = year }
 
     hashes[o.hash] = hashes[o.hash] or {}
-    hashes[o.hash][o.name] = last_login
+    hashes[o.hash].last_activity = last_activity
+    hashes[o.hash][o.name] = date("Last Login: %A, %m %B %Y")
 
     ip_addresses[o.ip] = ip_addresses[o.ip] or {}
-    ip_addresses[o.ip][o.name] = last_login
+    ip_addresses[o.ip].last_activity = last_activity
+    ip_addresses[o.ip][o.name] = date("Last Login: %A, %m %B %Y")
 
     if (self.update_file_on_join) then
         WriteToFile(self, self.records)
@@ -221,17 +223,19 @@ end
 -- Delete stale records:
 function CheckStale()
     for _, record in pairs(Alias.records) do
-        for type, hash_table in pairs(record) do
-            for name, log in pairs(hash_table) do
-                local day = log.day
-                local month = log.month
-                local year = log.year
-                local reference = time { day = day, month = month, year = year }
-                local days_from = diff(time(), reference) / (24 * 60 * 60)
-                local whole_days = floor(days_from)
-                if (whole_days >= Alias.stale_period) then
-                    hash_table[name] = nil
-                    cprint('Deleting stale name record for ' .. type .. ':' .. name, 12)
+        for artifact, hash_table in pairs(record) do
+            for _, log in pairs(hash_table) do
+                if (type(log) == 'table') then
+                    local day = log.day
+                    local month = log.month
+                    local year = log.year
+                    local reference = time { day = day, month = month, year = year }
+                    local days_from = diff(time(), reference) / (24 * 60 * 60)
+                    local whole_days = floor(days_from)
+                    if (whole_days >= Alias.stale_period) then
+                        record[artifact] = nil
+                        cprint('Deleting stale record for ' .. artifact, 12)
+                    end
                 end
             end
         end
@@ -316,43 +320,43 @@ end
 
 function Alias:ShowResults(Ply, Table, Page, Artifact)
 
-    Table = GetNames(self.records[Table][Artifact])
-    local total_pages = GetPageCount(#Table)
-
-    if (Page > 0 and Page <= total_pages) then
-
-        local start_index, end_index = 1, self.max_columns
-        local start_page, end_page = GetPage(Page)
-
-        local results = { }
-        for page_num = start_page, end_page do
-            if Table[page_num] then
-                results[#results + 1] = Table[page_num]
-            end
-        end
-
-        while (end_index < #Table + self.max_columns) do
-
-            local t, row = { }
-            for i = start_index, end_index do
-                t[i] = results[i]
-                row = FormatTable(t)
-            end
-
-            if (row ~= nil and row ~= '' and row ~= ' ') then
-                Respond(Ply, row, 10)
-            end
-
-            start_index = (end_index + 1)
-            end_index = (end_index + (self.max_columns))
-        end
-        Respond(Ply, '[Page ' .. Page .. '/' .. total_pages .. '] Showing ' .. #results .. '/' .. #Table .. ' aliases for: ' .. Artifact)
-        if (self.known_pirated_hashes[Artifact]) then
-            Respond(Ply, 'This hash is pirated.')
-        end
-    else
-        Respond(Ply, 'Invalid Page ID. Please type a page between 1-' .. total_pages)
-    end
+    --Table = GetNames(self.records[Table][Artifact])
+    --local total_pages = GetPageCount(#Table)
+    --
+    --if (Page > 0 and Page <= total_pages) then
+    --
+    --    local start_index, end_index = 1, self.max_columns
+    --    local start_page, end_page = GetPage(Page)
+    --
+    --    local results = { }
+    --    for page_num = start_page, end_page do
+    --        if Table[page_num] then
+    --            results[#results + 1] = Table[page_num]
+    --        end
+    --    end
+    --
+    --    while (end_index < #Table + self.max_columns) do
+    --
+    --        local t, row = { }
+    --        for i = start_index, end_index do
+    --            t[i] = results[i]
+    --            row = FormatTable(t)
+    --        end
+    --
+    --        if (row ~= nil and row ~= '' and row ~= ' ') then
+    --            Respond(Ply, row, 10)
+    --        end
+    --
+    --        start_index = (end_index + 1)
+    --        end_index = (end_index + (self.max_columns))
+    --    end
+    --    Respond(Ply, '[Page ' .. Page .. '/' .. total_pages .. '] Showing ' .. #results .. '/' .. #Table .. ' aliases for: ' .. Artifact)
+    --    if (self.known_pirated_hashes[Artifact]) then
+    --        Respond(Ply, 'This hash is pirated.')
+    --    end
+    --else
+    --    Respond(Ply, 'Invalid Page ID. Please type a page between 1-' .. total_pages)
+    --end
 end
 
 function Alias:OnQuery(Ply, CMD)
