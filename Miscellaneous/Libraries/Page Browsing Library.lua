@@ -15,12 +15,12 @@ Steps to configure:
 3.  Showing results page:
     PageBrowser:ShowResults(Player, Page, 10, 1, 2, array)
 
-    - Target Player ID: [number]    Memory Id of player who will receive the messages
-    - Page Number: [number]         Optional but will default to page 1 if not specified
-    - Maximum results per page: [number]
-    - Max columns: [number]
-    - Spaces between table elements [number]
-    - Target Array [table]
+    - Target Player ID:                 [number]    Memory Id of player who will receive the messages
+    - Page Number:                      [number]    Optional but will default to page 1 if not defined
+    - Maximum results per page:         [number]
+    - Max columns:                      [number]
+    - Spaces between table elements     [number]
+    - Target Array                      [table]
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -87,7 +87,7 @@ local function Respond(Ply, Msg)
     return (Ply == 0 and cprint(Msg) or rprint(Ply, Msg))
 end
 
-function PageBrowser:ShowResults(Ply, Page, MaxResults, MaxColumns, Spaces, Table)
+function PageBrowser:ShowResults(Ply, Page, MaxResults, MaxColumns, Spaces, Table, OutPutFunc)
 
     local total_pages = GetPageCount(#Table, MaxResults)
 
