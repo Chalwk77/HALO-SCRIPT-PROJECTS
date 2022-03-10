@@ -15,6 +15,12 @@ To view a specific page of results, simply define the page id as shown in the co
 * /alias [pid] -hash [opt page]
 > Check Hash aliases.
 
+* /alias [IP] [opt page]
+> Check aliases for specific IP
+
+* /alias [hash] [opt page]
+> Check aliases for a specific hash.
+
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
@@ -367,8 +373,11 @@ function Alias:OnQuery(Ply, CMD)
 
         if (args[2]) then
 
+            local ip_pattern = args[2]:match("^%d+.%d+.%d+.%d+$")
+            local hash_pattern = args[2]:match("^%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x$")
+
             local player = tonumber((args[2]:match('^%d+$')))
-            if (not player_present(player)) then
+            if (not ip_pattern and not hash_pattern and not player_present(player)) then
                 Respond(Ply, 'Player #' .. player .. ' is not online.')
                 return false
             elseif (args[2] == 'me') then
@@ -384,6 +393,12 @@ function Alias:OnQuery(Ply, CMD)
             -- /alias <pid> <-hash> <opt page>
             local player_hash_lookup = (player and args[3] == '-hash')
 
+            -- /alias <ip> <opt page>
+            local ip_lookup = (ip_pattern)
+
+            -- /alias <32x char hash> <opt page>
+            local hash_lookup = (hash_pattern)
+
             local t = players[player]
             local page = (args[4] and args[4]:match('^%d+$') or 1)
 
@@ -397,6 +412,12 @@ function Alias:OnQuery(Ply, CMD)
                 self:ShowResults(Ply, 'ip_addresses', page, t.ip)
             elseif (player_hash_lookup) then
                 self:ShowResults(Ply, 'hashes', page, t.hash)
+            elseif (ip_lookup) then
+                page = (args[3] and args[3]:match('^%d+$') or 1)
+                self:ShowResults(Ply, 'ip_addresses', page, ip_pattern)
+            elseif (hash_lookup) then
+                page = (args[3] and args[3]:match('^%d+$') or 1)
+                self:ShowResults(Ply, 'hashes', page, hash_pattern)
             else
                 self:CmdHelp(Ply)
             end
@@ -414,7 +435,8 @@ function Alias:CmdHelp(Ply)
     Respond(Ply, "/" .. self.command .. " <pid>")
     Respond(Ply, "/" .. self.command .. " <pid> -ip <opt page>")
     Respond(Ply, "/" .. self.command .. " <pid> -hash <opt page>")
-    --Respond(Ply, "/" .. self.command .. " <32 char hash> <opt page>")
+    Respond(Ply, "/" .. self.command .. " <32 char hash> <opt page>")
+    Respond(Ply, "/" .. self.command .. " <ip address> <opt page>")
     Respond(Ply, ".....................................................")
 end
 
