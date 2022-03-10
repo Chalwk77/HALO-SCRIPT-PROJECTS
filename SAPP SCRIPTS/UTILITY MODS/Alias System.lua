@@ -411,9 +411,9 @@ end
 function Alias:CmdHelp(Ply)
     Respond(Ply, "Invalid Command Syntax or Lookup Parameter.")
     Respond(Ply, "Usage:")
+    Respond(Ply, "/" .. self.command .. " <pid>")
     Respond(Ply, "/" .. self.command .. " <pid> -ip <opt page>")
     Respond(Ply, "/" .. self.command .. " <pid> -hash <opt page>")
-    Respond(Ply, "/" .. self.command .. " <ip> <opt page>")
     --Respond(Ply, "/" .. self.command .. " <32 char hash> <opt page>")
     Respond(Ply, ".....................................................")
 end
