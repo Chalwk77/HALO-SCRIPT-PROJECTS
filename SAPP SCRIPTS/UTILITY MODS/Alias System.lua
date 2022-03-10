@@ -240,6 +240,12 @@ function Alias:CheckFile(ScriptLoad)
             WriteToFile(self, data)
         end
         self.records = data
+
+        for i = 1, 16 do
+            if player_present(i) then
+                OnJoin(i)
+            end
+        end
     end
 end
 
