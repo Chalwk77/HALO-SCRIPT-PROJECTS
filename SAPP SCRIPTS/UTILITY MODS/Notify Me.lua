@@ -27,10 +27,10 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 api_version = '1.12.0.0'
 
+local players = {}
 local date = os.date
 local char = string.char
 local concat = table.concat
-local Notify, players = {}, {}
 
 function OnScriptLoad()
 
@@ -50,18 +50,10 @@ function OnScriptLoad()
     OnStart()
 end
 
-function Notify:Log(msg)
+local function Notify(msg)
     for i = 1, #msg do
         cprint(msg[i][1], msg[i][2])
     end
-end
-
-function Notify:NewPlayer(t)
-
-    setmetatable(t, self)
-    self.__index = self
-
-    return t
 end
 
 function OnStart()
@@ -72,7 +64,7 @@ function OnStart()
         local map = get_var(0, "$map")
         local mode = get_var(0, "$mode")
 
-        Notify:Log({ { "A new game has started on " .. map .. " - " .. mode, 5 } })
+        Notify({ { "A new game has started on " .. map .. " - " .. mode, 5 } })
         timer(50, "Logo")
 
         for i = 1, 16 do
@@ -84,22 +76,22 @@ function OnStart()
 end
 
 function OnEnd()
-    Notify:Log({ { "Game Ended - Showing Post Game Carnage report", 5 } })
+    Notify({ { "Game Ended - Showing Post Game Carnage report", 5 } })
 end
 
 function OnPreJoin(Ply)
 
-    players[Ply] = Notify:NewPlayer({
+    players[Ply] = {
         id = Ply,
         ip = get_var(Ply, '$ip'),
         name = get_var(Ply, '$name'),
         team = get_var(Ply, '$team'),
         hash = get_var(Ply, '$hash'),
         level = tonumber(get_var(Ply, '$lvl'))
-    })
+    }
 
     local player = players[Ply]
-    Notify:Log({
+    Notify({
         { "________________________________________________________________________________", 10 },
         { "Player attempting to connect to the server...", 13 },
         { "Player: " .. player.name, 10 },
@@ -111,7 +103,7 @@ function OnPreJoin(Ply)
 end
 
 function OnJoin(Ply)
-    Notify:Log({
+    Notify({
         { "Join Time: " .. os.date("%A %d %B %Y - %X"), 10 },
         { "Status: " .. players[Ply].name .. " connected successfully.", 13 },
         { "________________________________________________________________________________", 10 }
@@ -119,12 +111,12 @@ function OnJoin(Ply)
 end
 
 function OnSpawn(Ply)
-    Notify:Log({ { players[Ply].name .. " spawned", 14 } })
+    Notify({ { players[Ply].name .. " spawned", 14 } })
 end
 
 function OnQuit(Ply)
     local player = players[Ply]
-    Notify:Log({
+    Notify({
         { "________________________________________________________________________________", 12 },
         { "Player: " .. player.name, 12 },
         { "CD Hash: " .. player.hash, 12 },
@@ -140,20 +132,20 @@ end
 function OnSwitch(Ply)
     local t = players[Ply]
     t.team = get_var(Ply, '$team')
-    Notify:Log({ { t.name .. " switched teams. New team: [" .. t.team .. "]", 13 } })
+    Notify({ { t.name .. " switched teams. New team: [" .. t.team .. "]", 13 } })
 end
 
 function OnWarp(Ply)
-    Notify:Log({ { players[Ply].name .. " is warping", 13 } })
+    Notify({ { players[Ply].name .. " is warping", 13 } })
 end
 
 function OnReset()
-    Notify:Log({ { "The map was reset!", 3 } })
+    Notify({ { "The map was reset!", 3 } })
 end
 
 function OnLogin(Ply)
     if (players[Ply]) then
-        Notify:Log({ { players[Ply].name .. " logged in", 7 } })
+        Notify({ { players[Ply].name .. " logged in", 7 } })
     end
 end
 
@@ -181,7 +173,7 @@ function OnCommand(Ply, CMD, ENV)
     if (Ply > 0) then
         local msg = on_command[ENV]
         local str = FormatStr(msg[1], Ply, CMD)
-        Notify:Log({ { str, msg[2] } })
+        Notify({ { str, msg[2] } })
     end
 end
 
@@ -196,7 +188,7 @@ function OnChat(Ply, Msg, Type)
     if (Ply > 0) then
         local msg = on_chat[Type]
         local str = FormatStr(msg[1], Ply, nil, Msg)
-        Notify:Log({ { str, msg[2] } })
+        Notify({ { str, msg[2] } })
     end
 end
 
@@ -209,22 +201,22 @@ function OnDeath(Victim, Killer)
     if (v) then
         if (killer) then
             if (killer == -1) then
-                Notify:Log({ { v.name .. " was killed by the server", 8 } })
+                Notify({ { v.name .. " was killed by the server", 8 } })
             elseif (killer == 0) then
-                Notify:Log({ { v.name .. " was squashed by a vehicle", 8 } })
+                Notify({ { v.name .. " was squashed by a vehicle", 8 } })
             elseif (killer > 0) then
                 if (v.id ~= killer) then
                     if (v.team == k.team) then
-                        Notify:Log({ { v.name .. " was betrayed by " .. k.name, 8 } })
+                        Notify({ { v.name .. " was betrayed by " .. k.name, 8 } })
                     else
-                        Notify:Log({ { v.name .. " was killed by " .. k.name, 8 } })
+                        Notify({ { v.name .. " was killed by " .. k.name, 8 } })
                     end
                 else
-                    Notify:Log({ { v.name .. " committed suicide", 8 } })
+                    Notify({ { v.name .. " committed suicide", 8 } })
                 end
             end
         else
-            Notify:Log({ { v.name .. " died", 8 } })
+            Notify({ { v.name .. " died", 8 } })
         end
     end
 end
@@ -246,7 +238,7 @@ function Logo()
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
     local server_name = read_wide_string(network_struct + 0x8, 0x42)
 
-    Notify:Log({
+    Notify({
         { "================================================================================", 10 },
         { date("%A, %d %B %Y - %X"), 6 },
         { "", 0 },
