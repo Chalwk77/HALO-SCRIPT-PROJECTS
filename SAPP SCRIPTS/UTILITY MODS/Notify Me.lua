@@ -1,316 +1,268 @@
 --[[
 --=====================================================================================================--
-Script Name: Notify Me (UTILITY), for SAPP (PC & CE)
-Description: A simple addon that notifies (via server terminal) of certain events.
+Script Name: Notify Me, for SAPP (PC & CE)
+Description: This script will beautify the server terminal during certain events:
 
-             ====== Event Triggers ======
-             - OnScriptLoad
-             - OnScriptUnload
-             - OnPlayerChat
-             - OnServerCommand
-             - OnGameStart
-             - OnGameEnd
-             - Pre Join
-             - Join
-             - Disconnect
-             - Death
-             - Spawn
+            - script_load
+            - script_unload
+            - event_chat
+            - event_command
+            - event_game_start
+            - event_game_end
+            - event_prejoin
+            - event_join
+            - event_leave
+            - event_die
+            - event_spawn
+            - event_login
+            - event_map_reset
+            - event_team_switch
 
-Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
-
-
 --=====================================================================================================--
 ]]--
 
-api_version = "1.12.0.0"
 
--- do not touch --
-local sub, gsub = string.sub, string.gsub
-local players = {}
---------------------------------------------
+api_version = '1.12.0.0'
 
--- Config Starts ------------------------------------------------------------------------
-
-local on_chat = { -- Used for OnPlayerChat event.
-    -- {message, console color}
-    [0] = { "[GLOBAL] %name% ID: [%id%]: %message%", 3 },
-    [1] = { "[TEAM] %name% ID: [%id%]: %message%", 3 },
-    [2] = { "[VEHICLE] %name% ID: [%id%]: %message%", 3 },
-    [3] = { "[UNKNOWN] %name% ID: [%id%]: %message%", 3 },
-}
-
-local on_command = { -- Used for OnServerCommand event.
-    [1] = { "[RCON CMD] %name% ID: [%id%]: %cmd%", 2 },
-    [2] = { "[CHAT CMD] %name% ID: [%id%]: /%cmd%", 2 },
-}
-
-local events = {
-    ["OnServerCommand"] = {
-        enabled = true, -- Set to "false" to disable this notification
-        func = function(p)
-
-            local environment = p.command[2]
-            local cmd = on_command[environment]
-            local color = cmd[2] or 2
-
-            cmd = gsub(gsub(gsub(gsub(cmd[1],
-                    "%%name%%", p.name),
-                    "%%id%%", p.id),
-                    "%%ip%%", p.ip),
-                    "%%cmd%%", p.command[1])
-            cprint(cmd, color)
-            p.command = ""
-        end
-    },
-    ["OnPlayerChat"] = {
-        enabled = true, -- Set to "false" to disable this notification
-        func = function(p)
-            local type = p.message[2]
-            local msg = on_chat[type]
-            local color = on_chat[type][2] or 2
-            msg = gsub(gsub(gsub(gsub(msg[1],
-                    "%%name%%", p.name),
-                    "%%id%%", p.id),
-                    "%%ip%%", p.ip),
-                    "%%message%%", p.message[1])
-            cprint(msg, color)
-            p.message = ""
-        end
-    },
-    ["OnScriptLoad"] = {
-        enabled = true, -- Set to "false" to disable this notification
-        func = function(_)
-            local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
-            local servername = read_widestring(network_struct + 0x8, 0x42)
-            local timestamp = os.date("%A, %d %B %Y - %X")
-            cprint("================================================================================", 10)
-            cprint(timestamp, 6)
-            cprint("")
-            cprint("     '||'  '||'     |     '||'       ..|''||           ..|'''.| '||''''|  ", 12)
-            cprint("      ||    ||     |||     ||       .|'    ||        .|'     '   ||  .    ", 12)
-            cprint("      ||''''||    |  ||    ||       ||      ||       ||          ||''|    ", 12)
-            cprint("      ||    ||   .''''|.   ||       '|.     ||       '|.      .  ||       ", 12)
-            cprint("     .||.  .||. .|.  .||. .||.....|  ''|...|'         ''|....'  .||.....| ", 12)
-            cprint("               ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-", 7)
-            cprint("                             " .. servername, 10)
-            cprint("               ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-", 7)
-            cprint("")
-            cprint("================================================================================", 10)
-        end
-    },
-    ["OnGameStart"] = {
-        enabled = true, -- Set to "false" to disable this notification
-        func = function(_)
-            local mode, map = get_var(0, "$mode"), get_var(0, "$map")
-            cprint("A new game has started on " .. map .. " - " .. mode, 5)
-        end
-    },
-    ["OnGameEnd"] = {
-        enabled = true, -- Set to "false" to disable this notification
-        func = function(_)
-            cprint("Game Ended - Showing Post Game Carnage report", 5)
-        end
-    },
-    ["OnPreJoin"] = {
-        enabled = true, -- Set to "false" to disable this notification
-        func = function(params)
-            cprint("________________________________________________________________________________", 10)
-            cprint(params.name .. " is attempting to connect to the server...", 13)
-            cprint("Player: " .. params.name, 10)
-            cprint("CD Hash: " .. params.hash, 10)
-            cprint("IP Address: " .. params.ip, 10)
-            cprint("Index ID: " .. params.id, 10)
-            cprint("Privilege Level: " .. params.level, 10)
-        end
-    },
-    ["OnPlayerConnect"] = {
-        enabled = true, -- Set to "false" to disable this notification
-        func = function(params)
-            cprint("Join Time: " .. os.date("%A %d %B %Y - %X"), 10)
-            cprint("Status: " .. params.name .. " connected successfully.", 13)
-            cprint("________________________________________________________________________________", 10)
-        end
-    },
-    ["OnPlayerDisconnect"] = {
-        enabled = true, -- Set to "false" to disable this notification
-        func = function(params)
-            cprint("________________________________________________________________________________", 12)
-            cprint("Player: " .. params.name, 12)
-            cprint("CD Hash: " .. params.hash, 12)
-            cprint("IP Address: " .. params.ip, 12)
-            cprint("Index ID: " .. params.id, 12)
-            cprint("Privilege Level: " .. params.level, 12)
-            cprint("Ping: " .. params.ping, 12)
-            cprint("________________________________________________________________________________", 12)
-        end
-    },
-    ["OnPlayerSpawn"] = {
-        enabled = true, -- Set to "false" to disable this notification
-        func = function(params)
-            cprint(params.name .. " spawned", 14)
-        end
-    },
-    ["OnPlayerDeath"] = {
-        enabled = true, -- Set to "false" to disable this notification
-        func = function(params)
-            if (params.killer) then
-                if (params.killer == -1) then
-                    cprint(params.name .. " was killed by the server", 8)
-
-                elseif (params.killer == 0) then
-                    cprint(params.name .. " squashed by a vehicle", 8)
-
-                elseif (params.killer > 0) then
-                    if (params.id ~= params.killer) then
-                        local kname = get_var(params.killer, "$name")
-                        local Vteam, Kteam = get_var(params.id, "$team"), get_var(params.killer, "$team")
-                        if (Vteam == Kteam) then
-                            cprint(params.name .. " was betrayed by " .. kname, 8)
-                        else
-                            cprint(params.name .. " was killed by " .. kname, 8)
-                        end
-                    else
-                        cprint(params.name .. " committed suicide", 8)
-                    end
-                end
-            else
-                cprint(params.name .. " died", 8)
-            end
-        end
-    }
-}
-
--- Config Ends ------------------------------------------------------------------------
+local date = os.date
+local char = string.char
+local concat = table.concat
+local Notify, players = {}, {}
 
 function OnScriptLoad()
-    register_callback(cb["EVENT_TICK"], "OnTick")
-    register_callback(cb["EVENT_DIE"], "OnPlayerDeath")
-    register_callback(cb["EVENT_PREJOIN"], "OnPreJoin")
-    register_callback(cb["EVENT_CHAT"], "OnPlayerChat")
-    register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
-    register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
-    register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
-    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
-    register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
-    register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
-    timer(50, "Notify", "", "OnScriptLoad")
+
+    register_callback(cb['EVENT_DIE'], 'OnDeath')
+    register_callback(cb['EVENT_CHAT'], 'OnChat')
+    register_callback(cb['EVENT_JOIN'], 'OnJoin')
+    register_callback(cb['EVENT_LEAVE'], 'OnQuit')
+    register_callback(cb['EVENT_SPAWN'], 'OnSpawn')
+    register_callback(cb['EVENT_LOGIN'], 'OnLogin')
+    register_callback(cb['EVENT_GAME_END'], 'OnEnd')
+    register_callback(cb['EVENT_MAP_RESET'], "OnReset")
+    register_callback(cb['EVENT_PREJOIN'], 'OnPreJoin')
+    register_callback(cb['EVENT_COMMAND'], 'OnCommand')
+    register_callback(cb['EVENT_GAME_START'], 'OnStart')
+    register_callback(cb['EVENT_TEAM_SWITCH'], 'OnSwitch')
+
+    OnStart()
+end
+
+function Notify:Log(msg)
+    for i = 1, #msg do
+        cprint(msg[i][1], msg[i][2])
+    end
+end
+
+function Notify:NewPlayer(t)
+
+    setmetatable(t, self)
+    self.__index = self
+
+    return t
+end
+
+function OnStart()
     if (get_var(0, "$gt") ~= "n/a") then
+
         players = { }
+
+        local map = get_var(0, "$map")
+        local mode = get_var(0, "$mode")
+
+        Notify:Log({ { "A new game has started on " .. map .. " - " .. mode, 5 } })
+        timer(50, "Logo")
+
         for i = 1, 16 do
             if player_present(i) then
-                InitPlayer(i, false)
+                OnJoin(i)
             end
         end
     end
 end
 
-function OnGameStart()
-    if (get_var(0, "$gt") ~= "n/a") then
-        players = { }
-        Notify(_, "OnGameStart")
-    end
-end
-
-function OnGameEnd()
-    if (get_var(0, "$gt") ~= "n/a") then
-        Notify(_, "OnGameEnd")
-    end
-end
-
-function OnServerCommand(Ply, CMD, Environment, _)
-    if (Ply > 0) then
-        players[Ply].command = { CMD, Environment }
-        Notify(Ply, "OnServerCommand")
-    end
-end
-
-local function isChatCommand(MSG)
-    if (sub(MSG, 1, 1) == "/" or sub(MSG, 1, 1) == "\\") then
-        return true
-    end
-    return false
-end
-
-function OnPlayerChat(Ply, Msg, Type)
-    if (Ply and Type ~= 6) then
-        if (not isChatCommand(Msg)) then
-            players[Ply].message = { Msg, Type }
-            Notify(Ply, "OnPlayerChat")
-        end
-    end
+function OnEnd()
+    Notify:Log({ { "Game Ended - Showing Post Game Carnage report", 5 } })
 end
 
 function OnPreJoin(Ply)
-    InitPlayer(Ply, false)
-    Notify(Ply, "OnPreJoin")
+
+    players[Ply] = Notify:NewPlayer({
+        id = Ply,
+        ip = get_var(Ply, '$ip'),
+        name = get_var(Ply, '$name'),
+        team = get_var(Ply, '$team'),
+        hash = get_var(Ply, '$hash'),
+        level = tonumber(get_var(Ply, '$lvl'))
+    })
+
+    local player = players[Ply]
+    Notify:Log({
+        { "________________________________________________________________________________", 10 },
+        { "Player attempting to connect to the server...", 13 },
+        { "Player: " .. player.name, 10 },
+        { "CD Hash: " .. player.hash, 10 },
+        { "IP Address: " .. player.ip, 10 },
+        { "Index ID: " .. player.id, 10 },
+        { "Privilege Level: " .. player.level, 10 }
+    })
 end
 
-function OnPlayerConnect(Ply)
-    Notify(Ply, "OnPlayerConnect")
+function OnJoin(Ply)
+    Notify:Log({
+        { "Join Time: " .. os.date("%A %d %B %Y - %X"), 10 },
+        { "Status: " .. players[Ply].name .. " connected successfully.", 13 },
+        { "________________________________________________________________________________", 10 }
+    })
 end
 
-function OnPlayerDisconnect(Ply)
-    players[Ply].ping = tonumber(get_var(Ply, "$ping"))
-    Notify(Ply, "OnPlayerDisconnect")
-    InitPlayer(Ply, true)
+function OnSpawn(Ply)
+    Notify:Log({ { players[Ply].name .. " spawned", 14 } })
 end
 
-function OnPlayerSpawn(Ply)
-    players[Ply].killer = nil
-    Notify(Ply, "OnPlayerSpawn")
+function OnQuit(Ply)
+    local player = players[Ply]
+    Notify:Log({
+        { "________________________________________________________________________________", 12 },
+        { "Player: " .. player.name, 12 },
+        { "CD Hash: " .. player.hash, 12 },
+        { "IP Address: " .. player.ip, 12 },
+        { "Index ID: " .. player.id, 12 },
+        { "Privilege Level: " .. get_var(Ply, '$lvl'), 12 },
+        { "Ping: " .. get_var(Ply, '$ping'), 12 },
+        { "________________________________________________________________________________", 12 }
+    })
+    players[Ply] = nil
 end
 
-function OnPlayerDeath(VictimIndex, KillerIndex)
-    players[VictimIndex].killer = tonumber(KillerIndex)
-    Notify(VictimIndex, "OnPlayerDeath")
+function OnSwitch(Ply)
+    local t = players[Ply]
+    t.team = get_var(Ply, '$team')
+    Notify:Log({ { t.name .. " switched teams. New team: [" .. t.team .. "]", 13 } })
 end
 
-function Notify(Ply, Callback)
-    for Event, v in pairs(events) do
-        if (Event == Callback) and (v.enabled) then
-            v.func(players[Ply])
+function OnWarp(Ply)
+    Notify:Log({ { players[Ply].name .. " is warping", 13 } })
+end
+
+function OnReset()
+    Notify:Log({ { "The map was reset!", 3 } })
+end
+
+function OnLogin(Ply)
+    if (players[Ply]) then
+        Notify:Log({ { players[Ply].name .. " logged in", 7 } })
+    end
+end
+
+local on_command = {
+    [1] = { "[RCON CMD] $name ID: [$id]: $cmd", 2 },
+    [2] = { "[CHAT CMD] $name ID: [$id]: /$cmd", 2 }
+}
+
+local function FormatStr(Str, Ply, CMD, MSG)
+    local player = players[Ply]
+    local words = {
+        ['$cmd'] = CMD,
+        ['$msg'] = MSG,
+        ['$id'] = player.id,
+        ['$ip'] = player.ip,
+        ['$name'] = player.name
+    }
+    for k, v in pairs(words) do
+        Str = Str:gsub(k, v)
+    end
+    return Str
+end
+
+function OnCommand(Ply, CMD, ENV)
+    if (Ply > 0) then
+        local msg = on_command[ENV]
+        local str = FormatStr(msg[1], Ply, CMD)
+        Notify:Log({ { str, msg[2] } })
+    end
+end
+
+local on_chat = {
+    [0] = { "[GLOBAL] $name ID: [$id]: $msg", 3 },
+    [1] = { "[TEAM] $name ID: [$id]: $msg", 3 },
+    [2] = { "[VEHICLE] $name ID: [$id]: $msg", 3 },
+    [3] = { "[UNKNOWN] $name ID: [$id]: $msg", 3 },
+}
+
+function OnChat(Ply, Msg, Type)
+    if (Ply > 0) then
+        local msg = on_chat[Type]
+        local str = FormatStr(msg[1], Ply, nil, Msg)
+        Notify:Log({ { str, msg[2] } })
+    end
+end
+
+function OnDeath(Victim, Killer)
+    local killer = tonumber(Killer)
+    local victim = tonumber(Victim)
+
+    local k = players[killer]
+    local v = players[victim]
+    if (v) then
+        if (killer) then
+            if (killer == -1) then
+                Notify:Log({ { v.name .. " was killed by the server", 8 } })
+            elseif (killer == 0) then
+                Notify:Log({ { v.name .. " was squashed by a vehicle", 8 } })
+            elseif (killer > 0) then
+                if (v.id ~= killer) then
+                    if (v.team == k.team) then
+                        Notify:Log({ { v.name .. " was betrayed by " .. k.name, 8 } })
+                    else
+                        Notify:Log({ { v.name .. " was killed by " .. k.name, 8 } })
+                    end
+                else
+                    Notify:Log({ { v.name .. " committed suicide", 8 } })
+                end
+            end
+        else
+            Notify:Log({ { v.name .. " died", 8 } })
         end
     end
 end
 
-function InitPlayer(Ply, Reset)
-    if (Reset) then
-        players[Ply] = { }
-    else
-        players[Ply] = {
-            ping = 0,
-            killer = nil,
-            ip = get_var(Ply, "$ip"),
-            name = get_var(Ply, "$name"),
-            hash = get_var(Ply, "$hash"),
-            id = tonumber(get_var(Ply, "$n")),
-            level = tonumber(get_var(Ply, "$lvl"))
-        }
-    end
-end
-
-function OnTick()
-    for i = 1, 16 do
-        if (players[i] ~= nil and not player_present(i)) then
-            players[i] = { }
-        end
-    end
-end
-
-function OnScriptUnload()
-
-end
-
-function read_widestring(address, length)
+local function read_wide_string(address, length)
     local count = 0
     local byte_table = {}
     for i = 1, length do
-        if read_byte(address + count) ~= 0 then
-            byte_table[i] = string.char(read_byte(address + count))
+        if (read_byte(address + count) ~= 0) then
+            byte_table[i] = char(read_byte(address + count))
         end
         count = count + 2
     end
-    return table.concat(byte_table)
+    return concat(byte_table)
+end
+
+function Logo()
+
+    local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
+    local server_name = read_wide_string(network_struct + 0x8, 0x42)
+
+    Notify:Log({
+        { "================================================================================", 10 },
+        { date("%A, %d %B %Y - %X"), 6 },
+        { "", 0 },
+        { "     '||'  '||'     |     '||'       ..|''||           ..|'''.| '||''''|  ", 12 },
+        { "      ||    ||     |||     ||       .|'    ||        .|'     '   ||  .    ", 12 },
+        { "      ||''''||    |  ||    ||       ||      ||       ||          ||''|    ", 12 },
+        { "      ||    ||   .''''|.   ||       '|.     ||       '|.      .  ||       ", 12 },
+        { "     .||.  .||. .|.  .||. .||.....|  ''|...|'         ''|....'  .||.....| ", 12 },
+        { "               ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-", 7 },
+        { "                             " .. server_name, 10 },
+        { "               ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-", 7 },
+        { "", 0 },
+        { "================================================================================", 10 }
+    })
+end
+
+function OnScriptUnload()
+    -- N/A
 end
