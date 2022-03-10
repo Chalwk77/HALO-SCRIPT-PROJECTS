@@ -221,12 +221,12 @@ function OnDeath(Victim, Killer)
     end
 end
 
-local function read_wide_string(address, length)
+local function ReadWideString(Address, Length)
     local count = 0
     local byte_table = {}
-    for i = 1, length do
-        if (read_byte(address + count) ~= 0) then
-            byte_table[i] = char(read_byte(address + count))
+    for i = 1, Length do
+        if (read_byte(Address + count) ~= 0) then
+            byte_table[i] = char(read_byte(Address + count))
         end
         count = count + 2
     end
@@ -236,7 +236,7 @@ end
 function Logo()
 
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
-    local server_name = read_wide_string(network_struct + 0x8, 0x42)
+    local server_name = ReadWideString(network_struct + 0x8, 0x42)
 
     Notify({
         { "================================================================================", 10 },
