@@ -14,29 +14,30 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/tag/AliasSystem
 Alias results are split into in rows & columns on a per-page basis.
 To view a specific page of results, simply define the page id as shown in the command syntax examples below.
 
-* /alias [pid]
-> Check aliases for the defined player (defaults to ip-aliases).
+/alias [pid] -ip [opt page]
+> Check IP aliases for defined player.
+/
+alias [pid] -hash [opt page]
+> Check hash aliases for defined player.
 
-* /alias [pid] -ip [opt page]
-> Check IP aliases.
+/alias [pid]
+> When executing /alias [pid] without specifying the lookup type, the search will automatically
+look up names associated with their IP Address. This can be edited in the config section among other settings.
 
-* /alias [pid] -hash [opt page]
-> Check Hash aliases.
+/alias [IP] [opt page]
+> Check aliases for defined IP Address
 
-* /alias [IP] [opt page]
-> Check aliases for specific IP
-
-* /alias [hash] [opt page]
-> Check aliases for a specific hash.
+/alias [hash] [opt page]
+> Check aliases for defined Hash
 
 Additional Features:
 This system will know whether someone has a pirated hash or not.
 This is important for determining whether you can hash-ban someone or not.
 
-Furthermore, hash or ip tables that have not been modified for 30 days will be considered stale and will be deleted.
+Furthermore, hash or IP tables that have not been accessed for 30 days will be considered stale and will be deleted.
 
 Example of the Alias Database:
-The 'last_activity' table keeps a track record (day, month, year) of when a named was linked to its parent table.
+The 'last_activity' table keeps a track record (day, month, year) of when a name was linked to its parent table.
 If no names were saved within 30 days, the parent table will be deleted.
 
 Individual names also have a timestamp of the last login time.
