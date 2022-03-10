@@ -36,8 +36,10 @@ This is important for determining whether you can hash-ban someone or not.
 Furthermore, hash or ip tables that have not been modified for 30 days will be considered stale and will be deleted.
 
 Example of the Alias Database:
-The 'last_activity' table keeps track of when a named was linked to an ip or hash.
-If no names were logged to the has or ip table for 30 days, the table entry for that hash or ip will be deleted.
+The 'last_activity' table keeps a track record (day, month, year) of when a named was linked to its parent table.
+If no names were saved within 30 days, the parent table will be deleted.
+
+Individual names also have a timestamp of the last login time.
 
 {
   "hashes": {
