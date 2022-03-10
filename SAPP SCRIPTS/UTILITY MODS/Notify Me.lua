@@ -184,8 +184,12 @@ local on_chat = {
     [3] = { "[UNKNOWN] $name ID: [$id]: $msg", 3 },
 }
 
+local function IsCommand(msg)
+    return (msg:sub(1, 1) == "/" or msg:sub(1, 1) == "\\")
+end
+
 function OnChat(Ply, Msg, Type)
-    if (Ply > 0) then
+    if (Ply > 0 and not IsCommand(Msg)) then
         local msg = on_chat[Type]
         local str = FormatStr(msg[1], Ply, nil, Msg)
         Notify({ { str, msg[2] } })
