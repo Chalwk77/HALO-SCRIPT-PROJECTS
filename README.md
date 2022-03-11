@@ -43,7 +43,7 @@ Check out my:
 > * V1 Documentation: [weblink](http://phasor.halonet.net/archive/docs/05x.html)
 > * V2 Documentation: [weblink](http://phasor.halonet.net/archive/docs/200.html)
 
-### [Jeffrey Friedl's JSON PARSER]()
+### [Jeffrey Friedl's JSON PARSER](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/Miscellaneous/JSON%20LIBRARY)
 
 - - - -
 - - - -
