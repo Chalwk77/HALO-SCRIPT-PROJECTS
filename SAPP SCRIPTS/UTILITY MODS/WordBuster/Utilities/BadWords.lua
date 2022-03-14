@@ -44,13 +44,14 @@ end
 
 function BadWords:GetRegex(line)
     local regex = ''
-    local t = StringToTable(line)
-    for _, char in pairs(t) do
+    local characters = StringToTable(line)
+    for i = 1, #characters do
+        local char = characters[i]
         local chars = self.settings.patterns[char]
         if (chars) then
-            for i = 1, #chars do
-                if (chars[i]) then
-                    regex = regex .. chars[i]
+            for j = 1, #chars do
+                if (chars[j]) then
+                    regex = regex .. chars[j]
                 end
             end
         end
