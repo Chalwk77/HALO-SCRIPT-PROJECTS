@@ -7,9 +7,11 @@ local json = loadfile('./WordBuster/Utilities/Json.lua')()
 local settings = loadfile('./WordBuster/settings.lua')()
 settings.words = {}
 
-local open = io.open
-local MessageHandler
+local Grace = require('./WordBuster/Utilities.Grace')
+local BadWords = require('./WordBuster/Utilities.BadWords')
+local MessageHandler = require('./WordBuster/Events.MessageHandler')
 
+local open = io.open
 local function WriteToFile(t)
     local file = open(settings.infractions_directory, 'w')
     if (file) then
@@ -38,10 +40,6 @@ end
 
 function OnScriptLoad()
 
-    local Grace = require('./WordBuster/Utilities.Grace')
-    local BadWords = require('./WordBuster/Utilities.BadWords')
-    MessageHandler = require('./WordBuster/Events.MessageHandler')
-
     local mt = {
         write = WriteToFile,
         settings = settings,
@@ -55,6 +53,7 @@ function OnScriptLoad()
 
     BadWords:Load()
     Grace:Check()
+
     register_callback(cb['EVENT_CHAT'], 'OnChat')
 end
 
