@@ -1,10 +1,10 @@
 -- Account System (v1.0)
 -- Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 
-local Account = require('./Account System/Account Handler')
+local Account = require('./Account System API/Account Handler')
 setmetatable(Account, { __index = {
-    settings = require('./Account System/settings'),
-    json = require('./Account System/json')
+    settings = require('./Account System API/settings'),
+    json = require('./Account System API/json')
 } })
 
 register_callback(cb['EVENT_GAME_START'], 'OnStart')
