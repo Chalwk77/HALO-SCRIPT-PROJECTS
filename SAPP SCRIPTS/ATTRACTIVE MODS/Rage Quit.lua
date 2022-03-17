@@ -1,116 +1,95 @@
 --[[
 --=====================================================================================================--
-Script Name: Rage-Quit, for SAPP (PC & CE)
-Description: Rage-Quit announcer
+Script Name: Rage Quit, for SAPP (PC & CE)
+Description: Announces a simple message when someone rage quits.
 
-Copyright (c) 2016-2019, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
+local RageQuit = {
+
+    -- A player is considered raging if they quit
+    -- before the grace period lapses after being killed:
+    grace = 10,
+
+    -- Message output when a player rage quits:
+    message = '$name rage quit because of $killer'
+}
+
+local time = os.time
+local players = {}
+
 api_version = "1.12.0.0"
 
--- Config Starts --
-local rage_quit_message = "%vname% rage quit because of %kname%"
-
--- A player is considered raging if they quit before "cool_down" elapses, after being killed.
-local cool_down = 10
-
--- ========= TOP RANKED SUPPORT ========= --
---===========================================================================--
--- If you're using my "Top Ranked" script, set this to true:
-local rank_system_support = true
-
--- Credits to deducted for raging:
-local penalty = 200
-
--- Top Ranked script Name: Exact name (without .txt)
-local rank_script = "Top Ranked"
-
--- Do not edit unless you know what you're doing.
--- Refer to config section of Top Ranked script for details on this setting.
-local ClientIndexType = 2
---===========================================================================--
-
--- A message relay function temporarily removes the server prefix
--- and will restore it to this when the relay is finished:
-local server_prefix = "**SAPP**"
--- Config Ends --
-
-local players = { }
-local gsub = string.gsub
-
 function OnScriptLoad()
-    register_callback(cb["EVENT_TICK"], "OnTick")
-    register_callback(cb["EVENT_DIE"], "OnPlayerDeath")
-    register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
-    if (get_var(0, "$gt") ~= "n/a") then
+    register_callback(cb['EVENT_DIE'], 'OnDie')
+    register_callback(cb['EVENT_TICK'], 'OnTick')
+    register_callback(cb['EVENT_JOIN'], 'OnJoin')
+    register_callback(cb['EVENT_GAME_START'], 'OnStart')
+end
+
+local function GetIP(Ply)
+    return get_var(Ply, '$ip')
+end
+
+function RageQuit:NewPlayer(o)
+    setmetatable(o, self)
+    self.__index = self
+    return o
+end
+
+function OnJoin(Ply)
+    players[GetIP(Ply)] = RageQuit:NewPlayer({
+        pid = Ply,
+        name = get_var(Ply, '$name')
+    })
+end
+
+function OnStart()
+    if (get_var(0, '$gt') ~= 'n/a') then
         players = { }
         for i = 1, 16 do
             if player_present(i) then
-                InitPlayer(i, false)
+                OnJoin(i)
             end
         end
     end
-end
-
-local function AnnounceRage(p)
-    local str = gsub(gsub(rage_quit_message, "%%vname%%", p.vname), "%%kname%%", p.kname)
-    execute_command("msg_prefix \"\"")
-    say_all(str)
-    execute_command("msg_prefix \" " .. server_prefix .. "\"")
 end
 
 function OnTick()
-    for i, player in pairs(players) do
-        if (i) and (player.killer) then
-            player.timer = player.timer - 1 / 30
-            if (player.timer > 0) and not player_present(i) then
-                AnnounceRage(players[i])
-                if (rank_system_support) then
-                    execute_command('lua_call "' .. rank_script .. '" UpdateRageQuit ' .. player.ip .. ' ' .. penalty)
-                end
-                players[i] = nil
-            elseif (player.timer <= 0) then
-                InitPlayer(i, false)
+    for ip, v in pairs(players) do
+        if (v.killer) then
+            if (v.finish - v.start() == 0) then
+                v.start, v.finish = nil, nil
+            elseif (not player_present(v.pid)) then
+                local str = v.message
+                str = str:gsub('$name', v.name):gsub('$killer', v.killer.name)
+                say_all(str)
+                players[ip] = nil
             end
+        elseif (not player_present(v.pid)) then
+            players[ip] = nil
         end
     end
 end
 
-function InitPlayer(Ply, Reset)
-    if (Reset) then
-        players[Ply] = nil
-    else
-        players[Ply] = {
-            ip = GetIP(Ply),
-            timer = cool_down, killer = nil,
-            vname = get_var(Ply, "$name"), kname = ""
-        }
+function OnDie(Victim, Killer)
+    local victim = tonumber(Victim)
+    local killer = tonumber(Killer)
+    if (killer > 0 and killer ~= victim) then
+        local v = players[GetIP(victim)]
+        local k = players[GetIP(killer)]
+        if (v and k) then
+            v.killer = k
+            v.start = time
+            v.finish = time() + v.grace
+        end
     end
-end
-
-function OnPlayerConnect(Ply)
-    InitPlayer(Ply, false)
-end
-
-function OnPlayerDeath(VictimIndex, KillerIndex)
-    local k, v = tonumber(KillerIndex), tonumber(VictimIndex)
-    if (k > 0) and (k ~= v) then
-        players[v].kname = get_var(k, "$name")
-        players[v].killer = k
-    end
-end
-
-function GetIP(Ply)
-    local IP = get_var(Ply, "$ip")
-    if (ClientIndexType == 1) then
-        IP = IP:match("%d+.%d+.%d+.%d+")
-    end
-    return IP
 end
 
 function OnScriptUnload()
-
+    -- N/A
 end
