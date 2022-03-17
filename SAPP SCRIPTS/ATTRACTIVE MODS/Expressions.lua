@@ -1,5 +1,5 @@
 --[[
---=====================================================================================================--
+--========================================================================--
 Script Name: Expressions (v2.1), for SAPP (PC & CE)
 Description: Want to express your rage, taunt your opponents or
              cuss in a family-friendly-ish way? Look no further!
@@ -7,7 +7,7 @@ Description: Want to express your rage, taunt your opponents or
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
---=====================================================================================================--
+--========================================================================--
 ]]--
 
 api_version = "1.12.0.0"

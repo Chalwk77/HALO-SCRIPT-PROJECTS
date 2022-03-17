@@ -1,170 +1,140 @@
 --[[
 --=====================================================================================================--
-Script Name: Flashlight-Vehicle-Entry (v1.0), for SAPP (PC & CE)
-Description: Aim your crosshair at a vehicle and press your flashlight button to enter it!
+Script Name: Flashlight Entry, for SAPP (PC & CE)
+Description: Aim your reticle at an unoccupied vehicle and press your flashlight key to enter it.
 
-             If setting "must_have_driver" is enabled, you can only enter vehicles
-             with a driver. However, if this setting is false, you can enter
-             any unoccupied vehicle; The latter of which will cause you to always enter into the driver seat.
-
-             Occupied vehicles must be occupied by an ally.
-
-
-Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
-Notice: You can use this document subject to the following conditions:
+Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
+* Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
-
-
 --=====================================================================================================--
-]]
+]]--
 
--- [CONFIG STARTS] --------------------------------------------------------------------------
-
+-- config starts --
 local vehicles = {
-    [1] = { enabled = true, "vehi", "vehicles\\warthog\\mp_warthog" },
-    [2] = { enabled = false, "vehi", "vehicles\\ghost\\ghost_mp" },
-    [3] = { enabled = true, "vehi", "vehicles\\rwarthog\\rwarthog" },
-    [4] = { enabled = false, "vehi", "vehicles\\banshee\\banshee_mp" },
-    [5] = { enabled = true, "vehi", "vehicles\\scorpion\\scorpion_mp" },
-    [6] = { enabled = false, "vehi", "vehicles\\c gun turret\\c gun turret_mp" }
+
+    --
+    -- Set to false to disable flashlight entry for that vehicle:
+    --
+
+    ['vehicles\\ghost\\ghost_mp'] = true,
+    ['vehicles\\rwarthog\\rwarthog'] = true,
+    ['vehicles\\banshee\\banshee_mp'] = true,
+    ['vehicles\\warthog\\mp_warthog'] = true,
+    ['vehicles\\scorpion\\scorpion_mp'] = true,
+    ['vehicles\\c gun turret\\c gun turret_mp'] = true
 }
+-- config ends --
 
--- If true, the vehicle must have a driver in order to enter it.
-local must_have_driver = false
-
--- Players must be within this many world units to enter a vehicle.
-local trigger_distance = 20 -- in world units
--- [CONFIG ENDS] ----------------------------------------------------------------------------
-
-api_version = "1.12.0.0"
-local game_over
+api_version = '1.12.0.0'
 
 function OnScriptLoad()
-    register_callback(cb["EVENT_TICK"], "OnTick")
-    register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
-    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
+    register_callback(cb['EVENT_TICK'], 'OnTick')
+    register_callback(cb['EVENT_JOIN'], 'OnJoin')
+    register_callback(cb['EVENT_LEAVE'], 'OnQuit')
+    register_callback(cb['EVENT_GAME_START'], 'OnStart')
+    OnStart()
 end
 
-function OnScriptUnload()
+local players = {}
 
+function OnJoin(Ply)
+    players[Ply] = { flashlight = 0 }
 end
 
-function OnGameStart()
-    game_over = false
+function OnQuit(Ply)
+    players[Ply] = nil
 end
 
-function OnGameEnd()
-    game_over = true
+local function GetCamera(dyn)
+    local x = read_float(dyn + 0x230) * 1000
+    local y = read_float(dyn + 0x234) * 1000
+    local z = read_float(dyn + 0x238) * 1000
+    return x, y, z
+end
+
+local function GetXYZ(dyn)
+    local couching = read_float(dyn + 0x50C)
+    local px, py, pz = read_vector3d(dyn + 0x5c)
+    if (couching == 0) then
+        pz = pz + 0.65
+    else
+        pz = pz + (0.35 * couching)
+    end
+    return px, py, pz
+end
+
+local function Occupied(obj)
+    for i = 1, 16 do
+        local dyn = get_dynamic_player(i)
+        if (player_present(i) and player_alive(i) and dyn ~= 0) then
+            local vehicle = read_dword(dyn + 0x11C)
+            local object = get_object_memory(vehicle)
+            if (object ~= 0 and vehicle ~= 0xFFFFFFFF and object == obj) then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+local function Valid(o)
+    return (vehicles[read_dword(o)] and not Occupied(o))
+end
+
+local function Intersecting(px, py, pz, cx, cy, cz, Ply)
+    local ignore = read_dword(get_player(Ply) + 0x34)
+    local success, _, _, _, map_object = intersect(px, py, pz, cx, cy, cz, ignore)
+    local object = get_object_memory(map_object)
+    if (object ~= 0 and Valid(object)) then
+        return (success and map_object) or nil
+    end
 end
 
 function OnTick()
-    if (not game_over) then
+    for i, v in pairs(players) do
+        local dyn = get_dynamic_player(i)
+        if (i and dyn ~= 0 and player_alive(i)) then
+
+            local px, py, pz = GetXYZ(dyn)
+            local cx, cy, cz = GetCamera(dyn)
+
+            local flashlight = read_bit(dyn + 0x208, 4)
+            local vehicle = Intersecting(px, py, pz, cx, cy, cz, i)
+            if (vehicle and flashlight ~= v.flashlight and flashlight == 1) then
+                enter_vehicle(vehicle, i, 0)
+            end
+
+            v.flashlight = flashlight
+        end
+    end
+end
+
+local function GetTag(Type, Name)
+    local Tag = lookup_tag(Type, Name)
+    return (Tag ~= 0 and read_dword(Tag + 0xC)) or nil
+end
+
+function OnStart()
+    if (get_var(0, '$gt') ~= 'n/a') then
+
+        local t = {}
+        for k, v in pairs(vehicles) do
+            local tag = GetTag('vehi', k)
+            if (tag) then
+                t[tag] = v
+            end
+        end
+        vehicles = t
+
+        players = {}
         for i = 1, 16 do
-            if player_present(i) and player_alive(i) then
-                local dynamic_player = get_dynamic_player(i)
-                if (dynamic_player ~= 0) then
-
-                    -- Camera Aim + Player Coordinates
-                    local CamX, CamY, CamZ = read_float(dynamic_player + 0x230), read_float(dynamic_player + 0x234), read_float(dynamic_player + 0x238)
-                    local x, y, z = read_vector3d(dynamic_player + 0x5c)
-
-                    -- Crouch State;
-                    local crouching = read_float(dynamic_player + 0x50C)
-                    if (crouching == 0) then
-                        z = z + 0.65
-                    else
-                        z = z + (0.35 * crouching)
-                    end
-
-                    -- Check if camera intersecting with object:
-                    local success, Vx, Vy, Vz, object = intersect(x, y, z, CamX * 1000, CamY * 1000, CamZ * 1000)
-                    if (success and object ~= nil) then
-
-                        -- Get the memory address of this object:
-                        local VehicleObject = get_object_memory(object)
-                        if (VehicleObject ~= 0) then
-
-                            -- Check if the object is a vehicle:
-                            local ObjectType = read_byte(VehicleObject + 0xB4)
-                            if (ObjectType == 1) then
-                                if WithinRange(x, y, z, Vx, Vy, Vz) then
-
-                                    -- Get the vehicle tag address:
-                                    local VehicleTag = read_dword(VehicleObject)
-
-                                    for j = 1, #vehicles do
-                                        if vehicles[j].enabled then
-                                            if VehicleTag == TagInfo(vehicles[j][1], vehicles[j][2]) then
-
-                                                local v = isOccupied(VehicleObject, i)
-                                                local flashlight, team = read_bit(dynamic_player + 0x208, 4), get_var(i, "$team")
-
-                                                if (team == v.team) and (flashlight == 1) then
-                                                    if (not v.driver and not must_have_driver) then
-                                                        EnterVehicle(object, i, 0)
-                                                    elseif (v.driver and v.gunner and not v.passenger) then
-                                                        EnterVehicle(object, i, 1)
-                                                    elseif (v.driver and not v.gunner) then
-                                                        EnterVehicle(object, i, 2)
-                                                    end
-                                                end
-                                            end
-                                        end
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
+            if player_present(i) then
+                OnJoin(i)
             end
         end
     end
 end
 
-function isOccupied(TargetObjectMemory, ExcludePlayer)
-
-    local vehicle = { }
-    vehicle.team = get_var(ExcludePlayer, "$team")
-    vehicle.driver, vehicle.gunner, vehicle.passenger = false, false, false
-
-    for i = 1, 16 do
-        if player_present(i) and player_alive(i) then
-            if (i ~= ExcludePlayer) then
-                local dynamic_player = get_dynamic_player(i)
-                local Vehicle = read_dword(dynamic_player + 0x11C)
-                if (Vehicle ~= 0xFFFFFFFF) then
-                    local ObjectMemory = get_object_memory(Vehicle)
-                    if (ObjectMemory == TargetObjectMemory) then
-                        local seat = read_word(dynamic_player + 0x2F0)
-                        vehicle.team = get_var(i, "$team")
-                        if (seat == 0) then
-                            vehicle.driver = true
-                        elseif (seat == 2) then
-                            vehicle.gunner = true
-                        elseif (seat == 1) then
-                            vehicle.passenger = true
-                        end
-                    end
-                end
-            end
-        end
-    end
-
-    return vehicle
-end
-
-function WithinRange(X, Y, Z, Vx, Vy, Vz)
-    local distance = tonumber(math.sqrt(((X - Vx) * (X - Vx)) + ((Y - Vy) * (Y - Vy)) + ((Z - Vz) * (X - Vz))))
-    if (distance <= trigger_distance) then
-        return true
-    end
-end
-
-function EnterVehicle(Vehicle, PlayerIndex, Seat)
-    enter_vehicle(Vehicle, PlayerIndex, Seat)
-end
-
-function TagInfo(Type, Name)
-    local tag_id = lookup_tag(Type, Name)
-    return tag_id ~= 0 and read_dword(tag_id + 0xC) or nil
+function OnScriptUnload()
+    -- N/A
 end
