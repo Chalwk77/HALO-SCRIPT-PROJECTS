@@ -13,7 +13,7 @@ local RageQuit = {
 
     -- A player is considered raging if they quit
     -- before the grace period lapses after being killed:
-    grace = 10,
+    grace = 5,
 
     -- Message output when a player rage quits:
     message = '$name rage quit because of $killer'
@@ -26,13 +26,10 @@ api_version = "1.12.0.0"
 
 function OnScriptLoad()
     register_callback(cb['EVENT_DIE'], 'OnDie')
-    register_callback(cb['EVENT_TICK'], 'OnTick')
     register_callback(cb['EVENT_JOIN'], 'OnJoin')
+    register_callback(cb['EVENT_LEAVE'], 'OnQuit')
     register_callback(cb['EVENT_GAME_START'], 'OnStart')
-end
-
-local function GetIP(Ply)
-    return get_var(Ply, '$ip')
+    OnStart()
 end
 
 function RageQuit:NewPlayer(o)
@@ -42,10 +39,22 @@ function RageQuit:NewPlayer(o)
 end
 
 function OnJoin(Ply)
-    players[GetIP(Ply)] = RageQuit:NewPlayer({
+    players[Ply] = RageQuit:NewPlayer({
         pid = Ply,
         name = get_var(Ply, '$name')
     })
+end
+
+function OnQuit(Ply)
+    local t = players[Ply]
+    players[Ply] = nil
+    if (t and t.killer) then
+        if (t.finish - t.start() > 0) then
+            local str = t.message
+            str = str:gsub('$name', t.name):gsub('$killer', t.killer.name)
+            say_all(str)
+        end
+    end
 end
 
 function OnStart()
@@ -59,34 +68,15 @@ function OnStart()
     end
 end
 
-function OnTick()
-    for ip, v in pairs(players) do
-        if (v.killer) then
-            if (v.finish - v.start() == 0) then
-                v.start, v.finish = nil, nil
-            elseif (not player_present(v.pid)) then
-                local str = v.message
-                str = str:gsub('$name', v.name):gsub('$killer', v.killer.name)
-                say_all(str)
-                players[ip] = nil
-            end
-        elseif (not player_present(v.pid)) then
-            players[ip] = nil
-        end
-    end
-end
-
 function OnDie(Victim, Killer)
     local victim = tonumber(Victim)
     local killer = tonumber(Killer)
-    if (killer > 0 and killer ~= victim) then
-        local v = players[GetIP(victim)]
-        local k = players[GetIP(killer)]
-        if (v and k) then
-            v.killer = k
-            v.start = time
-            v.finish = time() + v.grace
-        end
+    local v = players[victim]
+    local k = players[killer]
+    if (k and v and killer > 0 and killer ~= victim) then
+        v.killer = players[killer]
+        v.start = time
+        v.finish = time() + v.grace
     end
 end
 
