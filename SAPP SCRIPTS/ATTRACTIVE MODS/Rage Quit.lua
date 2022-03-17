@@ -30,7 +30,7 @@ api_version = "1.12.0.0"
 function OnScriptLoad()
     register_callback(cb['EVENT_DIE'], 'OnDie')
     register_callback(cb['EVENT_JOIN'], 'OnJoin')
-    register_callback(cb['EVENT_LEAVE'], 'OnQuit')
+    register_callback(cb['EVENT_LEAVE'], 'OnRage')
     register_callback(cb['EVENT_GAME_START'], 'OnStart')
     OnStart()
 end
@@ -39,15 +39,13 @@ function OnJoin(Ply)
     players[Ply] = { pid = Ply, name = get_var(Ply, '$name') }
 end
 
-function OnQuit(Ply)
+function OnRage(Ply)
     local t = players[Ply]
     players[Ply] = nil
-    if (t and t.killer) then
-        if (t.finish - t.start() > 0) then
-            local str = output
-            str = str:gsub('$name', t.name):gsub('$killer', t.killer.name)
-            say_all(str)
-        end
+    if (t.killer and t.finish - t.start() > 0) then
+        local str = output
+        str = str:gsub('$name', t.name):gsub('$killer', t.killer.name)
+        say_all(str)
     end
 end
 
