@@ -1,7 +1,7 @@
 --[[
 --====================================================================--
 Script Name: Rage Quit, for SAPP (PC & CE)
-Description: Announces a message when a player rage quits.
+Description: Announces a simple message when someone rage quits.
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -36,7 +36,7 @@ function OnScriptLoad()
 end
 
 function OnJoin(Ply)
-    players[Ply] = { pid = Ply, name = get_var(Ply, '$name') }
+    players[Ply] = { name = get_var(Ply, '$name') }
 end
 
 function OnRage(Ply)
@@ -68,7 +68,7 @@ function OnDie(Victim, Killer)
     local k = players[killer]
 
     if (k and v and killer > 0 and killer ~= victim) then
-        v.killer = players[killer]
+        v.killer = k
         v.start = time
         v.finish = time() + grace
     end
