@@ -4,26 +4,19 @@ Script Name: MVP Join Alerts, for SAPP (PC & CE)
 Description: This mod will automatically broadcast a special message when an MVP joins! 
              Each MVP can have a unique message!
 
+             Supports IP Addresses & Hashes
+
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
--- Config Starts ------------
-
--- This script temporarily removes the server prefix while broadcasting a message relay.
--- The prefix will be restored to this when the relay is finished (put your prefix here):
 local server_prefix = "**SAPP**"
 
-local MVPS = {
-
-    -- {IP or HASH, MESSAGE},
-
-    -- Example 1 (IP):
-    { "127.0.0.1", "YO! MVP %name% has joined the server!" },
-    -- Example 2 (hash):
-    { "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", "YO! MVP %name% has joined the server!" },
+local MVP = {
+    ["127.0.0.1"] = "YO! MVP %name% has joined the server!",
+    ["xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"] = "A brother from another mother joined!"
 }
 
 -- Config Ends ------------
@@ -31,23 +24,25 @@ local MVPS = {
 api_version = "1.12.0.0"
 
 function OnScriptLoad()
-    register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
+    register_callback(cb["EVENT_JOIN"], "OnJoin")
 end
 
-function OnPlayerConnect(PlayerIndex)
-    local ip = get_var(PlayerIndex, "$ip"):match("%d+.%d+.%d+.%d+")
-    local hash = get_var(PlayerIndex, "hash")
-    for k, v in pairs(MVPS) do
-        if (k) and (v[1] == ip or v[1] == hash) then
-            local name = get_var(PlayerIndex, "$name")
-            local message = string.gsub(v[2], "%%name%%", name)
+function OnJoin(Ply)
+
+    local ip = get_var(Ply, "$ip"):match("%d+.%d+.%d+.%d+")
+    local hash = get_var(Ply, "hash")
+
+    for k, v in pairs(MVP) do
+        if (k == ip or k == hash) then
+            local name = get_var(Ply, "$name")
+            local str = v:gsub("$name", name)
             execute_command("msg_prefix \"\"")
-            say_all(message)
+            say_all(str)
             execute_command("msg_prefix \" " .. server_prefix .. "\" ")
         end
     end
 end
 
 function OnScriptUnload()
-
+    -- N/A
 end
