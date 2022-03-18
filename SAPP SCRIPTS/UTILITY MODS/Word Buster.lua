@@ -4,7 +4,7 @@
 api_version = '1.12.0.0'
 
 local json = loadfile('./WordBuster/Utilities/Json.lua')()
-local settings = loadfile('./WordBuster/settings.lua')()
+local settings = require('./WordBuster/settings')
 settings.words = {}
 
 local Grace = require('./WordBuster/Utilities.Grace')

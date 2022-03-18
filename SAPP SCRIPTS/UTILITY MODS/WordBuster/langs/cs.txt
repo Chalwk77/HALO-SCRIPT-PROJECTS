@@ -1,7 +1,7 @@
 bordel
 buzna
-čumět
-čurák
+chcanky
+chuj
 debil
 do piče
 do prdele
@@ -10,8 +10,6 @@ držka
 flundra
 hajzl
 hovno
-chcanky
-chuj
 jebat
 kokot
 kokotina
@@ -21,18 +19,20 @@ mamrd
 mrdat
 mrdka
 mrdník
-piča
-píčus
-píchat
 pizda
+piča
 prcat
 prdel
 prdelka
+píchat
+píčus
 sračka
 srát
-šoustat
-šulin
 zkurvit
 zkurvysyn
 zmrd
+čumět
+čurák
+šoustat
+šulin
 žrát
