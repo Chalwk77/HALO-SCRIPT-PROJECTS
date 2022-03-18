@@ -1,8 +1,6 @@
 bugren
 bugri
 bugru
-ĉiesulino
-ĉiesulo
 diofek
 diofeka
 fek
@@ -15,9 +13,9 @@ fikado
 fikema
 fikfek
 fiki
+fikilo
 fikiĝi
 fikiĝu
-fikilo
 fikklaŭno
 fikota
 fiku
@@ -35,3 +33,5 @@ kojono
 piĉen
 piĉo
 zamenfek
+ĉiesulino
+ĉiesulo

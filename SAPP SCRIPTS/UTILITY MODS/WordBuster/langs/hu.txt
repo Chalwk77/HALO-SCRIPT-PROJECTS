@@ -41,7 +41,6 @@ geciket
 gecit
 kibaszott
 kibaszottabb
-kúr
 kurafi
 kurafik
 kurafikat
@@ -50,6 +49,7 @@ kurva
 kurvák
 kurvákat
 kurvát
+kúr
 leggecibb
 legkibaszottabb
 legszarabb
@@ -70,12 +70,12 @@ pinát
 pofa
 pofákat
 pofát
+punci
+puncik
 pöcs
 pöcsök
 pöcsöket
 pöcsöt
-punci
-puncik
 segg
 seggek
 seggeket

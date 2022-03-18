@@ -1,7 +1,4 @@
 am
-amcığa
-amcığı
-amcığın
 amcık
 amcıklar
 amcıklara
@@ -11,20 +8,11 @@ amcıkları
 amcıkların
 amcıkta
 amcıktan
-amı
+amcığa
+amcığı
+amcığın
 amlar
-çingene
-Çingenede
-Çingeneden
-Çingeneler
-Çingenelerde
-Çingenelerden
-Çingenelere
-Çingeneleri
-Çingenelerin
-Çingenenin
-Çingeneye
-Çingeneyi
+amı
 göt
 göte
 götler
@@ -35,8 +23,6 @@ götleri
 götlerin
 götte
 götten
-götü
-götün
 götveren
 götverende
 götverenden
@@ -49,9 +35,8 @@ götverenlerden
 götverenlere
 götverenleri
 götverenlerin
-kaltağa
-kaltağı
-kaltağın
+götü
+götün
 kaltak
 kaltaklar
 kaltaklara
@@ -61,6 +46,9 @@ kaltakları
 kaltakların
 kaltakta
 kaltaktan
+kaltağa
+kaltağı
+kaltağın
 orospu
 orospuda
 orospudan
@@ -97,7 +85,6 @@ saksocuların
 saksocunun
 saksocuya
 saksocuyu
-sıçmak
 sik
 sike
 siker sikmez
@@ -116,9 +103,7 @@ sikte
 sikten
 siktir
 siktirir siktirmez
-taşağa
-taşağı
-taşağın
+sıçmak
 taşak
 taşaklar
 taşaklara
@@ -128,9 +113,9 @@ taşakları
 taşakların
 taşakta
 taşaktan
-yarağa
-yarağı
-yarağın
+taşağa
+taşağı
+taşağın
 yarak
 yaraklar
 yaraklara
@@ -140,3 +125,18 @@ yarakları
 yarakların
 yarakta
 yaraktan
+yarağa
+yarağı
+yarağın
+Çingenede
+Çingeneden
+Çingeneler
+Çingenelerde
+Çingenelerden
+Çingenelere
+Çingeneleri
+Çingenelerin
+Çingenenin
+Çingeneye
+Çingeneyi
+çingene
