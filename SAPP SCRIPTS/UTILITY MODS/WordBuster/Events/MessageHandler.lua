@@ -13,35 +13,51 @@ local MessageHandler = {
     end
 }
 
+function MessageHandler:FormatNotify(name, word, pattern, lang)
+    local msg = self.settings.notify_console_format
+    if (self.settings.notify_console) then
+        msg = msg              :gsub('$name', name):
+        gsub('$word', word)    :
+        gsub('$regex', pattern):
+        gsub('$lang', lang)
+        cprint(msg, 12)
+    end
+end
+
 function MessageHandler:OnSend(Ply, Msg)
 
     local words = self.settings.words
-
     local id = get_var(Ply, '$ip')
     local name = get_var(Ply, '$name')
     local word = Msg:lower():gsub('(.*)', ' %1 ')
 
     for i = 1, #words do
 
-        local regex = words[i]
-        if (word:match('[^%a]' .. regex .. '[^%a]')) then
+        local regex = words[i].regex
+        local lang = words[i].language
 
-            self:NewInfraction(id, name)
+        for j = 1, #regex do
+            if (word:match('[^%a]' .. regex[j] .. '[^%a]')) then
 
-            if (self.infractions[id].warnings == self.settings.warnings) then
-                rprint(Ply, self.settings.last_warning)
-            elseif (self.infractions[id].warnings > self.settings.warnings) then
-                if (self.settings.punishment == 'kick') then
-                    self.kick(Ply, self.settings)
-                elseif (self.settings.punishment == 'ban') then
-                    self.ban(Ply, self.settings)
+                word = words[i].word
+                self:FormatNotify(name, word, regex[j], lang)
+                self:NewInfraction(id, name)
+
+                if (self.infractions[id].warnings == self.settings.warnings) then
+                    rprint(Ply, self.settings.last_warning)
+                elseif (self.infractions[id].warnings > self.settings.warnings) then
+                    if (self.settings.punishment == 'kick') then
+                        self.kick(Ply, self.settings)
+                    elseif (self.settings.punishment == 'ban') then
+                        self.ban(Ply, self.settings)
+                    end
+                    self.infractions[id] = nil
+                else
+                    rprint(Ply, self.settings.notify_text)
                 end
-                self.infractions[id] = nil
-            else
-                rprint(Ply, self.settings.notify_text)
+                self.write(self.infractions)
+                break
             end
-            self.write(self.infractions)
-            break
         end
     end
 end
