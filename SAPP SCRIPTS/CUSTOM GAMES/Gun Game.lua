@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Gun Game (v1.5), for SAPP (PC & CE)
+Script Name: Gun Game (v1.6), for SAPP (PC & CE)
 Description: A simple progression based game inspired by Call of Duty's Gun Game mode.
              Every kill rewards the player with a new weapon.
              The first player to reach the last weapon with 10 kills wins.
@@ -196,7 +196,9 @@ function OnStart()
 
         for i = 1, #GunGame.levels do
             for k, v in pairs(GunGame.levels[i]) do
-                GunGame.levels[i][k][1] = GetTag('weap', v[1])
+                if (v and v[1]) then
+                    GunGame.levels[i][k][1] = GetTag('weap', v[1])
+                end
             end
         end
 
