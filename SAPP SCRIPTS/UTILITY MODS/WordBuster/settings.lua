@@ -61,20 +61,18 @@ return {
     ignore_commands = true,
 
 
-    -- Commands:
-    -- Remove the command name to disable it.
+    -- Commands files:
+    -- Set to false to disable command.
     --
-    -- However, do not change the command name here.
-    -- Do that in in the command file (see below): "/WordBuster/Commands/command_name" -> name property.
+    -- The command name itself can be edited in "/WordBuster/Commands/<file name>".
+    -- Look for the name property.
     --
     commands = {
-        'wb_langs',
-        'wb_add_word',
-        'wb_add_word',
-        'wb_add_word',
-        'wb_del_word',
-        'wb_enable_lang',
-        'wb_disable_lang'
+        ['wb_langs'] = true,
+        ['wb_add_word'] = true,
+        ['wb_del_word'] = true,
+        ['wb_enable_lang'] = true,
+        ['wb_disable_lang'] = true,
     },
 
 

@@ -33,7 +33,7 @@ local function ReadFile(dir)
 end
 
 local function LoadInfractions()
-    local dir = settings.infractions_directory
+	local dir = settings.infractions_directory
     local content = ReadFile(dir)
     local data = json:decode(content)
     if (not data) then
@@ -61,15 +61,17 @@ end
 
 local function LoadCommands(mt)
     local path = './WordBuster/Commands/'
-    for _, file in pairs(settings.commands) do
-        local command = require(path .. file)
-        local cmd = command.name
-        cmds[cmd] = command
-        cmds[cmd].help = command.help:gsub('$cmd', cmd)
-        cmds[cmd].no_perm = command.no_perm:gsub('$lvl', command.admin_level)
-        cmds[cmd].ReloadLangs = files['BadWords']
-        cmds[cmd].permission = HasPermission
-        setmetatable(cmds[cmd], mt)
+    for file, enabled in pairs(settings.commands) do
+        if (enabled) then
+            local command = require(path .. file)
+            local cmd = command.name
+            cmds[cmd] = command
+            cmds[cmd].help = command.help:gsub('$cmd', cmd)
+            cmds[cmd].no_perm = command.no_perm:gsub('$lvl', command.admin_level)
+            cmds[cmd].ReloadLangs = files['BadWords']
+            cmds[cmd].permission = HasPermission
+            setmetatable(cmds[cmd], mt)
+        end
     end
 end
 
