@@ -23,8 +23,8 @@ local AUTHOR_NOTE = "-[ JSON.lua package by Jeffrey Friedl (http://regex.info/bl
 -- included in OBJDEF below mostly to quiet warnings about unused variables.
 --
 local OBJDEF = {
-   VERSION = VERSION,
-   AUTHOR_NOTE = AUTHOR_NOTE,
+    VERSION = VERSION,
+    AUTHOR_NOTE = AUTHOR_NOTE,
 }
 
 
@@ -599,20 +599,20 @@ local default_pretty_indent = "  "
 local default_pretty_options = { pretty = true, indent = default_pretty_indent, align_keys = false, array_newline = false }
 
 local isArray = { __tostring = function()
-   return "JSON array"
+    return "JSON array"
 end }
 isArray.__index = isArray
 local isObject = { __tostring = function()
-   return "JSON object"
+    return "JSON object"
 end }
 isObject.__index = isObject
 
 function OBJDEF:newArray(tbl)
-   return setmetatable(tbl or {}, isArray)
+    return setmetatable(tbl or {}, isArray)
 end
 
 function OBJDEF:newObject(tbl)
-   return setmetatable(tbl or {}, isObject)
+    return setmetatable(tbl or {}, isObject)
 end
 
 
@@ -623,43 +623,43 @@ local function getnum(op)
 end
 
 local isNumber = {
-   __tostring = function(T)
-      return T.S
-   end,
-   __unm = function(op)
-      return getnum(op)
-   end,
+    __tostring = function(T)
+        return T.S
+    end,
+    __unm = function(op)
+        return getnum(op)
+    end,
 
-   __concat = function(op1, op2)
-      return tostring(op1) .. tostring(op2)
-   end,
-   __add = function(op1, op2)
-      return getnum(op1) + getnum(op2)
-   end,
-   __sub = function(op1, op2)
-      return getnum(op1) - getnum(op2)
-   end,
-   __mul = function(op1, op2)
-      return getnum(op1) * getnum(op2)
-   end,
-   __div = function(op1, op2)
-      return getnum(op1) / getnum(op2)
-   end,
-   __mod = function(op1, op2)
-      return getnum(op1) % getnum(op2)
-   end,
-   __pow = function(op1, op2)
-      return getnum(op1) ^ getnum(op2)
-   end,
-   __lt = function(op1, op2)
-      return getnum(op1) < getnum(op2)
-   end,
-   __eq = function(op1, op2)
-      return getnum(op1) == getnum(op2)
-   end,
-   __le = function(op1, op2)
-      return getnum(op1) <= getnum(op2)
-   end,
+    __concat = function(op1, op2)
+        return tostring(op1) .. tostring(op2)
+    end,
+    __add = function(op1, op2)
+        return getnum(op1) + getnum(op2)
+    end,
+    __sub = function(op1, op2)
+        return getnum(op1) - getnum(op2)
+    end,
+    __mul = function(op1, op2)
+        return getnum(op1) * getnum(op2)
+    end,
+    __div = function(op1, op2)
+        return getnum(op1) / getnum(op2)
+    end,
+    __mod = function(op1, op2)
+        return getnum(op1) % getnum(op2)
+    end,
+    __pow = function(op1, op2)
+        return getnum(op1) ^ getnum(op2)
+    end,
+    __lt = function(op1, op2)
+        return getnum(op1) < getnum(op2)
+    end,
+    __eq = function(op1, op2)
+        return getnum(op1) == getnum(op2)
+    end,
+    __le = function(op1, op2)
+        return getnum(op1) <= getnum(op2)
+    end,
 }
 isNumber.__index = isNumber
 
@@ -742,55 +742,55 @@ local function unicode_codepoint_as_utf8(codepoint)
       --
       -- 110yyyxx 10xxxxxx         <-- useful notation from http://en.wikipedia.org/wiki/Utf8
       --
-      local highpart = math.floor(codepoint / 0x40)
-      local lowpart = codepoint - (0x40 * highpart)
+       local highpart = math.floor(codepoint / 0x40)
+       local lowpart = codepoint - (0x40 * highpart)
       return string.char(0xC0 + highpart,
               0x80 + lowpart)
 
    elseif codepoint <= 65535 then
-      --
-      -- 1110yyyy 10yyyyxx 10xxxxxx
-      --
-      local highpart = math.floor(codepoint / 0x1000)
-      local remainder = codepoint - 0x1000 * highpart
-      local midpart = math.floor(remainder / 0x40)
-      local lowpart = remainder - 0x40 * midpart
+       --
+       -- 1110yyyy 10yyyyxx 10xxxxxx
+       --
+       local highpart = math.floor(codepoint / 0x1000)
+       local remainder = codepoint - 0x1000 * highpart
+       local midpart = math.floor(remainder / 0x40)
+       local lowpart = remainder - 0x40 * midpart
 
-      highpart = 0xE0 + highpart
-      midpart = 0x80 + midpart
-      lowpart = 0x80 + lowpart
+       highpart = 0xE0 + highpart
+       midpart = 0x80 + midpart
+       lowpart = 0x80 + lowpart
 
-      --
-      -- Check for an invalid character (thanks Andy R. at Adobe).
-      -- See table 3.7, page 93, in http://www.unicode.org/versions/Unicode5.2.0/ch03.pdf#G28070
-      --
-      if (highpart == 0xE0 and midpart < 0xA0) or
-              (highpart == 0xED and midpart > 0x9F) or
-              (highpart == 0xF0 and midpart < 0x90) or
-              (highpart == 0xF4 and midpart > 0x8F)
-      then
-         return "?"
-      else
-         return string.char(highpart,
-                 midpart,
-                 lowpart)
-      end
+       --
+       -- Check for an invalid character (thanks Andy R. at Adobe).
+       -- See table 3.7, page 93, in http://www.unicode.org/versions/Unicode5.2.0/ch03.pdf#G28070
+       --
+       if (highpart == 0xE0 and midpart < 0xA0) or
+               (highpart == 0xED and midpart > 0x9F) or
+               (highpart == 0xF0 and midpart < 0x90) or
+               (highpart == 0xF4 and midpart > 0x8F)
+       then
+           return "?"
+       else
+           return string.char(highpart,
+                   midpart,
+                   lowpart)
+       end
 
    else
-      --
-      -- 11110zzz 10zzyyyy 10yyyyxx 10xxxxxx
-      --
-      local highpart = math.floor(codepoint / 0x40000)
-      local remainder = codepoint - 0x40000 * highpart
-      local midA = math.floor(remainder / 0x1000)
-      remainder = remainder - 0x1000 * midA
-      local midB = math.floor(remainder / 0x40)
-      local lowpart = remainder - 0x40 * midB
+       --
+       -- 11110zzz 10zzyyyy 10yyyyxx 10xxxxxx
+       --
+       local highpart = math.floor(codepoint / 0x40000)
+       local remainder = codepoint - 0x40000 * highpart
+       local midA = math.floor(remainder / 0x1000)
+       remainder = remainder - 0x1000 * midA
+       local midB = math.floor(remainder / 0x40)
+       local lowpart = remainder - 0x40 * midB
 
-      return string.char(0xF0 + highpart,
-              0x80 + midA,
-              0x80 + midB,
-              0x80 + lowpart)
+       return string.char(0xF0 + highpart,
+               0x80 + midA,
+               0x80 + midB,
+               0x80 + lowpart)
    end
 end
 
@@ -815,7 +815,7 @@ function OBJDEF:onDecodeError(message, text, location, etc)
 end
 
 function OBJDEF:onTrailingGarbage(json_text, location, parsed_value, etc)
-   return self:onDecodeError("trailing garbage", json_text, location, etc)
+    return self:onDecodeError("trailing garbage", json_text, location, etc)
 end
 
 OBJDEF.onDecodeOfNilError = OBJDEF.onDecodeError
@@ -928,16 +928,16 @@ end
 
 local function grok_string(self, text, start, options)
 
-   if text:sub(start, start) ~= '"' then
-      self:onDecodeError("expected string's opening quote", text, start, options.etc)
-      return nil, start -- in case the error method doesn't abort, return something sensible
-   end
+    if text:sub(start, start) ~= '"' then
+        self:onDecodeError("expected string's opening quote", text, start, options.etc)
+        return nil, start -- in case the error method doesn't abort, return something sensible
+    end
 
    local i = start + 1 -- +1 to bypass the initial quote
    local text_len = text:len()
    local VALUE = ""
    while i <= text_len do
-      local c = text:sub(i, i)
+       local c = text:sub(i, i)
       if c == '"' then
          return VALUE, i + 1
       end
@@ -1006,18 +1006,18 @@ local grok_one -- assigned later
 
 local function grok_object(self, text, start, options)
 
-   if text:sub(start, start) ~= '{' then
-      self:onDecodeError("expected '{'", text, start, options.etc)
-      return nil, start -- in case the error method doesn't abort, return something sensible
-   end
+    if text:sub(start, start) ~= '{' then
+        self:onDecodeError("expected '{'", text, start, options.etc)
+        return nil, start -- in case the error method doesn't abort, return something sensible
+    end
 
    local i = skip_whitespace(text, start + 1) -- +1 to skip the '{'
 
    local VALUE = self.strictTypes and self:newObject { } or { }
 
-   if text:sub(i, i) == '}' then
-      return VALUE, i + 1
-   end
+    if text:sub(i, i) == '}' then
+        return VALUE, i + 1
+    end
    local text_len = text:len()
    while i <= text_len do
       local key, new_i = grok_string(self, text, i, options)
@@ -1040,7 +1040,7 @@ local function grok_object(self, text, start, options)
       --
       i = skip_whitespace(text, new_i)
 
-      local c = text:sub(i, i)
+       local c = text:sub(i, i)
 
       if c == '}' then
          return VALUE, i + 1
@@ -1059,16 +1059,16 @@ local function grok_object(self, text, start, options)
 end
 
 local function grok_array(self, text, start, options)
-   if text:sub(start, start) ~= '[' then
-      self:onDecodeError("expected '['", text, start, options.etc)
-      return nil, start -- in case the error method doesn't abort, return something sensible
-   end
+    if text:sub(start, start) ~= '[' then
+        self:onDecodeError("expected '['", text, start, options.etc)
+        return nil, start -- in case the error method doesn't abort, return something sensible
+    end
 
    local i = skip_whitespace(text, start + 1) -- +1 to skip the '['
    local VALUE = self.strictTypes and self:newArray { } or { }
-   if text:sub(i, i) == ']' then
-      return VALUE, i + 1
-   end
+    if text:sub(i, i) == ']' then
+        return VALUE, i + 1
+    end
 
    local VALUE_INDEX = 1
 
@@ -1085,7 +1085,7 @@ local function grok_array(self, text, start, options)
       --
       -- Expect now either ']' to end things, or a ',' to allow us to continue.
       --
-      local c = text:sub(i, i)
+       local c = text:sub(i, i)
       if c == ']' then
          return VALUE, i + 1
       end
@@ -1187,11 +1187,11 @@ function OBJDEF:decode(text, etc, options)
    -- Those are perfectly valid encodings for JSON (as per RFC 4627 section 3),
    -- but this package can't handle them.
    --
-   if text:sub(1, 1):byte() == 0 or (text:len() >= 2 and text:sub(2, 2):byte() == 0) then
-      local error_message = "JSON package groks only UTF-8, sorry"
-      self:onDecodeError(error_message, text, nil, options.etc)
-      return nil, error_message -- in case the error method doesn't abort, return something sensible
-   end
+    if text:sub(1, 1):byte() == 0 or (text:len() >= 2 and text:sub(2, 2):byte() == 0) then
+        local error_message = "JSON package groks only UTF-8, sorry"
+        self:onDecodeError(error_message, text, nil, options.etc)
+        return nil, error_message -- in case the error method doesn't abort, return something sensible
+    end
 
    --
    -- apply global options
@@ -1279,15 +1279,15 @@ local chars_to_be_escaped_in_JSON_string = '['
 local LINE_SEPARATOR_as_utf8 = unicode_codepoint_as_utf8(0x2028)
 local PARAGRAPH_SEPARATOR_as_utf8 = unicode_codepoint_as_utf8(0x2029)
 local function json_string_literal(value, options)
-   local newval = value:gsub(chars_to_be_escaped_in_JSON_string, backslash_replacement_function)
-   if options.stringsAreUtf8 then
-      --
-      -- This feels really ugly to just look into a string for the sequence of bytes that we know to be a particular utf8 character,
-      -- but utf8 was designed purposefully to make this kind of thing possible. Still, feels dirty.
-      -- I'd rather decode the byte stream into a character stream, but it's not technically needed so
-      -- not technically worth it.
-      --
-      newval = newval:gsub(LINE_SEPARATOR_as_utf8, '\\u2028'):gsub(PARAGRAPH_SEPARATOR_as_utf8, '\\u2029')
+    local newval = value:gsub(chars_to_be_escaped_in_JSON_string, backslash_replacement_function)
+    if options.stringsAreUtf8 then
+        --
+        -- This feels really ugly to just look into a string for the sequence of bytes that we know to be a particular utf8 character,
+        -- but utf8 was designed purposefully to make this kind of thing possible. Still, feels dirty.
+        -- I'd rather decode the byte stream into a character stream, but it's not technically needed so
+        -- not technically worth it.
+        --
+        newval = newval:gsub(LINE_SEPARATOR_as_utf8, '\\u2028'):gsub(PARAGRAPH_SEPARATOR_as_utf8, '\\u2029')
    end
    return '"' .. newval .. '"'
 end
@@ -1367,7 +1367,7 @@ local function object_or_array(self, T, etc)
       for _, number_key in ipairs(number_keys) do
          local string_key = tostring(number_key)
          if map[string_key] == nil then
-            table.insert(string_keys, string_key)
+             table.insert(string_keys, string_key)
             map[string_key] = T[number_key]
          else
             self:onEncodeError("conflict converting table with mixed-type keys into a JSON object: key " .. number_key .. " exists both as a string and a number.", etc)
@@ -1504,7 +1504,7 @@ local function encode_value(self, value, parents, etc, options, indent, for_key)
          elseif options.pretty then
             result_value = "[ " .. table.concat(ITEMS, ", ") .. " ]"
          else
-            result_value = "[" .. table.concat(ITEMS, ",") .. "]"
+             result_value = "[" .. table.concat(ITEMS, ",") .. "]"
          end
 
       elseif object_keys then
@@ -1539,8 +1539,8 @@ local function encode_value(self, value, parents, etc, options, indent, for_key)
 
             local PARTS = { }
             for _, key in ipairs(object_keys) do
-               local encoded_val = encode_value(self, TT[key], parents, etc, options, indent)
-               local encoded_key = encode_value(self, tostring(key), parents, etc, options, indent, true)
+                local encoded_val = encode_value(self, TT[key], parents, etc, options, indent)
+                local encoded_key = encode_value(self, tostring(key), parents, etc, options, indent, true)
                table.insert(PARTS, string.format("%s:%s", encoded_key, encoded_val))
             end
             result_value = "{" .. table.concat(PARTS, ",") .. "}"

@@ -57,6 +57,27 @@ return {
     notify_console_format = '[INFRACTION] | $name | $word | $regex | $lang',
 
 
+    -- Ignore bad words in commands?
+    ignore_commands = true,
+
+
+    -- Commands:
+    -- Remove the command name to disable it.
+    --
+    -- However, do not change the command name here.
+    -- Do that in in the command file (see below): "/WordBuster/Commands/command_name" -> name property.
+    --
+    commands = {
+        'wb_langs',
+        'wb_add_word',
+        'wb_add_word',
+        'wb_add_word',
+        'wb_del_word',
+        'wb_enable_lang',
+        'wb_disable_lang'
+    },
+
+
     -- Languages:
     -- Which languages should be loaded?
     languages = {
