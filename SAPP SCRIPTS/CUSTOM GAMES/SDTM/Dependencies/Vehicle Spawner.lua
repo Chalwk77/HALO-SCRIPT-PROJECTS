@@ -31,21 +31,22 @@ local function SpawnVehicle(v)
 
     -- Store its memory address [number] in property v.object:
     v.object = get_object_memory(v.vehicle)
+
+    write_vector3d(v.object + 0x68, 0.0, 0.0, -0.015)
+    write_bit(v.object + 0x10, 5, 0)
 end
 
 -- Checks if a player is occupying a vehicle:
 -- @Param v, vehicle object table.
 -- @return Returns true if vehicle memory address equals v.object.
 --
-local function Occupied(v)
-    for i = 1, 16 do
-        if player_present(i) and player_alive(i) then
-            local DyN = get_dynamic_player(i)
-            if (DyN ~= 0) then
-                local VID = read_dword(DyN + 0x11C)
-                local OBJ = get_object_memory(VID)
-                return (OBJ ~= 0 and VID ~= 0xFFFFFFFF and OBJ == v.object)
-            end
+function SDTM:Occupied(o)
+    for i, _ in pairs(self.players) do
+        local DyN = get_dynamic_player(i)
+        if (player_alive(i) and DyN ~= 0) then
+            local vid = read_dword(DyN + 0x11C)
+            local obj = get_object_memory(vid)
+            return (obj ~= 0 and vid ~= 0xFFFFFFFF and obj == o)
         end
     end
     return false
@@ -63,7 +64,7 @@ function SDTM:RespawnVehicle()
 
             -- Check if vehicle is exists, is valid and isn't occupied:
             local object = get_object_memory(v.vehicle)
-            if (object ~= 0 and not Occupied(v)) then
+            if (object ~= 0 and not self:Occupied(v.object)) then
 
                 -- Get this vehicles x,y,z coordinates (three 32-bit floating point numbers):
                 local x, y, z = read_vector3d(object + 0x5C)
@@ -84,15 +85,15 @@ function SDTM:RespawnVehicle()
 end
 
 -- Called when a new game has started:
--- Loops through vehicle table: settings[map][vehicles][mode]
+-- Loops through vehicle table: SDTM[map][vehicles][mode]
 -- Pass vehicle table (v) to SpawnVehicle().
-function SDTM:Load()
-    local map = self.map
-    map = self.settings[map]
-    if (map and map.vehicles[self.mode]) then
-        self.objects = (map.vehicles[self.mode]) or nil
-        for _, v in pairs(self.objects) do
-            SpawnVehicle(v)
+function SDTM:LoadVehicles()
+    local map, mode = self.map, self.mode
+    map = self[map]
+    if (map and map.vehicles and map.vehicles[mode]) then
+        self.objects = map.vehicles[mode]
+        for _, t in pairs(self.objects) do
+            SpawnVehicle(t)
         end
     end
 end
