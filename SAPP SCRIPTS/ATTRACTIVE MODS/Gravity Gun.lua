@@ -30,7 +30,7 @@ local GravityGun = {
 
     -- Distance (in world units) a vehicle will be suspended in front of player:
     -- 1 w/unit = 10 feet or ~3.048 meters
-    distance = 1.5,
+    distance = 4.5,
     --
 
     -- vehicle velocities --
@@ -46,9 +46,9 @@ local GravityGun = {
 api_version = "1.12.0.0"
 
 local players = {}
-local tag_count, tag_address
 
 function OnScriptLoad()
+
     register_callback(cb["EVENT_TICK"], "OnTick")
     register_callback(cb["EVENT_JOIN"], "OnJoin")
     register_callback(cb["EVENT_LEAVE"], "OnQuit")
@@ -61,12 +61,7 @@ end
 
 function OnStart()
     if (get_var(0, "$gt") ~= "n/a") then
-
-        tag_count = read_dword(0x4044000C)
-        tag_address = read_dword(0x40440000)
-
         players = { }
-
         for i = 1, 16 do
             if player_present(i) then
                 OnJoin(i)
