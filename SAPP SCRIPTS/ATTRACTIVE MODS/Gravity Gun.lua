@@ -6,7 +6,7 @@ Description: A half-life implementation for Halo.
              * Pick up and throw vehicles at each other!
              * Works on all maps (including protected maps).
 
-             * To toggle Gravity Gun mode on or off, type /ggun [1/0, true/false, on/off].
+             * To toggle Gravity Gun mode on or off, type /ggun [1/0 or true/false or on/off].
              * Shoot a vehicle (once) to pick it up.
              * Shoot again to launch it!
 
@@ -70,16 +70,6 @@ function OnStart()
     end
 end
 
-function GravityGun:Shooting(dyn)
-    local shooting = read_float(dyn + 0x490)
-    if (shooting ~= self.shooting and shooting == 1) then
-        self.shooting = shooting
-        return true
-    end
-    self.shooting = shooting
-    return false
-end
-
 function GravityGun:NewPlayer(o)
 
     setmetatable(o, self)
@@ -89,6 +79,16 @@ function GravityGun:NewPlayer(o)
     o.enabled = false
 
     return o
+end
+
+function GravityGun:Shooting(dyn)
+    local shooting = read_float(dyn + 0x490)
+    if (shooting ~= self.shooting and shooting == 1) then
+        self.shooting = shooting
+        return true
+    end
+    self.shooting = shooting
+    return false
 end
 
 function GravityGun:Toggle(args)
