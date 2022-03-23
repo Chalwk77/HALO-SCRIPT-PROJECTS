@@ -51,7 +51,7 @@ local Tag = {
 
 
     -- Messages sent when someone is tagged:
-    on_tag = '$name was tagged by $tagger and is IT.',
+    on_tag = '$name was tagged by $tagger',
 
 
     -- Message sent when someone's turn is up and we select a new random tagger:
@@ -206,6 +206,7 @@ end
 function Tag:SetTagger(TaggerName)
 
     self.assign, tagger = true, self.pid
+    self.periodic_scoring = false -- stop periodic scoring
 
     self:NewTurnTime()
     self:SetSpeed()
@@ -230,6 +231,7 @@ end
 -- Timer variables used to periodically update runner score:
 function Tag:NewRunnerTime()
     self.runner_start = time
+    self.periodic_scoring = true
     self.runner_finish = time() + self.runner_time
 end
 
@@ -254,8 +256,10 @@ function Tag:SetNav()
     local player = get_player(self.pid)
     if (player and player_alive(self.pid)) then
         if (tagger and self.pid ~= tagger) then
+            self.periodic_scoring = true
             write_word(player + 0x88, to_real_index(tagger))
         else
+            self.periodic_scoring = false
             write_word(player + 0x88, to_real_index(self.pid))
         end
     end
@@ -394,12 +398,19 @@ function OnEnd()
     game_over = true
 end
 
+function Tag:GetRunnerTimer()
+    if (self.periodic_scoring and not self.runner_start) then
+        self:NewRunnerTime()
+    end
+end
+
 -- Called every 1/30th second:
 function OnTick()
     for i, v in pairs(players) do
 
         if (not game_over and player_alive(i)) then
 
+            v:GetRunnerTimer()
             v:AssignWeapons()
             v:SetNav()
 
@@ -407,7 +418,7 @@ function OnTick()
                 v:PickRandomTagger()
 
                 -- Update runner score periodically:
-            elseif (tagger and v.runner_start and v.runner_start() >= v.runner_finish) then
+            elseif (tagger and v.periodic_scoring and v.runner_start() >= v.runner_finish) then
                 v:NewRunnerTime()
                 v:UpdateScore(false, true) -- update runner points
             end
@@ -438,7 +449,7 @@ function OnDamage(Victim, Causer, MetaID)
 
                 k.assign = true -- trigger weapon assignment
                 k:UpdateScore() -- update current tagger score
-                k:NewRunnerTime() -- reset runner timer
+                k:NewRunnerTime() -- reset periodic scoring for this player
                 v:SetTagger(k.name) -- make victim the tagger
 
                 v.killer = killer -- keep track of the player who just killed you
@@ -450,7 +461,7 @@ function OnDamage(Victim, Causer, MetaID)
         -- event_die:
         --
 
-        v.runner_start = nil -- just in case
+        v.periodic_scoring = false -- just in case
         v:DeleteDrone() -- prevent weapon drop
         k:UpdateScore(true) -- prevent this kill from being counted towards score
 
