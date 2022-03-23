@@ -9,33 +9,22 @@ Description: Tag, you're it!
 1). This is a game involving two or more players.
     A game of tag is initiated by whacking a player. This player will become 'it' (the tagger).
 
-2). You will accumulate points as a runner.
+2). You will accumulate 5 points every 10 seconds as a runner.
     The score limit is 10,000 & taggers get a 1.5x speed boost.
 
 3). Tagging someone earns you 100 points.
     Runners cannot earn points for killing.
 
-4). Taggers will take turns being 'it', for a maximum of 60 seconds.
+4). Taggers will take turns being 'it', for a maximum of 60 seconds each.
 
 5). Taggers can only use an oddball (skull).
     Runners can only use a plasma pistol.
 
 
-    NOTES:
     This game mode is best played on medium & small maps:
-    . timberland
-    . bloodgulch
-    . damnation
-    . longest
-    . chillout
-    . carousel
-    . ratrace
-    . putput
-    . prisoner
-    . wizard
-    . beavercreek
-    . hangemhigh
-
+    timberland  bloodgulch  damnation  longest
+    chillout  carousel  ratrace  putput  prisoner
+    wizard  beavercreek  hangemhigh
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -91,11 +80,13 @@ local Tag = {
     runner_points = 5,
     runner_time = 10,
 
+
     -- Weapon assignments [tagger/runners]
     weapons = {
         'weapons\\ball\\ball', -- tagger weapon
         'weapons\\plasma rifle\\plasma rifle' -- runner weapon
     },
+
 
     -- Players can be tagged by any of these weapons:
     -- Set to 'false' to disable.
@@ -114,13 +105,16 @@ local Tag = {
         ['weapons\\plasma_cannon\\effects\\plasma_cannon_melee'] = true
     },
 
+
     -- Running speed (tagger & runner):
     -- Defaults: 1.5, & 1
     speed = { 1.5, 1 },
 
+
     -- A message relay function temporarily removes the server prefix
     -- and will restore it to this when the relay is finished:
     server_prefix = '**SAPP**',
+
 
     -- Disable object interaction:
     -- Set to false to allow interaction.
