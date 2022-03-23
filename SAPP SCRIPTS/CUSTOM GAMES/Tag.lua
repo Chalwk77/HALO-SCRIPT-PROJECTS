@@ -221,11 +221,13 @@ function Tag:SetTagger(TaggerName)
     self:Broadcast(msg)
 end
 
+-- Resets turn timer variables:
 function Tag:NewTurnTime()
     self.turn_start = time
     self.turn_finish = time() + self.turn_time
 end
 
+-- Timer variables used to periodically update runner score:
 function Tag:NewRunnerTime()
     self.runner_start = time
     self.runner_finish = time() + self.runner_time
@@ -243,6 +245,7 @@ function Tag:UpdateScore(Deduct, RunnerPoints)
     else
         score = score + self.runner_points -- update runner points
     end
+
     execute_command('score ' .. self.pid .. ' ' .. score)
 end
 
@@ -283,34 +286,47 @@ end
 
 -- Sends a server-wide message:
 -- * Temporarily removes the server prefix.
+-- @Params msg (message string)
 function Tag:Broadcast(msg)
     execute_command('msg_prefix ""')
     say_all(msg)
     execute_command('msg_prefix  "' .. self.server_prefix .. '"')
 end
 
--- Destroys the players weapon:
+-- Destroy the players weapon:
+-- @Param Assign [boolean], true if we need to trigger weapon a assignment.
 function Tag:DeleteDrone(Assign)
     destroy_object(self.drone)
     self.assign = Assign
 end
 
+-- Weapon assignment logic:
 function Tag:AssignWeapons()
     if (self.assign) then
+
         self.assign = false
         execute_command_sequence('nades ' .. self.pid .. ' 0; wdel ' .. self.pid)
+
         local weapon = (tagger == self.pid and self.weapons[1]) or self.weapons[2]
         self.drone = spawn_object('weap', weapon, 0, 0, -9999)
+
         assign_weapon(self.drone, self.pid)
     end
 end
 
+-- Determines if enough players are online for a game of tag:
+-- @Param quit [boolean], true if we need to deduct 1 from n:
+-- SAPP var $pn does not update immediately after a player quits,
+-- so we have to deduct one manually.
 function Tag:EnoughPlayers(quit)
-    local n = tonumber(get_var(0, "$pn"))
+    local n = tonumber(get_var(0, '$pn'))
     n = (quit and n - 1 or n)
     return (n >= self.players_required)
 end
 
+-- Picks a random player to become the tagger.
+-- Excludes the previous tagger.
+-- @Param quit (boolean), true if we need to deduct 1 from n in EnoughPlayers().
 function Tag:PickRandomTagger(quit)
 
     if not self:EnoughPlayers(quit) then
@@ -320,6 +336,9 @@ function Tag:PickRandomTagger(quit)
         return
     end
 
+    -- Trigger weapon assignment for previous tagger:
+    self.assign = true
+
     -- set candidates:
     local t = {}
     for i = 1, #players do
@@ -328,6 +347,7 @@ function Tag:PickRandomTagger(quit)
         end
     end
 
+    -- Pick and set new tagger from t{}:
     if (#t > 0) then
         players[t[rand(1, #t + 1)]]:SetTagger()
     end
@@ -339,6 +359,7 @@ local function GameObjects(state)
     state = (state and 'enable_object') or 'disable_object'
     for k, v in pairs(Tag.objects) do
         if (v) then
+            -- enabled
             execute_command(state .. ' "' .. k .. '" 0')
         end
     end
@@ -348,10 +369,12 @@ end
 function OnStart()
     if (get_var(0, '$gt') ~= 'n/a') then
 
+        -- set up game tables:
         Tag:TagsToID()
         game_over = false
         players, tagger = {}, nil
 
+        -- disable game objects:
         GameObjects(false)
 
         -- Set the score limit:
@@ -366,6 +389,7 @@ function OnStart()
     end
 end
 
+-- Called when the game has ended:
 function OnEnd()
     game_over = true
 end
@@ -381,7 +405,6 @@ function OnTick()
 
             if (v:IsTagger() and v.turn_start() >= v.turn_finish) then
                 v:PickRandomTagger()
-                v.assign = true
 
                 -- Update runner score periodically:
             elseif (tagger and v.runner_start and v.runner_start() >= v.runner_finish) then
@@ -454,10 +477,8 @@ function OnQuit(Ply)
     local t = players[Ply]
 
     -- Pick a random player to be the tagger:
-    if (not game_over) then
-        if (t.new_tagger_on_quit and t:IsTagger()) then
-            t:PickRandomTagger(true)
-        end
+    if (not game_over and t.new_tagger_on_quit and t:IsTagger()) then
+        t:PickRandomTagger(true)
     end
 
     t:DeleteDrone() -- delete their dropped weapon
