@@ -52,7 +52,7 @@ local Tag = {
 
     -- Tag turn timer (in seconds):
     -- Default: 60
-    turn_time = 2,
+    turn_time = 60,
 
 
     -- Min players required to start a game of tag:
