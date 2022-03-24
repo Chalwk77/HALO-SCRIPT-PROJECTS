@@ -17,7 +17,7 @@ If the turn time lapses before they tag someone, a new random player will be cho
 - You will accumulate 5 points every 10 seconds as a runner.
 - The score limit is 10,000.
 - Taggers get a 1.5x speed boost, runners have normal speed.
-- Tagging someone earns you 100 points.
+- Tagging someone earns you 500 points.
 - Runners cannot earn points for killing.
 
 - This game mode is best played on medium & small maps:
@@ -40,8 +40,8 @@ local Tag = {
 
 
     -- Points awarded for tagging someone:
-    -- Default: 100
-    points_on_tag = 100,
+    -- Default: 500
+    points_on_tag = 500,
 
 
     -- Runners will accumulate 5 points every 10 seconds while a game of tag is in play:
@@ -98,6 +98,7 @@ local players = {}
 local time = os.time
 local tagger, game_over
 local tagger_weapon_meta_id
+local runner_weapon_meta_id
 local tagger_weapon, runner_weapon
 
 -- Object interaction with these tags will be disabled:
@@ -170,6 +171,18 @@ function Tag:SetSpeed(last_man)
     end
 end
 
+local function SetPeriodicTimers()
+    for i, v in pairs(players) do
+        if (i == tagger) then
+            v.periodic_scoring = false
+
+            -- only do this if it's not already set:
+        elseif (not v.periodic_scoring) then
+            v:NewRunnerTime()
+        end
+    end
+end
+
 -- Sets the tagger:
 -- @Param TaggerName (name of the person who just tagged someone) [string]
 function Tag:SetTagger(TaggerName)
@@ -181,10 +194,12 @@ function Tag:SetTagger(TaggerName)
     self:NewTurnTime()
     self:SetSpeed()
 
+    SetPeriodicTimers()
+
     if (TaggerName) then
 
         local t_msg = self.on_tag[1]
-        local to_tagger = t_msg:gsub('$name', self.name)
+        local to_tagger = t_msg:gsub('$name', TaggerName)
 
         local r_msg = self.on_tag[2]
         local to_runner = r_msg:gsub('$name', self.name):gsub('$tagger', TaggerName)
@@ -340,11 +355,13 @@ end
 function OnStart()
     if (get_var(0, '$gt') ~= 'n/a') then
 
-        -- set up game tables:
         tagger_weapon_meta_id = GetTag('jpt!', 'weapons\\ball\\melee')
+        runner_weapon_meta_id = GetTag('jpt!', 'weapons\\plasma rifle\\melee')
+
         tagger_weapon = GetTag('weap', 'weapons\\ball\\ball')
         runner_weapon = GetTag('weap', 'weapons\\plasma rifle\\plasma rifle')
 
+        -- set up game tables:
         game_over = false
         players, tagger = {}, nil
 
@@ -391,18 +408,6 @@ function OnTick()
     end
 end
 
-local function SetPeriodicTimers()
-    for i, v in pairs(players) do
-        if (i == tagger) then
-            v.periodic_scoring = false
-
-            -- only do this if it's not already set:
-        elseif (not v.periodic_scoring) then
-            v:NewRunnerTime()
-        end
-    end
-end
-
 -- Called when a player receives damage or is killed:
 -- @Param Victim (victim id) [number]
 -- @Param Causer (killer id) [number]
@@ -422,7 +427,12 @@ function OnDamage(Victim, Causer, MetaID)
         --
         if (MetaID) then
 
-            local case1 = (not tagger or k:IsTagger())
+            -- Prevent runners from attacking each other:
+            if (tagger and not k:IsTagger() and not v:IsTagger()) then
+                return false
+            end
+
+            local case1 = (not tagger and MetaID == runner_weapon_meta_id or k:IsTagger())
             local case2 = (tagger and MetaID == tagger_weapon_meta_id)
 
             if (killer ~= victim) and (case1 or case2) then
@@ -433,8 +443,6 @@ function OnDamage(Victim, Causer, MetaID)
                 k:UpdateScore() -- update current tagger score
                 k:NewRunnerTime() -- reset periodic scoring for this player
                 v:SetTagger(k.name) -- make victim the tagger
-
-                SetPeriodicTimers()
             end
             return
         end
