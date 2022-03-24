@@ -3,17 +3,16 @@
 Script Name: Tag, for SAPP (PC & CE)
 Description: Tag, you're it!
 
+This is a game involving two or more players.
+An initial game of tag is started by whacking a player.
+This player will become 'it' (the tagger).
+Their turn ends when they tag their first victim or their turn time is up;
+If the turn time lapses before they tag someone, a new random player will be chosen to be the new tagger.
+
 ** FEATURES **
 
-- This is a game involving two or more players.
-  An initial game of tag is started by whacking a player.
-  This player will become 'it' (the tagger).
-  Their turn ends when they tag their first victim or their turn time is up;
-  If the turn time lapses before they tag someone,
-  a random player (excluding the current tagger) will be chosen to be the new tagger.
-
 - All runners have plasma rifles and the taggers have an oddball.
-  The plasma rifle was a design choice not a random decision, as it slows down the tagger when shot at.
+  The plasma rifle was a design choice, not a random decision, as it slows down the tagger when shot at.
 
 - You will accumulate 5 points every 10 seconds as a runner.
 - The score limit is 10,000.
@@ -169,12 +168,6 @@ function Tag:SetSpeed(last_man)
             execute_command('s ' .. i .. ' ' .. v.speed[2])
         end
     end
-end
-
-local function GetMessage(msg, name, t_name)
-    t_name = t_name or ''
-    msg = msg:gsub('$name', name):gsub('$tagger', t_name)
-    return msg
 end
 
 -- Sets the tagger:
@@ -409,7 +402,6 @@ local function SetPeriodicTimers()
         end
     end
 end
-
 
 -- Called when a player receives damage or is killed:
 -- @Param Victim (victim id) [number]
