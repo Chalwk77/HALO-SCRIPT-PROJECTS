@@ -3,28 +3,28 @@
 Script Name: Tag, for SAPP (PC & CE)
 Description: Tag, you're it!
 
-------------------
-**** FEATURES ****
-------------------
-1). This is a game involving two or more players.
-    A game of tag is initiated by whacking a player. This player will become 'it' (the tagger).
+** FEATURES **
 
-2). You will accumulate 5 points every 10 seconds as a runner.
-    The score limit is 10,000 & taggers get a 1.5x speed boost.
+- This is a game involving two or more players.
+  An initial game of tag is started by whacking a player.
+  This player will become 'it' (the tagger).
+  Their turn ends when they tag their first victim or their turn time is up;
+  If the turn time lapses before they tag someone,
+  a random player (excluding the current tagger) will be chosen to be the new tagger.
 
-3). Tagging someone earns you 100 points.
-    Runners cannot earn points for killing.
+- All runners have plasma rifles and the taggers have an oddball.
+  The plasma rifle was a design choice not a random decision, as it slows down the tagger when shot at.
 
-4). Taggers will take turns being 'it', for a maximum of 60 seconds each.
+- You will accumulate 5 points every 10 seconds as a runner.
+- The score limit is 10,000.
+- Taggers get a 1.5x speed boost, runners have normal speed.
+- Tagging someone earns you 100 points.
+- Runners cannot earn points for killing.
 
-5). Taggers can only use an oddball (skull).
-    Runners can only use a plasma pistol.
-
-
-    This game mode is best played on medium & small maps:
-    timberland  bloodgulch  damnation  longest
-    chillout  carousel  ratrace  putput  prisoner
-    wizard  beavercreek  hangemhigh
+- This game mode is best played on medium & small maps:
+  timberland      bloodgulch      damnation   longest
+  chillout        carousel        ratrace     putput
+  prisoner        wizard          beavercreek hangemhigh
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -35,14 +35,25 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 -- config starts:
 local Tag = {
 
+    -- Game score limit:
+    -- Default: 10000
+    score_limit = 10000,
+
+
     -- Points awarded for tagging someone:
     -- Default: 100
     points_on_tag = 100,
 
 
+    -- Runners will accumulate 5 points every 10 seconds while a game of tag is in play:
+    -- Defaults: 5 & 10
+    runner_points = 5,
+    points_interval = 10,
+
+
     -- Tag turn timer (in seconds):
     -- Default: 60
-    turn_time = 60,
+    turn_time = 2,
 
 
     -- Min players required to start a game of tag:
@@ -50,8 +61,16 @@ local Tag = {
     players_required = 2,
 
 
+    -- Running speed (tagger & runner):
+    -- Defaults: 1.5, & 1
+    speed = { 1.5, 1 },
+
+
     -- Messages sent when someone is tagged:
-    on_tag = '$name was tagged by $tagger',
+    on_tag = {
+        "Tag, you're it! ($name got you)", -- tagger sees this message.
+        '$name was tagged by $tagger' -- everyone else will see this message.
+    },
 
 
     -- Message sent when someone's turn is up and we select a new random tagger:
@@ -70,94 +89,50 @@ local Tag = {
     new_tagger_on_death = false,
 
 
-    -- Game score limit:
-    -- Default: 10000
-    score_limit = 10000,
-
-
-    -- Runners will accumulate 5 points every 10 seconds while a game of tag is in play:
-    -- Defaults: 5 & 10
-    runner_points = 5,
-    runner_time = 10,
-
-
-    -- Weapon assignments [tagger/runners]
-    weapons = {
-        'weapons\\ball\\ball', -- tagger weapon
-        'weapons\\plasma rifle\\plasma rifle' -- runner weapon
-    },
-
-
-    -- Players can be tagged by any of these weapons:
-    -- Set to 'false' to disable.
-    melee_tags = {
-        ['weapons\\flag\\melee'] = true,
-        ['weapons\\ball\\melee'] = true,
-        ['weapons\\pistol\\melee'] = true,
-        ['weapons\\needler\\melee'] = true,
-        ['weapons\\shotgun\\melee'] = true,
-        ['weapons\\flamethrower\\melee'] = true,
-        ['weapons\\sniper rifle\\melee'] = true,
-        ['weapons\\plasma rifle\\melee'] = true,
-        ['weapons\\plasma pistol\\melee'] = true,
-        ['weapons\\assault rifle\\melee'] = true,
-        ['weapons\\rocket launcher\\melee'] = true,
-        ['weapons\\plasma_cannon\\effects\\plasma_cannon_melee'] = true
-    },
-
-
-    -- Running speed (tagger & runner):
-    -- Defaults: 1.5, & 1
-    speed = { 1.5, 1 },
-
-
     -- A message relay function temporarily removes the server prefix
     -- and will restore it to this when the relay is finished:
-    server_prefix = '**SAPP**',
-
-
-    -- Disable object interaction:
-    -- Set to false to allow interaction.
-    -- Note: Do not disable the runner object.
-    --
-    objects = {
-
-        -- equipment:
-        ['powerups\\health pack'] = false,
-        ['powerups\\over shield'] = false,
-        ['powerups\\active camouflage'] = false,
-        ['weapons\\frag grenade\\frag grenade'] = true,
-        ['weapons\\plasma grenade\\plasma grenade'] = true,
-
-        -- vehicles:
-        ['vehicles\\ghost\\ghost_mp'] = true,
-        ['vehicles\\rwarthog\\rwarthog'] = true,
-        ['vehicles\\banshee\\banshee_mp'] = true,
-        ['vehicles\\warthog\\mp_warthog'] = true,
-        ['vehicles\\scorpion\\scorpion_mp'] = true,
-        ['vehicles\\c gun turret\\c gun turret_mp'] = true,
-
-        -- weapons:
-        ['weapons\\ball\\ball'] = true,
-        ['weapons\\flag\\flag'] = true,
-        ['weapons\\pistol\\pistol'] = true,
-        ['weapons\\shotgun\\shotgun'] = true,
-        ['weapons\\needler\\mp_needler'] = true,
-        ['weapons\\flamethrower\\flamethrower'] = true,
-        ['weapons\\plasma rifle\\plasma rifle'] = false, -- runner object
-        ['weapons\\sniper rifle\\sniper rifle'] = true,
-        ['weapons\\plasma pistol\\plasma pistol'] = true,
-        ['weapons\\plasma_cannon\\plasma_cannon'] = true,
-        ['weapons\\assault rifle\\assault rifle'] = true,
-        ['weapons\\rocket launcher\\rocket launcher'] = true
-    }
+    server_prefix = '**SAPP**'
 }
 -- config ends
 
-local tagger
-local game_over
 local players = {}
 local time = os.time
+local tagger, game_over
+local tagger_weapon_meta_id
+local tagger_weapon, runner_weapon
+
+-- Object interaction with these tags will be disabled:
+local objects = {
+
+    -- allow interaction with these objects:
+    --'powerups\\health pack',
+    --'powerups\\over shield',
+    --'powerups\\active camouflage',
+
+    -- block interaction with these objects:
+    'weapons\\frag grenade\\frag grenade',
+    'weapons\\plasma grenade\\plasma grenade',
+
+    'vehicles\\ghost\\ghost_mp',
+    'vehicles\\rwarthog\\rwarthog',
+    'vehicles\\banshee\\banshee_mp',
+    'vehicles\\warthog\\mp_warthog',
+    'vehicles\\scorpion\\scorpion_mp',
+    'vehicles\\c gun turret\\c gun turret_mp',
+
+    'weapons\\ball\\ball',
+    'weapons\\flag\\flag',
+    'weapons\\pistol\\pistol',
+    'weapons\\shotgun\\shotgun',
+    'weapons\\needler\\mp_needler',
+    'weapons\\flamethrower\\flamethrower',
+    'weapons\\plasma rifle\\plasma rifle',
+    'weapons\\sniper rifle\\sniper rifle',
+    'weapons\\plasma pistol\\plasma pistol',
+    'weapons\\plasma_cannon\\plasma_cannon',
+    'weapons\\assault rifle\\assault rifle',
+    'weapons\\rocket launcher\\rocket launcher'
+}
 
 -- New Player has joined:
 -- * Creates a new player table; Inherits the Tag parent object.
@@ -185,11 +160,6 @@ function Tag:IsTagger()
     return (self.pid == tagger)
 end
 
--- Returns true of the player's last damage meta matches a melee tag address:
-function Tag:MeleeAttack(MetaID)
-    return self.tags[MetaID]
-end
-
 -- Sets running speed of all players:
 -- @Param last_man (id of the last person online):
 function Tag:SetSpeed(last_man)
@@ -201,24 +171,43 @@ function Tag:SetSpeed(last_man)
     end
 end
 
+local function GetMessage(msg, name, t_name)
+    t_name = t_name or ''
+    msg = msg:gsub('$name', name):gsub('$tagger', t_name)
+    return msg
+end
+
 -- Sets the tagger:
 -- @Param TaggerName (name of the person who just tagged someone) [string]
 function Tag:SetTagger(TaggerName)
 
-    self.assign, tagger = true, self.pid
-    self.periodic_scoring = false -- stop periodic scoring
+    tagger = self.pid
+    self.assign = true
+    self.periodic_scoring = false
 
     self:NewTurnTime()
     self:SetSpeed()
 
-    local msg = self.on_tag
     if (TaggerName) then
-        msg = msg:gsub('$tagger', TaggerName)
-    else
-        msg = self.random_tagger
-    end
-    msg = msg:gsub('$name', self.name)
 
+        local t_msg = self.on_tag[1]
+        local to_tagger = t_msg:gsub('$name', self.name)
+
+        local r_msg = self.on_tag[2]
+        local to_runner = r_msg:gsub('$name', self.name):gsub('$tagger', TaggerName)
+
+        for i, v in pairs(players) do
+            if (i == tagger) then
+                v:Broadcast(to_tagger, true)
+            else
+                v:Broadcast(to_runner, true)
+            end
+        end
+        return
+    end
+
+    local msg = self.random_tagger
+    msg = msg:gsub('$name', self.name)
     self:Broadcast(msg)
 end
 
@@ -230,9 +219,9 @@ end
 
 -- Timer variables used to periodically update runner score:
 function Tag:NewRunnerTime()
-    self.runner_start = time
     self.periodic_scoring = true
-    self.runner_finish = time() + self.runner_time
+    self.runner_start = time
+    self.runner_finish = time() + self.points_interval
 end
 
 -- Function responsible for handling scoring:
@@ -254,14 +243,10 @@ end
 -- Binds nav marker to tagger:
 function Tag:SetNav()
     local player = get_player(self.pid)
-    if (player and player_alive(self.pid)) then
-        if (tagger and self.pid ~= tagger) then
-            self.periodic_scoring = true
-            write_word(player + 0x88, to_real_index(tagger))
-        else
-            self.periodic_scoring = false
-            write_word(player + 0x88, to_real_index(self.pid))
-        end
+    if (tagger and self.pid ~= tagger) then
+        write_word(player + 0x88, to_real_index(tagger))
+    else
+        write_word(player + 0x88, to_real_index(self.pid))
     end
 end
 
@@ -274,26 +259,16 @@ local function GetTag(Type, Name)
     return (ObjTag ~= 0 and read_dword(ObjTag + 0xC)) or nil
 end
 
--- Converts the tag class/name to their respective tag address ids:
--- Makes it easier to check if a players last damage meta id matches
--- the tag address id from the melee_tags table.
-function Tag:TagsToID()
-    local t = {}
-    for tag, enabled in pairs(self.melee_tags) do
-        if (enabled) then
-            local id = GetTag('jpt!', tag) -- get tag address id
-            t[id] = true
-        end
-    end
-    self.tags = t
-end
-
 -- Sends a server-wide message:
 -- * Temporarily removes the server prefix.
 -- @Params msg (message string)
-function Tag:Broadcast(msg)
+function Tag:Broadcast(msg, pm)
     execute_command('msg_prefix ""')
-    say_all(msg)
+    if (not pm) then
+        say_all(msg)
+    else
+        say(self.pid, msg)
+    end
     execute_command('msg_prefix  "' .. self.server_prefix .. '"')
 end
 
@@ -306,14 +281,16 @@ end
 
 -- Weapon assignment logic:
 function Tag:AssignWeapons()
-    if (self.assign) then
 
+    -- Assign appropriate weapons:
+    if (self.assign) then
         self.assign = false
+
         execute_command_sequence('nades ' .. self.pid .. ' 0; wdel ' .. self.pid)
 
-        local weapon = (tagger == self.pid and self.weapons[1]) or self.weapons[2]
-        self.drone = spawn_object('weap', weapon, 0, 0, -9999)
+        local weapon = (tagger == self.pid and tagger_weapon or runner_weapon)
 
+        self.drone = spawn_object('', '', 0, 0, -9999, 0, weapon)
         assign_weapon(self.drone, self.pid)
     end
 end
@@ -361,11 +338,8 @@ end
 -- Enables interaction when OnScriptUnload() is called.
 local function GameObjects(state)
     state = (state and 'enable_object') or 'disable_object'
-    for k, v in pairs(Tag.objects) do
-        if (v) then
-            -- enabled
-            execute_command(state .. ' "' .. k .. '" 0')
-        end
+    for i = 1, #objects do
+        execute_command(state .. ' "' .. objects[i] .. '" 0')
     end
 end
 
@@ -374,7 +348,10 @@ function OnStart()
     if (get_var(0, '$gt') ~= 'n/a') then
 
         -- set up game tables:
-        Tag:TagsToID()
+        tagger_weapon_meta_id = GetTag('jpt!', 'weapons\\ball\\melee')
+        tagger_weapon = GetTag('weap', 'weapons\\ball\\ball')
+        runner_weapon = GetTag('weap', 'weapons\\plasma rifle\\plasma rifle')
+
         game_over = false
         players, tagger = {}, nil
 
@@ -398,33 +375,41 @@ function OnEnd()
     game_over = true
 end
 
-function Tag:GetRunnerTimer()
-    if (self.periodic_scoring and not self.runner_start) then
-        self:NewRunnerTime()
-    end
-end
-
 -- Called every 1/30th second:
 function OnTick()
     for i, v in pairs(players) do
 
-        if (not game_over and player_alive(i)) then
+        if (not game_over and player_present(i) and player_alive(i)) then
 
-            v:GetRunnerTimer()
-            v:AssignWeapons()
             v:SetNav()
+            v:AssignWeapons()
+
+            execute_command('battery ' .. i .. ' 100')
 
             if (v:IsTagger() and v.turn_start() >= v.turn_finish) then
                 v:PickRandomTagger()
 
                 -- Update runner score periodically:
-            elseif (tagger and v.periodic_scoring and v.runner_start() >= v.runner_finish) then
+            elseif (v.periodic_scoring and v.runner_start() >= v.runner_finish) then
                 v:NewRunnerTime()
                 v:UpdateScore(false, true) -- update runner points
             end
         end
     end
 end
+
+local function SetPeriodicTimers()
+    for i, v in pairs(players) do
+        if (i == tagger) then
+            v.periodic_scoring = false
+
+            -- only do this if it's not already set:
+        elseif (not v.periodic_scoring) then
+            v:NewRunnerTime()
+        end
+    end
+end
+
 
 -- Called when a player receives damage or is killed:
 -- @Param Victim (victim id) [number]
@@ -438,21 +423,26 @@ function OnDamage(Victim, Causer, MetaID)
     local k = players[killer]
     local v = players[victim]
 
-    if (not game_over and killer > 0 and k and v and Tag:EnoughPlayers()) then
+    if (not game_over and killer > 0 and k and v and k:EnoughPlayers()) then
 
         --
         -- event_damage_application:
         --
         if (MetaID) then
 
-            if (killer ~= victim) and (not tagger or k:IsTagger()) and k:MeleeAttack(MetaID) then
+            local case1 = (not tagger or k:IsTagger())
+            local case2 = (tagger and MetaID == tagger_weapon_meta_id)
+
+            if (killer ~= victim) and (case1 or case2) then
 
                 k.assign = true -- trigger weapon assignment
+                v.killer = killer -- keep track of the player who just killed you
+
                 k:UpdateScore() -- update current tagger score
                 k:NewRunnerTime() -- reset periodic scoring for this player
                 v:SetTagger(k.name) -- make victim the tagger
 
-                v.killer = killer -- keep track of the player who just killed you
+                SetPeriodicTimers()
             end
             return
         end
@@ -461,7 +451,6 @@ function OnDamage(Victim, Causer, MetaID)
         -- event_die:
         --
 
-        v.periodic_scoring = false -- just in case
         v:DeleteDrone() -- prevent weapon drop
         k:UpdateScore(true) -- prevent this kill from being counted towards score
 
