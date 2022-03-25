@@ -13,7 +13,7 @@ Application | Description
 -- | --
 [BitVise SSH Client](https://www.bitvise.com/ssh-client-download)|For remote access to the terminal and to upload files via SFTP
 [TightVNC (client)](https://www.tightvnc.com/download.php)|For remote desktop connections
-[HCE.Multi-Server.zip](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/download/v1.0.7-Multi-Server/HCE.Multi-Server.zip) or [HPC.Multi-Server.zip](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/download/v1.0.7-Multi-Server/HPC.Multi-Server.zip)|Pre-Configured Halo servers (these are compatible with Linux)
+[Halo Multi-Server](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/tag/multi-server)|These are compatible with Linux
 
 For information on how the Multi-Server is set up, please see [this page](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/tag/v1.0.7-Multi-Server).
 
