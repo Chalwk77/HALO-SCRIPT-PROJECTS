@@ -637,6 +637,9 @@ function OBJDEF:newObject(tbl)
     return setmetatable(tbl or {}, isObject)
 end
 
+
+
+
 local function getnum(op)
     return type(op) == 'number' and op or op.N
 end
@@ -972,6 +975,7 @@ local function grok_number(self, text, start, options)
     return as_number, i
 end
 
+
 local backslash_escape_conversion = {
     ['"'] = '"',
     ['/'] = "/",
@@ -1214,6 +1218,7 @@ local function grok_array(self, text, start, options)
     self:onDecodeError("unclosed '['", text, start, options.etc)
     return nil, i -- in case the error method doesn't abort, return something sensible
 end
+
 
 grok_one = function(self, text, start, options)
     -- Skip any whitespace

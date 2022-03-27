@@ -22,7 +22,7 @@ return {
     -- may cause undesirable (albeit temporary) lag.
     update_file_database = {
         ["OnEnd"] = true,
-        ["OnJoin"] = true,
+        ["OnJoin"] = false,
         ["OnQuit"] = false
     },
 
@@ -35,8 +35,8 @@ return {
 
         -- Join message:
         [1] = {
-            'You are [$rank, grade $grade] Credits: $credits',
-            '$name is [$rank, grade $grade] Credits: $credits'
+            'You are [$rank, grade $grade] Credits: $credits, Prestige: $prestige',
+            '$name is [$rank, grade $grade] Credits: $credits, Prestige: $prestige'
         },
 
         -- Grade up message:
@@ -66,7 +66,7 @@ return {
         -- Multi-line message seen when typing /rank (player [number]):
         [6] = {
             'Rank: [$rank, grade $grade] Position: $pos/$total',
-            'Credits: $credits',
+            'Credits: $credits Prestige: $prestige',
             ' ',
             'Next Rank: [$next_rank, grade $next_grade]',
             '[Credits Required: $req]'
@@ -211,34 +211,34 @@ return {
     -- Add as many grades to each rank as you like.
     ranks = {
         [1] = {
-            rank = 'Recruit',
+            rank = "Recruit",
             grade = {
-                [1] = 0,
+                [1] = 0
             }
         },
         [2] = {
-            rank = 'Apprentice',
+            rank = "Apprentice",
             grade = {
                 [1] = 3000,
                 [2] = 6000
             }
         },
         [3] = {
-            rank = 'Private',
+            rank = "Private",
             grade = {
                 [1] = 9000,
                 [2] = 12000
             }
         },
         [4] = {
-            rank = 'Corporal',
+            rank = "Corporal",
             grade = {
                 [1] = 13000,
                 [2] = 14000
             }
         },
         [5] = {
-            rank = 'Sergeant',
+            rank = "Sergeant",
             grade = {
                 [1] = 15000,
                 [2] = 16000,
@@ -247,7 +247,7 @@ return {
             }
         },
         [6] = {
-            rank = 'Gunnery Sergeant',
+            rank = "Gunnery Sergeant",
             grade = {
                 [1] = 19000,
                 [2] = 20000,
@@ -256,7 +256,7 @@ return {
             }
         },
         [7] = {
-            rank = 'Lieutenant',
+            rank = "Lieutenant",
             grade = {
                 [1] = 23000,
                 [2] = 24000,
@@ -265,7 +265,7 @@ return {
             }
         },
         [8] = {
-            rank = 'Captain',
+            rank = "Captain",
             grade = {
                 [1] = 27000,
                 [2] = 28000,
@@ -274,7 +274,7 @@ return {
             }
         },
         [9] = {
-            rank = 'Major',
+            rank = "Major",
             grade = {
                 [1] = 31000,
                 [2] = 32000,
@@ -283,7 +283,7 @@ return {
             }
         },
         [10] = {
-            rank = 'Commander',
+            rank = "Commander",
             grade = {
                 [1] = 35000,
                 [2] = 36000,
@@ -292,7 +292,7 @@ return {
             }
         },
         [11] = {
-            rank = 'Colonel',
+            rank = "Colonel",
             grade = {
                 [1] = 39000,
                 [2] = 40000,
@@ -301,7 +301,7 @@ return {
             }
         },
         [12] = {
-            rank = 'Brigadier',
+            rank = "Brigadier",
             grade = {
                 [1] = 43000,
                 [2] = 44000,
@@ -310,7 +310,7 @@ return {
             }
         },
         [13] = {
-            rank = 'General',
+            rank = "General",
             grade = {
                 [1] = 47000,
                 [2] = 48000,

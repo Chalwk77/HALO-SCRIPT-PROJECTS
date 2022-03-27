@@ -27,7 +27,7 @@ function Event:OnDeath(V, K)
             k:KillingSpree()
             k:KilledFromGrave()
             if k:InVehicle() then
-                return
+               return
             end
             k:UpdateCR({ jpt[1], jpt[2] })
 

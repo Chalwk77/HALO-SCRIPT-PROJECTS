@@ -7,20 +7,21 @@ local RankSystem = {
     dependencies = {
         ['./Rank System/'] = { 'settings' },
         ['./Rank System/Dependencies/Events/'] = {
-            'Death',
-            'Damage'
+            'Damage',
+            'Death'
         },
         ['./Rank System/Dependencies/Utils/'] = {
             'LoadStats',
-            'UpdateRank',
+            'Player Components',
             'Rank Printer',
-            'Player Components'
+            'UpdateRank'
         },
         ['./Rank System/Dependencies/Commands/'] = {
+            'Prestige',
+            'Rank List',
             'Rank',
             'Set Rank',
-            'Rank List',
-            'Top List',
+            'Top List'
         }
     }
 }
@@ -100,18 +101,16 @@ function RankSystem:Init()
                 local next_rank = self.ranks[i + 1]
 
                 local auto
-                if (next_rank and start >= next_rank.grade[1]) then
-                    self.starting_credits, auto = req, true
-                elseif (not precede and start < req) then
-                    self.starting_credits, auto = req, true
-                elseif (precede and start < precede) then
-                    self.starting_credits, auto = req, true
-                elseif (supersede and start > supersede) then
-                    self.starting_credits, auto = req, true
-                elseif (not supersede and start >= next_rank.grade[1]) then
-                    self.starting_credits, auto = req, true
-                elseif (start == precede or start == supersede) then
-                    self.starting_credits, auto = req, true
+                if (next_rank and start >= next_rank.grade[1]) or
+
+                        (not precede and start < req) or
+                        (precede and start < precede) or
+                        (supersede and start > supersede) or
+                        (not supersede and start >= next_rank.grade[1]) or
+                        (start == precede or start == supersede) then
+
+                    auto = true
+                    self.starting_credits = req
                 end
 
                 if (auto) then
@@ -148,6 +147,7 @@ function RankSystem:NewPlayer(o)
     local stats = self.database
     if (not stats[o.ip]) then
         stats[o.ip] = {
+            prestige = 0,
             name = o.name,
             done = self.done_default,
             rank = self.starting_rank,

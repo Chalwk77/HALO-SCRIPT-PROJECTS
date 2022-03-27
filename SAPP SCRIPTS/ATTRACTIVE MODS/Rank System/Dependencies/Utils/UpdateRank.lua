@@ -33,25 +33,26 @@ function Rank:UpdateRank()
     local name = self.name
     local cr = self.stats.credits
 
-    for i, stats in pairs(self.ranks) do
-        for k, v in pairs(stats.grade) do
+    for i = 1, #self.ranks do
+
+        local stats = self.ranks[i]
+        for k = 1, #stats.grade do
+
+            -- credits required:
+            local req = stats.grade[k]
 
             -- rank/grade combo not completed yet:
             if (not self.stats.done[i][k]) then
 
                 local next_rank = self.ranks[i + 1]
-                local next_grade = stats.grade[k + 1]
-                --local last_grade = stats.grade[#stats.grade]
+                --local next_grade = (stats.grade[k + 1])
+                local last_grade = stats.grade[#stats.grade]
 
                 -- all ranks completed:
-                local ranks_complete = (cr > stats.grade[#stats.grade] and not next_rank)
+                local ranks_complete = (cr > last_grade and not next_rank)
 
-                -- grade level up:
-                local level_up = (next_grade and cr >= v and cr < next_grade)
-
-                -- completed this rank:
-                local rank_up = ((level_up and next_rank) and next_rank.rank ~= self.stats.rank)
-
+                -- rank complete:
+                local rank_up = (cr >= req and stats.rank ~= self.stats.rank)
                 if (ranks_complete) then
 
                     self.stats.rank, self.stats.grade = stats.rank, #stats.grade
@@ -60,21 +61,28 @@ function Rank:UpdateRank()
                     local str = self.messages[4]
                     self:Send(Format(str[1], name, k, stats.rank))
                     self:Send(Format(str[2], name, k, stats.rank), true)
-                    break
+                    goto done
 
-                elseif (level_up or rank_up) then
+                elseif (rank_up) then
+
+                    self.stats.rank, self.stats.grade = stats.rank, k
+                    self.stats.done[i][k] = true
+
+                    local str = self.messages[3]
+
+                    self:Send(Format(str[1], name, k, stats.rank))
+                    self:Send(Format(str[2], name, k, stats.rank), true)
+                    goto done
+                else
 
                     self.stats.rank, self.stats.grade = stats.rank, k
                     self.stats.done[i][k] = true
 
                     local str = self.messages[2]
-                    if (rank_up) then
-                        str = self.messages[3]
-                    end
 
                     self:Send(Format(str[1], name, k, stats.rank))
                     self:Send(Format(str[2], name, k, stats.rank), true)
-                    break
+                    goto done
                 end
 
                 -- downgrade rank:
@@ -83,7 +91,7 @@ function Rank:UpdateRank()
                 local previous_rank = self.ranks[i - 1]
                 local previous_grade = stats.grade[k - 1]
 
-                if (cr > 0 and cr < v) then
+                if (cr > 0 and cr < req) then
 
                     if (previous_grade) then
                         self.stats.rank, self.stats.grade = stats.rank, k - 1
@@ -95,11 +103,13 @@ function Rank:UpdateRank()
                     local str = self.messages[5] -- downgrade message
                     self:Send(Format(str[1], name, self.stats.grade, self.stats.rank))
                     self:Send(Format(str[2], name, self.stats.grade, self.stats.rank), true)
-                    break
+                    goto done
                 end
             end
         end
     end
+
+    :: done ::
 end
 
 function Rank:SetRankOverride(RankName, RankID, GradeID)

@@ -10,11 +10,11 @@ local Command = {
 }
 
 function Command:Run(Ply, Args)
-    local t = self.players[Ply]
     if (Ply == 0) then
         cprint('Sorry, you cannot execute this command from terminal.', 12)
         return false
     elseif (self.permission(Ply, self.admin_level, self.no_perm)) then
+        local t = self.players[Ply]
         local player = Args[2]
         if (not Args[2] or tonumber(Args[2] == Ply)) then
             t:ShowRank(t.ip)
