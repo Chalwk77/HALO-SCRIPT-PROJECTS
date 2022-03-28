@@ -14,9 +14,9 @@ return {
     starting_rank = 'Recruit',
     starting_grade = 1,
 
-    -- Make sure starting credits are => (equal to or greater than) the amount for the starting grade but,
-    -- but < (less than) than the amount for the immediate next grade.
-    -- If not, the script will auto-set starting credits based on the starting rank & grade.
+    -- Make sure starting credits are => than amount for the starting grade but < than 
+    -- the amount for the immediate next grade.
+    -- If not, the script will automatically set the starting credits based defined rank & grade.
     -- For example, if the starting rank & grade is Sergeant, grade 2, the starting credits must be between 16000-16999.
     starting_credits = 0,
 
