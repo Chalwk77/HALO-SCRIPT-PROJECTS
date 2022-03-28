@@ -82,54 +82,10 @@ function RankSystem:Init()
     self.first_blood = true
     self.team_play = (get_var(0, '$ffa') == '0')
     self.database = self:LoadStats()
+    self.starting_credits = self:GetStartingCredits()
     self:TagsToID()
+
     timer(5000, 'DelayWelcome')
-
-    local sR = self.starting_rank
-    local sG = self.starting_grade
-    local rank_id = self:GetRankID(sR)
-
-    local done = {}
-    for i = 1, #self.ranks do
-        for k = 1, #self.ranks[i].grade do
-            done[i] = done[i] or {}
-            if (i == rank_id and k == sG) then
-                done[i][k] = true
-
-                local req = self.ranks[i].grade[k]
-                local start = self.starting_credits
-                local precede = self.ranks[i].grade[k - 1] -- before
-                local supersede = self.ranks[i].grade[k + 1] -- after
-                local next_rank = self.ranks[i + 1]
-
-                local auto
-                if (next_rank and start >= next_rank.grade[1]) or
-
-                        (not precede and start < req) or
-                        (precede and start < precede) or
-                        (supersede and start > supersede) or
-                        (not supersede and start >= next_rank.grade[1]) or
-                        (start == precede or start == supersede) then
-
-                    auto = true
-                    self.starting_credits = req
-                end
-
-                if (auto) then
-                    cprint('[RANK SYSTEM] -> Auto-Setting starting credits', 12)
-                end
-
-            elseif (i == rank_id and k < sG) then
-                done[i][k] = true
-            elseif (i == rank_id and k > sG or i > rank_id) then
-                done[i][k] = false
-            else
-                done[i][k] = true
-            end
-        end
-    end
-
-    self.done_default = done
 end
 
 local open = io.open
@@ -139,6 +95,37 @@ function RankSystem:Update()
         file:write(self.json:encode_pretty(self.database))
         file:close()
     end
+end
+
+function RankSystem:GetStartingCredits()
+
+    local ranks = self.ranks
+    local sR = self.starting_rank
+    local sG = self.starting_grade
+    local start = self.starting_credits
+
+    for i = 1, #ranks do
+        for k = 1, #ranks[i].grade do
+            if (ranks[i].rank == sR and k == sG) then
+
+                local req = ranks[i].grade[k]
+                local precede = ranks[i].grade[k - 1] -- before
+                local supersede = ranks[i].grade[k + 1] -- after
+                local next_rank = ranks[i + 1]
+
+                if (next_rank and start >= next_rank.grade[1]) or
+                        (not precede and start < req) or
+                        (precede and start < precede) or
+                        (supersede and start > supersede) or
+                        (not supersede and start >= next_rank.grade[1]) or
+                        (start == precede or start == supersede) then
+                    return req
+                end
+            end
+        end
+    end
+
+    return start
 end
 
 function RankSystem:NewPlayer(o)
@@ -151,7 +138,6 @@ function RankSystem:NewPlayer(o)
         stats[o.ip] = {
             prestige = 0,
             name = o.name,
-            done = self.done_default,
             rank = self.starting_rank,
             grade = self.starting_grade,
             credits = self.starting_credits
@@ -171,15 +157,18 @@ function RankSystem:NewPlayer(o)
 end
 
 function RankSystem:Send(msg, Global)
-    if (not Global) then
-        rprint(self.pid, msg)
-    else
+
+    if (Global) then
         for i, _ in pairs(self.players) do
             if (i ~= self.pid) then
                 rprint(i, msg)
             end
         end
+        return
     end
+
+    rprint(self.pid, msg)
+
 end
 
 ------------------------------------------------------------
@@ -212,7 +201,8 @@ function OnJoin(P)
         ip = get_var(P, '$ip'):match('%d+.%d+.%d+.%d+')
     })
 
-    RankSystem.players[P]:UpdateCR({ 10, '' })
+    -- for debugging rank-up logic:
+    --RankSystem.players[P]:UpdateCR({ 10, '' })
 end
 
 function OnQuit(P)

@@ -40,7 +40,10 @@ function Command:Run(Ply, Args)
                             t:Send(player.name .. ' is already ' .. rank .. ', grade ' .. grade)
                         else
                             t:Send('Setting ' .. player.name .. ' to ' .. rank_table.rank .. ', grade ' .. g)
-                            player:SetRankOverride(rank_table.rank, r, g)
+                            t.stats.rank = rank_table.rank
+                            t.stats.grade = g
+                            self.database[t.ip] = t.stats
+
                             self:Update()
                         end
                     else

@@ -9,18 +9,13 @@ local Command = {
     no_perm = 'You need to be level -1 or higher to use this command.'
 }
 
-function Command:Run(Ply, Args)
+function Command:Run(Ply)
     if (Ply == 0) then
         cprint('Sorry, you cannot execute this command from terminal.', 12)
         return false
     elseif (self.permission(Ply, self.admin_level, self.no_perm)) then
-
         local t = self.players[Ply]
-        local LAST = #self.ranks
-        local grade_table = self.ranks[LAST].grade
-        local req = grade_table[#grade_table]
-
-        if (t.stats.credits >= req) then
+        if (t.done) then
             t.stats.credits = self.starting_credits
             t.stats.rank = self.starting_rank
             t.stats.grade = self.starting_grade

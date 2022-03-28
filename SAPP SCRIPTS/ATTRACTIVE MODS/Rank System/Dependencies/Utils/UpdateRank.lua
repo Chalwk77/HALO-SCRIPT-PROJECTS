@@ -29,22 +29,16 @@ local function Format(Str, Name, GradeID, RankName)
 end
 
 function Rank:NewGrade(ply)
-    if (ply.next_grade and ply.cR >= ply.req and ply.cR < ply.next_grade) then
-        --print('do nothing (1)')
-        return false
-    elseif (ply.next_grade) then
+    local case = (ply.next_grade and ply.cR >= ply.req and ply.cR < ply.next_grade)
+    if (not case and ply.next_grade) then
         for k, v in pairs(ply.cGT) do
             local nG = ply.cGT[k + 1]
             if (k > ply.cG) and (ply.cR >= v and nG and ply.cR < nG) or (not nG and ply.cR >= v) then
                 self.stats.grade = k
-                self.stats.done[ply.id][k] = true
                 --print('level up', ply.rank, 'G'..k)
                 return true
             end
         end
-        --print('do nothing (2)')
-    else
-        --print('do nothing (3)')
     end
     return false
 end
@@ -52,22 +46,23 @@ end
 function Rank:NewRank(ply)
 
     local next_rank_id = ply.id + 1
-    for i = 1, #self.ranks do
-        if (i > ply.id and self.ranks[next_rank_id]) then
-            local gT = self.ranks[i].grade
-            for k, v in pairs(gT) do
+    local ranks = self.ranks
+    for i = 1, #ranks do
+        if (i > ply.id and ranks[next_rank_id]) then
+            local gT = ranks[i].grade
+            for k = 1, #gT do
 
+                local v = gT[k]
                 local nG = gT[k + 1]
-                local case1 = i >= next_rank_id and ply.cR >= v and nG and ply.cR < nG
-                local case2 = i >= next_rank_id and ply.cR >= v and not nG
+                local case1 = (i >= next_rank_id and ply.cR >= v and nG and ply.cR < nG)
+                local case2 = (i >= next_rank_id and ply.cR >= v and not nG)
 
                 if (i == next_rank_id and k == 1 and ply.cR < v) then
                     --print('no rank up')
                     return false
                 elseif (case1 or case2) then
                     self.stats.grade = k
-                    self.stats.rank = self.ranks[i].rank
-                    self.stats.done[i][k] = true
+                    self.stats.rank = ranks[i].rank
                     --print('rank up', self.ranks[i].rank, 'G' .. k)
                     return true
                 end
@@ -77,13 +72,37 @@ function Rank:NewRank(ply)
     return false
 end
 
+function Rank:Downgrade(ply)
+
+    local less_than_req = (ply.cR < ply.req)
+    if (less_than_req) then
+        local grade
+        local ranks = self.ranks
+        for i = 1, #ranks do
+            for k = 1, #ranks[i].grade do
+                local v = ranks[i].grade[k]
+                if (ply.cR >= v and ply.cR < ply.req) then
+                    grade = { ranks[i].rank, k }
+                end
+            end
+        end
+        if (grade) then
+            self.stats.rank = grade[1]
+            self.stats.grade = grade[2]
+            --print('rank: ' .. self.stats.rank, 'G' .. self.stats.grade)
+            return true
+        end
+    end
+    return false
+end
+
 function Rank:Completed(ply)
 
-    local rid = #self.ranks
-    local last_grade = self.ranks[#self.ranks].grade
-    local gid = #last_grade
+    local ranks = self.ranks
+    local last_grade = ranks[#ranks].grade
     local req = last_grade[#last_grade]
-    if (ply.cR > req and not self.stats.done[rid][gid]) then
+    if (ply.cR > req and not self.done) then
+        self.done = true
         --print('player has completed everything')
         return true
     end
@@ -93,15 +112,17 @@ end
 
 function Rank:UpdateRank()
 
+    local str
     local stats = self:GetRankInfo()
 
-    local str
     if (self:NewGrade(stats)) then
         str = self.messages[2]
     elseif (self:NewRank(stats)) then
         str = self.messages[3]
     elseif (self:Completed(stats)) then
         str = self.messages[4]
+    elseif (self:Downgrade(stats)) then
+        str = self.messages[5]
     end
 
     if (str) then
@@ -111,24 +132,6 @@ function Rank:UpdateRank()
         self:Send(Format(str[1], name, grade, rank))
         self:Send(Format(str[2], name, grade, rank), true)
     end
-
-    --local previous_rank = self.ranks[i - 1]
-    --local previous_grade = grade_table[k - 1]
-    --
-    --if (cR > 0 and cR < req) then
-    --
-    --    if (previous_grade) then
-    --        self.stats.rank, self.stats.grade = stats.rank, k - 1
-    --    elseif (previous_rank) then
-    --        self.stats.rank, self.stats.grade = previous_rank.rank, #previous_rank.grade
-    --    end
-    --    self.stats.done[i][k] = false
-    --
-    --    local str = self.messages[5] -- downgrade message
-    --    self:Send(Format(str[1], name, self.stats.grade, self.stats.rank))
-    --    self:Send(Format(str[2], name, self.stats.grade, self.stats.rank), true)
-    --    goto done
-    --end
 end
 
 function Rank:GetRankInfo()
@@ -140,9 +143,9 @@ function Rank:GetRankInfo()
     local id = self:GetRankID(rank) -- rank id          (name   [number])
 
     --[[debugging:
-    id = 13  --          rank id             General, G3 > General G4
-    cG = 4  --          grade id
-    cR = 50001  --      credits
+    id = 1  --         rank id        Recruit G1 > Apprentice G1
+    cG = 1  --          grade id
+    cR = 3000  --      credits
     rank = ranks[id].rank
     --]]
 
@@ -166,29 +169,6 @@ function Rank:GetRankInfo()
         next_grade = next_grade,
         prev_grade = prev_grade
     }
-end
-
-function Rank:SetRankOverride(RankName, RankID, GradeID)
-
-    for i = 1, #self.stats.done do
-        local grade_table = self.stats.done[i]
-        for k = 1, #grade_table do
-            if (i == RankID and k == GradeID) then
-                self.stats.done[i][k] = true
-                self.stats.credits = self.ranks[i].grade[k]
-            elseif (i == RankID and k < GradeID) then
-                self.stats.done[i][k] = true
-            elseif (i == RankID and k > GradeID or i > RankID) then
-                self.stats.done[i][k] = false
-            else
-                self.stats.done[i][k] = true
-            end
-        end
-    end
-
-    self.stats.rank = RankName
-    self.stats.grade = GradeID
-    self.database[self.ip] = self.stats
 end
 
 return Rank

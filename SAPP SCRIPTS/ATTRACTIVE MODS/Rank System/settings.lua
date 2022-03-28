@@ -23,6 +23,7 @@ return {
     -- When should we update the rank database (ranks.json)?
     -- It's not recommended to save stats to file during player join & quit as this
     -- may cause undesirable (albeit temporary) lag.
+    -- But don't worry, as a players stats are held in cache even when they quit (until the game ends).
     update_file_database = {
         ["OnEnd"] = true,
         ["OnJoin"] = false,
@@ -60,7 +61,7 @@ return {
             '[RANKS COMPLETE] $name has completed all ranks!'
         },
 
-        -- Downgrade message (server-wide message) | Set to false to make it private message:
+        -- Downgrade message:
         [5] = {
             '[DOWNGRADED] You were downgraded to [$rank, G$grade]',
             '[DOWNGRADED] $name was downgraded to [$rank, G$grade]'
