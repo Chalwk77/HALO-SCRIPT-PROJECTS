@@ -16,7 +16,7 @@ return {
 
     -- Make sure starting credits are => than amount for the starting grade but < than 
     -- the amount for the immediate next grade.
-    -- If not, the script will automatically set the starting credits based defined rank & grade.
+    -- If not, the script will auto set the starting credits based on the defined rank & grade.
     -- For example, if the starting rank & grade is Sergeant, grade 2, the starting credits must be between 16000-16999.
     starting_credits = 0,
 
@@ -77,7 +77,7 @@ return {
         }
     },
 
-    -- Credits table defines experience levels earned & action-specific messages:
+    -- Credits table | Defines credits earned & action-specific messages:
     --
     credits = {
 
