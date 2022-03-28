@@ -29,15 +29,12 @@ local function Format(Str, Name, GradeID, RankName)
 end
 
 function Rank:NewGrade(ply)
-    local case = (ply.next_grade and ply.cR >= ply.req and ply.cR < ply.next_grade)
-    if (not case and ply.next_grade) then
-        for k, v in pairs(ply.cGT) do
-            local nG = ply.cGT[k + 1]
-            if (k > ply.cG) and (ply.cR >= v and nG and ply.cR < nG) or (not nG and ply.cR >= v) then
-                self.stats.grade = k
-                --print('level up', ply.rank, 'G'..k)
-                return true
-            end
+    for k, v in pairs(ply.cGT) do
+        local nG = ply.cGT[k + 1]
+        if (k > ply.cG) and ((ply.cR >= v and nG and ply.cR < nG) or (not nG and ply.cR >= v)) then
+            self.stats.grade = k
+            --print('level up', ply.rank, 'G'..k)
+            return true
         end
     end
     return false
@@ -74,23 +71,21 @@ end
 
 function Rank:Downgrade(ply)
 
+    -- loop backwards from current rank id:
+
     local less_than_req = (ply.cR < ply.req)
     if (less_than_req) then
-        local grade
         local ranks = self.ranks
-        for i = 1, #ranks do
+        for i = ply.id, 1, -1 do
             for k = 1, #ranks[i].grade do
                 local v = ranks[i].grade[k]
                 if (ply.cR >= v and ply.cR < ply.req) then
-                    grade = { ranks[i].rank, k }
+                    self.stats.rank = ranks[i].rank
+                    self.stats.grade = k
+                    --print('downgrade: ' .. ranks[i].rank, 'G' .. k)
+                    return true
                 end
             end
-        end
-        if (grade) then
-            self.stats.rank = grade[1]
-            self.stats.grade = grade[2]
-            --print('rank: ' .. self.stats.rank, 'G' .. self.stats.grade)
-            return true
         end
     end
     return false
@@ -143,9 +138,9 @@ function Rank:GetRankInfo()
     local id = self:GetRankID(rank) -- rank id          (name   [number])
 
     --[[debugging:
-    id = 1  --         rank id        Recruit G1 > Apprentice G1
-    cG = 1  --          grade id
-    cR = 3000  --      credits
+    id = 3  --         rank id        Private G2 < Apprentice G1
+    cG = 2  --         grade id
+    cR = 3500  --         credits
     rank = ranks[id].rank
     --]]
 
