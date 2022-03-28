@@ -211,6 +211,8 @@ function OnJoin(P)
         team = get_var(P, '$team'),
         ip = get_var(P, '$ip'):match('%d+.%d+.%d+.%d+')
     })
+
+    RankSystem.players[P]:UpdateCR({ 10, '' })
 end
 
 function OnQuit(P)
@@ -232,10 +234,6 @@ end
 
 function OnCommand(P, Cmd)
     local args = StrSplit(Cmd)
-    if (args[1] == 'run') then
-        RankSystem.players[P]:UpdateCR({ 10, '' })
-        return false
-    end
     return (cmds[args[1]] and cmds[args[1]]:Run(P, args))
 end
 

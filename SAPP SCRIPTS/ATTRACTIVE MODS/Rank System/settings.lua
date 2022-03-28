@@ -38,20 +38,20 @@ return {
 
         -- Join message:
         [1] = {
-            'You are [$rank, grade $grade] Credits: $credits, Prestige: $prestige',
-            '$name is [$rank, grade $grade] Credits: $credits, Prestige: $prestige'
+            'You are [$rank, G$grade] Credits: $credits, Prestige: $prestige',
+            '$name is [$rank, G$grade] Credits: $credits, Prestige: $prestige'
         },
 
         -- Grade up message:
         [2] = {
-            '[GRADE UP] Congratulations! You leveled up [$rank, grade $grade]',
-            '[GRADE UP] $name leveled up [$rank, grade $grade]'
+            '[GRADE UP] Congratulations! You leveled up [$rank, G$grade]',
+            '[GRADE UP] $name leveled up [$rank, G$grade]'
         },
 
         -- Rank up message:
         [3] = {
-            '[RANK UP] Congratulations! You ranked up [$rank, grade $grade]',
-            '[RANK UP] $name ranked up [$rank, grade $grade]'
+            '[RANK UP] Congratulations! You ranked up [$rank, G$grade]',
+            '[RANK UP] $name ranked up [$rank, G$grade]'
         },
 
         -- All ranks completed message:
@@ -62,16 +62,16 @@ return {
 
         -- Downgrade message (server-wide message) | Set to false to make it private message:
         [5] = {
-            '[DOWNGRADED] You were downgraded to [$rank, grade $grade]',
-            '[DOWNGRADED] $name was downgraded to [$rank, grade $grade]'
+            '[DOWNGRADED] You were downgraded to [$rank, G$grade]',
+            '[DOWNGRADED] $name was downgraded to [$rank, G$grade]'
         },
 
         -- Multi-line message seen when typing /rank (player [number]):
         [6] = {
-            'Rank: [$rank, grade $grade] Position: $pos/$total',
+            'Rank: [$rank, G$grade] Position: $pos/$total',
             'Credits: $credits Prestige: $prestige',
             ' ',
-            'Next Rank: [$next_rank, grade $next_grade]',
+            'Next Rank: [$next_rank, G$next_grade]',
             '[Credits Required: $req]'
         }
     },

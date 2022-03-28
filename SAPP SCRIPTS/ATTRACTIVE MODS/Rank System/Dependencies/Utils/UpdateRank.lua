@@ -38,10 +38,13 @@ function Rank:NewGrade(ply)
             if (k > ply.cG) and (ply.cR >= v and nG and ply.cR < nG) or (not nG and ply.cR >= v) then
                 self.stats.grade = k
                 self.stats.done[ply.id][k] = true
-                --print('level up', ply.rank, 'grade', k)
+                --print('level up', ply.rank, 'G'..k)
                 return true
             end
         end
+        --print('do nothing (2)')
+    else
+        --print('do nothing (3)')
     end
     return false
 end
@@ -59,13 +62,13 @@ function Rank:NewRank(ply)
                 local case2 = i >= next_rank_id and ply.cR >= v and not nG
 
                 if (i == next_rank_id and k == 1 and ply.cR < v) then
-                    --print('ignoring')
+                    --print('no rank up')
                     return false
                 elseif (case1 or case2) then
                     self.stats.grade = k
                     self.stats.rank = self.ranks[i].rank
                     self.stats.done[i][k] = true
-                    --print('rank up', self.stats.rank, 'grade', k)
+                    --print('rank up', self.ranks[i].rank, 'G' .. k)
                     return true
                 end
             end
@@ -102,8 +105,11 @@ function Rank:UpdateRank()
     end
 
     if (str) then
-        self:Send(Format(str[1], self.name, self.stats.grade, self.stats.rank))
-        self:Send(Format(str[2], self.name, self.stats.grade, self.stats.rank), true)
+        local name = self.name
+        local rank = self.stats.rank
+        local grade = self.stats.grade
+        self:Send(Format(str[1], name, grade, rank))
+        self:Send(Format(str[2], name, grade, rank), true)
     end
 
     --local previous_rank = self.ranks[i - 1]
@@ -131,8 +137,15 @@ function Rank:GetRankInfo()
     local cR = self.stats.credits --   current credits  (amount [number])
     local cG = self.stats.grade --     current grade    (id     [number])
     local rank = self.stats.rank --    current rank     (name   [string])
-
     local id = self:GetRankID(rank) -- rank id          (name   [number])
+
+    --[[debugging:
+    id = 13  --          rank id             General, G3 > General G4
+    cG = 4  --          grade id
+    cR = 50001  --      credits
+    rank = ranks[id].rank
+    --]]
+
     local cRT = ranks[id] --           current rank table
     local cGT = cRT.grade --           current grade table
     local next_rank = ranks[id + 1] -- next rank table
@@ -140,12 +153,6 @@ function Rank:GetRankInfo()
     local req = cGT[cG]             -- req for current grade
     local next_grade = cGT[cG + 1]  -- req for next grade (if applicable)
     local prev_grade = cGT[cG - 1]  -- req for previous grade (if applicable)
-
-    -- debugging:
-    id = 1  --          rank id
-    cG = 1  --          grade id
-    cR = 0  --          credits
-    --
 
     return {
         id = id,
