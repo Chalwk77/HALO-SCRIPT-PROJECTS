@@ -4,6 +4,7 @@
 return {
 
     -- Ranks database file name:
+    -- This will be located in sapp cg folder.
     file = 'ranks.json',
 
     -- Suggestions: cR, $, Points, Candy
@@ -13,8 +14,10 @@ return {
     starting_rank = 'Recruit',
     starting_grade = 1,
 
-    -- Make sure starting credits are valid for the rank/grade config (see ranks table below);
-    -- If not, the script will auto-set starting credits.
+    -- Make sure starting credits are => (equal to or greater than) the amount for the starting grade but,
+    -- but < (less than) than the amount for the immediate next grade.
+    -- If not, the script will auto-set starting credits based on the starting rank & grade.
+    -- For example, if the starting rank & grade is Sergeant, grade 2, the starting credits must be between 16000-16999.
     starting_credits = 0,
 
     -- When should we update the rank database (ranks.json)?

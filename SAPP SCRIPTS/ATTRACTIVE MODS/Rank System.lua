@@ -3,6 +3,7 @@
 
 local RankSystem = {
     players = {},
+    delay_welcome = true,
     json = loadfile('./Rank System/Dependencies/Utils/Json.lua')(),
     dependencies = {
         ['./Rank System/'] = { 'settings' },
@@ -82,6 +83,7 @@ function RankSystem:Init()
     self.team_play = (get_var(0, '$ffa') == '0')
     self.database = self:LoadStats()
     self:TagsToID()
+    timer(5000, 'DelayWelcome')
 
     local sR = self.starting_rank
     local sG = self.starting_grade
@@ -230,6 +232,10 @@ end
 
 function OnCommand(P, Cmd)
     local args = StrSplit(Cmd)
+    if (args[1] == 'run') then
+        RankSystem.players[P]:UpdateCR({ 10, '' })
+        return false
+    end
     return (cmds[args[1]] and cmds[args[1]]:Run(P, args))
 end
 
@@ -253,6 +259,11 @@ function OnScore(P)
     local t = RankSystem.players[P]
     local s = RankSystem.credits.score
     t:UpdateCR({ s[1], s[2] })
+end
+
+function DelayWelcome()
+    RankSystem.delay_welcome = false
+    return false
 end
 
 function OnScriptLoad()

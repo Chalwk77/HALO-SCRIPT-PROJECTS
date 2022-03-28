@@ -96,8 +96,13 @@ function Ranks:ShowRank(ip, OnJoin)
                 local str = self:STRFormat(msg[1])
                 self:Send(str) -- private
 
-                str = self:STRFormat(msg[2])
-                self:Send(str, true) -- global
+                -- Global welcome messages will only appear from 5 seconds after a new game begins.
+                -- This is to prevent spam messages from appearing when everyone joins at once.
+                if (not self.delay_welcome) then
+                    str = self:STRFormat(msg[2])
+                    self:Send(str, true) -- global
+                end
+
                 break
             end
         end
