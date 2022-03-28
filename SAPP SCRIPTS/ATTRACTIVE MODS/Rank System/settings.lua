@@ -33,9 +33,18 @@ return {
     -- Fully customizable messages:
     messages = {
 
-        -- Excluding message #6, the first line is sent to the player.
-        -- The second line is sent to everyone else on the server.
-        -- Set line to blank ('') to disable it.
+        --[[
+        Excluding message #6, the first line is sent to the player.
+        The second line is sent to everyone else on the server.
+        Set line to blank ('') to disable it.
+
+        The following placeholders that can be used in any message:
+        $name        Player name
+        $rank        Rank (name)
+        $grade       Grade (id)
+        $credits     Credits (total)
+        $prestige    Prestige (number)
+        ]]
 
         -- Join message:
         [1] = {
@@ -68,12 +77,24 @@ return {
         },
 
         -- Multi-line message seen when typing /rank (player [number]):
+        -- The following placeholders can only be used in message #6:
+        -- $next_rank     Players next rank (name)
+        -- $next_grade    Players next grade (id)
+        -- $req           Credits required to rank up
+        -- $total         Total number of player accounts in the json database.
+        -- $pos           Placement (out of total players)
         [6] = {
             'Rank: [$rank, G$grade] Position: $pos/$total',
             'Credits: $credits Prestige: $prestige',
             ' ',
             'Next Rank: [$next_rank, G$next_grade]',
             '[Credits Required: $req]'
+        },
+
+        -- Prestige message:
+        [7] = {
+            '[PRESTIGE] You have prestiged to level $prestige',
+            '[PRESTIGE] $name has prestiged to level $prestige'
         }
     },
 

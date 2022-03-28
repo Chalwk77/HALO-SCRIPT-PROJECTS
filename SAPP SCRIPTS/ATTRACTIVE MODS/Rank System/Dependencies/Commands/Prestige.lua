@@ -16,11 +16,16 @@ function Command:Run(Ply)
     elseif (self.permission(Ply, self.admin_level, self.no_perm)) then
         local t = self.players[Ply]
         if (t.done) then
-            t.stats.credits = self.starting_credits
+            t.done = false
+
             t.stats.rank = self.starting_rank
             t.stats.grade = self.starting_grade
+            t.stats.credits = self.starting_credits
             t.stats.prestige = t.stats.prestige + 1
-            t:Send('You have Prestiged to level ' .. t.stats.prestige)
+
+            local s = self.messages[7]
+            t:Send(t:Format(s[1]))
+            t:Send(t:Format(s[2]), true)
         else
             t:Send('Sorry, you have not completed all ranks.')
         end

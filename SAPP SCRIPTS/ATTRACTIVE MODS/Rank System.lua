@@ -12,6 +12,7 @@ local RankSystem = {
             'Death'
         },
         ['./Rank System/Dependencies/Utils/'] = {
+            'Format Placeholders',
             'LoadStats',
             'Player Components',
             'Rank Printer',
@@ -59,8 +60,9 @@ end
 function RankSystem:TagsToID()
 
     local t = {}
-    local dam = self.credits.tags.damage
-    for _, v in pairs(dam) do
+    local tags = self.credits.tags.damage
+    for i = 1, #tags do
+        local v = tags[i]
         local tag = GetTag(v[1], v[2])
         if (tag) then
             t[tag] = { v[3], v[4] }
@@ -159,7 +161,7 @@ end
 function RankSystem:Send(msg, Global)
 
     if (Global) then
-        for i, _ in pairs(self.players) do
+        for i = 1, #self.players do
             if (i ~= self.pid) then
                 rprint(i, msg)
             end
@@ -194,6 +196,7 @@ function OnEnd()
 end
 
 function OnJoin(P)
+
     RankSystem.players[P] = RankSystem:NewPlayer({
         pid = P,
         name = get_var(P, '$name'),
@@ -202,7 +205,7 @@ function OnJoin(P)
     })
 
     -- for debugging rank-up logic:
-    --RankSystem.players[P]:UpdateCR({ 10, '' })
+    -- RankSystem.players[P]:UpdateCR({ 10, '' })
 end
 
 function OnQuit(P)

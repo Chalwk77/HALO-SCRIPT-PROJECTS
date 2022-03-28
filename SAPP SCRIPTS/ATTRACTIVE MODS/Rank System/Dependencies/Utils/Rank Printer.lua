@@ -17,50 +17,20 @@ function Ranks:SortRanks()
     return results
 end
 
--- @Param s (message [string])
--- @Param n (name [string])
--- @Param r (rank [string])
--- @Param g (grade [number])
--- @Param c (credits [number])
--- @Param nR (next rank [number])
--- @Param nG (next grade [number])
--- @Param rq (credits required [number])
--- @Param pos (position [number])
--- @Param tot (total [number])
--- @Return (formatted message [string])
-
-function Ranks:STRFormat(s, nR, nG, rq, pos, tot)
-    for k, v in pairs({
-        ["$name"] = self.name,
-        ["$rank"] = self.stats.rank or nil,
-        ["$grade"] = self.stats.grade or nil,
-        ["$credits"] = self.stats.credits or nil,
-        ["$next_rank"] = nR or nil,
-        ["$next_grade"] = nG or nil,
-        ["$req"] = rq or nil,
-        ["$pos"] = pos or nil,
-        ["$total"] = tot or nil,
-        ["$prestige"] = self.stats.prestige or nil,
-    }) do
-        s = s:gsub(k, v)
-    end
-    return s
-end
-
 function Ranks:ShowRank(ip, OnJoin)
 
     local results = self:SortRanks()
     for k, v in pairs(results) do
         if (v.ip == ip) then
 
-            local pos = k
-            local total = #results
-
             if (not OnJoin) then
 
                 --------------------------
                 -- /rank command feedback:
                 --------------------------
+
+                local pos = k
+                local total = #results
 
                 local id = self:GetRankID(v.rank)
                 local rank_table = self.ranks[id]
@@ -73,19 +43,20 @@ function Ranks:ShowRank(ip, OnJoin)
                 if (grade_table[next_grade]) then
                     local req = grade_table[next_grade] - v.credits
                     for _, s in pairs(msg) do
-                        local str = self:STRFormat(s, next_grade, req, pos, total)
-                        self:Send(str) -- private
+                        local str = self:Format(s, next_grade, req, pos, total)
+                        self:Send(str)
                     end
                 elseif (next_rank) then
                     local req = next_rank.grade[1] - v.credits
                     for _, s in pairs(msg) do
-                        local str = self:STRFormat(s, next_rank.rank, 1, req, pos, total)
-                        self:Send(str) -- private
+                        local str = self:Format(s, next_rank.rank, 1, req, pos, total)
+                        self:Send(str)
                     end
                 else
-                    self:Send('COMPLETED ALL RANKS. Prestige available!', true)
+                    self:Send('COMPLETED ALL RANKS. Prestige available!')
                 end
                 break
+
             else
 
                 -----------------
@@ -93,14 +64,14 @@ function Ranks:ShowRank(ip, OnJoin)
                 -----------------
 
                 local msg = self.messages[1] -- join message
-                local str = self:STRFormat(msg[1])
-                self:Send(str) -- private
+                local str = self:Format(msg[1])
+                self:Send(str)
 
                 -- Global welcome messages will only appear from 5 seconds after a new game begins.
                 -- This is to prevent spam messages from appearing when everyone joins at once.
                 if (not self.delay_welcome) then
-                    str = self:STRFormat(msg[2])
-                    self:Send(str, true) -- global
+                    str = self:Format(msg[2])
+                    self:Send(str, true)
                 end
 
                 break

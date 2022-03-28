@@ -17,19 +17,14 @@ function Rank:UpdateCR(t)
     msg = msg:gsub('$currency_symbol', self.currency_symbol)
     self:Send(msg)
 
-    self:UpdateRank()
-end
-
-local function Format(Str, Name, GradeID, RankName)
-    local words = { ['$name'] = Name, ['$grade'] = GradeID, ['$rank'] = RankName, }
-    for k, v in pairs(words) do
-        Str = Str:gsub(k, v)
+    if (not self.done) then
+        self:UpdateRank()
     end
-    return Str
 end
 
 function Rank:NewGrade(ply)
-    for k, v in pairs(ply.cGT) do
+    for k = 1, #ply.cGT do
+        local v = ply.cGT[k]
         local nG = ply.cGT[k + 1]
         if (k > ply.cG) and ((ply.cR >= v and nG and ply.cR < nG) or (not nG and ply.cR >= v)) then
             self.stats.grade = k
@@ -43,10 +38,9 @@ end
 function Rank:NewRank(ply)
 
     local next_rank_id = ply.id + 1
-    local ranks = self.ranks
-    for i = 1, #ranks do
-        if (i > ply.id and ranks[next_rank_id]) then
-            local gT = ranks[i].grade
+    for i = 1, #ply.ranks do
+        if (i > ply.id and ply.ranks[next_rank_id]) then
+            local gT = ply.ranks[i].grade
             for k = 1, #gT do
 
                 local v = gT[k]
@@ -59,7 +53,7 @@ function Rank:NewRank(ply)
                     return false
                 elseif (case1 or case2) then
                     self.stats.grade = k
-                    self.stats.rank = ranks[i].rank
+                    self.stats.rank = ply.ranks[i].rank
                     --print('rank up', self.ranks[i].rank, 'G' .. k)
                     return true
                 end
@@ -70,17 +64,13 @@ function Rank:NewRank(ply)
 end
 
 function Rank:Downgrade(ply)
-
-    -- loop backwards from current rank id:
-
     local less_than_req = (ply.cR < ply.req)
     if (less_than_req) then
-        local ranks = self.ranks
         for i = ply.id, 1, -1 do
-            for k = 1, #ranks[i].grade do
-                local v = ranks[i].grade[k]
+            for k = 1, #ply.ranks[i].grade do
+                local v = ply.ranks[i].grade[k]
                 if (ply.cR >= v and ply.cR < ply.req) then
-                    self.stats.rank = ranks[i].rank
+                    self.stats.rank = ply.ranks[i].rank
                     self.stats.grade = k
                     --print('downgrade: ' .. ranks[i].rank, 'G' .. k)
                     return true
@@ -93,10 +83,9 @@ end
 
 function Rank:Completed(ply)
 
-    local ranks = self.ranks
-    local last_grade = ranks[#ranks].grade
+    local last_grade = ply.ranks[#ply.ranks].grade
     local req = last_grade[#last_grade]
-    if (ply.cR > req and not self.done) then
+    if (ply.cR > req) then
         self.done = true
         --print('player has completed everything')
         return true
@@ -121,11 +110,8 @@ function Rank:UpdateRank()
     end
 
     if (str) then
-        local name = self.name
-        local rank = self.stats.rank
-        local grade = self.stats.grade
-        self:Send(Format(str[1], name, grade, rank))
-        self:Send(Format(str[2], name, grade, rank), true)
+        self:Send(self:Format(str[1]))
+        self:Send(self:Format(str[2]), true)
     end
 end
 
@@ -160,6 +146,7 @@ function Rank:GetRankInfo()
         cGT = cGT,
         req = req,
         rank = rank,
+        ranks = self.ranks,
         next_rank = next_rank,
         next_grade = next_grade,
         prev_grade = prev_grade

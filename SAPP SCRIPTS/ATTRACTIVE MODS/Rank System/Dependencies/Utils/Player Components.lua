@@ -16,15 +16,16 @@ function Player:InVehicle()
         local object = get_object_memory(vehicle)
         if (vehicle ~= 0 and vehicle ~= 0xFFFFFFFF) then
 
-            local tags = self.credits.tags
             local name = ReadString(object)
-            local jpt = tags.damage[self.meta_id]
-
-            for _, v in pairs(self.credits.tags.vehicles) do
+            local vehicles = self.credits.tags.vehicles
+            for i = 1, #vehicles do
+                local v = vehicles[i]
                 if (name == v[2]) then
                     if (self.meta_id == self.collision) then
                         self:UpdateCR({ v[3], v[4] })
                     else
+                        local tags = self.credits.tags
+                        local jpt = tags.damage[self.meta_id]
                         self:UpdateCR({ jpt[1], jpt[2] })
                     end
                 end
@@ -50,8 +51,9 @@ function Player:KillingSpree()
     local player = get_player(self.pid)
     if (player ~= 0) then
         local t = self.credits.spree
-        local k = read_word(player + 0x96)
-        for _, v in pairs(t) do
+        local k = read_word(player + 0x96) -- kills
+        for i = 1, #t do
+            local v = t[i]
             if (k == v[1]) or (k >= t[#t][1] and k % 5 == 0) then
                 self:UpdateCR({ v[2], v[3] })
             end
@@ -63,8 +65,9 @@ function Player:MultiKill()
     local player = get_player(self.pid)
     if (player ~= 0) then
         local t = self.credits.multi_kill
-        local k = read_word(player + 0x98)
-        for _, v in pairs(t) do
+        local k = read_word(player + 0x98) -- kills
+        for i = 1, #t do
+            local v = t[i]
             if (k == v[1]) or (k >= t[#t][1] and k % 2 == 0) then
                 self:UpdateCR({ v[2], v[3] })
             end
@@ -75,7 +78,7 @@ end
 function Player:KilledFromGrave()
     if (not player_alive(self.pid)) then
         local t = self.credits.killed_from_the_grave
-        self:UpdateCredits(self.pid, { t[1], t[2] })
+        self:UpdateCR({ t[1], t[2] })
     end
 end
 
