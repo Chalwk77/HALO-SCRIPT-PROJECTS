@@ -42,9 +42,6 @@ function Rank:NewGrade(ply)
                 return true
             end
         end
-    elseif (ply.next_rank and ply.cR < ply.next_rank.grade[1]) then
-        --print('do nothing (2)')
-        return false
     end
     return false
 end
@@ -52,33 +49,61 @@ end
 function Rank:NewRank(ply)
 
     local next_rank_id = ply.id + 1
-
     for i = 1, #self.ranks do
-        if (i > ply.id) then
+        if (i > ply.id and self.ranks[next_rank_id]) then
             local gT = self.ranks[i].grade
             for k, v in pairs(gT) do
-                if (i == next_rank_id and k == 1 and ply.cR < v) then
-                    print('not enough credits for next rank | grade 1')
-                    break
 
+                local nG = gT[k + 1]
+                local case1 = i >= next_rank_id and ply.cR >= v and nG and ply.cR < nG
+                local case2 = i >= next_rank_id and ply.cR >= v and not nG
+
+                if (i == next_rank_id and k == 1 and ply.cR < v) then
+                    --print('ignoring')
+                    return false
+                elseif (case1 or case2) then
+                    self.stats.grade = k
+                    self.stats.rank = self.ranks[i].rank
+                    self.stats.done[i][k] = true
+                    --print('rank up', self.stats.rank, 'grade', k)
+                    return true
                 end
             end
         end
     end
+    return false
+end
+
+function Rank:Completed(ply)
+
+    local rid = #self.ranks
+    local last_grade = self.ranks[#self.ranks].grade
+    local gid = #last_grade
+    local req = last_grade[#last_grade]
+    if (ply.cR > req and not self.stats.done[rid][gid]) then
+        --print('player has completed everything')
+        return true
+    end
+
+    return false
 end
 
 function Rank:UpdateRank()
 
     local stats = self:GetRankInfo()
 
+    local str
     if (self:NewGrade(stats)) then
-        local str = self.messages[2]
+        str = self.messages[2]
+    elseif (self:NewRank(stats)) then
+        str = self.messages[3]
+    elseif (self:Completed(stats)) then
+        str = self.messages[4]
+    end
+
+    if (str) then
         self:Send(Format(str[1], self.name, self.stats.grade, self.stats.rank))
         self:Send(Format(str[2], self.name, self.stats.grade, self.stats.rank), true)
-    elseif (self:NewRank(stats)) then
-        --    local str = self.messages[3]
-        --    self:Send(Format(str[1], self.name, self.stats.grade, self.stats.rank))
-        --    self:Send(Format(str[2], self.name, self.stats.grade, self.stats.rank), true)
     end
 
     --local previous_rank = self.ranks[i - 1]
@@ -116,20 +141,23 @@ function Rank:GetRankInfo()
     local next_grade = cGT[cG + 1]  -- req for next grade (if applicable)
     local prev_grade = cGT[cG - 1]  -- req for previous grade (if applicable)
 
-    cR = 2999
-    cG = 1
+    -- debugging:
+    id = 1  --          rank id
+    cG = 1  --          grade id
+    cR = 0  --          credits
+    --
 
     return {
+        id = id,
         cR = cR,
         cG = cG,
-        id = id,
         cRT = cRT,
         cGT = cGT,
+        req = req,
         rank = rank,
         next_rank = next_rank,
-        req = req,
         next_grade = next_grade,
-        prev_grade = prev_grade,
+        prev_grade = prev_grade
     }
 end
 

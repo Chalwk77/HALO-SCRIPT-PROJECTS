@@ -965,6 +965,7 @@ local function grok_number(self, text, start, options)
 
    end
 
+
    local as_number = tonumber(full_number_text)
 
    if not as_number then
@@ -1028,6 +1029,7 @@ local function grok_string(self, text, start, options)
             self:onDecodeError("incomplete utf8 sequence", text, i, options.etc)
             return nil, i -- in case the error method doesn't abort, return something sensible           
          end
+
 
          VALUE = VALUE .. next_character
          i = i + byte_count
@@ -1294,6 +1296,7 @@ function OBJDEF:decode(text, etc, options)
    if options.strictParsing == nil then
       options.strictParsing = self.strictParsing
    end
+
 
    if type(self) ~= 'table' or self.__index ~= OBJDEF then
       local error_message = "JSON:decode must be called in method format"
