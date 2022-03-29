@@ -22,7 +22,7 @@ function Command:Run(Ply, Args)
         if (not Args[2]) then
             for i = 1, #self.ranks do
                 local v = self.ranks[i]
-                t:Send('[' .. i .. '] ' .. v.rank .. ' (' .. #v.grade .. ' grade' .. Plural(#v.grade) .. ')', true)
+                t:Send('[' .. i .. '] ' .. v.rank .. ' (' .. #v.grade .. ' grade' .. Plural(#v.grade) .. ')')
             end
         else
             t:Send(self.help)

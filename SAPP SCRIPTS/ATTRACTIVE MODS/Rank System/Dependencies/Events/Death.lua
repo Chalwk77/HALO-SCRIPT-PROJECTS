@@ -17,7 +17,7 @@ function Event:OnDeath(V, K)
         local guardians = (killer == nil)
         local suicide = (killer == victim)
         local pvp = (k and v and killer ~= victim)
-        local jpt = v.credits.tags.damage[v.meta_id]
+        local jpt = v.damage[v.meta_id]
         local betrayal = (k and v and not k.ffa and (v.team == k.team and killer ~= victim))
 
         if (pvp and not betrayal) then

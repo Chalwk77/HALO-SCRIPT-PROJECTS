@@ -68,7 +68,7 @@ function RankSystem:TagsToID()
             t[tag] = { v[3], v[4] }
         end
     end
-    self.credits.tags.damage = t
+    self.damage = t
 
     self.collision = nil
     local col = self.credits.tags.collision
@@ -81,6 +81,7 @@ end
 function RankSystem:Init()
 
     self.players = {}
+    self.delay_welcome = true
     self.first_blood = true
     self.team_play = (get_var(0, '$ffa') == '0')
     self.database = self:LoadStats()

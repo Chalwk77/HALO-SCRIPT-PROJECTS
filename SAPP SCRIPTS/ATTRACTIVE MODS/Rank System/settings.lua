@@ -158,10 +158,10 @@ return {
             -- tag {type, name, credits}
             --
 
-            -- FALL DAMAGE --
-            --
-
             damage = {
+
+                -- FALL DAMAGE --
+                --
 
                 { 'jpt!', 'globals\\falling', -3, '-3 $currency_symbol (Fall Damage)' },
                 { 'jpt!', 'globals\\distance', -4, '-4 $currency_symbol (Distance Damage)' },
