@@ -17,11 +17,11 @@ function Command:Run(Ply, Args)
         local t = self.players[Ply]
         local player = Args[2]
         if (not Args[2] or tonumber(Args[2] == Ply)) then
-            t:ShowRank(t.ip)
+            t:ShowRankSorted(t.ip)
         elseif (player:match('%d+')) then
             if player_present(player) then
                 player = self.players[tonumber(player)]
-                t:ShowRank(player.ip)
+                t:ShowRankSorted(player.ip)
             else
                 t:Send('Player #' .. player .. ' is not online.')
             end

@@ -7,18 +7,22 @@ return {
     -- This will be located in sapp cg folder.
     file = 'ranks.json',
 
+
     -- Suggestions: cR, $, Points, Candy
     currency_symbol = 'cR',
+
 
     -- Starting rank & grade for new players:
     starting_rank = 'Recruit',
     starting_grade = 1,
+
 
     -- Make sure starting credits are => than amount for the starting grade but < than 
     -- the amount for the immediate next grade.
     -- If not, the script will auto set the starting credits based on the defined rank & grade.
     -- For example, if the starting rank & grade is Sergeant, grade 2, the starting credits must be between 16000-16999.
     starting_credits = 0,
+
 
     -- When should we update the rank database (ranks.json)?
     -- It's not recommended to save stats to file during player join & quit as this
@@ -29,6 +33,7 @@ return {
         ["OnJoin"] = false,
         ["OnQuit"] = false
     },
+
 
     -- Fully customizable messages:
     messages = {

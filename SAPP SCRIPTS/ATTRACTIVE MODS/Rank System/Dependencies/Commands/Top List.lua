@@ -20,12 +20,13 @@ function Command:Run(Ply, Args)
             local results = self:SortRanks()
             if (#results > 0) then
                 local str = self.list
-                for i, v in pairs(results) do
+                for i = 1, #results do
+                    local res = results[i]
                     if (i > 0 and i < 11) then
-                        str = str            :
-                        gsub('$pos', i)      :
-                        gsub('$name', v.name):
-                        gsub('$cr', v.credits)
+                        str = str              :
+                        gsub('$pos', i)        :
+                        gsub('$name', res.name):
+                        gsub('$cr', res.credits)
                         t:Send(str)
                     end
                 end

@@ -150,7 +150,7 @@ function RankSystem:NewPlayer(o)
 
     o.meta_id = 0
     o.stats = stats[o.ip]
-    o:ShowRank(o.ip, true)
+    o:Welcome()
 
     if (self.update_file_database['OnJoin']) then
         self:Update()
