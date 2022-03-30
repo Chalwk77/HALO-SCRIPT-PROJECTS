@@ -16,21 +16,18 @@ function Player:InVehicle()
         local object = get_object_memory(vehicle)
         if (vehicle ~= 0 and vehicle ~= 0xFFFFFFFF) then
 
-            local name = ReadString(object)
+            local jpt = self.damage[self.meta_id]
             local vehicles = self.credits.tags.vehicles
-            for i = 1, #vehicles do
-                local v = vehicles[i]
-                if (name == v[2]) then
-                    if (self.meta_id == self.collision) then
-                        self:UpdateCR({ v[3], v[4] })
-                    else
-                        local tags = self.credits.tags
-                        local jpt = tags.damage[self.meta_id]
-                        self:UpdateCR({ jpt[1], jpt[2] })
-                    end
+
+            vehicle = vehicles[ReadString(object)]
+            if (vehicle) then
+                if (self.meta_id == self.collision) then
+                    self:UpdateCR({ vehicle[1], vehicle[2] })
+                elseif (jpt) then
+                    self:UpdateCR({ jpt[1], jpt[2] })
                 end
+                return true
             end
-            return true
         end
     end
     return false

@@ -9,14 +9,16 @@ local RankSystem = {
         ['./Rank System/'] = { 'settings' },
         ['./Rank System/Dependencies/Events/'] = {
             'Damage',
-            'Death'
+            'Death',
+            'Join',
+            'On Score'
         },
         ['./Rank System/Dependencies/Utils/'] = {
             'Format Placeholders',
-            'LoadStats',
+            'Load Stats',
             'Player Components',
             'Rank Printer',
-            'UpdateRank'
+            'Update Rank'
         },
         ['./Rank System/Dependencies/Commands/'] = {
             'Prestige',
@@ -60,6 +62,8 @@ end
 function RankSystem:TagsToID()
 
     local t = {}
+    self.damage, self.collision = nil, nil
+
     local tags = self.credits.tags.damage
     for i = 1, #tags do
         local v = tags[i]
@@ -70,7 +74,6 @@ function RankSystem:TagsToID()
     end
     self.damage = t
 
-    self.collision = nil
     local col = self.credits.tags.collision
     local col_tag = GetTag(col[1], col[2])
     if (col_tag) then
@@ -83,10 +86,12 @@ function RankSystem:Init()
     self.players = {}
     self.delay_welcome = true
     self.first_blood = true
+    self.gt = get_var(0, '$gt')
     self.team_play = (get_var(0, '$ffa') == '0')
+
+    self:TagsToID()
     self.database = self:LoadStats()
     self.starting_credits = self:GetStartingCredits()
-    self:TagsToID()
 
     timer(5000, 'DelayWelcome')
 end
@@ -129,34 +134,6 @@ function RankSystem:GetStartingCredits()
     end
 
     return start
-end
-
-function RankSystem:NewPlayer(o)
-
-    setmetatable(o, self)
-    self.__index = self
-
-    local stats = self.database
-    if (not stats[o.ip]) then
-        stats[o.ip] = {
-            prestige = 0,
-            name = o.name,
-            rank = self.starting_rank,
-            grade = self.starting_grade,
-            credits = self.starting_credits
-        }
-    end
-    self.database = stats -- update database
-
-    o.meta_id = 0
-    o.stats = stats[o.ip]
-    o:Welcome()
-
-    if (self.update_file_database['OnJoin']) then
-        self:Update()
-    end
-
-    return o
 end
 
 function RankSystem:Send(msg, Global)
@@ -248,9 +225,7 @@ function OnSpawn(P)
 end
 
 function OnScore(P)
-    local t = RankSystem.players[P]
-    local s = RankSystem.credits.score
-    t:UpdateCR({ s[1], s[2] })
+    RankSystem.players[P]:OnScore()
 end
 
 function DelayWelcome()

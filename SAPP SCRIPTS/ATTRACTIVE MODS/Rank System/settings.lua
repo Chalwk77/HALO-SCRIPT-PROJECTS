@@ -107,8 +107,11 @@ return {
     --
     credits = {
 
-        -- Score (credits added):
-        score = { 5, '+5 $currency_symbol (Flag Cap)' },
+        -- event_score (credits added)
+        score = {
+            ['ctf'] = { 5, '+5 $currency_symbol (Flag Cap)' },
+            ['race'] = { 5, '+5 $currency_symbol (Lap Completed)' },
+        },
 
         -- Killed by Server (credits deducted):
         server = { -0, '-0 $currency_symbol (Server)' },
@@ -225,12 +228,12 @@ return {
             --
             collision = { 'jpt!', 'globals\\vehicle_collision' },
             vehicles = {
-                { 'vehi', 'vehicles\\ghost\\ghost_mp', 5, '+5 $currency_symbol (Vehicle Squash: GHOST)' },
-                { 'vehi', 'vehicles\\rwarthog\\rwarthog', 6, '+6 $currency_symbol (Vehicle Squash: R-Hog)' },
-                { 'vehi', 'vehicles\\warthog\\mp_warthog', 7, '+7 $currency_symbol (Vehicle Squash: Warthog)' },
-                { 'vehi', 'vehicles\\banshee\\banshee_mp', 8, '+8 $currency_symbol (Vehicle Squash: Banshee)' },
-                { 'vehi', 'vehicles\\scorpion\\scorpion_mp', 10, '+10 $currency_symbol (Vehicle Squash: Tank)' },
-                { 'vehi', 'vehicles\\c gun turret\\c gun turret_mp', 1000, '+1000 $currency_symbol (Vehicle Squash: Turret)' },
+                ['vehicles\\ghost\\ghost_mp'] = { 5, '+5 $currency_symbol (Vehicle Squash: GHOST)' },
+                ['vehicles\\rwarthog\\rwarthog'] = { 6, '+6 $currency_symbol (Vehicle Squash: R-Hog)' },
+                ['vehicles\\warthog\\mp_warthog'] = { 7, '+7 $currency_symbol (Vehicle Squash: Warthog)' },
+                ['vehicles\\banshee\\banshee_mp'] = { 8, '+8 $currency_symbol (Vehicle Squash: Banshee)' },
+                ['vehicles\\scorpion\\scorpion_mp'] = { 10, '+10 $currency_symbol (Vehicle Squash: Tank)' },
+                ['vehicles\\c gun turret\\c gun turret_mp'] = { 1000, '+1000 $currency_symbol (Vehicle Squash: Turret)' }
             }
         }
     },

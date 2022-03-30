@@ -14,10 +14,10 @@ function Event:OnDeath(V, K)
     if (v) then
 
         local server = (killer == -1)
+        local jpt = v.damage[v.meta_id]
         local guardians = (killer == nil)
         local suicide = (killer == victim)
         local pvp = (k and v and killer ~= victim)
-        local jpt = v.damage[v.meta_id]
         local betrayal = (k and v and not k.ffa and (v.team == k.team and killer ~= victim))
 
         if (pvp and not betrayal) then
@@ -26,10 +26,14 @@ function Event:OnDeath(V, K)
             k:FirstBlood()
             k:KillingSpree()
             k:KilledFromGrave()
+
             if k:InVehicle() then
                 return
             end
-            k:UpdateCR({ jpt[1], jpt[2] })
+
+            if (jpt) then
+                k:UpdateCR({ jpt[1], jpt[2] })
+            end
 
         elseif (server) then
             v:UpdateCR({ v.credits.server[1], v.credits.server[2] })

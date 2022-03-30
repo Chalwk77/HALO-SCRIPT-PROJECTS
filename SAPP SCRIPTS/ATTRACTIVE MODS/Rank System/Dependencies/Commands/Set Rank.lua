@@ -34,12 +34,12 @@ function Command:Run(Ply, Args)
 
                         local rank = player.stats.rank -- current
                         local grade = player.stats.grade -- current
-                        local rank_id = self:GetRankID(player.stats.rank)
+                        local id = self:GetRankID(rank)
 
-                        if (rank_id == r and grade == g) then
-                            t:Send(player.name .. ' is already ' .. rank .. ', grade ' .. grade)
+                        if (id == r and grade == g) then
+                            t:Send(player.name .. ' is already ' .. rank .. ', G' .. grade)
                         else
-                            t:Send('Setting ' .. player.name .. ' to ' .. rank_table.rank .. ', grade ' .. g)
+                            t:Send('Setting ' .. player.name .. ' to ' .. rank_table.rank .. ', G' .. g)
                             t.stats.rank = rank_table.rank
                             t.stats.grade = g
                             self.database[t.ip] = t.stats
