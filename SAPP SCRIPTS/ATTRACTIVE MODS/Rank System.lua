@@ -136,7 +136,7 @@ function OnJoin(P)
     })
 
     -- for debugging rank-up logic:
-    -- RankSystem.players[P]:UpdateCR({ 10, '' })
+    --RankSystem.players[P]:UpdateCR({ 10, '' })
 end
 
 function OnQuit(P)

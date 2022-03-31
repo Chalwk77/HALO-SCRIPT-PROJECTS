@@ -43,7 +43,6 @@ function Command:Run(Ply, Args)
                             t.stats.rank = rank_table.rank
                             t.stats.grade = g
                             self.database[t.ip] = t.stats
-
                             self:Update()
                         end
                     else

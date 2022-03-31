@@ -23,10 +23,10 @@ function Rank:UpdateCR(t)
 end
 
 function Rank:NewGrade(ply)
-    for k = 1, #ply.cGT do
+    for k = ply.cG + 1, #ply.cGT do
         local v = ply.cGT[k]
         local nG = ply.cGT[k + 1]
-        if (k > ply.cG) and ((ply.cR >= v and nG and ply.cR < nG) or (not nG and ply.cR >= v)) then
+        if ((ply.cR >= v and nG and ply.cR < nG) or (not nG and ply.cR >= v)) then
             self.stats.grade = k
             --print('level up', ply.rank, 'G' .. k)
             return true
@@ -37,22 +37,13 @@ function Rank:NewGrade(ply)
 end
 
 function Rank:NewRank(ply)
-
     local next_rank_id = ply.id + 1
-    for i = 1, #ply.ranks do
-        if (i > ply.id and ply.ranks[next_rank_id]) then
-            local gT = ply.ranks[i].grade
-            for k = 1, #gT do
-
-                local v = gT[k]
-                local nG = gT[k + 1]
-                local case1 = (i >= next_rank_id and ply.cR >= v and nG and ply.cR < nG)
-                local case2 = (i >= next_rank_id and ply.cR >= v and not nG)
-
-                if (i == next_rank_id and k == 1 and ply.cR < v) then
-                    --print('no rank up')
-                    return false
-                elseif (case1 or case2) then
+    if (ply.ranks[next_rank_id]) then
+        for i = #ply.ranks, next_rank_id, -1 do
+            local grades = ply.ranks[i].grade
+            for k = #grades, 1, -1 do
+                local v = grades[k]
+                if (ply.cR >= v) then
                     self.stats.grade = k
                     self.stats.rank = ply.ranks[i].rank
                     --print('rank up', self.ranks[i].rank, 'G' .. k)
@@ -126,9 +117,9 @@ function Rank:GetRankInfo()
     local id = self:GetRankID(rank) -- rank id          (name   [number])
 
     --[[debugging:
-    id = 1  --         rank id        Sergeant G5 < Apprentice G1
+    id = 1  --         rank id        Private G1 > Private G2
     cG = 1  --         grade id
-    cR = 0  --         credits
+    cR = 49000  --         credits
     rank = ranks[id].rank
     --]]
 
