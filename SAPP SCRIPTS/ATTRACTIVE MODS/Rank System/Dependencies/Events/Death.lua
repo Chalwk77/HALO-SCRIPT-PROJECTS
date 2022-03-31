@@ -29,9 +29,7 @@ function Event:OnDeath(V, K)
 
             if k:InVehicle() then
                 return
-            end
-
-            if (jpt) then
+            elseif (jpt) then
                 k:UpdateCR({ jpt[1], jpt[2] })
             end
 
