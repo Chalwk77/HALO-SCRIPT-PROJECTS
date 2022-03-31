@@ -4,6 +4,7 @@
 local Command = {
     command_name = 'toplist',
     admin_level = -1,
+    players_to_show = 10,
     help = 'Syntax: /toplist',
     description = 'View list of top 10 players',
     no_perm = 'You need to be level -1 or higher to use this command.',
@@ -19,10 +20,10 @@ function Command:Run(Ply, Args)
         if (not Args[2]) then
             local results = self:SortRanks()
             if (#results > 0) then
-                local str = self.list
                 for i = 1, #results do
                     local res = results[i]
-                    if (i > 0 and i < 11) then
+                    if (i <= self.players_to_show) then
+                        local str = self.list
                         str = str              :
                         gsub('$pos', i)        :
                         gsub('$name', res.name):

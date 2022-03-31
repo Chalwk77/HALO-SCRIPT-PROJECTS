@@ -14,10 +14,9 @@ local RankSystem = {
             'On Score'
         },
         ['./Rank System/Dependencies/Utils/'] = {
-            'Format Placeholders',
             'Load Stats',
+            'Misc',
             'Player Components',
-            'Rank Printer',
             'Update Rank'
         },
         ['./Rank System/Dependencies/Commands/'] = {
@@ -103,52 +102,6 @@ function RankSystem:Update()
         file:write(self.json:encode_pretty(self.database))
         file:close()
     end
-end
-
-function RankSystem:GetStartingCredits()
-
-    local ranks = self.ranks
-    local sR = self.starting_rank
-    local sG = self.starting_grade
-    local start = self.starting_credits
-
-    for i = 1, #ranks do
-        for k = 1, #ranks[i].grade do
-            if (ranks[i].rank == sR and k == sG) then
-
-                local req = ranks[i].grade[k]
-                local precede = ranks[i].grade[k - 1] -- before
-                local supersede = ranks[i].grade[k + 1] -- after
-                local next_rank = ranks[i + 1]
-
-                if (next_rank and start >= next_rank.grade[1]) or
-                        (not precede and start < req) or
-                        (precede and start < precede) or
-                        (supersede and start > supersede) or
-                        (not supersede and start >= next_rank.grade[1]) or
-                        (start == precede or start == supersede) then
-                    return req
-                end
-            end
-        end
-    end
-
-    return start
-end
-
-function RankSystem:Send(msg, Global)
-
-    if (Global) then
-        for i = 1, #self.players do
-            if (i ~= self.pid) then
-                rprint(i, msg)
-            end
-        end
-        return
-    end
-
-    rprint(self.pid, msg)
-
 end
 
 ------------------------------------------------------------
