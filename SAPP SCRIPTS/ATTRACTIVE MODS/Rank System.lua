@@ -18,6 +18,7 @@ local RankSystem = {
             'Update Rank'
         },
         ['./Rank System/Dependencies/Commands/'] = {
+            'Change UP',
             'Create',
             'Login',
             'Prestige',

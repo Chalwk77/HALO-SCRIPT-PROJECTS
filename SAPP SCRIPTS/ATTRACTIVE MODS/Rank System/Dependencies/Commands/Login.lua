@@ -17,9 +17,9 @@ function Command:Run(Ply, Args)
 
         local t = self:GetPlayer(Ply)
 
-        local name = Args[2]
+        local username = Args[2]
         local password = Args[3]
-        local acc = self.db[name]
+        local acc = self.db[username]
 
         if (#Args > 3) then
             t:Send('Too many arguments!')
@@ -28,7 +28,7 @@ function Command:Run(Ply, Args)
             if (t.logged_in) then
                 t:Send('You are already logged in.')
             elseif (password == acc.password) then
-                t:CacheSession(name, password)
+                t:CacheSession(username, password)
                 t:Send('Successfully logged in.')
             else
                 t:Send('Invalid password. Please try again.')

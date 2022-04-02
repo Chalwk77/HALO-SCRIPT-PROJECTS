@@ -17,10 +17,10 @@ function Command:Run(Ply, Args)
 
         local t = self:GetPlayer(Ply)
 
-        local name = Args[2]
+        local username = Args[2]
         local password = Args[3]
 
-        local acc = self.db[name]
+        local acc = self.db[username]
 
         if (#Args > 3) then
             t:Send('Too many arguments!')
@@ -29,7 +29,7 @@ function Command:Run(Ply, Args)
             if (acc) then
                 t:Send('Username already exists.')
             else
-                t:CacheSession(name, password)
+                t:CacheSession(username, password)
                 t:Send('Rank account successfully created.')
             end
         else
