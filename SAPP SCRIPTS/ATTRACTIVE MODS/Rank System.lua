@@ -1,6 +1,140 @@
 -- Rank System [Entry Point File] (v1.0)
 -- Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 
+--[[
+
+A fully integrated Halo 3 style ranking system for SAPP servers.
+Players earn credits for killing, scoring and achievements, such as sprees, kill-combos and more!
+
+Stats are permanently saved to a local database called ranks.json.
+
+Players are required to create a ranked account (in-game) to use this mod.
+See the command syntax section below.
+
+If you have an existing account, your credits will be restored when you log into your account.
+
+Client login sessions are temporarily cached.
+You will not have to log into your account when you quit and rejoin unless:
+1. The server is restarted
+2. Your IP address changes
+3. Your client port changes (depending on config, see more on that below)
+   In ./settings.lua, there is an option to cache sessions by IP only, or IP:PORT.
+   The default setting is IP:PORT.
+   This setting is recommended otherwise all players on that IP will share the same account.
+   This requires that players always have the same port, otherwise they will have to log into their account every time they join.
+
+## COMMANDS:
+| Command                                                           | Description                                               | Permission Level |
+|-------------------------------------------------------------------|-----------------------------------------------------------|------------------|
+| /c (user) (password)                                              | Create new ranked account                                 | -1               |
+| /l (user) (password)                                              | Log into ranked account                                   | -1               |
+| /cpu (current/new username) (current/new password)                | Change username & password                                | -1               |
+                                                                      You need to be logged in to change the username/password.                    |
+| /ranks                                                            | See a list of available ranks                             | -1               |
+| /toplist                                                          | View list of top 10 players                               | -1               |
+| /prestige                                                         | Prestige and reset your stats                             | -1               |
+| /rank (player id [number])                                        | View yours (or someone else's rank)                       | -1               |
+| /setrank (player [number]) (rank [number]) (grade [number])       | Rank a player up or down                                  | 4                |
+----------------------------------------------------------------------------------------------------------------------------------------------------
+
+## SCORING:
+| Type                            | Credits                                                             |
+|---------------------------------|---------------------------------------------------------------------|
+| first blood                     | (+30 cR)                                                            |
+| scoring                         | (+5cR flag cap)<br/>(+5cR lap completed)                            |
+| killed by server                | (-0cR)                                                              |
+| killed by guardians             | (-5cR)                                                              |
+| suicide                         | (-10cR)                                                             |
+| betrayal (team games only)      | (-15cR)                                                             |
+| spree                           | (+5cR every 5 consecutive kills).
+                                    Script will award +50cR every 5 kills at or above 50.               |
+| kill-combo                      | (+8cR for the first two kills.)
+                                    Points increase by 2 for every kill after the fact: +10, +12, +14.
+                                    Script will award 25 cR every 2 kills at or above a combo of 10.    |
+| fall-damage                     | (-3cR)                                                              |
+| distance-damage                 | (-4cR)                                                              |
+| vehicle-squash ghost            | (+5cR)                                                              |
+| vehicle-squash rocket-hog       | (+6cR)                                                              |
+| vehicle-squash chaingun-hog     | (+7cR)                                                              |
+| vehicle-squash banshee          | (+8cR)                                                              |
+| vehicle-squash scorpion         | (+10cR)                                                             |
+| vehicle-squash gun turret       | (+1000cR) If you can manage this, you deserve +1000cR!              |
+| ghost bolt                      | (+7cR)                                                              |
+| scorpion bullet                 | (+6cR)                                                              |
+| warthog bullet                  | (+6cR)                                                              |
+| gun turret bolt                 | (+7cR)                                                              |
+| banshee bolt                    | (+7cR)                                                              |
+| scorpion shell explosion        | (+10cR)                                                             |
+| banshee fuel rod explosion      | (+10cR)                                                             |
+| pistol bullet                   | (+5cR)                                                              |
+| shotgun pellet                  | (+6cR)                                                              |
+| plasma rifle bolt               | (+4cR)                                                              |
+| needler explosion               | (+8cR)                                                              |
+| plasma pistol bolt              | (+4cR)                                                              |
+| assault rifle bullet            | (+5cR)                                                              |
+| needler impact damage           | (+4cR)                                                              |
+| flamethrower explosion          | (+5cR)                                                              |
+| rocket launcher explosion       | (+8cR)                                                              |
+| needler detonation damage       | (+3cR)                                                              |
+| plasma rifle charged bolt       | (+4cR)                                                              |
+| sniper rifle bullet             | (+6cR)                                                              |
+| plasma cannon explosion         | (+8cR)                                                              |
+| frag grenade explision          | (+8cR)                                                              |
+| plasma grenade attached         | (+7cR)                                                              |
+| plasma grenade explision        | (+5cR)                                                              |
+| flag melee                      | (+5cR)                                                              |
+| skull melee                     | (+5cR)                                                              |
+| pistol melee                    | (+4cR)                                                              |
+| needler melee                   | (+4cR)                                                              |
+| shotgun melee                   | (+5cR)                                                              |
+| flamethrower melee              | (+5cR)                                                              |
+| sniper rifle melee              | (+5cR)                                                              |
+| plasma rifle melee              | (+4cR)                                                              |
+| plasma pistol melee             | (+4cR)                                                              |
+| assault rifle melee             | (+4cR)                                                              |
+| rocket launcher melee           | (+10cR)                                                             |
+| plasma cannon melee             | (+10cR)                                                             |
+---------------------------------------------------------------------------------------------------------
+
+## RANK REQUIREMENTS:
+| Rank                 | Grade 1 | Grade 2 | Grade 3 | Grade 4 |
+|----------------------|---------|---------|---------|---------|
+| Recruit              | 0       |         |         |         |
+| Apprentice           | 3000    | 6000    |         |         |
+| Private              | 9000    | 12000   |         |         |
+| Corporal             | 13000   | 14000   |         |         |
+| Sergeant             | 15000   | 16000   | 17000   | 18000   |
+| Gunnery Sergeant     | 19000   | 20000   | 21000   | 22000   |
+| Lieutenant           | 23000   | 24000   | 25000   | 26000   |
+| Captain              | 27000   | 28000   | 29000   | 30000   |
+| Major                | 31000   | 32000   | 33000   | 34000   |
+| Commander            | 35000   | 36000   | 37000   | 38000   |
+| Colonel              | 39000   | 40000   | 41000   | 42000   |
+| Brigadier            | 43000   | 44000   | 45000   | 46000   |
+| General              | 47000   | 48000   | 49000   | 50000   |
+----------------------------------------------------------------
+
+## Other Settings:
+- Change the name of the local database (default: ranks.json)
+- Change the currency symbol in all game messages
+- Set the starting rank, grade and credits
+- Choose when the local database is updated (default: event_game_end)
+- Fully customizable messages
+
+---
+
+## INSTALLATION:
+- Rank System.lua (SAPP SCRIPT)
+1). Place the Rank System.lua file in your Lua folder.
+
+- Rank System (FOLDER - DEPENDENCIES)
+2). Place the Rank System folder in your server's root directory (exact location as sapp.dll).
+
+## CONFIGURATION:
+All config settings can be edited in ./SDTM/settings.lua
+
+]]
+
 local RankSystem = {
     json = loadfile('./Rank System/Dependencies/Utils/Json.lua')(),
     dependencies = {

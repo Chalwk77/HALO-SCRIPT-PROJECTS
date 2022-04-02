@@ -140,7 +140,7 @@ return {
         -- Bonus points for getting the first kill
         first_blood = { 30, '+30cR (First Blood)' },
 
-        -- {consecutive kills, xp rewarded}
+        -- {consecutive kills, credits rewarded}
         spree = {
             { 5, 5, '+5 $currency_symbol (spree)' },
             { 10, 10, '+10 $currency_symbol (spree)' },
@@ -151,11 +151,11 @@ return {
             { 35, 35, '+35 $currency_symbol (spree)' },
             { 40, 40, '+40 $currency_symbol (spree)' },
             { 45, 45, '+45 $currency_symbol (spree)' },
-            -- Award 50 credits for every 5 kills at or above 50
+            -- Script will award +50 cR 5 kills at or above 50:
             { 50, 50, '+50 $currency_symbol (spree)' },
         },
 
-        -- kill-combo required, credits awarded
+        -- {consecutive kills, credits rewarded}
         multi_kill = {
             { 2, 8, '+8 $currency_symbol (multi-kill)' },
             { 3, 10, '+10 $currency_symbol (multi-kill)' },
@@ -165,7 +165,7 @@ return {
             { 7, 18, '+18 $currency_symbol (multi-kill)' },
             { 8, 20, '+20 $currency_symbol (multi-kill)' },
             { 9, 23, '+23 $currency_symbol (multi-kill)' },
-            -- Award 25 credits every 2 kills at or above 10 kill-combos
+            -- Script will award 25 cR every 2 kills at or above 10 kill-combos:
             { 10, 25, '+25 $currency_symbol (multi-kill)' },
         },
 

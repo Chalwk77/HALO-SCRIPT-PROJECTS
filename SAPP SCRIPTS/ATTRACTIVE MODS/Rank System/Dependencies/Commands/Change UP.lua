@@ -42,7 +42,9 @@ function Command:Run(Ply, Args)
 
             self.db[username] = self.db[t.username]
             self.db[username].password = password
-            self.db[t.username] = nil
+            if (t.username ~= username) then
+                self.db[t.username] = nil
+            end
 
             t.username = username
             self:Update()
