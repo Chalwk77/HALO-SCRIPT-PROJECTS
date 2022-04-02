@@ -128,11 +128,9 @@ end
 
 function Misc:Send(msg, Global)
     if (Global) then
-        for i = 1, 16 do
-            if player_present(i) then
-                if (i ~= self.pid) then
-                    rprint(i, msg)
-                end
+        for _, v in pairs(self.players) do
+            if (v.pid and v.pid ~= self.pid) then
+                rprint(v.pid, msg)
             end
         end
         return
@@ -196,14 +194,16 @@ function Misc:GetIP(Ply)
     local ip_only = ip_port:match('%d+.%d+.%d+.%d+')
 
     if (self.cache_session_index == 1) then
+        self.ips[Ply] = ip_only
         return ip_only
     elseif (self.cache_session_index == 2) then
+        self.ips[Ply] = ip_port
         return ip_port
     end
 end
 
 function Misc:GetPlayer(Ply)
-    return self.players[self:GetIP(Ply)]
+    return self.players[self.ips[Ply]]
 end
 
 return Misc

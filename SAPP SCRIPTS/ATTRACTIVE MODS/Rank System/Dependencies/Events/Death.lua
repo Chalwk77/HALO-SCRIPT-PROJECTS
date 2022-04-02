@@ -22,6 +22,10 @@ function Event:OnDeath(V, K)
 
         if (pvp and not betrayal) then
 
+            k:Revenge(v)
+            k:Avenge(v)
+            k:ReloadThis(v)
+
             k:HeadShot()
             k:MultiKill()
             k:FirstBlood()

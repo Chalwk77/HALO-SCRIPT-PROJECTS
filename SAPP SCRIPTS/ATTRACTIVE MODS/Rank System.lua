@@ -40,7 +40,10 @@ You will not have to log into your account when you quit and rejoin unless:
 ## SCORING:
 | Type                            | Credits                                                             |
 |---------------------------------|---------------------------------------------------------------------|
+| reload this                     | (+1cR)                                                              |
 | headshot                        | (+1cR)                                                              |
+| avenge                          | (+1cR)                                                              |
+| revenge                         | (+1cR)                                                              |
 | winning a game of FFA           | (+30cR)                                                             |
 | team win                        | (+30cR)                                                             |
 | team lose                       | (-5cR)                                                              |
@@ -197,6 +200,7 @@ end
 
 function RankSystem:Init()
 
+    self.ips = {}
     self.game_over = false
     self.delay_welcome = true
     self.first_blood = true
@@ -240,7 +244,9 @@ function OnJoin(P)
     RankSystem:Join(P)
 end
 
-function OnQuit()
+function OnQuit(P)
+    RankSystem:GetPlayer(P).pid = nil -- important!
+    RankSystem.ips[P] = nil
     if (RankSystem.update_file_database['OnQuit']) then
         RankSystem:Update()
     end
@@ -272,6 +278,7 @@ function OnSwitch(P)
 end
 
 function OnSpawn(P)
+    RankSystem:GetPlayer(P).avenge = {}
     RankSystem:GetPlayer(P).meta_id = 0
     RankSystem:GetPlayer(P).headshot = false
 end

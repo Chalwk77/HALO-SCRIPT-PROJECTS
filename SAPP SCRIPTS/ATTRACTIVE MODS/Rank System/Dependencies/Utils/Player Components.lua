@@ -72,18 +72,57 @@ function Player:MultiKill()
     end
 end
 
-function Player:HitString()
+function Player:HeadShot()
+    local t = self.credits.head_shot
     if (self.headshot) then
-        local t = self.credits.head_shot
+        self.headshot = false
         self:UpdateCR({ t[1], t[2] })
     end
-    self.headshot = false
 end
 
 function Player:KilledFromGrave()
     if (not player_alive(self.pid)) then
         local t = self.credits.killed_from_the_grave
         self:UpdateCR({ t[1], t[2] })
+    end
+end
+
+function Player:Revenge(vic)
+    local t = self.credits.revenge
+    vic.killer = self.pid
+    if (self.killer == vic.pid) then
+        self.killer = nil
+        self:UpdateCR({ t[1], t[2] })
+    end
+end
+
+function Player:ReloadThis(vic)
+    local t = self.credits.reload_this
+    local dyn = get_dynamic_player(vic.pid)
+    if (dyn ~= 0) then
+        local reloading = read_byte(dyn + 0x2A4)
+        if (reloading == 5) then
+            self:UpdateCR({ t[1], t[2] })
+        end
+    end
+end
+
+function Player:Avenge(vic)
+    if (not self.ffa) then
+
+        -- candidates are all players on the same team as the victim:
+        for _, v in pairs(self.players) do
+            if (v.pid and player_alive(v.pid) and v.team == vic.team and v.pid ~= vic.pid) then
+                v.avenge[self.pid] = vic.pid
+            end
+        end
+
+        -- check if the killer has eliminated an opponent who just killed a team mate:
+        local t = self.credits.avenge
+        if (self.avenge[vic.pid]) then
+            self.avenge[vic.pid] = nil
+            self:UpdateCR({ t[1], t[2] })
+        end
     end
 end
 

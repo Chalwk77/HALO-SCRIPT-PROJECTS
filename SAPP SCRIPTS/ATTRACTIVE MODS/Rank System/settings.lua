@@ -123,7 +123,7 @@ return {
     --
     credits = {
 
-        -- event_score (credits added)
+        -- event_score:
         event_score = {
             ['ctf'] = { 5, '+5 $currency_symbol (Flag Cap)' },
             ['race'] = { 5, '+5 $currency_symbol (Lap Completed)' },
@@ -140,6 +140,12 @@ return {
 
         -- Head shot bonus:
         head_shot = { 1, '+1 $currency_symbol (headshot)' },
+
+        revenge = { 1, '+1 $currency_symbol (revenge)' },
+
+        avenge = { 1, '+1 $currency_symbol (avenge)' },
+
+        reload_this = { 1, '+1 $currency_symbol (reload this!)' },
 
         -- Killed by Server:
         server = { -0, '-0 $currency_symbol (Server)' },
