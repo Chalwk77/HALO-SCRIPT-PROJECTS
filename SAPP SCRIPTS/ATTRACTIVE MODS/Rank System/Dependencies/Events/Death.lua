@@ -20,18 +20,9 @@ function Event:OnDeath(V, K)
         local pvp = (k and v and killer ~= victim)
         local betrayal = (k and v and (not self.ffa) and (v.team == k.team and killer ~= victim))
 
-        if (pvp and not betrayal) then
+        if (pvp and not betrayal and k.pid) then
 
-            k:Revenge(v)
-            k:Avenge(v)
-            k:ReloadThis(v)
-
-            k:HeadShot()
-            k:MultiKill()
-            k:FirstBlood()
-            k:KillingSpree()
-            k:KilledFromGrave()
-
+            k:Bonuses(v)
             if k:InVehicle() then
                 return
             elseif (jpt) then

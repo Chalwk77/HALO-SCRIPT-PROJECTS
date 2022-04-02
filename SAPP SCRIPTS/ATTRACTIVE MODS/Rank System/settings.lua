@@ -141,11 +141,17 @@ return {
         -- Head shot bonus:
         head_shot = { 1, '+1 $currency_symbol (headshot)' },
 
+        -- Revenge bonus (killing the person who last killed you):
         revenge = { 1, '+1 $currency_symbol (revenge)' },
 
+        -- Avenge bonus (killing someone who just eliminated a team mate):
         avenge = { 1, '+1 $currency_symbol (avenge)' },
 
+        -- Killing someone who was reloading:
         reload_this = { 1, '+1 $currency_symbol (reload this!)' },
+
+        -- Shields depleted, low health, survived being killed:
+        close_call = { 2, '+1 $currency_symbol (close call)' },
 
         -- Killed by Server:
         server = { -0, '-0 $currency_symbol (Server)' },

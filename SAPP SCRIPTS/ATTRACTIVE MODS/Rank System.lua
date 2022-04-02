@@ -40,6 +40,7 @@ You will not have to log into your account when you quit and rejoin unless:
 ## SCORING:
 | Type                            | Credits                                                             |
 |---------------------------------|---------------------------------------------------------------------|
+| close call                      | (+2cR)                                                              |
 | reload this                     | (+1cR)                                                              |
 | headshot                        | (+1cR)                                                              |
 | avenge                          | (+1cR)                                                              |
@@ -154,9 +155,9 @@ local RankSystem = {
             'On Score'
         },
         ['./Rank System/Dependencies/Utils/'] = {
+            'Bonuses',
             'Load Stats',
             'Misc',
-            'Player Components',
             'Update Rank'
         },
         ['./Rank System/Dependencies/Commands/'] = {
