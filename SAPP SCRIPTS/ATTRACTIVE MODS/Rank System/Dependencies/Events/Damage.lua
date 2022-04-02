@@ -8,8 +8,8 @@ function Event:OnDamage(V, K, M)
     local killer = tonumber(K)
     local victim = tonumber(V)
 
-    local k = self.players[killer]
-    local v = self.players[victim]
+    local k = self:GetPlayer(killer)
+    local v = self:GetPlayer(victim)
 
     if (killer > 0 and k and v) then
         k.meta_id, v.meta_id = M, M

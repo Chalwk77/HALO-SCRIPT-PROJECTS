@@ -2,8 +2,6 @@
 -- Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 
 local RankSystem = {
-    players = {},
-    delay_welcome = true,
     json = loadfile('./Rank System/Dependencies/Utils/Json.lua')(),
     dependencies = {
         ['./Rank System/'] = { 'settings' },
@@ -20,6 +18,8 @@ local RankSystem = {
             'Update Rank'
         },
         ['./Rank System/Dependencies/Commands/'] = {
+            'Create',
+            'Login',
             'Prestige',
             'Rank List',
             'Rank',
@@ -36,6 +36,7 @@ end
 
 local cmds = {}
 function RankSystem:LoadDependencies()
+
     local s = self
     for path, t in pairs(self.dependencies) do
         for _, file in pairs(t) do
@@ -53,44 +54,14 @@ function RankSystem:LoadDependencies()
     end
 end
 
-local function GetTag(Type, Name)
-    local Tag = lookup_tag(Type, Name)
-    return Tag ~= 0 and read_dword(Tag + 0xC) or nil
-end
-
-function RankSystem:TagsToID()
-
-    local t = {}
-    self.damage, self.collision = nil, nil
-
-    local tags = self.credits.tags.damage
-    for i = 1, #tags do
-        local v = tags[i]
-        local tag = GetTag(v[1], v[2])
-        if (tag) then
-            t[tag] = { v[3], v[4] }
-        end
-    end
-    self.damage = t
-
-    local col = self.credits.tags.collision
-    local col_tag = GetTag(col[1], col[2])
-    if (col_tag) then
-        self.collision = col_tag
-    end
-end
-
 function RankSystem:Init()
 
-    self.players = {}
     self.delay_welcome = true
     self.first_blood = true
     self.gt = get_var(0, '$gt')
-    self.team_play = (get_var(0, '$ffa') == '0')
+    self.ffa = (get_var(0, '$ffa') == '1')
 
     self:TagsToID()
-    self.database = self:LoadStats()
-    self.starting_credits = self:GetStartingCredits()
 
     timer(5000, 'DelayWelcome')
 end
@@ -99,7 +70,7 @@ local open = io.open
 function RankSystem:Update()
     local file = open(self.dir, 'w')
     if (file) then
-        file:write(self.json:encode_pretty(self.database))
+        file:write(self.json:encode_pretty(self.db))
         file:close()
     end
 end
@@ -119,39 +90,27 @@ function OnStart()
     end
 end
 
--- Update local database:
 function OnEnd()
+    -- Update local database:
     if (RankSystem.update_file_database['OnEnd']) then
         RankSystem:Update()
     end
 end
 
 function OnJoin(P)
-
-    RankSystem.players[P] = RankSystem:NewPlayer({
-        pid = P,
-        name = get_var(P, '$name'),
-        team = get_var(P, '$team'),
-        ip = get_var(P, '$ip'):match('%d+.%d+.%d+.%d+')
-    })
-
-    -- for debugging rank-up logic:
-    --RankSystem.players[P]:UpdateCR({ 10, '' })
+    RankSystem:Join(P)
 end
 
-function OnQuit(P)
-
+function OnQuit()
     if (RankSystem.update_file_database['OnQuit']) then
         RankSystem:Update()
     end
-
-    RankSystem.players[P] = nil
 end
 
 local function StrSplit(str)
     local t = { }
     for arg in str:gmatch("([^%s]+)") do
-        t[#t + 1] = arg:lower()
+        t[#t + 1] = arg
     end
     return t
 end
@@ -170,15 +129,15 @@ function OnDeath(V, K)
 end
 
 function OnSwitch(P)
-    RankSystem.players[P].team = get_var(P, '$team')
+    RankSystem:GetPlayer(P).team = get_var(P, '$team')
 end
 
 function OnSpawn(P)
-    RankSystem.players[P].meta_id = 0
+    RankSystem:GetPlayer(P).meta_id = 0
 end
 
 function OnScore(P)
-    RankSystem.players[P]:OnScore()
+    RankSystem:GetPlayer(P):OnScore()
 end
 
 function DelayWelcome()
@@ -192,6 +151,7 @@ function OnScriptLoad()
 
     local dir = read_string(read_dword(sig_scan('68??????008D54245468') + 0x1))
     RankSystem.dir = dir .. '\\sapp\\' .. RankSystem.file
+    RankSystem.db = RankSystem:LoadStats()
 
     -- Register needed event callbacks:
     register_callback(cb['EVENT_DIE'], 'OnDeath')

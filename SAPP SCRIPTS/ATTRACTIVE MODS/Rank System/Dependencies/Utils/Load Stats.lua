@@ -6,6 +6,9 @@ local Stats = {}
 local open = io.open
 function Stats:LoadStats()
 
+    self.players = {}
+    self.starting_credits = self:GetStartingCredits()
+
     local content = ''
     local file = open(self.dir, 'r')
     if (file) then

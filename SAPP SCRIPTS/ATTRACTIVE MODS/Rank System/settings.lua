@@ -25,14 +25,23 @@ return {
 
 
     -- When should we update the rank database (ranks.json)?
-    -- It's not recommended to save stats to file during player join & quit as this
-    -- may cause undesirable (albeit temporary) lag.
-    -- But don't worry, as a players stats are held in cache even when they quit (until the game ends).
     update_file_database = {
         ["OnEnd"] = true,
-        ["OnJoin"] = false,
-        ["OnQuit"] = false
+        ["OnQuit"] = false,
+        ["OnLoginOrCreate"] = true
     },
+
+
+    --
+    -- Advanced users only:
+    -- Client sessions are cached and indexed by IP or IP:PORT.
+    -- 1 = ip only (eg, 127.0.0.1)
+    -- 2 = ip:port (eg, 127.0.0.1:2305)
+
+    --#2 is recommended otherwise all players on that IP will share the same account.
+    -- Note: This requires that players always have the same port.
+    --       Otherwise they will have to keep logging into their account every time they join.
+    cache_session_index = 2,
 
 
     -- Fully customizable messages:
@@ -51,7 +60,7 @@ return {
         $prestige    Prestige (number)
         ]]
 
-        -- Join message:
+        -- Login message:
         [1] = {
             'You are [$rank, G$grade] Credits: $credits, Prestige: $prestige',
             '$name is [$rank, G$grade] Credits: $credits, Prestige: $prestige'

@@ -5,9 +5,9 @@ local Misc = {}
 
 function Misc:SortRanks()
     local results = { }
-    for ip, v in pairs(self.database) do
+    for _, v in pairs(self.db) do
         results[#results + 1] = {
-            ip = ip,
+            ip = v.ip,
             name = v.name,
             rank = v.rank,
             grade = v.grade,
@@ -73,6 +73,8 @@ function Misc:ShowExtRankInfo(ip)
             break
         end
     end
+
+    self:Send("Unable to get stats. You're not logged in!")
 end
 
 function Misc:Welcome()
@@ -86,9 +88,9 @@ function Misc:Welcome()
 end
 
 function Misc:GetRankID(rank)
-    for k, v in pairs(self.ranks) do
+    for i, v in ipairs(self.ranks) do
         if (v.rank == rank) then
-            return k
+            return i
         end
     end
 end
@@ -125,18 +127,80 @@ function Misc:GetStartingCredits()
 end
 
 function Misc:Send(msg, Global)
-
     if (Global) then
-        for i = 1, #self.players do
-            if (i ~= self.pid) then
-                rprint(i, msg)
+        for _, v in pairs(self.players) do
+            if (v.pid ~= self.pid) then
+                rprint(v.pid, msg)
             end
         end
         return
     end
-
     rprint(self.pid, msg)
+end
 
+local function GetTag(Type, Name)
+    local Tag = lookup_tag(Type, Name)
+    return Tag ~= 0 and read_dword(Tag + 0xC) or nil
+end
+
+function Misc:TagsToID()
+
+    local t = {}
+    self.damage, self.collision = nil, nil
+
+    local tags = self.credits.tags.damage
+    for i = 1, #tags do
+        local v = tags[i]
+        local tag = GetTag(v[1], v[2])
+        if (tag) then
+            t[tag] = { v[3], v[4] }
+        end
+    end
+    self.damage = t
+
+    local col = self.credits.tags.collision
+    local col_tag = GetTag(col[1], col[2])
+    if (col_tag) then
+        self.collision = col_tag
+    end
+end
+
+function Misc:UpdateCachedSession(t)
+    self.pid = t.pid
+    self.name = t.name
+    self.team = t.team
+    return self
+end
+
+function Misc:CacheSession(name, password)
+
+    self.username = name
+    self.logged_in = true
+
+    self.db[name] = self.db[name] or self.stats
+    self.db[name].password = password
+
+    self:Welcome()
+
+    if (self.update_file_database['OnLoginOrCreate']) then
+        self:Update()
+    end
+end
+
+function Misc:GetIP(Ply)
+
+    local ip_port = get_var(Ply, '$ip')
+    local ip_only = ip_port:match('%d+.%d+.%d+.%d+')
+
+    if (self.cache_session_index == 1) then
+        return ip_only
+    elseif (self.cache_session_index == 2) then
+        return ip_port
+    end
+end
+
+function Misc:GetPlayer(Ply)
+    return self.players[self:GetIP(Ply)]
 end
 
 return Misc

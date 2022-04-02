@@ -1,4 +1,4 @@
--- Rank System [Rank Up File] (v1.0)
+-- Rank System [Set Rank Command File] (v1.0)
 -- Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 
 local Command = {
@@ -15,7 +15,7 @@ function Command:Run(Ply, Args)
         return false
     elseif (self.permission(Ply, self.admin_level, self.no_perm)) then
 
-        local t = self.players[Ply]
+        local t = self:GetPlayer(Ply)
         local p = Args[2] -- player id
         local r = Args[3] -- rank id
         local g = Args[4] -- grade id
@@ -24,9 +24,18 @@ function Command:Run(Ply, Args)
             p, r, g = tonumber(p), tonumber(r), tonumber(g)
             if player_present(p) then
 
-                local player = self.players[p]
-                local rank_table = self.ranks[r]
+                local player = self:GetPlayer(p)
+                if (not player.logged_in) then
+                    if (player.pid == Ply) then
+                        t:Send("Unable to set rank. You're not logged in!")
+                    else
+                        t:Send(player.name .. ' is not logged into their rank account.')
+                        t:Send('Unable to set rank.')
+                    end
+                    return false
+                end
 
+                local rank_table = self.ranks[r]
                 if (rank_table) then
 
                     local grade_table = rank_table.grade[g]
@@ -42,7 +51,7 @@ function Command:Run(Ply, Args)
                             t:Send('Setting ' .. player.name .. ' to ' .. rank_table.rank .. ', G' .. g)
                             t.stats.rank = rank_table.rank
                             t.stats.grade = g
-                            self.database[t.ip] = t.stats
+                            self.db[t.username] = t.stats
                             self:Update()
                         end
                     else

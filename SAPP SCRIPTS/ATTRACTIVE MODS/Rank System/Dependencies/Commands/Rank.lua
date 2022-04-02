@@ -14,14 +14,22 @@ function Command:Run(Ply, Args)
         cprint('Sorry, you cannot execute this command from terminal.', 12)
         return false
     elseif (self.permission(Ply, self.admin_level, self.no_perm)) then
-        local t = self.players[Ply]
+        local t = self:GetPlayer(Ply)
         local player = Args[2]
         if (not Args[2] or tonumber(Args[2] == Ply)) then
-            t:ShowExtRankInfo(t.ip)
+            if (t.logged_in) then
+                t:ShowExtRankInfo(t.ip)
+            else
+                t:Send("Unable to show stats. You're not logged in!")
+            end
         elseif (player:match('%d+')) then
             if player_present(player) then
-                player = self.players[tonumber(player)]
-                t:ShowExtRankInfo(player.ip)
+                player = self:GetPlayer(tonumber(player))
+                if (t.logged_in) then
+                    t:ShowExtRankInfo(player.ip)
+                else
+                    t:Send('Unable to show stats. ' .. player.name .. ' is not logged in')
+                end
             else
                 t:Send('Player #' .. player .. ' is not online.')
             end

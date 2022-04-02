@@ -1,4 +1,4 @@
--- Rank System [Prestige File] (v1.0)
+-- Rank System [Prestige Command File] (v1.0)
 -- Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 
 local Command = {
@@ -14,7 +14,7 @@ function Command:Run(Ply)
         cprint('Sorry, you cannot execute this command from terminal.', 12)
         return false
     elseif (self.permission(Ply, self.admin_level, self.no_perm)) then
-        local t = self.players[Ply]
+        local t = self:GetPlayer(Ply)
         if (t.done) then
             t.done = false
 

@@ -5,18 +5,23 @@ local Rank = {}
 
 function Rank:UpdateCR(t)
 
-    local amount = t[1]
-    local msg = t[2]
-
+    local amount, msg = t[1], t[2]
     local stats = self.stats
 
     stats.credits = stats.credits + amount
     stats.credits = (stats.credits < 0 and 0 or stats.credits)
-    self.database[self.ip] = stats
+
+    if (self.logged_in) then
+        self.db[self.username] = stats
+    else
+        --self:Send('Log into your ranked account to save stats.')
+        goto next
+    end
 
     msg = msg:gsub('$currency_symbol', self.currency_symbol)
     self:Send(msg)
 
+    :: next ::
     if (not self.done) then
         self:UpdateRank()
     end

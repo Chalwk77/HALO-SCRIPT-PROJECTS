@@ -8,8 +8,8 @@ function Event:OnDeath(V, K)
     local killer = tonumber(K)
     local victim = tonumber(V)
 
-    local k = self.players[killer]
-    local v = self.players[victim]
+    local k = self:GetPlayer(killer)
+    local v = self:GetPlayer(victim)
 
     if (v) then
 
@@ -18,7 +18,7 @@ function Event:OnDeath(V, K)
         local guardians = (killer == nil)
         local suicide = (killer == victim)
         local pvp = (k and v and killer ~= victim)
-        local betrayal = (k and v and not k.ffa and (v.team == k.team and killer ~= victim))
+        local betrayal = (k and v and (not self.ffa) and (v.team == k.team and killer ~= victim))
 
         if (pvp and not betrayal) then
 

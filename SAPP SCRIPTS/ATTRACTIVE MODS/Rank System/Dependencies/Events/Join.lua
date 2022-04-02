@@ -3,30 +3,36 @@
 
 local Event = {}
 
+function Event:Join(Ply)
+
+    local ip = self:GetIP(Ply)
+    local name = get_var(Ply, '$name')
+    local team = get_var(Ply, '$team')
+    local defaults = { pid = Ply, team = team, name = name }
+
+    if (not self.players[ip]) then
+        self.players[ip] = self:NewPlayer(defaults)
+    else
+        self.players[ip]:UpdateCachedSession(defaults)
+    end
+
+    -- for debugging rank-up logic:
+    --RankSystem:GetPlayer(P):UpdateCR({ 10, '' })
+end
+
 function Event:NewPlayer(o)
 
     setmetatable(o, self)
     self.__index = self
 
-    local stats = self.database
-    if (not stats[o.ip]) then
-        stats[o.ip] = {
-            prestige = 0,
-            name = o.name,
-            rank = self.starting_rank,
-            grade = self.starting_grade,
-            credits = self.starting_credits
-        }
-    end
-    self.database = stats -- update database
-
     o.meta_id = 0
-    o.stats = stats[o.ip]
-    o:Welcome()
-
-    if (self.update_file_database['OnJoin']) then
-        self:Update()
-    end
+    o.logged_in = false
+    o.stats = {
+        prestige = 0,
+        rank = self.starting_rank,
+        grade = self.starting_grade,
+        credits = self.starting_credits
+    }
 
     return o
 end
