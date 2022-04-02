@@ -160,6 +160,7 @@ local RankSystem = {
             'Change UP',
             'Create',
             'Login',
+            'Logout',
             'Prestige',
             'Rank',
             'Rank List',
