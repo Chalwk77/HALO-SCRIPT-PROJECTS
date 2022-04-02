@@ -72,6 +72,14 @@ function Player:MultiKill()
     end
 end
 
+function Player:HitString()
+    if (self.headshot) then
+        local t = self.credits.head_shot
+        self:UpdateCR({ t[1], t[2] })
+    end
+    self.headshot = false
+end
+
 function Player:KilledFromGrave()
     if (not player_alive(self.pid)) then
         local t = self.credits.killed_from_the_grave

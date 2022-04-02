@@ -128,9 +128,11 @@ end
 
 function Misc:Send(msg, Global)
     if (Global) then
-        for _, v in pairs(self.players) do
-            if (v.pid ~= self.pid) then
-                rprint(v.pid, msg)
+        for i = 1, 16 do
+            if player_present(i) then
+                if (i ~= self.pid) then
+                    rprint(i, msg)
+                end
             end
         end
         return
@@ -181,6 +183,7 @@ function Misc:CacheSession(name, password)
     self.db[name].password = password
     self.stats = self.db[name]
 
+    self.stats.distance[self.map] = self.stats.distance[self.map] or 0
     self:Welcome()
 
     if (self.update_file_database['OnLoginOrCreate']) then

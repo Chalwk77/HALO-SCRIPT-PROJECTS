@@ -3,47 +3,53 @@
 
 local Event = {}
 
-local function SortResults(t)
+local function SortTable(t)
     table.sort(t, function(a, b)
+        print(a.score, b.score)
         return a.score > b.score
     end)
+    return t
 end
 
 function Event:OnEnd()
 
     self.game_over = true
     local t = self.credits.on_end
+    local r = tonumber(get_var(0, "$redscore"))
+    local b = tonumber(get_var(0, "$bluescore"))
 
     if (self.ffa) then
 
         local res = {}
-        for _, v in pairs(self.players) do
-            if (player_present(v.pid) and v.logged_in) then
-                local kills = tonumber(get_var(v.pid, '$kills'))
-                local score = tonumber(get_var(v.pid, '$score'))
-                local deaths = tonumber(get_var(v.pid, '$deaths'))
-                local assists = tonumber(get_var(v.pid, '$assists'))
-                res[#res + 1] = { score = kills + score + assists / deaths, id = v.pid }
+        for i = 1, 16 do
+            if player_present(i) then
+                local v = self:GetPlayer(i)
+                if (v.logged_in) then
+                    local kills = tonumber(get_var(i, '$kills'))
+                    local score = tonumber(get_var(i, '$score'))
+                    local deaths = tonumber(get_var(i, '$deaths'))
+                    local assists = tonumber(get_var(i, '$assists'))
+                    res[i] = { score = score + kills + assists / deaths, id = i }
+                end
             end
         end
 
-        local results = SortResults(res)
-        if (#results >= 1) then
-            local player = self:GetPlayer(results[1].id)
+        if (#res > 0) then
+            res = SortTable(res)
+            local player = self:GetPlayer(res[1].id)
             player:UpdateCR({ t.ffa[1], t.ffa[2] })
         end
 
     else
-
-        local r = tonumber(get_var(0, "$redscore"))
-        local b = tonumber(get_var(0, "$bluescore"))
-
-        for _, v in pairs(self.players) do
-            if (player_present(v.pid) and v.logged_in) then
-                if (r > b and v.team == 'red') then
-                    v:UpdateCR({ t.team.winner[1], t.team.winner[2] })
-                elseif (b > r and v.team == 'blue') then
-                    v:UpdateCR({ t.team.loser[1], t.team.loser[2] })
+        for i = 1, 16 do
+            if player_present(i) then
+                local v = self:GetPlayer(i)
+                if (v.logged_in) then
+                    if (r > b and v.team == 'red') then
+                        v:UpdateCR({ t.team.winner[1], t.team.winner[2] })
+                    elseif (b > r and v.team == 'blue') then
+                        v:UpdateCR({ t.team.loser[1], t.team.loser[2] })
+                    end
                 end
             end
         end

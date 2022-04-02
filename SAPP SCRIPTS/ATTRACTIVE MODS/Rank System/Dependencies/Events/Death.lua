@@ -22,6 +22,7 @@ function Event:OnDeath(V, K)
 
         if (pvp and not betrayal) then
 
+            k:HeadShot()
             k:MultiKill()
             k:FirstBlood()
             k:KillingSpree()

@@ -3,7 +3,7 @@
 
 local Event = {}
 
-function Event:OnDamage(V, K, M)
+function Event:OnDamage(V, K, M, _, H)
 
     local killer = tonumber(K)
     local victim = tonumber(V)
@@ -13,6 +13,7 @@ function Event:OnDamage(V, K, M)
 
     if (killer > 0 and k and v) then
         k.meta_id, v.meta_id = M, M
+        v.headshot = (H == 'head' or false)
     end
 end
 

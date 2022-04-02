@@ -32,15 +32,22 @@ return {
     },
 
 
-    --
-    -- Advanced users only:
-    -- Client sessions are cached and indexed by IP or IP:PORT.
-    -- 1 = ip only (eg, 127.0.0.1)
-    -- 2 = ip:port (eg, 127.0.0.1:2305)
+    --[[ Advanced users only:
 
-    --#2 is recommended otherwise all players on that IP will share the same account.
-    -- Note: This requires that players always have the same port.
-    --       Otherwise they will have to keep logging into their account every time they join.
+        Client login sessions are temporarily cached.
+        You will not have to log into your account when you quit and rejoin unless:
+            1). The server is restarted.
+            2) Your IP address changes.
+            3). Your client port changes (depending on config, see more on that below).
+
+        The below setting (cache_session_index) will allow you to cache sessions by IP or IP:PORT.
+        The default setting is IP:PORT.
+
+        IP:PORT caching is recommended otherwise all players on that IP will share the same account.
+        This does, however, require that players always have the same port, otherwise they will have to log into
+        their account every time they join.
+
+    ]]
     cache_session_index = 2,
 
 
@@ -122,6 +129,7 @@ return {
             ['race'] = { 5, '+5 $currency_symbol (Lap Completed)' },
         },
 
+        -- Game end scoring:
         on_end = {
             ffa = { 30, '+5 $currency_symbol (Winning a game of FFA)' },
             team = {
@@ -130,28 +138,29 @@ return {
             }
         },
 
-        -- Disconnecting from a match before it ends:
-        disconnected = { -10, '' },
+        -- Head shot bonus:
+        head_shot = { 1, '+1 $currency_symbol (headshot)' },
 
-        -- Killed by Server (credits deducted):
+        -- Killed by Server:
         server = { -0, '-0 $currency_symbol (Server)' },
 
-        -- killed by guardians (credits deducted):
+        -- killed by guardians:
         guardians = { -5, '-5 $currency_symbol (Guardians)' },
 
-        -- suicide (credits deducted):
+        -- suicide:
         suicide = { -10, '-10 $currency_symbol (Suicide)' },
 
-        -- betrayal (credits deducted):
+        -- betrayal:
         betrayal = { -15, '-15 $currency_symbol (Betrayal)' },
 
-        -- Killed from the grave (credits added to killer)
+        -- Killed from the grave:
         killed_from_the_grave = { 5, '+5 $currency_symbol (Killed From Grave)' },
 
-        -- Bonus points for getting the first kill
+        -- Bonus points for getting the first kill:
         first_blood = { 30, '+30cR (First Blood)' },
 
-        -- {consecutive kills, credits rewarded}
+        -- {consecutive kills, credits awarded}:
+        -- Script will award +50 cR every 5 kills at or above 50.
         spree = {
             { 5, 5, '+5 $currency_symbol (spree)' },
             { 10, 10, '+10 $currency_symbol (spree)' },
@@ -162,11 +171,11 @@ return {
             { 35, 35, '+35 $currency_symbol (spree)' },
             { 40, 40, '+40 $currency_symbol (spree)' },
             { 45, 45, '+45 $currency_symbol (spree)' },
-            -- Script will award +50 cR 5 kills at or above 50:
             { 50, 50, '+50 $currency_symbol (spree)' },
         },
 
-        -- {consecutive kills, credits rewarded}
+        -- {consecutive kills, credits awarded}:
+        -- Script will award +25 cR every 2 kills at or above 10 kill-combos.
         multi_kill = {
             { 2, 8, '+8 $currency_symbol (multi-kill)' },
             { 3, 10, '+10 $currency_symbol (multi-kill)' },
@@ -176,8 +185,23 @@ return {
             { 7, 18, '+18 $currency_symbol (multi-kill)' },
             { 8, 20, '+20 $currency_symbol (multi-kill)' },
             { 9, 23, '+23 $currency_symbol (multi-kill)' },
-            -- Script will award 25 cR every 2 kills at or above 10 kill-combos:
             { 10, 25, '+25 $currency_symbol (multi-kill)' },
+        },
+
+        -- Bonus points for traveling a certain distance (per map):
+        -- {credits awarded, distance travelled}:
+        -- Script will award +200 cR every 50km above 1000km.
+        distance_travelled = {
+            { 10, 100, '+10 $currency_symbol (+100km travelled on this map)' },
+            { 25, 200, '+25 $currency_symbol (+200km travelled on this map)' },
+            { 35, 300, '+35 $currency_symbol (+300km travelled on this map)' },
+            { 45, 400, '+45 $currency_symbol (+400km travelled on this map)' },
+            { 100, 500, '+100 $currency_symbol (+500km travelled on this map)' },
+            { 120, 600, '+120 $currency_symbol (+600km travelled on this map)' },
+            { 140, 700, '+140 $currency_symbol (+700km travelled on this map)' },
+            { 160, 800, '+160 $currency_symbol (+800km travelled on this map)' },
+            { 180, 900, '+180 $currency_symbol (+900km travelled on this map)' },
+            { 200, 1000, '+200 $currency_symbol (+1000km travelled on this map)' }
         },
 
         tags = {

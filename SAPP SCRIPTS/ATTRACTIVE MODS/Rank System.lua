@@ -40,7 +40,7 @@ You will not have to log into your account when you quit and rejoin unless:
 ## SCORING:
 | Type                            | Credits                                                             |
 |---------------------------------|---------------------------------------------------------------------|
-| disconnected                    | (-10cR) Disconnecting from a match before it ends                   |
+| headshot                        | (+1cR)                                                              |
 | winning a game of FFA           | (+30cR)                                                             |
 | team win                        | (+30cR)                                                             |
 | team lose                       | (-5cR)                                                              |
@@ -147,9 +147,9 @@ local RankSystem = {
             'Damage',
             'Death',
             'End',
+            'Game Tick',
             'Join',
-            'On Score',
-            'Quit',
+            'On Score'
         },
         ['./Rank System/Dependencies/Utils/'] = {
             'Load Stats',
@@ -201,10 +201,10 @@ function RankSystem:Init()
     self.delay_welcome = true
     self.first_blood = true
     self.gt = get_var(0, '$gt')
+    self.map = get_var(0, '$map')
     self.ffa = (get_var(0, '$ffa') == '1')
 
     self:TagsToID()
-
     timer(5000, 'DelayWelcome')
 end
 
@@ -233,15 +233,17 @@ function OnStart()
 end
 
 function OnEnd()
-    RankSystem:End()
+    RankSystem:OnEnd()
 end
 
 function OnJoin(P)
     RankSystem:Join(P)
 end
 
-function OnQuit(P)
-    RankSystem:Quit(P)
+function OnQuit()
+    if (RankSystem.update_file_database['OnQuit']) then
+        RankSystem:Update()
+    end
 end
 
 local function StrSplit(str)
@@ -257,8 +259,8 @@ function OnCommand(P, Cmd)
     return (cmds[args[1]] and cmds[args[1]]:Run(P, args))
 end
 
-function OnDamage(V, K, M)
-    RankSystem:OnDamage(V, K, M)
+function OnDamage(V, K, M, _, H)
+    RankSystem:OnDamage(V, K, M, _, H)
 end
 
 function OnDeath(V, K)
@@ -271,6 +273,7 @@ end
 
 function OnSpawn(P)
     RankSystem:GetPlayer(P).meta_id = 0
+    RankSystem:GetPlayer(P).headshot = false
 end
 
 function OnScore(P)
@@ -282,6 +285,10 @@ function DelayWelcome()
     return false
 end
 
+function OnTick()
+    RankSystem:GameTick()
+end
+
 function OnScriptLoad()
 
     RankSystem:LoadDependencies()
@@ -291,6 +298,7 @@ function OnScriptLoad()
     RankSystem.db = RankSystem:LoadStats()
 
     -- Register needed event callbacks:
+    register_callback(cb['EVENT_TICK'], 'OnTick')
     register_callback(cb['EVENT_DIE'], 'OnDeath')
     register_callback(cb['EVENT_JOIN'], 'OnJoin')
     register_callback(cb['EVENT_LEAVE'], 'OnQuit')
