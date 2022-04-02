@@ -188,22 +188,6 @@ return {
             { 10, 25, '+25 $currency_symbol (multi-kill)' },
         },
 
-        -- Bonus points for traveling a certain distance (per map):
-        -- {credits awarded, distance travelled}:
-        -- Script will award +200 cR every 50km above 1000km.
-        distance_travelled = {
-            { 10, 100, '+10 $currency_symbol (+100km travelled on this map)' },
-            { 25, 200, '+25 $currency_symbol (+200km travelled on this map)' },
-            { 35, 300, '+35 $currency_symbol (+300km travelled on this map)' },
-            { 45, 400, '+45 $currency_symbol (+400km travelled on this map)' },
-            { 100, 500, '+100 $currency_symbol (+500km travelled on this map)' },
-            { 120, 600, '+120 $currency_symbol (+600km travelled on this map)' },
-            { 140, 700, '+140 $currency_symbol (+700km travelled on this map)' },
-            { 160, 800, '+160 $currency_symbol (+800km travelled on this map)' },
-            { 180, 900, '+180 $currency_symbol (+900km travelled on this map)' },
-            { 200, 1000, '+200 $currency_symbol (+1000km travelled on this map)' }
-        },
-
         tags = {
 
             --

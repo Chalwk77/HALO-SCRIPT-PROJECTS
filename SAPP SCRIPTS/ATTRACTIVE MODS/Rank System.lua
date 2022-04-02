@@ -147,7 +147,6 @@ local RankSystem = {
             'Damage',
             'Death',
             'End',
-            'Game Tick',
             'Join',
             'On Score'
         },
@@ -162,8 +161,8 @@ local RankSystem = {
             'Create',
             'Login',
             'Prestige',
-            'Rank List',
             'Rank',
+            'Rank List',
             'Set Rank',
             'Top List'
         }
@@ -285,10 +284,6 @@ function DelayWelcome()
     return false
 end
 
-function OnTick()
-    RankSystem:GameTick()
-end
-
 function OnScriptLoad()
 
     RankSystem:LoadDependencies()
@@ -298,7 +293,6 @@ function OnScriptLoad()
     RankSystem.db = RankSystem:LoadStats()
 
     -- Register needed event callbacks:
-    register_callback(cb['EVENT_TICK'], 'OnTick')
     register_callback(cb['EVENT_DIE'], 'OnDeath')
     register_callback(cb['EVENT_JOIN'], 'OnJoin')
     register_callback(cb['EVENT_LEAVE'], 'OnQuit')

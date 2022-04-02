@@ -183,7 +183,6 @@ function Misc:CacheSession(name, password)
     self.db[name].password = password
     self.stats = self.db[name]
 
-    self.stats.distance[self.map] = self.stats.distance[self.map] or 0
     self:Welcome()
 
     if (self.update_file_database['OnLoginOrCreate']) then

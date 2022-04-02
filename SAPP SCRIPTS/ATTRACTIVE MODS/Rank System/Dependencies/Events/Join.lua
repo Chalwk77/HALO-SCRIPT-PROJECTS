@@ -8,18 +8,7 @@ function Event:Join(Ply)
     local ip = self:GetIP(Ply)
     local name = get_var(Ply, '$name')
     local team = get_var(Ply, '$team')
-
-    local player = get_player(Ply)
-    local defaults = {
-        pid = Ply,
-        team = team,
-        name = name,
-        pos = {
-            x = read_float(player + 0xF8),
-            y = read_float(player + 0xFC),
-            z = read_float(player + 0x100)
-        }
-    }
+    local defaults = { pid = Ply, team = team, name = name }
 
     if (not self.players[ip]) then
         self.players[ip] = self:NewPlayer(defaults)
@@ -40,7 +29,6 @@ function Event:NewPlayer(o)
     o.headshot = false
     o.logged_in = false
     o.stats = {
-        distance = { [self.map] = 0 },
         prestige = 0,
         rank = self.starting_rank,
         grade = self.starting_grade,
