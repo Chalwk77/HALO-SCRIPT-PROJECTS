@@ -7,6 +7,7 @@ local open = io.open
 function Stats:LoadStats()
 
     self.players = {}
+    self.game_over = true
     self.starting_credits = self:GetStartingCredits()
 
     local content = ''

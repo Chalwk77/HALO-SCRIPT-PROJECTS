@@ -4,7 +4,7 @@
 local Event = {}
 
 function Event:OnScore()
-    local t = self.credits.score[self.gt]
+    local t = self.credits.event_score[self.gt]
     self:UpdateCR({ t[1], t[2] })
 end
 

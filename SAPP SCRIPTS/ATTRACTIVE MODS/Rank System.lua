@@ -40,8 +40,12 @@ You will not have to log into your account when you quit and rejoin unless:
 ## SCORING:
 | Type                            | Credits                                                             |
 |---------------------------------|---------------------------------------------------------------------|
+| disconnected                    | (-10cR) Disconnecting from a match before it ends                   |
+| winning a game of FFA           | (+30cR)                                                             |
+| team win                        | (+30cR)                                                             |
+| team lose                       | (-5cR)                                                              |
 | first blood                     | (+30 cR)                                                            |
-| scoring                         | (+5cR flag cap)<br/>(+5cR lap completed)                            |
+| scoring (flag cap or new lap)   | (+5cR)                                                              |
 | killed by server                | (-0cR)                                                              |
 | killed by guardians             | (-5cR)                                                              |
 | suicide                         | (-10cR)                                                             |
@@ -142,8 +146,10 @@ local RankSystem = {
         ['./Rank System/Dependencies/Events/'] = {
             'Damage',
             'Death',
+            'End',
             'Join',
-            'On Score'
+            'On Score',
+            'Quit',
         },
         ['./Rank System/Dependencies/Utils/'] = {
             'Load Stats',
@@ -191,6 +197,7 @@ end
 
 function RankSystem:Init()
 
+    self.game_over = false
     self.delay_welcome = true
     self.first_blood = true
     self.gt = get_var(0, '$gt')
@@ -226,20 +233,15 @@ function OnStart()
 end
 
 function OnEnd()
-    -- Update local database:
-    if (RankSystem.update_file_database['OnEnd']) then
-        RankSystem:Update()
-    end
+    RankSystem:End()
 end
 
 function OnJoin(P)
     RankSystem:Join(P)
 end
 
-function OnQuit()
-    if (RankSystem.update_file_database['OnQuit']) then
-        RankSystem:Update()
-    end
+function OnQuit(P)
+    RankSystem:Quit(P)
 end
 
 local function StrSplit(str)

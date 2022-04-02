@@ -117,10 +117,21 @@ return {
     credits = {
 
         -- event_score (credits added)
-        score = {
+        event_score = {
             ['ctf'] = { 5, '+5 $currency_symbol (Flag Cap)' },
             ['race'] = { 5, '+5 $currency_symbol (Lap Completed)' },
         },
+
+        on_end = {
+            ffa = { 30, '+5 $currency_symbol (Winning a game of FFA)' },
+            team = {
+                winner = { 30, '+30 $currency_symbol (Team Won)' },
+                loser = { -5, '-5 $currency_symbol (Team Lost)' },
+            }
+        },
+
+        -- Disconnecting from a match before it ends:
+        disconnected = { -10, '' },
 
         -- Killed by Server (credits deducted):
         server = { -0, '-0 $currency_symbol (Server)' },

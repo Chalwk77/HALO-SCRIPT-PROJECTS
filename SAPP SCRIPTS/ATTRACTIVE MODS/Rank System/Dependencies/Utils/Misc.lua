@@ -179,6 +179,7 @@ function Misc:CacheSession(name, password)
 
     self.db[name] = self.db[name] or self.stats
     self.db[name].password = password
+    self.stats = self.db[name]
 
     self:Welcome()
 
