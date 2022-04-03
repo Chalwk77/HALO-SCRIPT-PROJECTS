@@ -50,19 +50,25 @@ Check out my:
 
 #### Recommended Communities:
 
-Website | Discord
------------- | -------------
-[Open Carnage](https://opencarnage.net) | [link](https://discord.gg/9HMDFa)
-[Chimera](https://opencarnage.net/index.php?/topic/6916-chimera-download-source-code-and-discord/) | [link](https://discord.gg/ZwQeBE2)
-[Halo Net](https://opencarnage.net) | [link](https://discord.gg/9HMDFa)
-[XG Gaming](https://www.xgclan.com) | [link](https://discord.gg/djqM24x8)
+| Website                                                                                            | Discord                                    |
+|----------------------------------------------------------------------------------------------------|--------------------------------------------|
+| [Open Carnage](https://opencarnage.net)                                                            | [link](https://discord.gg/9HMDFa)          |
+| [Chimera](https://opencarnage.net/index.php?/topic/6916-chimera-download-source-code-and-discord/) | [link](https://discord.gg/ZwQeBE2)         |
+| [Halo Net](https://opencarnage.net)                                                                | [link](https://discord.gg/9HMDFa)          |
+| [XG Gaming](https://www.xgclan.com)                                                                | [link](https://discord.gg/djqM24x8)        |
+| [POQ Clan](http://poqclan.com/)                                                                    | [link](https://discord.com/invite/pTsKsEm) |
+
 [JeriCraft](https://discord.gg/vcyM6epaqg)
 - - - -
+
 ##### Contributors: [weblink](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/CONTRIBUTING.md)
-> Contributors are those whom have directly contributed code or allowed me to use portions of their code from existing projects. 
+
+> Contributors are those whom have directly contributed code or allowed me to use portions of their code from existing projects.
 > In which case, their names will be credited in the relevant scripts (at the top) and their names will be listed in the CONTRIBUTING.md file.
 - - - -
+
 ##### Code of Conduct: [weblink](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/CODE_OF_CONDUCT.md)
+
 > Pledge, standards and responsibilities, etc.
 - - - -
 ##### Contact Me:
