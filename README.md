@@ -57,8 +57,7 @@ Check out my:
 | [Halo Net](https://opencarnage.net)                                                                | [link](https://discord.gg/9HMDFa)          |
 | [XG Gaming](https://www.xgclan.com)                                                                | [link](https://discord.gg/djqM24x8)        |
 | [POQ Clan](http://poqclan.com/)                                                                    | [link](https://discord.com/invite/pTsKsEm) |
-
-[JeriCraft](https://discord.gg/vcyM6epaqg)
+| [JeriCraft](https://discord.gg/vcyM6epaqg)                                                         | [link](https://discord.gg/vcyM6epaqg)      |
 - - - -
 
 ##### Contributors: [weblink](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/CONTRIBUTING.md)
