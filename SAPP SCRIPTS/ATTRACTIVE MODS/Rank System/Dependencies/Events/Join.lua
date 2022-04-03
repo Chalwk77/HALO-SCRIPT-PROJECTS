@@ -30,7 +30,6 @@ function Event:NewPlayer(o)
     o.logged_in = false
 
     o.stats = {
-        medals = {},
         prestige = 0,
         rank = self.starting_rank,
         grade = self.starting_grade,

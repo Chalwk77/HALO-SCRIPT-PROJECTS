@@ -203,7 +203,7 @@ return {
         tags = {
 
             --
-            -- tag {type, name, credits}
+            -- tag {class, name, credits, message}
             --
 
             damage = {
@@ -226,7 +226,7 @@ return {
 
                 -- WEAPON PROJECTILES --
                 --
-                { 'jpt!', 'weapons\\pistol\\bullet', 5, '+5 $currency_symbol (Pistol Bullet)' },
+                { 'jpt!', 'weapons\\pistol\\bullet', 5, '+5 $currency_symbol (Pistol Bullet)', },
                 { 'jpt!', 'weapons\\shotgun\\pellet', 6, '+6 $currency_symbol (Shotgun Pallet)' },
                 { 'jpt!', 'weapons\\plasma rifle\\bolt', 4, '+4 $currency_symbol (Plasma Rifle Bolt)' },
                 { 'jpt!', 'weapons\\needler\\explosion', 8, '+8 $currency_symbol (Needler Explosion)' },
@@ -262,6 +262,7 @@ return {
                 { 'jpt!', 'weapons\\assault rifle\\melee', 4, '+4 $currency_symbol (Melee: Assault Rifle)' },
                 { 'jpt!', 'weapons\\rocket launcher\\melee', 10, '+10 $currency_symbol (Melee: Rocket Launcher)' },
                 { 'jpt!', 'weapons\\plasma_cannon\\effects\\plasma_cannon_melee', 10, '+10 $currency_symbol (Melee: Plasma Cannon)' },
+
             },
 
             -- VEHICLE COLLISION --
@@ -277,7 +278,6 @@ return {
             }
         }
     },
-
 
     -- STAR OF THE SHOW --
     -- This table defines all rank requirements:

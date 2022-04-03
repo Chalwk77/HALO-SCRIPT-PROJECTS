@@ -16,13 +16,14 @@ local SDTM = {
 
 function SDTM:GetJPTTags()
     local t = {}
+    self.jpt_tags = nil
     for k, v in pairs(self.damage_tags) do
         local tag = self:GetTag(k, v)
         if (tag) then
             t[tag] = true
         end
     end
-    self.damage_tags = t
+    self.jpt_tags = t
 end
 
 -- Prevent players from killing themselves with the sniper rifle:
@@ -33,7 +34,7 @@ end
 function SDTM:BlockDamage(Victim, Killer, MapID)
     local victim = tonumber(Victim)
     local killer = tonumber(Killer)
-    if (victim == killer and self.damage_tags[MapID]) then
+    if (victim == killer and self.jpt_tags[MapID]) then
         return false
     end
     return true
