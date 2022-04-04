@@ -306,6 +306,7 @@ function OnCommand(P, C, E)
             players[P].lvl = tonumber(get_var(P, '$lvl')) -- just in case
             players[P]:Write(Event('Command'))
         else
+            Logger.lvl = 'N/A'
             Logger:Write(Event('Command'))
         end
     end
