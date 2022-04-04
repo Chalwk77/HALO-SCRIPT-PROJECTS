@@ -46,12 +46,12 @@ local Logger = {
         -- Generic:
         ['Spawn'] = { '[SPAWN] $name spawned', false },
         ['Warp'] = { '[WARP] $name is warping', true },
-        ['Login'] = { '[LOGIN] $name has logged in', true },
+        ['Login'] = { '[LOGIN] $name has logged in. Admin Level: [$lvl]', true },
         ['Reset'] = { '[MAP RESET] The map has been reset.', true },
         ['Switch'] = { '[TEAM SWITCH] $name switched teams. New team: [$team]', false },
 
         -- Command/Message
-        ['Command'] = { '[COMMAND] $name: /$cmd [Type: $command_type]', true },
+        ['Command'] = { '[COMMAND] $name: /$cmd [Type: $command_type] Admin Level: [$lvl]', true },
         ['Message'] = { '[MESSAGE] $name: $msg [Type: $message_type]', true },
 
         -- death:
@@ -166,6 +166,7 @@ function Logger:NewPlayer(o)
 
     o.meta = 0
     o.switched = false
+    o.lvl = tonumber(get_var(o.id, '$lvl'))
     o.pirated = (known_pirated_hashes[o.hash] and 'YES' or 'NO')
 
     return o
@@ -292,6 +293,7 @@ end
 
 function OnLogin(P)
     if (players[P]) then
+        players[P].lvl = tonumber(get_var(P, '$lvl'))
         players[P]:Write(Event('Login'))
     end
 end
@@ -301,6 +303,7 @@ function OnCommand(P, C, E)
         Logger.cmd = C
         Logger.cmd_type = (E == 0 and 'CONSOLE' or E == 1 and 'RCON' or E == 2 and 'CHAT')
         if (players[P]) then
+            players[P].lvl = tonumber(get_var(P, '$lvl')) -- just in case
             players[P]:Write(Event('Command'))
         else
             Logger:Write(Event('Command'))
