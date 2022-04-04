@@ -139,6 +139,25 @@ local function Event(E)
     return Logger.events[E]
 end
 
+local function GetTag(Type, Name)
+    local Tag = lookup_tag(Type, Name)
+    return Tag ~= 0 and read_dword(Tag + 0xC) or nil
+end
+
+local function Sensitive(s)
+    local t = Logger.sensitive_content
+    for i = 1, #t do
+        if (s:find(t[i])) then
+            return true
+        end
+    end
+    return false
+end
+
+local function IsCommand(s)
+    return (s:sub(1, 1) == '/' or s:sub(1, 1) == '\\')
+end
+
 function OnScriptLoad()
 
     local dir = read_string(read_dword(sig_scan('68??????008D54245468') + 0x1))
@@ -165,11 +184,6 @@ function OnScriptLoad()
     end
 
     OnStart(true)
-end
-
-local function GetTag(Type, Name)
-    local Tag = lookup_tag(Type, Name)
-    return Tag ~= 0 and read_dword(Tag + 0xC) or nil
 end
 
 function OnStart(script_load)
@@ -246,19 +260,8 @@ function OnLogin(P)
     end
 end
 
-local function Sensitive(s)
-    local t = Logger.sensitive_content
-    for i = 1, #t do
-        if (s:find(t[i])) then
-            return true
-        end
-    end
-    return false
-end
-
 function OnCommand(P, C, E)
     if (not Sensitive(C)) then
-
         Logger.cmd = C
         Logger.cmd_type = (E == 0 and 'CONSOLE' or E == 1 and 'RCON' or E == 2 and 'CHAT')
         if (players[P]) then
@@ -267,10 +270,6 @@ function OnCommand(P, C, E)
             Logger:Write(Event('Command'))
         end
     end
-end
-
-local function IsCommand(s)
-    return (s:sub(1, 1) == '/' or s:sub(1, 1) == '\\')
 end
 
 function OnChat(P, M, T)
@@ -283,7 +282,7 @@ end
 
 local function InVehicle(P)
     local dyn = get_dynamic_player(P)
-    return (dyn ~= 0 and read_dword(dyn + 0x11C) == 0xFFFFFFFF) or false
+    return (dyn ~= 0 and read_dword(dyn + 0x11C) ~= 0xFFFFFFFF) or false
 end
 
 function OnDeath(Victim, Killer, MetaID)
