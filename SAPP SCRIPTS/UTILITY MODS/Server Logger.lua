@@ -307,6 +307,7 @@ function OnCommand(P, C, E)
             players[P]:Write(Event('Command'))
         else
             Logger.lvl = 'N/A'
+            Logger.name = 'N/A'
             Logger:Write(Event('Command'))
         end
     end
