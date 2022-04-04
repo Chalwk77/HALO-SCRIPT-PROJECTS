@@ -25,7 +25,9 @@ local Logger = {
     date_format = '!%a, %d %b %Y %H:%M:%S',
 
     -- Customizable event messages:
-    -- Set to false to disable.
+    -- You can enable or disable individual event logs.
+    -- Set to false to disable & true to enable.
+    -- Some are disabled by default.
     events = {
 
         -- Script load/unload:
@@ -42,28 +44,28 @@ local Logger = {
         ['Quit'] = { '[QUIT] $name ID: [$id] IP: [$ip] Hash: [$hash] Total Players: [$total/16]', true },
 
         -- Generic:
+        ['Spawn'] = { '[SPAWN] $name spawned', false },
         ['Warp'] = { '[WARP] $name is warping', true },
-        ['Reset'] = { '[MAP RESET] The map has been reset.', true },
-        ['Switch'] = { '[TEAM SWITCH] $name switched teams. New team: [$team]', true },
         ['Login'] = { '[LOGIN] $name has logged in', true },
-        ['Spawn'] = { '[SPAWN] $name spawned', true },
+        ['Reset'] = { '[MAP RESET] The map has been reset.', true },
+        ['Switch'] = { '[TEAM SWITCH] $name switched teams. New team: [$team]', false },
 
         -- Command/Message
         ['Command'] = { '[COMMAND] $name: /$cmd [Type: $command_type]', true },
         ['Message'] = { '[MESSAGE] $name: $msg [Type: $message_type]', true },
 
         -- death:
-        ['unknown'] = { '[DEATH] $victim died', true },
-        ['pvp'] = { '[DEATH] $victim was killed by $killer', true },
-        ['suicide'] = { '[DEATH] $victim committed suicide', true },
-        ['fell'] = { '[DEATH] $victim fell and broke their leg', true },
-        ['server'] = { '[DEATH] $victim was killed by the server', true },
-        ['run_over'] = { '[DEATH] $victim was run over by $killer', true },
-        ['betrayal'] = { '[DEATH] $victim was betrayed by $killer', true },
-        ['squashed'] = { '[DEATH] $victim was squashed by a vehicle', true },
-        ['first_blood'] = { '[DEATH] $killer got first blood on $victim', true },
-        ['guardians'] = { '[DEATH] $victim and $killer were killed by the guardians', true },
-        ['killed_from_grave'] = { '[DEATH] $victim was killed from the grave by $killer', true },
+        ['unknown'] = { '[DEATH] $victim died', false },
+        ['pvp'] = { '[DEATH] $victim was killed by $killer', false },
+        ['suicide'] = { '[DEATH] $victim committed suicide', false },
+        ['fell'] = { '[DEATH] $victim fell and broke their leg', false },
+        ['server'] = { '[DEATH] $victim was killed by the server', false },
+        ['run_over'] = { '[DEATH] $victim was run over by $killer', false },
+        ['betrayal'] = { '[DEATH] $victim was betrayed by $killer', false },
+        ['squashed'] = { '[DEATH] $victim was squashed by a vehicle', false },
+        ['first_blood'] = { '[DEATH] $killer got first blood on $victim', false },
+        ['guardians'] = { '[DEATH] $victim and $killer were killed by the guardians', false },
+        ['killed_from_grave'] = { '[DEATH] $victim was killed from the grave by $killer', false },
     },
 
     -- Messages and commands containing these keywords will not be logged:
