@@ -1,18 +1,8 @@
 --[[
 --=====================================================================================================--
 Script Name: Server Logger, for SAPP (PC & CE)
-Description: An advanced custom logger.
-
-    This script will log the following events:
-    1). Game start & end
-    2). Script load, re-load & unload
-    3). Team Change
-    4). Admin Login
-    5). Map Reset
-    6). Global, team & vehicle chat messages
-    7). Commands (originating from console, rcon & chat)
-
-    See config section for more information.
+Description: An advanced custom server logger.
+             This is intended to replace SAPP's built-in logger.
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -20,430 +10,346 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
-api_version = "1.12.0.0"
+api_version = '1.12.0.0'
 
 local Logger = {
 
-    --
-    -- CONFIGURATION STARTS HERE --
-    --
-
     -- Name of the log file for this server:
-    -- Stored in the same directory as mapcycle.txt
+    -- File will be auto-generated in the same directory as mapcycle.txt.
     --
-    file = "Server Log.txt",
-
-    -- Script errors (if any) will be logged to this file:
-    --
-    error_file = "Server Log (errors).log",
+    file = 'Server Log.txt',
 
     -- Timestamp format:
     -- For help with date & time format, refer to this page: www.lua.org/pil/22.1.html
     --
-    date_format = "!%a, %d %b %Y %H:%M:%S",
+    date_format = '!%a, %d %b %Y %H:%M:%S',
 
-    -- IP Address of the server:
-    --
-    ip = "localhost",
+    -- Customizable event messages:
+    -- Set to false to disable.
+    events = {
 
-    -- Name for the server console:
-    --
-    name = "SERVER CONSOLE",
+        -- Script load/unload:
+        ['ScriptLoad'] = { '[SCRIPT LOAD] Advanced Logger was loaded', true },
+        ['ScriptReload'] = { '[SCRIPT RELOAD] Advanced Logger was re-loaded', true },
+        ['ScriptUnload'] = { '[SCRIPT UNLOAD] Advanced Logger was unloaded', true },
 
-    --====================--
-    -- SENSITIVE CONTENT  --
-    -- Any commands containing words in the "sensitive_content" table will not be logged.
-    --=================================================================================--
+        -- Start/Finish
+        ['Start'] = { 'A new game has started on [$map] - [$mode]', true },
+        ['End'] = { 'Game Ended - Showing Post Game Carnage report', true },
 
-    -- If true, console commands containing the aforementioned "words" will be logged.
-    ignore_console = false,
+        -- Join/Quit
+        ['Join'] = { '[JOIN] $name ID: [$id] IP: [$ip] Hash: [$hash] Total Players: [$total/16]', true },
+        ['Quit'] = { '[QUIT] $name ID: [$id] IP: [$ip] Hash: [$hash] Total Players: [$total/16]', true },
 
-    --============================--
+        -- Generic:
+        ['Warp'] = { '[WARP] $name is warping', true },
+        ['Reset'] = { '[MAP RESET] The map has been reset.', true },
+        ['Switch'] = { '[TEAM SWITCH] $name switched teams. New team: [$team]', true },
+        ['Login'] = { '[LOGIN] $name has logged in', true },
+        ['Spawn'] = { '[SPAWN] $name spawned', true },
+
+        -- Command/Message
+        ['Command'] = { '[COMMAND] $name: /$cmd [Type: $command_type]', true },
+        ['Message'] = { '[MESSAGE] $name: $msg [Type: $message_type]', true },
+
+        -- death:
+        ['unknown'] = { '[DEATH] $victim died', true },
+        ['pvp'] = { '[DEATH] $victim was killed by $killer', true },
+        ['suicide'] = { '[DEATH] $victim committed suicide', true },
+        ['fell'] = { '[DEATH] $victim fell and broke their leg', true },
+        ['server'] = { '[DEATH] $victim was killed by the server', true },
+        ['run_over'] = { '[DEATH] $victim was run over by $killer', true },
+        ['betrayal'] = { '[DEATH] $victim was betrayed by $killer', true },
+        ['squashed'] = { '[DEATH] $victim was squashed by a vehicle', true },
+        ['first_blood'] = { '[DEATH] $killer got first blood on $victim', true },
+        ['guardians'] = { '[DEATH] $victim and $killer were killed by the guardians', true },
+        ['killed_from_grave'] = { '[DEATH] $victim was killed from the grave by $killer', true },
+    },
+
+    -- Messages and commands containing these keywords will not be logged:
     sensitive_content = {
-        "login",
-        "admin_add",
-        "change_password",
-        "admin_change_pw",
-        "admin_add_manually",
-    },
-
-    --=========================--
-    -- SCRIPT LOAD & UNLOAD --
-    --=========================--
-    ["ScriptLoad"] = {
-        -- @Param f (self: Logger)
-        Log = function(f)
-            if (f.reloaded) then
-                f:Write("[SCRIPT RE-LOAD] Server Logger was re-loaded")
-            else
-                f:Write("[SCRIPT LOAD] Server Logger was loaded")
-            end
-        end
-    },
-
-    ["ScriptUnload"] = {
-        -- @Param f (self: Logger)
-        Log = function(f)
-            f:Write("[SCRIPT UNLOAD] Advanced Server Logger was unloaded")
-        end
-    },
-
-    --=========================--
-    -- GAME START & END --
-    --=========================--
-    ["GameStart"] = {
-        -- @Param f (self: Logger)
-        Log = function(f)
-            f:Write("[GAME START] A new game has started on [" .. f.map .. " - " .. f.gt .. " (" .. f.mode .. ")]")
-        end
-    },
-
-    ["GameEnd"] = {
-        -- @Param f (self: Logger)
-        Log = function(f)
-            f:Write("[GAME END] The game has ended. Showing post game carnage report...")
-        end
-    },
-
-    --=========================--
-    -- PLAYER JOIN & QUIT --
-    --=========================--
-    ["PlayerJoin"] = {
-        -- @Param f (self: Logger)
-        -- @Param p (player table [table])
-        Log = function(f, p)
-
-            local a = p.name    -- player name [string]
-            local b = p.id      -- player id [number]
-            local c = p.ip      -- player ip [string]
-            local d = p.hash    -- player hash [string]
-            local e = f.pn      -- player count [number]
-
-            f:Write("[JOIN] Name: " .. a .. " [ID: " .. b .. " | IP: " .. c .. " | CD-Key Hash: " .. d .. " | Total Players: " .. e .. "/16]")
-        end
-    },
-
-    ["PlayerQuit"] = {
-        -- @Param f (self: Logger)
-        -- @Param p (player table [table])
-        Log = function(f, p)
-
-            local a = p.name    -- player name [string]
-            local b = p.id      -- player id [number]
-            local c = p.ip      -- player ip [string]
-            local d = p.hash    -- player hash [string]
-            local e = f.pn      -- player count [number]
-
-            f:Write("[QUIT] Name: " .. a .. " [ID: " .. b .. " | IP: " .. c .. " | CD-Key Hash: " .. d .. " | Total Players: " .. e .. "/16]")
-        end
-    },
-
-    --=========================--
-    -- Team Change --
-    --=========================--
-    ["TeamChange"] = {
-        -- @Param f (self: Logger)
-        -- @Param p (player id [number])
-        Log = function(f, p)
-            local n = f.players[p].name      -- player name [string]
-            local t = f.players[p].team(p)   -- player team [string]
-            f:Write("[TEAM CHANGE] " .. n .. " switched teams [New team: " .. t .. "]")
-        end
-    },
-
-    --=========================--
-    -- Admin Login --
-    --=========================--
-    ["AdminLogin"] = {
-        -- @Param f (self: Logger)
-        -- @Param n (player name [string])
-        Log = function(f, n)
-            f:Write("[LOGIN] " .. n .. " has logged in")
-        end
-    },
-
-    --=========================--
-    -- Map Reset --
-    --=========================--
-    ["MapReset"] = {
-        -- @Param f (self: Logger)
-        Log = function(f)
-            f:Write("[MAP RESET] The map has been reset.")
-        end
-    },
-
-    --=========================--
-    -- CHAT MESSAGE & COMMAND --
-    --=========================--
-    ["MessageCreate"] = {
-        -- @Param f (self: Logger)
-        Log = function(f)
-
-            local str
-            local a = f.chat[1] -- message [string]
-            local b = f.chat[2] -- message type [number]
-            local c = f.chat[3] -- player name [string]
-            local d = f.chat[4] -- player id [number]
-            f.chat = {}
-
-            if (b == 0) then
-                str = "[GLOBAL] " .. c .. " ID: [" .. d .. "]: " .. a
-            elseif (b == 1) then
-                str = "[TEAM] " .. c .. " ID: [" .. d .. "]: " .. a
-            elseif (b == 2) then
-                str = "[VEHICLE] " .. c .. " ID: [" .. d .. "]: " .. a
-            else
-                str = "[UNKNOWN] " .. c .. " ID: [" .. d .. "]: " .. a
-            end
-            f:Write(str)
-        end
-    },
-
-    ["Command"] = {
-        -- @Param f (self: Logger)
-        Log = function(f)
-
-            local A = f.cmd[1] -- admin (true or false) [string]
-            local B = f.cmd[2] -- admin level [number]
-            local C = f.cmd[3] -- executor name [string]
-            local D = f.cmd[4] -- executor id [number]
-            local E = f.cmd[5] -- execute ip (or 127.0.0.1) [string]
-            local F = f.cmd[6] -- command [string]
-            local G = f.cmd[7] -- command environment
-            f.cmd = {}
-
-            local cmd
-            if (G == 0) then
-                cmd = "[CONSOLE COMMAND] " .. C .. ": " .. F .. " [Admin = " .. A .. " | Level: " .. B .. " | ID: " .. D .. " | IP: " .. E .. "]"
-            elseif (G == 1) then
-                cmd = "[RCON COMMAND] " .. C .. ": " .. F .. " [Admin = " .. A .. " | Level: " .. B .. " | ID: " .. D .. " | IP: " .. E .. "]"
-            elseif (G == 2) then
-                cmd = "[CHAT COMMAND] " .. C .. ": /" .. F .. " [Admin = " .. A .. " | Level: " .. B .. " | ID: " .. D .. " | IP: " .. E .. "]"
-            end
-
-            f:Write(cmd)
-        end
-    },
-
-    --
-    -- CONFIGURATION ENDS --
-    --
-
-    -- DO NOT TOUCH --
-    -- @Param f (self: Logger)
-    Reset = function(f)
-        f.pn = 0        -- player count
-        f.cmd = {}      -- command table
-        f.chat = {}     -- chat table
-        f.players = {}  -- player table
-    end
+        'login',
+        'admin_add',
+        'change_password',
+        'admin_change_pw',
+        'admin_add_manually',
+    }
 }
 
-function OnScriptLoad()
+local players = {}
+local date = os.date
+local open = io.open
+local ffa, falling, distance, first_blood
 
-    local cg_dir = read_string(read_dword(sig_scan("68??????008D54245468") + 0x1))
-    Logger.dir = cg_dir .. "\\sapp\\" .. Logger.file
+function Logger:Format(s)
+    for k, v in pairs({
 
-    -- register needed event callbacks:
-    register_callback(cb["EVENT_JOIN"], "PlayerJoin")
-    register_callback(cb["EVENT_LEAVE"], "PlayerQuit")
+        -- player vars:
+        ['$ip'] = self.ip,
+        ['$id'] = self.id,
+        ['$lvl'] = self.lvl,
+        ['$name'] = self.name,
+        ['$hash'] = self.hash,
+        ['$team'] = self.team,
 
-    register_callback(cb["EVENT_COMMAND"], "Command")
-    register_callback(cb["EVENT_CHAT"], "MessageCreate")
+        -- server vars:
+        ['$cmd'] = self.cmd,
+        ['$msg'] = self.msg,
+        ['$map'] = self.map,
+        ['$mode'] = self.mode,
+        ['$total'] = self.total,
+        ['$victim'] = self.victim,
+        ['$killer'] = self.killer,
+        ['$command_type'] = self.cmd_type,
+        ['$message_type'] = self.msg_type
 
-    register_callback(cb["EVENT_GAME_END"], "GameEnd")
-    register_callback(cb['EVENT_MAP_RESET'], "MapReset")
-    register_callback(cb["EVENT_GAME_START"], "GameStart")
-
-    register_callback(cb['EVENT_LOGIN'], "AdminLogin")
-
-    register_callback(cb['EVENT_TEAM_SWITCH'], "TeamChange")
-
-    Logger.reloaded = (get_var(0, "$gt") ~= "n/a") or false
-    Logger["ScriptLoad"].Log(Logger)
-
-    GameStart()
-end
-
-local script_version = 1.3
-
-function OnScriptUnload()
-    Logger["ScriptUnload"].Log(Logger)
-end
-
-function GameStart()
-
-    local gt = get_var(0, "$gt")
-    if (gt ~= "n/a") then
-
-        Logger:Reset(Logger)
-        if (not Logger.reloaded) then
-            Logger.gt = gt
-            Logger.map = get_var(0, "$map")
-            Logger.mode = get_var(0, "$mode")
-            Logger["GameStart"].Log(Logger)
-        end
-
-        for i = 1, 16 do
-            if player_present(i) then
-                Logger:InitPlayer(i, false)
-            end
-        end
+    }) do
+        s = s:gsub(k, v)
     end
+    return s
 end
 
-function GameEnd()
-    Logger["GameEnd"].Log(Logger)
-end
-
-local function BlackListed(P, STR)
-
-    local Args = { }
-    for Params in STR:gmatch("([^%s]+)") do
-        Args[#Args + 1] = Params:lower()
-    end
-
-    if (#Args > 0) then
-        for i = 1, #Args do
-            for _, word in pairs(Logger.sensitive_content) do
-                if Args[i]:lower():find(word) then
-                    if (P ~= nil and P == 0 and Logger.ignore_console) then
-                        return false
-                    end
-                    return true
-                end
-            end
-        end
-    end
-    return false
-end
-
-local function IsCommand(M)
-    return (M:sub(1, 1) == "/" or M:sub(1, 1) == "\\")
-end
-
-function MessageCreate(P, M, T)
-    if (not IsCommand(M) and Logger.players[P]) then
-        Logger.chat = { M, T, Logger.players[P].name, P }
-        Logger["MessageCreate"].Log(Logger)
-    end
-end
-
-local function IsAdmin(P, L)
-    return (P == 0 and "true") or (L >= 1 and "true" or "false")
-end
-
-function Command(P, C, E, _)
-    if (not BlackListed(P, C)) then
-
-        local lvl = tonumber(get_var(P, "$lvl"))
-
-        local state = IsAdmin(P, lvl)
-        local ip = (P > 0 and Logger.players[P].ip) or Logger.ip
-        local name = (P > 0 and Logger.players[P].name) or Logger.name
-        Logger.cmd = { state, lvl, name, P, ip, C, E }
-
-        Logger["Command"].Log(Logger)
-    end
-end
-
-function PlayerJoin(P)
-    Logger:InitPlayer(P, false)
-end
-
-function PlayerQuit(P)
-    Logger:InitPlayer(P, true)
-end
-
-function Logger:InitPlayer(P, Reset, Reload)
-
-    if (not Reset) then
-        self.players[P] = {
-            id = P,
-            ip = get_var(P, "$ip"),
-            name = get_var(P, "$name"),
-            hash = get_var(P, "$hash"),
-            team = function(P)
-                return get_var(P, "$team")
-            end
-        }
-        self.pn = tonumber(get_var(0, "$pn"))
-        if (not Reload) then
-            self["PlayerJoin"].Log(self, self.players[P])
-        end
-        return
-    end
-
-    if (self.players[P]) then
-        self.pn = tonumber(get_var(0, "$pn")) - 1
-        self["PlayerQuit"].Log(self, self.players[P])
-        self.players[P] = nil
-    end
-end
-
-function TeamChange(P)
-    if (Logger.players[P]) then
-        Logger["TeamChange"].Log(Logger, P)
-    end
-end
-
-function MapReset()
-    Logger["MapReset"].Log(Logger)
-end
-
-function AdminLogin(P)
-    if (Logger.players[P]) then
-        Logger["AdminLogin"].Log(Logger, Logger.players[P].name)
-    end
-end
-
-function Logger:Write(STR)
-    if (STR) then
-        local file = io.open(self.dir, "a+")
+function Logger:Write(s)
+    if (s[2]) then
+        local str = s[1]
+        str = self:Format(str)
+        local file = open(self.dir, 'a+')
         if (file) then
-            file:write("[" .. os.date(self.date_format) .. "] " .. STR .. "\n")
+            file:write('[' .. date(self.date_format) .. '] ' .. str .. '\n')
             file:close()
         end
     end
 end
 
--- Error handler:
---
-local function WriteError(err)
-    local file = io.open(Logger.error_file, "a+")
-    if (file) then
-        file:write(err .. "\n")
-        file:close()
-    end
+function Logger:NewPlayer(o)
+
+    setmetatable(o, self)
+    self.__index = self
+    self.total = tonumber(get_var(0, '$pn'))
+
+    o.meta = 0
+    o.switched = false
+
+    return o
 end
 
-function OnError(Error)
+local function Event(E)
+    return Logger.events[E]
+end
 
-    local log = {
+function OnScriptLoad()
 
-        -- log format: {msg, console out [true/false], console color}
-        -- If console out = false, the message will not be logged to console.
+    local dir = read_string(read_dword(sig_scan('68??????008D54245468') + 0x1))
+    Logger.dir = dir .. '\\sapp\\' .. Logger.file
 
-        { os.date("[%H:%M:%S - %d/%m/%Y]"), true, 12 },
-        { Error, false, 12 },
-        { debug.traceback(), true, 12 },
-        { "--------------------------------------------------------", true, 5 },
-        { "Please report this error on github:", true, 7 },
-        { "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", true, 7 },
-        { "Script Version: " .. script_version, true, 7 },
-        { "--------------------------------------------------------", true, 5 }
-    }
+    register_callback(cb['EVENT_JOIN'], 'OnJoin')
+    register_callback(cb['EVENT_LEAVE'], 'OnQuit')
+    register_callback(cb['EVENT_SPAWN'], 'OnSpawn')
+    register_callback(cb['EVENT_DIE'], 'OnDeath')
+    register_callback(cb['EVENT_CHAT'], 'OnChat')
+    register_callback(cb['EVENT_WARP'], 'OnWarp')
+    register_callback(cb['EVENT_LOGIN'], 'OnLogin')
+    register_callback(cb['EVENT_GAME_END'], 'OnEnd')
+    register_callback(cb['EVENT_MAP_RESET'], 'OnReset')
+    register_callback(cb['EVENT_COMMAND'], 'OnCommand')
+    register_callback(cb['EVENT_GAME_START'], 'OnStart')
+    register_callback(cb['EVENT_TEAM_SWITCH'], 'OnSwitch')
+    register_callback(cb['EVENT_DAMAGE_APPLICATION'], 'OnDeath')
 
-    for _, v in pairs(log) do
-        WriteError(v[1])
-        if (v[2]) then
-            cprint(v[1], v[3])
+    if (get_var(0, '$gt') == 'n/a') then
+        Logger:Write(Event('ScriptLoad'))
+    else
+        Logger:Write(Event('ScriptReload'))
+    end
+
+    OnStart(true)
+end
+
+local function GetTag(Type, Name)
+    local Tag = lookup_tag(Type, Name)
+    return Tag ~= 0 and read_dword(Tag + 0xC) or nil
+end
+
+function OnStart(script_load)
+
+    if (get_var(0, '$gt') ~= 'n/a') then
+
+        Logger.map = get_var(0, '$map')
+        Logger.mode = get_var(0, '$mode')
+
+        players = { }
+        first_blood = true
+        ffa = (get_var(0, '$ffa') == '1')
+        falling = GetTag('jpt!', 'globals\\falling')
+        distance = GetTag('jpt!', 'globals\\distance')
+
+        if (not script_load) then
+            Logger:Write(Event('Start'))
+        end
+
+        for i = 1, 16 do
+            if player_present(i) then
+                OnJoin(i)
+            end
         end
     end
-
-    WriteError("\n")
 end
 
--- For a future update:
-return Logger
---
+function OnEnd()
+    Logger:Write(Event('End'))
+end
+
+function OnJoin(P)
+
+    players[P] = Logger:NewPlayer({
+        id = P,
+        ip = get_var(P, '$ip'),
+        name = get_var(P, '$name'),
+        hash = get_var(P, '$hash'),
+        team = (not ffa and get_var(P, '$team') or 'FFA')
+    })
+
+    players[P]:Write(Event('Join'))
+end
+
+function OnQuit(P)
+    Logger.total = Logger.total - 1
+    players[P]:Write(Event('Quit'))
+    players[P] = nil
+end
+
+function OnSpawn(P)
+    players[P].meta = 0
+    players[P].switched = nil
+    players[P]:Write(Event('Spawn'))
+end
+
+function OnSwitch(P)
+    players[P].switched = true
+    players[P].team = get_var(P, '$team')
+    players[P]:Write(Event('Switch'))
+end
+
+function OnWarp(P)
+    players[P]:Write(Event('Warp'))
+end
+
+function OnReset()
+    Logger:Write(Event('Reset'))
+end
+
+function OnLogin(P)
+    if (players[P]) then
+        Logger:Write(Event('Login'))
+    end
+end
+
+local function Sensitive(s)
+    local t = Logger.sensitive_content
+    for i = 1, #t do
+        if (s:find(t[i])) then
+            return true
+        end
+    end
+    return false
+end
+
+function OnCommand(P, C, E)
+    if (not Sensitive(C)) then
+
+        Logger.cmd = C
+        Logger.cmd_type = (E == 0 and 'CONSOLE' or E == 1 and 'RCON' or E == 2 and 'CHAT')
+        if (players[P]) then
+            players[P]:Write(Event('Command'))
+        else
+            Logger:Write(Event('Command'))
+        end
+    end
+end
+
+local function IsCommand(s)
+    return (s:sub(1, 1) == '/' or s:sub(1, 1) == '\\')
+end
+
+function OnChat(P, M, T)
+    if (players[P] and not IsCommand(M) and not Sensitive(M)) then
+        Logger.msg = M
+        Logger.msg_type = (T == 0 and 'GLOBAL' or T == 1 and 'TEAM' or T == 2 and 'VEHICLE')
+        players[P]:Write(Event('Message'))
+    end
+end
+
+local function InVehicle(P)
+    local dyn = get_dynamic_player(P)
+    return (dyn ~= 0 and read_dword(dyn + 0x11C) == 0xFFFFFFFF) or false
+end
+
+function OnDeath(Victim, Killer, MetaID)
+
+    local victim = tonumber(Victim)
+    local killer = tonumber(Killer)
+
+    local v = players[victim]
+    local k = players[killer]
+
+    if (v) then
+
+        -- event_damage_application:
+        if (MetaID) then
+            v.meta = MetaID
+            return true
+        end
+
+        v.victim = v.name
+        if (k) then
+            k.killer = k.name
+        end
+
+        -- event_die:
+        local squashed = (killer == 0)
+        local guardians = (killer == nil)
+        local suicide = (killer == victim)
+        local pvp = (k and killer ~= victim)
+        local server = (killer == -1 and not v.switched)
+        local fell = (v.meta == falling or v.meta == distance)
+        local betrayal = (k and not ffa and (v.team == k.team and killer ~= victim))
+
+        if (pvp and not betrayal) then
+
+            if (first_blood) then
+                first_blood = false
+                k:Write(Event('first_blood'))
+            end
+
+            if (not player_alive(killer)) then
+                k:Write(Event('killed_from_grave'))
+                goto done
+            elseif (InVehicle(killer)) then
+                k:Write(Event('run_over'))
+                goto done
+            end
+            k:Write(Event('pvp'))
+
+        elseif (guardians) then
+            v:Write(Event('guardians'))
+        elseif (suicide) then
+            v:Write(Event('suicide'))
+        elseif (betrayal) then
+            v:Write(Event('betrayal'))
+        elseif (squashed) then
+            v:Write(Event('squashed'))
+        elseif (fell) then
+            v:Write(Event('fell'))
+        elseif (server) then
+            v:Write(Event('server'))
+        elseif (not v.switched) then
+            v:Write(Event('unknown'))
+        end
+
+        :: done ::
+    end
+end
+
+function OnScriptUnload()
+    Logger:Write(Event('ScriptUnload'))
+end
