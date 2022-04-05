@@ -28,9 +28,11 @@ function Command:Run(Ply, Args)
         elseif (not t.logged_in) then
             if (acc) then
                 t:Send('Username already exists.')
-            else
+            elseif (username and password and username ~= ' ' and password ~= ' ') then
                 t:CacheSession(username, password)
                 t:Send('Rank account successfully created.')
+            else
+                t:Send('Please provide a username & password.')
             end
         else
             t:Send('You already have a rank account.')

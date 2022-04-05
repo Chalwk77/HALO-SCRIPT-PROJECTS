@@ -21,6 +21,11 @@ function Command:Run(Ply, Args)
         local password = Args[3]
         local acc = self.db[username]
 
+        if (not username or not password) then
+            t:Send('Please provide a username and password.')
+            return false
+        end
+
         if (#Args > 3) then
             t:Send('Too many arguments!')
             t:Send('Make sure username & password do not contain spaces.')
@@ -34,7 +39,7 @@ function Command:Run(Ply, Args)
                 t:Send('Invalid password. Please try again.')
             end
         else
-            t:Send('Rank account does not exist.')
+            t:Send('Incorrect username or password. Please try again.')
         end
     end
     return false
