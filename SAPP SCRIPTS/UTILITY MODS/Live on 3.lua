@@ -32,28 +32,20 @@ function sv_map_reset()
     execute_command('sv_map_reset')
     say_all('Live on ' .. count + 1)
 
-    if (count == 0) then
-        safe_write(true)
-        write_dword(kill_message_address, original_kill_message)
-        safe_write(false)
-        return false
-    end
+    safe_write(true)
+    write_dword(kill_message_address, original_kill_message)
+    safe_write(false)
 
-    return true
+    return (count > 0)
 end
 
-local function HasPermission(Ply)
-    local lvl = tonumber(get_var(Ply, '$lvl'))
-    return (Ply == 0 or lvl >= permission_level)
+local function HasPerm(P)
+    local l = tonumber(get_var(P, '$lvl'))
+    return (P == 0 or l >= permission_level or say(P, 'Insufficient Permission.'))
 end
 
 function OnCommand(Ply, CMD)
-    if (CMD:sub(1, command:len()):lower() == command) then
-
-        if (not HasPermission(Ply)) then
-            rprint(Ply, 'You do not have permission to execute that command.')
-            return false
-        end
+    if (CMD:sub(1, command:len()):lower() == command and HasPerm(Ply)) then
 
         safe_write(true)
         write_dword(kill_message_address, 0x03EB01B1)
