@@ -12,7 +12,7 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 local command = 'lo3'
 
 -- Minimum permission level required to execute lo3 command:
-local permission_level = 1
+local permission = 1
 
 api_version = '1.12.0.0'
 
@@ -40,12 +40,16 @@ function sv_map_reset()
 end
 
 local function HasPerm(P)
-    local l = tonumber(get_var(P, '$lvl'))
-    return (P == 0 or l >= permission_level or say(P, 'Insufficient Permission.'))
+    return (P == 0 or tonumber(get_var(P, '$lvl')) >= permission)
 end
 
 function OnCommand(Ply, CMD)
-    if (CMD:sub(1, command:len()):lower() == command and HasPerm(Ply)) then
+    if (CMD:sub(1, command:len()):lower() == command) then
+
+        if not HasPerm(Ply) then
+            rprint(Ply, 'Insufficient Permission.')
+            return false
+        end
 
         safe_write(true)
         write_dword(kill_message_address, 0x03EB01B1)
