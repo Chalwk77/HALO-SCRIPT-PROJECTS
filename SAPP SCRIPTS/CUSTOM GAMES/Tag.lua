@@ -1,9 +1,29 @@
 --[[
 --=====================================================================================================--
-Script Name: Gun Game (v1.7), for SAPP (PC & CE)
-Description: A simple progression based game inspired by Call of Duty's Gun Game mode.
-             Every kill rewards the player with a new weapon.
-             The first player to reach the last weapon with 10 kills wins.
+Script Name: Tag, for SAPP (PC & CE)
+Description: Tag, you're it!
+
+This is a game involving two or more players.
+An initial game of tag is started by whacking a player.
+This player will become 'it' (the tagger).
+Their turn ends when they tag their first victim or their turn time is up;
+If the turn time lapses before they tag someone, a new random player will be chosen to be the new tagger.
+
+** FEATURES **
+
+- All runners have plasma rifles and the taggers have an oddball.
+  The plasma rifle was a design choice, not a random decision, as it slows down the tagger when shot at.
+
+- You will accumulate 5 points every 10 seconds as a runner.
+- The score limit is 10,000.
+- Taggers get a 1.5x speed boost, runners have normal speed.
+- Tagging someone earns you 500 points.
+- Runners cannot earn points for killing.
+
+- This game mode is best played on medium & small maps:
+  timberland      bloodgulch      damnation   longest
+  chillout        carousel        ratrace     putput
+  prisoner        wizard          beavercreek hangemhigh
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -11,214 +31,347 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
--- config starts --
+-- config starts:
+local Tag = {
 
-local GunGame = {
+    -- Game score limit:
+    -- Default: 10000
+    score_limit = 10000,
 
-    -- Game messages:
-    messages = {
 
-        -- On level up:
-        [1] = 'Level: $lvl/10 [$label]',
+    -- Points awarded for tagging someone:
+    -- Default: 500
+    points_on_tag = 500,
 
-        -- Announced to the whole server when player reaches max level:
-        [2] = '$name is now max level',
 
-        -- When someone wins:
-        [3] = '$name won the game!'
+    -- Runners will accumulate 5 points every 10 seconds while a game of tag is in play:
+    -- Defaults: 5 & 10
+    runner_points = 5,
+    points_interval = 10,
+
+
+    -- Tag turn timer (in seconds):
+    -- Default: 60
+    turn_time = 60,
+
+
+    -- Min players required to start a game of tag:
+    -- Default: 2
+    players_required = 2,
+
+
+    -- Running speed (tagger & runner):
+    -- Defaults: 1.5, & 1
+    speed = { 1.5, 1 },
+
+
+    -- Messages sent when someone is tagged:
+    on_tag = {
+        "Tag, you're it! ($name got you)", -- tagger sees this message.
+        '$name was tagged by $tagger' -- everyone else will see this message.
     },
 
 
-    -- Starting level:
-    -- Default: 1
-    --
-    starting_level = 1,
+    -- Message sent when someone's turn is up and we select a new random tagger:
+    -- Same message appears if the tagger quits and
+    -- 'new_tagger_on_quit' or 'new_tagger_on_death' is set to true.
+    random_tagger = '$name is now the tagger!',
 
 
-    -- Should players have infinite ammo?
+    -- When a tagger quits, should we select a new random tagger?
     -- Default: true
-    --
-    infinite_ammo = true,
+    new_tagger_on_quit = true,
 
 
-    -- Format:
-    -- [level id] = {['WEAPON LABEL'] = {'weapon tag', nades, plasmas } },
-
-    levels = {
-        [1] = { ['Rocket Launcher'] = { 'weapons\\rocket launcher\\rocket launcher', 1, 1 } },
-        [2] = { ['Plasma Cannon'] = { 'weapons\\plasma_cannon\\plasma_cannon', 1, 1 } },
-        [3] = { ['Sniper Rifle'] = { 'weapons\\sniper rifle\\sniper rifle', 1, 1 } },
-        [4] = { ['Shotgun'] = { 'weapons\\shotgun\\shotgun', 1, 0 } },
-        [5] = { ['Pistol'] = { 'weapons\\pistol\\pistol', 1, 0 } },
-        [6] = { ['Assault Rifle'] = { 'weapons\\assault rifle\\assault rifle', 1, 0 } },
-        [7] = { ['Flamethrower'] = { 'weapons\\flamethrower\\flamethrower', 0, 1 } },
-        [8] = { ['Needler'] = { 'weapons\\needler\\mp_needler', 0, 1 } },
-        [9] = { ['Plasma Rifle'] = { 'weapons\\plasma rifle\\plasma rifle', 0, 1 } },
-        [10] = { ['Plasma Pistol'] = { 'weapons\\plasma pistol\\plasma pistol', 0, 0 } },
-    },
+    -- Should we pick a new tagger if the current tagger dies?
+    -- Default: false
+    new_tagger_on_death = false,
 
 
     -- A message relay function temporarily removes the server prefix
-    -- and will restore it to this when the relay is finished
-    server_prefix = "**SAPP**",
-    --
+    -- and will restore it to this when the relay is finished:
+    server_prefix = '**SAPP**'
+}
+-- config ends
 
-    --
-    ------------------------------------------------------------
-    -- [!] Do not touch unless you know what you're doing [!] --
-    ------------------------------------------------------------
-    -- To prevent a player from picking up specific weapons or
-    -- entering specific vehicles, enter the tag address of that object here:
-    --
-    --
-    objects = {
+local players = {}
+local time = os.time
+local tagger, game_over
+local tagger_weapon_meta_id
+local runner_weapon_meta_id
+local tagger_weapon, runner_weapon
 
-        'weapons\\assault rifle\\assault rifle',
-        'weapons\\flamethrower\\flamethrower',
-        'weapons\\needler\\mp_needler',
-        'weapons\\pistol\\pistol',
-        'weapons\\plasma pistol\\plasma pistol',
-        'weapons\\plasma rifle\\plasma rifle',
-        'weapons\\plasma_cannon\\plasma_cannon',
-        'weapons\\rocket launcher\\rocket launcher',
-        'weapons\\shotgun\\shotgun',
-        'weapons\\sniper rifle\\sniper rifle',
+-- Object interaction with these tags will be disabled:
+local objects = {
 
-        'weapons\\frag grenade\\frag grenade',
-        'weapons\\plasma grenade\\plasma grenade',
+    -- allow interaction with these objects:
+    --'powerups\\health pack',
+    --'powerups\\over shield',
+    --'powerups\\active camouflage',
 
-        'vehicles\\ghost\\ghost_mp',
-        'vehicles\\rwarthog\\rwarthog',
-        'vehicles\\banshee\\banshee_mp',
-        'vehicles\\warthog\\mp_warthog',
-        'vehicles\\scorpion\\scorpion_mp',
-        'vehicles\\c gun turret\\c gun turret_mp',
+    -- block interaction with these objects:
+    'weapons\\frag grenade\\frag grenade',
+    'weapons\\plasma grenade\\plasma grenade',
 
-        --
-        -- repeat the structure to add more entries
-        --
-    }
+    'vehicles\\ghost\\ghost_mp',
+    'vehicles\\rwarthog\\rwarthog',
+    'vehicles\\banshee\\banshee_mp',
+    'vehicles\\warthog\\mp_warthog',
+    'vehicles\\scorpion\\scorpion_mp',
+    'vehicles\\c gun turret\\c gun turret_mp',
+
+    'weapons\\ball\\ball',
+    'weapons\\flag\\flag',
+    'weapons\\pistol\\pistol',
+    'weapons\\shotgun\\shotgun',
+    'weapons\\needler\\mp_needler',
+    'weapons\\flamethrower\\flamethrower',
+    'weapons\\plasma rifle\\plasma rifle',
+    'weapons\\sniper rifle\\sniper rifle',
+    'weapons\\plasma pistol\\plasma pistol',
+    'weapons\\plasma_cannon\\plasma_cannon',
+    'weapons\\assault rifle\\assault rifle',
+    'weapons\\rocket launcher\\rocket launcher'
 }
 
--- config ends --
+-- New Player has joined:
+-- * Creates a new player table; Inherits the Tag parent object.
+-- @Param o (player table [table])
+-- @Return o (player table [table])
+function Tag:NewPlayer(o)
 
-api_version = "1.12.0.0"
-
-local game_over
-local players = {}
-
-function OnScriptLoad()
-    register_callback(cb['EVENT_DIE'], 'OnDeath')
-    register_callback(cb['EVENT_JOIN'], 'OnJoin')
-    register_callback(cb['EVENT_TICK'], 'OnTick')
-    register_callback(cb['EVENT_LEAVE'], 'OnQuit')
-    register_callback(cb['EVENT_SPAWN'], 'OnSpawn')
-    register_callback(cb['EVENT_GAME_END'], 'OnEnd')
-    register_callback(cb['EVENT_GAME_START'], 'OnStart')
-    OnStart()
-end
-
-function GunGame:NewPlayer(o)
-
-    setmetatable(o, self)
+    setmetatable(o, self) -- inherit the .__index of Tag.
     self.__index = self
 
-    o.level = self.starting_level
+    -- Variable for weapon assignments:
+    o.assign = true
+
+    -- Holds the object id of the players weapon:
+    o.drone = ''
+
+    -- Stores the id of the person who just killed you:
+    o.killer = 0
+
     return o
 end
 
-function GunGame:LevelUP()
-    if (not game_over) then
+-- Returns true if this player is the tagger:
+function Tag:IsTagger()
+    return (self.pid == tagger)
+end
 
-        self.level = self.level + 1
-
-        execute_command("msg_prefix \"\"")
-        if (self.level == #self.levels) then
-            say_all(self.messages[2]:gsub('$name', self.name))
-        elseif (self.level > #self.levels) then
-            execute_command('map_next')
-            say_all(self.messages[3]:gsub('$name', self.name))
-            goto done
+-- Sets running speed of all players:
+-- @Param last_man (id of the last person online):
+function Tag:SetSpeed(last_man)
+    execute_command('s ' .. self.pid .. ' ' .. self.speed[1])
+    for i, v in pairs(players) do
+        if (i ~= self.pid or i == last_man) then
+            execute_command('s ' .. i .. ' ' .. v.speed[2])
         end
-        self.assign = true
-
-        :: done ::
-        execute_command("msg_prefix \" " .. self.server_prefix .. "\"")
     end
 end
 
-function GunGame:AssignWeapon()
+local function SetPeriodicTimers()
+    for i, v in pairs(players) do
+        if (i == tagger) then
+            v.periodic_scoring = false
 
-    self.assign = false
-
-    execute_command('wdel ' .. self.id)
-    execute_command('nades ' .. self.id .. ' 0')
-
-    for Label, t in pairs(self.weapons[self.level]) do
-
-        -- frags:
-        if (t[2] > 0) then
-            execute_command('nades ' .. self.id .. ' ' .. t[2] .. ' 1')
+            -- only do this if it's not already set:
+        elseif (not v.periodic_scoring) then
+            v:NewRunnerTime()
         end
-        -- plasmas:
-        if (t[3] > 0) then
-            execute_command('nades ' .. self.id .. ' ' .. t[3] .. ' 2')
-        end
-
-        local weap = spawn_object('weap', t[1], 0, 0, 0)
-        assign_weapon(weap, self.id)
-
-        local msg = self.messages[1]
-        msg = msg:gsub('$lvl', self.level):gsub('$label', Label)
-
-        execute_command("msg_prefix \"\"")
-        say(self.id, msg)
-        execute_command("msg_prefix \" " .. self.server_prefix .. "\"")
     end
 end
 
-local function GetTag(Class, Name)
-    local Tag = lookup_tag(Class, Name)
-    return Tag ~= 0 and read_dword(Tag + 0xC) or nil
-end
+-- Sets the tagger:
+-- @Param TaggerName (name of the person who just tagged someone) [string]
+function Tag:SetTagger(TaggerName)
 
-function GunGame:TagsToID()
-    cprint('------------------ [GUN GAME] ------------------', 10)
-    local t = {}
-    for i, w in ipairs(self.levels) do
-        for k, v in pairs(w) do
-            local tag = GetTag('weap', v[1])
-            if (tag) then
-                t[#t + 1] = { [k] = v }
-                cprint('Level: [' .. #t .. '] [' .. k .. '] Frags: ' .. v[2] .. ' Plasmas: ' .. v[3], 10)
+    tagger = self.pid
+    self.assign = true
+    self.periodic_scoring = false
+
+    self:NewTurnTime()
+    self:SetSpeed()
+
+    SetPeriodicTimers()
+
+    if (TaggerName) then
+
+        local t_msg = self.on_tag[1]
+        local to_tagger = t_msg:gsub('$name', TaggerName)
+
+        local r_msg = self.on_tag[2]
+        local to_runner = r_msg:gsub('$name', self.name):gsub('$tagger', TaggerName)
+
+        for i, v in pairs(players) do
+            if (i == tagger) then
+                v:Broadcast(to_tagger, true)
             else
-                cprint('[GUN GAME]: Invalid Tag ID | "' .. v[1] .. '" | [Level ' .. i .. ']', 12)
+                v:Broadcast(to_runner, true)
             end
         end
+        return
     end
-    cprint('------------------------------------------------', 10)
-    self.weapons = t
+
+    local msg = self.random_tagger
+    msg = msg:gsub('$name', self.name)
+    self:Broadcast(msg)
 end
 
-function GunGame:EnableDisableWeapons(state)
+-- Resets turn timer variables:
+function Tag:NewTurnTime()
+    self.turn_start = time
+    self.turn_finish = time() + self.turn_time
+end
+
+-- Timer variables used to periodically update runner score:
+function Tag:NewRunnerTime()
+    self.periodic_scoring = true
+    self.runner_start = time
+    self.runner_finish = time() + self.points_interval
+end
+
+-- Function responsible for handling scoring:
+function Tag:UpdateScore(Deduct, RunnerPoints)
+    local score = tonumber(get_var(self.pid, '$score'))
+
+    -- prevent player from scoring from last kill:
+    if (Deduct) then
+        score = (score - 1 < 0 and 0 or score - 1)
+    elseif (not RunnerPoints) then
+        score = score + self.points_on_tag -- update tagger points
+    else
+        score = score + self.runner_points -- update runner points
+    end
+
+    execute_command('score ' .. self.pid .. ' ' .. score)
+end
+
+-- Binds nav marker to tagger:
+function Tag:SetNav()
+    local player = get_player(self.pid)
+    if (tagger and self.pid ~= tagger) then
+        write_word(player + 0x88, to_real_index(tagger))
+    else
+        write_word(player + 0x88, to_real_index(self.pid))
+    end
+end
+
+-- Returns the MetaID of the tag address:
+-- @Param Type (tag class)
+-- @Param Name (tag path)
+-- @Return tag address [number]
+local function GetTag(Type, Name)
+    local ObjTag = lookup_tag(Type, Name)
+    return (ObjTag ~= 0 and read_dword(ObjTag + 0xC)) or nil
+end
+
+-- Sends a server-wide message:
+-- * Temporarily removes the server prefix.
+-- @Params msg (message string)
+function Tag:Broadcast(msg, pm)
+    execute_command('msg_prefix ""')
+    if (not pm) then
+        say_all(msg)
+    else
+        say(self.pid, msg)
+    end
+    execute_command('msg_prefix  "' .. self.server_prefix .. '"')
+end
+
+-- Destroy the players weapon:
+-- @Param Assign [boolean], true if we need to trigger weapon a assignment.
+function Tag:DeleteDrone(Assign)
+    destroy_object(self.drone)
+    self.assign = Assign
+end
+
+-- Weapon assignment logic:
+function Tag:AssignWeapons()
+
+    -- Assign appropriate weapons:
+    if (self.assign) then
+        self.assign = false
+
+        execute_command_sequence('nades ' .. self.pid .. ' 0; wdel ' .. self.pid)
+
+        local weapon = (tagger == self.pid and tagger_weapon or runner_weapon)
+
+        self.drone = spawn_object('', '', 0, 0, -9999, 0, weapon)
+        assign_weapon(self.drone, self.pid)
+    end
+end
+
+-- Determines if enough players are online for a game of tag:
+-- @Param quit [boolean], true if we need to deduct 1 from n:
+-- SAPP var $pn does not update immediately after a player quits,
+-- so we have to deduct one manually.
+function Tag:EnoughPlayers(quit)
+    local n = tonumber(get_var(0, '$pn'))
+    n = (quit and n - 1 or n)
+    return (n >= self.players_required)
+end
+
+-- Picks a random player to become the tagger.
+-- Excludes the previous tagger.
+-- @Param quit (boolean), true if we need to deduct 1 from n in EnoughPlayers().
+function Tag:PickRandomTagger(quit)
+
+    if not self:EnoughPlayers(quit) then
+        tagger = nil
+        self:SetSpeed(self.pid)
+        self:Broadcast('Game of tag has ended. Not enough players.')
+        return
+    end
+
+    -- Trigger weapon assignment for previous tagger:
+    self.assign = true
+
+    -- set candidates:
+    local t = {}
+    for i = 1, #players do
+        if (player_present(i) and i ~= tagger) then
+            t[#t + 1] = i
+        end
+    end
+
+    -- Pick and set new tagger from t{}:
+    if (#t > 0) then
+        players[t[rand(1, #t + 1)]]:SetTagger()
+    end
+end
+
+-- Disables interaction with game objects (on start).
+-- Enables interaction when OnScriptUnload() is called.
+local function GameObjects(state)
     state = (state and 'enable_object') or 'disable_object'
-    for _, v in pairs(self.objects) do
-        execute_command(state .. " '" .. v .. "'")
+    for i = 1, #objects do
+        execute_command(state .. ' "' .. objects[i] .. '" 0')
     end
 end
 
+-- Called when a new game has started:
 function OnStart()
     if (get_var(0, '$gt') ~= 'n/a') then
 
-        GunGame:TagsToID()
+        tagger_weapon_meta_id = GetTag('jpt!', 'weapons\\ball\\melee')
+        runner_weapon_meta_id = GetTag('jpt!', 'weapons\\plasma rifle\\melee')
 
-        -- # override scorelimit:
-        execute_command("scorelimit 99999")
-        GunGame:EnableDisableWeapons()
+        tagger_weapon = GetTag('weap', 'weapons\\ball\\ball')
+        runner_weapon = GetTag('weap', 'weapons\\plasma rifle\\plasma rifle')
 
-        players = {}
+        -- set up game tables:
         game_over = false
+        players, tagger = {}, nil
 
+        -- disable game objects:
+        GameObjects(false)
+
+        -- Set the score limit:
+        execute_command('scorelimit ' .. Tag.score_limit)
+
+        -- Init player tables (happens if the script is loaded during a match):
         for i = 1, 16 do
             if player_present(i) then
                 OnJoin(i)
@@ -227,50 +380,152 @@ function OnStart()
     end
 end
 
+-- Called when the game has ended:
 function OnEnd()
     game_over = true
 end
 
+-- Called every 1/30th second:
 function OnTick()
     for i, v in pairs(players) do
-        if (i and player_alive(i) and not game_over) then
-            if (v.assign) then
-                v:AssignWeapon()
-            elseif (v.infinite_ammo) then
-                execute_command_sequence('ammo ' .. i .. ' 999; battery ' .. i .. ' 100')
+
+        if (not game_over and player_present(i) and player_alive(i)) then
+
+            v:SetNav()
+            v:AssignWeapons()
+
+            execute_command('battery ' .. i .. ' 100')
+
+            if (v:IsTagger() and v.turn_start() >= v.turn_finish) then
+                v:PickRandomTagger()
+
+                -- Update runner score periodically:
+            elseif (v.periodic_scoring and v.runner_start() >= v.runner_finish) then
+                v:NewRunnerTime()
+                v:UpdateScore(false, true) -- update runner points
             end
         end
     end
 end
 
-function OnJoin(Ply)
-    players[Ply] = GunGame:NewPlayer({
-        id = Ply,
-        name = get_var(Ply, "$name")
-    })
-end
+-- Called when a player receives damage or is killed:
+-- @Param Victim (victim id) [number]
+-- @Param Causer (killer id) [number]
+-- @Param MetaID (DamageTagID) [number]
+function OnDamage(Victim, Causer, MetaID)
 
-function OnQuit(Ply)
-    players[Ply] = nil
-end
+    local killer = tonumber(Causer)
+    local victim = tonumber(Victim)
 
-function OnSpawn(Ply)
-    if (players[Ply]) then
-        players[Ply].assign = true
-    end
-end
+    local k = players[killer]
+    local v = players[victim]
 
-function OnDeath(Victim, Killer)
-    if (not game_over) then
-        local victim = tonumber(Victim)
-        local killer = tonumber(Killer)
-        local k = players[killer]
-        if (k and killer > 0 and killer ~= victim) then
-            k:LevelUP()
+    if (not game_over and killer > 0 and k and v and k:EnoughPlayers()) then
+
+        --
+        -- event_damage_application:
+        --
+        if (MetaID) then
+
+            -- Prevent runners from attacking each other:
+            if (tagger and not k:IsTagger() and not v:IsTagger()) then
+                return false
+            end
+
+            local case1 = (not tagger and MetaID == runner_weapon_meta_id or k:IsTagger())
+            local case2 = (tagger and MetaID == tagger_weapon_meta_id)
+
+            if (killer ~= victim) and (case1 or case2) then
+
+                k.assign = true -- trigger weapon assignment
+                v.killer = killer -- keep track of the player who just killed you
+
+                k:UpdateScore() -- update current tagger score
+                k:NewRunnerTime() -- reset periodic scoring for this player
+                v:SetTagger(k.name) -- make victim the tagger
+            end
+            return
+        end
+
+        --
+        -- event_die:
+        --
+
+        v:DeleteDrone() -- prevent weapon drop
+        k:UpdateScore(true) -- prevent this kill from being counted towards score
+
+        if (v.new_tagger_on_death and v:IsTagger() and v.killer ~= killer) then
+            v:PickRandomTagger()
         end
     end
 end
 
-function OnScriptUnload()
-    GunGame:EnableDisableWeapons(true)
+-- Called when a player has finished connecting:
+-- @Param P (player id) [number]
+function OnJoin(Ply)
+    players[Ply] = Tag:NewPlayer({
+        pid = Ply,
+        name = get_var(Ply, '$name')
+    })
 end
+
+-- Called when a player has quit:
+-- * Nullifies the table for this player.
+-- @Param P (player id) [number]
+function OnQuit(Ply)
+
+    local t = players[Ply]
+
+    -- Pick a random player to be the tagger:
+    if (not game_over and t.new_tagger_on_quit and t:IsTagger()) then
+        t:PickRandomTagger(true)
+    end
+
+    t:DeleteDrone() -- delete their dropped weapon
+
+    players[Ply] = nil
+end
+
+-- Called when a player has finished respawning:
+-- @Param P (player id) [number]
+-- Triggers weapon assignment
+function OnSpawn(Ply)
+
+    local t = players[Ply]
+    t.assign = true
+    t.killer = 0
+
+    if (t:IsTagger()) then
+        t:SetSpeed() -- just in case
+    elseif (tagger) then
+        t:NewRunnerTime() -- only do this if a game of tag is in play:
+    end
+end
+
+-- Called when a player drops a weapon.
+-- Makes a call  to destroy their weapon.
+function OnDrop(Ply)
+    players[Ply]:DeleteDrone(true)
+end
+
+-- Registers needed event callbacks for SAPP:
+function OnScriptLoad()
+
+    register_callback(cb['EVENT_TICK'], 'OnTick')
+    register_callback(cb['EVENT_JOIN'], 'OnJoin')
+    register_callback(cb['EVENT_SPAWN'], 'OnSpawn')
+    register_callback(cb['EVENT_DIE'], 'OnDamage')
+    register_callback(cb['EVENT_LEAVE'], 'OnQuit')
+    register_callback(cb['EVENT_GAME_END'], 'OnEnd')
+    register_callback(cb['EVENT_WEAPON_DROP'], 'OnDrop')
+    register_callback(cb['EVENT_GAME_START'], 'OnStart')
+    register_callback(cb['EVENT_DAMAGE_APPLICATION'], 'OnDamage')
+
+    OnStart()
+end
+
+function OnScriptUnload()
+    GameObjects(true)
+end
+
+api_version = '1.12.0.0'

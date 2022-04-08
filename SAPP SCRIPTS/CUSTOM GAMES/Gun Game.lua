@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Gun Game (v1.6), for SAPP (PC & CE)
+Script Name: Gun Game (v1.7), for SAPP (PC & CE)
 Description: A simple progression based game inspired by Call of Duty's Gun Game mode.
              Every kill rewards the player with a new weapon.
              The first player to reach the last weapon with 10 kills wins.
@@ -28,10 +28,12 @@ local GunGame = {
         [3] = '$name won the game!'
     },
 
+
     -- Starting level:
     -- Default: 1
     --
     starting_level = 1,
+
 
     -- Should players have infinite ammo?
     -- Default: true
@@ -116,12 +118,13 @@ function OnScriptLoad()
     OnStart()
 end
 
-function GunGame:NewPlayer(t)
-    setmetatable(t, self)
+function GunGame:NewPlayer(o)
+
+    setmetatable(o, self)
     self.__index = self
 
-    t.level = self.starting_level
-    return t
+    o.level = self.starting_level
+    return o
 end
 
 function GunGame:LevelUP()
@@ -138,6 +141,7 @@ function GunGame:LevelUP()
             goto done
         end
         self.assign = true
+
         :: done ::
         execute_command("msg_prefix \" " .. self.server_prefix .. "\"")
     end
@@ -147,62 +151,75 @@ function GunGame:AssignWeapon()
 
     self.assign = false
 
-    execute_command('wdel ' .. self.pid)
-    execute_command('nades ' .. self.pid .. ' 0')
+    execute_command('wdel ' .. self.id)
+    execute_command('nades ' .. self.id .. ' 0')
 
-    local weapon = self.levels[self.level]
-    for Label, t in pairs(weapon) do
+    for Label, t in pairs(self.weapons[self.level]) do
 
+        -- frags:
         if (t[2] > 0) then
-            execute_command('nades ' .. self.pid .. ' ' .. t[2] .. ' 1')
+            execute_command('nades ' .. self.id .. ' ' .. t[2] .. ' 1')
         end
+        -- plasmas:
         if (t[3] > 0) then
-            execute_command('nades ' .. self.pid .. ' ' .. t[3] .. ' 2')
+            execute_command('nades ' .. self.id .. ' ' .. t[3] .. ' 2')
         end
 
-        local object = spawn_object('', '', 0, 0, 0, 0, t[1])
-        assign_weapon(object, self.pid)
+        local weap = spawn_object('weap', t[1], 0, 0, 0)
+        assign_weapon(weap, self.id)
 
         local msg = self.messages[1]
         msg = msg:gsub('$lvl', self.level):gsub('$label', Label)
 
         execute_command("msg_prefix \"\"")
-        say(self.pid, msg)
+        say(self.id, msg)
         execute_command("msg_prefix \" " .. self.server_prefix .. "\"")
     end
 end
 
-local function GetTag(Type, Name)
-    local Tag = lookup_tag(Type, Name)
+local function GetTag(Class, Name)
+    local Tag = lookup_tag(Class, Name)
     return Tag ~= 0 and read_dword(Tag + 0xC) or nil
 end
 
-local function EnableDisableWeapons(state)
+function GunGame:TagsToID()
+    cprint('------------------ [GUN GAME] ------------------', 10)
+    local t = {}
+    for i, w in ipairs(self.levels) do
+        for k, v in pairs(w) do
+            local tag = GetTag('weap', v[1])
+            if (tag) then
+                t[#t + 1] = { [k] = v }
+                cprint('Level: [' .. #t .. '] [' .. k .. '] Frags: ' .. v[2] .. ' Plasmas: ' .. v[3], 10)
+            else
+                cprint('[GUN GAME]: Invalid Tag ID | "' .. v[1] .. '" | [Level ' .. i .. ']', 12)
+            end
+        end
+    end
+    cprint('------------------------------------------------', 10)
+    self.weapons = t
+end
+
+function GunGame:EnableDisableWeapons(state)
     state = (state and 'enable_object') or 'disable_object'
-    for _, v in pairs(GunGame.objects) do
+    for _, v in pairs(self.objects) do
         execute_command(state .. " '" .. v .. "'")
     end
 end
 
 function OnStart()
-    if (get_var(9, '$gt') ~= 'n/a') then
+    if (get_var(0, '$gt') ~= 'n/a') then
 
-        -- # Prevent the game from ending too quickly:
-        execute_command("scorelimit 9999")
-        EnableDisableWeapons()
+        GunGame:TagsToID()
+
+        -- # override scorelimit:
+        execute_command("scorelimit 99999")
+        GunGame:EnableDisableWeapons()
 
         players = {}
         game_over = false
 
-        for i = 1, #GunGame.levels do
-            for k, v in pairs(GunGame.levels[i]) do
-                if (v and v[1]) then
-                    GunGame.levels[i][k][1] = GetTag('weap', v[1])
-                end
-            end
-        end
-
-        for i = 1, #players do
+        for i = 1, 16 do
             if player_present(i) then
                 OnJoin(i)
             end
@@ -228,7 +245,7 @@ end
 
 function OnJoin(Ply)
     players[Ply] = GunGame:NewPlayer({
-        pid = Ply,
+        id = Ply,
         name = get_var(Ply, "$name")
     })
 end
@@ -255,5 +272,5 @@ function OnDeath(Victim, Killer)
 end
 
 function OnScriptUnload()
-    EnableDisableWeapons(true)
+    GunGame:EnableDisableWeapons(true)
 end
