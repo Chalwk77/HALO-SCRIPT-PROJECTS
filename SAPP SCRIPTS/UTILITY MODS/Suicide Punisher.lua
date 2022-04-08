@@ -1,110 +1,113 @@
 --[[
 --=====================================================================================================--
 Script Name: Suicide Punisher, for SAPP (PC & CE)
-Description: If a player excessively commits suicide "suicide_threshold" times within "punish_period" seconds, 
-             this script will kick or ban them (see config).
+Description: If a player excessively commits suicide this script will kick or ban them (see config).
 
-Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]] --
 
-api_version = "1.12.0.0"
+-- config start --
+local Suicide = {
 
--- Config starts
-local suicide_threshold = 5
-local punish_period = 30 -- In Seconds
-local action = "kick" -- Valid actions are 'kick' & 'ban'
-local bantime = 10 -- In Minutes (set to zero to ban permanently)
-local reason = "Excessive Suicide"
--- Config ends
+    -- A player will be kicked or banned if they commit suicide this many times
+    -- within 30 seconds:
+    threshold = 5,
 
-local suicide = {}
+    -- Suicide grace period:
+    grace = 30, -- In Seconds
+
+    -- Action to take on players who excessively suicide:
+    action = 'kick', -- Valid actions are 'kick' & 'ban'
+
+    -- Ban time (in minutes), set to zero to ban permanently, requires action to be set to ban.
+    ban_time = 10,
+
+    -- Kick/Ban reason:
+    reason = 'Excessive Suicide'
+}
+-- config ends --
+
+api_version = '1.12.0.0'
+
+local players
+local time = os.time
+
+function Suicide:NewPlayer(o)
+
+    setmetatable(o, self)
+    self.__index = self
+
+    o.suicides = 0
+
+    return o
+end
+
+function Suicide:TakeAction()
+    if (self.action == 'kick') then
+        execute_command('k ' .. self.pid .. ' "' .. self.reason .. '"')
+        cprint(self.name .. ' was kicked for ' .. self.reason, 12)
+    elseif (self.action == 'ban') then
+        execute_command('b ' .. self.pid .. ' ' .. self.bantime .. ' "' .. self.reason .. '"')
+        cprint(self.name .. ' was banned for ' .. self.reason, 12)
+    end
+end
 
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], 'OnTick')
-    register_callback(cb['EVENT_GAME_END'], 'OnGameEnd')
-    register_callback(cb['EVENT_DIE'], 'OnPlayerDeath')
-    register_callback(cb['EVENT_JOIN'], 'OnPlayerConnect')
-    register_callback(cb['EVENT_LEAVE'], 'OnPlayerDisconnect')
+    register_callback(cb['EVENT_DIE'], 'OnDeath')
+    register_callback(cb['EVENT_JOIN'], 'OnJoin')
+    register_callback(cb['EVENT_LEAVE'], 'OnQuit')
+    register_callback(cb['EVENT_GAME_START'], 'OnStart')
+    OnStart()
+end
 
-    if (get_var(0, '$gt') ~= "n/a") then
+function OnStart()
+    if (get_var(0, '$gt') ~= 'n/a') then
+        players = {}
         for i = 1, 16 do
             if player_present(i) then
-                InitPlayer(i, false)
+                OnJoin(i)
             end
         end
     end
 end
 
-function OnPlayerConnect(PlayerIndex)
-    InitPlayer(PlayerIndex, false)
+function OnJoin(P)
+    players[P] = Suicide:NewPlayer({ pid = P, name = get_var(P, '$name') })
 end
 
-function OnPlayerDisconnect(PlayerIndex)
-    InitPlayer(PlayerIndex, true)
+function OnQuit(P)
+    players[P] = nil
 end
 
-function OnGameEnd()
-    for i = 1, 16 do
-        if player_present(i) then
-            InitPlayer(i, true)
-        end
-    end
-end
+function OnDeath(Victim, Killer)
 
-function OnPlayerDeath(PlayerIndex, KillerIndex)
+    local killer = tonumber(Killer)
+    local victim = tonumber(Victim)
+    local v = players[victim]
 
-    local killer = tonumber(KillerIndex)
-    local victim = tonumber(PlayerIndex)
-
-    if (killer > 0 and killer == victim) then
-        suicide[victim].deaths = suicide[victim].deaths + 1
-        if (suicide[victim].deaths >= suicide_threshold) then
-            takeAction(victim)
+    if (v and killer == victim) then
+        v.suicides = v.suicides + 1
+        if (v.suicides >= v.threshold) then
+            v:TakeAction()
+        else
+            v.start = time
+            v.finish = time() + v.grace
         end
     end
 end
 
 function OnTick()
-    for i = 1, 16 do
-        if player_present(i) then
-            if (suicide[i]) then
-                if (suicide[i].deaths > 0 and suicide[i].deaths < suicide_threshold) then
-                    suicide[i].timer = suicide[i].timer + 0.03333333333333333
-                    local delta_time = punish_period - math.floor(suicide[i].timer % 60)
-                    if (delta_time <= 0) then
-                        suicide[i].deaths = 0
-                        suicide[i].timer = 0
-                    end
-                end
-            end
+    for i, v in pairs(players) do
+        if (i and player_present(i) and v.start and v.start() >= v.finish) then
+            v.start, v.finish, v.suicides = nil, nil, 0
         end
     end
 end
 
-function InitPlayer(player, reset)
-    if (not reset) then
-        suicide[player] = {}
-        suicide[player].deaths = 0
-        suicide[player].timer = 0
-    else
-        suicide[player] = nil
-    end
-end
-
-function takeAction(Player)
-    local name = get_var(Player, "$name")
-    if (action == "kick") then
-        execute_command("k" .. " " .. Player .. " \"" .. reason .. "\"")
-        cprint(name .. " was kicked for " .. reason, 4 + 8)
-    elseif (action == "ban") then
-        execute_command("b" .. " " .. Player .. " " .. bantime .. " \"" .. reason .. "\"")
-        cprint(name .. " was banned for " .. bantime .. " minutes for " .. reason, 4 + 8)
-    end
-end
-
 function OnScriptUnload()
-    --
+    -- N/A
 end
