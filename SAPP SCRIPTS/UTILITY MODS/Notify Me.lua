@@ -13,6 +13,7 @@ Description: This script will beautify the server terminal during certain events
             - event_join
             - event_leave
             - event_die
+            - event_snap
             - event_spawn
             - event_login
             - event_map_reset
@@ -35,19 +36,25 @@ local ffa, falling, distance, first_blood
 
 function OnScriptLoad()
 
-    register_callback(cb['EVENT_DIE'], 'OnDeath')
     register_callback(cb['EVENT_CHAT'], 'OnChat')
+    register_callback(cb['EVENT_COMMAND'], 'OnCommand')
+
+    register_callback(cb['EVENT_DIE'], 'OnDeath')
+    register_callback(cb['EVENT_DAMAGE_APPLICATION'], 'OnDeath')
+
     register_callback(cb['EVENT_JOIN'], 'OnJoin')
     register_callback(cb['EVENT_LEAVE'], 'OnQuit')
+    register_callback(cb['EVENT_PREJOIN'], 'OnPreJoin')
+
+    register_callback(cb['EVENT_GAME_END'], 'OnEnd')
+    register_callback(cb['EVENT_GAME_START'], 'OnStart')
+
+    register_callback(cb['EVENT_SNAP'], 'OnSnap')
     register_callback(cb['EVENT_SPAWN'], 'OnSpawn')
     register_callback(cb['EVENT_LOGIN'], 'OnLogin')
-    register_callback(cb['EVENT_GAME_END'], 'OnEnd')
     register_callback(cb['EVENT_MAP_RESET'], "OnReset")
-    register_callback(cb['EVENT_PREJOIN'], 'OnPreJoin')
-    register_callback(cb['EVENT_COMMAND'], 'OnCommand')
-    register_callback(cb['EVENT_GAME_START'], 'OnStart')
     register_callback(cb['EVENT_TEAM_SWITCH'], 'OnSwitch')
-    register_callback(cb['EVENT_DAMAGE_APPLICATION'], 'OnDeath')
+
     OnStart()
     timer(50, "Logo")
 end
@@ -117,11 +124,14 @@ function OnPreJoin(Ply)
 end
 
 function OnJoin(Ply)
-    Notify({
-        { "Join Time: " .. os.date("%A %d %B %Y - %X"), 10 },
-        { "Status: " .. players[Ply].name .. " connected successfully.", 13 },
-        { "________________________________________________________________________________", 10 }
-    })
+    local player = players[Ply]
+    if (player) then
+        Notify({
+            { "Join Time: " .. os.date("%A %d %B %Y - %X"), 10 },
+            { "Status: " .. player.name .. " connected successfully.", 13 },
+            { "________________________________________________________________________________", 10 }
+        })
+    end
 end
 
 function OnSpawn(Ply)
@@ -132,16 +142,18 @@ end
 
 function OnQuit(Ply)
     local player = players[Ply]
-    Notify({
-        { "________________________________________________________________________________", 12 },
-        { "Player: " .. player.name, 12 },
-        { "CD Hash: " .. player.hash, 12 },
-        { "IP Address: " .. player.ip, 12 },
-        { "Index ID: " .. player.id, 12 },
-        { "Privilege Level: " .. get_var(Ply, '$lvl'), 12 },
-        { "Ping: " .. get_var(Ply, '$ping'), 12 },
-        { "________________________________________________________________________________", 12 }
-    })
+    if (player) then
+        Notify({
+            { "________________________________________________________________________________", 12 },
+            { "Player: " .. player.name, 12 },
+            { "CD Hash: " .. player.hash, 12 },
+            { "IP Address: " .. player.ip, 12 },
+            { "Index ID: " .. player.id, 12 },
+            { "Privilege Level: " .. get_var(Ply, '$lvl'), 12 },
+            { "Ping: " .. get_var(Ply, '$ping'), 12 },
+            { "________________________________________________________________________________", 12 }
+        })
+    end
     players[Ply] = nil
 end
 
@@ -161,8 +173,16 @@ function OnReset()
 end
 
 function OnLogin(Ply)
-    if (players[Ply]) then
-        Notify({ { players[Ply].name .. " logged in", 7 } })
+    local player = players[Ply]
+    if (player) then
+        Notify({ { player.name .. " logged in", 7 } })
+    end
+end
+
+function OnSnap(Ply)
+    local player = players[Ply]
+    if (player) then
+        Notify({ { player.name .. " snapped", 12 } })
     end
 end
 
