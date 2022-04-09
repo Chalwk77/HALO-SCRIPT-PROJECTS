@@ -8,11 +8,11 @@ You'll find me doing all sorts of coding projects, from software engineering thr
 The HSP (Halo Script Projects) GitHub repository is the platform to which I upload all of my Lua scripts for SAPP and Phasor.
 
 **What is SAPP & Phasor?**
-> Powerful server extensions for the Halo: PC and Halo: CE dedicated server.
+> Powerful server extension for the Halo: PC (retail) and Halo: CE (Custom Edition) dedicated server.
 
 I have been writing Lua scripts for 13 years; Making everything from custom games, utilities, libraries and other server additives. 
 
-## ❤ SUPPORT ME️ ❤
+## ❤ SUPPORT ME ❤
 If my work has helped you in any way, show your support and buy me a coffee :coffee:
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=X6VNRT8N4JEPS&source=url)
 
@@ -33,7 +33,7 @@ Check out my:
 
 ### SAPP LINKS:
 
-> * Sapp Forums: [weblink](http://halo.isimaginary.com/) (Unfortuntaely, the public forum has been taken offline, but you can still download SAPP from the home page.)
+> * Sapp Forums: [weblink](http://halo.isimaginary.com/) (Unfortunately, the public forum has been taken offline, but you can still download SAPP from the home page.)
 > * Revision 2.4: [weblink](https://drive.google.com/open?id=1nHoonWOxoAe8W58HR5XOResE1vd28Mxl)
 > * Revision 2.5: [weblink](https://drive.google.com/open?id=1W3VTUF76wW-L0AP-4UdO-OG_LiAeT63j)
 
