@@ -109,8 +109,8 @@ systemctl enable fail2ban|Ensures the fail2ban service is started automatically 
 - Transfer the server folder of your choice (linked at top of page)
 
 ### 12). Launching your server(s):
-Navigate to */root/Desktop/\<server folder>/Wine Launch Files*<br/>
-Double-click on *run.desktop* to launch your server.<br/>
+- Navigate to */root/Desktop/\<server folder>/Wine Launch Files*<br/>
+- Double-click on *run.desktop* to launch your server.<br/>
 Upon the first launch, you may be prompted to install some mono software in order to launch the server.<br/>
 Follow the on-screen prompts to do this. It's straightforward.
    
