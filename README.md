@@ -43,13 +43,12 @@ You can further support me by clicking the 👁️ watch and ⭐ star buttons at
 
 ### SAPP LINKS:
 
-> * Sapp Forums: [weblink](http://halo.isimaginary.com/) (Unfortunately, the public forum has been taken offline, but you can still download SAPP from the home page)
-> * Revision 2.4: [weblink](https://drive.google.com/open?id=1nHoonWOxoAe8W58HR5XOResE1vd28Mxl)
-> * Revision 2.5: [weblink](https://drive.google.com/open?id=1W3VTUF76wW-L0AP-4UdO-OG_LiAeT63j)
+> * Forums: [weblink](http://halo.isimaginary.com/) (Unfortunately, the public forum has been taken offline, but you can still download SAPP from the home page)
+> * Documentation: [weblink](http://halo.isimaginary.com/SAPP%20Documentation%20Revision%202.5.pdf)
 
 ### PHASOR LINKS:
 
-> * Phasor Forums: [weblink](http://phasor.proboards.com/) (In accordance with Section 25(a) of the ProBoards Terms of Service, this forum has been taken offline)
+> * Forums: [weblink](http://phasor.proboards.com/) (In accordance with Section 25(a) of the ProBoards Terms of Service, this forum has been taken offline)
 > * V1 Documentation: [weblink](http://phasor.halonet.net/archive/docs/05x.html)
 > * V2 Documentation: [weblink](http://phasor.halonet.net/archive/docs/200.html)
 
