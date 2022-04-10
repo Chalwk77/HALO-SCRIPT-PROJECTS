@@ -15,8 +15,6 @@ Application | Description
 [TightVNC (client)](https://www.tightvnc.com/download.php)|For remote desktop connections
 [HPC/CE Server Template](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/tag/ReadyToGo)|These are compatible with Linux
 
-For information on how the Multi-Server is set up, please see [this page](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/tag/v1.0.7-Multi-Server).
-
 #### Technical note on [Vultr](https://www.vultr.com/) subscription plans:
 You pay for whatever you need.<br/>
 However, you need at least 150 MiB RAM *per server* to cover peak times.<br/>
