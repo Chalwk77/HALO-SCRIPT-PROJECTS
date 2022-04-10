@@ -13,7 +13,7 @@ Application | Description
 -- | --
 [BitVise SSH Client](https://www.bitvise.com/ssh-client-download)|For remote access to the terminal and to upload files via SFTP
 [TightVNC (client)](https://www.tightvnc.com/download.php)|For remote desktop connections
-[Halo Multi-Server](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/tag/multi-server)|These are compatible with Linux
+[HPC/CE Server Template](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/tag/ReadyToGo)|These are compatible with Linux
 
 For information on how the Multi-Server is set up, please see [this page](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/tag/v1.0.7-Multi-Server).
 
@@ -27,7 +27,7 @@ Note that each plan allocates you a defined amount of storage space. You may nee
 
 ## STEPS:
 
-### 1). Download the pre-configured Multi-Server of your choice (linked above).
+### 1). Download the server template of your choice (linked above).
 Note: You will need a file decompression tool like [WinRAR](https://www.win-rar.com/start.html?&L=0)
 or [7-zip](https://www.7-zip.org/download.html) to extract the HPC Multi-Server or HCE Multi-Server.
 
@@ -97,7 +97,7 @@ sudo ufw allow 22000/tcp|Add a rule to allow new SSH port.<br/>Furthermore, futu
 
 ### 10). Enable fail2ban (optional but recommended):
 fail2ban will monitor all incoming traffic.<br/>There's often a lot of bots trying to see if you have any open loopholes within your VPS to see if they can exploit something.<br/>One of the features of fail2ban is to automatically monitor those types of IPs and block them from connecting in general.
- 
+
 In a BitVise SSH terminal window, execute the following commands:
 
 Command | Description
@@ -109,11 +109,11 @@ systemctl enable fail2ban|Ensures the fail2ban service is started automatically 
 - Open BitVise and login.
 - Click **New SFTP window** button.
 - Navigate to */root/Desktop*
-- Transfer the **HPC|CE Multi-Server** folder
+- Transfer the server folder of your choice (linked at top of page)
 
 ### 12). Launching your server(s):
 Navigate to */root/Desktop/\<server folder>/Wine Launch Files*<br/>
-Double-click on *SV#.desktop* to launch your server.<br/>
+Double-click on *run.desktop* to launch your server.<br/>
 Upon first launch, you may be prompted to install some mono software in order to launch the server.<br/>
 Follow the on-screen prompts to do this. It's straight forward.
    
