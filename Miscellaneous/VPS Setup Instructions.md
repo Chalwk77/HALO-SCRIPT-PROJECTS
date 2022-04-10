@@ -26,7 +26,7 @@ Note that each plan allocates you a defined amount of storage space. You may nee
 
 ### 1). Download the server template of your choice (linked above).
 Note: You will need a file decompression tool like [WinRAR](https://www.win-rar.com/start.html?&L=0)
-or [7-zip](https://www.7-zip.org/download.html) to extract the HPC.Server.zip or HCE.Server.zip.
+or [7-zip](https://www.7-zip.org/download.html) to extract the [HPC.Server.zip](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/download/ReadyToGo/HPC.Server.zip) or [HCE.Server.zip](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/download/ReadyToGo/HCE.Server.zip).
 
 ### 2). Download and install [BitVise SSH Client](https://www.bitvise.com/ssh-client-download) and [TightVNC (client)](https://www.tightvnc.com/download.php) to your PC.
 
@@ -106,7 +106,7 @@ systemctl enable fail2ban|Ensures the fail2ban service is started automatically 
 - Open BitVise and log in.
 - Click **New SFTP window** button.
 - Navigate to */root/Desktop*.
-- Transfer the server folder that you extracted (HPC Server / HCE Server).
+- Transfer the server folder that you extracted (HPC Server or HCE Server).
 
 ### 12). Launching your server(s):
 - Navigate to */root/Desktop/\<server folder>/Wine Launch Files*
