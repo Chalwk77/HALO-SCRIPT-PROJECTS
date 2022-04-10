@@ -105,11 +105,11 @@ systemctl enable fail2ban|Ensures the fail2ban service is started automatically 
 ### 11). Uploading Servers Files:
 - Open BitVise and log in.
 - Click **New SFTP window** button.
-- Navigate to */root/Desktop*
-- Transfer the server folder of your choice (linked at top of page)
+- Navigate to */root/Desktop*.
+- Transfer the server folder that you extracted (HPC Server / HCE Server).
 
 ### 12). Launching your server(s):
-- Navigate to */root/Desktop/\<server folder>/Wine Launch Files*<br/>
+- Navigate to */root/Desktop/\<server folder>/Wine Launch Files*
 - Double-click on *run.desktop* to launch your server.<br/>
 Upon the first launch, you may be prompted to install some mono software in order to launch the server.<br/>
 Follow the on-screen prompts to do this. It's straightforward.
