@@ -27,7 +27,7 @@ Note that each plan allocates you a defined amount of storage space. You may nee
 
 ### 1). Download the server template of your choice (linked above).
 Note: You will need a file decompression tool like [WinRAR](https://www.win-rar.com/start.html?&L=0)
-or [7-zip](https://www.7-zip.org/download.html) to extract the HPC Multi-Server or HCE Multi-Server.
+or [7-zip](https://www.7-zip.org/download.html) to extract the HPC.Server.zip or HCE.Server.zip.
 
 ### 2). Download and install [BitVise SSH Client](https://www.bitvise.com/ssh-client-download) and [TightVNC (client)](https://www.tightvnc.com/download.php) to your PC.
 
