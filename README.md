@@ -38,9 +38,9 @@ You can further support me by clicking the 👁️ watch and ⭐ star buttons on
 
 1. [VPS Setup Instructions](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/Miscellaneous/VPS%20Setup%20Instructions.md)
 
-2. [Halo Multi-Server (for PC & CE)](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/tag/multi-server)
+2. [Multi-Server (for PC & CE)](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/tag/multi-server)
 
-3. [Ready to go Halo PC/CE Server templates](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/tag/ReadyToGo)
+3. [Server templates for PC & CE](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/tag/ReadyToGo)
 
 ### SAPP LINKS:
 
@@ -84,4 +84,5 @@ You can further support me by clicking the 👁️ watch and ⭐ star buttons on
 
 Email: **jericho.crosby227@gmail.com**<br/>
 Discord: **Chalwk#9284**
+
 ----
