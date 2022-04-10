@@ -43,9 +43,8 @@ function OnSpawn()
                 if (j == 1 or j == 2) then
                     assign_weapon(spawn_object('weap', weap, x, y, z), i)
 
-
-                    -- assign tertiary & quaternary weapons:
                 else
+                    -- assign tertiary & quaternary weapons 250ms apart:
                     timer(250, 'DelaySecQuat', i, weap, x, y, z)
                 end
             end
