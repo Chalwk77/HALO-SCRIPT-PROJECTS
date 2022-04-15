@@ -1,7 +1,7 @@
 --[[
 --=====================================================================================================--
 Script Name: Shotty-Snipes, for SAPP (PC & CE)
-Description: Players spawn with a shotgun & sniper
+Description: Players spawn with a shotgun & sniper.
              Other weapons & vehicles do not spawn.
              You can use equipment (i.e, grenades & powerups).
 
