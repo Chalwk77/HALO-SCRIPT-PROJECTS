@@ -13,8 +13,6 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 api_version = '1.12.0.0'
 
--- Objects set to false will not spawn.
-
 local map_objects = {
 
     ['weap'] = {
@@ -122,7 +120,7 @@ function OnSpawn(p)
     end
 end
 
-function OnObjectSpawn(_, MID, _, _)
+function OnObjectSpawn(_, MID)
     return objects[MID]
 end
 
