@@ -65,28 +65,21 @@ local function GetTag(Class, Name)
 end
 
 function OnStart()
+    shotgun, sniper = nil, nil
     if (get_var(0, '$gt') ~= 'n/a') then
         shotgun = GetTag('weap', 'weapons\\shotgun\\shotgun')
         sniper = GetTag('weap', 'weapons\\sniper rifle\\sniper rifle')
     end
 end
 
-function Alive(p)
-    execute_command_sequence('ammo ' .. p .. ' 999 5; mag ' .. p .. ' 999 5')
-end
-
 function OnTick()
     for i, v in pairs(players) do
         if (player_alive(i) and v.assign and shotgun and sniper) then
             v.assign = false
-
             execute_command('wdel ' .. i)
             assign_weapon(spawn_object('', '', 0, 0, 0, 0, sniper), i)
             assign_weapon(spawn_object('', '', 0, 0, 0, 0, shotgun), i)
-
-            -- Force ammo to update immediately:
-            -- Redundancy here is necessary.
-            execute_command_sequence('ammo ' .. i .. ' 999 5; mag ' .. i .. ' 999 5')
+            Alive(i)
         end
     end
 end
@@ -103,6 +96,10 @@ function OnSpawn(p)
     if (players[p]) then
         players[p].assign = true
     end
+end
+
+function Alive(p)
+    execute_command_sequence('ammo ' .. p .. ' 999 5; mag ' .. p .. ' 999 5')
 end
 
 function OnObjectSpawn(Ply, MID)
