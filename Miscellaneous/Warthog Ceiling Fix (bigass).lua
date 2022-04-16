@@ -9,7 +9,7 @@ local vehicles = {
     -- config starts --
 
     { type = 'vehi', -- red base
-      name = 'bourrin\\halo reach\\vehicles\\warthog\\reach gauss hog',
+      name = 'vehicles\\warthog\\mp_warthog',
       pos = { -130.70628356934, -71.420822143555, -0.1817033290863, --[[6.6630392247964e-37]] } },
 
     { type = 'vehi', -- red base
@@ -123,6 +123,7 @@ end
 function OnObjectSpawn(_, MapID, _, ObjectID)
     for _, v in pairs(vehicles) do
         if (MapID == GetTag(v.type, v.name)) then
+		print('got vehicle')
 
             timer(0, "SaveObjectID", ObjectID)
 

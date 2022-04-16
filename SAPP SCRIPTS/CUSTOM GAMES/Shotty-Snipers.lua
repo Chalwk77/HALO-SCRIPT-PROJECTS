@@ -5,6 +5,8 @@ Description: Players spawn with a shotgun & sniper.
              Other weapons & vehicles do not spawn.
              You can use equipment (i.e, grenades & powerups).
 
+             This script is plug-and-play. No configuration!
+
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
@@ -13,13 +15,11 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 api_version = '1.12.0.0'
 
-local block = {
-
-    { 'weap', 'weapons\\flag\\flag' },
-    { 'weap', 'weapons\\ball\\ball' },
+local objects = {
 
     --{'weap', 'weapons\\shotgun\\shotgun'},
-    --{'weap', 'weapons\\sniper rifle\\sniper rifle''},
+    --{'weap', 'weapons\\sniper rifle\\sniper rifle'},
+
     { 'weap', 'weapons\\pistol\\pistol' },
     { 'weap', 'weapons\\needler\\mp_needler' },
     { 'weap', 'weapons\\flamethrower\\flamethrower' },
@@ -43,15 +43,15 @@ local block = {
     { 'vehi', 'vehicles\\c gun turret\\c gun turret_mp' }
 }
 
+local players = {}
 local shotgun, sniper
-local players, objects = {}, {}
 
 function OnScriptLoad()
 
     register_callback(cb['EVENT_ALIVE'], 'Alive')
     register_callback(cb['EVENT_JOIN'], 'OnJoin')
-    register_callback(cb['EVENT_LEAVE'], 'OnQuit')
     register_callback(cb['EVENT_TICK'], 'OnTick')
+    register_callback(cb['EVENT_LEAVE'], 'OnQuit')
     register_callback(cb['EVENT_SPAWN'], 'OnSpawn')
     register_callback(cb['EVENT_GAME_START'], 'OnStart')
     register_callback(cb['EVENT_OBJECT_SPAWN'], 'OnObjectSpawn')
@@ -66,14 +66,6 @@ end
 
 function OnStart()
     if (get_var(0, '$gt') ~= 'n/a') then
-
-        for i = 1, #block do
-            local t = block[i]
-            local tag = GetTag(t[1], t[2])
-            block[tag] = true
-        end
-        objects = block
-
         shotgun = GetTag('weap', 'weapons\\shotgun\\shotgun')
         sniper = GetTag('weap', 'weapons\\sniper rifle\\sniper rifle')
     end
@@ -85,18 +77,16 @@ end
 
 function OnTick()
     for i, v in pairs(players) do
-        if (player_alive(i)) then
-            if (v.assign and shotgun and sniper) then
-                v.assign = false
+        if (player_alive(i) and v.assign and shotgun and sniper) then
+            v.assign = false
 
-                execute_command('wdel ' .. i)
-                assign_weapon(spawn_object('', '', 0, 0, 0, 0, sniper), i)
-                assign_weapon(spawn_object('', '', 0, 0, 0, 0, shotgun), i)
+            execute_command('wdel ' .. i)
+            assign_weapon(spawn_object('', '', 0, 0, 0, 0, sniper), i)
+            assign_weapon(spawn_object('', '', 0, 0, 0, 0, shotgun), i)
 
-                -- Force ammo to update immediately:
-                -- Redundancy here is necessary.
-                execute_command_sequence('ammo ' .. i .. ' 999 5; mag ' .. i .. ' 999 5')
-            end
+            -- Force ammo to update immediately:
+            -- Redundancy here is necessary.
+            execute_command_sequence('ammo ' .. i .. ' 999 5; mag ' .. i .. ' 999 5')
         end
     end
 end
@@ -115,9 +105,13 @@ function OnSpawn(p)
     end
 end
 
-function OnObjectSpawn(_, MID)
-    if (block[MID]) then
-        return false
+function OnObjectSpawn(Ply, MID)
+    if (Ply == 0) then
+        for _, v in pairs(objects) do
+            if (MID == GetTag(v[1], v[2])) then
+                return false
+            end
+        end
     end
 end
 
