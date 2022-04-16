@@ -13,42 +13,34 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 api_version = '1.12.0.0'
 
-local map_objects = {
+local block = {
 
-    ['weap'] = {
+    { 'weap', 'weapons\\flag\\flag' },
+    { 'weap', 'weapons\\ball\\ball' },
 
-        ['weapons\\shotgun\\shotgun'] = true,
-        ['weapons\\sniper rifle\\sniper rifle'] = true,
+    --{'weap', 'weapons\\shotgun\\shotgun'},
+    --{'weap', 'weapons\\sniper rifle\\sniper rifle''},
+    { 'weap', 'weapons\\pistol\\pistol' },
+    { 'weap', 'weapons\\needler\\mp_needler' },
+    { 'weap', 'weapons\\flamethrower\\flamethrower' },
+    { 'weap', 'weapons\\plasma rifle\\plasma rifle' },
+    { 'weap', 'weapons\\plasma_cannon\\plasma_cannon' },
+    { 'weap', 'weapons\\assault rifle\\assault rifle' },
+    { 'weap', 'weapons\\plasma pistol\\plasma pistol' },
+    { 'weap', 'weapons\\rocket launcher\\rocket launcher' },
 
-        ['weapons\\flag\\flag'] = true,
-        ['weapons\\ball\\ball'] = true,
+    --{ 'eqip', 'powerups\\health pack' },
+    --{ 'eqip', 'powerups\\over shield' },
+    --{ 'eqip', 'powerups\\active camouflage' },
+    --{ 'eqip', 'weapons\\frag grenade\\frag grenade' },
+    --{ 'eqip', 'weapons\\plasma grenade\\plasma grenade' },
 
-        ['weapons\\pistol\\pistol'] = false,
-        ['weapons\\needler\\mp_needler'] = false,
-        ['weapons\\flamethrower\\flamethrower'] = false,
-        ['weapons\\plasma rifle\\plasma rifle'] = false,
-        ['weapons\\plasma_cannon\\plasma_cannon'] = false,
-        ['weapons\\assault rifle\\assault rifle'] = false,
-        ['weapons\\plasma pistol\\plasma pistol'] = false,
-        ['weapons\\rocket launcher\\rocket launcher'] = false
-    },
-
-    ['eqip'] = {
-        ['powerups\\health pack'] = true,
-        ['powerups\\over shield'] = true,
-        ['powerups\\active camouflage'] = true,
-        ['weapons\\frag grenade\\frag grenade'] = true,
-        ['weapons\\plasma grenade\\plasma grenade'] = true
-    },
-
-    ['vehi'] = {
-        ['vehicles\\ghost\\ghost_mp'] = false,
-        ['vehicles\\rwarthog\\rwarthog'] = false,
-        ['vehicles\\banshee\\banshee_mp'] = false,
-        ['vehicles\\warthog\\mp_warthog'] = false,
-        ['vehicles\\scorpion\\scorpion_mp'] = false,
-        ['vehicles\\c gun turret\\c gun turret_mp'] = false
-    }
+    { 'vehi', 'vehicles\\ghost\\ghost_mp' },
+    { 'vehi', 'vehicles\\rwarthog\\rwarthog' },
+    { 'vehi', 'vehicles\\banshee\\banshee_mp' },
+    { 'vehi', 'vehicles\\warthog\\mp_warthog' },
+    { 'vehi', 'vehicles\\scorpion\\scorpion_mp' },
+    { 'vehi', 'vehicles\\c gun turret\\c gun turret_mp' }
 }
 
 local shotgun, sniper
@@ -56,6 +48,7 @@ local players, objects = {}, {}
 
 function OnScriptLoad()
 
+    register_callback(cb['EVENT_ALIVE'], 'Alive')
     register_callback(cb['EVENT_JOIN'], 'OnJoin')
     register_callback(cb['EVENT_LEAVE'], 'OnQuit')
     register_callback(cb['EVENT_TICK'], 'OnTick')
@@ -74,33 +67,35 @@ end
 function OnStart()
     if (get_var(0, '$gt') ~= 'n/a') then
 
-        shotgun, sniper = nil, nil
-
-        local t = {}
-        for Class, v in pairs(map_objects) do
-            for Name, Enabled in pairs(v) do
-                local Tag = GetTag(Class, Name)
-                if (Tag) then
-                    t[Tag] = Enabled
-                    shotgun = (Name == 'weapons\\shotgun\\shotgun' and Tag or shotgun)
-                    sniper = (Name == 'weapons\\sniper rifle\\sniper rifle' and Tag or sniper)
-                end
-            end
+        for i = 1, #block do
+            local t = block[i]
+            local tag = GetTag(t[1], t[2])
+            block[tag] = true
         end
+        objects = block
 
-        objects = t
+        shotgun = GetTag('weap', 'weapons\\shotgun\\shotgun')
+        sniper = GetTag('weap', 'weapons\\sniper rifle\\sniper rifle')
     end
+end
+
+function Alive(p)
+    execute_command_sequence('ammo ' .. p .. ' 999 5; mag ' .. p .. ' 999 5')
 end
 
 function OnTick()
     for i, v in pairs(players) do
-        if player_alive(i) then
-            execute_command_sequence('ammo ' .. i .. ' 999; mag ' .. i .. ' 999')
+        if (player_alive(i)) then
             if (v.assign and shotgun and sniper) then
                 v.assign = false
+
                 execute_command('wdel ' .. i)
                 assign_weapon(spawn_object('', '', 0, 0, 0, 0, sniper), i)
                 assign_weapon(spawn_object('', '', 0, 0, 0, 0, shotgun), i)
+
+                -- Force ammo to update immediately:
+                -- Redundancy here is necessary.
+                execute_command_sequence('ammo ' .. i .. ' 999 5; mag ' .. i .. ' 999 5')
             end
         end
     end
@@ -121,7 +116,9 @@ function OnSpawn(p)
 end
 
 function OnObjectSpawn(_, MID)
-    return objects[MID]
+    if (block[MID]) then
+        return false
+    end
 end
 
 function OnScriptUnload()
