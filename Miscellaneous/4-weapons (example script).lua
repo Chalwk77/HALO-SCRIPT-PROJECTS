@@ -22,15 +22,12 @@ function OnScriptLoad()
     register_callback(cb['EVENT_SPAWN'], 'OnSpawn')
 end
 
-function OnSpawn(P)
-    local dyn = get_dynamic_player(P)
+function OnSpawn(p)
+    local dyn = get_dynamic_player(p)
     if (dyn ~= 0) then
 
         -- delete their inventory:
-        execute_command('wdel ' .. P)
-
-        -- get their position vector:
-        local x, y, z = read_vector3d(dyn + 0x5C)
+        execute_command('wdel ' .. p)
 
         -- loop through weapons table:
         for j = 1, #weapons do
@@ -39,18 +36,17 @@ function OnSpawn(P)
 
             -- assign primary & secondary weapons:
             if (j == 1 or j == 2) then
-                assign_weapon(spawn_object('weap', weap, x, y, z), P)
-
+                AssignWeapon(p, weap)
             else
                 -- assign tertiary & quaternary weapons 250ms apart:
-                timer(250, 'DelaySecQuat', P, weap, x, y, z)
+                timer(250, 'AssignWeapon', p, weap)
             end
         end
     end
 end
 
-function DelaySecQuat(p, weap, x, y, z)
-    assign_weapon(spawn_object('weap', weap, x, y, z), p)
+function AssignWeapon(p, w)
+    assign_weapon(spawn_object('weap', w, 0, 0, 0), p)
 end
 
 function OnScriptUnload()
