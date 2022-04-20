@@ -26,7 +26,7 @@ function Command:Run(Ply, Args)
                         local str = self.list
                         str = str              :
                         gsub('$pos', i)        :
-                        gsub('$name', res.name):
+                        gsub('$name', res.name):-- ign
                         gsub('$cr', res.credits)
                         t:Send(str)
                     end

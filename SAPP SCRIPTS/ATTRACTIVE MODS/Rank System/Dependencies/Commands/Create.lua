@@ -20,6 +20,19 @@ function Command:Run(Ply, Args)
         local username = Args[2]
         local password = Args[3]
 
+        local ulen = username:len()
+        local plen = password:len()
+        local umin, umax = self.min_username_length, self.max_username_length
+        local pmin, pmax = self.min_password_length, self.max_password_length
+
+        if (ulen < umin or ulen > umax) then
+            t:Send('Username must be between ' .. umin .. '-' .. umax .. ' characters.')
+            return false
+        elseif (plen < pmin or plen > pmax) then
+            t:Send('Password must be between ' .. pmin .. '-' .. pmax .. ' characters.')
+            return false
+        end
+
         local acc = self.db[username]
 
         if (#Args > 3) then

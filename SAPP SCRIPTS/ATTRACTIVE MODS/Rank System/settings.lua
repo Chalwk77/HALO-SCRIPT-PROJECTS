@@ -51,6 +51,19 @@ return {
     cache_session_index = 2,
 
 
+    -- Usernames must not be less than this many characters:
+    min_username_length = 6,
+
+    -- Usernames must not exceed this many characters:
+    max_username_length = 16,
+
+    -- Passwords must not be less than this many characters:
+    min_password_length = 6,
+
+    -- Passwords must not exceed this many characters:
+    max_password_length = 16,
+
+
     -- Fully customizable messages:
     messages = {
 
@@ -216,7 +229,7 @@ return {
 
                 -- VEHICLE PROJECTILES --
                 --
-                { 'jpt!', 'vehicles\\ghost\\ghost bolt', 7, '+7 $currency_symbol (Ghost Bolt)' },
+                { 'jpt!', 'vehicles\\ghost\\ghost bolt', 7, '+7 $currency_symbol (Ghost Bolt)'},
                 { 'jpt!', 'vehicles\\scorpion\\bullet', 6, '+6 $currency_symbol (Tank Bullet)' },
                 { 'jpt!', 'vehicles\\warthog\\bullet', 6, '+6 $currency_symbol (Warthog Bullet)' },
                 { 'jpt!', 'vehicles\\c gun turret\\mp bolt', 7, '+7 $currency_symbol (Turret Bolt)' },

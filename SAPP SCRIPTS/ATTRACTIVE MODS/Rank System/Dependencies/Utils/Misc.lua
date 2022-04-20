@@ -4,20 +4,20 @@
 local Misc = {}
 
 function Misc:SortRanks()
-    local results = { }
-    for _, v in pairs(self.db) do
-        results[#results + 1] = {
-            ip = v.ip,
+    local t = { }
+    for username, v in pairs(self.db) do
+        t[#t + 1] = {
             name = v.name,
             rank = v.rank,
             grade = v.grade,
+            username = username,
             credits = v.credits
         }
     end
-    table.sort(results, function(a, b)
+    table.sort(t, function(a, b)
         return a.credits > b.credits
     end)
-    return results
+    return t
 end
 
 function Misc:Format(s, nR, nG, rq, pos, tot)
@@ -38,11 +38,12 @@ function Misc:Format(s, nR, nG, rq, pos, tot)
     return s
 end
 
-function Misc:ShowExtRankInfo(ip)
+function Misc:ShowExtRankInfo(username)
+
     local results = self:SortRanks()
     for j = 1, #results do
         local v = results[j]
-        if (v.ip == ip) then
+        if (v.username == username) then
 
             local pos = j
             local total = #results
@@ -70,11 +71,12 @@ function Misc:ShowExtRankInfo(ip)
             else
                 self:Send('COMPLETED ALL RANKS. Prestige available!')
             end
-            break
+            goto done
         end
     end
 
     self:Send("Unable to get stats. You're not logged in!")
+    :: done ::
 end
 
 function Misc:Welcome()
@@ -174,11 +176,12 @@ end
 
 function Misc:CacheSession(name, password)
 
-    self.username = name
+    self.username = name -- username
     self.logged_in = true
 
     self.db[name] = self.db[name] or self.stats
     self.db[name].password = password
+    self.db[name].name = self.name -- IGN
     self.stats = self.db[name]
 
     self:Welcome()

@@ -18,15 +18,19 @@ function Command:Run(Ply, Args)
         local player = Args[2]
         if (not Args[2] or tonumber(Args[2] == Ply)) then
             if (t.logged_in) then
-                t:ShowExtRankInfo(t.ip)
+                t:ShowExtRankInfo(t.username)
             else
-                t:Send("Unable to show stats. You're not logged in!")
+                t:Send("Unable to show stats. You're not logged into your service record.")
+                t:Send(' ')
+                t:Send('To create an account: /c (username) (password)')
+                t:Send(' ')
+                t:Send('To log into an account: /l (username) (password)')
             end
         elseif (player:match('%d+')) then
             if player_present(player) then
                 player = self:GetPlayer(tonumber(player))
                 if (t.logged_in) then
-                    t:ShowExtRankInfo(player.ip)
+                    t:ShowExtRankInfo(player.username)
                 else
                     t:Send('Unable to show stats. ' .. player.name .. ' is not logged in')
                 end
