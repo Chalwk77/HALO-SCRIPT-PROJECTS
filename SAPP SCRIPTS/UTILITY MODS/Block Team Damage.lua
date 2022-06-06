@@ -8,34 +8,30 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
-
-api_version = "1.12.0.0"
+api_version = '1.12.0.0'
 
 function OnScriptLoad()
-    register_callback(cb['EVENT_NEW_GAME'], "OnGameStart")
+    register_callback(cb['EVENT_NEW_GAME'], 'OnStart')
     Register()
 end
 
-function OnGameStart()
-    Register()
+function OnStart()
+    if (get_var(0, '$gt') ~= 'n/a' and get_var(0, '$ffa') == '0') then
+        register_callback(cb['EVENT_DAMAGE_APPLICATION'], 'BlockDamage')
+        return
+    end
+    unregister_callback(cb['EVENT_DAMAGE_APPLICATION'])
 end
 
-function OnScriptUnload()
-    --
-end
-
-function OnDamageApplication(PlayerIndex, CauserIndex)
-    if (tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex) then
-        local vTeam = get_var(PlayerIndex, "$team")
-        local kTeam = get_var(CauserIndex, "$team")
-        if (vTeam == kTeam) then
+function BlockDamage(Victim, Killer)
+    local killer, victim = tonumber(Killer), tonumber(Victim)
+    if (killer > 0 and victim ~= killer) then
+        if (get_var(killer, '$team') == get_var(victim, '$team')) then
             return false
         end
     end
 end
 
-function Register()
-    if (get_var(0, "$gt") ~= "n/a") and (get_var(0, "$ffa") == "0") then
-        register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
-    end
+function OnScriptUnload()
+   -- N/A
 end
