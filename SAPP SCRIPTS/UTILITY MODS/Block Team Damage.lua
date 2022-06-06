@@ -12,7 +12,7 @@ api_version = '1.12.0.0'
 
 function OnScriptLoad()
     register_callback(cb['EVENT_NEW_GAME'], 'OnStart')
-    Register()
+    OnStart()
 end
 
 function OnStart()
@@ -25,13 +25,11 @@ end
 
 function BlockDamage(Victim, Killer)
     local killer, victim = tonumber(Killer), tonumber(Victim)
-    if (killer > 0 and victim ~= killer) then
-        if (get_var(killer, '$team') == get_var(victim, '$team')) then
-            return false
-        end
+    if (killer > 0 and victim ~= killer and get_var(killer, '$team') == get_var(victim, '$team')) then
+        return false
     end
 end
 
 function OnScriptUnload()
-   -- N/A
+    -- N/A
 end
