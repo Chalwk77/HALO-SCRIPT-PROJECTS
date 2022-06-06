@@ -51,9 +51,12 @@ local function GetJPTTags()
 end
 
 function OnStart()
-    if (get_var(0, '$gt') ~= 'n/a') then
+    if (get_var(0, '$gt') ~= 'n/a' and get_var(0, '$ffa') == '0') then
+        register_callback(cb['EVENT_DAMAGE_APPLICATION'], 'BlockDamage')
         GetJPTTags()
+        return
     end
+    unregister_callback(cb['EVENT_DAMAGE_APPLICATION'])
 end
 
 function BlockDamage(Victim, Killer, MapID)
