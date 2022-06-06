@@ -26,7 +26,6 @@ local map_ids = {}
 
 function OnScriptLoad()
     register_callback(cb['EVENT_GAME_START'], 'OnStart')
-    register_callback(cb['EVENT_DAMAGE_APPLICATION'], 'BlockDamage')
     OnStart()
 end
 
