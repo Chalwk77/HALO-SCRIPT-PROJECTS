@@ -22,7 +22,7 @@ local jpt_tags = { -- damage tag ids that will be blocked
 
 api_version = "1.12.0.0"
 
-local map_ids = {}
+local meta_ids = {}
 
 function OnScriptLoad()
     register_callback(cb['EVENT_GAME_START'], 'OnStart')
@@ -34,9 +34,10 @@ local function GetTag(Type, Name)
     return Tag ~= 0 and read_dword(Tag + 0xC) or nil
 end
 
+-- Store meta id of each jpt! tag in a table (meta_ids) to avoid continuous calls to GetTag() (for performance reasons):
 local function GetJPTTags()
 
-    map_ids = nil
+    meta_ids = nil
     local t = {}
 
     for i = 1, #jpt_tags do
@@ -46,7 +47,7 @@ local function GetJPTTags()
         end
     end
 
-    map_ids = t
+    meta_ids = t
 end
 
 function OnStart()
@@ -66,7 +67,7 @@ function BlockDamage(Victim, Killer, MapID)
     local v_team = get_var(victim, '$team')
     local k_team = get_var(killer, '$team')
 
-    if (killer ~= victim and k_team == v_team and map_ids[MapID]) then
+    if (killer ~= victim and k_team == v_team and meta_ids[MapID]) then
         return false
     end
 
