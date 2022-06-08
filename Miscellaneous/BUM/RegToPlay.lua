@@ -77,7 +77,7 @@ function RegToPlay:Write()
     file:close()
 end
 
-function RegToPlay:NewIP()
+function RegToPlay:RegisterThisUser()
 
     database[self.ip] = self.name
 
@@ -170,7 +170,7 @@ function OnCommand(P, CMD)
         if not p:HasPerm() then
             say(p.id, 'Server says no!')
         elseif (args[2] == p.password) then
-            p:NewIP()
+            p:RegisterThisUser()
         else
             say(p.id, 'Server says no!')
         end
