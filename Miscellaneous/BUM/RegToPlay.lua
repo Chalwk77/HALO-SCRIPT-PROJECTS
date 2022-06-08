@@ -22,7 +22,7 @@ local RegToPlay = {
     kick_delay = 10, -- in seconds
     --
 
-    command = 'username_here',
+    command = 'command_here',
     password = 'password_here',
     --
 
