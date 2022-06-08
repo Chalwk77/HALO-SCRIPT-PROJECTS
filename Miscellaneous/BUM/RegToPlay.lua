@@ -8,6 +8,9 @@ Description: Players must register their name within 10 seconds after joining (i
              Once they do this, their ip and name will be saved to a file called players.txt
              in the following format: 127.0.0.1|name.
 
+             A newly joined players ip and name are cross-checked against the database.
+             If a match is made, they can play.
+
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
