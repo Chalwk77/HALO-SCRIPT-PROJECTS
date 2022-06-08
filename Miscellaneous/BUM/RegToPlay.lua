@@ -82,13 +82,6 @@ end
 function OnStart()
     if (get_var(0, '$gt') ~= 'n/a') then
 
-        players = {}
-        for i = 1, 16 do
-            if player_present(i) then
-                OnJoin(i)
-            end
-        end
-
         local path = RegToPlay.dir
         local file = open(path, 'a')
         if (not file) then
@@ -102,6 +95,13 @@ function OnStart()
             database[users[1]] = users[2] -- [1] IP, [2] Username
         end
         file:close()
+
+        players = {}
+        for i = 1, 16 do
+            if player_present(i) then
+                OnJoin(i)
+            end
+        end
     end
 end
 
