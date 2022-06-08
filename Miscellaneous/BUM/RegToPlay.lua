@@ -12,13 +12,31 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 local RegToPlay = {
 
     kick_delay = 10, -- in seconds
+    --
 
     command = 'cow2',
     password = 'listen0',
+    --
 
     permission_level = -1,
+    --
 
-    file = 'players.txt'
+    file = 'players.txt',
+    --
+
+    --
+    -- If true, user data will only be saved to players.txt when a game ends.
+
+    -- This means the data ip|user is cached in a table until the game ends.
+    -- Then we do an i/o that saves it to players.txt.
+
+    -- Recommended for larger databases,
+    -- otherwise, the i/o operation may cause a lag spike during gameplay.
+
+    -- This does, however, mean that if the server crashes, the cached session
+    -- will never be saved because event_game_end was never fired.
+    -- In which case, the user will have to register again when the server is rebooted.
+    save_on_register = false
 }
 
 api_version = '1.12.0.0'
@@ -50,16 +68,22 @@ local function StrSplit(str, d)
     return t
 end
 
-function RegToPlay:NewIP()
-
-    database[self.ip] = self.name
-
+function RegToPlay:Write()
     local path = RegToPlay.dir
     local file = open(path, 'w')
     for ip, name in pairs(database) do
         file:write(ip .. '|' .. name .. '\n')
     end
     file:close()
+end
+
+function RegToPlay:NewIP()
+
+    database[self.ip] = self.name
+
+    if (self.save_on_register) then
+        self:Write()
+    end
 
     say(self.id, 'Username successfully registered.')
     players[self.id] = nil
@@ -72,6 +96,10 @@ function OnScriptLoad()
     register_callback(cb['EVENT_LEAVE'], 'OnQuit')
     register_callback(cb['EVENT_COMMAND'], 'OnCommand')
     register_callback(cb['EVENT_GAME_START'], 'OnStart')
+
+    if (not RegToPlay.save_on_register) then
+        register_callback(cb['EVENT_GAME_END'], 'OnEnd')
+    end
 
     local path = read_string(read_dword(sig_scan('68??????008D54245468') + 0x1))
     RegToPlay.dir = path .. '\\sapp\\' .. RegToPlay.file
@@ -103,6 +131,10 @@ function OnStart()
             end
         end
     end
+end
+
+function OnEnd()
+    self:Write()
 end
 
 function OnJoin(P)
