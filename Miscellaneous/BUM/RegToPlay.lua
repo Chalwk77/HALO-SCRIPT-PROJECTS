@@ -140,7 +140,7 @@ function OnStart()
 end
 
 function OnEnd()
-    self:Write()
+    RegToPlay:Write()
 end
 
 function OnJoin(P)
