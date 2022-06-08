@@ -1,7 +1,12 @@
 --[[
 --=====================================================================================================--
 Script Name: RegToPlay, for SAPP (PC & CE)
-Description: Players have to register a username (bound to their IP) within 10 seconds after joining, otherwise, they will be kicked.
+Description: Players must register their name within 10 seconds after joining (if they haven't already),
+             otherwise, they will be kicked.
+
+             * Requires knowing the secret command & password.
+             Once they do this, their ip and name will be saved to a file called players.txt
+             in the following format: 127.0.0.1|name.
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -24,18 +29,19 @@ local RegToPlay = {
     file = 'players.txt',
     --
 
-    --
-    -- If true, user data will only be saved to players.txt when a game ends.
+    --[[
+    If true, user data will only be saved to players.txt when event_game_end is fired.
 
-    -- This means the data ip|user is cached in a table until the game ends.
-    -- Then we do an i/o that saves it to players.txt.
+    This means the data (ip|user) will be cached to a table until the game ends.
+    Then we do a write operation that saves it to players.txt.
 
-    -- Recommended for larger databases,
-    -- otherwise, the i/o operation may cause a lag spike during gameplay.
+    Recommended for larger databases,
+    otherwise, the write operation may cause a lag spike during gameplay.
 
-    -- This does, however, mean that if the server crashes, the cached session
-    -- will never be saved because event_game_end was never fired.
-    -- In which case, the user will have to register again when the server is rebooted.
+    This does, however, mean that if the server crashes, the cached data will be lost
+    because event_game_end was never fired.
+    In which case, the user will have to register again when the server is rebooted.
+    ]]
     save_on_register = false
 }
 
