@@ -38,7 +38,7 @@ local RegToPlay = {
     This means the data (ip|user) will be cached to a table until the game ends.
     Then we do a write operation that saves it to players.txt.
 
-    Recommended for larger databases,
+    * Recommended for larger databases,
     otherwise, the write operation may cause a lag spike during gameplay.
 
     This does, however, mean that if the server crashes, the cached data will be lost
