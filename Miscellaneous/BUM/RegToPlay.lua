@@ -14,8 +14,8 @@ local RegToPlay = {
     kick_delay = 10, -- in seconds
     --
 
-    command = 'cow2',
-    password = 'listen0',
+    command = 'username_here',
+    password = 'password_here',
     --
 
     permission_level = -1,
