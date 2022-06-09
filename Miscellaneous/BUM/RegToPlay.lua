@@ -5,10 +5,10 @@ Description: Players must register to the server within 10 seconds after joining
              otherwise, they will be kicked.
 
              * Requires knowing the secret command & password.
-             Once they do this, their ip and name will be saved to a file called players.txt
+             Once they do this, their IP and name will be saved to a file called players.txt
              in the following format: 127.0.0.1|name.
 
-             A newly joined players ip and name are cross-checked against the database.
+             A newly joined player's IP and name are cross-checked against the database.
              If a match is made, they can play.
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
