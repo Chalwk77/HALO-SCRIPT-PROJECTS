@@ -33,12 +33,12 @@ local RegToPlay = {
     --
 
     --[[
-    If true, user data will only be saved to players.txt when event_game_end is fired.
+    When false, user data will only be saved to players.txt when event_game_end is fired.
 
     This means the data (ip|user) will be cached to a table until the game ends.
     Then we do a write operation that saves it to players.txt.
 
-    * Recommended for larger databases,
+    * Recommended setting is "false" for larger databases,
     otherwise, the write operation may cause a lag spike during gameplay.
 
     This does, however, mean that if the server crashes, the cached data will be lost
