@@ -1,15 +1,12 @@
 --[[
 --=====================================================================================================--
 Script Name: RegToPlay, for SAPP (PC & CE)
-Description: Players must register to the server within 10 seconds after joining (if they haven't already),
+Description: Players must register their name within 10 seconds after joining (if they haven't already),
              otherwise, they will be kicked.
 
              * Requires knowing the secret command & password.
-             Once they do this, their IP and name will be saved to a file called players.txt
+             Once they do this, their ip and name will be saved to a file called players.txt
              in the following format: 127.0.0.1|name.
-
-             A newly joined player's IP and name are cross-checked against the database.
-             If a match is made, they can play.
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -33,12 +30,12 @@ local RegToPlay = {
     --
 
     --[[
-    When false, user data will only be saved to players.txt when event_game_end is fired.
+    If true, user data will only be saved to players.txt when event_game_end is fired.
 
     This means the data (ip|user) will be cached to a table until the game ends.
     Then we do a write operation that saves it to players.txt.
 
-    * Recommended setting is "false" for larger databases,
+    Recommended for larger databases,
     otherwise, the write operation may cause a lag spike during gameplay.
 
     This does, however, mean that if the server crashes, the cached data will be lost
@@ -166,7 +163,7 @@ end
 
 function OnTick()
     for i, v in pairs(players) do
-        if (i and v.start() >= v.finish) then
+        if (i and v.start() == v.finish) then
             execute_command('k ' .. i .. ' "Not registered to this server!"')
         end
     end
