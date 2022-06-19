@@ -1,11 +1,11 @@
 --[[
 --=====================================================================================================--
 Script Name: RegToPlay, for SAPP (PC & CE)
-Description: Players must register their name within 10 seconds after joining (if they haven't already),
+Description: Players must register to the server within 10 seconds after joining (if they haven't already),
              otherwise, they will be kicked.
 
              * Requires knowing the secret command & password.
-             Once they do this, their ip and name will be saved to a file called players.txt
+             Once they do this, their IP and name will be saved to a file called players.txt
              in the following format: 127.0.0.1|name.
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
