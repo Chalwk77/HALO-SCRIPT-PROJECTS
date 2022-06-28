@@ -7,7 +7,7 @@ Description: Deploy super-explosive mines (disguised as health packs) while driv
             - When an enemy walks/drives over them they explode.
             - You cannot die by your own mines.
             - Mines despawn after 60 seconds (by default).
-            - Players spawn with 20 minutes per life.
+            - Players spawn with 20 mines per life.
             - Great for race servers.
             - Compatible with all game modes.
 
