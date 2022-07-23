@@ -471,8 +471,8 @@ function MapVote:Show()
 
         -- index - 1 = options count
         repeat
-            -- iteration through maps will be circular only in cases where maps got discarded because specified parameters
-            -- end_index will be updated in such way maps will be randomized again next time
+            -- iteration over the array maps will be circular only in cases where maps got discarded because specified parameters
+            -- end_index will be updated in such way maps will be randomized again next time game ends
             i = (iterator_index - 1) % ( #self.maps ) + 1
 
             if (self.maps[i]) then
