@@ -51,7 +51,7 @@ local MapVote = {
 
     -- How many votes options to display when the game ends?
     --
-    amount_to_show = 5,
+    amount_to_show = 8,
     --
 
     -- If true, the player's console will be cleared each time we print vote options:
@@ -114,8 +114,20 @@ local MapVote = {
 
     -- Vote options will be re-shown every "re_show_interval" seconds until timer reaches "time_until_tally"
     --
-    re_show_interval = 5,
+    re_show_interval = 3,
     ----------------------------------------------------------------------------------------
+
+    -- Previous voted map info (including how many times in a row this map has been played)
+
+    map_streak_available = true, -- define if this filter is enabled , otherwise will be ignored
+
+    -- 
+    map_streak = {
+        [1] = -1, -- initial previous played map index
+        [2] = 0 -- Number of times map has been played
+    },
+
+    max_repeats = 2, --  maximum number of times a map has to be played in order to remove it from next maps options
 
     maps = {
 
@@ -125,7 +137,7 @@ local MapVote = {
         - TECHNICAL NOTES -
         =============================
 
-        1). Configure the map votes in the following format: {map name, game mode, message}
+        1). Configure the map votes in the following format: {map name, game mode, message, (optional) min player count, (optional) max player count}
 
         2). Map vote options will be seen in-game like this:
 
@@ -146,28 +158,28 @@ local MapVote = {
         --======================================--
         -- CONFIGURE MAP VOTES HERE --
         --======================================--
-        { "bloodgulch", "ctf", "(ctf)" },
-        { "deathisland", "ctf", "(ctf)" },
-        { "sidewinder", "ctf", "(ctf)" },
-        { "icefields", "ctf", "(ctf)" },
-        { "infinity", "ctf", "(ctf)" },
+        { "bloodgulch", "ctf", "(ctf)", 5},
+        { "deathisland", "ctf", "(ctf)", 8 },
+        { "sidewinder", "ctf", "(ctf)", 5 },
+        { "icefields", "ctf", "(ctf)", 4 },
+        { "infinity", "ctf", "(ctf)", 8 },
 
-        { "timberland", "ctf", "(ctf)" },
-        { "dangercanyon", "ctf", "(ctf)" },
-        { "beavercreek", "ctf", "(ctf)" },
-        { "boardingaction", "ctf", "(ctf)" },
-        { "carousel", "ctf", "(ctf)" },
+        { "timberland", "ctf", "(ctf)", 5, 12 },
+        { "dangercanyon", "ctf", "(ctf)", 3, 6 },
+        { "beavercreek", "ctf", "(ctf)", 2, 3 },
+        { "boardingaction", "ctf", "(ctf)", 4, 5 },
+        { "carousel", "ctf", "(ctf)"},
 
-        { "chillout", "ctf", "(ctf)" },
-        { "damnation", "ctf", "(ctf)" },
-        { "gephyrophobia", "ctf", "(ctf)" },
-        { "hangemhigh", "ctf", "(ctf)" },
-        { "longest", "ctf", "(ctf)" },
+        { "chillout", "ctf", "(ctf)"},
+        { "damnation", "ctf", "(ctf)"},
+        { "gephyrophobia", "ctf", "(ctf)", 8 },
+        { "hangemhigh", "ctf", "(ctf)"},
+        { "longest", "ctf", "(ctf)"},
 
-        { "prisoner", "ctf", "(ctf)" },
-        { "putput", "ctf", "(ctf)" },
-        { "ratrace", "ctf", "(ctf)" },
-        { "wizard", "ctf", "(ctf)" }
+        { "prisoner", "ctf", "(ctf)"},
+        { "putput", "ctf", "(ctf)"},
+        { "ratrace", "ctf", "(ctf)"},
+        { "wizard", "ctf", "(ctf)"}
     },
 
     -- ADVANCED USERS ONLY --
@@ -262,7 +274,8 @@ function MapVote:PickRandomMap(t)
         t[n][1],
         t[n][2],
         t[n][3],
-        t[n][4]
+        t[n][4],
+        t[n][5]
     }
 end
 
@@ -297,7 +310,7 @@ end
 function MapVote:SortResults()
 
     -- self.results:
-    -- map [string], mode [string], mode message [string], votes [table]
+    -- map [string], mode [string], mode message [string], votes [table], original map index [int]
     --
 
     local groups = { }
@@ -347,6 +360,14 @@ function MapVote:Timer()
 
             self.results = vote
             self.can_vote = false
+            
+            -- Update map streak count
+            local winner_map_index = vote[5]
+
+            self.map_streak = {
+                winner_map_index,
+                (self.map_streak[1] == winner_map_index and self.map_streak[2] + 1 or 1)
+            }
 
             -- display winner --
             local words = {
@@ -356,7 +377,7 @@ function MapVote:Timer()
                 ["%%votes%%"] = #vote[4],
                 ["%%s%%"] = Plural(#vote[4])
             }
-
+            
             local str = (#vote[4] > 0 and self.messages[4][1] or self.messages[4][2])
             for k, v in pairs(words) do
                 str = str:gsub(k, v)
@@ -422,7 +443,7 @@ function MapVote:Timer()
                             str = str:gsub(k, v)
                         end
 
-                        self:Respond(i, str)
+                        self:Respond (i, str)
                     end
                 end
             end
@@ -440,33 +461,63 @@ function MapVote:Show()
         if (finished) then
             self:ResetVoteIndex(true)
         end
-
+        
         -- Determine what vote options to display:
+        local player_count = tonumber( get_var(0, "$pn") );
         local index = 1
-        for i = start_index, end_index do
+        local iterator_index = start_index
+        local iterator_end = false
+        local i
+
+        -- index - 1 = options count
+        repeat
+            -- iteration over the array maps will be circular only in cases where maps got discarded because specified parameters
+            -- end_index will be updated in such way maps will be randomized again next time game ends
+            i = (iterator_index - 1) % ( #self.maps ) + 1
+
             if (self.maps[i]) then
 
-                -- map [string], mode [string], mode message [string], votes [table]
-                self.results[index] = {
+                local min_pn = self.maps[i][4] or 0
+                local max_pn = self.maps[i][5] or 16
 
-                    -- map name:
-                    self.maps[i][1],
+                local available = player_count >= min_pn and player_count <= max_pn -- checks player count availability
+                
+                available = available and
+                    ( not self.map_streak_available or self.map_streak[1] ~= i or self.map_streak[2] < self.max_repeats )
+                     -- checks repeats count availability
+                
+                if( available ) then
+                    -- map [string], mode [string], mode message [string], votes [table], maps array index [int]
+                    self.results[index] = {
 
-                    -- mode:
-                    self.maps[i][2],
+                        -- map name:
+                        self.maps[i][1],
 
-                    -- mode message:
-                    self.maps[i][3],
+                        -- mode:
+                        self.maps[i][2],
 
-                    -- array of votes:
-                    {}
-                }
-                index = index + 1
+                        -- mode message:
+                        self.maps[i][3],
+
+                        -- array of votes:
+                        {},
+                        
+                        -- original maps array index
+                        i
+                    }
+                    index = index + 1
+                end
+                
             end
-        end
+
+            iterator_index = iterator_index + 1
+
+            iterator_end = index > self.amount_to_show or ( iterator_index - start_index ) >= #self.maps
+
+        until( iterator_end )
 
         -- Increment vote option start & end indexes:
-        start_index = (end_index + 1)
+        start_index = (iterator_index ) -- already did an increment, so this points to the inmediate next option
         end_index = (start_index + self.amount_to_show - 1)
 
         self:SetupTimer(false)
@@ -585,6 +636,13 @@ function MapVote:ResetVoteIndex(Shuffle)
             t[#t + 1] = self.maps[i]
         end
         self.maps = t
+
+        -- Updates current map streak index
+        self.map_streak = {
+            (self.map_streak[1] == -1 and -1 or #self.maps - self.map_streak[1] + 1),
+            self.map_streak[2]
+        }
+
     end
 
     start_index = 1
