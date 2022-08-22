@@ -592,7 +592,7 @@ end
 
 function MuteSystem:CLS(Ply, Count)
     Count = Count or 25
-    for i = 1, Count do
+    for _ = 1, Count do
         rprint(Ply, " ")
     end
 end
@@ -623,14 +623,13 @@ function report(StackTrace, Error)
 
     cprint(StackTrace, 4 + 8)
 
-    cprint("--------------------------------------------------------", 5 + 8)
-    cprint("Please report this error on github:", 7 + 8)
-    cprint("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", 7 + 8)
-    cprint("Script Version: " .. script_version, 7 + 8)
-    cprint("--------------------------------------------------------", 5 + 8)
+    cprint("--------------------------------------------------------", 12)
+    cprint("Please report this error on github:", 11)
+    cprint("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", 12)
+    cprint("Script Version: " .. script_version, 11)
+    cprint("--------------------------------------------------------", 12)
 
-    local timestamp = os.date("[%H:%M:%S - %d/%m/%Y]")
-    WriteLog(timestamp)
+    WriteLog(os.date("[%H:%M:%S - %d/%m/%Y]"))
     WriteLog("Please report this error on github:")
     WriteLog("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues")
     WriteLog("Script Version: " .. tostring(script_version))

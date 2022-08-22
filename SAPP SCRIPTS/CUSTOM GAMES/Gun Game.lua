@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Gun Game (v1.8), for SAPP (PC & CE)
+Script Name: Gun Game (v1.9), for SAPP (PC & CE)
 Description: A simple progression based game inspired by Call of Duty's Gun Game mode.
              Every kill rewards the player with a new weapon.
              The first player to reach the last weapon with 10 kills wins.
@@ -104,6 +104,8 @@ local GunGame = {
 
 api_version = "1.12.0.0"
 
+local script_version = 1.9
+
 local game_over
 local players = {}
 
@@ -136,43 +138,13 @@ function GunGame:LevelUP()
         if (self.level == #self.levels) then
             say_all(self.messages[2]:gsub('$name', self.name))
         elseif (self.level > #self.levels) then
-            execute_command('map_next')
+            execute_command('sv_map_next')
             say_all(self.messages[3]:gsub('$name', self.name))
             goto done
         end
         self.assign = true
 
         :: done ::
-        execute_command("msg_prefix \" " .. self.server_prefix .. "\"")
-    end
-end
-
-function GunGame:AssignWeapon()
-
-    self.assign = false
-
-    execute_command('wdel ' .. self.id)
-    execute_command('nades ' .. self.id .. ' 0')
-
-    for Label, t in pairs(self.weapons[self.level]) do
-
-        -- frags:
-        if (t[2] > 0) then
-            execute_command('nades ' .. self.id .. ' ' .. t[2] .. ' 1')
-        end
-        -- plasmas:
-        if (t[3] > 0) then
-            execute_command('nades ' .. self.id .. ' ' .. t[3] .. ' 2')
-        end
-
-        local weap = spawn_object('weap', t[1], 0, 0, 0)
-        assign_weapon(weap, self.id)
-
-        local msg = self.messages[1]
-        msg = msg:gsub('$lvl', self.level):gsub('$label', Label)
-
-        execute_command("msg_prefix \"\"")
-        say(self.id, msg)
         execute_command("msg_prefix \" " .. self.server_prefix .. "\"")
     end
 end
@@ -231,11 +203,43 @@ function OnEnd()
     game_over = true
 end
 
+-- Called every 1/30th second:
+--
 function OnTick()
     for i, v in pairs(players) do
-        if (i and player_alive(i) and not game_over) then
+
+        local dyn = get_dynamic_player(i)
+        if (i and dyn ~= 0 and player_alive(i) and not game_over) then
             if (v.assign) then
-                v:AssignWeapon()
+
+                v.assign = false
+
+                execute_command('wdel ' .. i)
+                execute_command('nades ' .. i .. ' 0')
+
+                local weapons = v.weapons[v.level]
+                for Label, t in pairs(weapons) do
+
+                    -- frags:
+                    if (t[2] > 0) then
+                        execute_command('nades ' .. i .. ' ' .. t[2] .. ' 1')
+                    end
+
+                    -- plasmas:
+                    if (t[3] > 0) then
+                        execute_command('nades ' .. i .. ' ' .. t[3] .. ' 2')
+                    end
+
+                    assign_weapon(spawn_object('weap', t[1], 0, 0, 0), i)
+
+                    local msg = v.messages[1]
+                    msg = msg:gsub('$lvl', v.level):gsub('$label', Label)
+
+                    execute_command('msg_prefix " "')
+                    say(i, msg)
+                    execute_command('msg_prefix "' .. v.server_prefix .. '"')
+                end
+
             elseif (v.infinite_ammo) then
                 execute_command_sequence('ammo ' .. i .. ' 999; battery ' .. i .. ' 100')
             end
@@ -243,6 +247,8 @@ function OnTick()
     end
 end
 
+-- Called when a player joins the game:
+-- @param Ply (memory address index of this player)
 function OnJoin(Ply)
     players[Ply] = GunGame:NewPlayer({
         id = Ply,
@@ -250,16 +256,23 @@ function OnJoin(Ply)
     })
 end
 
+-- Called when a player quits the game:
+-- @param Ply (memory address index of this player)
 function OnQuit(Ply)
     players[Ply] = nil
 end
 
+-- Called when a player has finished spawning:
+-- @param Ply (memory address index of this player)
 function OnSpawn(Ply)
     if (players[Ply]) then
         players[Ply].assign = true
     end
 end
 
+-- Called when a player dies:
+-- @param Victim (memory address index of the victim)
+-- @param Killer (memory address index of the killer)
 function OnDeath(Victim, Killer)
     if (not game_over) then
         local victim = tonumber(Victim)
@@ -273,4 +286,35 @@ end
 
 function OnScriptUnload()
     GunGame:EnableDisableWeapons(true)
+end
+
+local function WriteErr(str)
+    local file = io.open('Gun Game Errors.log', 'a+')
+    if (file) then
+        file:write(str .. '\n')
+        file:close()
+    end
+end
+
+function report(StackTrace, Err)
+
+    cprint(StackTrace, 12)
+
+    cprint('--------------------------------------------------------', 13)
+    cprint('Please report this error on github:', 15)
+    cprint('https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues', 13)
+    cprint('Script Version: ' .. script_version, 15)
+    cprint('--------------------------------------------------------', 13)
+
+    WriteErr(os.date('[%H:%M:%S - %d/%m/%Y]'))
+    WriteErr('Please report this error on github:')
+    WriteErr('https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues')
+    WriteErr('Script Version: ' .. tostring(script_version))
+    WriteErr(Err)
+    WriteErr(StackTrace)
+    WriteErr('\n')
+end
+
+function OnError(err)
+    timer(50, "report", debug.traceback(), err)
 end
