@@ -20,6 +20,11 @@ local command = 'lo3'
 local permission = 1
 -- config ends --
 
+----------------------------------------------
+-- [!] Do not touch anything below this point
+-- unless you know what you're doing.
+----------------------------------------------
+
 -- SAPP Lua API Version:
 api_version = '1.12.0.0'
 
@@ -27,6 +32,8 @@ local count = 3
 local kill_message_address
 local original_kill_message
 
+-- Called when the script is loaded:
+--
 function OnScriptLoad()
 
     -- register needed event callback for the Command Handler:
