@@ -15,19 +15,19 @@ local Join_Messages = {
 
     -- Level 1:
     --
-    [1] = "[TRIAL-MOD] %name% joined the server. Everybody hide!",
+    [1] = "[TRIAL-MOD] $name joined the server. Everybody hide!",
 
     -- Level 2:
     --
-    [2] = "[MODERATOR] %name% ust showed up. Hold my beer!",
+    [2] = "[MODERATOR] $name just showed up. Hold my beer!",
 
     -- Level 3:
     --
-    [3] = "[ADMIN] %name% just joined. Hide your bananas!",
+    [3] = "[ADMIN] $name just joined. Hide your bananas!",
 
     -- Level 4:
     --
-    [4] = "[SENIOR-ADMIN] %name% joined the server.",
+    [4] = "[SENIOR-ADMIN] $name joined the server.",
 
     -- Where should messages appear, chat or rcon?
     --
@@ -45,12 +45,12 @@ local Join_Messages = {
     -- A message relay function temporarily removes the server prefix
     -- and will restore it to this when the relay is finished:
     -- Technical note: This only applies to the chat environment.
-    server_prefix = "**SAPP**",
+    server_prefix = '**SAPP**',
     --
 }
 -- config ends --
 
-api_version = "1.11.0.0"
+api_version = '1.11.0.0'
 
 function OnScriptLoad()
     register_callback(cb['EVENT_JOIN'], "OnPlayerConnect")
@@ -63,12 +63,12 @@ function Join_Messages:Broadcast(Ply)
 
         local name = get_var(Ply, "$name")
         local msg = self.alignment .. " " .. self[lvl]
-        msg = msg:gsub("%%name%%", name)
+        msg = msg:gsub("$name", name)
 
         if (self.environment == "chat") then
-            execute_command("msg_prefix \"\"")
+            execute_command('msg_prefix ""')
             say_all(msg)
-            execute_command("msg_prefix \" " .. self.server_prefix .. "\"")
+            execute_command('msg_prefix ' .. self.server_prefix .. '"')
         elseif (self.environment == "rcon") then
             for i = 1, 16 do
                 if player_present(i) then
@@ -79,10 +79,10 @@ function Join_Messages:Broadcast(Ply)
     end
 end
 
-function OnScriptUnload()
-    -- N/A
-end
-
 function OnPlayerConnect(ID)
     return Join_Messages:Broadcast(ID)
+end
+
+function OnScriptUnload()
+    -- N/A
 end

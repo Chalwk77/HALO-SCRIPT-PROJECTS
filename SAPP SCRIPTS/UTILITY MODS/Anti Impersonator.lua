@@ -13,6 +13,7 @@ api_version = "1.12.0.0"
 
 -- Configuration --
 local settings = {
+
     action = "kick", -- Valid actions are 'kick' & 'ban'
     bantime = 10, -- (In Minutes) -- Set to zero to ban permanently
     reason = "Impersonating",
