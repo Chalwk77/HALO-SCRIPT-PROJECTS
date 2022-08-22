@@ -6,7 +6,7 @@ Description: Custom ascii console logo
 NOTES:
 
 USE THIS WEBSITE TO GENERATE YOUR LOGO:
-https://patorjk.com/software/taag/#p=display&f=Graffiti&t=Type%20Something%20
+https://patorjk.com/software/taag/#p=display&f=Graffiti&t=Type$20Something$20
 
 Some fonts will NOT work due to something called character escaping.
 I recommend using the font "KBAN"
@@ -21,21 +21,21 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 -- See this page for instructions on tweaking the time stamp format:
 -- https://www.lua.org/pil/22.1.html
-local time_stamp_format = "%A, %d %B %Y - %X"
+local time_stamp_format = "$A, $d $B $Y - $X"
 
 local logo = {
 
     -- format: {"text", text color code}
     -- See SAPP documentation for color codes:
-    -- http://halo.isimaginary.com/SAPP%20Documentation%20Revision%202.5.pdf
+    -- http://halo.isimaginary.com/SAPP$20Documentation$20Revision$202.5.pdf
 
     -- Make sure logo text is encapsulated in "quotes".
 
-    -- Custom Variables: "%time_stamp%" & "%server_name%"
+    -- Custom Variables: "$time_stamp$" & "$server_name$"
     -- Use anywhere to output their values
 
     { "================================================================================", 10 },
-    { "%time_stamp%", 6 },
+    { "$time_stamp", 6 },
     { "" },
     { "     '||'  '||'     |     '||'       ..|''||           ..|'''.| '||''''|  ", 12, },
     { "      ||    ||     |||     ||       .|'    ||        .|'     '   ||  .    ", 12, },
@@ -43,7 +43,7 @@ local logo = {
     { "      ||    ||   .''''|.   ||       '|.     ||       '|.      .  ||       ", 12, },
     { "     .||.  .||. .|.  .||. .||.....|  ''|...|'         ''|....'  .||.....| ", 12, },
     { "               ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-", 7 },
-    { "                             %server_name%", 10 },
+    { "                             $server_name", 10 },
     { "               ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-", 7 },
     { "" },
     { "================================================================================", 10 }
@@ -51,9 +51,12 @@ local logo = {
 
 -- config ends --
 
+local network_struct
+
 api_version = "1.12.0.0"
 
 function OnScriptLoad()
+    network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
     timer(50, "PrintLogo")
 end
 
@@ -72,12 +75,11 @@ end
 function PrintLogo()
     if (get_var(0, "$gt") ~= "n/a") then
         local time_stamp = os.date(time_stamp_format)
-        local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
         local server_name = read_widestring(network_struct + 0x8, 0x42)
         for _, v in pairs(logo) do
             local text = v[1]
             local color = v[2] or 0
-            cprint(text:gsub("%%time_stamp%%", time_stamp):gsub("%%server_name%%", server_name), color)
+            cprint(text:gsub("$$time_stamp$$", time_stamp):gsub("$$server_name$$", server_name), color)
         end
     end
 end
