@@ -23,6 +23,8 @@ function OnScriptLoad()
 end
 
 function OnSpawn(p)
+    
+    -- Get the players object address:
     local dyn = get_dynamic_player(p)
     if (dyn ~= 0) then
 
@@ -45,6 +47,7 @@ function OnSpawn(p)
     end
 end
 
+-- Assigns the defined weapon:
 function AssignWeapon(p, w)
     assign_weapon(spawn_object('weap', w, 0, 0, 0), p)
 end
