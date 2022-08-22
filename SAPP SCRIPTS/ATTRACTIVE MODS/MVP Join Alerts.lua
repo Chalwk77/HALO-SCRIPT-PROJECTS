@@ -1,7 +1,7 @@
 --[[
 --=====================================================================================================--
 Script Name: MVP Join Alerts, for SAPP (PC & CE)
-Description: This mod will automatically broadcast a special message when an MVP joins! 
+Description: This mod will automatically broadcast a special message when an MVP joins!
              Each MVP can have a unique message!
 
              Supports IP Addresses & Hashes
@@ -12,34 +12,35 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
-local server_prefix = "**SAPP**"
+-- A message relay function temporarily removes the server prefix,
+-- and restores it to this when it's finish:
+local server_prefix = '**SAPP**'
 
+-- The $name placeholder will be replaced with the players name automagically:
+--
 local MVP = {
-    ["127.0.0.1"] = "YO! MVP %name% has joined the server!",
-    ["xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"] = "A brother from another mother joined!"
+    ['127.0.0.1'] = 'YO! MVP $name has joined the server!',
+    ['xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'] =' "$name, a brother from another mother has joined!"'
 }
 
 -- Config Ends ------------
 
-api_version = "1.12.0.0"
+api_version = '1.12.0.0'
 
 function OnScriptLoad()
-    register_callback(cb["EVENT_JOIN"], "OnJoin")
+    register_callback(cb['EVENT_JOIN'], 'OnJoin')
 end
 
 function OnJoin(Ply)
 
-    local ip = get_var(Ply, "$ip"):match("%d+.%d+.%d+.%d+")
-    local hash = get_var(Ply, "hash")
+    local ip = get_var(Ply, '$ip'):match('%d+.%d+.%d+.%d+')
+    local hash = get_var(Ply, 'hash')
 
-    for k, v in pairs(MVP) do
-        if (k == ip or k == hash) then
-            local name = get_var(Ply, "$name")
-            local str = v:gsub("$name", name)
-            execute_command("msg_prefix \"\"")
-            say_all(str)
-            execute_command("msg_prefix \" " .. server_prefix .. "\" ")
-        end
+    local mvp = (MVP[hash] or MVP[ip])
+    if (mvp) then
+        execute_command('msg_prefix ""')
+        say_all(mvp:gsub('$name', get_var(Ply, '$name')))
+        execute_command('msg_prefix "' .. server_prefix .. '"')
     end
 end
 
