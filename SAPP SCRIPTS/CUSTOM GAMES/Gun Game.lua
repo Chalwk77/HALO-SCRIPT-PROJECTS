@@ -184,8 +184,9 @@ function OnStart()
 
         GunGame:TagsToID()
 
-        -- # override scorelimit:
+        -- override scorelimit:
         execute_command("scorelimit 99999")
+
         GunGame:EnableDisableWeapons()
 
         players = {}
@@ -203,8 +204,6 @@ function OnEnd()
     game_over = true
 end
 
--- Called every 1/30th second:
---
 function OnTick()
     for i, v in pairs(players) do
 
@@ -240,15 +239,14 @@ function OnTick()
                     execute_command('msg_prefix "' .. v.server_prefix .. '"')
                 end
 
-            elseif (v.infinite_ammo) then
-                execute_command_sequence('ammo ' .. i .. ' 999; battery ' .. i .. ' 100')
+                if (v.infinite_ammo) then
+                    execute_command_sequence('w8 1; ammo ' .. i .. ' 999; battery ' .. i .. ' 100')
+                end
             end
         end
     end
 end
 
--- Called when a player joins the game:
--- @param Ply (memory address index of this player)
 function OnJoin(Ply)
     players[Ply] = GunGame:NewPlayer({
         id = Ply,
@@ -256,23 +254,16 @@ function OnJoin(Ply)
     })
 end
 
--- Called when a player quits the game:
--- @param Ply (memory address index of this player)
 function OnQuit(Ply)
     players[Ply] = nil
 end
 
--- Called when a player has finished spawning:
--- @param Ply (memory address index of this player)
 function OnSpawn(Ply)
     if (players[Ply]) then
         players[Ply].assign = true
     end
 end
 
--- Called when a player dies:
--- @param Victim (memory address index of the victim)
--- @param Killer (memory address index of the killer)
 function OnDeath(Victim, Killer)
     if (not game_over) then
         local victim = tonumber(Victim)
