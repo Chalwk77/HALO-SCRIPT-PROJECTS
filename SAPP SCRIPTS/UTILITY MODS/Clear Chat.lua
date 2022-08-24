@@ -1,10 +1,11 @@
 --[[
 --=====================================================================================================--
 Script Name: Clear Chat, for SAPP (PC & CE)
-Description: A simple script that allows you to clear the global server chat. 
-Command Syntax: /clear or /cc
-     
-Copyright (c) 2016-2020, Jericho Crosby <jericho.crosby227@gmail.com>
+Description: A simple script that allows you to clear the global server chat.
+
+* Command Syntax: /clear
+
+Copyright (c) 2016-2022, Jericho Crosby <jericho.crosby227@gmail.com>
 Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
@@ -13,61 +14,52 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 api_version = '1.12.0.0'
 
 -- config starts
-local command_aliases = { "cc", "clear" }
 
+-- Custom Command used to clear chat:
+--
+local command = "clear"
+
+-- Minimum permission level required to execute the custom command:
+--
 local permission_level = 1
 
-local server_prefix = "**SERVER**"
+
+-- A message relay function temporarily removes the server prefix
+-- and restores it to this when finished:
+local prefix = "**ADMIN**"
+
 -- config ends
 
-local lower, upper, gmatch = string.lower, string.upper, string.gmatch
-
 function OnScriptLoad()
-    register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
+    register_callback(cb['EVENT_COMMAND'], "OnCommand")
 end
 
-function OnServerCommand(Executor, Command, _, _)
-    local Args = CMDSplit(Command)
-    if (Args == nil or Args == "") then
-        return
-    else
-        Args[1] = lower(Args[1]) or upper(Args[1])
-        for CmdIndex = 1, #command_aliases do
-            if (Args[1] == command_aliases[CmdIndex]) then
-                local level = tonumber(get_var(Executor, "$lvl"))
-                if (level >= permission_level or Executor == 0) then
-                    for _ = 1, 20 do
-                        execute_command("msg_prefix \"\"")
-                        say_all(" ")
-                        execute_command("msg_prefix \" " .. server_prefix .. " \" ")
-                    end
-                    Send(Executor, "Chat was cleared")
-                else
-                    Send(Executor, "Insufficient Permission")
-                end
-                return false
+local function Send(Ply, Str)
+    return (Ply == 0 and cprint(Str) or rprint(Ply, Str))
+end
+
+local function IsAdmin(Ply)
+    local lvl = tonumber(get_var(Ply, '$lvl'))
+    return (Ply == 0 or lvl >= permission_level)
+end
+
+function OnCommand(Ply, CMD)
+
+    if (CMD:sub(1, command:len()):lower() == command) then
+        if IsAdmin(Ply) then
+            execute_command('msg_prefix ""')
+            for _ = 1, 20 do
+                say_all(" ")
             end
+            execute_command('msg_prefix "' .. prefix .. '"')
+            Send(Ply, "Chat was cleared")
+        else
+            Send(Ply, 'Insufficient Permission')
         end
+        return false
     end
-end
-
-function Send(Executor, Message)
-    if (Executor == 0) then
-        cprint(Message)
-    else
-        rprint(Executor, Message)
-    end
-end
-
-function CMDSplit(CMD)
-    local t, i = {}, 1
-    for Args in gmatch(CMD, "([^%s]+)") do
-        t[i] = Args
-        i = i + 1
-    end
-    return t
 end
 
 function OnScriptUnload()
-
+    -- N/A
 end

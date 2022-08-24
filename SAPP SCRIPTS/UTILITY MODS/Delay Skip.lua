@@ -26,13 +26,16 @@ api_version = "1.12.0.0"
 
 local time
 
+local clock = os.clock
+local ceil = math.ceil
+
 function OnScriptLoad()
 
     register_callback(cb["EVENT_CHAT"], "Skip")
-    register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
-    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
+    register_callback(cb["EVENT_GAME_END"], "OnEnd")
+    register_callback(cb["EVENT_GAME_START"], "OnStart")
 
-    OnGameStart()
+    OnStart()
 end
 
 local function Plural(n)
@@ -41,7 +44,7 @@ end
 
 function Skip(Ply, Msg)
     if (time and Msg:sub(1, Msg:len()):lower() == "skip") then
-        local n = math.ceil(time + delay - os.clock())
+        local n = ceil(time + delay - clock())
         if (n > 0) then
             rprint(Ply, "Please wait " .. n .. " second" .. Plural(n) .. " before attempting to skip")
             return false
@@ -49,14 +52,14 @@ function Skip(Ply, Msg)
     end
 end
 
-function OnGameStart()
+function OnStart()
     time = nil
     if (get_var(0, "$gt") ~= "n/a") then
         time = os.clock()
     end
 end
 
-function OnGameEnd()
+function OnEnd()
     time = nil
 end
 
