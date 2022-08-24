@@ -9,36 +9,24 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
-api_version = "1.12.0.0"
-delay = 3000
+local interval = 3000
+
+api_version = '1.12.0.0'
 
 function OnScriptLoad()
-    timer(delay, "StatusTimer")
-    register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
-    register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
-    register_callback(cb['EVENT_GAME_START'], "OnNewGame")
+    register_callback(cb['EVENT_GAME_START'], "OnStart")
+    OnStart()
 end
 
 function StatusTimer()
-    if players == nil then
-        players = 0
-    end
-    cprint("There are currently: (" .. players .. " / " .. read_word(0x4029CE88 + 0x28) .. " players online)", 2 + 8)
+    local min = tonumber(get_var(0, '$pn'))
+    local max = read_word(0x4029CE88 + 0x28)
+    cprint("There are currently: (" .. min .. " / " .. max .. " players online)", 10)
     return true
 end
 
-function OnPlayerJoin(PlayerIndex)
-    if players == nil then
-        players = 1
-    else
-        players = players + 1
+function OnStart()
+    if (get_var(0, '$gt') ~= 'n/a') then
+        timer(interval, "StatusTimer")
     end
-end
-
-function OnPlayerLeave(PlayerIndex)
-    players = players - 1
-end
-
-function OnNewGame()
-    players = 0
 end
