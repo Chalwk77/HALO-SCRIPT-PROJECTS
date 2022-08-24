@@ -33,16 +33,19 @@ local ffa, sig
 api_version = "1.12.0.0"
 
 function OnScriptLoad()
+
     register_callback(cb["EVENT_GAME_START"], "OnStart")
+
+    sig = sig_scan("741F8B482085C9750C")
+    if (sig == 0) then
+        sig = sig_scan("EB1F8B482085C9750C")
+    end
+
     OnStart()
 end
 
 local function WriteSig(state)
     if (state) then
-        sig = sig_scan("741F8B482085C9750C")
-        if (sig == 0) then
-            sig = sig_scan("EB1F8B482085C9750C")
-        end
         safe_write(true)
         write_char(sig, 235)
         safe_write(false)

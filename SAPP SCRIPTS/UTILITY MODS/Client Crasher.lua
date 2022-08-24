@@ -97,10 +97,6 @@ function OnScriptLoad()
     OnGameStart()
 end
 
-function OnScriptUnload()
-    -- N/A
-end
-
 function OnGameStart()
     if (get_var(0, "$gt") ~= "n/a") then
         Crash:SetCrashVehicle()
@@ -338,4 +334,6 @@ function OnPlayerQuit(Ply)
     return Crash:OnPlayerQuit(Ply)
 end
 
-return Crash
+function OnScriptUnload()
+    -- N/A
+end

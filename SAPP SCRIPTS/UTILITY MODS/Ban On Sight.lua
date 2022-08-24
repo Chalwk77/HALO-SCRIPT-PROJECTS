@@ -19,7 +19,6 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 api_version = '1.11.0.0'
 
-
 -- Configuration [starts] --
 -- Min admin level required to use these commands...
 min_admin_level = 1
@@ -36,6 +35,7 @@ bos_table = { }
 boslog_table = { }
 
 function OnScriptLoad()
+
     register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
     register_callback(cb['EVENT_GAME_START'], "OnNewGame")
     register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
