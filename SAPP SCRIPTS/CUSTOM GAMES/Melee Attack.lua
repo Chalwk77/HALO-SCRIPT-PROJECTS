@@ -168,6 +168,11 @@ function Melee:InitPlayer(Ply, Reset)
     self.players[Ply] = nil
 end
 
+-- Returns the META ID of the tag:
+-- @param (type) TAG TYPE (i.e: 'weap', 'eqip' ...)
+-- @param (name) TAG NAME: (weapons/name/name)
+-- @return tag meta id
+--
 local function GetTag(type, name)
     local tag = lookup_tag(type, name)
     return tag ~= 0 and read_dword(tag + 0xC) or nil
@@ -308,9 +313,9 @@ function Melee:DeathHandler(Victim, Killer, MetaID, Damage, _, _)
         self:CleanUpDrones(victim, false)
 
         -- set respawn time:
-        local Player = get_player(victim)
-        if (Player ~= 0) then
-            write_dword(Player + 0x2C, self.respawn_time * 33)
+        local player = get_player(victim)
+        if (player ~= 0) then
+            write_dword(player + 0x2C, self.respawn_time * 33)
         end
     end
 end

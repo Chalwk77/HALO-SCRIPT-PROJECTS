@@ -176,7 +176,6 @@ function OnPickup(P, W, T)
     SDTM:OnPickup(P, W, T)
 end
 
-
 -- Called when a player has finished connecting:
 -- @Param P (player id) [number]
 function OnJoin(P)

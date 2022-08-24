@@ -60,26 +60,32 @@ local AutoMessage = {
     ------------------------------------------------------------------------------
 
     -- Time (in seconds) between message announcements:
+    --
     interval = 300,
 
     -- If true, messages will appear in chat; Otherwise they will appear in the player console:
+    --
     show_announcements_in_chat = true,
 
     -- If true, messages will also be printed to server console terminal (in pink):
+    --
     show_announcements_on_console = true,
 
     -- Custom command used to view or broadcast announcements:
+    --
     command = "broadcast",
 
     -- Minimum permission level required to execute custom broadcast command:
+    --
     permission = 1,
 
     -- A message relay function temporarily removes the server prefix
     -- and will restore it to this when the relay is finished:
-    server_prefix = "**SAPP**",
     --
+    server_prefix = "**SAPP**",
 
     -- Advanced Users Only: (timer tick rate, 30 ticks = 1 second)
+    --
     time_scale = 1 / 30
 }
 
@@ -159,34 +165,40 @@ function AutoMessage:Show(TAB)
     end
 end
 
-local lower = string.lower
 local match = string.match
-local gmatch = string.gmatch
+
+local function StrSplit(s)
+    local args = { }
+    for arg in s:gmatch("([^%s]+)") do
+        arg[#arg + 1] = arg:lower()
+    end
+    return args
+end
+
 function AutoMessage:OnCommand(Ply, CMD, _, _)
 
-    local Args = { }
-    for Params in gmatch(CMD, "([^%s]+)") do
-        Args[#Args + 1] = lower(Params)
-    end
+    local args = StrSplit(CMD)
 
-    if (#Args > 0 and Args[1] == self.command) then
+    if (#args > 0 and args[1] == self.command) then
+
         local lvl = tonumber(get_var(Ply, "$lvl"))
         if (lvl >= self.permission or Ply == 0) then
 
             local error
-            if (Args[2] ~= nil) then
-                if (Args[2] == match(Args[2], "list")) then
+            if (args[2] ~= nil) then
+                if (args[2] == 'list') then
                     Respond(Ply, "[Broadcast ID] [Line Number]")
                     Respond(Ply, "--------------------------------------------------------------------------------")
                     local t = self.announcements
                     for i = 1, #t do
-                        for j, v in pairs(t[i]) do
+                        for j = 1,#t[i] do
+                            local v = t[i][j]
                             Respond(Ply, "[" .. i .. "] [" .. j .. "] " .. v)
                         end
                     end
                     Respond(Ply, "--------------------------------------------------------------------------------")
-                elseif (match(Args[2], "^%d+$") and Args[3] == nil) then
-                    local n = tonumber(Args[2])
+                elseif (args:match("^%d+$") and args[3] == nil) then
+                    local n = tonumber(args[2])
                     if (self.announcements[n]) then
                         self:Show(self.announcements[n])
                     else
