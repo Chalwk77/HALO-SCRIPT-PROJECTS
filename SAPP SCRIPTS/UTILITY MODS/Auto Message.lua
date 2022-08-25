@@ -165,8 +165,6 @@ function AutoMessage:Show(TAB)
     end
 end
 
-local match = string.match
-
 local function StrSplit(s)
     local args = { }
     for arg in s:gmatch("([^%s]+)") do
