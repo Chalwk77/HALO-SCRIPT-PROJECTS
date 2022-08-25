@@ -1,143 +1,150 @@
 --[[
 --=====================================================================================================--
 Script Name: HPC Admin-Add-Me (utility), for SAPP (PC & CE)
-Implementing API version: 1.11.0.0
 Description:    Type "/admin me" in chat to add yourself as an admin - (level 4 by default)
                 This was particularly useful to me when testing other scripts.
                 I'm sure you can think of some creative reasons to use this.
 
-Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2016-2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
-level = "4"
-api_version = "1.12.0.0"
+local MOD = {
+
+    -- Default admin level to set:
+    --
+    level = 4,
+
+    users = {
+        'PlayerName',
+        'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+        "127.0.0.1"
+    },
+
+    -- List of all known pirated hashes:
+    --
+    known_pirated_hashes = {
+        ['388e89e69b4cc08b3441f25959f74103'] = true,
+        ['81f9c914b3402c2702a12dc1405247ee'] = true,
+        ['c939c09426f69c4843ff75ae704bf426'] = true,
+        ['13dbf72b3c21c5235c47e405dd6e092d'] = true,
+        ['29a29f3659a221351ed3d6f8355b2200'] = true,
+        ['d72b3f33bfb7266a8d0f13b37c62fddb'] = true,
+        ['76b9b8db9ae6b6cacdd59770a18fc1d5'] = true,
+        ['55d368354b5021e7dd5d3d1525a4ab82'] = true,
+        ['d41d8cd98f00b204e9800998ecf8427e'] = true,
+        ['c702226e783ea7e091c0bb44c2d0ec64'] = true,
+        ['f443106bd82fd6f3c22ba2df7c5e4094'] = true,
+        ['10440b462f6cbc3160c6280c2734f184'] = true,
+        ['3d5cd27b3fa487b040043273fa00f51b'] = true,
+        ['b661a51d4ccf44f5da2869b0055563cb'] = true,
+        ['740da6bafb23c2fbdc5140b5d320edb1'] = true,
+        ['7503dad2a08026fc4b6cfb32a940cfe0'] = true,
+        ['4486253cba68da6786359e7ff2c7b467'] = true,
+        ['f1d7c0018e1648d7d48f257dc35e9660'] = true,
+        ['40da66d41e9c79172a84eef745739521'] = true,
+        ['2863ab7e0e7371f9a6b3f0440c06c560'] = true,
+        ['34146dc35d583f2b34693a83469fac2a'] = true,
+        ['b315d022891afedf2e6bc7e5aaf2d357'] = true,
+        ['63bf3d5a51b292cd0702135f6f566bd1'] = true,
+        ['6891d0a75336a75f9d03bb5e51a53095'] = true,
+        ['325a53c37324e4adb484d7a9c6741314'] = true,
+        ['0e3c41078d06f7f502e4bb5bd886772a'] = true,
+        ['fc65cda372eeb75fc1a2e7d19e91a86f'] = true,
+        ['f35309a653ae6243dab90c203fa50000'] = true,
+        ['50bbef5ebf4e0393016d129a545bd09d'] = true,
+        ['a77ee0be91bd38a0635b65991bc4b686'] = true,
+        ['3126fab3615a94119d5fe9eead1e88c1'] = true,
+    }
+}
+
+local players = {}
+
+api_version = '1.12.0.0'
 
 function OnScriptLoad()
-    register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
-    LoadTables()
+    register_callback(cb['EVENT_COMMAND'], 'OnCommand')
+    register_callback(cb['EVENT_JOIN'], 'OnJoin')
+    register_callback(cb['EVENT_LEAVE'], 'OnQuit')
 end
 
-function OnScriptUnload()
+function MOD:NewPlayer(o)
+    setmetatable(o, self)
+    self.__index = self
+    return o
 end
 
-function LoadTables()
-    namelist = {
-        "Billy",
-        "Magneto",
-        "name-not-used",
-        "name-not-used",
-        "name-not-used"
-    }
-    hashlist = {
-        "hash-not-used",
-        "f1d7c0018b1648d7d48fe57ec35a9660",
-        "6891e0a75336a75f9d03bb5e51a530dd",
-        "hash-not-used",
-        "hash-not-used",
-        "hash-not-used"
-    }
-    iplist = {
-        "xxx.xxx.xxx.xxx:0000",
-        "121.74.21.53:2305",
-        "204.147.144.85:2309",
-        "ip-not-used",
-    }
+function OnJoin(P)
+    players[P] = MOD:NewPlayer({
+        id = P,
+        hash = get_var(P, '$hash'),
+        name = get_var(P, '$name'),
+        ip = get_var(P, '$ip'):match('%d+.%d+.%d+.%d+')
+    })
 end
 
-function AdminUtility(PlayerIndex, Command)
+function OnQuit(P)
+    players[P] = nil
+end
 
-    local name = get_var(PlayerIndex, "$name")
-    local hash = get_var(PlayerIndex, "$hash")
-    local id = get_var(PlayerIndex, "$n")
-    local ip = get_var(PlayerIndex, "$ip")
+local function SetIPAdmin(P, lvl)
+    rprint(P, "You're now level " .. lvl)
+    execute_command('ipadmin_add ' .. P .. ' ' .. lvl)
+end
 
-    local isadmin = nil
-    if (tonumber(get_var(PlayerIndex, "$lvl"))) >= 1 then
-        isadmin = true
-    else
-        isadmin = false
-    end
+local function SetHashAdmin(P, lvl)
+    rprint(P, "You're now level " .. lvl)
+    execute_command('admin_add ' .. P .. ' ' .. lvl)
+end
 
-    if not isadmin then
-        if table.match(namelist, name) and table.match(hashlist, hash) and table.match(iplist, ip) then
-            execute_command("adminadd " .. id .. " " .. level)
-            respond("Success! You're now an admin!", PlayerIndex)
-            OnSuccess = string.format('[AdminUtility] - Successfully added ' .. name .. ' [' .. hash .. '] [' .. ip .. '] to the admin list.')
-            execute_command("log_note \"" .. OnSuccess .. "\"")
-        else
-            respond("You do not have permission to execute " .. Command, PlayerIndex)
-        end
-    else
-        if isadmin == true then
-            if table.match(namelist, name) and not table.match(hashlist, hash) and not table.match(iplist, ip)
-                    or table.match(hashlist, hash) and not table.match(namelist, name) and not table.match(iplist, ip)
-                    or table.match(iplist, ip) and not table.match(namelist, name) and not table.match(hashlist, hash) then
-                respond("You are already an admin...", PlayerIndex)
-                respond("But your credentials do not match the database, Access Denied!", PlayerIndex)
-            else
-                respond("You are already an admin!", PlayerIndex)
+function MOD:CheckHash()
+    return self.known_pirated_hashes[self.hash]
+end
+
+function MOD:AdminAdd()
+
+    local lvl = tonumber(get_var(self.id, '$lvl'))
+    if (lvl == self.level) then
+        rprint(self.id, "You're already a level " .. self.level .. ' admin!')
+        return
+    elseif (lvl < self.level) then
+        local users = self.users
+        for i = 1, #users do
+            if (self.name == users[i] or self.ip == users[i]) then
+                SetIPAdmin(self.id, lvl)
+                break
+            elseif (self.hash == users[i] and self:CheckHash()) then
+                SetHashAdmin(self.id, lvl)
+                break
             end
         end
     end
 end
 
-function OnServerCommand(PlayerIndex, Command)
-    local t = tokenizestring(Command)
-    count = #t
-    if t[1] == "admin" then
-        if t[2] == "me" then
-            AdminUtility(PlayerIndex, Command)
-        else
-            respond("Invalid Syntax: /admin me", PlayerIndex)
+local function CMDSplit(s)
+    local args = {}
+    for arg in s:gmatch('([^%s]+)') do
+        args[#args + 1] = arg:lower()
+    end
+    return args
+end
+
+function OnCommand(Ply, CMD)
+
+    local args = CMDSplit(CMD)
+    if (args and args[1] == 'admin' and args[2] == 'me') then
+
+        local p = players[Ply]
+        if (p) then
+            p:AdminAdd()
         end
+
         return false
     end
 end
 
-function tokenizestring(inputstr, sep)
-    if sep == nil then
-        sep = "%s"
-    end
-    local t = {};
-    i = 1
-    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
-        t[i] = str
-        i = i + 1
-    end
-    return t
-end
-
-function table.match(table, value)
-    for k, v in pairs(table) do
-        if v == value then
-            return k
-        end
-    end
-end
-
-function respond(Command, PlayerIndex)
-    if Command then
-        if Command == "" then
-            return
-        elseif type(Command) == "table" then
-            Command = Command[1]
-        end
-        PlayerIndex = tonumber(PlayerIndex)
-        if tonumber(PlayerIndex) and PlayerIndex ~= nil and PlayerIndex ~= -1 and PlayerIndex >= 0 and PlayerIndex < 16 then
-            cprint("Response to: " .. get_var(PlayerIndex, "$name"), 4 + 8)
-            cprint(Command, 2 + 8)
-            rprint(PlayerIndex, Command)
-            note = string.format('[AdminUtility] -->> ' .. get_var(PlayerIndex, "$name") .. ': ' .. Command)
-            execute_command("log_note \"" .. note .. "\"")
-        else
-            cprint(Command, 2 + 8)
-        end
-    end
-end
-
-function OnError(Message)
-    print(debug.traceback())
+function OnScriptUnload()
+    -- N/A
 end

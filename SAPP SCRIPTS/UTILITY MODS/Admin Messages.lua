@@ -53,7 +53,7 @@ local Join_Messages = {
 api_version = '1.11.0.0'
 
 function OnScriptLoad()
-    register_callback(cb['EVENT_JOIN'], "OnPlayerConnect")
+    register_callback(cb['EVENT_JOIN'], "OnJoin")
 end
 
 function Join_Messages:Broadcast(Ply)
@@ -79,8 +79,8 @@ function Join_Messages:Broadcast(Ply)
     end
 end
 
-function OnPlayerConnect(ID)
-    return Join_Messages:Broadcast(ID)
+function OnJoin(P)
+    Join_Messages:Broadcast(P)
 end
 
 function OnScriptUnload()
