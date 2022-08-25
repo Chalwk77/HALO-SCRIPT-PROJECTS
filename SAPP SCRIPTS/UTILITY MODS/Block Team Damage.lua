@@ -16,7 +16,11 @@ function OnScriptLoad()
 end
 
 function OnStart()
-    if (get_var(0, '$gt') ~= 'n/a' and get_var(0, '$ffa') == '0') then
+
+    local gt = get_var(0, '$gt')
+    local team_play = (get_var(0, '$ffa') == '0')
+
+    if (gt ~= 'n/a' and team_play) then
         register_callback(cb['EVENT_DAMAGE_APPLICATION'], 'BlockDamage')
         return
     end
@@ -24,8 +28,16 @@ function OnStart()
 end
 
 function BlockDamage(Victim, Killer)
-    local killer, victim = tonumber(Killer), tonumber(Victim)
-    if (killer > 0 and victim ~= killer and get_var(killer, '$team') == get_var(victim, '$team')) then
+
+    local k = tonumber(Killer)
+    local v = tonumber(Victim)
+
+    local k_team = get_var(k, '$team')
+    local v_team = get_var(v, '$team')
+
+    local suicide = (k == v)
+
+    if (k > 0 and (not suicide) and k_team == v_team) then
         return false
     end
 end

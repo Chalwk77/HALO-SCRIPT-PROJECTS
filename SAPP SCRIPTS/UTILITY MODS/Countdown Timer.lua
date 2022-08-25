@@ -16,59 +16,55 @@ api_version = "1.12.0.0"
 
 -- Configuration [starts]
 
-delay = 5 -- In Seconds
+local delay = 5 -- In Seconds
 
 -- Configuration [ends] << ----------
 
+local init
+local original_delay = delay
+
 function OnScriptLoad()
-    register_callback(cb['EVENT_TICK'], "OnTick")
-
-    register_callback(cb["EVENT_GAME_START"], "OnNewGame")
-    register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
+    register_callback(cb["EVENT_GAME_START"], "OnStart")
+    register_callback(cb["EVENT_GAME_END"], "OnEnd")
+    OnStart()
 end
 
-function OnNewGame()
-    startTimer()
-end
-
-function OnGameEnd()
-    stopTimer()
-end
-
-function OnTick()
-    if (init_countdown == true) then
-        countdown = countdown + 0.030
-
-        local seconds = secondsToTime(countdown)
-        timeRemaining = delay - math.floor(seconds)
-
-        cprint("Game will begin in " .. timeRemaining .. " seconds", 4 + 8)
-
-        if (timeRemaining <= 0) then
-            cprint("The game has begun!", 2 + 8)
-            stopTimer()
-
-            ----------
-            -- DO SOMETHING HERE
-            ----------
-        end
+function OnStart()
+    init = false
+    if (get_var(0, '$gt') ~= 'n/a') then
+        init = true
+        timer(1000, 'Counter')
     end
 end
 
-function secondsToTime(seconds)
+function OnEnd()
+    init = false
+end
+
+local function TimerRemaining(seconds)
     seconds = seconds % 60
     return seconds
 end
 
-function startTimer()
-    countdown = 0
-    init_countdown = true
-end
+function Counter()
 
-function stopTimer()
-    countdown = 0
-    init_countdown = false
-    if timeRemaining ~= nil then
-        cprint("The countdown was stopped at " .. timeRemaining .. " seconds")
+    if (not init) then
+        return false
     end
+
+    delay = delay - 1
+    local time = TimerRemaining(delay)
+    cprint('Game will begin in ' .. time .. ' seconds', 12)
+
+    if (delay == 0) then
+        cprint('The game has begun!', 10)
+
+        delay = original_delay
+        ----------
+        -- DO SOMETHING HERE
+        ----------
+        return false
+    end
+
+    return (init and delay > 0)
 end

@@ -31,7 +31,7 @@ local logo = {
 
     -- Make sure logo text is encapsulated in "quotes".
 
-    -- Custom Variables: "$time_stamp$" & "$server_name$"
+    -- Custom Variables: "$time_stamp" & "$server_name"
     -- Use anywhere to output their values
 
     { "================================================================================", 10 },
@@ -77,9 +77,12 @@ function PrintLogo()
         local time_stamp = os.date(time_stamp_format)
         local server_name = read_widestring(network_struct + 0x8, 0x42)
         for _, v in pairs(logo) do
+
             local text = v[1]
             local color = v[2] or 0
-            cprint(text:gsub("$$time_stamp$$", time_stamp):gsub("$$server_name$$", server_name), color)
+            local art = text:gsub("$time_stamp", time_stamp):gsub("$server_name", server_name)
+
+            cprint(art, color)
         end
     end
 end
