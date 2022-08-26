@@ -21,129 +21,113 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 api_version = '1.12.0.0'
 
-portalgun_command = "getidentity"
-permission_level = 1
+-- Custom command used to toggle get-mode on/off:
+local command = 'get_objects'
 
-mode = {}
-weapon_status = {}
+-- Minimum permission level required to execute the custom command:
+local permission_level = 4
+
+local admins = {}
 
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], "OnTick")
-    register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
-    register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
+    register_callback(cb['EVENT_COMMAND'], "OnCommand")
+    register_callback(cb['EVENT_GAME_START'], "OnStart")
+    OnStart()
 end
 
-function OnScriptUnload()
-
+function OnStart()
+    if (get_var(0, '$gt') ~= 'n/a') then
+        admins = {}
+    end
 end
 
-function OnPlayerSpawn(PlayerIndex)
-    mode[PlayerIndex] = false
-    weapon_status[PlayerIndex] = 0
+local function GetCamXYZ(dyn)
+
+    local cam_x = read_float(dyn + 0x230)
+    local cam_y = read_float(dyn + 0x234)
+    local cam_z = read_float(dyn + 0x238)
+    local couching = read_float(dyn + 0x50C)
+    local cx, cy, cz = read_vector3d(dyn + 0x5c)
+
+    if (couching == 0) then
+        cz = cz + 0.65
+    else
+        cz = cz + (0.35 * couching)
+    end
+
+    return cx, cy, cz, cam_x * 1000, cam_y * 1000, cam_z * 1000
+end
+
+local function Tell(Ply, Type, Name, Meta, ox, oy, oz)
+
+    -- clear player rcon: (writes 25 blank lines to it)
+    for _ = 1, 25 do
+        rprint(Ply, " ")
+    end
+
+    -- print to player rcon:
+    rprint(Ply, 'Type: ' .. Type)
+    rprint(Ply, 'Name: ' .. Name)
+    rprint(Ply, 'Meta: ' .. Meta)
+    rprint(Ply, 'X,Y,Z: ' .. ox .. ', ' .. oy .. ', ' .. oz)
+
+    -- print to terminal:
+    cprint('Type: ' .. Type)
+    cprint('Name: ' .. Name)
+    cprint('Meta: ' .. Meta)
+    cprint('X,Y,Z: ' .. ox .. ', ' .. oy .. ', ' .. oz)
 end
 
 function OnTick()
-    for i = 1, 16 do
-        if (player_present(i) and player_alive(i)) then
-            if (mode[i] == true) then
-                local success, target = false, nil
-                local player_object = get_dynamic_player(i)
-                local playerX, playerY, playerZ = read_float(player_object + 0x230), read_float(player_object + 0x234), read_float(player_object + 0x238)
-                local shot_fired
-                local couching = read_float(player_object + 0x50C)
-                local px, py, pz = read_vector3d(player_object + 0x5c)
-                if (couching == 0) then
-                    pz = pz + 0.65
-                else
-                    pz = pz + (0.35 * couching)
-                end
-                local ignore_player = read_dword(get_player(i) + 0x34)
-                local success, a, b, c, target = intersect(px, py, pz, playerX * 1000, playerY * 1000, playerZ * 1000, ignore_player)
-                if (success == true and target ~= nil) then
-                    shot_fired = read_float(player_object + 0x490)
-                    if (shot_fired ~= weapon_status[i] and shot_fired == 1) then
-                        local target_object = get_object_memory(target)
-                        if target_object ~= 0 then
-                            local ObjectType = read_byte(target_object + 0xB4)
-                            local ObjectName = read_string(read_dword(read_word(target_object) * 32 + 0x40440038))
-                            local ObjectMeta = read_dword(target_object)
-                            if (ObjectType == 1) then
-                                x, y, z = read_vector3d(target_object + 0x5C)
-                            else
-                                x, y, z = read_vector3d(target_object + 0x5c)
-                            end
-                            if ObjectType == 0 then
-                                SendToPlayer(i, "bipd", ObjectName, ObjectMeta, x, y, z)
-                            elseif ObjectType == 1 then
-                                SendToPlayer(i, "vehi", ObjectName, ObjectMeta, x, y, z)
-                            elseif ObjectType == 3 then
-                                SendToPlayer(i, "eqip", ObjectName, ObjectMeta, x, y, z)
-                            elseif ObjectType == 2 then
-                                SendToPlayer(i, "weap", ObjectName, ObjectMeta, x, y, z)
-                            end
-                        end
+    for i, v in pairs(admins) do
+
+        local dyn = get_dynamic_player(i)
+        if (dyn ~= 0 and player_alive(i)) then
+
+            local px, py, pz, cx, cy, cz = GetCamXYZ(dyn)
+            local ignore_player = read_dword(get_player(i) + 0x34)
+            local success, _, _, _, target = intersect(px, py, pz, cx * 1000, cy * 1000, cz * 1000, ignore_player)
+
+            if (success and target) then
+
+                local shooting = read_float(dyn + 0x490)
+                if (shooting ~= v.click and shooting == 1) then
+                    local object = get_object_memory(target)
+                    if (object ~= 0) then
+
+                        local type = read_byte(object + 0xB4)
+                        local name = read_string(read_dword(read_word(object) * 32 + 0x40440038))
+                        local meta = read_dword(object)
+                        local ox, oy, oz = read_vector3d(object + 0x5C)
+
+                        type = (type == 0 and 'bipd') or (type == 1 and 'vehi') or (type == 2 and 'eqip') or 'weap'
+                        Tell(i, type, name, meta, ox, oy, oz)
                     end
-                    weapon_status[i] = shot_fired
                 end
+
+                v.click = shooting
             end
         end
     end
 end
 
-function SendToPlayer(player, type, ObjectName, ObjectMeta, x, y, z)
-    for i = 1, 30 do
-        rprint(player, " ")
-    end
-    rprint(player, "Type: |r" .. tostring(type))
-    rprint(player, "Name: |r" .. tostring(ObjectName))
-    rprint(player, "Meta: |r" .. tonumber(ObjectMeta))
-    rprint(player, "X,Y,Z: |r" .. x .. ", " .. y .. ", " .. z)
-
-    cprint("Type: " .. tostring(type))
-    cprint("Name: " .. tostring(ObjectName))
-    cprint("Meta: " .. tonumber(ObjectMeta))
-    cprint("X,Y,Z: " .. x .. ", " .. y .. ", " .. z)
-
-end
-
-function OnServerCommand(PlayerIndex, Command)
-    local UnknownCMD = nil
-    local t = tokenizestring(Command)
-    if t[1] ~= nil then
-        if t[1] == string.lower(portalgun_command) then
-            if tonumber(get_var(PlayerIndex, "$lvl")) >= permission_level then
-                if t[2] ~= nil then
-                    if t[2] == "on" or t[2] == "1" or t[2] == "true" then
-                        mode[PlayerIndex] = true
-                        rprint(PlayerIndex, "GetIdentity Mode enabled.")
-                        UnknownCMD = false
-                    elseif t[2] == "off" or t[2] == "0" or t[2] == "false" then
-                        mode[PlayerIndex] = false
-                        rprint(PlayerIndex, "GetIdentity Mode disabled.")
-                        UnknownCMD = false
-                    end
-                else
-                    rprint(PlayerIndex, "Invalid Syntax!")
-                    UnknownCMD = false
-                end
-            else
-                rprint(PlayerIndex, "You do not have permission to execute that command!")
-                UnknownCMD = false
-            end
+function OnCommand(Ply, CMD)
+    local lvl = tonumber(get_var(Ply, '$lvl'))
+    if (CMD:sub(1, #command):lower() == command) then
+        if (lvl < permission_level) then
+            rprint(Ply, 'You do not have permission to execute that command')
+        elseif (not admins[Ply]) then
+            admins[Ply] = { click = 0 }
+            rprint(Ply, 'Get Object mode enabled')
+        else
+            admins[Ply] = nil
+            rprint(Ply, 'Get Object mode disabled')
         end
-        return UnknownCMD
+        return false
     end
 end
 
-function tokenizestring(inputstr, sep)
-    if sep == nil then
-        sep = "%s"
-    end
-    local t = { };
-    i = 1
-    for str in string.gmatch(inputstr, "([^" .. sep .. "]+)") do
-        t[i] = str
-        i = i + 1
-    end
-    return t
+function OnScriptUnload()
+    -- N/A
 end
