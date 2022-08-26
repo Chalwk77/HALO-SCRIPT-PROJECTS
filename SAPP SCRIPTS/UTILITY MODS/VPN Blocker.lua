@@ -248,10 +248,9 @@ local help = [[HTTP RESPONSE IS NULL ->
 function VPNBlocker:CheckForVPN(Ply)
 
     local response = async_table[Ply]
-    if client.http_response_received(response[1]) then
-        if client.http_response_is_null(response[1]) then
-            cprint(help, 12)
-        else
+    if response and response[1] and client.http_response_received(response[1]) then
+
+        if not client.http_response_is_null(response[1]) then
 
             local results = ffi.string(client.http_read_response(response[1]))
             local data = json:decode(results)
@@ -280,6 +279,8 @@ function VPNBlocker:CheckForVPN(Ply)
                     execute_command('msg_prefix "' .. self.prefix .. '"')
                 end
             end
+        else
+            cprint(help, 12)
         end
 
         client.http_destroy_response(response[1])
