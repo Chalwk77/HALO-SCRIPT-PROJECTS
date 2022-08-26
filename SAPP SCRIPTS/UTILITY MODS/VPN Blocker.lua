@@ -29,7 +29,7 @@ I M P O R T A N T
 
 3): Sign up for an account at www.ipqualityscore.com.
     Navigate to Proxy Detection Overview page: https://www.ipqualityscore.com/documentation/proxy-detection/overview
-    Copy your unique "Private Key" from that page and paste it into the API_KEY field (line 59) in this script (see config below).
+    Copy your unique "Private Key" from that page and paste it into the API_KEY field (line 63) in this script (see config below).
 
     If VPN Blocker kicks or bans someone it will log the details of that action
     to a file called "VPN Blocker.log" in the servers root directory.
@@ -49,42 +49,55 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 local VPNBlocker = {
 
-    -- config starts --
-
+    --------------------------------------------------------------------------
     -- I recommend reading the API Documentation before changing any settings:
     -- https://www.ipqualityscore.com/documentation/proxy-detection/overview
+    --------------------------------------------------------------------------
+
+    -------------------
+    -- config starts --
+    -------------------
 
     -- IP Quality Score API KEY:
     --
-    api_key = "API_KEY",
+    api_key = 'API_KEY',
+
 
     -- If the player is using a VPN Connection, do this action:
     -- k = kick, b = ban
     --
-    action = "k",
+    action = 'k',
+
 
     -- If action is "b" the player will be banned for this amount of time ((in minutes) set to 0 for permanent ban):
     --
     ban_time = 10,
 
+
     -- The reason for being kicked or banned:
     --
-    reason = "VPN Connection",
+    reason = 'VPN Connection',
+
 
     -- Message output to the joining player:
     --
     feedback1 = "We've detected that you're using a VPN or Proxy - we do not allow these!'",
 
+
     -- Message output to Dedicated Server Console:
     --
-    feedback2 = "$name was $action for using a VPN or Proxy (IP: $ip)",
+    feedback2 = '$name was $action for using a VPN or Proxy (IP: $ip)',
 
-    -- A message relay function temporarily removes the server prefix
+
+    -- A message relay function temporarily removes the "msg_prefix"
     -- and will restore it to this when the relay is finished:
     --
-    server_prefix = "**SAPP**",
+    prefix = '**SAPP**',
 
-    -- Request Parameters:
+
+    -- Request Parameters (ADVANCED USERS ONLY):
+    --
+    --
     checks = {
 
         -- Check if IP is associated with being a confirmed crawler
@@ -116,10 +129,11 @@ local VPNBlocker = {
         -- Indicates if bots or non-human traffic has recently used this IP address to engage
         -- in automated fraudulent behavior. Provides stronger confidence that the IP address is suspicious:
         --
-        bot_status = true,
+        bot_status = true
     },
 
     parameters = {
+
         -- How in depth (strict) do you want this query to be?
         -- Higher values take longer to process and may provide a higher false-positive rate.
         -- It is recommended to start at "0", the lowest strictness setting, and increasing to "1" or "2" depending on your needs:
@@ -143,7 +157,7 @@ local VPNBlocker = {
 
         -- You can optionally specify that this lookup should be treated as a mobile device:
         --
-        mobile = false,
+        mobile = false
     },
 
     exclusion_list = {
@@ -155,25 +169,20 @@ local VPNBlocker = {
         --
     },
 
-    -- Script errors (if any) will be logged to this file:
-    --
-    error_file = "VPN Blocker (errors).log",
-
-    --
+    -----------------
     -- config ends --
-    --
+    -----------------
 
-    -- DO NOT TOUCH BELOW THIS POINT --
-    script_version = 1.5,
-    site = "https://www.ipqualityscore.com/api/json/ip/api_key/"
+    -- do not touch --
+    site = 'https://www.ipqualityscore.com/api/json/ip/api_key/'
 }
 
-api_version = "1.12.0.0"
+api_version = '1.12.0.0'
 
 local async_table = {}
 
-local json = (loadfile "json.lua")()
-local ffi = require("ffi")
+local json = (loadfile 'json.lua')()
+local ffi = require('ffi')
 
 ffi.cdef [[
     typedef void http_response;
@@ -185,41 +194,31 @@ ffi.cdef [[
     const char *http_read_response(const http_response *);
     uint32_t http_response_length(const http_response *);
 ]]
-local client = ffi.load("lua_http_client")
+local client = ffi.load('lua_http_client')
 
 function OnScriptLoad()
-    VPNBlocker.key = VPNBlocker.site:gsub("api_key", VPNBlocker.api_key)
-    register_callback(cb["EVENT_PREJOIN"], "PreJoin")
+    VPNBlocker.key = VPNBlocker.site:gsub('api_key', VPNBlocker.api_key)
+    register_callback(cb['EVENT_PREJOIN'], 'PreJoin')
 end
 
 local function GenerateLink(player)
     local i = 0
-    local link = tostring(VPNBlocker.key .. player.ip .. "?")
+    local link = tostring(VPNBlocker.key .. player.ip .. '?')
     for k, v in pairs(VPNBlocker.parameters) do
-        link = (i < 1 and link .. k .. "=" .. tostring(v) or link .. "&" .. k .. "=" .. tostring(v))
+        link = (i < 1 and link .. k .. '=' .. tostring(v) or link .. '&' .. k .. '=' .. tostring(v))
     end
     return link
 end
 
 local function CanConnect(t)
     for k, v in pairs(VPNBlocker.checks) do
-        if (type(v) == "boolean") then
-            if (v) and (t[k]) then
-                return false
-            end
-        elseif (type(v) == "number") then
-            if (t[k] >= v) then
-                return false
-            end
+        if (type(v) == 'boolean' and v and t[k]) then
+            return false
+        elseif (type(v) == 'number' and t[k] >= v) then
+            return false
         end
     end
     return true
-end
-
-local function SilentKick(p)
-    for _ = 1, 99999 do
-        rprint(p, " ")
-    end
 end
 
 local function Excluded(IP)
@@ -232,63 +231,81 @@ local function Excluded(IP)
 end
 
 local function GetPlayer(Ply)
-    local ip = get_var(Ply, "$ip"):match('(%d+.%d+.%d+.%d+)')
-    return (not Excluded(ip) and { ip = ip, name = get_var(Ply, "$name") }) or nil
+    local ip = get_var(Ply, '$ip'):match('%d+.%d+.%d+.%d+')
+    return (not Excluded(ip) and {
+        ip = ip,
+        name = get_var(Ply, '$name')
+    }) or nil
 end
 
-function CheckForVPN(Ply)
+local help = [[HTTP RESPONSE IS NULL ->
+-- * Possible loss of internet (check it).
+-- * Possible End Point error (verify settings or contact IP Quality Score).
 
-    local o = VPNBlocker
-    local t = async_table[Ply]
+-- Sometimes small hiccups with the internet will cause this error.
+-- Most of the time you can ignore it.]]
 
-    local response = client.http_response_received(t[1])
-    if (response) then
-        if (not client.http_response_is_null(t[1])) then
-            local results = ffi.string(client.http_read_response(t[1]))
+function VPNBlocker:CheckForVPN(Ply)
+
+    local response = async_table[Ply]
+    if client.http_response_received(response[1]) then
+        if client.http_response_is_null(response[1]) then
+            cprint(help, 12)
+        else
+
+            local results = ffi.string(client.http_read_response(response[1]))
             local data = json:decode(results)
             if (data) then
+
                 local allowed = CanConnect(data)
                 if (not allowed) then
-                    execute_command("msg_prefix \"\"")
 
-                    local player = t[2]
+                    local player = response[2]
                     Ply = tonumber(Ply)
 
-                    say(Ply, o.feedback1)
-
-                    local state = "none"
-                    if (o.action == "k") then
-                        state = "kicked"
-                        SilentKick(Ply)
-                    elseif (o.action == "b") then
-                        state = "banned"
-                        execute_command("b" .. " " .. Ply .. " " .. o.ban_time .. " \"" .. o.reason .. "\"")
+                    local state = (self.action == 'k' and 'kicked' or 'banned')
+                    if (self.action == 'k') then
+                        execute_command('k ' .. Ply .. ' ' .. ' "' .. self.reason .. '"')
+                    else
+                        execute_command('b ' .. Ply .. ' ' .. self.ban_time .. ' "' .. self.reason .. '"')
                     end
 
-                    local msg = o.feedback2:gsub("$name", player.name)
-                    msg = msg:gsub("$action", state):gsub("$ip", player.ip)
-                    say_all(msg)
-                    cprint(msg, 4 + 8)
+                    execute_command('msg_prefix ""')
+                    local msg = self.feedback2:gsub('$name', player.name)
+                    msg = msg:gsub('$action', state):gsub('$ip', player.ip)
 
-                    execute_command("msg_prefix \" " .. o.server_prefix .. "\"")
+                    say(Ply, self.feedback1)
+                    say_all(msg);
+                    cprint(msg, 12)
+                    execute_command('msg_prefix "' .. self.prefix .. '"')
                 end
             end
         end
-        client.http_destroy_response(t[1])
+
+        client.http_destroy_response(response[1])
         async_table[tostring(Ply)] = nil
+
         return false
     end
+
     return true
 end
 
 function PreJoin(Ply)
     local player = GetPlayer(Ply)
     if (player) then
+
         Ply = tostring(Ply)
+
         local link = GenerateLink(player)
         async_table[Ply] = { client.http_get(link, true), player }
-        timer(1, "CheckForVPN", Ply)
+
+        timer(1, 'CheckForVPN', Ply)
     end
+end
+
+function CheckForVPN(Ply)
+    return VPNBlocker:CheckForVPN(Ply)
 end
 
 function OnScriptUnload()
