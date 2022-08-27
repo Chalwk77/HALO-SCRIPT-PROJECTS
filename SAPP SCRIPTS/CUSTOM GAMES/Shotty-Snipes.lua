@@ -118,7 +118,7 @@ function OnStart()
         objects, players = {}, {}
         TagsToID()
 
-        sniper = GetTag('weap', 'weapons\\sniper\\sniper')
+        sniper = GetTag('weap', 'weapons\\sniper rifle\\sniper rifle')
         shotgun = GetTag('weap', 'weapons\\shotgun\\shotgun')
 
         for i = 1, 16 do
