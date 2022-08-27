@@ -1,7 +1,8 @@
 --[[
 --=====================================================================================================--
 Script Name: Shotty-Snipes, for SAPP (PC & CE)
-Description: Players spawn with a shotgun & sniper.
+Description: Players spawn with a shotgun and sniper.
+
              Other weapons & vehicles do not spawn.
              You can use equipment (i.e, grenades & powerups).
 
@@ -15,11 +16,38 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 api_version = '1.12.0.0'
 
-local objects = {
+local tags = {
 
-    --{'weap', 'weapons\\shotgun\\shotgun'},
-    --{'weap', 'weapons\\sniper rifle\\sniper rifle'},
+    -------------------
+    -- config starts --
+    -------------------
 
+    -----------------------------------------------------------------------------
+    -- E Q U I P M E N T:
+
+    -- Equipment objects are enabled by default and will spawn.
+    -- Remove the double hyphen on the relevant line to prevent it from spawning.
+    --
+    --{ 'eqip', 'powerups\\health pack' },
+    --{ 'eqip', 'powerups\\over shield' },
+    --{ 'eqip', 'powerups\\active camouflage' },
+    --{ 'eqip', 'weapons\\frag grenade\\frag grenade' },
+    --{ 'eqip', 'weapons\\plasma grenade\\plasma grenade' },
+    -----------------------------------------------------------------------------
+
+
+    -----------------------------------------------------------------------------
+    -- W E A P O N S:
+
+    -- Weapon objects are blocked by default and will not spawn.
+    -- Prefix the relevant line with a double hyphen to allow spawning.
+    --
+
+    -- Do not remove the double hyphen from these two lines,
+    -- as they are the weapons you will spawn with:
+    --{ 'weap', 'weapons\\shotgun\\shotgun' },
+    --{ 'weap', 'weapons\\sniper rifle\\sniper rifle' },
+    --
     { 'weap', 'weapons\\pistol\\pistol' },
     { 'weap', 'weapons\\needler\\mp_needler' },
     { 'weap', 'weapons\\flamethrower\\flamethrower' },
@@ -29,20 +57,27 @@ local objects = {
     { 'weap', 'weapons\\plasma pistol\\plasma pistol' },
     { 'weap', 'weapons\\rocket launcher\\rocket launcher' },
 
-    --{ 'eqip', 'powerups\\health pack' },
-    --{ 'eqip', 'powerups\\over shield' },
-    --{ 'eqip', 'powerups\\active camouflage' },
-    --{ 'eqip', 'weapons\\frag grenade\\frag grenade' },
-    --{ 'eqip', 'weapons\\plasma grenade\\plasma grenade' },
+    -----------------------------------------------------------------------------
+    -- V E H I C L E S:
 
+    -- Vehicle objects are blocked by default and will not spawn.
+    -- Prefix the relevant line with a double hyphen to allow spawning.
+    --
     { 'vehi', 'vehicles\\ghost\\ghost_mp' },
     { 'vehi', 'vehicles\\rwarthog\\rwarthog' },
     { 'vehi', 'vehicles\\banshee\\banshee_mp' },
     { 'vehi', 'vehicles\\warthog\\mp_warthog' },
     { 'vehi', 'vehicles\\scorpion\\scorpion_mp' },
     { 'vehi', 'vehicles\\c gun turret\\c gun turret_mp' }
+
+    -----------------
+    -- config ends --
+    -----------------
 }
 
+-- Do not touch anything below this point, unless you know what you're doing!
+
+local objects = {}
 local players = {}
 local shotgun, sniper
 
@@ -64,38 +99,62 @@ local function GetTag(Class, Name)
     return Tag ~= 0 and read_dword(Tag + 0xC) or nil
 end
 
+local function TagsToID()
+
+    local t = {}
+    for i = 1, #tags do
+        local class, name = tags[i][1], tags[i][2]
+        local meta_id = GetTag(class, name)
+        t[meta_id] = (meta_id and true) or nil
+    end
+
+    objects = t
+end
+
 function OnStart()
-    shotgun, sniper = nil, nil
+
     if (get_var(0, '$gt') ~= 'n/a') then
+
+        objects, players = {}, {}
+        TagsToID()
+
+        sniper = GetTag('weap', 'weapons\\sniper\\sniper')
         shotgun = GetTag('weap', 'weapons\\shotgun\\shotgun')
-        sniper = GetTag('weap', 'weapons\\sniper rifle\\sniper rifle')
+
+        for i = 1, 16 do
+            if player_present(i) then
+                OnJoin(i)
+            end
+        end
     end
 end
 
 function OnTick()
-    for i, v in pairs(players) do
-        if (player_alive(i) and v.assign and shotgun and sniper) then
-            v.assign = false
+    for i = 1, #players do
+        local assign = players[i]
+        if (player_alive(i) and assign and shotgun and sniper) then
+
+            players[i] = false
             execute_command('wdel ' .. i)
+
             assign_weapon(spawn_object('', '', 0, 0, 0, 0, sniper), i)
             assign_weapon(spawn_object('', '', 0, 0, 0, 0, shotgun), i)
+
             UpdateAmmo(i)
         end
     end
 end
 
 function OnJoin(p)
-    players[p] = { assign = false }
+    players[p] = false
+end
+
+function OnSpawn(p)
+    players[p] = true
 end
 
 function OnQuit(p)
     players[p] = nil
-end
-
-function OnSpawn(p)
-    if (players[p]) then
-        players[p].assign = true
-    end
 end
 
 function UpdateAmmo(p)
@@ -103,12 +162,8 @@ function UpdateAmmo(p)
 end
 
 function OnObjectSpawn(Ply, MID)
-    if (Ply == 0) then
-        for _, v in pairs(objects) do
-            if (MID == GetTag(v[1], v[2])) then
-                return false
-            end
-        end
+    if (Ply == 0 and objects[MID]) then
+        return false
     end
 end
 
