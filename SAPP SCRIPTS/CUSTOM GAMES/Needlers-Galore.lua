@@ -16,13 +16,40 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 api_version = '1.12.0.0'
 
-local objects = {
+local tags = {
 
-    {'weap', 'weapons\\shotgun\\shotgun'},
-    {'weap', 'weapons\\sniper rifle\\sniper rifle'},
+    -------------------
+    -- config starts --
+    -------------------
 
-    { 'weap', 'weapons\\pistol\\pistol' },
+    -----------------------------------------------------------------------------
+    -- E Q U I P M E N T:
+
+    -- Equipment objects are enabled by default and will spawn.
+    -- Remove the double hyphen on the relevant line to prevent it from spawning.
+    --
+    --{ 'eqip', 'powerups\\health pack' },
+    --{ 'eqip', 'powerups\\over shield' },
+    --{ 'eqip', 'powerups\\active camouflage' },
+    --{ 'eqip', 'weapons\\frag grenade\\frag grenade' },
+    --{ 'eqip', 'weapons\\plasma grenade\\plasma grenade' },
+    -----------------------------------------------------------------------------
+
+
+    -----------------------------------------------------------------------------
+    -- W E A P O N S:
+
+    -- Weapon objects are blocked by default and will not spawn.
+    -- Prefix the relevant line with a double hyphen to allow spawning.
+    --
+
+    -- Do not remove the double hyphen from this line.
+    -- This is the needler object (and the weapon you will spawn with).
     --{ 'weap', 'weapons\\needler\\mp_needler' },
+    --
+    { 'weap', 'weapons\\shotgun\\shotgun' },
+    { 'weap', 'weapons\\sniper rifle\\sniper rifle' },
+    { 'weap', 'weapons\\pistol\\pistol' },
     { 'weap', 'weapons\\flamethrower\\flamethrower' },
     { 'weap', 'weapons\\plasma rifle\\plasma rifle' },
     { 'weap', 'weapons\\plasma_cannon\\plasma_cannon' },
@@ -30,21 +57,28 @@ local objects = {
     { 'weap', 'weapons\\plasma pistol\\plasma pistol' },
     { 'weap', 'weapons\\rocket launcher\\rocket launcher' },
 
-    --{ 'eqip', 'powerups\\health pack' },
-    --{ 'eqip', 'powerups\\over shield' },
-    --{ 'eqip', 'powerups\\active camouflage' },
-    --{ 'eqip', 'weapons\\frag grenade\\frag grenade' },
-    --{ 'eqip', 'weapons\\plasma grenade\\plasma grenade' },
+    -----------------------------------------------------------------------------
+    -- V E H I C L E S:
 
+    -- Vehicle objects are blocked by default and will not spawn.
+    -- Prefix the relevant line with a double hyphen to allow spawning.
+    --
     { 'vehi', 'vehicles\\ghost\\ghost_mp' },
     { 'vehi', 'vehicles\\rwarthog\\rwarthog' },
     { 'vehi', 'vehicles\\banshee\\banshee_mp' },
     { 'vehi', 'vehicles\\warthog\\mp_warthog' },
     { 'vehi', 'vehicles\\scorpion\\scorpion_mp' },
     { 'vehi', 'vehicles\\c gun turret\\c gun turret_mp' }
+
+    -----------------
+    -- config ends --
+    -----------------
 }
 
+-- Do not touch anything below this point, unless you know what you're doing!
+
 local needler
+local objects = {}
 local players = {}
 
 function OnScriptLoad()
@@ -65,36 +99,61 @@ local function GetTag(Class, Name)
     return Tag ~= 0 and read_dword(Tag + 0xC) or nil
 end
 
+local function TagsToID()
+
+    local t = {}
+    for i = 1, #tags do
+        local class, name = tags[i][1], tags[i][2]
+        local meta_id = GetTag(class, name)
+        t[meta_id] = (meta_id and true) or nil
+    end
+
+    objects = t
+end
+
 function OnStart()
-    shoneedlertgun = nil
+
     if (get_var(0, '$gt') ~= 'n/a') then
+
+        objects, players = {}, {}
+        TagsToID()
+
         needler = GetTag('weap', 'weapons\\needler\\mp_needler')
+
+        for i = 1, 16 do
+            if player_present(i) then
+                OnJoin(i)
+            end
+        end
     end
 end
 
 function OnTick()
-    for i, v in pairs(players) do
-        if (player_alive(i) and v.assign and needler) then
-            v.assign = false
+    for i = 1, #players do
+        local assign = players[i]
+        if (player_alive(i) and assign and needler) then
+
+            players[i] = false
             execute_command('wdel ' .. i)
-            assign_weapon(spawn_object('', '', 0, 0, 0, 0, needler), i)
+
+            local weapon = spawn_object('', '', 0, 0, 0, 0, needler)
+            assign_weapon(weapon, i)
+
             UpdateAmmo(i)
         end
     end
 end
 
 function OnJoin(p)
-    players[p] = { assign = false }
+    players[p] = false
+end
+
+function OnSpawn(p)
+    players[p] = true
 end
 
 function OnQuit(p)
     players[p] = nil
-end
-
-function OnSpawn(p)
-    if (players[p]) then
-        players[p].assign = true
-    end
 end
 
 function UpdateAmmo(p)
@@ -102,12 +161,8 @@ function UpdateAmmo(p)
 end
 
 function OnObjectSpawn(Ply, MID)
-    if (Ply == 0) then
-        for _, v in pairs(objects) do
-            if (MID == GetTag(v[1], v[2])) then
-                return false
-            end
-        end
+    if (Ply == 0 and objects[MID]) then
+        return false
     end
 end
 
