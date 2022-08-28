@@ -6,7 +6,6 @@ Description: Players are limited to the use of needlers.
              * Other weapons & vehicles do not spawn.
              * You can use equipment (i.e, grenades & powerups).
              * Optional infinite ammo and bottomless clip
-             * This script is plug-and-play. No configuration!
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
