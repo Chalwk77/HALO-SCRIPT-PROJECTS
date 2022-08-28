@@ -22,6 +22,10 @@ local tags = {
     -- config starts --
     -------------------
 
+    infinite_ammo = true,
+
+    bottomless_clip = true,
+
     -----------------------------------------------------------------------------
     -- E Q U I P M E N T:
 
@@ -158,7 +162,12 @@ function OnQuit(p)
 end
 
 function UpdateAmmo(p)
-    execute_command_sequence('ammo ' .. p .. ' 999 5; mag ' .. p .. ' 999 5')
+    if (tags.infinite_ammo) then
+        execute_command('ammo ' .. p .. ' 999 5')
+    end
+    if (tags.bottomless_clip) then
+        execute_command('mag ' .. p .. ' 999 5')
+    end
 end
 
 function OnObjectSpawn(Ply, MID)
