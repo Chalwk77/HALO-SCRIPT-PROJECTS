@@ -3,10 +3,10 @@
 Script Name: Needler-Galore, for SAPP (PC & CE)
 Description: Players are limited to the use of needlers.
 
-             Other weapons & vehicles do not spawn.
-             You can use equipment (i.e, grenades & powerups).
-
-             This script is plug-and-play. No configuration!
+             * Other weapons & vehicles do not spawn.
+             * You can use equipment (i.e, grenades & powerups).
+             * Optional infinite ammo and bottomless clip
+             * This script is plug-and-play. No configuration!
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -22,8 +22,12 @@ local tags = {
     -- config starts --
     -------------------
 
+    -- Set to false to disable infinite ammo:
+    --
     infinite_ammo = true,
 
+    -- Set to false to disable bottomless clip:
+    --
     bottomless_clip = true,
 
     -----------------------------------------------------------------------------
