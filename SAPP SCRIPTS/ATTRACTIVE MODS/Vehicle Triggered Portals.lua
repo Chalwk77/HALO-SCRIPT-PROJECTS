@@ -19,6 +19,8 @@ local maps = {
         -- The last number is the radius a player must be from the origin coordinates to teleport themselves (and the vehicle they occupy)
         -- to the destination coordinates.
 
+        -- Example coordinates:
+        -- Cave to Back of redbase
         { 98.77, -108.72, 4.32, 65.52, -179.70, 4.37, 5 },
     },
 
@@ -48,8 +50,6 @@ function OnStart()
         if (maps[map]) then
 
             register_callback(cb['EVENT_TICK'], 'OnTick')
-            register_callback(cb['EVENT_JOIN'], 'OnJoin')
-            register_callback(cb['EVENT_LEAVE'], 'OnQuit')
 
             coordinates = maps[map]
 
@@ -57,8 +57,6 @@ function OnStart()
         end
 
         unregister_callback(cb['EVENT_TICK'])
-        unregister_callback(cb['EVENT_JOIN'])
-        unregister_callback(cb['EVENT_LEAVE'])
     end
 end
 
@@ -72,7 +70,7 @@ local function GetXYZ(dyn)
         x, y, z = read_vector3d(object + 0x5C)
     end
 
-    return x, y, z(crouch == 0 and z + 0.65 or z + 0.35), (object + 0x5C)
+    return x, y, (crouch == 0 and z + 0.65 or z + 0.35), (object + 0x5C)
 end
 
 local sqrt = math.sqrt
