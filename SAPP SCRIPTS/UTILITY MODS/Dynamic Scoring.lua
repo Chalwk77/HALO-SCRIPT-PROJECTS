@@ -32,20 +32,20 @@ local score_limits = {
     -- CUSTOM GAME MODE TABLES:
     -------------------------------------------------------------
 
-    ["example_game_mode"] = { -- replace with your own game mode name
+    ['example_game_mode'] = { -- replace with your own game mode name
         { 1, 4, 25 }, -- 1-4 players
         { 5, 8, 35 }, -- 5-8 players
         { 9, 12, 45 }, -- 9-12 players
         { 13, 16, 50 }, -- 13-16 players
-        "Score limit changed to: $limit"
+        'Score limit changed to: $limit'
     },
 
-    ["another_example_game_mode"] = {
+    ['another_example_game_mode'] = {
         { 1, 4, 25 }, -- 1-4 players
         { 5, 8, 35 }, -- 5-8 players
         { 9, 12, 45 }, -- 9-12 players
         { 13, 16, 50 }, -- 13-16 players
-        "Score limit changed to: $limit"
+        'Score limit changed to: $limit'
     },
 
     --
@@ -62,7 +62,7 @@ local score_limits = {
             { 5, 8, 2 }, -- 5-8 players
             { 9, 12, 3 }, -- 9-12 players
             { 13, 16, 4 }, -- 13-16 players
-            "Score limit changed to: $limit",
+            'Score limit changed to: $limit'
         }
     },
 
@@ -72,14 +72,14 @@ local score_limits = {
             { 5, 8, 25 }, -- 5-8 players
             { 9, 12, 45 }, -- 9-12 players
             { 13, 16, 50 }, -- 13-16 players
-            "Score limit changed to: $limit"
+            'Score limit changed to: $limit'
         },
         {   -- TEAM:
             { 1, 4, 25 }, -- 1-4 players
             { 5, 8, 35 }, -- 5-8 players
             { 9, 12, 45 }, -- 9-12 players
             { 13, 16, 50 }, -- 13-16 players
-            "Score limit changed to: $limit"
+            'Score limit changed to: $limit'
         }
     },
 
@@ -89,14 +89,14 @@ local score_limits = {
             { 5, 8, 3 }, -- 5-8 players
             { 9, 12, 4 }, -- 9-12 players
             { 13, 16, 5 }, -- 13-16 players
-            "Score limit changed to: $limit minute$s"
+            'Score limit changed to: $limit minute$s'
         },
         {   -- TEAM:
             { 1, 4, 3 }, -- 1-4 players
             { 5, 8, 4 }, -- 5-8 players
             { 9, 12, 5 }, -- 9-12 players
             { 13, 16, 6 }, -- 13-16 players
-            "Score limit changed to: $limit minute$s"
+            'Score limit changed to: $limit minute$s'
         }
     },
 
@@ -106,7 +106,7 @@ local score_limits = {
             { 5, 8, 3 }, -- 5-8 players
             { 9, 12, 4 }, -- 9-12 players
             { 13, 16, 5 }, -- 13-16 players
-            "Score limit changed to: $limit minute$s"
+            'Score limit changed to: $limit minute$s'
 
         },
         {   -- TEAM:
@@ -114,7 +114,7 @@ local score_limits = {
             { 5, 8, 4 }, -- 5-8 players
             { 9, 12, 5 }, -- 9-12 players
             { 13, 16, 6 }, -- 13-16 players
-            "Score limit changed to: $limit minute$s"
+            'Score limit changed to: $limit minute$s'
         }
     },
 
@@ -124,14 +124,14 @@ local score_limits = {
             { 5, 8, 4 }, -- 5-8 players
             { 9, 12, 5 }, -- 9-12 players
             { 13, 16, 6 }, -- 13-16 players
-            "Score limit changed to: $limit lap$s"
+            'Score limit changed to: $limit lap$s'
         },
         {   -- TEAM:
             { 1, 4, 4 }, -- 1-4 players
             { 5, 8, 5 }, -- 5-8 players
             { 9, 12, 6 }, -- 9-12 players
             { 13, 16, 7 }, -- 13-16 players
-            "Score limit changed to: $limit lap$s"
+            'Score limit changed to: $limit lap$s'
         }
     }
 }
@@ -141,10 +141,10 @@ local score_table, current_limit
 
 function OnScriptLoad()
 
-    register_callback(cb["EVENT_JOIN"], "OnJoin")
-    register_callback(cb["EVENT_LEAVE"], "OnQuit")
-    register_callback(cb["EVENT_GAME_END"], "OnEnd")
-    register_callback(cb["EVENT_GAME_START"], "OnStart")
+    register_callback(cb['EVENT_JOIN'], 'OnJoin')
+    register_callback(cb['EVENT_LEAVE'], 'OnQuit')
+    register_callback(cb['EVENT_GAME_END'], 'OnEnd')
+    register_callback(cb['EVENT_GAME_START'], 'OnStart')
 
     OnStart()
 end
@@ -152,13 +152,13 @@ end
 local function SetScoreTable(m, gt)
     score_table = score_limits[m]
     if (not score_table) then
-        local ffa = (get_var(0, "$ffa") == "1")
+        local ffa = (get_var(0, '$ffa') == '1')
         score_table = (ffa and score_limits[gt][1]) or score_limits[gt][2]
     end
 end
 
 local function getChar(n)
-    return (n > 1 and "s") or ""
+    return (n > 1 and 's') or ''
 end
 
 local function Modify(QUIT)
@@ -169,7 +169,7 @@ local function Modify(QUIT)
             local min, max, limit = v[1], v[2], v[3]
             if (min) then
 
-                local n = tonumber(get_var(0, "$pn"))
+                local n = tonumber(get_var(0, '$pn'))
 
                 -- Technical note:
                 -- When a player quits, the $pn variable does not update immediately.
@@ -183,10 +183,10 @@ local function Modify(QUIT)
                 if (n >= min and n <= max and limit ~= current_limit) then
 
                     current_limit = limit
-                    execute_command("scorelimit " .. limit)
+                    execute_command('scorelimit ' .. limit)
 
                     local txt = score_table[#score_table]
-                    txt = txt:gsub("$limit", limit):gsub("$s", getChar(limit))
+                    txt = txt:gsub('$limit', limit):gsub('$s', getChar(limit))
                     say_all(txt)
                     cprint(txt, 10)
 
@@ -201,10 +201,10 @@ function OnStart()
 
     score_table, current_limit = nil, nil
 
-    local gt = get_var(0, "$gt")
-    local mode = get_var(0, "$mode")
+    local gt = get_var(0, '$gt')
+    local mode = get_var(0, '$mode')
 
-    if (gt ~= "n/a") then
+    if (gt ~= 'n/a') then
         SetScoreTable(mode, gt)
         Modify()
     end
