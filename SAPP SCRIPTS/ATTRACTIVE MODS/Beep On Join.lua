@@ -3,20 +3,20 @@
 Script Name: Beep On Join, for SAPP (PC & CE)
 Description: Added a new script that produces an audible beep when someone joins the server.
 
-Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2020-2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --======================================================================================================--
 ]]--
 
-api_version = "1.12.0.0"
+api_version = '1.12.0.0'
 
 function OnScriptLoad()
-    register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
+    register_callback(cb['EVENT_JOIN'], 'OnJoin')
 end
 
-function OnPlayerConnect(_)
-    os.execute("echo \7")
+function OnJoin(_)
+    os.execute('echo \7')
 end
 
 function OnScriptUnload()

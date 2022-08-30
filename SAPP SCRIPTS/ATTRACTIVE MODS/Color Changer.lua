@@ -78,13 +78,13 @@ function Mod:OnPlayerSpawn(Ply)
 end
 
 local function CMDSplit(CMD)
-    local Args, index = { }, 1
-    CMD = gsub(CMD, '"', "")
-    for Params in gmatch(CMD, "([^%s]+)") do
-        Args[index] = lower(Params)
-        index = index + 1
+    local args = { }
+
+    for arg in CMD:gmatch('([^%s]+)') do
+        args[#args+1] = arg:lower()
     end
-    return Args
+
+    return args
 end
 
 function Mod:InvalidSyntax(Ply)

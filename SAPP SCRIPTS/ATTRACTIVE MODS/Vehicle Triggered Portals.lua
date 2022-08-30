@@ -124,16 +124,14 @@ end
 
 local function GetXYZ(dyn)
 
-    local x, y, z = 0, 0, 0
-    local crouch = read_float(dyn + 0x50C)
-
+    local x, y, z
     local vehicle = read_dword(dyn + 0x11C)
     local object = get_object_memory(vehicle)
     if (vehicle ~= 0xFFFFFFFF and object ~= 0 and Validate(object)) then
         x, y, z = read_vector3d(object + 0x5C)
     end
 
-    return x, y, (crouch == 0 and z + 0.65 or z + 0.35), (object + 0x5C)
+    return x, y, z, (object + 0x5C)
 end
 
 local sqrt = math.sqrt
