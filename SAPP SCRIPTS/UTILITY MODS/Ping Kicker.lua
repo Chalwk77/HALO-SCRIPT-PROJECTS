@@ -1,238 +1,192 @@
 --[[
 --=====================================================================================================--
-Script Name: Ping Kicker, for SAPP (PC & CE)
+Script Name: Dynamic Ping Kicker, for SAPP (PC & CE)
+Description: An advanced ping kicker.
 
-Description:
-An advanced mod that kicks players for high Ping.
-Players will be warned 5 times before they are kicked.
-Ping Limits are set dynamically (see config).
+            Ping limits based on player count.
+            See config section for more details.
 
-Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2020-2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
--- Config [STARTS] ----------------------------------------------
+api_version = '1.12.0.0'
 
-local maxWarnings = 5 -- Players will be kicked after this many warnings. 
-local checkInterval = 5 -- (seconds) Every five seconds.
-local ignoreAdmins = true -- Set to false to kick admins with high pings
-local adminLevel = 1 -- Ignore admins at or above this level
+local PingKicker = {
 
--- Dynamic ping limit based on player count:
-local limits = {
+    -- Players will be warned this many times before being kicked:
+    -- Default: 5
+    warnings = 5,
 
+    -- How often to check player pings:
+    -- Default: 5
+    --
+    check_interval = 5,
+
+    -- This is the games default ping limit:
+    -- Default: 1000
+    --
+    default_limit = 1000,
+
+    -- Exclude admins from ping kicking?
+    -- Default: true
+    --
+    ignore_admins = true,
+
+    -- Admins with a level >= this level will be excluded from ping kicking.
+    -- Default: 1
+    --
+    admin_level = 1,
+
+    -- Dynamic ping limit based on player count:
     -- Min Players, Max Players, Ping Limit:
     --
+    limits = {
 
-    { 1, 4, 750 }, -- Mod will start ping kicking if there are 1 to 4 players (if 750+ ping)
+        { 1, 4,750 }, -- 1 to 4 players (if 750+ ping)
 
-    { 5, 8, 450 }, -- Mod will start ping kicking if there are 5 to 8 players (if 450+ ping)
+        { 5, 8, 450 }, -- 5 to 8 players (if 450+ ping)
 
-    { 9, 12, 375 }, -- Mod will start ping kicking if there are 9 to 12 players (if 375+ ping)
+        { 9, 12, 375 }, -- 9 to 12 players (if 375+ ping)
 
-    { 13, 16, 200 }     -- Mod will start ping kicking if there are 13 to 16 players (if 200+ ping)
-}
-
-local messages = {
-
-    warn = { -- To Target Player
-        environment = "rcon", -- Valid response environments are: "rcon" or "chat"
-        "--- [ HIGH PING WARNING ] ---",
-        "Ping is too high! Limit: %limit% (ms) Your Ping: %ping% (ms)",
-        "Please try to lower it if possible.",
-        "Warnings Left: %warnings_left%/%total_warnings%",
+        { 13, 16, 200 }     -- 13 to 16 players (if 200+ ping)
     },
 
-    kick = {
-        environment = "chat", -- Valid response environments are: "rcon" or "chat"
-
-        [1] = { -- Message sent to everyone (excluding Target Player):
-            "--- PING KICK ---",
-            "%name% was kicked for high ping. Limit: %limit% (ms) Their Ping: %ping% (ms)",
-        },
-
-        [2] = {-- Message sent to Target Player:
-            "--- PING KICK ---",
-            "You were kicked for high ping. Limit: %limit% (ms) Your Ping: %ping% (ms)"
-        }
+    -- Multi line message to omit when we need to warn a player for high ping:
+    warning_message = {
+        "--- [ HIGH PING WARNING ] ---",
+        "Ping is too high! Limit: $limit (ms), Your Ping: $ping (ms).",
+        "Please try to lower it if possible.",
+        "Warnings Left: $strikes/$max_warnings"
     }
 }
 
--- One function temporarily removes the server prefix while
--- it relays specific messages then restores it.
--- The prefix will be restored to this:
-local server_prefix = "**SAPP**"
-
--- Config [ENDS] ----------------------------------------------
-
+local limit
 local players = { }
-local gameOver
-local gsub, format = string.gsub, string.format
-local delta_time = 1 / 30
-
-api_version = "1.12.0.0"
+local time = os.time
 
 function OnScriptLoad()
-    register_callback(cb["EVENT_TICK"], "OnTick")
-    register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
-    register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
-    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
-    register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
-    if (get_var(0, "$gt") ~= "n/a") then
-        gameOver, players = false, { }
+    register_callback(cb['EVENT_TICK'], 'OnTick')
+    register_callback(cb['EVENT_JOIN'], 'OnJoin')
+    register_callback(cb['EVENT_LEAVE'], 'OnQuit')
+    register_callback(cb['EVENT_GAME_START'], 'OnStart')
+end
+
+function PingKicker:NewPlayer(o)
+
+    setmetatable(o, { __index = self })
+    self.__index = self
+
+    o.strikes = self.warnings
+
+    o:NewTimer()
+
+    return o
+end
+
+function PingKicker:NewTimer()
+    self.start = time
+    self.finish = time() + self.check_interval
+end
+
+function PingKicker:GetLimit()
+
+    for i = 1, #self.limits do
+
+        local min = self.limits[i][1]
+        local max = self.limits[i][2]
+        local this_limit = self.limits[i][3]
+
+        if (#players >= min and #players <= max) then
+            return this_limit
+        end
+    end
+
+    -- default ping limit:
+    return self.default_limit
+end
+
+function PingKicker:GetPing()
+    return tonumber(get_var(self.id, '$ping'))
+end
+
+function PingKicker:OnJoin(Ply)
+
+    players[Ply] = self:NewPlayer({
+        id = Ply,
+        name = get_var(Ply, '$name')
+    })
+
+    -- Update limit:
+    limit = self:GetLimit()
+end
+
+function PingKicker:Ignore()
+    local lvl = tonumber(get_var(self.id, '$lvl'))
+    return (lvl >= self.admin_level)
+end
+
+function OnStart()
+    if (get_var(0, '$gt') ~= 'n/a') then
+        players = {}
         for i = 1, 16 do
             if player_present(i) then
-                InitPlayer(i, false)
+                OnJoin(i)
             end
         end
     end
 end
 
-function OnGameStart()
-    gameOver, players = false, { }
-end
+function PingKicker:SendWarning(ping)
 
-function OnGameEnd()
-    gameOver = true
-end
+    -- Warning message: [table of strings]
+    local msg = self.warning_message
 
-function OnPlayerConnect(PlayerIndex)
-    InitPlayer(PlayerIndex, false)
-end
+    for i = 1, #msg do
 
-function OnPlayerDisconnect(PlayerIndex)
-    InitPlayer(PlayerIndex, true)
+        local str = msg[i]            :
+
+        gsub('$ping', ping)           :
+        gsub('$limit', limit)         :
+        gsub('$strikes', self.strikes):
+        gsub('$max_warnings', self.warnings)
+
+        rprint(self.id, str)
+    end
 end
 
 function OnTick()
-    if (not gameOver) then
-        for player, v in pairs(players) do
-            if player_present(player) and (not Ignore(player)) then
+    for i, v in ipairs(players) do
+        if (not v:Ignore() and v.start() > v.finish) then
+            v:NewTimer()
 
-                if (v.timer) then
-                    v.timer = v.timer + delta_time
+            local ping = v:GetPing()
+            if (ping > limit) then
 
-                    if (v.timer >= checkInterval) then
-                        v.timer = 0
-
-                        local limit = GetPingLimit()
-                        local ping = GetPing(player)
-
-                        if (ping >= limit) then
-
-                            local params = { }
-                            params.ping = ping
-                            params.limit = limit
-                            v.strikes = v.strikes + 1
-
-                            if (v.strikes < maxWarnings) then
-                                params.msg = messages.warn
-                                Respond(player, params)
-                            else
-
-                                for i = 1, 16 do
-                                    if player_present(i) and (i ~= player) then
-                                        params.msg = messages.kick[1]
-                                        Respond(i, params)
-                                    end
-                                end
-
-                                params.msg = messages.kick[2]
-                                Respond(player, params)
-                                SilentKick(player)
-
-                                cprint(v.name .. " was kicked for High Ping (" .. ping .. " ms)", 4 + 8)
-                                execute_command("log_note " .. v.name .. " was kicked for High Ping (" .. ping .. " ms)")
-                            end
-                        end
-                    end
+                if (v.strikes == 0) then
+                    execute_command('k ' .. i .. ' "' .. v.name .. ' was kicked for high ping"')
+                else
+                    v.strikes = v.strikes - 1
+                    v:SendWarning(ping)
                 end
             end
         end
     end
 end
 
-function SilentKick(PlayerIndex)
-    for _ = 1, 9999 do
-        rprint(PlayerIndex, " ")
-    end
+function OnJoin(Ply)
+    PingKicker:OnJoin(Ply)
 end
 
-function Respond(PlayerIndex, params)
+function OnQuit(Ply)
+    players[Ply] = nil
 
-    local msg = params.msg
-    local Environment = msg.environment
-
-    local sappResponseFunc = say
-    if (Environment == "rcon") then
-        cls(PlayerIndex, 25)
-        sappResponseFunc = rprint
-    end
-
-    execute_command("msg_prefix \"\"")
-    for j = 1, #msg do
-
-        local FormatStr = gsub(gsub(gsub(gsub(gsub(msg[j],
-                "%%ping%%", params.ping),
-                "%%limit%%", params.limit),
-                "%%total_warnings%%", maxWarnings),
-                "%%name%%", players[PlayerIndex].name),
-                "%%warnings_left%%", maxWarnings - players[PlayerIndex].strikes)
-
-        sappResponseFunc(PlayerIndex, FormatStr)
-    end
-    execute_command("msg_prefix \" " .. server_prefix .. "\"")
-end
-
-function GetPingLimit()
-    for Set = 1, #limits do
-        local min = limits[Set][1]
-        local max = limits[Set][2]
-        local limit = limits[Set][3]
-        local player_count = tonumber(get_var(0, "$pn"))
-        if (player_count >= min and player_count <= max) then
-            return limit
-        end
-    end
-    return 1000
-end
-
-function InitPlayer(PlayerIndex, Reset)
-    if (Reset) then
-        players[PlayerIndex] = nil
-    else
-        players[PlayerIndex] = {
-            strikes = 0, timer = 0,
-            name = get_var(PlayerIndex, "$name")
-        }
-    end
-end
-
-function cls(PlayerIndex, Count)
-    Count = Count or 25
-    for _ = 1, Count do
-        rprint(PlayerIndex, " ")
-    end
-end
-
-function GetPing(PlayerIndex)
-    return tonumber(get_var(PlayerIndex, "$ping"))
-end
-
-function Ignore(PlayerIndex)
-    local level = tonumber(get_var(PlayerIndex, "$lvl"))
-    if (ignoreAdmins and level >= adminLevel) then
-        return true
-    end
-    return false
-end
-
-function OnError(Message)
-    print(debug.traceback())
+    -- update limit:
+    PingKicker:GetLimit()
 end
 
 function OnScriptUnload()
-
+    -- N/A
 end
