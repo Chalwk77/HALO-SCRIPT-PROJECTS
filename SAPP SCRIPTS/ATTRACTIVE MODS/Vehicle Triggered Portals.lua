@@ -1,177 +1,131 @@
 --[[
 --=====================================================================================================--
 Script Name: Vehicle Triggered Portals, for SAPP (PC & CE)
-Implementing API version: 1.10.0.0
-Description: Jump into the passengers seat of the warthog located at X,Y,Z and it will teleport you to X location.
+Description: This script implements custom teleporter pairs that can ony be accessed while
+             occupying a vehicle.
 
-Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2016-2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
-api_version = "1.12.0.0"
-gamesettings = {
-    -- Removes the vehicle.
-    -- Note, once removed, they will not respawn!
-    ["DestroyVehicle"] = true,
+local maps = {
+    ['bloodgulch'] = {
 
-    -- Will spawn a new vehicle at the location of "TeleportFrom".
-    -- Note, these spawned vehicles will not 'reset' after X seconds when moved.
-    ["CreateNewVehicle"] = false,
+        -- format:
+        -- The first 3 elements are the origin x,y,z coords.
+        -- The next 3 elements are the destination x,y,z coords.
+        -- The last number is the radius a player must be from the origin coordinates to teleport themselves (and the vehicle they occupy)
+        -- to the destination coordinates.
+
+        { 98.77, -108.72, 4.32, 65.52, -179.70, 4.37, 5 },
+    },
+
+    --
+    -- repeat the structure to add more maps and teleporter pairs:
+    --
+    ['map name here'] = {
+        {}
+    }
 }
--- X,Y,Z,Radius (From Coordinates)
-TeleportFrom = {}
-TeleportFrom[1] = { 86.79, -172.32, 0.53, 5 }   -- Chain gun Hog (beside redbase)
-TeleportFrom[2] = { 64.16, -176.91, 4.48, 5 }   -- Chain gun Hog (far right-hand corner of redbase <slope>)
-TeleportFrom[3] = { 28.85, -90.83, 0.84, 5 }     -- Chain gun Hog, Left side of Blue Base
-TeleportFrom[4] = { 46.17, -64.97, 1.64, 5 }     -- Chain gun Hog, Behind Blue Base
 
--- X,Y,Z (To Coordinates)
-TeleportTo = { }
-TeleportTo[1] = { 82.05, -163.83, 0.11 }
-TeleportTo[2] = { 96.83, -150.45, 0.07 }
-TeleportTo[3] = { 83.08, -131, 0.37 }
-TeleportTo[4] = { 56.18, -133.71, 1.13 }
-TeleportTo[5] = { 58.76, -122.98, 0.28 }
-TeleportTo[6] = { 78.11, -120.07, 0.22 }
-TeleportTo[7] = { 87.22, -99.72, 1.51 }
-TeleportTo[8] = { 70.55, -137.45, 1.02 }
-TeleportTo[9] = { 91.62, -128.01, 1.02 }
-TeleportTo[10] = { 83.66, -146.55, 0.02 }
+local coordinates
+
+api_version = '1.12.0.0'
 
 function OnScriptLoad()
-    register_callback(cb['EVENT_GAME_START'], "OnNewGame")
-    register_callback(cb['EVENT_VEHICLE_ENTER'], "OnVehicleEntry")
+
+    register_callback(cb['EVENT_GAME_START'], 'OnStart')
+
+    OnStart()
+end
+
+function OnStart()
+    if (get_var(0, '$gt') ~= 'n/a') then
+
+        local map = get_var(0, '$map')
+        if (maps[map]) then
+
+            register_callback(cb['EVENT_TICK'], 'OnTick')
+            register_callback(cb['EVENT_JOIN'], 'OnJoin')
+            register_callback(cb['EVENT_LEAVE'], 'OnQuit')
+
+            coordinates = maps[map]
+
+            return true
+        end
+
+        unregister_callback(cb['EVENT_TICK'])
+        unregister_callback(cb['EVENT_JOIN'])
+        unregister_callback(cb['EVENT_LEAVE'])
+    end
+end
+
+local function GetXYZ(dyn)
+
+    local x, y, z = 0, 0, 0
+    local crouch = read_float(dyn + 0x50C)
+    local vehicle = read_dword(dyn + 0x11C)
+    local object = get_object_memory(vehicle)
+    if (vehicle ~= 0xFFFFFFFF and object ~= 0) then
+        x, y, z = read_vector3d(object + 0x5C)
+    end
+
+    return x, y, z(crouch == 0 and z + 0.65 or z + 0.35), (object + 0x5C)
+end
+
+local sqrt = math.sqrt
+local function GetDist(x1, y1, z1, x2, y2, z2)
+    return sqrt((x1 - x2) ^ 2 + (y1 - y2) ^ 2 + (z1 - z2) ^ 2)
+end
+
+local function Teleport(vehicle, x, y, z)
+
+    -- z offset (to prevent vehicle from falling thru the map):
+    local z_off = 0.3
+
+    write_vector3d(vehicle, x, y, z + z_off)
+end
+
+function OnTick()
+    for i = 1, 16 do
+
+        if player_present(i) then
+            local dyn = get_dynamic_player(i)
+            if (player_alive(i) and dyn ~= 0) then
+
+                local x, y, z, vehicle = GetXYZ(dyn)
+                if (x) then
+                    for j = 1, #coordinates do
+
+                        local t = coordinates[j]
+
+                        -- Teleport origin x,y,z:
+                        local ox, oy, oz = t[1], t[2], t[3]
+
+                        -- Teleport origin trigger radius:
+                        local r = t[#t]
+
+                        if (GetDist(x, y, z, ox, oy, oz) <= r) then
+
+                            -- Teleport destination x,y,z:
+                            local dx, dy, dz = t[4], t[5], t[6]
+
+                            Teleport(vehicle, dx, dy, dz)
+
+                            rprint(i, 'Woosh!')
+                            goto done
+                        end
+                    end
+                end
+            end
+        end
+
+        :: done ::
+    end
 end
 
 function OnScriptUnload()
-end
-
-function OnNewGame()
-    mapname = get_var(0, "$map")
-end
-
-function OnVehicleEntry(PlayerIndex)
-    local player_object = get_dynamic_player(PlayerIndex)
-    VehicleID = read_dword(player_object + 0x11C)
-    if (VehicleID == 0xFFFFFFFF) then
-        return false
-    end
-    obj_id = get_object_memory(VehicleID)
-    VehX, VehY, VehZ = read_vector3d(obj_id + 0x5c)
-    if (player_object ~= 0) then
-        if (mapname == "bloodgulch") then
-            if inSphere(PlayerIndex, TeleportFrom[1][1], TeleportFrom[1][2], TeleportFrom[1][3], TeleportFrom[1][4]) == true then
-                insphere = true
-            elseif inSphere(PlayerIndex, TeleportFrom[2][1], TeleportFrom[2][2], TeleportFrom[2][3], TeleportFrom[2][4]) == true then
-                insphere = true
-            elseif inSphere(PlayerIndex, TeleportFrom[3][1], TeleportFrom[3][2], TeleportFrom[3][3], TeleportFrom[3][4]) == true then
-                insphere = true
-            elseif inSphere(PlayerIndex, TeleportFrom[4][1], TeleportFrom[4][2], TeleportFrom[4][3], TeleportFrom[4][4]) == true then
-                insphere = true
-            end
-        end
-        if (mapname == "sidewinder") then
-            if inSphere(PlayerIndex, TeleportFrom[6][1], TeleportFrom[6][2], TeleportFrom[6][3], TeleportFrom[6][4]) == true then
-                insphere = true
-            elseif inSphere(PlayerIndex, TeleportFrom[7][1], TeleportFrom[7][2], TeleportFrom[7][3], TeleportFrom[7][4]) == true then
-                insphere = true
-            elseif inSphere(PlayerIndex, TeleportFrom[8][1], TeleportFrom[8][2], TeleportFrom[8][3], TeleportFrom[8][4]) == true then
-                insphere = true
-            elseif inSphere(PlayerIndex, TeleportFrom[9][1], TeleportFrom[9][2], TeleportFrom[9][3], TeleportFrom[9][4]) == true then
-                insphere = true
-            elseif inSphere(PlayerIndex, TeleportFrom[10][1], TeleportFrom[10][2], TeleportFrom[10][3], TeleportFrom[10][4]) == true then
-                insphere = true
-            end
-        end
-        if insphere then
-            InitiateTeleport(PlayerIndex)
-        end
-    end
-end
-
-function InitiateTeleport(PlayerIndex)
-    local player_object = get_dynamic_player(PlayerIndex)
-    local VehicleObj = get_object_memory(read_dword(player_object + 0x11c))
-    local MetaIndex = read_dword(VehicleObj)
-    if MetaIndex == 0xE3D40260 then
-        local seat = read_word(player_object + 0x2F0)
-        if VehicleObj ~= 0 and seat == 1 then
-            local vehicleId = read_dword(player_object + 0x11C)
-            player_obj_id = read_dword(get_player(PlayerIndex) + 0x34)
-            vehicle = vehicleId
-            local coordinates = SelectRandomPortal()
-            if coordinates then
-                moveobject(vehicleId, TeleportTo[coordinates][1], TeleportTo[coordinates][2], TeleportTo[coordinates][3] + 0.32)
-                timer(1000 * 0.955, "exitvehicle", PlayerIndex, vehicle)
-                execute_command("msg_prefix \"\"")
-                say(PlayerIndex, "[VTP] Teleporting to X: " .. tostring(TeleportTo[coordinates][1]) .. ", Y: " .. tostring(TeleportTo[coordinates][2]) .. " Z: " .. tostring(TeleportTo[coordinates][3]))
-                execute_command("msg_prefix \"** SERVER ** \"")
-            end
-        end
-    end
-end
-
-function Destroyvehicle(PlayerIndex, vehicle)
-    if not PlayerInVehicle(PlayerIndex) then
-        destroy_object(vehicle)
-    end
-end
-
-function exitvehicle(PlayerIndex)
-    exit_vehicle(PlayerIndex)
-    if gamesettings["DestroyVehicle"] then
-        timer(1000 * 1.5, "Destroyvehicle", PlayerIndex, vehicle)
-    end
-    if gamesettings["CreateNewVehicle"] then
-        spawn_object("vehi", "vehicles\\warthog\\mp_warthog", VehX, VehY, VehZ, 0.15)
-    end
-end
-
-function moveobject(ObjectID, x, y, z)
-    local object = get_object_memory(ObjectID)
-    if get_object_memory(ObjectID) ~= 0 then
-        local veh_obj = get_object_memory(read_dword(object + 0x11C))
-        write_vector3d((veh_obj ~= 0 and veh_obj or object) + 0x5C, x, y, z + 0.3)
-    end
-end
-
-function inSphere(PlayerIndex, x, y, z, radius)
-    if PlayerIndex then
-        local player_static = get_player(PlayerIndex)
-        local obj_x = read_float(player_static + 0xF8)
-        local obj_y = read_float(player_static + 0xFC)
-        local obj_z = read_float(player_static + 0x100)
-        local x_diff = x - obj_x
-        local y_diff = y - obj_y
-        local z_diff = z - obj_z
-        local dist_from_center = math.sqrt(x_diff ^ 2 + y_diff ^ 2 + z_diff ^ 2)
-        if dist_from_center <= radius then
-            return true
-        end
-    end
-    return false
-end
-
-function SelectRandomPortal()
-    if #TeleportTo > 0 then
-        local index = rand(1, #TeleportTo + 1)
-        return index
-    end
-    return nil
-end
-
-function PlayerInVehicle(PlayerIndex)
-    local player_object = get_dynamic_player(PlayerIndex)
-    if (player_object ~= 0) then
-        local VehicleID = read_dword(player_object + 0x11C)
-        if VehicleID == 0xFFFFFFFF then
-            return false
-        else
-            return true
-        end
-    else
-        return false
-    end
+    -- N/A
 end
