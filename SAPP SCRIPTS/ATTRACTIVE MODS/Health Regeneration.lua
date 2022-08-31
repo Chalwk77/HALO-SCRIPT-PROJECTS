@@ -22,11 +22,12 @@ function OnJoin(Ply)
 end
 
 function Regen(Ply)
-    local DyN = get_dynamic_player(Ply)
-    if (DyN ~= 0 and player_alive(Ply)) then
-        local health = read_float(DyN + 0xE0)
+
+    local dyn = get_dynamic_player(Ply)
+    if (dyn ~= 0 and player_alive(Ply)) then
+        local health = read_float(dyn + 0xE0)
         if (health < 1) then
-            write_float(DyN + 0xE0, health + increment)
+            write_float(dyn + 0xE0, health + increment)
         end
     end
 
