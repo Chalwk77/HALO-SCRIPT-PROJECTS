@@ -1,127 +1,177 @@
 --[[
 --=====================================================================================================--
-Script Name: RCON Chat, for SAPP, (PC & CE)
-Description: Player messages will appear in the RCON Environment
+Script Name: RCON Chat, for SAPP (PC & CE)
+Description: Chat messages appear in RCON instead of normal chat.
+             See config section below for more.
 
-Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
--- config starts --
 local chat = {
 
-    -- Global
-    [0] = "%name% [%id%]: %msg%",
+    --
+    -- RCON output format:
+    --
+
+    -- Global:
+    [0] = '$name [$id]: $msg',
 
     -- Team:
-    [1] = "[%name%] [%id%]: %msg%",
+    [1] = '[$name] [$id]: $msg',
 
     -- Vehicle:
-    [2] = "[%name%] [%id%]: %msg%",
+    [2] = '[$name] [$id]: $msg',
 
-    -- Messages containing these keywords (at the beginning of the string) will not trigger chat formatting:
+    -- Messages containing these keywords will not trigger chat formatting:
+    --
     ignore_list = {
-        "rtv",
-        "skip"
+        'rtv', 'skip'
     }
 }
 
--- config ends --
+api_version = '1.12.0.0'
 
-api_version = "1.12.0.0"
-
-local team_play
+local ffa
+local players = { }
 
 function OnScriptLoad()
-    register_callback(cb["EVENT_CHAT"], "RconChat")
-    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
-    OnGameStart()
+    register_callback(cb['EVENT_CHAT'], 'OnChat')
+    register_callback(cb['EVENT_JOIN'], 'OnJoin')
+    register_callback(cb['EVENT_LEAVE'], 'OnQuit')
+    register_callback(cb['EVENT_GAME_START'], 'OnStart')
+    register_callback(cb['EVENT_TEAM_SWITCH'], 'OnTeamSwitch')
+    OnStart()
 end
 
-function OnGameStart()
-    if (get_var(0, "$gt") ~= "n/a") then
-        team_play = (get_var(0, "$ffa") == "0") or nil
+function OnStart()
+    if (get_var(0, '$gt') ~= 'n/a') then
+
+        ffa = (get_var(0, '$ffa') == '1')
+        players = { }
+
+        for i = 1, 16 do
+            if player_present(i) then
+                OnJoin(i)
+            end
+        end
     end
 end
 
-local function Contains(word)
-    for _, v in pairs(chat.ignore_list) do
-        if (v == word) then
+function OnJoin(Ply)
+    players[Ply] = {
+        team = get_var(Ply, '$team'),
+        name = get_var(Ply, '$name')
+    }
+end
+
+function OnQuit(Ply)
+    players[Ply] = nil
+end
+
+function OnTeamSwitch(Ply)
+    local p = players[Ply]
+    p.team = get_var(Ply, '$team')
+end
+
+local function IsCommand(s)
+    return (s:sub(1, 1) == '/' or s:sub(1, 1) == '\\')
+end
+
+local function Ignore(s)
+    for i = 1, #chat.ignore_list do
+        local word = chat.ignore_list[i]
+        if (s:sub(1, word:len()) == word) then
             return true
         end
     end
     return false
 end
 
-local function InVehicle(Ply)
-    local DyN = get_dynamic_player(Ply)
-    local vehicle = read_dword(DyN + 0x11C)
-    local object = get_object_memory(vehicle)
-    return (DyN ~= 0 and vehicle ~= 0xFFFFFFFF), object or false
+local function FormatMsg(Ply, Content, Type)
+
+    local new_message = chat[Type]
+
+    local player = players[Ply]
+    new_message = new_message :
+    gsub('$name', player.name):
+    gsub('$id', Ply)          :
+    gsub('$msg', Content)
+
+    return new_message
 end
 
-function RconChat(Ply, Msg, Type)
-
-    local args = { }
-    for Params in Msg:gmatch("([^%s]+)") do
-        args[#args + 1] = Params:lower()
+local function Global(str)
+    for i = 1, #players do
+        rprint(i, str)
     end
+end
 
-    if (#args > 0) then
-
-        local chat_command = Msg:sub(1, 1) == "/" or Msg:sub(1, 1) == "\\"
-        if (not chat_command and not Contains(args[1])) then
-
-            local msg = chat[Type]
-            local name = get_var(Ply, "$name")
-
-            local original_message = Msg
-            Msg = msg:gsub("%%name%%", name):gsub("%%id%%", Ply):gsub("%%msg%%", Msg)
-
-            -- team:
-            if (Type == 1) then
-
-                if (team_play) then
-                    for i = 1, 16 do
-                        if player_present(i) then
-                            if (get_var(Ply, "$team") == get_var(i, "$team")) then
-                                rprint(i, Msg)
-                            end
-                        end
-                    end
-                    return false
-                end
-
-                Msg = original_message
-                Msg = chat[0]:gsub("%%name%%", name):gsub("%%id%%", Ply):gsub("%%msg%%", Msg)
-                goto global
-
-                -- vehicle
-            elseif (Type == 2) then
-                for i = 1, 16 do
-                    if player_present(i) then
-
-                        local in_vehicle_a, vehicle_a = InVehicle(i)
-                        local in_vehicle_b, vehicle_b = InVehicle(Ply)
-
-                        if (in_vehicle_a and in_vehicle_b) and (vehicle_a == vehicle_b) then
-                            rprint(i, Msg)
-                        end
-                    end
-                end
-                return false
-            end
-
-            :: global ::
-            for i = 1, 16 do
-                if player_present(i) then
-                    rprint(i, Msg)
-                end
-            end
-
-            return false
+local function Team(sender, str)
+    for i = 1, #players do
+        local v = players[i]
+        if (v.team == sender.team) then
+            rprint(i, str)
         end
     end
+end
+
+local function GetVehicle(Ply)
+    local dyn = get_dynamic_player(Ply)
+    if (dyn ~= 0 and player_alive(Ply)) then
+        local vehicle = read_dword(dyn + 0x11C)
+        local object = get_object_memory(vehicle)
+        return (vehicle ~= 0xFFFFFFFF and object ~= 0 and object)
+    end
+    return false
+end
+
+local function Vehicle(Ply, str)
+
+    local senderVehicle = GetVehicle(Ply)
+    if (not senderVehicle) then
+        rprint(Ply, 'You are not in a vehicle')
+        return false
+    end
+
+    for i = 1, #players do
+        local playerVehicle = GetVehicle(i)
+        if (playerVehicle == senderVehicle) then
+            rprint(i, str)
+        end
+    end
+end
+
+function OnChat(Ply, Msg, Type)
+    if (not IsCommand(Msg) and not Ignore(Msg)) then
+
+        Msg = FormatMsg(Ply, Msg, Type)
+
+        if (ffa) then
+            Global(Msg)
+            return false
+        end
+
+        -- Global:
+        if (Type == 0) then
+
+            Global(Msg)
+
+            -- Team:
+        elseif (Type == 1) then
+            Team(players[Ply], Msg)
+
+            -- Vehicle:
+        elseif (Type == 2) then
+            Vehicle(Ply, Msg)
+        end
+
+        return false
+    end
+end
+
+function OnScriptUnload()
+    -- N/A
 end
