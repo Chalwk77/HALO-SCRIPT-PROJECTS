@@ -22,10 +22,10 @@ local output = '$name rage quit because of $killer'
 
 -- config ends --
 
-local time = os.time
 local players = {}
+local time = os.time
 
-api_version = "1.12.0.0"
+api_version = '1.12.0.0'
 
 function OnScriptLoad()
     register_callback(cb['EVENT_DIE'], 'OnDie')
@@ -41,12 +41,12 @@ end
 
 function OnRage(Ply)
     local t = players[Ply]
-    players[Ply] = nil
     if (t.killer and t.finish - t.start() > 0) then
         local str = output
         str = str:gsub('$name', t.name):gsub('$killer', t.killer.name)
         say_all(str)
     end
+    players[Ply] = nil
 end
 
 function OnStart()
@@ -61,13 +61,16 @@ function OnStart()
 end
 
 function OnDie(Victim, Killer)
+
     local victim = tonumber(Victim)
     local killer = tonumber(Killer)
 
     local v = players[victim]
     local k = players[killer]
 
-    if (k and v and killer > 0 and killer ~= victim) then
+    local pvp = (killer > 0 and k and v and killer ~= victim)
+
+    if (pvp) then
         v.killer = k
         v.start = time
         v.finish = time() + grace
