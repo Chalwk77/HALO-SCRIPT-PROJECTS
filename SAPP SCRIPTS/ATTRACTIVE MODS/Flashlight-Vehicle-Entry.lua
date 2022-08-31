@@ -53,14 +53,9 @@ local function GetCamera(dyn)
 end
 
 local function GetXYZ(dyn)
-    local couching = read_float(dyn + 0x50C)
-    local px, py, pz = read_vector3d(dyn + 0x5c)
-    if (couching == 0) then
-        pz = pz + 0.65
-    else
-        pz = pz + (0.35 * couching)
-    end
-    return px, py, pz
+    local crouch = read_float(dyn + 0x50C)
+    local x, y, z = read_vector3d(dyn + 0x5c)
+    return x, y, (crouch == 0 and z + 0.65 or z + 0.35)
 end
 
 local function Occupied(obj)
@@ -114,19 +109,23 @@ local function GetTag(Type, Name)
     return (Tag ~= 0 and read_dword(Tag + 0xC)) or nil
 end
 
+local function TagsToID()
+    local t = {}
+    for k, v in pairs(vehicles) do
+        local tag = GetTag('vehi', k)
+        if (tag) then
+            t[tag] = v
+        end
+    end
+    return t
+end
+
 function OnStart()
     if (get_var(0, '$gt') ~= 'n/a') then
 
-        local t = {}
-        for k, v in pairs(vehicles) do
-            local tag = GetTag('vehi', k)
-            if (tag) then
-                t[tag] = v
-            end
-        end
-        vehicles = t
-
         players = {}
+        vehicles = TagsToID()
+
         for i = 1, 16 do
             if player_present(i) then
                 OnJoin(i)

@@ -87,22 +87,22 @@ local Expressions = {
     output = {
 
         -- Global chat:
-        [0] = "$name: $msg",
+        [0] = '$name: $msg',
 
         -- Team chat:
-        [1] = "[$name]: $msg",
+        [1] = '[$name]: $msg',
 
         -- Vehicle chat:
-        [2] = "[$name]: $msg"
+        [2] = '[$name]: $msg'
     },
 
     -- A message relay function temporarily removes the server prefix
     -- and will restore it to this when the relay is finished
-    server_prefix = "**SAPP**"
+    server_prefix = '**SAPP**'
 }
 
 function OnScriptLoad()
-    register_callback(cb['EVENT_CHAT'], "OnChat")
+    register_callback(cb['EVENT_CHAT'], 'OnChat')
 end
 
 function OnChat(Ply, Msg, Type)
@@ -111,13 +111,14 @@ function OnChat(Ply, Msg, Type)
     Msg = Expressions.phrases[Msg]
 
     if (Msg) then
+
         Msg = Msg[rand(1, #Msg + 1)]
-        local name = get_var(Ply, "$name")
+        local name = get_var(Ply, '$name')
         local output = Expressions.output[Type]
-        local msg = output:gsub("$name", name):gsub("$msg", Msg)
-        execute_command("msg_prefix \"\"")
+        local msg = output:gsub('$name', name):gsub('$msg', Msg)
+        execute_command('msg_prefix ""')
         say_all(msg)
-        execute_command("msg_prefix \"" .. Expressions.server_prefix .. "\"")
+        execute_command('msg_prefix "' .. Expressions.server_prefix .. '"')
         return false
     end
 end

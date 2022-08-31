@@ -11,93 +11,85 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 -- Config Starts
 
-local flip_command = "flip"
+local command = "flip"
 local permission_level = -1
 local output = {
-    "Flipping %flips% times...",
-    "Heads: %headcount%/%flips% - %percent%%",
-    "Tails: %tailcount%/%flips% - %percent%%",
-    "This took %time% seconds"
+    "Flipping $flips times...",
+    "Heads: $head_count/$flips - $percent",
+    "Tails: $tail_count/$flips - $percent",
+    "This took $time seconds"
 }
 
 local flips = 100000000
 
 -- Config Ends
 
-local heads, tails = 1, 2
-local headcount, tailcount = 0, 0
+local heads = 1
+local head_count, tail_count = 0, 0
 
-api_version = "1.12.0.0"
-local gmatch, gsub = string.gmatch, string.gsub
+api_version = '1.12.0.0'
 
 function OnScriptLoad()
-    register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
+    register_callback(cb["EVENT_COMMAND"], "OnCommand")
 end
 
-local hasAccess = function(PlayerIndex)
-    return (tonumber(get_var(PlayerIndex, "$lvl")) >= permission_level)
+local function HasPermission(Ply)
+    local lvl = tonumber(get_var(Ply, '$lvl'))
+    return (lvl >= permission_level)
 end
 
-function OnServerCommand(Executor, Command, _, _)
-    local Args = CmdSplit(Command)
-    if (Args[1] == nil or Args[1] == "") then
-        return
-    elseif (Args[1] == flip_command and Args[2] == nil) and hasAccess(Executor) then
+local function Send(Ply, Str)
+    return (Ply == 0 and cprint(Str, 10) or rprint(Ply, Str))
+end
 
-        local starttime = os.time()
+function OnCommand(Ply, CMD)
 
-        local Flipping = gsub(output[1], "%%flips%%", flips)
-        Send(Executor, Flipping)
+    if (CMD:sub(1, command:len()):lower() == command) then
 
-        math.randomseed(os.time())
-        local x
-        for i = 1, flips do
-            x = math.random(2)
-            if (x == heads) then
-                headcount = headcount + 1
-            else
-                tailcount = tailcount + 1
+        if HasPermission(Ply) then
+
+            local start_time = os.time()
+
+            local Flipping = output[1]:gsub("$flips", flips)
+            Send(Ply, Flipping)
+
+            math.randomseed(os.time())
+            local x
+            for _ = 1, flips do
+                x = math.random(2)
+                if (x == heads) then
+                    head_count = head_count + 1
+                else
+                    tail_count = tail_count + 1
+                end
             end
+
+            local end_time = os.time()
+
+            local Heads = output[2]      :
+            gsub("$head_count", head_count):
+            gsub('$flips', flips)        :
+            gsub('$percent', head_count / flips * 100)
+
+            Send(Ply, Heads)
+
+            local Tails = output[3]      :
+            gsub("$tail_count", head_count):
+            gsub('$flips', flips)        :
+            gsub('$percent', tail_count / flips * 100)
+
+            Send(Ply, Tails)
+
+            local TimeLapsed = output[4]:gsub('$time', end_time - start_time)
+            Send(Ply, TimeLapsed)
+
+            return false
         end
-
-        local endtime = os.time()
-
-        local Heads = gsub(gsub(gsub(output[2],
-                "%%headcount%%", headcount),
-                "%%flips%%", flips),
-                "%%percent%%", (headcount / flips * 100))
-        Send(Executor, Heads)
-
-        local Tails = gsub(gsub(gsub(output[3],
-                "%%tailcount%%", tailcount),
-                "%%flips%%", flips),
-                "%%percent%%", (tailcount / flips * 100))
-        Send(Executor, Tails)
-
-        local TimeLapsed = gsub(output[4], "%%time%%", (endtime - starttime))
-        Send(Executor, TimeLapsed)
-
-        return false
+    else
+        Send(Ply, 'Insufficient Permission')
     end
 end
 
 function OnScriptUnload()
-
-end
-
-function Send(PlayerIndex, Message)
-    if (PlayerIndex == 0) then
-        cprint(Message, 2 + 8)
-    else
-        rprint(PlayerIndex, Message)
-    end
-end
-
-function CmdSplit(CMD)
-    local t, i = {}, 1
-    for Args in gmatch(CMD, "([^%s]+)") do
-        t[i] = Args
-        i = i + 1
-    end
-    return t
+    -- N/A
 end
