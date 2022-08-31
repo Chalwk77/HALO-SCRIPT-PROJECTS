@@ -3,7 +3,7 @@
 Script Name: Rocket Launcher Malfunction, for SAPP (PC & CE)
 Description: Your rocket launcher will spontaneously explode at random times, killing you and nearby players.
 
-Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2020-2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
