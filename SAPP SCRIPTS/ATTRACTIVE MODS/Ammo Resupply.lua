@@ -32,7 +32,7 @@ local ammo = 200
 local mag = 500
 
 -- Frags:
-local frags = 1
+local frags = 4
 
 -- Plasmas:
 local plasmas = 4
@@ -41,7 +41,7 @@ local plasmas = 4
 local battery = 100
 
 -- Message to omit when you type /<command>
-local output = '[RESUPPLY] +$ammo ammo, +$mag mag, +$frags frags, +$plasmas plasmas, +$battery% battery'
+local output = '[RESUPPLY] +200 ammo, +500 mag, +4 frags, +4 plasmas, +100% battery'
 
 -----------------
 -- CONFIG ENDS --
@@ -71,14 +71,7 @@ function OnCommand(Ply, CMD)
             execute_command('nades ' .. Ply .. ' ' .. frags .. ' 1')
             execute_command('nades ' .. Ply .. ' ' .. plasmas .. ' 2')
 
-            local str = output
-            str = str                :
-            gsub('$ammo', ammo)      :
-            gsub('$mag', mag)        :
-            gsub('$battery', battery):
-            gsub('$frags', frags)    :
-            gsub('$plasmas', plasmas)
-            rprint(Ply, str)
+            rprint(Ply, output)
         else
             rprint(Ply, 'Insufficient Permission')
         end
