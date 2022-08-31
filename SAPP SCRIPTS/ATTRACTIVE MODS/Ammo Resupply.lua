@@ -50,43 +50,43 @@ local output = '[RESUPPLY] +$ammo ammo, +$mag mag, +$frags frags, +$plasmas plas
 api_version = '1.12.0.0'
 
 function OnScriptLoad()
-	register_callback(cb['EVENT_COMMAND'], 'OnCommand')
+    register_callback(cb['EVENT_COMMAND'], 'OnCommand')
 end
 
 local function HasPermission(Ply)
-	local lvl = tonumber(get_var(Ply, '$lvl'))
-	return (lvl >= permission_level)
+    local lvl = tonumber(get_var(Ply, '$lvl'))
+    return (lvl >= permission_level)
 end
 
 function OnCommand(Ply, CMD)
-	if (CMD:sub(1, command:len()):lower() == command) then
-		if (HasPermission(Ply)) then
+    if (CMD:sub(1, command:len()):lower() == command) then
+        if (HasPermission(Ply)) then
 
-			-- update ammo:
-			execute_command('ammo ' .. Ply .. ' ' .. ammo .. ' 5')
-			execute_command('mag ' .. Ply .. ' ' .. mag .. ' 5')
-			execute_command('battery ' .. Ply .. ' ' .. battery .. ' 5')
+            -- update ammo:
+            execute_command('ammo ' .. Ply .. ' ' .. ammo .. ' 5')
+            execute_command('mag ' .. Ply .. ' ' .. mag .. ' 5')
+            execute_command('battery ' .. Ply .. ' ' .. battery .. ' 5')
 
-			-- update grenades:
-			execute_command('nades ' .. Ply .. ' ' .. frags .. ' 1')
-			execute_command('nades ' .. Ply .. ' ' .. plasmas .. ' 2')
+            -- update grenades:
+            execute_command('nades ' .. Ply .. ' ' .. frags .. ' 1')
+            execute_command('nades ' .. Ply .. ' ' .. plasmas .. ' 2')
 
-			local str = output
-			str = str                :
-			gsub('$ammo', ammo)      :
-			gsub('$mag', mag)        :
-			gsub('$battery', battery):
-			gsub('$frags', frags)    :
-			gsub('$plasmas', plasmas)
-			rprint(Ply, str)
-		else
-			rprint(Ply, 'Insufficient Permission')
-		end
+            local str = output
+            str = str                :
+            gsub('$ammo', ammo)      :
+            gsub('$mag', mag)        :
+            gsub('$battery', battery):
+            gsub('$frags', frags)    :
+            gsub('$plasmas', plasmas)
+            rprint(Ply, str)
+        else
+            rprint(Ply, 'Insufficient Permission')
+        end
 
-		return false
-	end
+        return false
+    end
 end
 
 function OnScriptUnload()
-	-- N/A
+    -- N/A
 end
