@@ -22,8 +22,6 @@ local max_distance = 10
 api_version = '1.12.0.0'
 
 local players = {}
-local delay = 0.001
-local time = os.time
 
 function OnScriptLoad()
 
@@ -105,19 +103,19 @@ function OnTick()
         local dyn = get_dynamic_player(i)
         if (dyn ~= 0 and player_alive(i)) then
 
+            -- update old player coordinates first tick:
             if (v.get_old) then
                 v.get_old = false
 
-                -- old player coordinates:
                 local oldX, oldY, oldZ = GetXYZ(dyn)
 
                 v.pos[1][1] = oldX
                 v.pos[1][2] = oldY
                 v.pos[1][3] = oldZ
 
+                -- update current player coordinates next tick:
             elseif (not v.get_old) then
 
-                -- current player coordinates:
                 local newX, newY, newZ = GetXYZ(dyn)
 
                 v.pos[2][1] = newX
