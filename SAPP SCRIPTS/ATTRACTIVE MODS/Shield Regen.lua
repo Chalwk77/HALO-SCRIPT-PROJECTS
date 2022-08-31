@@ -16,19 +16,20 @@ api_version = "1.12.0.0"
 local delay = 0
 
 function OnScriptLoad()
-    register_callback(cb["EVENT_TICK"], "OnTick")
+    register_callback(cb['EVENT_TICK'], 'OnTick')
 end
 
 function OnTick()
     for i = 1, 16 do
         if player_present(i) and player_alive(i) then
-            local DyN = get_dynamic_player(i)
-            if (DyN ~= 0 and read_float(DyN + 0xE4) < 1) then
-                write_word(DyN + 0x104, delay)
+            local dyn = get_dynamic_player(i)
+            if (dyn ~= 0 and read_float(dyn + 0xE4) < 1) then
+                write_word(dyn + 0x104, delay)
             end
         end
     end
 end
+
 function OnScriptUnload()
     -- N/A
 end
