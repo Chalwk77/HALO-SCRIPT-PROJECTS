@@ -1,11 +1,12 @@
 --[[
 --=====================================================================================================--
 Script Name: Swat, for SAPP (PC & CE)
-Description: Players spawn with a sniper rifle and pistol, head shots only, 25 to win.
+Description: Players spawn with a sniper rifle and pistol, headshots only, 25 to win.
 
              * Other weapons & vehicles do not spawn.
              * You can use powerups (i.e, camo, os).
-             * Optional infinite ammo, bottomless clip and ability to disable grenades
+             * Optional infinite ammo, bottomless clip and ability to disable grenades.
+             * Set the default score limit.
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
