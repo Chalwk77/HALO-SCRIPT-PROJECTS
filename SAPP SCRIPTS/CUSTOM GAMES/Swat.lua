@@ -1,11 +1,11 @@
 --[[
 --=====================================================================================================--
-Script Name: Shotty-Snipes, for SAPP (PC & CE)
+Script Name: Swat, for SAPP (PC & CE)
 Description: Players spawn with a sniper rifle and pistol, head shots only, 25 to win.
 
              * Other weapons & vehicles do not spawn.
-             * You can use equipment (i.e, grenades & powerups).
-             * Optional infinite ammo and bottomless clip
+             * You can use powerups (i.e, camo, os).
+             * Optional infinite ammo, bottomless clip and ability to disable grenades
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
