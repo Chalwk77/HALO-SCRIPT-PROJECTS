@@ -138,9 +138,8 @@ end
 
 function OnTick()
     for i = 1, #players do
-        local assign = players[i]
 
-        if (player_alive(i) and assign and pistol and sniper) then
+        if (player_alive(i) and players[i] and pistol and sniper) then
 
             players[i] = false
             execute_command('wdel ' .. i)
