@@ -36,7 +36,7 @@ function OnScriptLoad()
 end
 
 local function HasPerm(Ply)
-    return (tonumber(get_var(Ply, "$lvl")) >= permission_level)
+    return (Ply == 0 and true or tonumber(get_var(Ply, "$lvl")) >= permission_level)
 end
 
 local function CMDSplit(s)
@@ -47,6 +47,10 @@ local function CMDSplit(s)
     return args
 end
 
+local function Say(Ply, Msg)
+    return (Ply == 0 and cprint(Msg) or rprint(Ply, Msg))
+end
+
 function OnCommand(Ply, CMD)
     local args = CMDSplit(CMD)
     if (args) then
@@ -55,7 +59,7 @@ function OnCommand(Ply, CMD)
         local victim = (args[2] and tonumber(args[2]:match('%d+')))
 
         if (not victim or not args[3]) then
-            rprint(Ply, 'Usage: /fc <player> <message>')
+            Say(Ply, 'Usage: /fc <player> <message>')
             return false
         elseif (cmd) then
 
@@ -70,13 +74,13 @@ function OnCommand(Ply, CMD)
                         say_all(format:gsub('$name', name):gsub('$msg', message))
                         execute_command('msg_prefix "' .. prefix .. '"')
                     else
-                        rprint(Ply, 'Usage: /fc <player> <message>')
+                        Say(Ply, 'Usage: /fc <player> <message>')
                     end
                 else
-                    rprint(Ply, 'Player #' .. victim .. ' is not online.')
+                    Say(Ply, 'Player #' .. victim .. ' is not online.')
                 end
             else
-                rprint(Ply, 'Insufficient Permission')
+                Say(Ply, 'Insufficient Permission')
             end
             return false
         end
