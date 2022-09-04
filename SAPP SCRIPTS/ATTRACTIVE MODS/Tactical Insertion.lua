@@ -99,6 +99,7 @@ function OnPreSpawn(Ply)
         local x, y, z = p.x, p.y, p.z
         local z_off = 0.1
         write_vector3d(dyn + 0x5C, x, y, z + z_off)
+        rprint(Ply, 'Teleporting to your next tac-insert...')
     end
 end
 
@@ -148,6 +149,7 @@ function OnSpawn(Ply)
     local p = players[ip]
     local str = format('You have %s tac-insert uses left for this game.', p.uses)
     rprint(Ply, str)
+    rprint(Ply, 'Use /' .. command .. ' to set your next spawn point.')
 end
 
 function OnScriptUnload()
