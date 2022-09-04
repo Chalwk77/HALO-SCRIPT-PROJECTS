@@ -7,6 +7,8 @@ Description: Force a player to say something.
              Example: /fc 1 Hello World!
              Output: Player 1 will say "Chalwk: Hello World!"
 
+             Note: For players using Chimera, fake chat messages will appear as server messages, thus will be obvious they're fake.
+
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
