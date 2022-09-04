@@ -1,231 +1,173 @@
 --[[
 --=====================================================================================================--
 Script Name: Tactical Insertion, for SAPP (PC & CE)
-Description: Set your next Spawn Point with a custom command!
-             You can only use Tac-Insert once per life.
+Description: Set your next spawn point with a custom command.
+             See config section for more.
 
-Credits to "Shoo" for the idea.
-
-Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2019-2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
-api_version = "1.12.0.0"
+-- config starts
+-- Set the command you want to use to set your next spawn point:
+-- Syntax: /ti
+--
+local command = 'ti'
+
+-- Number of uses per game:
+--
+local uses_per_game = 5
+
+-- Minimum permission level required to execute the custom command:
+-- Default: -1
+-- Valid levels: (-1 = everyone, 1-4 = admins)
+--
+local permission_level = -1
+-- config ends
+
+api_version = '1.12.0.0'
+
 local players = {}
-
--- ============== Configuration Starts ============== --
-local command = "ti"
-local permission = -1
-local on_execute = "Tac-Insert Coordinates set to X: %x%, Y: %y%, Z: %z%"
-
--- If true, the script will broadcast a global message announcing that the player has used a Tac-Insert
--- The player executing the command wont see this message.
-local broadcast = true
-local broadcast_message = "%name% used a Tac-Insert"
--- ============== Configuration Ends ============== --
-
--- Variables for String Library:
-local gsub = string.gsub
 local format = string.format
-local gmatch = string.gmatch
-local lower, upper = string.lower, string.upper
-
--- Game Variables:
-local game_over
 
 function OnScriptLoad()
+    register_callback(cb['EVENT_JOIN'], 'OnJoin')
+    register_callback(cb['EVENT_LEAVE'], 'OnQuit')
+    register_callback(cb['EVENT_COMMAND'], 'OnCommand')
+    register_callback(cb['EVENT_PRESPAWN'], 'OnPreSpawn')
+    register_callback(cb['EVENT_GAME_START'], 'OnStart')
+    OnStart()
+end
 
-    -- Register needed event callbacks:
-    register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
-    register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPrespawn")
-    register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
-    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
-    register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
-    register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
+function OnStart()
+    if (get_var(0, '$gt') ~= 'n/a') then
+        players = { }
 
-    if (get_var(0, "$gt") ~= "n/a") then
-        players, game_over = {}, false
         for i = 1, 16 do
             if player_present(i) then
-                initPlayer(i, true)
+                OnJoin()
             end
         end
     end
 end
 
-function OnGameStart()
-    if (get_var(0, "$gt") ~= "n/a") then
-        players, game_over = {}, false
+-- Creates an iterable cache of player data:
+-- (player_id, { uses = 0, spawn = nil })
+function OnJoin(Ply)
+    players[Ply] = {
+        teleport = false,
+        uses = uses_per_game,
+        x = 0,
+        y = 0,
+        z = 0
+    }
+end
+
+-- Called when a player quits the server:
+--
+function OnQuit(Ply)
+    players[Ply] = nil
+end
+
+-- Returns a table of strings:
+--
+local function CMDSplit(s)
+    local args = {}
+
+    for arg in s:gmatch('([^%s]+)') do
+        args[#args + 1] = arg:lower()
     end
-end
 
-function OnGameEnd()
-    game_over = true
-end
-
-function OnPlayerConnect(p)
-    initPlayer(p, true)
-end
-
-function OnPlayerDisconnect(p)
-    initPlayer(p, false)
-end
-
-function OnPlayerPrespawn(PlayerIndex)
-    local insertion = players[PlayerIndex]
-    insertion.expired = false
-
-    if (insertion.trigger) then
-        local player_object = get_dynamic_player(PlayerIndex)
-        if (player_object ~= 0) then
-            insertion.trigger = false
-            local x, y, z, zOffset = insertion.x, insertion.y, insertion.z, 0.3
-            write_vector3d(player_object + 0x5C, x, y, z + zOffset)
-        end
-    end
-end
-
-function OnServerCommand(PlayerIndex, Command, Environment, Password)
-    local args = StringSplit(Command)
-    local executor = tonumber(PlayerIndex)
-
-    if (args[1] == nil) then
-        return
-    end
-    local cmd = lower(args[1]) or upper(args[1])
-
-    if (cmd == command) then
-        if not isGameOver(executor) then
-            if checkAccess(executor) then
-                if (args[2] == nil) then
-                    if player_alive(executor) then
-                        local player_object = get_dynamic_player(executor)
-                        if (player_object ~= 0) then
-                            local coords = getXYZ(executor, player_object)
-                            if (coords) then
-                                local insertion = players[executor]
-                                if (not insertion.expired) then
-                                    insertion.expired = true
-                                    insertion.x = coords.x
-                                    insertion.y = coords.y
-                                    insertion.z = coords.z
-                                    local x = format("%0.3f", coords.x)
-                                    local y = format("%0.3f", coords.y)
-                                    local z = format("%0.3f", coords.z)
-                                    Respond(executor, gsub(gsub(gsub(on_execute, "%%x%%", x), "%%y%%", y), "%%z%%", z), "rcon")
-                                    if (broadcast) then
-                                        for i = 1, 16 do
-                                            if player_present(i) then
-                                                if (i ~= executor) then
-                                                    Respond(i, gsub(broadcast_message, "%%name%%", insertion.name), "chat")
-                                                end
-                                            end
-                                        end
-                                    end
-                                    insertion.trigger = true
-                                else
-                                    Respond(executor, "You have already used Tac-Insert for this life.", "rcon")
-                                end
-                            end
-                        end
-                    else
-                        Respond(executor, "You must be alive to execute this command", "rcon")
-                    end
-                else
-                    Respond(executor, "Invalid Syntax. Usage: /" .. command, "rcon")
-                end
-            end
-        end
-        return false
-    end
-end
-
-function isGameOver(p)
-    if (game_over) then
-        Respond(p, "Please wait until the next game has started.", "rcon")
-        return true
-    end
-    return false
-end
-
-function Respond(p, msg, environment)
-    if not isConsole(p) then
-        environment = environment or "rcon"
-        if (environment == "rcon") then
-            rprint(p, msg)
-        else
-            say(p, msg)
-        end
-    else
-        cprint(msg, 4 + 8)
-    end
-end
-
-function isConsole(p)
-    if (p ~= -1 and p >= 1 and p < 16) then
-        return false
-    else
-        return true
-    end
-end
-
-function checkAccess(p)
-    if not isConsole(p) then
-        local level = tonumber(get_var(p, "$lvl"))
-        if (level >= permission) then
-            return true
-        end
-    else
-        Respond(p, "Server cannot execute this command")
-    end
-end
-
-function initPlayer(PlayerIndex, Init)
-    if (Init) then
-        players[PlayerIndex] = {
-            x = 0,
-            y = 0,
-            z = 0,
-            expired = false,
-            trigger = false,
-            name = get_var(PlayerIndex, "$name"),
-        }
-    else
-        players[PlayerIndex] = nil
-    end
-end
-
-function getXYZ(PlayerIndex, PlayerObject)
-    local coords, x, y, z = { }
-    if player_alive(PlayerIndex) then
-        local VehicleID = read_dword(PlayerObject + 0x11C)
-        if (VehicleID == 0xFFFFFFFF) then
-            coords.invehicle = false
-            x, y, z = read_vector3d(PlayerObject + 0x5c)
-        else
-            coords.invehicle = true
-            x, y, z = read_vector3d(get_object_memory(VehicleID) + 0x5c)
-        end
-        coords.x, coords.y, coords.z = x, y, z
-    end
-    return coords
-end
-
-function OnScriptUnload()
-    --
-end
-
-function StringSplit(InputString, Seperator)
-    if Seperator == nil then
-        Seperator = "%s"
-    end
-    local args = { };
-    local i = 1
-    for str in gmatch(InputString, "([^" .. Seperator .. "]+)") do
-        args[i] = str
-        i = i + 1
-    end
     return args
+end
+
+
+-- Retrieves a player's map coordinates and
+-- returns 3x 32 bit floating point numbers
+--
+local function GetXYZ(Ply)
+    local x, y, z
+
+    local dyn = get_dynamic_player(Ply)
+    if (dyn ~= 0) then
+        local vehicle = read_dword(dyn + 0x11C)
+        local object = get_object_memory(vehicle)
+        if (vehicle == 0xFFFFFFFF) then
+            x, y, z = read_vector3d(dyn + 0x5C)
+        else
+            x, y, z = read_vector3d(object + 0x5c)
+        end
+    end
+    return x, y, z
+end
+
+-- STAR OF THE SHOW:
+-- Called when a player is respawning.
+--
+function OnPreSpawn(Ply)
+    local dyn = get_dynamic_player(Ply)
+    local p = players[Ply]
+    if (dyn ~= 0 and p.teleport) then
+        p.teleport = false
+        local x, y, z = p.x, p.y, p.z
+        local z_off = 0.3
+        write_vector3d(dyn + 0x5C, x, y, z + z_off)
+    end
+end
+
+local function HasPermission(Ply)
+    local lvl = tonumber(get_var(Ply, '$lvl'))
+    return (lvl >= permission_level)
+end
+
+-- Our custom command handler:
+--
+function OnCommand(Ply, CMD)
+    local args = CMDSplit(CMD)
+
+    if (args and CMD:sub(1, command:len()):lower() == command) then
+
+        if HasPermission(Ply) then
+            if player_alive(Ply) then
+
+                local p = players[Ply]
+                if (p.uses <= 0) then
+                    rprint(Ply, "You have no more uses left for this game.")
+                    return false
+                end
+
+                p.uses = p.uses - 1
+                local x, y, z = GetXYZ(Ply)
+                players[Ply] = {
+                    teleport = true,
+                    uses = p.uses,
+                    x = x,
+                    y = y,
+                    z = z
+                }
+
+                local str = string.format("You have %s uses left for this game.", p.uses)
+                x = format('%.2f', x)
+                y = format('%.2f', y)
+                z = format('%.2f', z)
+                rprint(Ply, 'Tac-Inset set to ' .. x .. ', ' .. y .. ', ' .. z .. '.')
+                rprint(Ply, str)
+            else
+                rprint(Ply, 'Command failed. You are not alive.')
+            end
+        else
+            rprint(Ply, 'Command failed. You do not have permission to use this command')
+        end
+
+        return false
+    end
+end
+
+-- Although not used in this script,
+-- without it, SAPP will throw an error.
+--
+function OnScriptUnload()
+    -- N/A
 end
