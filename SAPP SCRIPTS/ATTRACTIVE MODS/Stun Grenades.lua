@@ -1,7 +1,14 @@
 --[[
 --=====================================================================================================--
 Script Name: Stun Grenades, for SAPP (PC & CE)
-Description: Make frags and plasmas behave like stun grenades
+Description: Make frags and plasmas behave like stun grenades.
+
+			 When someone is damaged by a grenade,
+			 their speed is reduced to 0.5% for 5-10 seconds (depending on damage type).
+
+			 Plasma explosion  = 5 seconds
+			 Plasma sticky     = 10 seconds
+			 Frag explosion    = 5 seconds
 
 Copyright (c) 2019-2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
