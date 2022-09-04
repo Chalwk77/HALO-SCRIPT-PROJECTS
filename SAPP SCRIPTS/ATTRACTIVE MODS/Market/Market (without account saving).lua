@@ -181,6 +181,7 @@ function Account:new(t)
     t.meta_id = 0
     t.god = false
     t.damage_multiplier = 1
+
     return t
 end
 
@@ -290,95 +291,96 @@ local function HasPermission(t)
     return (l >= t.required_level or t:respond("Insufficient Permission") and false)
 end
 
-function OnCommand(Ply, CMD, _, _)
+local function CMDSplit(s)
+    local args = { }
+    for word in gmatch(s, '([^%s]+)') do
+        args[#args + 1] = word:lower()
+    end
+    return args
+end
 
-    if (Ply > 0) then
+function OnCommand(Ply, CMD)
 
-        local args = { }
-        for arg in gmatch(CMD, '([^%s]+)') do
-            args[#args + 1] = lower(arg)
+    local args = CMDSplit(CMD)
+    if (Ply > 0 and args) then
+
+        local t = players[Ply]
+        if (args[1] == t.get_balance_command) then
+            t:respond("You have $" .. t.balance)
+            return false
+        elseif (args[1] == t.add_funds_command or args[1] == t.remove_funds_command) then
+            if HasPermission(t) then
+                local p = players[tonumber(args[2])]
+                if not player_present(args[2]) then
+                    t:respond("Player #" .. args[2] .. " is not online.")
+                elseif (not args[2] or not match(args[2], '%d+')) then
+                    t:respond("Invalid Command syntax. Usage: /" .. args[1] .. " <pid> <amount>")
+                elseif (not args[3] or not match(args[3], '%d+')) then
+                    t:respond("Invalid amount")
+                elseif (args[1] == t.add_funds_command) then
+                    p.balance = p.balance + args[3]
+                    t:respond(gsub(gsub(t.on_add, '$amount', args[3]), '$name', p.name))
+                elseif (args[1] == t.remove_funds_command) then
+                    p.balance = p.balance - args[3]
+                    t:respond(gsub(gsub(t.on_remove, '$amount', args[3]), '$name', p.name))
+                end
+            end
+            return false
         end
 
-        if (#args > 0) then
+        local response = true
+        for cmd, perk in pairs(t.buy_commands) do
 
-            local t = players[Ply]
-            if (args[1] == t.get_balance_command) then
-                t:respond("You have $" .. t.balance)
-                return false
-            elseif (args[1] == t.add_funds_command or args[1] == t.remove_funds_command) then
-                if HasPermission(t) then
-                    local p = players[tonumber(args[2])]
-                    if not player_present(args[2]) then
-                        t:respond("Player #" .. args[2] .. " is not online.")
-                    elseif (not args[2] or not match(args[2], '%d+')) then
-                        t:respond("Invalid Command syntax. Usage: /" .. args[1] .. " <pid> <amount>")
-                    elseif (not args[3] or not match(args[3], '%d+')) then
-                        t:respond("Invalid amount")
-                    elseif (args[1] == t.add_funds_command) then
-                        p.balance = p.balance + args[3]
-                        t:respond(gsub(gsub(t.on_add, '$amount', args[3]), '$name', p.name))
-                    elseif (args[1] == t.remove_funds_command) then
-                        p.balance = p.balance - args[3]
-                        t:respond(gsub(gsub(t.on_remove, '$amount', args[3]), '$name', p.name))
-                    end
-                end
-                return false
-            end
+            local sapp_command = perk[1]
+            local cost = perk[3]
+            local command = perk[2]
+            local duration = perk[4] -- or extra data (like damage multiplier number)
+            local cooldown = perk[#perk - 1]
+            local catalogue_message = perk[#perk]
 
-            local response = true
-            for cmd, perk in pairs(t.buy_commands) do
-
-                local sapp_command = perk[1]
-                local cost = perk[3]
-                local command = perk[2]
-                local duration = perk[4] -- or extra data (like damage multiplier number)
-                local cooldown = perk[#perk - 1]
-                local catalogue_message = perk[#perk]
-
-                if (args[1] == t.catalogue_command) then
-                    t:respond('/' .. command .. " " .. catalogue_message)
-                    response = false
-                elseif (args[1] == command) then
-                    if player_alive(Ply) then
-                        if (cost == 0) then
-                            t:respond("Command disabled")
-                        elseif (perk.cooldown_start) then
-                            local time_remaining = perk.cooldown_finish - perk.cooldown_time()
-                            t:respond("Command on cooldown")
-                            t:respond("Please wait " .. time_remaining .. " second" .. Plural(time_remaining))
-                        elseif (t.balance >= cost) then
-                            t:respond(catalogue_message)
-                            t:withdraw({ cost })
-                            if (cmd == "DAMAGE") then
-                                t.damage_time = time
-                                t.damage_multiplier = perk[4]
-                                t.damage_finish = time() + perk[5]
-                            elseif (cmd == 'GOD') then
-                                t.god = true
-                                t.god_time = time
-                                t.god_finish = time() + duration
-                                execute_command(sapp_command .. ' ' .. t.pid)
-                            elseif (cmd == 'TELEPORT') then
-                                execute_command(sapp_command .. ' ' .. t.pid)
-                            else
-                                execute_command(sapp_command .. ' ' .. t.pid .. ' ' .. duration)
-                            end
-                            perk.cooldown_time = time
-                            perk.cooldown_start = true
-                            perk.cooldown_finish = time() + cooldown
+            if (args[1] == t.catalogue_command) then
+                t:respond('/' .. command .. " " .. catalogue_message)
+                response = false
+            elseif (args[1] == command) then
+                if player_alive(Ply) then
+                    if (cost == 0) then
+                        t:respond("Command disabled")
+                    elseif (perk.cooldown_start) then
+                        local time_remaining = perk.cooldown_finish - perk.cooldown_time()
+                        t:respond("Command on cooldown")
+                        t:respond("Please wait " .. time_remaining .. " second" .. Plural(time_remaining))
+                    elseif (t.balance >= cost) then
+                        t:respond(catalogue_message)
+                        t:withdraw({ cost })
+                        if (cmd == "DAMAGE") then
+                            t.damage_time = time
+                            t.damage_multiplier = perk[4]
+                            t.damage_finish = time() + perk[5]
+                        elseif (cmd == 'GOD') then
+                            t.god = true
+                            t.god_time = time
+                            t.god_finish = time() + duration
+                            execute_command(sapp_command .. ' ' .. t.pid)
+                        elseif (cmd == 'TELEPORT') then
+                            execute_command(sapp_command .. ' ' .. t.pid)
                         else
-                            t:respond("You do not have enough money!")
-                            t:respond("You need $" .. cost - t.balance)
+                            execute_command(sapp_command .. ' ' .. t.pid .. ' ' .. duration)
                         end
+                        perk.cooldown_time = time
+                        perk.cooldown_start = true
+                        perk.cooldown_finish = time() + cooldown
                     else
-                        t:respond("Please wait until you respawn")
+                        t:respond("You do not have enough money!")
+                        t:respond("You need $" .. cost - t.balance)
                     end
-                    return false
+                else
+                    t:respond("Please wait until you respawn")
                 end
+                return false
             end
-
-            return response
         end
+
+        return response
     end
 end
 
