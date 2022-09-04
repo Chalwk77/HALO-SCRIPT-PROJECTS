@@ -25,6 +25,7 @@ local players = {}
 local format = string.format
 
 function OnScriptLoad()
+    register_callback(cb['EVENT_DIE'], 'OnDeath')
     register_callback(cb['EVENT_JOIN'], 'OnJoin')
     register_callback(cb['EVENT_SPAWN'], 'OnSpawn')
     register_callback(cb['EVENT_COMMAND'], 'OnCommand')
@@ -99,7 +100,6 @@ function OnPreSpawn(Ply)
         local x, y, z = p.x, p.y, p.z
         local z_off = 0.1
         write_vector3d(dyn + 0x5C, x, y, z + z_off)
-        rprint(Ply, 'Teleporting to your next tac-insert...')
     end
 end
 
@@ -141,6 +141,14 @@ function OnCommand(Ply, CMD)
         end
 
         return false
+    end
+end
+
+function OnDeath(Victim)
+    local ip = GetIP(Victim)
+    local p = players[ip]
+    if (p.teleport) then
+        rprint(Victim, 'You will spawn at your Tac-Inset point.')
     end
 end
 
