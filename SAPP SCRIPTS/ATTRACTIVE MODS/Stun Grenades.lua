@@ -1,116 +1,100 @@
 --[[
 --=====================================================================================================--
 Script Name: Stun Grenades, for SAPP (PC & CE)
-Description: Make frags behave like Stun Grenades
+Description: Make frags and plasmas behave like stun grenades
 
-Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2019-2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
-api_version = "1.12.0.0"
-local players = {}
-
--- Configuration Starts --
 local tags = {
-    -- Tag | Stun Time | Stun Percent | Enabled/Disabled
-    { "weapons\\frag grenade\\explosion", 5, 0.5, true },
-    { "weapons\\plasma grenade\\explosion", 5, 0.5, true },
-    { "weapons\\plasma grenade\\attached", 10, 0.5, true },
+
+    -- format:
+    -- {tag name, stun time, stun percent}
+    { 'weapons\\frag grenade\\explosion', 5, 0.5 },
+    { 'weapons\\plasma grenade\\explosion', 5, 0.5 },
+    { 'weapons\\plasma grenade\\attached', 10, 0.5 },
 }
--- Configuration Ends --
 
-local delta_time = 0.03333333333333333
-local floor = math.floor
+api_version = '1.12.0.0'
 
-function OnScriptLoad()
-    register_callback(cb["EVENT_TICK"], "OnTick")
-    register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
-    register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
-    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
-    register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
-    register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
-    if (get_var(0, "$gt") ~= "n/a") then
-        players = {}
-        for i = 1, 16 do
-            if player_present(i) then
-                initPlayer(i, true)
-            end
+local stuns = {}
+local players = {}
+local time = os.time
+
+local function GetTag(Class, Name)
+    local tag = lookup_tag(Class, Name)
+    return (tag ~= 0 and read_dword(tag + 0xC) or 0)
+end
+
+local function TagsToID()
+    local t = {}
+
+    for i = 1, #tags do
+
+        local v = tags[i]
+        local name = v[1]
+        local tag = GetTag('jpt!', name)
+
+        if (tag ~= 0) then
+            t[tag] = { v[2], v[3] }
         end
     end
+
+    return t
 end
 
-function OnGameStart()
-    if (get_var(0, "$gt") ~= "n/a") then
-        players = {}
+function OnScriptLoad()
+    register_callback(cb['EVENT_TICK'], 'OnTick')
+    register_callback(cb['EVENT_GAME_START'], 'OnStart')
+    register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamage")
+    OnStart()
+end
+
+function OnStart()
+    if (get_var(0, '$gt') ~= 'n/a') then
+        players = { }
+        stuns = TagsToID()
     end
-end
-
-function OnPlayerSpawn(PlayerIndex)
-    initPlayer(PlayerIndex, true)
 end
 
 function OnTick()
     for i, player in pairs(players) do
-        if player_alive(i) then
-            if (player.stunned) then
-                player.timer = player.timer + delta_time
-                local timeRemaining = player.stun_duration - floor(player.timer % 60)
-                execute_command("s " .. i .. " " .. player.stun_percent)
-                if (timeRemaining <= 0) then
-                    initPlayer(i, true)
-                    execute_command("s " .. i .. " 1")
-                end
+        if (i) and player_alive(i) then
+            if (player.start() < player.finish) then
+                execute_command('s ' .. i .. ' ' .. player.stun_percent)
+            else
+                execute_command('s ' .. i .. ' 1')
+                players[i] = nil
             end
+        elseif (i) and (not player_alive(i)) then
+            players[i] = nil
         end
     end
 end
 
-function OnPlayerConnect(PlayerIndex)
-    initPlayer(PlayerIndex, true)
-end
+function OnDamage(Victim, Killer, MetaID)
 
-function OnPlayerDisconnect(PlayerIndex)
-    initPlayer(PlayerIndex, false)
+    local victim = tonumber(Victim)
+    local killer = tonumber(Killer)
+
+    local pvp = (killer > 0 and victim ~= killer)
+
+    if (pvp and stuns[MetaID]) then
+
+        local stun_time = stuns[MetaID][1]
+        local stun_percent = stuns[MetaID][2]
+
+        players[victim] = {
+            start = time,
+            finish = time() + stun_time,
+            stun_percent = stun_percent,
+        }
+    end
 end
 
 function OnScriptUnload()
-    --
-end
-
-function initPlayer(PlayerIndex, Init)
-    if (Init) then
-        players[PlayerIndex] = {
-            stunned = false,
-            timer = 0,
-            stun_percent = 0,
-            stun_duration = 0,
-        }
-    else
-        players[PlayerIndex] = nil
-    end
-end
-
-function OnDamageApplication(VictimIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
-    if (tonumber(CauserIndex) > 0 and VictimIndex ~= CauserIndex) then
-        for _, Table in pairs(tags) do
-            if (Table[4] and MetaID == GetTag("jpt!", Table[1])) then
-                for i, player in pairs(players) do
-                    if (i == VictimIndex) then
-                        if player_alive(VictimIndex) then
-                            player.stunned, player.timer = true, 0
-                            player.stun_duration, player.stun_percent = Table[2], Table[3]
-                            return true
-                        end
-                    end
-                end
-            end
-        end
-    end
-end
-
-function GetTag(obj_type, obj_name)
-    local tag = lookup_tag(obj_type, obj_name)
-    return tag ~= 0 and read_dword(tag + 0xC) or nil
+    -- N/A
 end
