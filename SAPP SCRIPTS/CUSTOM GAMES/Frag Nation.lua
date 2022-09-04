@@ -1,72 +1,81 @@
 --[[
 --=====================================================================================================--
 Script Name: Frag Nation, for SAPP (PC & CE)
-Description: Frag Nation is a grenade only mini-game.
+Description: Frag Nation is a grenade mini-game.
+
 			 Each player is given two of each grenade and an empty plasma pistol.
-			 Every time you kill a player (with a grenade), you will be rewarded with a grenade(s).
+			 Every time you kill a player (with a grenade), you will be rewarded with a grenade.
 			 If you have no grenades, you will be limited to melee-combat.
 
-Features:
+			 Features:
+			 - Set the number of kills required to win the game.
+			 - Set the number number of grenades each player starts with.
+			 - Set the number of grenades each player is rewarded with for each kill.
+			 - Define the players primary weapon (Default: Empty plasma pistol)
+			   Without a weapon, you cannot throw grenades!
+			 - Set the starting ammo for the players primary weapon.
+			 - Enable or disable object interaction for weapons, vehicles and equipment.
 
-	* Set the number of starting grenades (on spawn)
-	* Define primary weapon (default: plasma pistol)
-	* Change ammo, mag & battery for the primary weapon (no ammo by default)
-	* Prevent interaction with map objects (weapons, vehicles, equipment)
-	* Prevent map objects from spawning at all (weapons, vehicles, equipment)
-	* Optional kill message: i.e, "+2 frags, +1 plasma"
-	* Grenade Bonuses (per kill):
-		- frag explosion (+1)
-		- plasma explosion (+1)
-		- sticky plasma (+2)
+			 [!] NOTE [!]
+			 This script is intended for use on STOCK maps only.
 
-Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2021-2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
-api_version = "1.12.0.0"
+-- config starts --
 
--- config beings --
 local FragNation = {
 
-    -- Number of {frags, plasmas} on spawn:
+    -- Number of kills to win:
+    -- (Default: 25)
+    --
+    scorelimit = 25,
+
+    -- Number of grenades (frags, plasmas, etc.) to give each player:
+    -- Default: 2 of each
     --
     starting_grenades = { 2, 2 },
 
-
     -- Grenades rewarded per kill:
-    -- {amount, message} (leave the message blank "" to disable it)
     --
-    grenades_on_kill = {
-        { 1, "+1 frag" }, -- frag explosion
-        { 1, "+1 plasma" }, -- plasma explosion
-        { 2, "+2 plasmas" } -- plasmas (sticky)
+    rewards = {
+
+        --
+        -- Format: {amount, output message}
+        --
+
+        -- Frag explosion:
+        { 1, '+1 Frag' },
+
+        -- Plasma Explosion:
+        { 1, '+1 Plasma' },
+
+        -- Plasma (sticky):
+        { 2, '+2 Plasmas' },
     },
 
-
-    -- Primary weapon:
+    -- Tag name of the primary weapon:
     --
     primary_weapon = 'weapons\\plasma pistol\\plasma pistol',
 
-
-    -- ammo settings for primary weapon:
+    -- Starting ammo for primary weapon:
+    -- {loaded (ammo), unloaded (mag), battery (plasma weapons)}
     --
-    battery = 0,
-    ammo = 0,
-    mag = 0,
+    ammo = {
+        0,
+        0,
+        0
+    },
 
+    map_objects = {
 
-    -- If an object tag (listed below) is false, should we prevent it from spawning?
-    --
-    remove_map_objects = true,
+        --
+        -- Format: {tag class, tag name, enabled/disabled}
+        --
 
-
-    -- Game objects that will be disabled:
-    --
-    objects = {
-
-        -- { tag type, tag name, enabled/disabled (enabled = true, disabled = false)}
         -- weapons:
         --
         { 'weap', 'weapons\\pistol\\pistol', false },
@@ -76,11 +85,10 @@ local FragNation = {
         { 'weap', 'weapons\\plasma rifle\\plasma rifle', false },
         { 'weap', 'weapons\\sniper rifle\\sniper rifle', false },
         { 'weap', 'weapons\\assault rifle\\assault rifle', false },
-        { 'weap', 'weapons\\plasma pistol\\plasma pistol', true }, -- primary weapon
+        { 'weap', 'weapons\\plasma pistol\\plasma pistol', true }, -- primary weapon (do not disable)
         { 'weap', 'weapons\\plasma_cannon\\plasma_cannon', false },
         { 'weap', 'weapons\\rocket launcher\\rocket launcher', false },
 
-        -- { tag type, tag name, enabled/disabled (enabled = true, disabled = false)}
         -- vehicles:
         --
         { 'weap', 'vehicles\\ghost\\ghost_mp', false },
@@ -90,225 +98,180 @@ local FragNation = {
         { 'weap', 'vehicles\\scorpion\\scorpion_mp', false },
         { 'weap', 'vehicles\\c gun turret\\c gun turret_mp', false },
 
-        -- { tag type, tag name, enabled/disabled (enabled = true, disabled = false)}
         -- equipment:
         --
-        { "eqip", "powerups\\health pack", "Health Pack", true },
-        { "eqip", "powerups\\active camouflage", "Camouflage", true },
-        { "eqip", "powerups\\over shield", "Over Shield", true },
-        { "eqip", "weapons\\frag grenade\\frag grenade", true },
-        { "eqip", "weapons\\plasma grenade\\plasma grenade", true },
+        { 'eqip', 'powerups\\health pack', 'Health Pack', true },
+        { 'eqip', 'powerups\\active camouflage', 'Camouflage', true },
+        { 'eqip', 'powerups\\over shield', 'Over Shield', true },
+        { 'eqip', 'weapons\\frag grenade\\frag grenade', true },
+        { 'eqip', 'weapons\\plasma grenade\\plasma grenade', true },
     }
 }
 
 -- config ends --
 
+local players = {}
+
+local primary_weapon
+
+local frag_grenade
+local plasma_grenade
+local plasma_grenade_sticky
+
+api_version = '1.12.0.0'
+
 function OnScriptLoad()
-
-    -- Register needed event callbacks:
-    --
-    register_callback(cb["EVENT_DIE"], "OnDeath")
-    register_callback(cb["EVENT_TICK"], "OnTick")
-
-    register_callback(cb["EVENT_SPAWN"], "OnSpawn")
-    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
-
-    register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
-    register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
-
-    register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDamage")
-
-    if (FragNation.remove_map_objects) then
-        register_callback(cb["EVENT_OBJECT_SPAWN"], "OnObjectSpawn")
-    end
-
-    OnGameStart()
+    register_callback(cb['EVENT_TICK'], 'OnTick')
+    register_callback(cb['EVENT_JOIN'], 'OnJoin')
+    register_callback(cb['EVENT_LEAVE'], 'OnQuit')
+    register_callback(cb['EVENT_DIE'], 'DamageHandler')
+    register_callback(cb['EVENT_GAME_START'], 'OnStart')
+    register_callback(cb['EVENT_DAMAGE_APPLICATION'], 'DamageHandler')
+    OnStart()
 end
 
--- Credits to Kavawuvi for this function:
---
 local function GetTag(Class, Name)
-    local address = read_dword(0x40440000)
-    for i = 0, read_word(0x4044000C) - 1 do
-        local tag = address + i * 0x20
-        local class = string.reverse(string.sub(read_string(tag), 1, 4))
-        if (class == Class) then
-            if (read_string(read_dword(tag + 0x10)) == Name) then
-                return read_dword(tag + 0xC)
-            end
+    local tag = lookup_tag(Class, Name)
+    return (tag ~= 0 and read_dword(tag + 0xC)) or nil
+end
+
+function FragNation:InitGameObjects()
+
+    for _, v in pairs(self.map_objects) do
+        local name = v[2]
+        local enabled = v[3]
+        if (not enabled) then
+            execute_command('disable_object "' .. name .. '"')
         end
     end
-    return nil
+
+    primary_weapon = GetTag('weap', self.primary_weapon)
+    frag_grenade = GetTag('jpt!', 'weapons\\frag grenade\\explosion')
+    plasma_grenade = GetTag('jpt!', 'weapons\\plasma grenade\\explosion')
+    plasma_grenade_sticky = GetTag('jpt!', 'weapons\\plasma grenade\\attached')
 end
 
-function OnGameStart()
-    if (get_var(0, "$gt") ~= "n/a") then
+function FragNation:SetAmmo(dyn)
 
-        FragNation.players = { }
+    local p = self.id
+    local ammo = self.ammo[1]
+    local mag = self.ammo[2]
+    local battery = self.ammo[3]
+    local frags = self.starting_grenades[1]
+    local plasmas = self.starting_grenades[2]
+
+    execute_command('ammo ' .. p .. ' ' .. ammo .. ' 5')
+    execute_command('mag ' .. p .. ' ' .. mag .. ' 5')
+    execute_command('battery ' .. p .. ' ' .. battery .. ' 5')
+
+    self:UpdateNades(dyn, 1, frags)
+    self:UpdateNades(dyn, 2, plasmas)
+
+    rprint(self.id, 'You have been assigned a plasma pistol.')
+end
+
+function FragNation:UpdateNades(dyn, type, amount)
+    write_byte(dyn + (type == 1 and 0x31E or 0x31F), amount)
+end
+
+function FragNation:NewPlayer(o)
+
+    setmetatable(o, self)
+    self.__index = self
+
+    o.assign = true
+    o.meta_id = 0
+
+    return o
+end
+
+function OnStart()
+
+    if (get_var(0, '$gt') ~= 'n/a') then
+
+        players = { }
 
         for i = 1, 16 do
             if player_present(i) then
-                FragNation:InitPlayer(i, false)
+                OnJoin(i)
             end
         end
 
-        -- disable game objects:
-        --
-        for _, v in pairs(FragNation.objects) do
-            if not v[3] and GetTag(v[1], v[2]) then
-                execute_command("disable_object '" .. v[2] .. "'")
-            end
-        end
+        FragNation:InitGameObjects()
     end
-end
-
-local function GetXYZ(Ply)
-    local pos = { }
-    local DyN = get_dynamic_player(Ply)
-    if (DyN ~= 0) then
-        local vehicle = read_dword(DyN + 0x11C)
-        if (vehicle == 0xFFFFFFFF) then
-            pos.x, pos.y, pos.z = read_vector3d(DyN + 0x5c)
-        end
-    end
-    return pos
-end
-
-local function SetGrenades(Ply, Type, Amount)
-    if (Type == 1) then
-        execute_command("nades " .. Ply .. " " .. Amount)
-    elseif (Type == 2) then
-        execute_command("plasmas " .. Ply .. " " .. Amount)
-    end
-end
-
-function FragNation:GameTick()
-    for i, v in pairs(self.players) do
-        if player_alive(i) then
-            local pos = GetXYZ(i)
-            if (pos and v.assign) then
-                v.assign = false
-
-                execute_command("wdel " .. i)
-                assign_weapon(spawn_object("weap", self.primary_weapon, pos.x, pos.y, pos.z), i)
-
-                execute_command_sequence("w8 1;ammo " .. i .. " " .. self.ammo)
-                execute_command_sequence("w8 1;mag " .. i .. " " .. self.mag)
-                execute_command_sequence("w8 1;battery " .. i .. " " .. self.battery)
-
-                SetGrenades(i, 1, self.starting_grenades[1])
-                SetGrenades(i, 2, self.starting_grenades[2])
-            end
-        end
-    end
-end
-
-local function SendText(Ply, Str)
-    if (Str ~= "") then
-        rprint(Ply, Str)
-    end
-end
-
-function FragNation:OnDeath(Victim, Killer)
-    local v, k = tonumber(Victim), tonumber(Killer)
-    if (k > 0 and k ~= v) then
-
-        local DyN = get_dynamic_player(k)
-        if (DyN ~= 0 and self.players[k]) then
-
-            local MetaID = self.players[k].metaid
-            local frags = tonumber(read_byte(DyN + 0x31E))
-            local plasmas = tonumber(read_byte(DyN + 0x31F))
-
-            -- frag explosion:
-            --
-            if MetaID == GetTag("jpt!", "weapons\\frag grenade\\explosion") then
-
-                frags = frags + self.grenades_on_kill[1][1]
-                local str = self.grenades_on_kill[1][2]
-
-                SetGrenades(k, 1, frags)
-                SendText(k, str)
-
-
-                -- plasma explosion:
-                --
-            elseif MetaID == GetTag("jpt!", "weapons\\plasma grenade\\explosion") then
-
-                plasmas = plasmas + self.grenades_on_kill[2][1]
-                local str = self.grenades_on_kill[2][2]
-
-                SetGrenades(k, 1, plasmas)
-                SendText(k, str)
-
-
-                -- plasma (sticky):
-                --
-            elseif MetaID == GetTag("jpt!", "weapons\\plasma grenade\\attached") then
-
-                plasmas = plasmas + self.grenades_on_kill[3][1]
-                local str = self.grenades_on_kill[3][2]
-
-                SetGrenades(k, 1, plasmas)
-                SendText(k, str)
-            end
-
-            self.players[k].metaid = 0
-        end
-    end
-end
-
-function FragNation:InitPlayer(Ply, Reset)
-
-    if (not Reset) then
-        self.players[Ply] = { metaid = 0, assign = false }
-        return
-    end
-
-    self.players[Ply] = nil
-end
-
-function OnObjectSpawn(Ply, MID)
-    if (Ply == 0) then
-        for _, v in pairs(FragNation.objects) do
-            if (MID == GetTag(v[1], v[2]) and not v[3]) then
-                return false
-            end
-        end
-    end
-end
-
-function OnDamage(Victim, Causer, MetaID, _, _)
-    local v, k = tonumber(Victim), tonumber(Causer)
-    if (k > 0 and k ~= v) then
-        FragNation.players[Causer].metaid = MetaID
-    end
-end
-
-function OnPlayerConnect(Ply)
-    FragNation:InitPlayer(Ply, false)
-end
-
-function OnPlayerDisconnect(Ply)
-    FragNation:InitPlayer(Ply, true)
-end
-
-function OnSpawn(Ply)
-    FragNation.players[Ply].metaid = 0
-    FragNation.players[Ply].assign = true
 end
 
 function OnTick()
-    return FragNation:GameTick()
+    for i, v in pairs(players) do
+
+        local dyn = get_dynamic_player(i)
+
+        if (player_present(i) and player_alive(i) and v.assign and dyn ~= 0) then
+
+            v.assign = false
+
+            execute_command('wdel ' .. i)
+            assign_weapon(spawn_object('', '', 0, 0, 0, 0, primary_weapon), i)
+
+            v:SetAmmo(dyn)
+
+        end
+    end
 end
 
-function OnDeath(V, K)
-    return FragNation:OnDeath(V, K)
+function OnJoin(Ply)
+    players[Ply] = FragNation:NewPlayer({
+        id = Ply
+    })
+end
+
+function OnQuit(Ply)
+    players[Ply] = nil
+end
+
+function DamageHandler(Victim, Killer, MetaID)
+
+    local killer = tonumber(Killer)
+    local victim = tonumber(Victim)
+
+    local k = players[killer]
+    local pvp = (k and killer > 0 and killer ~= victim)
+
+    if (MetaID and pvp) then
+        k.meta_id = MetaID
+        return
+    end
+
+    local dyn = get_dynamic_player(killer)
+    if (pvp and dyn ~= 0) then
+
+        local frags = tonumber(read_byte(dyn + 0x31E))
+        local plasmas = tonumber(read_byte(dyn + 0x31F))
+
+        local str = ''
+        local meta_id = k.meta_id
+
+        if (meta_id == frag_grenade) then
+            frags = frags + k.rewards[1][1]
+            k:UpdateNades(dyn, 1, frags)
+            str = k.rewards[1][2]
+
+        elseif (meta_id == plasma_grenade) then
+            k:UpdateNades(dyn, 2, plasmas)
+            plasmas = plasmas + k.rewards[2][1]
+            str = k.rewards[2][2]
+
+        elseif (meta_id == plasma_grenade_sticky) then
+            k:UpdateNades(dyn, 3, plasmas)
+            plasmas = plasmas + k.rewards[3][1]
+            str = k.rewards[3][2]
+        end
+        k.meta_id = 0
+
+        rprint(killer, str)
+    end
 end
 
 function OnScriptUnload()
     -- N/A
 end
-
--- For a future update:
-return FragNation
