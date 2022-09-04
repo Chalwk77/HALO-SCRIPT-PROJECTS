@@ -118,13 +118,8 @@ function OnCommand(Ply, CMD)
                 z = z
             }
 
-            local str = format('You have %s uses left for this game.', p.uses)
-            x = format('%.2f', x)
-            y = format('%.2f', y)
-            z = format('%.2f', z)
-
-            rprint(Ply, 'Tac-Inset set to ' .. x .. ', ' .. y .. ', ' .. z .. '.')
-            rprint(Ply, str)
+            rprint(Ply, 'Tac-Insert set to to: ' .. format('%.2f, %.2f, %.2f', x, y, z))
+            rprint(Ply, format('You have %s uses left for this game.', p.uses))
         else
             rprint(Ply, 'Command failed. You are not alive.')
         end
@@ -137,7 +132,7 @@ function OnDeath(Victim)
     local ip = GetIP(Victim)
     local p = players[ip]
     if (p.teleport) then
-        rprint(Victim, 'You will spawn at your Tac-Inset point.')
+        rprint(Victim, 'You will spawn at your Tac-Insert point.')
     end
 end
 
