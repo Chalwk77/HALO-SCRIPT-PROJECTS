@@ -31,6 +31,13 @@ local stuns = {}
 local players = {}
 local time = os.time
 
+function OnScriptLoad()
+    register_callback(cb['EVENT_TICK'], 'OnTick')
+    register_callback(cb['EVENT_GAME_START'], 'OnStart')
+    register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamage")
+    OnStart()
+end
+
 local function GetTag(Class, Name)
     local tag = lookup_tag(Class, Name)
     return (tag ~= 0 and read_dword(tag + 0xC) or 0)
@@ -51,13 +58,6 @@ local function TagsToID()
     end
 
     return t
-end
-
-function OnScriptLoad()
-    register_callback(cb['EVENT_TICK'], 'OnTick')
-    register_callback(cb['EVENT_GAME_START'], 'OnStart')
-    register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamage")
-    OnStart()
 end
 
 function OnStart()
