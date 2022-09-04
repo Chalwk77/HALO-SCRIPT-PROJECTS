@@ -5,7 +5,7 @@ Description: Set your next spawn point with a custom command (/ti).
 
 Players are limited to 5 (default) uses per game.
 
-Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2019-2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
@@ -26,37 +26,39 @@ local format = string.format
 
 function OnScriptLoad()
     register_callback(cb['EVENT_JOIN'], 'OnJoin')
-    register_callback(cb['EVENT_LEAVE'], 'OnQuit')
+    register_callback(cb['EVENT_SPAWN'], 'OnSpawn')
     register_callback(cb['EVENT_COMMAND'], 'OnCommand')
-    register_callback(cb['EVENT_PRESPAWN'], 'OnPreSpawn')
     register_callback(cb['EVENT_GAME_START'], 'OnStart')
+    register_callback(cb['EVENT_PRESPAWN'], 'OnPreSpawn')
     OnStart()
 end
 
 function OnStart()
     if (get_var(0, '$gt') ~= 'n/a') then
+
         players = { }
 
         for i = 1, 16 do
             if player_present(i) then
-                OnJoin()
+                OnJoin(i)
             end
         end
     end
 end
 
+local function GetIP(Ply)
+    return get_var(Ply, '$ip'):match('%d+.%d+.%d+.%d+')
+end
+
 function OnJoin(Ply)
-    players[Ply] = {
+    local ip = GetIP(Ply)
+    players[ip] = players[ip] or {
         teleport = false,
         uses = uses_per_game,
         x = 0,
         y = 0,
         z = 0
     }
-end
-
-function OnQuit(Ply)
-    players[Ply] = nil
 end
 
 local function CMDSplit(s)
@@ -87,12 +89,15 @@ local function GetXYZ(Ply)
 end
 
 function OnPreSpawn(Ply)
+
     local dyn = get_dynamic_player(Ply)
-    local p = players[Ply]
+    local ip = GetIP(Ply)
+
+    local p = players[ip]
     if (dyn ~= 0 and p.teleport) then
         p.teleport = false
         local x, y, z = p.x, p.y, p.z
-        local z_off = 0.3
+        local z_off = 0.1
         write_vector3d(dyn + 0x5C, x, y, z + z_off)
     end
 end
@@ -104,7 +109,9 @@ function OnCommand(Ply, CMD)
 
         if player_alive(Ply) then
 
-            local p = players[Ply]
+            local ip = GetIP(Ply)
+            local p = players[ip]
+
             if (p.uses <= 0) then
                 rprint(Ply, 'You have no more uses left for this game.')
                 return false
@@ -113,7 +120,7 @@ function OnCommand(Ply, CMD)
             p.uses = p.uses - 1
 
             local x, y, z = GetXYZ(Ply)
-            players[Ply] = {
+            players[ip] = {
                 teleport = true,
                 uses = p.uses,
                 x = x,
@@ -134,6 +141,13 @@ function OnCommand(Ply, CMD)
 
         return false
     end
+end
+
+function OnSpawn(Ply)
+    local ip = GetIP(Ply)
+    local p = players[ip]
+    local str = format('You have %s tac-insert uses left for this game.', p.uses)
+    rprint(Ply, str)
 end
 
 function OnScriptUnload()
