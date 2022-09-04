@@ -116,6 +116,7 @@ function OnChat(Ply, Msg, Type)
         local name = get_var(Ply, '$name')
         local output = Expressions.output[Type]
         local msg = output:gsub('$name', name):gsub('$msg', Msg)
+
         execute_command('msg_prefix ""')
         say_all(msg)
         execute_command('msg_prefix "' .. Expressions.server_prefix .. '"')
