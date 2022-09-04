@@ -1,56 +1,69 @@
 --[[
 --=====================================================================================================--
-Script Name: Spawn Where Killed, for SAPP (PC & CE)
-Implementing API version: 1.11.0.0
+Script Name: Spawn where killed, for SAPP (PC & CE)
 Description: You will spawn where you died.
 
-Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2016-2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
-api_version = "1.12.0.0"
-DEATH_LOCATION = { }
-for i = 1, 16 do
-    DEATH_LOCATION[i] = { }
-end
-function OnScriptUnload()
-end
+local loc = {}
+
+api_version = '1.12.0.0'
 
 function OnScriptLoad()
-    register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
-    register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
-    register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPrespawn")
+    register_callback(cb['EVENT_DIE'], "OnDeath")
+    register_callback(cb['EVENT_LEAVE'], "OnQuit")
+    register_callback(cb['EVENT_PRESPAWN'], "OnPreSpawn")
 end
 
-function OnPlayerDeath(VictimIndex, KillerIndex)
-    local victim = tonumber(VictimIndex)
-    local killer = tonumber(KillerIndex)
-    if (killer > 0) then
-        local player_object = get_dynamic_player(victim)
-        local xAxis, yAxis, zAxis = read_vector3d(player_object + 0x5C)
-        DEATH_LOCATION[victim][1] = xAxis
-        DEATH_LOCATION[victim][2] = yAxis
-        DEATH_LOCATION[victim][3] = zAxis
-    end
-end
+local function GetXYZ(player)
 
-function OnPlayerPrespawn(VictimIndex)
-    local victim = tonumber(VictimIndex)
-    if VictimIndex then
-        if DEATH_LOCATION[victim][1] ~= nil then
-            write_vector3d(get_dynamic_player(victim) + 0x5C, DEATH_LOCATION[victim][1], DEATH_LOCATION[victim][2], DEATH_LOCATION[victim][3])
-            for i = 1, 3 do
-                DEATH_LOCATION[victim][i] = nil
-            end
+    local x, y, z
+    local dyn = get_dynamic_player(player)
+    if (dyn ~= 0) then
+        local vehicle = read_dword(dyn + 0x11C)
+        local object = get_object_memory(vehicle)
+        if (vehicle == 0xFFFFFFFF) then
+            x, y, z = read_vector3d(dyn + 0x5C)
+        elseif (object ~= 0) then
+            x, y, z = read_vector3d(object + 0x5C)
         end
     end
+
+    return x, y, z
 end
 
-function OnPlayerLeave(VictimIndex)
-    local victim = tonumber(VictimIndex)
-    for i = 1, 3 do
-        DEATH_LOCATION[victim][i] = nil
+function OnDeath(Victim, Killer)
+
+    local victim = tonumber(Victim)
+    local killer = tonumber(Killer)
+
+    if (killer > 0) then
+        local x, y, z = GetXYZ(victim)
+        loc[victim] = { x, y, z }
     end
+end
+
+function OnPreSpawn(p)
+    local dyn = get_dynamic_player(p)
+    if (dyn ~= 0 and loc[p]) then
+
+        local x = loc[p][1]
+        local y = loc[p][2]
+        local z = loc[p][3]
+
+        write_vector3d(dyn + 0x5C, x, y, z)
+        OnQuit(p)
+    end
+end
+
+function OnQuit(p)
+    loc[p] = nil
+end
+
+function OnScriptUnload()
+    -- N/A
 end
