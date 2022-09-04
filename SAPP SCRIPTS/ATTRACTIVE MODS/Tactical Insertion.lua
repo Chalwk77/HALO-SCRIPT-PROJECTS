@@ -62,16 +62,6 @@ function OnJoin(Ply)
     }
 end
 
-local function CMDSplit(s)
-    local args = {}
-
-    for arg in s:gmatch('([^%s]+)') do
-        args[#args + 1] = arg:lower()
-    end
-
-    return args
-end
-
 local function GetXYZ(Ply)
     local x, y, z
 
@@ -104,9 +94,8 @@ function OnPreSpawn(Ply)
 end
 
 function OnCommand(Ply, CMD)
-    local args = CMDSplit(CMD)
 
-    if (args and CMD:sub(1, command:len()):lower() == command) then
+    if (CMD:sub(1, command:len()):lower() == command) then
 
         if player_alive(Ply) then
 
