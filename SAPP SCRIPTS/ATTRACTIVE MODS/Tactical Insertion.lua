@@ -139,8 +139,7 @@ end
 function OnSpawn(Ply)
     local ip = GetIP(Ply)
     local p = players[ip]
-    local str = format('You have %s tac-insert uses left for this game.', p.uses)
-    rprint(Ply, str)
+    rprint(Ply, format('You have %s tac-insert uses left for this game.', p.uses))
     rprint(Ply, 'Use /' .. command .. ' to set your next spawn point.')
 end
 
