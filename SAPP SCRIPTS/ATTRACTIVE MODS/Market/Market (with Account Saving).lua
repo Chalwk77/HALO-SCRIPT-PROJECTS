@@ -441,13 +441,12 @@ function OnCommand(Ply, CMD, _, _)
             if (args[1] == management[1]) then
 
                 local name = args[3]
-                local password = args[4]
+                local password = table.concat(args, ' ', 4)
 
                 local acc = t.database[name]
                 if (args[2] == management[2] and args[3]) then
-                    if (#args > 4) then
-                        t:respond("Too many arguments!")
-                        t:respond("Make sure username & password do not contain spaces.")
+                    if (not password or password == '') then
+                        t:respond("You didn't provide a password")
                     elseif (not t.logged_in) then
                         if (acc) then
                             t:respond("That account username already exists.")
@@ -461,9 +460,8 @@ function OnCommand(Ply, CMD, _, _)
                     return false
 
                 elseif (args[2] == management[3] and args[3]) then
-                    if (#args > 4) then
-                        t:respond("Too many arguments!")
-                        t:respond("Make sure username & password do not contain spaces.")
+                    if (not password or password == '') then
+                        t:respond("You didn't provide a password")
                     elseif (acc) then
                         if (t.logged_in) then
                             t:respond("You are already logged in.")
