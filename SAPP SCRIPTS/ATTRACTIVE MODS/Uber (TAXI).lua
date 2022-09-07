@@ -166,13 +166,13 @@ api_version = '1.12.0.0'
 function OnScriptLoad()
 
     register_callback(cb['EVENT_CHAT'], 'OnChat')
-    register_callback(cb['EVENT_DIE'], 'OnDeath')
     register_callback(cb['EVENT_TICK'], 'OnTick')
     register_callback(cb['EVENT_JOIN'], 'OnJoin')
     register_callback(cb['EVENT_LEAVE'], 'OnQuit')
     register_callback(cb['EVENT_GAME_START'], 'OnStart')
     register_callback(cb['EVENT_TEAM_SWITCH'], 'OnSwitch')
-    register_callback(cb['EVENT_VEHICLE_EXIT'], 'OnVehicleExit')
+    register_callback(cb['EVENT_DIE'], 'VehicleExitDeath')
+    register_callback(cb['EVENT_VEHICLE_EXIT'], 'VehicleExitDeath')
     register_callback(cb['EVENT_VEHICLE_ENTER'], 'OnVehicleEnter')
     OnStart()
 end
@@ -252,9 +252,12 @@ local function HasObjective(dyn)
 end
 
 local function InVehicle(dyn)
+
     local vehicle = read_dword(dyn + 0x11C)
     local object = get_object_memory(vehicle)
-    return (vehicle ~= 0xFFFFFFFF and object ~= 0 and true) or false, object, vehicle
+    local in_vehicle = (vehicle ~= 0xFFFFFFFF and object ~= 0)
+
+    return (in_vehicle and true) or false, object, vehicle
 end
 
 function Uber:NewPlayer(o)
@@ -420,24 +423,18 @@ function OnJoin(Ply)
     })
 end
 
-local function EjectionCheck(Ply)
+function Uber:EjectionCheck()
+    if (self.seat == 0) then
+        for i, v in ipairs(players) do
 
-    local dyn = get_dynamic_player(Ply)
-    if (dyn ~= 0) then
-        local vehicle = read_dword(dyn + 0x11C)
-        local object = get_object_memory(vehicle)
-        if (vehicle ~= 0xFFFFFFFF and object ~= 0 and read_dword(object + 0x324) ~= 0xFFFFFFFF) then
-            for i, v in ipairs(players) do
-                dyn = get_dynamic_player(i)
-                if (i ~= Ply and player_alive(i) and dyn ~= 0) then
-                    local in_vehicle, vehi = InVehicle(dyn)
-                    local seat = read_word(dyn + 0x2F0)
-                    if (in_vehicle and vehi == object and seat ~= 0) then
-                        local _time_ = v.eject_without_driver_time
-                        v.auto_eject = NewEject(object, _time_)
-                        v:Tell('Driver left the vehicle.', false)
-                        v:Tell('Ejecting in ' .. _time_ .. ' seconds...', false)
-                    end
+            local dyn = get_dynamic_player(i)
+            if (i ~= self.id and player_alive(i) and dyn ~= 0) then
+
+                if (v.seat and v.seat ~= 0 and v.current_vehi_obj == self.current_vehi_obj) then
+                    local _time_ = v.eject_without_driver_time
+                    v.auto_eject = NewEject(v.current_vehi_obj, _time_)
+                    v:Tell('Driver left the vehicle.', false)
+                    v:Tell('Ejecting in ' .. _time_ .. ' seconds...', false)
                 end
             end
         end
@@ -445,8 +442,8 @@ local function EjectionCheck(Ply)
 end
 
 function OnQuit(Ply)
+    players[Ply]:EjectionCheck()
     players[Ply] = nil
-    EjectionCheck(Ply)
 end
 
 -- Call an uber on crouch:
@@ -481,9 +478,16 @@ function OnTick()
     for i, v in ipairs(players) do
         local dyn = get_dynamic_player(i)
         if (i and dyn ~= 0 and player_alive(i)) then
+
             CrouchToUber(v, dyn)
             AutoEject(v)
             Cooldown(v)
+
+            local in_vehicle, object = InVehicle(dyn)
+            if (in_vehicle) then
+                v.seat = read_word(dyn + 0x2F0)
+                v.current_vehi_obj = object
+            end
         end
     end
 end
@@ -539,16 +543,13 @@ function OnVehicleEnter(Ply, Seat)
     end
 end
 
-function OnVehicleExit(Ply)
+function VehicleExitDeath(Ply)
 
     players[Ply].auto_eject = nil
+    players[Ply]:EjectionCheck()
 
-    EjectionCheck(Ply)
-end
-
-function OnDeath(Ply)
-    players[Ply].auto_eject = nil
-    players[Ply].call_cooldown = nil
+    players[Ply].seat = nil
+    players[Ply].current_vehi_obj = nil
 end
 
 function OnSwitch(Ply)
