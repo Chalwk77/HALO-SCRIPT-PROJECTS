@@ -10,6 +10,7 @@ Description: Inject yourself into a teammates vehicle by typing /uber
 - Players are ejected from a vehicle if the driver leaves for more than 5 seconds.
 - If no uber is available, the player will be notified.
 - Eject players from vehicles with no driver.
+- Vehicle priorities (e.g, r-hog seats scanned before chain gun hogs).
 - Set the seat order in which players are injected into vehicles.
 - [!] NOTE: This mod is designed for STOCK MAPS ONLY and may not work on custom maps.
 -------------------------------------------------------------------------------------
@@ -50,23 +51,24 @@ local Uber = {
         0, 1, 2, 3, 4
     },
 
-
     -- List of vehicles that are allowed to be used with Uber:
-    -- Format: {'class', 'name', '{seat ids}', enabled/disabled, Vehicle Label}
+    -- Format: {'class', 'name', '{seat ids}', enabled/disabled, Vehicle Label, Priority}
+    --
+    -- Vehicles with a higher priority will be scanned first.
     --
     valid_vehicles = {
-
-        { 'vehi', 'vehicles\\rwarthog\\rwarthog', {
-            [0] = 'driver',
-            [1] = 'passenger',
-            [2] = 'gunner'
-        }, true, 'Rocket Hog' },
 
         { 'vehi', 'vehicles\\warthog\\mp_warthog', {
             [0] = 'driver',
             [1] = 'passenger',
             [2] = 'gunner',
-        }, true, 'Chain Gun Hog' },
+        }, true, 'Chain Gun Hog', 3 },
+
+        { 'vehi', 'vehicles\\rwarthog\\rwarthog', {
+            [0] = 'driver',
+            [1] = 'passenger',
+            [2] = 'gunner'
+        }, true, 'Rocket Hog', 2 },
 
         { 'vehi', 'vehicles\\scorpion\\scorpion_mp', {
             [0] = 'driver',
@@ -74,7 +76,7 @@ local Uber = {
             [2] = 'passenger',
             [3] = 'passenger',
             [4] = 'passenger'
-        }, false, 'Tank' },
+        }, false, 'Tank', 1 },
 
         --
         -- Repeat the above format for each vehicle you want to add.
@@ -149,7 +151,6 @@ local Uber = {
 local objective
 local players = {}
 local vehicles = {}
-local occupied_vehicles = {}
 
 local time = os.time
 local floor = math.floor
@@ -171,16 +172,32 @@ function OnScriptLoad()
     OnStart()
 end
 
+function OnStart()
+
+    local game_type = get_var(0, '$gt')
+    if (game_type ~= 'n/a') then
+        objective = (game_type == 'ctf' or game_type == 'oddball') or nil
+        players = {}
+        vehicles = Uber:TagsToID()
+        for i = 1, 16 do
+            if player_present(i) then
+                OnJoin(i)
+            end
+        end
+    end
+end
+
 local function GetTag(Class, Name)
     local tag = lookup_tag(Class, Name)
     return (tag ~= 0 and read_dword(tag + 0xC)) or nil
 end
 
-local function NewVehicle(label, seats, vehicle_id)
+local function NewVehicle(label, seats, vehicle_id, priority)
     return {
         label = label,
         seats = seats,
         occupants = {},
+        priority = priority,
         vehicle_id = vehicle_id
     }
 end
@@ -250,12 +267,14 @@ function Uber:TagsToID()
         local seats = v[3]
         local enabled = v[4]
         local label = v[5]
+        local priority = v[6]
 
         local tag = GetTag(class, name)
         if (tag and enabled) then
             t[tag] = {
                 label = label,
                 seats = seats,
+                priority = priority
             }
         end
     end
@@ -276,38 +295,6 @@ function Uber:ValidateVehicle(object)
     object = object or 0
     local meta_id = read_dword(object)
     return vehicles[meta_id] or nil
-end
-
-function Uber:GetVehicles()
-
-    local t = { }
-
-    for i, v in ipairs(players) do
-
-        local alive = player_alive(i)
-        local dyn = get_dynamic_player(i)
-        if (i ~= self.id and alive and dyn ~= 0 and v.team == self.team) then
-
-            local in_vehicle, object, vehicle_id = InVehicle(dyn)
-            local vehicle = self:ValidateVehicle(object)
-
-            if (in_vehicle and vehicle) then
-
-                local seat = read_word(dyn + 0x2F0)
-                local seat_label = vehicle.seats[seat]
-
-                if (seat_label) then
-
-                    local seats = AvailableSeats(vehicle.seats, seat)
-
-                    t[object] = t[object] or NewVehicle(vehicle.label, seats, vehicle_id)
-                    insert(t[object].occupants, v)
-                end
-            end
-        end
-    end
-
-    return t
 end
 
 function Uber:DoChecks()
@@ -338,6 +325,49 @@ function Uber:DoChecks()
     return true
 end
 
+function Uber:GetVehicles()
+
+    local t = { }
+    local done = {}
+    local index = 0
+
+    for i, v in ipairs(players) do
+
+        local alive = player_alive(i)
+        local dyn = get_dynamic_player(i)
+        if (i ~= self.id and alive and dyn ~= 0 and v.team == self.team) then
+
+            local in_vehicle, object, vehicle_id = InVehicle(dyn)
+            local vehicle = self:ValidateVehicle(object)
+
+            if (in_vehicle and vehicle) then
+
+                if (not done[vehicle]) then
+                    done[vehicle] = true
+                    index = index + 1
+                end
+
+                local seat = read_word(dyn + 0x2F0)
+                local seat_label = vehicle.seats[seat]
+
+                if (seat_label) then
+
+                    local seats = AvailableSeats(vehicle.seats, seat)
+
+                    t[index] = t[index] or NewVehicle(vehicle.label, seats, vehicle_id, vehicle.priority)
+                    --insert(t[index].occupants, v)
+                end
+            end
+        end
+    end
+
+    table.sort(t, function(a, b)
+        return a.priority > b.priority
+    end)
+
+    return t
+end
+
 function Uber:CallUber()
 
     if (self:DoChecks()) then
@@ -348,13 +378,12 @@ function Uber:CallUber()
         }
 
         local seat_order = self.insertion_order
-        local t = self:GetVehicles()
-        occupied_vehicles = t
+        local t = self:GetVehicles() -- table of vehicles
 
-        for _, v in pairs(t) do
+        for _, v in ipairs(t) do
 
             local vehicle_id = v.vehicle_id
-            local occupants = v.occupants
+            --local occupants = v.occupants
             local available_seats = v.seats
 
             for j = 1, #seat_order do
@@ -376,21 +405,6 @@ function Uber:CallUber()
         self:Tell('Uber is not available right now (no available seats).', true)
 
         :: done ::
-    end
-end
-
-function OnStart()
-
-    local game_type = get_var(0, '$gt')
-    if (game_type ~= 'n/a') then
-        objective = (game_type == 'ctf' or game_type == 'oddball') or nil
-        players = {}
-        vehicles = Uber:TagsToID()
-        for i = 1, 16 do
-            if player_present(i) then
-                OnJoin(i)
-            end
-        end
     end
 end
 
@@ -420,14 +434,14 @@ function OnTick()
                 v.crouching = crouching
             end
 
-            -- Auto eject from vehicles that are disable:
+            -- Auto eject from vehicles that are disabled or have no driver:
             local eject = v.auto_eject
             if (eject and eject.start() > eject.finish) then
                 v.auto_eject = nil
                 exit_vehicle(i)
             end
 
-            -- Uber call cooldown
+            -- Uber cooldown
             local cooldown = v.call_cooldown
             if (cooldown and cooldown.start() > cooldown.finish) then
                 v.call_cooldown = nil
