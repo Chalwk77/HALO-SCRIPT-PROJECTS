@@ -11,11 +11,12 @@ Description: Inject yourself into a teammates vehicle by saying "uber" in chat.
 - If no uber is available, the player will be notified.
 - Eject players from vehicles with no driver.
 - Priority scanning:
-  * Configure what vehicle types are scanned for available seats first.
-  * Then the seats in that vehicle are scanned in a configurable order too.
-  * The first seat that is available will be used.
+    * Configure what vehicle types are scanned for available seats first.
+    * Then the seats in that vehicle are scanned in a configurable order too.
+      EG. Rocket Hogs then Chain Gun Hogs.
+    * The first seat that is available will be used.
 
-- [!] NOTE: This mod is designed for STOCK MAPS ONLY and may not work on custom maps.
+- [!] NOTE: This mod is designed for stock maps and may not work on some custom maps.
 -------------------------------------------------------------------------------------
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
@@ -50,9 +51,7 @@ local Uber = {
     -- 4 = passenger
     -- 5 = passenger
     --
-    insertion_order = {
-        0, 1, 2, 3, 4
-    },
+    insertion_order = { 0, 1, 2, 3, 4 },
 
 
     -- List of vehicles that are allowed to be used with Uber:
