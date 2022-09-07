@@ -54,6 +54,7 @@ local Uber = {
         0, 1, 2, 3, 4
     },
 
+
     -- List of vehicles that are allowed to be used with Uber:
     -- Format: {'class', 'name', '{seat ids}', enabled/disabled, Vehicle Label, Priority}
     --
@@ -62,17 +63,17 @@ local Uber = {
     --
     valid_vehicles = {
 
-        { 'vehi', 'vehicles\\warthog\\mp_warthog', {
-            [0] = 'driver',
-            [1] = 'passenger',
-            [2] = 'gunner',
-        }, true, 'Chain Gun Hog', 3 },
-
         { 'vehi', 'vehicles\\rwarthog\\rwarthog', {
             [0] = 'driver',
             [1] = 'passenger',
             [2] = 'gunner'
-        }, true, 'Rocket Hog', 2 },
+        }, true, 'Rocket Hog', 3 },
+
+        { 'vehi', 'vehicles\\warthog\\mp_warthog', {
+            [0] = 'driver',
+            [1] = 'passenger',
+            [2] = 'gunner',
+        }, true, 'Chain Gun Hog', 2 },
 
         { 'vehi', 'vehicles\\scorpion\\scorpion_mp', {
             [0] = 'driver',
@@ -84,6 +85,7 @@ local Uber = {
 
         --
         -- Repeat the above format for each vehicle you want to add.
+        -- Only add vehicles that have a driver seat (and at least one passenger seat).
         --
 
     },
