@@ -58,6 +58,7 @@ local Uber = {
     -- Format: {'class', 'name', '{seat ids}', enabled/disabled, Vehicle Label, Priority}
     --
     -- Vehicles with a higher priority will be scanned first.
+    -- Make sure each vehicle has a unique priority.
     --
     valid_vehicles = {
 
