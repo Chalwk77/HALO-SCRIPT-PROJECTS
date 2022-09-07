@@ -420,8 +420,33 @@ function OnJoin(Ply)
     })
 end
 
+local function EjectionCheck(Ply)
+
+    local dyn = get_dynamic_player(Ply)
+    if (dyn ~= 0) then
+        local vehicle = read_dword(dyn + 0x11C)
+        local object = get_object_memory(vehicle)
+        if (vehicle ~= 0xFFFFFFFF and object ~= 0 and read_dword(object + 0x324) ~= 0xFFFFFFFF) then
+            for i, v in ipairs(players) do
+                dyn = get_dynamic_player(i)
+                if (i ~= Ply and player_alive(i) and dyn ~= 0) then
+                    local in_vehicle, vehi = InVehicle(dyn)
+                    local seat = read_word(dyn + 0x2F0)
+                    if (in_vehicle and vehi == object and seat ~= 0) then
+                        local _time_ = v.eject_without_driver_time
+                        v.auto_eject = NewEject(object, _time_)
+                        v:Tell('Driver left the vehicle.', false)
+                        v:Tell('Ejecting in ' .. _time_ .. ' seconds...', false)
+                    end
+                end
+            end
+        end
+    end
+end
+
 function OnQuit(Ply)
     players[Ply] = nil
+    EjectionCheck(Ply)
 end
 
 -- Call an uber on crouch:
@@ -515,7 +540,10 @@ function OnVehicleEnter(Ply, Seat)
 end
 
 function OnVehicleExit(Ply)
+
     players[Ply].auto_eject = nil
+
+    EjectionCheck(Ply)
 end
 
 function OnDeath(Ply)
