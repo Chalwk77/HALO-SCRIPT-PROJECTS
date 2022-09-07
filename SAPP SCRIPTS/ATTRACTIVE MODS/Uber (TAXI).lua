@@ -345,23 +345,19 @@ function Uber:GetVehicles()
             local in_vehicle, object, vehicle_id = InVehicle(dyn)
             local vehicle = self:ValidateVehicle(object)
 
-            if (in_vehicle and vehicle) then
+            local seat = read_word(dyn + 0x2F0)
+            local seat_label = vehicle.seats[seat]
+
+            if (in_vehicle and vehicle and seat_label) then
 
                 if (not done[vehicle]) then
                     done[vehicle] = true
                     index = index + 1
                 end
 
-                local seat = read_word(dyn + 0x2F0)
-                local seat_label = vehicle.seats[seat]
-
-                if (seat_label) then
-
-                    local seats = AvailableSeats(vehicle.seats, seat)
-
-                    t[index] = t[index] or NewVehicle(vehicle.label, seats, vehicle_id, vehicle.priority)
-                    --insert(t[index].occupants, v)
-                end
+                local seats = AvailableSeats(vehicle.seats, seat)
+                t[index] = t[index] or NewVehicle(vehicle.label, seats, vehicle_id, vehicle.priority)
+                --insert(t[index].occupants, v)
             end
         end
     end
