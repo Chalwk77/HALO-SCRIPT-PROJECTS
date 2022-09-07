@@ -1,17 +1,20 @@
 --[[
 --=====================================================================================================--
 Script Name: Uber, for SAPP (PC & CE)
-Description: Inject yourself into a teammates vehicle by typing /uber
+Description: Inject yourself into a teammates vehicle by saying "uber" in chat.
 
 ------------ [ FEATURES ] ------------
 - Players are limited to 20 uber calls per game.
-- Players must crouch to call an uber.
+- Crouch to call an uber (or say "uber" in chat).
 - Players must wait 10 seconds before calling another uber.
 - Players are ejected from a vehicle if the driver leaves for more than 5 seconds.
 - If no uber is available, the player will be notified.
 - Eject players from vehicles with no driver.
-- Vehicle priorities (e.g, r-hog seats scanned before chain gun hogs).
-- Set the seat order in which players are injected into vehicles.
+- Priority scanning:
+  * Configure what vehicle types are scanned for available seats first.
+  * Then the seats in that vehicle are scanned in a configurable order too.
+  * The first seat that is available will be used.
+
 - [!] NOTE: This mod is designed for STOCK MAPS ONLY and may not work on custom maps.
 -------------------------------------------------------------------------------------
 
@@ -101,7 +104,7 @@ local Uber = {
     -- Do not set lower than 3.
     -- Default: 3
     --
-    block_objective_time = 3,
+    block_objective_time = 5,
 
 
     -- Players must crouch to call an uber:
@@ -145,7 +148,7 @@ local Uber = {
     -- Do not set lower than 3.
     -- Default: 3
     --
-    eject_without_driver_time = 3
+    eject_without_driver_time = 5
 }
 
 local objective
