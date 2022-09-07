@@ -215,6 +215,13 @@ local function NewEject(object, delay)
     }
 end
 
+local function NewCooldown(delay)
+    return {
+        start = time,
+        finish = time() + delay
+    }
+end
+
 local function AvailableSeats(seats, seat)
 
     local t = {}
@@ -373,13 +380,9 @@ function Uber:CallUber()
 
     if (self:DoChecks()) then
 
-        self.call_cooldown = self.call_cooldown or {
-            start = time,
-            finish = time() + self.cooldown_period
-        }
-
         local seat_order = self.insertion_order
         local t = self:GetVehicles() -- table of vehicles
+        self.call_cooldown = NewCooldown(self.cooldown_period)
 
         for _, v in ipairs(t) do
 
@@ -421,32 +424,41 @@ function OnQuit(Ply)
     players[Ply] = nil
 end
 
+-- Call an uber on crouch:
+local function CrouchToUber(self, dyn)
+    if (self.crouch_to_uber) then
+        local crouching = read_bit(dyn + 0x208, 0)
+        if (crouching == 1 and self.crouching ~= crouching) then
+            self:CallUber()
+        end
+        self.crouching = crouching
+    end
+end
+
+-- Auto eject from vehicles that are disabled or have no driver:
+local function AutoEject(self)
+    local eject = self.auto_eject
+    if (eject and eject.start() > eject.finish) then
+        self.auto_eject = nil
+        exit_vehicle(self.id)
+    end
+end
+
+-- Uber cooldown:
+local function Cooldown(self)
+    local cooldown = self.call_cooldown
+    if (cooldown and cooldown.start() > cooldown.finish) then
+        self.call_cooldown = nil
+    end
+end
+
 function OnTick()
     for i, v in ipairs(players) do
         local dyn = get_dynamic_player(i)
         if (i and dyn ~= 0 and player_alive(i)) then
-
-            -- Call an uber on crouch:
-            if (v.crouch_to_uber) then
-                local crouching = read_bit(dyn + 0x208, 0)
-                if (crouching == 1 and v.crouching ~= crouching) then
-                    v:CallUber()
-                end
-                v.crouching = crouching
-            end
-
-            -- Auto eject from vehicles that are disabled or have no driver:
-            local eject = v.auto_eject
-            if (eject and eject.start() > eject.finish) then
-                v.auto_eject = nil
-                exit_vehicle(i)
-            end
-
-            -- Uber cooldown
-            local cooldown = v.call_cooldown
-            if (cooldown and cooldown.start() > cooldown.finish) then
-                v.call_cooldown = nil
-            end
+            CrouchToUber(v, dyn)
+            AutoEject(v)
+            Cooldown(v)
         end
     end
 end
@@ -479,11 +491,10 @@ function OnVehicleEnter(Ply, Seat)
 
     local vehicle = read_dword(dyn + 0x11C)
     local object = get_object_memory(vehicle)
-    local allowed = p:ValidateVehicle(object)
-
     local driver = read_dword(object + 0x324)
     local no_driver = (driver == 0xFFFFFFFF or driver == 0)
 
+    local allowed = p:ValidateVehicle(object)
     if (not allowed and p.eject_from_disabled_vehicle) then
 
         local _time_ = p.eject_from_disabled_vehicle_time
@@ -509,6 +520,7 @@ end
 
 function OnDeath(Ply)
     players[Ply].auto_eject = nil
+    players[Ply].call_cooldown = nil
 end
 
 function OnSwitch(Ply)
