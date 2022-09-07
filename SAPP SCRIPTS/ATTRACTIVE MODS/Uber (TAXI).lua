@@ -543,6 +543,7 @@ function OnVehicleEnter(Ply, Seat)
     end
 end
 
+-- event_die, event_leave
 function VehicleExitDeath(Ply)
 
     players[Ply].auto_eject = nil
