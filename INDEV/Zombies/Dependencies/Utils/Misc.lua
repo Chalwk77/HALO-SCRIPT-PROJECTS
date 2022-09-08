@@ -113,14 +113,12 @@ function Misc:RemoveAmmo()
         if (dyn ~= 0) then
             for i = 0, 3 do
                 local weapon = read_dword(dyn + 0x2F8 + (i * 4))
-                if (weapon ~= 0xFFFFFFFF) then
-                    local object = get_object_memory(weapon)
-                    if (object ~= 0) then
-                        write_word(object + 0x2B8, 0)
-                        write_word(object + 0x2B6, 0)
-                        execute_command_sequence('w8 1; battery ' .. self.id .. ' 0 ' .. i)
-                        sync_ammo(weapon)
-                    end
+                local object = get_object_memory(weapon)
+                if (weapon ~= 0xFFFFFFFF and object ~= 0) then
+                    write_word(object + 0x2B8, 0)
+                    write_word(object + 0x2B6, 0)
+                    execute_command_sequence('w8 1; battery ' .. self.id .. ' 0 ' .. i)
+                    sync_ammo(weapon)
                 end
             end
         end

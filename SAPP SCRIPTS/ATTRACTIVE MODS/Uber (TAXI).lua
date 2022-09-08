@@ -164,31 +164,46 @@ local insert = table.insert
 api_version = '1.12.0.0'
 
 function OnScriptLoad()
-
-    register_callback(cb['EVENT_CHAT'], 'OnChat')
-    register_callback(cb['EVENT_TICK'], 'OnTick')
-    register_callback(cb['EVENT_JOIN'], 'OnJoin')
-    register_callback(cb['EVENT_LEAVE'], 'OnQuit')
     register_callback(cb['EVENT_GAME_START'], 'OnStart')
-    register_callback(cb['EVENT_TEAM_SWITCH'], 'OnSwitch')
-    register_callback(cb['EVENT_DIE'], 'VehicleExitDeath')
-    register_callback(cb['EVENT_VEHICLE_EXIT'], 'VehicleExitDeath')
-    register_callback(cb['EVENT_VEHICLE_ENTER'], 'OnVehicleEnter')
     OnStart()
+end
+
+local function RegSAPPEvents(f)
+    for event, callback in pairs({
+        ['EVENT_CHAT'] = 'OnChat',
+        ['EVENT_TICK'] = 'OnTick',
+        ['EVENT_JOIN'] = 'OnJoin',
+        ['EVENT_LEAVE'] = 'OnQuit',
+        ['EVENT_TEAM_SWITCH'] = 'OnSwitch',
+        ['EVENT_DIE'] = 'VehicleExitDeath',
+        ['EVENT_VEHICLE_EXIT'] = 'VehicleExitDeath',
+        ['EVENT_VEHICLE_ENTER'] = 'OnVehicleEnter'
+    }) do
+        f(cb[event], callback)
+    end
 end
 
 function OnStart()
 
     local game_type = get_var(0, '$gt')
+    local ffa = (get_var(0, '$ffa') == '1')
     if (game_type ~= 'n/a') then
-        objective = (game_type == 'ctf' or game_type == 'oddball') or nil
-        players = {}
-        vehicles = Uber:TagsToID()
-        for i = 1, 16 do
-            if player_present(i) then
-                OnJoin(i)
+
+        if (not ffa) then
+
+            players = {}
+            vehicles = Uber:TagsToID()
+            objective = (game_type == 'ctf' or game_type == 'oddball') or nil
+
+            for i = 1, 16 do
+                if player_present(i) then
+                    OnJoin(i)
+                end
             end
+            RegSAPPEvents(register_callback)
+            return
         end
+        RegSAPPEvents(unregister_callback)
     end
 end
 
