@@ -228,21 +228,36 @@ function Attrition:OnTick()
                     UpdateVectors(object, orb.x, orb.y, orb.z + h)
 
                     for j, teammate in ipairs(players) do
-                        if (i ~= j and player_alive(j) and teammate.team == orb.team) then
 
-                            local dyn = get_dynamic_player(j)
+                        local dyn = get_dynamic_player(j)
+                        if (dyn ~= 0) then
+
                             local px, py, pz = GetPos(j)
                             local crouching = read_bit(dyn + 0x208, 0)
-                            local distance = GetDist(px, py, pz, orb.x, orb.y, orb.z)
+                            local proceed = (i ~= j and player_alive(j))
 
-                            if (distance <= self.range and crouching == 1) then
-                                if (not teammate.timer) then
-                                    teammate.timer = teammate:NewTimer()
+                            if (proceed and teammate.team == orb.team) then
+
+                                local distance = GetDist(px, py, pz, orb.x, orb.y, orb.z)
+
+                                if (distance <= self.range and crouching == 1) then
+                                    if (not teammate.timer) then
+                                        teammate.timer = teammate:NewTimer()
+                                    else
+                                        teammate:Revive(victim, orb_id)
+                                    end
                                 else
-                                    teammate:Revive(victim, orb_id)
+                                    teammate.timer = nil
                                 end
-                            else
-                                teammate.timer = nil
+
+                            elseif (proceed and teammate.team ~= orb.team) then
+
+                                local distance = GetDist(px, py, pz, orb.x, orb.y, orb.z)
+                                if (distance <= self.range and crouching == 1) then
+                                    Say(j, 'You cannot revive this player.')
+                                else
+                                    teammate.timer = nil
+                                end
                             end
                         end
                     end
