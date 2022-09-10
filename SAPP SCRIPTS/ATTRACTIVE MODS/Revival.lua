@@ -203,6 +203,11 @@ local function UpdateVectors(object, x, y, z)
     write_float(object + 0x68, 0) -- x vel
     write_float(object + 0x6C, 0) -- y vel
     write_float(object + 0x70, 0) -- z vel
+
+    -- update orb yaw, pitch, roll
+    write_float(object + 0x90, 0) -- yaw
+    write_float(object + 0x8C, 0) -- pitch
+    write_float(object + 0x94, 0) -- roll
 end
 
 function Attrition:OnTick()
