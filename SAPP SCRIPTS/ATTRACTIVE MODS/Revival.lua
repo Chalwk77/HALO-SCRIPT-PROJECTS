@@ -52,6 +52,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], 'OnTick')
     register_callback(cb['EVENT_JOIN'], 'OnJoin')
     register_callback(cb['EVENT_LEAVE'], 'OnQuit')
+    register_callback(cb['EVENT_MAP_RESET'], 'OnStart')
     register_callback(cb['EVENT_GAME_START'], 'OnStart')
     register_callback(cb['EVENT_TEAM_SWITCH'], 'OnSwitch')
     OnStart()
@@ -158,8 +159,9 @@ end
 
 local function ProgressBar(cur, max, revival_time)
     local bar = ''
-    for i = 1, revival_time do
-        if (i > (cur / max) * revival_time) then
+    local time = revival_time + 20
+    for i = 1, time do
+        if (i > (cur / max) * time) then
             bar = bar .. '|'
         end
     end
@@ -201,15 +203,6 @@ local function UpdateVectors(object, x, y, z)
     write_float(object + 0x68, 0) -- x vel
     write_float(object + 0x6C, 0) -- y vel
     write_float(object + 0x70, 0) -- z vel
-
-    -- update orb yaw, pitch, roll
-    write_float(object + 0x90, 0) -- yaw
-    write_float(object + 0x8C, 0) -- pitch
-    write_float(object + 0x94, 0) -- roll
-
-    -- update orb physics:
-    write_bit(object + 0x10, 0, 0) -- Unset noCollisions bit.
-    write_bit(object + 0x10, 5, 0) -- Unset ignorePhysics.
 end
 
 function Attrition:OnTick()
@@ -272,6 +265,13 @@ function OnJoin(Ply)
 end
 
 function OnQuit(Ply)
+
+    local orbs = players[Ply].orbs
+
+    for id, _ in pairs(orbs) do
+        destroy_object(id)
+    end
+
     players[Ply] = nil
 end
 
