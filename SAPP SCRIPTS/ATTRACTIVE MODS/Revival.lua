@@ -1,8 +1,10 @@
 --[[
 --=====================================================================================================--
 Script Name: Attrition, for SAPP (PC & CE)
-Description: Revive team mates who have died.
-             Crouch over their body to begin the revive process.
+Description: A mini-game inspired by Halo: Infinite's Attrition mode.
+Description: Players have limited lives..
+             The objective is to deplete the other team's pool of lives.
+             When a teammate dies, you can revive them.
 
              An orb (skull) will float above their body to represent
              that this player can be revived.
@@ -46,12 +48,14 @@ api_version = '1.12.0.0'
 
 local orb_object
 local players = {}
+local time = os.time
 
 function OnScriptLoad()
     register_callback(cb['EVENT_DIE'], 'OnDeath')
     register_callback(cb['EVENT_TICK'], 'OnTick')
     register_callback(cb['EVENT_JOIN'], 'OnJoin')
     register_callback(cb['EVENT_LEAVE'], 'OnQuit')
+    register_callback(cb['EVENT_SPAWN'], 'OnSpawn')
     register_callback(cb['EVENT_MAP_RESET'], 'OnStart')
     register_callback(cb['EVENT_GAME_START'], 'OnStart')
     register_callback(cb['EVENT_TEAM_SWITCH'], 'OnSwitch')
@@ -83,8 +87,8 @@ end
 
 function Attrition:NewTimer()
     return {
-        cur = 0,
-        finish = self.revival_time
+        start = time,
+        finish = time() + self.revival_time
     }
 end
 
@@ -118,13 +122,18 @@ function Attrition:SpawnOrb()
     local orb = spawn_object('', '', x, y, z + h, 0, orb_object)
     local object = get_object_memory(orb)
     if (object ~= 0) then
+
+        self.pos.x = x
+        self.pos.y = y
+        self.pos.z = z
+
         self.orbs[orb] = {
             x = x,
             y = y,
             z = z,
             team = self.team
         }
-        rprint(self.id, "You have died. Waiting to be revived...")
+        rprint(self.id, "Waiting to be revived...")
     end
 end
 
@@ -134,6 +143,13 @@ function Attrition:NewPlayer(o)
     self.__index = self
 
     o.orbs = {}
+
+    o.revived = false
+    o.pos = {
+        x = 0,
+        y = 0,
+        z = 0
+    }
 
     return o
 end
@@ -154,40 +170,47 @@ local function Say(Ply, Msg)
     for _ = 1, 25 do
         rprint(Ply, ' ')
     end
-    rprint(Ply, Msg)
+    rprint(Ply, '|c' .. Msg)
 end
 
-local function ProgressBar(cur, max, revival_time)
+local function ProgressBar(start, finish, revival_time)
+
     local bar = ''
-    local time = revival_time + 20
-    for i = 1, time do
-        if (i > (cur / max) * time) then
-            bar = bar .. '|'
+    local time_remaining = finish - start()
+
+    for i = 1, time_remaining do
+        if (i > (time_remaining / finish) * revival_time) then
+            bar = bar .. '=='
         end
     end
+
     return bar
 end
 
 function Attrition:Revive(victim, orb)
 
-    self.timer.cur = self.timer.cur + 1 / 30
-
-    local cur_time = self.timer.cur
+    local start = self.timer.start
     local finish = self.timer.finish
 
     local vic_id = victim.id
 
-    if (cur_time >= finish) then
+    if (start() >= finish) then
+
+        victim.revived = true
+
         self.timer = nil
+        Say(vic_id, ' ')
+        Say(self.id, ' ')
         Say(_, self.name .. ' revived ' .. victim.name .. '!')
         write_dword(get_player(vic_id) + 0x2C, -1 * 33)
+
         destroy_object(orb)
         DeductDeath(vic_id)
         victim.orbs = {}
         return
     end
 
-    local bar = ProgressBar(cur_time, finish, self.revival_time)
+    local bar = ProgressBar(start, finish, self.revival_time)
     Say(self.id, 'Reviving ' .. victim.name .. ' [' .. bar .. ']')
     Say(vic_id, 'You are being revived by ' .. self.name .. ' [' .. bar .. ']')
 end
@@ -241,7 +264,7 @@ function Attrition:OnTick()
                                     if (not teammate.timer) then
                                         teammate.timer = teammate:NewTimer()
                                     else
-                                        teammate:Revive(victim, orb_id)
+                                        teammate:Revive(victim, orb_id, orb)
                                     end
                                 else
                                     teammate.timer = nil
@@ -292,6 +315,15 @@ function OnDeath(Victim, Killer)
 
     if (pvp) then
         v:SpawnOrb()
+    end
+end
+
+function OnSpawn(Ply)
+    local p = players[Ply]
+    local dyn = get_dynamic_player(Ply)
+    if (p and p.revived and dyn ~= 0) then
+        write_vector3d(dyn + 0x5C, p.pos.x, p.pos.y, p.pos.z)
+        p.revived = false
     end
 end
 
