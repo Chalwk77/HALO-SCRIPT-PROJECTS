@@ -239,7 +239,6 @@ function Attrition:OnTick()
                             if (proceed and teammate.team == orb.team) then
 
                                 local distance = GetDist(px, py, pz, orb.x, orb.y, orb.z)
-
                                 if (distance <= self.range and crouching == 1) then
                                     if (not teammate.timer) then
                                         teammate.timer = teammate:NewTimer()
@@ -251,12 +250,9 @@ function Attrition:OnTick()
                                 end
 
                             elseif (proceed and teammate.team ~= orb.team) then
-
                                 local distance = GetDist(px, py, pz, orb.x, orb.y, orb.z)
                                 if (distance <= self.range and crouching == 1) then
                                     Say(j, 'You cannot revive this player.')
-                                else
-                                    teammate.timer = nil
                                 end
                             end
                         end
