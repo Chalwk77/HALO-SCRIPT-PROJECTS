@@ -92,6 +92,14 @@ function Attrition:NewTimer()
     }
 end
 
+function Attrition:NewPos(x,y,z)
+    return {
+            x = x,
+            y = y,
+            z = z
+    }
+end
+
 local sqrt = math.sqrt
 local function GetDist(x1, y1, z1, x2, y2, z2)
     return sqrt((x1 - x2) ^ 2 + (y1 - y2) ^ 2 + (z1 - z2) ^ 2)
@@ -123,10 +131,7 @@ function Attrition:SpawnOrb()
     local object = get_object_memory(orb)
     if (object ~= 0) then
 
-        self.pos.x = x
-        self.pos.y = y
-        self.pos.z = z
-
+        self.pos = self:NewPos()
         self.orbs[orb] = {
             x = x,
             y = y,
@@ -143,13 +148,7 @@ function Attrition:NewPlayer(o)
     self.__index = self
 
     o.orbs = {}
-
     o.revived = false
-    o.pos = {
-        x = 0,
-        y = 0,
-        z = 0
-    }
 
     return o
 end
@@ -245,6 +244,8 @@ function Attrition:OnTick()
                 local object = get_object_memory(orb_id)
                 if (object ~= 0) then
 
+                    orb.team = victim.team -- just in case
+
                     local h = self.orb_height_offset
                     UpdateVectors(object, orb.x, orb.y, orb.z + h)
 
@@ -256,10 +257,9 @@ function Attrition:OnTick()
                             local px, py, pz = GetPos(j)
                             local crouching = read_bit(dyn + 0x208, 0)
                             local proceed = (i ~= j and player_alive(j))
+                            local distance = GetDist(px, py, pz, orb.x, orb.y, orb.z)
 
                             if (proceed and teammate.team == orb.team) then
-
-                                local distance = GetDist(px, py, pz, orb.x, orb.y, orb.z)
                                 if (distance <= self.range and crouching == 1) then
                                     if (not teammate.timer) then
                                         teammate.timer = teammate:NewTimer()
@@ -269,9 +269,7 @@ function Attrition:OnTick()
                                 else
                                     teammate.timer = nil
                                 end
-
                             elseif (proceed and teammate.team ~= orb.team) then
-                                local distance = GetDist(px, py, pz, orb.x, orb.y, orb.z)
                                 if (distance <= self.range and crouching == 1) then
                                     Say(j, 'You cannot revive this player.')
                                 end
