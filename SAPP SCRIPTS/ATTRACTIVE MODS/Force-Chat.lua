@@ -58,33 +58,35 @@ function OnCommand(Ply, CMD)
     if (args) then
 
         local cmd = (args[1]:sub(1, command:len()) == command)
-        local victim = (args[2] and tonumber(args[2]:match('%d+')))
+        if (cmd) then
+            local victim = (args[2] and tonumber(args[2]:match('%d+')))
 
-        if (not victim or not args[3]) then
-            Say(Ply, 'Usage: /fc <player> <message>')
-            return false
-        elseif (cmd) then
+            if (not victim or not args[3]) then
+                Say(Ply, 'Usage: /fc <player> <message>')
+                return false
+            elseif (cmd) then
 
-            if (HasPerm(Ply)) then
+                if (HasPerm(Ply)) then
 
-                if (victim and player_present(victim)) then
+                    if (victim and player_present(victim)) then
 
-                    local message = table.concat(args, ' ', 3)
-                    if (message and message ~= '') then
-                        local name = get_var(victim, '$name')
-                        execute_command('msg_prefix ""')
-                        say_all(format:gsub('$name', name):gsub('$msg', message))
-                        execute_command('msg_prefix "' .. prefix .. '"')
+                        local message = table.concat(args, ' ', 3)
+                        if (message and message ~= '') then
+                            local name = get_var(victim, '$name')
+                            execute_command('msg_prefix ""')
+                            say_all(format:gsub('$name', name):gsub('$msg', message))
+                            execute_command('msg_prefix "' .. prefix .. '"')
+                        else
+                            Say(Ply, 'Usage: /fc <player> <message>')
+                        end
                     else
-                        Say(Ply, 'Usage: /fc <player> <message>')
+                        Say(Ply, 'Player #' .. victim .. ' is not online.')
                     end
                 else
-                    Say(Ply, 'Player #' .. victim .. ' is not online.')
+                    Say(Ply, 'Insufficient Permission')
                 end
-            else
-                Say(Ply, 'Insufficient Permission')
+                return false
             end
-            return false
         end
     end
 end
