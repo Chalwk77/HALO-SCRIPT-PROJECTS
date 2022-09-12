@@ -1,7 +1,12 @@
 --[[
 --=====================================================================================================--
 Script Name: Sabotage, for SAPP (PC & CE)
-Description:
+Description: In Sabotage, a bomb spawns in the middle of the map.
+             Both teams have to simultaneously try to destroy the opposing team's base.
+             The team that destroys the opposing team's base wins.
+
+             To plant or defuse the bomb:
+             * Hold crouch key while standing on top of the flag podium.
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -11,53 +16,51 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 local Sabotage = {
 
-    -- Tag class & name of the object to represent the bomb:
-    --
-    bomb = { 'weap', 'weapons\\ball\\ball' },
-
+    -------------------------------
+    -- CONFIGURATION STARTS HERE
+    -------------------------------
 
     -- Time (in seconds) to activate the bomb:
-    -- Default: 10
+    -- Default: 20
     --
-    plant_time = 10,
+    plant_time = 20,
 
-
-    -- Time (in seconds) :
-    -- Default: 60
+    -- Time (in seconds) until the bomb explodes:
+    -- Default: 30
     --
-    explosion_delay = 60,
-
+    explosion_delay = 120,
 
     -- Time (in seconds) to defuse the bomb:
-    -- Default: 15
+    -- Default: 20
     --
-    defuse_time = 15,
-
-
-    -- If true, more than one teammate can defuse the bomb at the same time:
-    -- Default: false
-    --
-    team_defuse = false,
-
+    defuse_time = 20,
 
     -- A message relay function temporarily removes the server prefix,
     -- and will restore it to this when done:
     --
     prefix = '**ADMIN**',
 
+    --------------------
+    --  MAP SETTINGS  --
+    --------------------
 
-    --
-    -- List of maps that this mod will work on:
-    --
     ["bloodgulch"] = {
 
-        -- X,Y,Z location where the bomb will initially spawn:
-        -- Format: { x, y, z, trigger radius }
+        -- Tag class & name of the object to represent the bomb:
+        --
+        bomb = { 'weap', 'weapons\\ball\\ball' },
+
+        -- Tag class & name of the object to represent the bomb explosion effect:
+        --
+        explosion_effect = { 'proj', 'vehicles\\scorpion\\tank shell' },
+
+        -- Bomb spawn coordinates (x,y,z):
         --
         spawn_location = { 65.749, -120.409, 0.118 },
 
-        -- Location where the bomb must be planted:
+        -- Base location coordinates:
         -- Format: { x, y, z, trigger radius }
+        -- A player must be with the trigger radius to activate or defuse the bomb.
         --
         base_locations = {
             ['red'] = { 95.687797546387, -159.44900512695, -0.10000000149012, 0.3 },
@@ -66,6 +69,8 @@ local Sabotage = {
     },
 
     ["deathisland"] = {
+        bomb = { 'weap', 'weapons\\ball\\ball' },
+        explosion_effect = { 'proj', 'vehicles\\scorpion\\tank shell' },
         spawn_location = { -30.282, 31.312, 16.601 },
         base_locations = {
             ['red'] = { -26.576030731201, -6.9761986732483, 9.6631727218628, 0.3 },
@@ -74,6 +79,8 @@ local Sabotage = {
     },
 
     ["icefields"] = {
+        bomb = { 'weap', 'weapons\\ball\\ball' },
+        explosion_effect = { 'proj', 'vehicles\\scorpion\\tank shell' },
         spawn_location = { -26.032, 32.365, 9.007 },
         base_locations = {
             ['red'] = { 24.85000038147, -22.110000610352, 2.1110000610352, 0.3 },
@@ -82,6 +89,8 @@ local Sabotage = {
     },
 
     ["infinity"] = {
+        bomb = { 'weap', 'weapons\\ball\\ball' },
+        explosion_effect = { 'proj', 'vehicles\\scorpion\\tank shell' },
         spawn_location = { 9.631, -64.030, 7.776 },
         base_locations = {
             ['red'] = { 0.67973816394806, -164.56719970703, 15.039022445679, 0.3 },
@@ -90,6 +99,8 @@ local Sabotage = {
     },
 
     ["sidewinder"] = {
+        bomb = { 'weap', 'weapons\\ball\\ball' },
+        explosion_effect = { 'proj', 'vehicles\\scorpion\\tank shell' },
         spawn_location = { 2.051, 55.220, -2.801 },
         base_locations = {
             ['red'] = { -32.038200378418, -42.066699981689, -3.7000000476837, 0.3 },
@@ -98,6 +109,8 @@ local Sabotage = {
     },
 
     ["timberland"] = {
+        bomb = { 'weap', 'weapons\\ball\\ball' },
+        explosion_effect = { 'proj', 'vehicles\\scorpion\\tank shell' },
         spawn_location = { 1.250, -1.487, -21.264 },
         base_locations = {
             ['red'] = { 17.322099685669, -52.365001678467, -17.751399993896, 0.3 },
@@ -106,6 +119,8 @@ local Sabotage = {
     },
 
     ["dangercanyon"] = {
+        bomb = { 'weap', 'weapons\\ball\\ball' },
+        explosion_effect = { 'proj', 'vehicles\\scorpion\\tank shell' },
         spawn_location = { -0.477, 55.331, 0.239 },
         base_locations = {
             ['red'] = { -12.104507446289, -3.4351840019226, -2.2419033050537, 0.3 },
@@ -114,6 +129,8 @@ local Sabotage = {
     },
 
     ["beavercreek"] = {
+        bomb = { 'weap', 'weapons\\ball\\ball' },
+        explosion_effect = { 'proj', 'vehicles\\scorpion\\tank shell' },
         spawn_location = { 14.015, 14.238, -0.911 },
         base_locations = {
             ['red'] = { 29.055599212646, 13.732000350952, -0.10000000149012, 0.3 },
@@ -122,6 +139,8 @@ local Sabotage = {
     },
 
     ["boardingaction"] = {
+        bomb = { 'weap', 'weapons\\ball\\ball' },
+        explosion_effect = { 'proj', 'vehicles\\scorpion\\tank shell' },
         spawn_location = { 4.374, -12.832, 7.220 },
         base_locations = {
             ['red'] = { 1.723109960556, 0.4781160056591, 0.60000002384186, 0.3 },
@@ -130,6 +149,8 @@ local Sabotage = {
     },
 
     ["carousel"] = {
+        bomb = { 'weap', 'weapons\\ball\\ball' },
+        explosion_effect = { 'proj', 'vehicles\\scorpion\\tank shell' },
         spawn_location = { 0.033, 0.003, -0.856 },
         base_locations = {
             ['red'] = { 5.6063799858093, -13.548299789429, -3.2000000476837, 0.3 },
@@ -138,6 +159,8 @@ local Sabotage = {
     },
 
     ["chillout"] = {
+        bomb = { 'weap', 'weapons\\ball\\ball' },
+        explosion_effect = { 'proj', 'vehicles\\scorpion\\tank shell' },
         spawn_location = { 1.392, 4.700, 3.108 },
         base_locations = {
             ['red'] = { 7.4876899719238, -4.49059009552, 2.5, 0.3 },
@@ -146,6 +169,8 @@ local Sabotage = {
     },
 
     ["damnation"] = {
+        bomb = { 'weap', 'weapons\\ball\\ball' },
+        explosion_effect = { 'proj', 'vehicles\\scorpion\\tank shell' },
         spawn_location = { -2.002, -4.301, 3.399 },
         base_locations = {
             ['red'] = { 9.6933002471924, -13.340399742126, 6.8000001907349, 0.3 },
@@ -154,6 +179,8 @@ local Sabotage = {
     },
 
     ["gephyrophobia"] = {
+        bomb = { 'weap', 'weapons\\ball\\ball' },
+        explosion_effect = { 'proj', 'vehicles\\scorpion\\tank shell' },
         spawn_location = { 63.513, -74.088, -1.062 },
         base_locations = {
             ['red'] = { 26.884338378906, -144.71551513672, -16.049139022827, 0.3 },
@@ -162,6 +189,8 @@ local Sabotage = {
     },
 
     ["hangemhigh"] = {
+        bomb = { 'weap', 'weapons\\ball\\ball' },
+        explosion_effect = { 'proj', 'vehicles\\scorpion\\tank shell' },
         spawn_location = { 21.020, -4.632, -4.229 },
         base_locations = {
             ['red'] = { 13.047902107239, 9.0331249237061, -3.3619771003723, 0.3 },
@@ -170,6 +199,8 @@ local Sabotage = {
     },
 
     ["longest"] = {
+        bomb = { 'weap', 'weapons\\ball\\ball' },
+        explosion_effect = { 'proj', 'vehicles\\scorpion\\tank shell' },
         spawn_location = { -0.84, -14.54, 2.41 },
         base_locations = {
             ['red'] = { -12.791899681091, -21.6422996521, -0.40000000596046, 0.3 },
@@ -178,6 +209,8 @@ local Sabotage = {
     },
 
     ["prisoner"] = {
+        bomb = { 'weap', 'weapons\\ball\\ball' },
+        explosion_effect = { 'proj', 'vehicles\\scorpion\\tank shell' },
         spawn_location = { 0.902, 0.088, 1.392 },
         base_locations = {
             ['red'] = { -9.3684597015381, -4.9481601715088, 5.6999998092651, 0.3 },
@@ -186,6 +219,8 @@ local Sabotage = {
     },
 
     ["putput"] = {
+        bomb = { 'weap', 'weapons\\ball\\ball' },
+        explosion_effect = { 'proj', 'vehicles\\scorpion\\tank shell' },
         spawn_location = { -2.350, -21.121, 0.902 },
         base_locations = {
             ['red'] = { -18.89049911499, -20.186100006104, 1.1000000238419, 0.3 },
@@ -194,6 +229,8 @@ local Sabotage = {
     },
 
     ["ratrace"] = {
+        bomb = { 'weap', 'weapons\\ball\\ball' },
+        explosion_effect = { 'proj', 'vehicles\\scorpion\\tank shell' },
         spawn_location = { 8.662, -11.159, 0.221 },
         base_locations = {
             ['red'] = { -4.2277698516846, -0.85564690828323, -0.40000000596046, 0.3 },
@@ -202,6 +239,8 @@ local Sabotage = {
     },
 
     ["wizard"] = {
+        bomb = { 'weap', 'weapons\\ball\\ball' },
+        explosion_effect = { 'proj', 'vehicles\\scorpion\\tank shell' },
         spawn_location = { -5.035, -5.064, -2.750 },
         base_locations = {
             ['red'] = { -9.2459697723389, 9.3335800170898, -2.5999999046326, 0.3 },
@@ -209,6 +248,10 @@ local Sabotage = {
         }
     },
 }
+
+-------------------------------
+-- CONFIGURATION ENDS HERE
+-------------------------------
 
 local map
 local bomb
@@ -303,7 +346,7 @@ function Sabotage:PlantBomb(timer)
     if (start() >= finish) then
 
         -- prevent interaction with bomb:
-        execute_command('disable_object ' .. '"' .. self.bomb[2] .. '" 0')
+        execute_command('disable_object ' .. '"' .. map.bomb[2] .. '" 0')
 
         -- Force player to drop bomb:
         drop_weapon(self.id)
@@ -343,22 +386,14 @@ function Sabotage:DefuseBomb(timer)
         bomb.defuser = self.id
     end
 
-    local defuser = bomb.defuser
-    if (not self.team_defuse and self.id ~= defuser) then
-        Say(self.id, players[defuser].name .. ' is already defusing the bomb!')
+    if (self.id ~= bomb.defuser) then
+        Say(self.id, players[bomb.defuser].name .. ' is already defusing the bomb!')
         return
-    elseif (self.team_defuse) then
-        --start = start + 1 -- needs to be start()
-    end
-
-    if (start() >= finish) then
-
+    elseif (start() >= finish) then
         UpdateTeamScore(bomb.team)
-        destroy_object(bomb.object_mem)
-        Say(_, bomb.team .. ' won!')
-        Say(_, 'Bomb has been defused!')
+        destroy_object(bomb.object)
+        Say(_, 'Bomb has been defused! ' .. bomb.team .. ' team won!')
         bomb, bomb_planted = nil, false
-
         return
     end
 
@@ -380,9 +415,12 @@ function OnStart()
             map = Sabotage[map]
             if (map) then
 
-                local class, name = Sabotage.bomb[1], Sabotage.bomb[2]
-                local tag = GetTag(class, name)
-                bomb = { meta_id = tag }
+                local bomb_meta = GetTag(map.bomb[1], map.bomb[2])
+                local bomb_effect_meta = GetTag(map.explosion_effect[1], map.explosion_effect[2])
+                bomb = {
+                    meta_id = bomb_meta,
+                    bomb_effect = bomb_effect_meta
+                }
 
                 players = { } -- reset the table (just in case)
                 for i = 1, 16 do
@@ -399,7 +437,6 @@ function OnStart()
                 register_callback(cb['EVENT_TEAM_SWITCH'], 'OnTeamSwitch')
 
                 Sabotage:SpawnBomb()
-
                 return
             end
 
@@ -453,6 +490,19 @@ function Sabotage:HasBomb(dyn)
     return false
 end
 
+function Sabotage:Explode(x, y, z)
+    local object = bomb.bomb_effect
+    for _ = 1, 10 do
+        local payload = spawn_projectile(object, 0, x, y, z)
+        local projectile = get_object_memory(payload)
+        if (payload and projectile ~= 0) then
+            write_float(projectile + 0x68, 0)
+            write_float(projectile + 0x6C, 0)
+            write_float(projectile + 0x70, -9999)
+        end
+    end
+end
+
 local function UpdateVectors(object, x, y, z)
 
     -- update orb x,y,z map coordinates:
@@ -488,9 +538,10 @@ function Sabotage:OnTick()
 
             team = GetOppositeTeam(team)
             UpdateTeamScore(team)
-            destroy_object(bomb.object_mem)
-            Say(_, 'Bomb has exploded!')
-            Say(_, team .. ' won!')
+            destroy_object(bomb.object)
+            Say(_, 'Bomb has exploded! ' .. team .. ' team won!')
+            self:Explode(x, y, z)
+
             bomb, bomb_planted = nil, false
             return
         else
@@ -574,7 +625,9 @@ function SpawnDeath(Ply)
     local player = players[Ply]
     player.timer = nil
     player.has_bomb = false
-    bomb.defuser = (Ply == bomb.defuser) and nil or bomb.defuser
+    if (bomb and bomb.defuser) then
+        bomb.defuser = (Ply == bomb.defuser) and nil or bomb.defuser
+    end
 end
 
 function OnScriptUnload()
