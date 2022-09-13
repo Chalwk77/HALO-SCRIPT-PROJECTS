@@ -92,6 +92,7 @@ local Uber = {
 
     -- Maximum number of uber calls per game:
     -- Default: 20
+    -- Set to 0 for no limit.
     --
     calls_per_game = 20,
 
@@ -342,7 +343,7 @@ function Uber:DoChecks()
     elseif (self.block_objective and objective and HasObjective(dyn)) then
         self:Tell('You cannot insert while carrying an objective.', true)
         return false
-    elseif (self.calls <= 0) then
+    elseif (self.calls_per_game > 0 and self.calls <= 0) then
         self:Tell('You have no more uber calls left.', true)
         return false
     elseif (cooldown) then
@@ -417,7 +418,12 @@ function Uber:CallUber()
                     self.calls = self.calls - 1
                     enter_vehicle(vehicle_id, self.id, seat)
                     self:Tell('Entering ' .. v.label .. ' as a ' .. label .. '.', false)
-                    self:Tell('You have ' .. self.calls .. ' uber calls left.', false)
+
+                    if (self.calls_per_game == 0) then
+                        self:Tell('You have infinite uber calls left.', false)
+                    else
+                        self:Tell('You have ' .. self.calls .. ' uber calls left.', false)
+                    end
 
                     goto done
                 end
