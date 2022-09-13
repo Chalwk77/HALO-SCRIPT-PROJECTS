@@ -35,6 +35,10 @@ local Sabotage = {
     --
     defuse_time = 20,
 
+    -- Time (in seconds) until the bomb respawns (if it's dropped):
+    --
+    bomb_respawn_time = 30,
+
     -- A message relay function temporarily removes the server prefix,
     -- and will restore it to this when done:
     --
@@ -257,6 +261,7 @@ local map
 local bomb
 local bomb_planted
 local explosion_timer
+local announce_respawn
 
 local players = { }
 local time = os.time
@@ -281,17 +286,27 @@ local function GetTag(Class, Name)
     return (tag ~= 0 and read_dword(tag + 0xC)) or nil
 end
 
+function Sabotage:BombHeld()
+    for i, v in ipairs(players) do
+        local dyn = get_dynamic_player(i)
+        if (dyn ~= 0 and player_alive(i) and v.has_bomb) then
+            return true
+        end
+    end
+    return false
+end
+
 function Sabotage:SpawnBomb()
 
     local x = map.spawn_location[1]
     local y = map.spawn_location[2]
     local z = map.spawn_location[3]
 
-    local z_off = 0.3
+    z = z + 0.5
 
     local meta_id = bomb.meta_id
 
-    local object = spawn_object('', '', x, y, z + z_off, 0, meta_id)
+    local object = spawn_object('', '', x, y, z, 0, meta_id)
     local object_mem = get_object_memory(object)
     if (object_mem ~= 0) then
         bomb.object = object
@@ -409,7 +424,7 @@ function OnStart()
         local team_slayer = (get_var(0, '$ffa') == '0' and game_type == 'slayer')
         if (team_slayer) then
 
-            bomb_planted = false
+            bomb_planted, announce_respawn = false, false
 
             map = get_var(0, '$map')
             map = Sabotage[map]
@@ -417,6 +432,7 @@ function OnStart()
 
                 local bomb_meta = GetTag(map.bomb[1], map.bomb[2])
                 local bomb_effect_meta = GetTag(map.explosion_effect[1], map.explosion_effect[2])
+
                 bomb = {
                     meta_id = bomb_meta,
                     bomb_effect = bomb_effect_meta
@@ -483,10 +499,12 @@ function Sabotage:HasBomb(dyn)
             local tag_data = read_dword(read_dword(0x40440000) + tag_address * 0x20 + 0x14)
             if (read_bit(tag_data + 0x308, 3) == 1) then
                 self.has_bomb = true
+                bomb.respawn_timer = nil
                 return true
             end
         end
     end
+    self.has_bomb = false -- just in case
     return false
 end
 
@@ -519,6 +537,41 @@ local function UpdateVectors(object, x, y, z)
     write_float(object + 0x90, 0) -- yaw
     write_float(object + 0x8C, 0) -- pitch
     write_float(object + 0x94, 0) -- roll
+end
+
+function Sabotage:RespawnBomb()
+    local bomb_held = self:BombHeld()
+    if (not bomb_held and not bomb_planted) then
+
+        local bx, by, bz = read_vector3d(bomb.object_mem + 0x5C)
+
+        local x = map.spawn_location[1]
+        local y = map.spawn_location[2]
+        local z = map.spawn_location[3]
+
+        local dist = GetDist(bx, by, bz, x, y, z)
+
+        if (dist > 1 and not bomb.respawn_timer) then
+            announce_respawn = true
+            bomb.respawn_timer = self:NewTimer(self.bomb_respawn_time)
+
+        elseif (dist > 1 and bomb.respawn_timer) then
+
+            local start = bomb.respawn_timer.start
+            local finish = bomb.respawn_timer.finish
+
+            local time_remaining = math.floor(finish - start())
+            if (time_remaining == self.bomb_respawn_time / 2 and announce_respawn) then
+                announce_respawn = false
+                Say(_, 'Bomb will respawn in ' .. finish - start() .. ' seconds.')
+            elseif (time_remaining <= 0) then
+                local z_off = 0.3
+                write_vector3d(bomb.object_mem + 0x5C, x, y, z + z_off)
+                bomb.respawn_timer = nil
+                Say(_, 'Bomb has respawned.')
+            end
+        end
+    end
 end
 
 function Sabotage:OnTick()
@@ -599,6 +652,8 @@ function Sabotage:OnTick()
             end
         end
     end
+
+    self:RespawnBomb()
 end
 
 function OnJoin(Ply)
@@ -611,6 +666,11 @@ end
 
 function OnQuit(Ply)
     players[Ply] = nil
+    if (#players ==0) then
+        bomb_planted = false
+        bomb.respawn_timer = Sabotage:NewTimer(0)
+        execute_command('enable_object ' .. '"' .. map.bomb[2] .. '" 0')
+    end
 end
 
 function OnTeamSwitch(Ply)
