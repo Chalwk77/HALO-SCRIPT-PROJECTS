@@ -389,7 +389,7 @@ end
 
 local function UpdateTeamScore(team)
     local score = (team == 'red' and get_var(0, '$redscore') or get_var(0, '$bluescore'))
-    execute_command("team_score " .. team .. " " .. score + 1000)
+    execute_command("team_score " .. team .. " " .. score + 100000)
 end
 
 function Sabotage:DefuseBomb(timer)
@@ -429,6 +429,8 @@ function OnStart()
             map = get_var(0, '$map')
             map = Sabotage[map]
             if (map) then
+
+                execute_command('scorelimit 10000')
 
                 local bomb_meta = GetTag(map.bomb[1], map.bomb[2])
                 local bomb_effect_meta = GetTag(map.explosion_effect[1], map.explosion_effect[2])
@@ -541,7 +543,7 @@ end
 
 function Sabotage:RespawnBomb()
     local bomb_held = self:BombHeld()
-    if (not bomb_held and not bomb_planted) then
+    if (bomb and not bomb_held and not bomb_planted) then
 
         local bx, by, bz = read_vector3d(bomb.object_mem + 0x5C)
 
@@ -666,7 +668,7 @@ end
 
 function OnQuit(Ply)
     players[Ply] = nil
-    if (#players ==0) then
+    if (#players ==0 and bomb) then
         bomb_planted = false
         bomb.respawn_timer = Sabotage:NewTimer(0)
         execute_command('enable_object ' .. '"' .. map.bomb[2] .. '" 0')
