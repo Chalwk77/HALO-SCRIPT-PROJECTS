@@ -27,6 +27,10 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 local Uber = {
 
+    ------------------------------------------
+    -- CONFIGURATION STARTS HERE
+    ------------------------------------------
+
     -- List of common phrases that can be used to call an uber:
     -- Set the phrase to false to disable it.
     --
@@ -104,8 +108,8 @@ local Uber = {
 
 
     -- Time (in seconds) before a player is ejected from a vehicle:
-    -- Do not set lower than 3.
     -- Default: 3
+    -- [!] Do not set lower than 3.
     --
     block_objective_time = 5,
 
@@ -136,8 +140,8 @@ local Uber = {
 
 
     -- Eject players from disabled vehicles after this many seconds:
-    -- Do not set lower than 3.
     -- Default: 3
+    -- [!] Do not set lower than 3.
     --
     eject_from_disabled_vehicle_time = 3,
 
@@ -148,11 +152,15 @@ local Uber = {
 
 
     -- Eject players after this many seconds if there is no driver:
-    -- Do not set lower than 3.
     -- Default: 3
+    -- [!] Do not set lower than 3.
     --
     eject_without_driver_time = 5
 }
+
+------------------------------------------
+-- CONFIGURATION ENDS HERE
+------------------------------------------
 
 local objective
 local players = {}
@@ -419,9 +427,7 @@ function Uber:CallUber()
                     enter_vehicle(vehicle_id, self.id, seat)
                     self:Tell('Entering ' .. v.label .. ' as a ' .. label .. '.', false)
 
-                    if (self.calls_per_game == 0) then
-                        self:Tell('You have infinite uber calls left.', false)
-                    else
+                    if (self.calls_per_game > 0) then
                         self:Tell('You have ' .. self.calls .. ' uber calls left.', false)
                     end
 
