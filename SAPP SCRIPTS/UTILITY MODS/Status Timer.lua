@@ -1,15 +1,16 @@
 --[[
 --=====================================================================================================--
 Script Name: Status Timer, for SAPP (PC & CE)
-Implementing API version: 1.11.0.0
+Description: Prints the number of players currently online.
 
-Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2016-2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
-local interval = 3000
+-- Print the number of players currently online every this many seconds:
+local interval = 3
 
 api_version = '1.12.0.0'
 
@@ -18,15 +19,16 @@ function OnScriptLoad()
     OnStart()
 end
 
+local format = string.format
 function StatusTimer()
     local min = tonumber(get_var(0, '$pn'))
     local max = read_word(0x4029CE88 + 0x28)
-    cprint("There are currently: (" .. min .. " / " .. max .. " players online)", 10)
+    cprint(format('Players: %d/%d', min, max), 10)
     return true
 end
 
 function OnStart()
     if (get_var(0, '$gt') ~= 'n/a') then
-        timer(interval, "StatusTimer")
+        timer(interval * 1000, 'StatusTimer')
     end
 end
