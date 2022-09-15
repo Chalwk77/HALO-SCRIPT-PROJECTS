@@ -11,12 +11,16 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 api_version = "1.12.0.0"
 
--- Configuration --
 local settings = {
 
+    -------------------
+    -- config starts --
+    -------------------
+
     -- Default action to take against people who are caught impersonating:
+    -- Valid actions are 'kick' & 'ban'
     --
-    action = "kick", -- Valid actions are 'kick' & 'ban'
+    action = 'kick',
 
     -- Default ban time against impersonators:
     --
@@ -24,30 +28,42 @@ local settings = {
 
     -- Punish reason:
     --
-    reason = "Impersonating",
+    reason = 'Impersonating',
+
+    --
+    -- Add your community members here:
+    --
 
     users = {
 
-        ["Chalwk"] = {
-            ["127.0.0.1"] = true,
-            ["xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"] = true
+        -- Example:
+        -- If a player joins the server with the name "ExampleGamerTag" and they are not on this list,
+        -- they will be kicked or banned (depending on the action you set above).
+        -- They must also join with the same IP address or hash as the one you have listed here.
+        -- Each entry can have multiple IP addresses or hashes.
+
+        ['ExampleGamerTag'] = {
+            ['127.0.0.1'] = true,
+            ['127.0.0.2'] = true,
+            ['xxxxxxxxxxxxxxxxxxxxxxxxxxxx01'] = true,
+            ['xxxxxxxxxxxxxxxxxxxxxxxxxxxx02'] = true,
         },
 
         -- repeat the structure to add more entries
-        ["name_here"] = {
-            ["ip 1"] = true,
-            ["ip 2"] = true,
-            ["hash1"] = true,
-            ["hash2"] = true,
-            ["hash3"] = true,
-            ["etc..."] = true,
+        ['name_here'] = {
+            ['ip 1'] = true,
+            ['ip 2'] = true,
+            ['hash1'] = true,
+            ['hash2'] = true,
+            ['hash3'] = true,
+            ['etc...'] = true,
         }
     }
 }
 -- Configuration Ends --
 
 function OnScriptLoad()
-    register_callback(cb['EVENT_JOIN'], "OnJoin")
+    register_callback(cb['EVENT_JOIN'], 'OnJoin')
 end
 
 function OnJoin(Ply)
@@ -71,7 +87,7 @@ function OnJoin(Ply)
             execute_command('k ' .. Ply .. ' "' .. reason .. '"')
             cprint(name .. ' was kicked for ' .. reason, 12)
         elseif (action == 'ban') then
-            execute_command("b " .. Ply .. ' ' .. ban_time .. ' "' .. reason .. '"')
+            execute_command('b ' .. Ply .. ' ' .. ban_time .. ' "' .. reason .. '"')
             cprint(name .. ' was banned for ' .. ban_time .. ' minutes for ' .. reason, 12)
         end
     end
