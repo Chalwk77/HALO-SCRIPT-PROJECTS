@@ -11,112 +11,109 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 api_version = '1.12.0.0'
 
-local ScriptManager = {
+-------------------
+-- config starts --
+-------------------
 
-    -------------------
-    -- config starts --
-    -------------------
+--
+-- Script names must be comma separated in double/single quotes.
+-- However, they are not case-sensitive.
+--
+
+local maps = {
 
     --
-    -- Script names must be comma separated in double/single quotes.
-    -- However, they are not case-sensitive.
+    -- Example Usage:
     --
+    ['map_name'] = {
+        ['FFA Swat'] = { 'No Grenades', 'No Fall Damage', 'Another Script' },
+        ['another game mode'] = { 'some script', 'another script' },
+    },
 
-    maps = {
+    ['bloodgulch'] = {
+        ['game_mode_here'] = {}
+    },
 
-        --
-        -- Example Usage:
-        --
-        ['map_name'] = {
-            ['FFA Swat'] = { 'No Grenades', 'No Fall Damage', 'Another Script' },
-            ['another game mode'] = { 'some script', 'another script' },
-        },
+    ['chillout'] = {
+        ['game_mode_here'] = { },
+    },
 
-        ['bloodgulch'] = {
-            ['game_mode_here'] = {}
-        },
+    ['sidewinder'] = {
+        ['game_mode_here'] = { }
+    },
 
-        ['chillout'] = {
-            ['game_mode_here'] = { },
-        },
+    ['ratrace'] = {
+        ['game_mode_here'] = {}
+    },
 
-        ['sidewinder'] = {
-            ['game_mode_here'] = { }
-        },
+    ['beavercreek'] = {
+        ['game_mode_here'] = {}
+    },
 
-        ['ratrace'] = {
-            ['game_mode_here'] = {}
-        },
+    ['boardingaction'] = {
+        ['game_mode_here'] = {}
+    },
 
-        ['beavercreek'] = {
-            ['game_mode_here'] = {}
-        },
+    ['carousel'] = {
+        ['game_mode_here'] = {}
+    },
 
-        ['boardingaction'] = {
-            ['game_mode_here'] = {}
-        },
+    ['dangercanyon'] = {
+        ['game_mode_here'] = {}
+    },
 
-        ['carousel'] = {
-            ['game_mode_here'] = {}
-        },
+    ['deathisland'] = {
+        ['game_mode_here'] = {}
+    },
 
-        ['dangercanyon'] = {
-            ['game_mode_here'] = {}
-        },
+    ['gephyrophobia'] = {
+        ['game_mode_here'] = {}
+    },
 
-        ['deathisland'] = {
-            ['game_mode_here'] = {}
-        },
+    ['icefields'] = {
+        ['game_mode_here'] = {}
+    },
 
-        ['gephyrophobia'] = {
-            ['game_mode_here'] = {}
-        },
+    ['infinity'] = {
+        ['game_mode_here'] = {}
+    },
 
-        ['icefields'] = {
-            ['game_mode_here'] = {}
-        },
+    ['timberland'] = {
+        ['game_mode_here'] = {}
+    },
 
-        ['infinity'] = {
-            ['game_mode_here'] = {}
-        },
+    ['hangemhigh'] = {
+        ['game_mode_here'] = {}
+    },
 
-        ['timberland'] = {
-            ['game_mode_here'] = {}
-        },
+    ['damnation'] = {
+        ['game_mode_here'] = {}
+    },
 
-        ['hangemhigh'] = {
-            ['game_mode_here'] = {}
-        },
+    ['putput'] = {
+        ['game_mode_here'] = {}
+    },
 
-        ['damnation'] = {
-            ['game_mode_here'] = {}
-        },
+    ['prisoner'] = {
+        ['game_mode_here'] = {}
+    },
 
-        ['putput'] = {
-            ['game_mode_here'] = {}
-        },
+    ['wizard'] = {
+        ['game_mode_here'] = {}
+    },
 
-        ['prisoner'] = {
-            ['game_mode_here'] = {}
-        },
+    ['longest'] = {
+        ['game_mode_here'] = {}
+    },
 
-        ['wizard'] = {
-            ['game_mode_here'] = {}
-        },
-
-        ['longest'] = {
-            ['game_mode_here'] = {}
-        },
-
-        --
-        -- repeat the structure to add more entries.
-        --
-    }
-
-    -----------------
-    -- config ends --
-    -----------------
+    --
+    -- repeat the structure to add more entries.
+    --
 }
+
+-----------------
+-- config ends --
+-----------------
 
 local loaded, scripts = {}, {}
 
@@ -146,7 +143,7 @@ function OnStart()
         local mode = get_var(0, '$mode')
 
         -- Get scripts for the current map & mode:
-        local settings = ScriptManager.maps[map]
+        local settings = maps[map]
         local game_scripts = (settings and settings[mode])
 
         -- Load scripts:
