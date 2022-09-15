@@ -1,62 +1,50 @@
 --[[
 --=====================================================================================================--
 Script Name: Skip Delay, for SAPP (PC & CE)
-Description: This script prevents players from skipping the game too early.
+Description: Prevent players from skipping the map too early.
 
-Scenario: A player with a good ping (and bad intentions) joins the server after a new game has just begun
-          and immediately types "skip", thus ending the game before anyone else joins.
-
-I've heard cases of people binding this to a key too.
-
-Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2021-2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
--- config starts --
-
--- Time (in seconds) until skipping can occur:
+-- Players have to wait this many seconds before they can skip the map:
+-- (Default: 10 seconds)
 --
 local delay = 10
-
--- config ends --
 
 api_version = "1.12.0.0"
 
 local time
-
 local clock = os.clock
 local ceil = math.ceil
 
 function OnScriptLoad()
 
-    register_callback(cb["EVENT_CHAT"], "Skip")
-    register_callback(cb["EVENT_GAME_END"], "OnEnd")
-    register_callback(cb["EVENT_GAME_START"], "OnStart")
+    register_callback(cb['EVENT_CHAT'], 'Skip')
+    register_callback(cb['EVENT_GAME_END'], 'OnEnd')
+    register_callback(cb['EVENT_GAME_START'], 'OnStart')
 
     OnStart()
 end
 
 local function Plural(n)
-    return (n > 1 and "s") or ""
+    return (n > 1 and 's') or ''
 end
 
 function Skip(Ply, Msg)
-    if (time and Msg:sub(1, Msg:len()):lower() == "skip") then
+    if (time and Msg:sub(1, Msg:len()):lower() == 'skip') then
         local n = ceil(time + delay - clock())
         if (n > 0) then
-            rprint(Ply, "Please wait " .. n .. " second" .. Plural(n) .. " before attempting to skip")
+            rprint(Ply, 'Please wait ' .. n .. ' second' .. Plural(n) .. ' before skipping.')
             return false
         end
     end
 end
 
 function OnStart()
-    time = nil
-    if (get_var(0, "$gt") ~= "n/a") then
-        time = os.clock()
-    end
+    time = (get_var(0, '$gt') ~= 'n/a') and os.clock() or nil
 end
 
 function OnEnd()

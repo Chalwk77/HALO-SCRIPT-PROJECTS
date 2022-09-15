@@ -12,16 +12,16 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
--- A message relay function temporarily removes the server prefix,
--- and restores it to this when it's finish:
-local server_prefix = '**SAPP**'
-
 -- The $name placeholder will be replaced with the players name automagically:
 --
 local MVP = {
     ['127.0.0.1'] = 'YO! MVP $name has joined the server!',
-    ['xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'] =' "$name, a brother from another mother has joined!"'
+    ['xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'] = '$name, a brother from another mother has joined!'
 }
+
+-- A message relay function temporarily removes the server prefix,
+-- and restores it to this when it's finish:
+local server_prefix = '**SAPP**'
 
 -- Config Ends ------------
 
