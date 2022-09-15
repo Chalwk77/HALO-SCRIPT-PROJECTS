@@ -22,9 +22,9 @@ api_version = '1.12.0.0'
 
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], 'OnTick')
-    register_callback(cb['EVENT_JOIN'], 'OnJoin')
+    register_callback(cb['EVENT_JOIN'], 'Cancel')
     register_callback(cb['EVENT_LEAVE'], 'OnQuit')
-    register_callback(cb['EVENT_GAME_END'], 'OnEnd')
+    register_callback(cb['EVENT_GAME_END'], 'Cancel')
 end
 
 local function NewTimer()
@@ -34,23 +34,19 @@ local function NewTimer()
     }
 end
 
-function OnEnd()
-    timer = nil
-end
-
 function OnTick()
     if (timer and timer.start() >= timer.finish) then
         execute_command('mapcycle_begin')
     end
 end
 
-function OnJoin()
-    timer = nil
-end
-
 function OnQuit()
     local total = tonumber(get_var(0, '$pn')) - 1
     timer = (total == 0) and NewTimer() or nil
+end
+
+function Cancel()
+    timer = nil
 end
 
 function OnScriptUnload()
