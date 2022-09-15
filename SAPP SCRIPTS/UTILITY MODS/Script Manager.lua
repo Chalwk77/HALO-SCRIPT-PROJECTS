@@ -33,7 +33,7 @@ local ScriptManager = {
         },
 
         ['bloodgulch'] = {
-            ['Sabotage'] = { 'Attrition' }
+            ['game_mode_here'] = {}
         },
 
         ['chillout'] = {
@@ -45,7 +45,7 @@ local ScriptManager = {
         },
 
         ['ratrace'] = {
-            ['Sabotage'] = { 'Attrition' }
+            ['game_mode_here'] = {}
         },
 
         ['beavercreek'] = {
