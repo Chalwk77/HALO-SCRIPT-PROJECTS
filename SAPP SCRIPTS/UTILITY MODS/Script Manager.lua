@@ -145,7 +145,7 @@ function OnStart()
         local map = get_var(0, '$map')
         local mode = get_var(0, '$mode')
 
-        -- Load scripts for the current map & mode:
+        -- Get scripts for the current map & mode:
         local settings = ScriptManager.maps[map]
         local game_scripts = (settings and settings[mode])
 
@@ -159,7 +159,7 @@ function OnStart()
             end
         end
 
-        -- unload scripts that are no longer needed:
+        -- Unload scripts that are no longer needed:
         for Script, _ in pairs(loaded) do
             if (not scripts[Script]) then
                 Unload(Script)
