@@ -18,6 +18,7 @@ local PingKicker = {
 
     -- Players will be warned this many times before being kicked:
     -- Default: 5
+    --
     warnings = 5,
 
     -- How often to check player pings:
@@ -56,10 +57,10 @@ local PingKicker = {
 
     -- Multi line message to omit when we need to warn a player for high ping:
     warning_message = {
-        "--- [ HIGH PING WARNING ] ---",
-        "Ping is too high! Limit: $limit (ms), Your Ping: $ping (ms).",
-        "Please try to lower it if possible.",
-        "Warnings Left: $strikes/$max_warnings"
+        '--- [ HIGH PING WARNING ] ---',
+        'Ping is too high! Limit: $limit (ms), Your Ping: $ping (ms).',
+        'Please try to lower it if possible.',
+        'Warnings Left: $strikes/$max_warnings'
     }
 }
 
@@ -110,17 +111,6 @@ end
 
 function PingKicker:GetPing()
     return tonumber(get_var(self.id, '$ping'))
-end
-
-function PingKicker:OnJoin(Ply)
-
-    players[Ply] = self:NewPlayer({
-        id = Ply,
-        name = get_var(Ply, '$name')
-    })
-
-    -- Update limit:
-    limit = self:GetLimit()
 end
 
 function PingKicker:Ignore()
@@ -177,14 +167,16 @@ function OnTick()
 end
 
 function OnJoin(Ply)
-    PingKicker:OnJoin(Ply)
+    players[Ply] = PingKicker:NewPlayer({
+        id = Ply,
+        name = get_var(Ply, '$name')
+    })
+    limit = PingKicker:GetLimit()
 end
 
 function OnQuit(Ply)
     players[Ply] = nil
-
-    -- update limit:
-    PingKicker:GetLimit()
+    limit = PingKicker:GetLimit()
 end
 
 function OnScriptUnload()
