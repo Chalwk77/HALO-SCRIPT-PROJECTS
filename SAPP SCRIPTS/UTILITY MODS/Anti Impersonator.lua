@@ -59,8 +59,11 @@ local settings = {
             ['etc...'] = true,
         }
     }
+
+    -----------------
+    -- config ends --
+    -----------------
 }
--- Configuration Ends --
 
 function OnScriptLoad()
     register_callback(cb['EVENT_JOIN'], 'OnJoin')
