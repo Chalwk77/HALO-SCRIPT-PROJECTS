@@ -3,18 +3,18 @@
 Script Name: Show Admin Names, for SAPP (PC & CE)
 Description: Prints the name and level of admins who are currently online.
 
-Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2021-2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
-local command = "whois"
+local command = 'whois'
 
-api_version = "1.12.0.0"
+api_version = '1.12.0.0'
 
 function OnScriptLoad()
-    register_callback(cb["EVENT_COMMAND"], "CheckAdmins")
+    register_callback(cb['EVENT_COMMAND'], 'CheckAdmins')
 end
 
 local function IsAdmin(Ply)
@@ -28,7 +28,7 @@ function CheckAdmins(Ply, CMD)
             if player_present(i) then
                 local lvl = IsAdmin(i)
                 if (lvl) then
-                    rprint(Ply, get_var(i, "$name") .. " [level: " .. lvl .. "]")
+                    rprint(Ply, get_var(i, '$name') .. ' [level: ' .. lvl .. ']')
                 end
             end
         end
