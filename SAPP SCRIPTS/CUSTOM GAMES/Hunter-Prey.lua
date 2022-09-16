@@ -336,7 +336,7 @@ function OnQuit(Ply)
     players[Ply] = nil
 end
 
-function HunterPrey:GetTop3()
+local function GetTop3()
     local top3 = {}
     for _, v in ipairs(players) do
         if (v.total_time > 0) then
@@ -351,7 +351,7 @@ end
 
 function OnEnd()
 
-    local winners = HunterPrey:GetTop3()
+    local winners = GetTop3()
     if (winners) then
 
         for i = 1,3 do
