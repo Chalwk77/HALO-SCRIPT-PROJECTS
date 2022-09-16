@@ -13,9 +13,14 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 ]]--
 
 local HunterPrey = {
+
     --
     -- Configuration [starts]
     --
+
+    -- Players have to hold the flag for this many seconds to win:
+    --
+    scorelimit = 300,
 
     -- The flag will respawn after this many seconds (if dropped):
     --
@@ -159,6 +164,7 @@ function OnStart()
             hp.fz = hp[map][3] + 0.5
             hp:SpawnFlag()
             RegSAPPEvents(register_callback)
+            execute_command('scorelimit ' .. hp.scorelimit)
             return
         end
     end
@@ -241,7 +247,7 @@ local function FormatTime(time)
     return format('%.3f', time)
 end
 
-function HunterPrey:HasFlag(dyn)
+function HunterPrey:CheckForFlag(dyn)
     for i = 0, 3 do
 
         local weapon = read_dword(dyn + 0x2F8 + 0x4 * i)
@@ -259,10 +265,15 @@ function HunterPrey:HasFlag(dyn)
                 end
 
                 self.total_time = self.timer:get()
-                Say(i, 'Time with flag: ' .. FormatTime(self.total_time) .. ' seconds.')
+                local time = FormatTime(self.total_time)
 
                 self.has_flag = true
                 self.respawn_timer = nil
+
+                for j,_ in pairs(players) do
+                    Say(j, self.name .. ' has the flag (' .. time .. ' seconds).')
+                end
+                execute_command('score ' .. self.id .. ' ' .. floor(time))
 
                 goto next
             end
@@ -276,50 +287,18 @@ function HunterPrey:HasFlag(dyn)
 end
 
 function OnTick()
-    local hp = HunterPrey
-
     for i, v in ipairs(players) do
         local dyn = get_dynamic_player(i)
         if player_alive(i) and dyn ~= 0 then
-            for j = 0, 3 do
-
-                local weapon = read_dword(dyn + 0x2F8 + 0x4 * j)
-                local object = get_object_memory(weapon)
-                if (weapon ~= 0xFFFFFFFF and object ~= 0) then
-                    local tag_address = read_word(object)
-                    local tag_data = read_dword(read_dword(0x40440000) + tag_address * 0x20 + 0x14)
-                    if (read_bit(tag_data + 0x308, 3) == 1) then
-
-                        if (not v.timer.start_time) then
-                            v.timer:start()
-                        elseif (v.timer.paused) then
-                            v.timer:resume()
-                        end
-
-                        v.total_time = v.timer:get()
-                        for _ = 1, 25 do
-                            rprint(i, ' ')
-                        end
-                        Say(i, 'Time with flag: ' .. floor(v.total_time) .. ' seconds.')
-
-                        v.has_flag = true
-                        hp.respawn_timer = nil
-
-                        goto next
-                    end
-                end
-            end
-            v.timer:pause()
-            v.has_flag = nil -- just in case
-            :: next ::
+            v:CheckForFlag(dyn)
         end
     end
-
-    hp:RespawnFlag()
+    HunterPrey:RespawnFlag()
 end
 
 function OnJoin(Ply)
     players[Ply] = HunterPrey:NewPlayer({
+        id = Ply,
         total_time = 0,
         timer = timer:new(),
         name = get_var(Ply, '$name')
