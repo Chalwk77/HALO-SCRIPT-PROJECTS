@@ -336,25 +336,25 @@ function OnQuit(Ply)
     players[Ply] = nil
 end
 
-local function GetTop3()
-    local top3 = {}
+local function GetCompetitors()
+    local competitors = {}
     for _, v in ipairs(players) do
         if (v.total_time > 0) then
-            table.insert(top3, v)
+            table.insert(competitors, v)
         end
     end
-    table.sort(top3, function(a, b)
+    table.sort(competitors, function(a, b)
         return a.total_time > b.total_time
     end)
-    return top3
+    return competitors
 end
 
 function OnEnd()
 
-    local winners = GetTop3()
+    local winners = GetCompetitors()
     if (winners) then
 
-        for i = 1,3 do
+        for i = 1, 3 do
             local player = winners[i]
             if (player) then
                 local name = player.name
