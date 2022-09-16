@@ -3,7 +3,7 @@
 Script Name: Timer Library, for SAPP (PC & CE)
 Description: This script provides a simple timer library for use in other scripts.
 
-Simply require this script in your script and use the following functions:
+Simply require this script in your script to use the following functions:
 timer:new()
 timer:start()
 timer:stop()
@@ -16,7 +16,6 @@ Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
-
 
 local timer = {}
 local clock = os.clock
