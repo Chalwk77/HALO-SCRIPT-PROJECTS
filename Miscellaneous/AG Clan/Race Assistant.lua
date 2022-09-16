@@ -1,199 +1,160 @@
 --[[
---======================================================================================================--
-Script Name: Race Assistant (v1.3), for SAPP (PC & CE)
-Description: This script will monitor all players and ensure they are all racing.
-             Players who are not in a vehicle will be warned after "time_until_warn" seconds.
-             After "time_until_kill" seconds the player will be killed.
+--=====================================================================================================--
+Script Name: Race Assistant, for SAPP (PC & CE)
+Description: This script will ensure all players are racing.
+             Players not in a vehicle will be warned to enter one.
+             If they do not enter a vehicle, they will be respawned.
 
-             Players get a maximum of 5 warnings by default.
-             If their warnings are depleted the player will be punished (kicked by default)
-
-Copyright (c) 2020-2021, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2020-2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
---======================================================================================================--
+--=====================================================================================================--
 ]]--
 
-api_version = "1.12.0.0"
 
--- config starts --
-local actions = { -- Only one action can be enabled at a time.
-    ["kill"] = {
-        enabled = true,
-        warning = "[Not in Vehicle] - Warning, you will be killed in %seconds% seconds. Warnings Left: %current%/%total%",
-        on_action = "You were killed because you were not racing in a vehicle"
-    },
-    ["take_weapons"] = {
-        enabled = false,
-        warning = "[Not in Vehicle] - Warning, your weapons will be taken in %seconds% seconds. Warnings Left: %current%/%total%",
-        on_action = "Your weapons have been taken away because you were not racing"
-    }
+local RaceAssistant = {
+
+    -- Number of warnings before a player is respawned:
+    --
+    warnings = 5,
+
+    -- Number of seconds before a player is warned:
+    --
+    time_until_warn = 3,
+
+    -- If true, admins will be exempt from being warned:
+    --
+    ignore_admins = false,
+
+    -- Number of seconds a player must been driving before their warnings are reset:
+    --
+    grace_period = 10,
 }
 
-local warnings = 5 -- Warnings per game
-
--- If true players will be kicked or banned after 5 repeat warnings.
-local severe_punishment = true
-local punishment = "k" -- Valid Actions: "k" = kick, "b" = ban (severe_punishment must be enabled)
-
-local time_until_warn = 90 -- In seconds
-local time_until_kill = 180 -- In seconds
-
--- If true admins will be exempt from action taken against them (including warnings)
-local ignore_admins = true
-
--- Admins who are this level (or above) will be exempt (ignore_admins must be enabled)
-local min_level = 1
--- config ends --
-
-local players
-local game_started
-local time_scale = 1 / 30
-local floor, gsub = math.floor, string.gsub
-
-local function GetAction()
-    for k, v in pairs(actions) do
-        if (v.enabled) then
-            return k, v
-        end
-    end
-end
-local AType, ATable = GetAction()
+api_version = '1.12.0.0'
+local players = {}
+local time = os.time
 
 function OnScriptLoad()
-    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
-    OnGameStart()
+    register_callback(cb['EVENT_GAME_START'], 'OnStart')
+    OnStart()
 end
 
-function OnGameStart()
-    if (get_var(0, "$gt") ~= "n/a") then
+function RaceAssistant:NewPlayer(o)
+    setmetatable(o, self)
+    self.__index = self
+    o.strikes = self.warnings
+    return o
+end
 
-        players = { }
-        game_started = RegisterSAPPEvents()
+function RaceAssistant:NewTimer(finish)
+    return {
+        start = time,
+        finish = time() + finish,
+    }
+end
 
-        if (game_started) then
-            for i = 1, 16 do
-                if player_present(i) then
-                    CheckIgnore(i)
-                end
-            end
-        end
+local function RegSAPPEvents(f)
+    for event, callback in pairs({
+        ['EVENT_TICK'] = 'OnTick',
+        ['EVENT_JOIN'] = 'OnJoin',
+        ['EVENT_LEAVE'] = 'OnQuit',
+        ['EVENT_SPAWN'] = 'OnSpawn',
+        ['EVENT_GAME_END'] = 'OnEnd',
+        ['EVENT_VEHICLE_EXIT'] = 'OnExit',
+        ['EVENT_VEHICLE_ENTER'] = 'OnEnter'
+    }) do
+        f(cb[event], callback)
     end
 end
 
-function OnGameEnd()
-    game_started = false
+function OnStart()
+    if (get_var(0, '$gt') ~= 'n/a') then
+        players = {}
+        for i = 1, 16 do
+            if player_present(i) then
+                OnJoin(i)
+            end
+        end
+        RegSAPPEvents(register_callback)
+    end
 end
 
-local function InitPlayer(Ply, Reset)
-    if (not Reset) then
-        players[Ply] = {
-            seconds = 0,
-            init = true,
-            warn = true,
-            warnings = warnings
-        }
-    elseif (players[Ply]) then
-        players[Ply] = nil
+function OnEnd()
+    RegSAPPEvents(unregister_callback)
+end
+
+function OnJoin(Ply)
+    players[Ply] = RaceAssistant:NewPlayer({})
+end
+
+function OnQuit(Ply)
+    players[Ply] = nil
+end
+
+function OnSpawn(Ply)
+    local p = players[Ply]
+    if (p) then
+        p.strikes = p.warnings
+        p.timer = p:NewTimer(p.time_until_warn)
+    end
+end
+
+function OnEnter(Ply)
+    local p = players[Ply]
+    if (p) then
+        p.timer = nil
+        p.grace = p:NewTimer(p.grace_period)
+    end
+end
+
+function OnExit(Ply)
+    local p = players[Ply]
+    if (p) then
+        p.timer = p:NewTimer(p.time_until_warn)
+        p.grace = nil
     end
 end
 
 local function InVehicle(Ply)
-    local DyN = get_dynamic_player(Ply)
-    if (DyN ~= 0) then
-        local VehicleID = read_dword(DyN + 0x11C)
-        if (VehicleID == 0xFFFFFFFF) then
-            return false
-        elseif (players[Ply].warn) then
-            players[Ply].seconds = 0
-        end
-        return true
+    local p = players[Ply]
+    local dyn = get_dynamic_player(Ply)
+    if (dyn ~= 0) then
+
+        local vehicle = read_dword(dyn + 0x11C)
+        local object = get_object_memory(vehicle)
+        local in_vehicle = (vehicle ~= 0xFFFFFFFF and object ~= 0)
+        return (in_vehicle)
     end
+
+    p.grace = nil -- just in case
     return false
 end
 
+local function IgnoreAdmin(Ply)
+    return (tonumber(get_var(Ply, '$lvl')) >= 1)
+end
+
 function OnTick()
-    if (game_started) then
-        for i, v in pairs(players) do
-
-            if (not InVehicle(i)) then
-                v.seconds = v.seconds + time_scale
-                if (v.seconds > time_until_warn and v.warn) then
-
-                    v.warn = false
-                    v.warnings = v.warnings - 1
-
-                    local time_remaining = floor((time_until_kill - v.seconds)) + 1
-                    local msg = gsub(gsub(gsub(ATable.warning,
-                            "%%seconds%%", time_remaining),
-                            "%%current%%", v.warnings),
-                            "%%total%%", warnings)
-
-                    say(i, msg)
-                elseif (v.seconds >= time_until_kill) then
-                    if (AType == "kill") then
-                        execute_command("kill " .. i)
-                    elseif (AType == "take_weapons") then
-                        execute_command("wdel " .. i)
-                    end
-                    if (v.warnings <= 0 and severe_punishment) then
-                        execute_command(punishment .. " " .. i)
-                    else
-                        say(i, ATable.on_action)
-                    end
+    for i, v in ipairs(players) do
+        if (v.ignore_admins and IgnoreAdmin(i)) then
+            goto next
+        elseif (v.timer and player_alive(i) and not InVehicle(i)) then
+            if (v.timer.start() >= v.timer.finish) then
+                if (v.strikes > 0) then
+                    v.strikes = v.strikes - 1
+                    v.timer = v:NewTimer(v.time_until_warn)
+                    say(i, 'Please enter a vehicle. You have (' .. v.strikes .. ') strikes remaining.')
+                elseif (v.strikes == 0) then
+                    execute_command_sequence('kill ' .. i .. '; say ' .. i .. ' "You have been respawned"')
                 end
             end
+        elseif (v.grace and player_alive(i) and InVehicle(i)) then
+            if (v.grace.start() >= v.grace.finish) then
+                v.strikes = v.warnings
+            end
         end
-    end
-end
-
-function CheckIgnore(Ply)
-    local ignore = (tonumber(get_var(Ply, "$lvl")) >= min_level and ignore_admins)
-    if (not ignore) then
-        InitPlayer(Ply, false)
-    end
-end
-
-function OnPlayerConnect(Ply)
-    CheckIgnore(Ply)
-end
-
-function OnPlayerSpawn(Ply)
-    if (players[Ply]) then
-        players[Ply].seconds = 0
-        players[Ply].warn = true
-    end
-end
-
-function OnPlayerDisconnect(Ply)
-    InitPlayer(Ply, true)
-end
-
-function OnWeaponPickup(Ply, _, _)
-    local case = (players[Ply] and players[Ply].seconds >= time_until_warn)
-    if (case) and (AType == "take_weapons") then
-        execute_command("wdel " .. Ply)
-    end
-end
-
-function RegisterSAPPEvents()
-    if (get_var(0, "$gt") == "race") then
-        register_callback(cb["EVENT_TICK"], "OnTick")
-        register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
-        register_callback(cb["EVENT_SPAWN"], "OnPlayerSpawn")
-        register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
-        register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
-        register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
-        return true
-    else
-        unregister_callback(cb['EVENT_TICK'])
-        unregister_callback(cb['EVENT_JOIN'])
-        unregister_callback(cb['EVENT_SPAWN'])
-        unregister_callback(cb['EVENT_LEAVE'])
-        unregister_callback(cb['EVENT_GAME_END'])
-        unregister_callback(cb['EVENT_WEAPON_PICKUP'])
-        cprint("[Race Assistant] The current game mode is not RACE. Script will not work!", 12)
-        return false
+        :: next ::
     end
 end
 
