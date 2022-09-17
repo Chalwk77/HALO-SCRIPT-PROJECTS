@@ -108,11 +108,9 @@ function VoteKick:Initiate(args)
 
     if (not success or not player) then
         self:Send('Invalid player.')
-        return
     elseif (player.id ~= self.id) then
         if (player:IsAdmin()) then
             self:Send('You cannot vote to kick an admin.')
-            return
         elseif (player.votes[self.ip]) then
             self:Send('You have already voted to kick ' .. player.name)
         elseif (total_players < self.minimum_players) then
@@ -121,7 +119,6 @@ function VoteKick:Initiate(args)
             player.grace = clock() + VoteKick.vote_grace_period
             player.votes[self.ip] = true
             player.votes.total = player.votes.total + 1
-            self:Send('You have voted to kick ' .. player.name)
             player:CheckVotes(self, total_players)
         end
     else
@@ -135,8 +132,9 @@ function VoteKick:CheckVotes(voter, total_players)
     if (votes_remaining == 0) then
         self:Kick()
     else
-        voter:Send(self.name .. ' needs ' .. votes_remaining .. ' more votes to be kicked.')
-        self:Send('A player has voted to kick you. (' .. votes_remaining .. ') more votes to be kicked.')
+        execute_command('msg_prefix ""')
+        say_all(voter.name .. ' voted to kick ' .. self.name .. ' (' .. votes_remaining .. ' votes needed)')
+        execute_command('msg_prefix "' .. self.prefix .. '"')
     end
 end
 
@@ -148,7 +146,6 @@ end
 
 function VoteKick:Reset()
     self.votes = {}
-    self.total = 0
     self.grace = nil
     self:Send('Votes against you have been reset.')
 end
