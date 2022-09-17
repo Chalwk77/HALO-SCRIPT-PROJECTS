@@ -48,7 +48,7 @@ local VoteKick = {
     -- If true, players will be able to vote anonymously:
     -- Default: false
     --
-    anonymous_votes = true,
+    anonymous_votes = false,
 
     -- If true, a message will be displayed when a new vote kick has been initiated:
     -- Default: true
