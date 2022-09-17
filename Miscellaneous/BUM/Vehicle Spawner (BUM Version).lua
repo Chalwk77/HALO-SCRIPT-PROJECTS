@@ -242,7 +242,7 @@ function OnStart()
                         respawn_radius = respawn_radius
                     })
                     objects[i]:SpawnVehicle()
-                    cprint('Spawning ' .. class .. ' ' .. name .. ' at ' .. x .. ', ' .. y .. ', ' .. z, 10)
+                    --cprint('Spawning ' .. class .. ' ' .. name .. ' at ' .. x .. ', ' .. y .. ', ' .. z, 10)
                 end
             end
             if (reg) then
@@ -289,8 +289,8 @@ function OnTick()
                     elseif (clock() >= v.delay) then
                         v.delay = nil
                         v:SpawnVehicle()
-                    else
-                        --print('Respawning vehicle in ' .. v.delay - clock() .. ' seconds.')
+                    --else
+                        --print('Respawning vehicle in ' .. v.delay - clock() .. ' seconds.', 10)
                     end
 
                 elseif (v.timer) then
