@@ -1,7 +1,7 @@
 --[[
 --=====================================================================================================--
 Script Name: Vote Kick, for SAPP (PC & CE)
-Description: Players can vote to kick disruptive players from the server.
+Description: Vote to kick disruptive players from the server.
              Votes can be kept anonymous, and the player with the most votes is kicked.
 
              Vote command syntax: /votekick (player id)
@@ -12,6 +12,8 @@ Copyright (c) 2020-2022, Jericho Crosby <jericho.crosby227@gmail.com>
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
+
+-- config starts --
 
 local VoteKick = {
 
@@ -24,31 +26,46 @@ local VoteKick = {
     vote_list_command = 'votelist',
 
     -- Minimum number of players required to initiate a vote kick:
+    -- Default: 2 players
     --
     minimum_players = 2,
 
     -- Percentage of online players needed to vote yes to kick a player:
+    -- Default: 60%
     --
     vote_percentage = 60,
 
     -- A players votes will be reset if they're not voted out within this time (in seconds):
+    -- Default: 30s
     --
     vote_grace_period = 30,
 
     -- If a player quits and returns to the server within this time (in seconds),
     -- their vote will remain in vote kick tally:
+    -- Default: 30s
     --
     quit_grace_period = 30,
 
     -- If true, players will be able to vote anonymously:
+    -- Default: false
     --
     anonymous_votes = true,
-}
 
-local players = {}
-local ips = {}
+    -- If true, a message will be displayed when a new vote kick has been initiated:
+    -- Default: true
+    --
+    announce_on_initiate = true,
+
+    -- A message relay function temporarily removes the msg_prefix and restores
+    -- it to this when done:
+    -- Default: **SAPP**
+    --
+    prefix = '**SAPP**'
+}
+-- config ends --
 
 local clock = os.clock
+local players, ips = {}, {}
 
 api_version = '1.12.0.0'
 
@@ -90,13 +107,19 @@ function VoteKick:VoteList()
     local t = {}
     for _, v in pairs(players) do
         if (self.id ~= v.id and not v:IsAdmin()) then
-            t[#t + 1] = { name = v.name, id = v.id }
+            local votes = v.votes
+            if (not votes.total) then
+                votes = 0
+            else
+                votes = votes.total
+            end
+            t[#t + 1] = { name = v.name, id = v.id, votes = votes }
         end
     end
     if (#t > 0) then
         self:Send('Players who can be voted out:')
         for i = 1, #t do
-            self:Send('[' .. t[i].id .. '] ' .. t[i].name)
+            self:Send('[' .. t[i].id .. '] ' .. t[i].name .. ' - (' .. t[i].votes .. ') votes')
         end
     else
         self:Send('No players can be voted out.')
@@ -130,24 +153,44 @@ function VoteKick:Initiate(args)
     end
 end
 
+function VoteKick:SayAll(voter, votes_remaining)
+    execute_command('msg_prefix ""')
+    say_all(voter.name .. ' voted to kick ' .. self.name .. ' - (' .. votes_remaining .. ' votes needed)')
+    execute_command('msg_prefix "' .. self.prefix .. '"')
+end
+
+function VoteKick:AnnounceSession()
+    execute_command('msg_prefix ""')
+    say_all('Vote Kick has been initiated on ' .. self.name .. '.')
+    say_all('Use command /' .. self.vote_list_command .. ' to view a list of players who can be voted out.')
+    say_all('Use command /' .. self.vote_command .. ' (id) to vote to kick a player.')
+    execute_command('msg_prefix "' .. self.prefix .. '"')
+end
+
 function VoteKick:CheckVotes(voter, total_players)
+
     local votes = self.votes.total
+    if (self.announce_on_initiate and votes == 1) then
+        self:AnnounceSession()
+    end
+
     local votes_remaining = math.ceil((self.vote_percentage / 100) * total_players) - votes
     if (votes_remaining == 0) then
-        self:Kick()
+        self:Kick(voter, votes_remaining)
     elseif (not self.anonymous_votes) then
-        execute_command('msg_prefix ""')
-        say_all(voter.name .. ' voted to kick ' .. self.name .. ' (' .. votes_remaining .. ' votes needed)')
-        execute_command('msg_prefix "' .. self.prefix .. '"')
+        self:SayAll(voter, votes_remaining)
     else
-        voter:Send('Vote cast against ' .. self.name .. ' (' .. votes_remaining .. ' votes needed)')
+        voter:Send('Vote cast against ' .. self.name .. ' - (' .. votes_remaining .. ' votes needed)')
     end
 end
 
-function VoteKick:Kick()
+function VoteKick:Kick(voter, votes_remaining)
     self:Send('Vote kick passed.')
     self:Send('You have been kicked from the server.')
     execute_command('k ' .. self.id)
+    if (not self.anonymous_votes) then
+        self:SayAll(voter, votes_remaining)
+    end
 end
 
 function VoteKick:Reset()
