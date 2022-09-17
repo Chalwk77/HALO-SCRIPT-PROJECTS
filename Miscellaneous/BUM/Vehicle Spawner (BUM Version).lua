@@ -2,8 +2,8 @@
 --=====================================================================================================--
 Script Name: Custom Vehicle Spawner, for SAPP (PC & CE)
 Description: This script will spawn vehicles at pre-defined coordinates.
-             If a vehicle has moved from its original position, and isn't occupied,
-             it will be moved back to its original position after a dealy.
+             If a vehicle has moved from its original position and isn't occupied,
+			 it will be moved back to its original position after a delay.
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
