@@ -2,7 +2,7 @@
 --=====================================================================================================--
 Script Name: Vote Kick, for SAPP (PC & CE)
 Description: Players can vote to kick disruptive players from the server.
-             Votes are kept anonymous, and the player with the most votes is kicked.
+             Votes can be kept anonymous, and the player with the most votes is kicked.
 
              Vote command syntax: /votekick (player id)
              Vote list command syntax: /votelist
@@ -38,7 +38,11 @@ local VoteKick = {
     -- If a player quits and returns to the server within this time (in seconds),
     -- their vote will remain in vote kick tally:
     --
-    quit_grace_period = 30
+    quit_grace_period = 30,
+
+    -- If true, players will be able to vote anonymously:
+    --
+    anonymous_votes = true,
 }
 
 local players = {}
@@ -131,10 +135,12 @@ function VoteKick:CheckVotes(voter, total_players)
     local votes_remaining = math.ceil((self.vote_percentage / 100) * total_players) - votes
     if (votes_remaining == 0) then
         self:Kick()
-    else
+    elseif (not self.anonymous_votes) then
         execute_command('msg_prefix ""')
         say_all(voter.name .. ' voted to kick ' .. self.name .. ' (' .. votes_remaining .. ' votes needed)')
         execute_command('msg_prefix "' .. self.prefix .. '"')
+    else
+        voter:Send('Vote cast against ' .. self.name .. ' (' .. votes_remaining .. ' votes needed)')
     end
 end
 
