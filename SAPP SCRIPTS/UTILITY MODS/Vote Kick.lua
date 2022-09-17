@@ -1,295 +1,223 @@
 --[[
 --=====================================================================================================--
 Script Name: Vote Kick, for SAPP (PC & CE)
-Description: Vote to kick a disruptive player from the server.
+Description: Players can vote to kick disruptive players from the server.
+             Votes are kept anonymous, and the player with the most votes is kicked.
 
-Command Syntax: /votekick [pid]
-Typing /votekick by itself will show you a list of player names and their Index ID's (PID)
+             Vote command syntax: /votekick (player id)
+             Vote list command syntax: /votelist
 
-Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2020-2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
-api_version = "1.12.0.0"
--- Configuration Starts -------------------------------------------
 local VoteKick = {
 
-    -- Custom command used to cast a vote or view player list:
-    command = "votekick",
+    -- Command used to initiate a vote kick:
+    --
+    vote_command = 'votekick',
 
-    -- Minimum players required to be online in order to vote:
-    minimum_player_count = 3,
+    -- Command used to view a list of players who can be voted out:
+    --
+    vote_list_command = 'votelist',
 
-    -- Percentage of online players needed to kick a player:
+    -- Minimum number of players required to initiate a vote kick:
+    --
+    minimum_players = 2,
+
+    -- Percentage of online players needed to vote yes to kick a player:
+    --
     vote_percentage = 60,
 
+    -- A players votes will be reset if they're not voted out within this time (in seconds):
     --
-    -- Periodic Announcer:
-    --
-    -- This script will periodically broadcast a message every 120 seconds
-    -- informing players about vote kick and the current votes needed to kick a player.
-    -- This feature is only enabled while there are equal to or greater than minimum_player_count players online.
-    -- The required votes is a calculation of the vote_percentage * player count / 100
-    announcement_period = 180,
+    vote_grace_period = 30,
 
-    -- If a player disconnects and returns within this amount of time (in seconds), votes against them will remain.
-    cooldown_period = 30,
-
+    -- If a player quits and returns to the server within this time (in seconds),
+    -- their vote will remain in vote kick tally:
     --
-    -- Advanced users only:
-    --
-    --
-    -- The array index for each client will either be "IP", or "IP:PORT".
-    -- Set to 1 for ip-only indexing.
-    ClientIndexType = 2,
+    quit_grace_period = 30
 }
--- Configuration Ends ---------------------------------------------
 
-local time_scale, gmatch = 1 / 30, string.gmatch
-function VoteKick:Init()
-    if (get_var(0, "$gt") ~= "n/a") then
-        self.timer = 0
-        self.votes = { }
-        self.game_started = true
-        for i = 1, 16 do
-            if player_present(i) then
-                self:InitPlayer(i, false)
-            end
-        end
-    end
-end
+local players = {}
+local ips = {}
+
+local clock = os.clock
+
+api_version = '1.12.0.0'
 
 function OnScriptLoad()
-    register_callback(cb["EVENT_TICK"], "OnTick")
-    register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
-    register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
-    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
-    register_callback(cb["EVENT_COMMAND"], "OnServerCommand")
-    register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
-    VoteKick:Init()
+    register_callback(cb['EVENT_TICK'], 'OnTick')
+    register_callback(cb['EVENT_JOIN'], 'OnJoin')
+    register_callback(cb['EVENT_LEAVE'], 'OnQuit')
+    register_callback(cb['EVENT_COMMAND'], 'OnCommand')
+    register_callback(cb['EVENT_GAME_START'], 'OnStart')
+    OnStart()
 end
 
-function VoteKick:OnTick()
-    if (self.game_started) then
-        for ip, v in pairs(self.votes) do
-            if (not player_present(v.id) and v.cooldown) then
-                v.cooldown = v.cooldown + time_scale
-                if (v.cooldown >= self.cooldown_period) then
-                    self.votes[ip] = nil
-                end
-            end
+local function GetIP(ply)
+
+    --
+    -- SAPP cannot get the IP of a player who has quit (if retail version).
+    -- So we'll use the IP from the player's last join (ips[] table)
+    --
+
+    ips[ply] = ips[ply] or get_var(ply, '$ip')
+    return ips[ply]
+end
+
+function VoteKick:NewPlayer(o)
+    setmetatable(o, { __index = self })
+    self.__index = self
+    return o
+end
+
+function VoteKick:IsAdmin()
+    return (tonumber(get_var(self.id, '$lvl')) >= 1)
+end
+
+function VoteKick:Send(msg)
+    rprint(self.id, msg)
+end
+
+function VoteKick:VoteList()
+    local t = {}
+    for _, v in pairs(players) do
+        if (self.id ~= v.id and not v:IsAdmin()) then
+            t[#t + 1] = { name = v.name, id = v.id }
         end
-        self.timer = self.timer + time_scale
-        if (self.timer >= self.announcement_period) then
-            self.timer = 0
-            self:PeriodicAnnouncement()
+    end
+    if (#t > 0) then
+        self:Send('Players who can be voted out:')
+        for i = 1, #t do
+            self:Send('[' .. t[i].id .. '] ' .. t[i].name)
         end
+    else
+        self:Send('No players can be voted out.')
     end
 end
 
-function OnGameStart()
-    VoteKick:Init()
-end
+function VoteKick:Initiate(args)
 
-function OnGameEnd()
-    VoteKick.game_started = false
-end
+    local total_players = tonumber(get_var(0, '$pn'))
+    local success, player = pcall(function()
+        return players[GetIP(tonumber(args[2]))]
+    end)
 
-function OnPlayerConnect(Ply)
-    VoteKick:InitPlayer(Ply, false)
-end
-
-function OnPlayerDisconnect(Ply)
-    VoteKick:InitPlayer(Ply, true)
-end
-
-function VoteKick:InitPlayer(Ply, Reset)
-    local IP = self:GetIP(Ply)
-    if (not Reset) then
-        self.votes[IP] = self.votes[IP] or {
-            ip = IP,
-            votes = 0,
-        }
-        self.votes[IP].id = Ply
-        self.votes[IP].cooldown = nil
-        self.votes[IP].name = get_var(Ply, "$name")
-    elseif (self.votes[IP]) then
-        self.votes[IP].cooldown = 0
-    end
-end
-
-function VoteKick:PeriodicAnnouncement()
-    local player_count = self:GetPlayerCount()
-    if (player_count >= self.minimum_player_count) then
-        local votes_required = math.floor((self.vote_percentage * player_count / 100))
-        local vote = "vote"
-        if (votes_required > 1) then
-            vote = vote .. "s"
-        end
-        self:Respond(_, "Vote Kick Enabled.")
-        self:Respond(_, "[" .. votes_required .. " " .. vote .. " to kick] at " .. self.vote_percentage .. "% of the current server population")
-    end
-end
-
-function VoteKick:Check(Ply, IP, PlayerCount)
-    local votes_required = math.floor((self.vote_percentage * PlayerCount / 100))
-    if (self.votes[IP].votes >= votes_required) then
-        self:Respond(_, "Vote passed to kick " .. self.votes[IP].name .. " [Kicking]", 12)
-        return true, self:Kick(Ply)
-    end
-    return false
-end
-
-local function CMDSplit(CMD)
-    local Args, index = { }, 1
-    for Params in gmatch(CMD, "([^%s]+)") do
-        Args[index] = Params
-        index = index + 1
-    end
-    return Args
-end
-
-function VoteKick:OnServerCommand(Executor, Command)
-    local Args = CMDSplit(Command)
-    if (Args[1] == self.command) then
-        if (self.game_started) then
-            if (Args[2] ~= nil) then
-
-                local player_count = self:GetPlayerCount()
-                if (player_count < self.minimum_player_count) then
-                    return false, self:Respond(Executor, "There aren't enough players online for vote-kick to work.", 12)
-                end
-
-                local TargetID = Args[2]:match("^%d+$")
-                TargetID = tonumber(Args[2])
-
-                if (TargetID and TargetID > 0 and TargetID < 17) then
-                    if player_present(TargetID) then
-
-                        if (TargetID == Executor) then
-                            return false, self:Respond(Executor, "You cannot vote to kick yourself", 12)
-                        elseif self:IsAdmin(TargetID) then
-                            return false, self:Respond(Executor, "You cannot vote to kick a server admin!", 12)
-                        else
-
-                            local TIP = self:GetIP(TargetID)
-                            local EIP = self:GetIP(Executor)
-                            if (self.votes[TIP][EIP]) then
-                                return false, self:Respond(Executor, "You have already voted for this player to be kicked", 12)
-                            end
-
-                            self.votes[TIP][EIP] = true
-                            self.votes[TIP].votes = self.votes[TIP].votes + 1
-
-                            local kicked = self:Check(TargetID, TIP, player_count)
-                            if (not kicked) then
-
-                                local vote_percentage_calculated = self:VotesRequired(player_count, self.votes[TIP].votes)
-                                local votes_required = math.floor(self.vote_percentage / vote_percentage_calculated)
-
-                                local ename = get_var(Executor, "$name")
-                                local tname = get_var(TargetID, "$name")
-
-                                if (Executor == 0) then
-                                    ename = "[SERVER]"
-                                end
-
-                                self:Respond(_, ename .. " voted to kick " .. tname .. " [Votes " .. self.votes[TIP].votes .. " of " .. votes_required .. " required]", 10)
-                            end
-                        end
-                    else
-                        self:Respond(Executor, "Player #" .. TargetID .. " is not online.", 12)
-                    end
-                else
-                    self:Respond(Executor, "Invalid Player ID. Usage: /" .. self.command .. " [pid]")
-                    self:Respond(Executor, "Type [/" .. self.command .. "] by itself to view all player ids")
-                end
-            else
-                self:ShowPlayerList(Executor)
-            end
+    if (not success or not player) then
+        self:Send('Invalid player.')
+        return
+    elseif (player.id ~= self.id) then
+        if (player:IsAdmin()) then
+            self:Send('You cannot vote to kick an admin.')
+            return
+        elseif (player.votes[self.ip]) then
+            self:Send('You have already voted to kick ' .. player.name)
+        elseif (total_players < self.minimum_players) then
+            self:Send('Not enough players to initiate a vote kick.')
         else
-            self:Respond(Executor, "Please wait until the next game to vote kick a player.")
+            player.grace = clock() + VoteKick.vote_grace_period
+            player.votes[self.ip] = true
+            player.votes.total = player.votes.total + 1
+            self:Send('You have voted to kick ' .. player.name)
+            player:CheckVotes(self, total_players)
         end
-        return false
+    else
+        self:Send('You cannot vote to kick yourself.')
     end
 end
 
-function VoteKick:ShowPlayerList(Executor)
-    local player_count = self:GetPlayerCount()
-    if (player_count > 0) then
-        self:Respond(Executor, "[ ID.    -    Name.    -    Immune ]", 13)
+function VoteKick:CheckVotes(voter, total_players)
+    local votes = self.votes.total
+    local votes_remaining = math.ceil((self.vote_percentage / 100) * total_players) - votes
+    if (votes_remaining == 0) then
+        self:Kick()
+    else
+        voter:Send(self.name .. ' needs ' .. votes_remaining .. ' more votes to be kicked.')
+        self:Send('A player has voted to kick you. (' .. votes_remaining .. ') more votes to be kicked.')
+    end
+end
+
+function VoteKick:Kick()
+    self:Send('Vote kick passed.')
+    self:Send('You have been kicked from the server.')
+    execute_command('k ' .. self.id)
+end
+
+function VoteKick:Reset()
+    self.votes = {}
+    self.total = 0
+    self.grace = nil
+    self:Send('Votes against you have been reset.')
+end
+
+local function CMDSplit(s)
+    local args = {}
+    for arg in s:gmatch('([^%s]+)') do
+        args[#args + 1] = arg:lower()
+    end
+    return args
+end
+
+function OnCommand(Ply, CMD)
+    local args = CMDSplit(CMD)
+    if (Ply > 0) then
+        if (args[1] == VoteKick.vote_command) then
+            players[GetIP(Ply)]:Initiate(args)
+            return false
+        elseif (args[1] == VoteKick.vote_list_command) then
+            players[GetIP(Ply)]:VoteList()
+            return false
+        end
+    end
+end
+
+function OnStart()
+    if (get_var(0, '$gt') ~= 'n/a') then
+        players = {}
         for i = 1, 16 do
             if player_present(i) then
-                local name = get_var(i, "$name")
-                local admin = tostring(VoteKick:IsAdmin(i))
-                self:Respond(Executor, "[" .. i .. "]   [" .. name .. "]   [" .. admin .. "]", 13)
-            end
-        end
-        self:Respond(Executor, " ")
-        self:Respond(Executor, "Command Usage: /" .. self.command .. " [pid]")
-    else
-        self:Respond(Executor, "There are no players online", 13)
-    end
-end
-
-function VoteKick:GetPlayerCount()
-    return tonumber(get_var(0, "$pn"))
-end
-
-function VoteKick:IsAdmin(Ply)
-    return (tonumber(get_var(Ply, "$lvl")) >= 1)
-end
-
-function VoteKick:VotesRequired(PlayerCount, Votes)
-    return math.floor(Votes / PlayerCount * 100)
-end
-
-function VoteKick:Respond(Ply, Message, Color)
-    Color = Color or 10
-    if (Ply == 0) then
-        cprint(Message, Color)
-    elseif (Ply) then
-        rprint(Ply, Message)
-    else
-        cprint(Message)
-        for i = 1, 16 do
-            if player_present(i) then
-                rprint(i, Message)
+                OnJoin(i)
             end
         end
     end
-end
-
-function VoteKick:Kick(Ply)
-    for _ = 1, 99999 do
-        rprint(Ply, "  ")
-    end
-end
-
-function VoteKick:GetIP(Ply)
-    local IP = get_var(Ply, "$ip")
-    if (Ply == 0) then
-        IP = "127.0.0.1"
-    end
-    if (self.ClientIndexType == 1) then
-        IP = IP:match("%d+.%d+.%d+.%d+")
-    end
-    if (not player_present(Ply)) then
-        IP = self.votes[IP].ip
-    end
-    return IP
-end
-
-function OnServerCommand(P, C)
-    return VoteKick:OnServerCommand(P, C)
 end
 
 function OnTick()
-    return VoteKick:OnTick()
+    for ip, v in pairs(players) do
+        if (v.quit and v.quit - clock() <= 0) then
+            players[ip] = nil
+        elseif (v.grace and v.grace - clock() <= 0) then
+            v:Reset()
+        end
+    end
+end
+
+function OnJoin(ply)
+
+    local ip = GetIP(ply)
+
+    players[ip] = players[ip] or VoteKick:NewPlayer({
+        ip = ip,
+        id = ply,
+        votes = { total = 0 }
+    })
+
+    -- update name in case they come back with a new one.
+    players[ip].name = get_var(ply, '$name')
+
+    -- just in case they come back after quitting.
+    players[ip].quit = nil
+end
+
+function OnQuit(ply)
+    local ip = GetIP(ply)
+    ips[ip] = nil
+    players[ip].quit = clock() + VoteKick.quit_grace_period
 end
 
 function OnScriptUnload()
-
+    -- N/A
 end
