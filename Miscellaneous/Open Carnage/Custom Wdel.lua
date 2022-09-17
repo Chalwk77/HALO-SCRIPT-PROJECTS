@@ -2,12 +2,12 @@
 --=====================================================================================================--
 Script Name: Custom Wdel, for SAPP (PC & CE)
 Description: This script overrides SAPP's built-in wdel command.
-             The flag will not be removed from a players inventory.
+             The flag/oddball will not be removed from a players inventory.
 
              Credits for idea: "no one"
              Request Link: https://opencarnage.net/index.php?/topic/7091-block-wdel-n-with-the-flag/
 
-Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2021-2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
@@ -18,114 +18,110 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 -- Custom command used to remove weapons:
 -- Syntax: /command "me", "all", "*" or [#1-16]
 -- Example: /wdel 1, or /wdel me, or /wdel *
-local command = "wdel"
+local command = 'wdel'
 
 -- Permission level required to execute the custom command
 local permission_required = 1
 -- config ends --
 
-api_version = "1.12.0.0"
+api_version = '1.12.0.0'
 
 function OnScriptLoad()
-    register_callback(cb["EVENT_COMMAND"], "OnCommand")
+    register_callback(cb['EVENT_COMMAND'], 'DeleteWeapons')
 end
 
 local function Respond(Ply, Msg)
-    if (Ply == 0) then
-        cprint(Msg)
-    else
-        rprint(Ply, Msg)
-    end
+    return (Ply == 0 and cprint(Msg) or rprint(Ply, Msg))
 end
 
 local function GetPlayers(Ply, Args)
 
-    local players = { }
-    local TID = Args[2]
+    local t = { }
+    local player = Args[2]
 
-    if (TID == nil or TID == "me") then
-        table.insert(players, Ply)
-    elseif (TID == "all" or TID == "*") then
+    if (player == nil or player == 'me') then
+        t[#t + 1] = Ply
+    elseif (player == 'all' or player == '*') then
         for i = 1, 16 do
             if player_present(i) then
-                table.insert(players, i)
+                t[#t + 1] = i
             end
         end
-    elseif (TID:match("%d+") and tonumber(TID:match("%d+")) > 0) then
-        if player_present(TID) then
-            table.insert(players, TID)
+    elseif (player:match('%d+') and tonumber(player:match('%d+')) > 0) then
+        if player_present(player) then
+            t[#t + 1] = player
         else
-            Respond(Ply, "Player #" .. TID .. " is not online!")
+            Respond(Ply, 'Player #' .. player .. ' is not online!')
         end
     else
-        Respond(Ply, "Invalid Target ID Parameter")
+        Respond(Ply, 'Invalid Player ID')
         Respond(Ply, 'Usage: "me", "all", "*" or [#1-16]')
     end
 
-    return players
+    return t
 end
 
-local function GetWeapons(DyN)
+local function GetWeapons(dyn)
     local weapons = { }
     for i = 0, 3 do
-        local weapon = read_dword(DyN + 0x2F8 + 0x4 * i)
-        if (weapon ~= 0xFFFFFFFF) then
-            local object = get_object_memory(weapon)
-            if (object ~= 0) then
-                local tag_address = read_word(object)
-                local tag_data = read_dword(read_dword(0x40440000) + tag_address * 0x20 + 0x14)
-                if (read_bit(tag_data + 0x308, 3) ~= 1) then
-                    weapons[#weapons + 1] = weapon
-                end
+        local weapon = read_dword(dyn + 0x2F8 + 0x4 * i)
+        local object = get_object_memory(weapon)
+        if (weapon ~= 0xFFFFFFFF and object ~= 0) then
+            local tag_address = read_word(object)
+            local tag_data = read_dword(read_dword(0x40440000) + tag_address * 0x20 + 0x14)
+            if (read_bit(tag_data + 0x308, 3) ~= 1) then
+                weapons[#weapons + 1] = weapon
             end
         end
     end
     return weapons
 end
 
-function OnCommand(Ply, CMD, _, _)
+local function HasPerm(Ply)
+    local lvl = tonumber(get_var(Ply, '$lvl'))
+    return (Ply == 0 or lvl >= permission_required)
+end
 
-    local Args = { }
-    for Params in CMD:gmatch("([^%s]+)") do
-        Args[#Args + 1] = Params:lower()
+local function CMDSplit(s)
+    local t = { }
+    for arg in s:gmatch('([^%s]+)') do
+        t[#t + 1] = arg:lower()
     end
+    return t
+end
 
-    if (#Args[1] > 0 and Args[1] == command) then
-        local lvl = tonumber(get_var(Ply, "$lvl"))
-        if (lvl >= permission_required or Ply == 0) then
-            local pl = GetPlayers(Ply, Args)
-            if (pl) then
+function DeleteWeapons(Ply, CMD)
 
-                for PID = 1, #pl do
+    local args = CMDSplit(CMD)
+    if (#args > 0 and args[1] == command) then
 
-                    local TID = tonumber(pl[PID])
-                    local name = get_var(TID, "$name")
+        if (HasPerm(Ply)) then
+            local players = GetPlayers(Ply, args)
+            if (players) then
 
-                    if (player_alive(TID)) then
+                for i = 1, #players do
 
-                        local DyN = get_dynamic_player(TID)
-                        if (DyN ~= 0) then
-                            local weapons = GetWeapons(DyN)
-                            if (#weapons > 0) then
-                                local stdout = true
-                                for _, weapon in pairs(weapons) do
-                                    destroy_object(weapon)
-                                    if (stdout) then
-                                        stdout = false
-                                        Respond(Ply, "Weapons removed for " .. name)
-                                    end
-                                end
+                    local player = tonumber(players[i])
+                    local name = get_var(player, '$name')
+
+                    local dyn = get_dynamic_player(player)
+                    if (player_alive(player) and dyn ~= 0) then
+
+                        local weapons = GetWeapons(dyn)
+                        if (#weapons > 0) then
+                            for j = 1, #weapons do
+                                destroy_object(weapons[j])
                             end
+                            Respond(Ply, name .. "'s weapons have been removed.")
                         end
                     else
-                        Respond(Ply, name .. " is not alive!")
+                        Respond(Ply, name .. ' is not alive.')
                     end
                 end
             end
         else
-            Respond(Ply, "You do not have permission execute this command!")
+            Respond(Ply, 'You do not have permission to execute this command.')
         end
-
         return false
     end
 end
