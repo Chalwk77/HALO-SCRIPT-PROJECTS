@@ -2,7 +2,6 @@
 --=====================================================================================================--
 Script Name: Vote Kick, for SAPP (PC & CE)
 Description: Vote to kick disruptive players from the server.
-             Votes can be kept anonymous, and the player with the most votes is kicked.
 
              Vote command syntax: /votekick (player id)
              Vote list command syntax: /votelist
