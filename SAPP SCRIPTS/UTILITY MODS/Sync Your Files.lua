@@ -9,7 +9,6 @@ Description:    This script will sync your <filename>.<ext> file with a remote s
         [-] nil
 
 [^] Credits to 002 for HTTP Code: https://github.com/Halogen002/SAPP-HTTP-Client
-[^] Credits to skylace for send_all function
 
 Copyright (c) 2016-2018, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
