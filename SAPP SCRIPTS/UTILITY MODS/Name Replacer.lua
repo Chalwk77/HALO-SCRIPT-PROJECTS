@@ -4,9 +4,9 @@ Script Name: Name Replacer, for SAPP (PC & CE)
 Description: Change blacklisted names into something funny!
 
              During pre-join, a player's name is cross-checked against a blacklist table.
-             If a match is made, their name will be changed to a random one from a table called "random_names".
+             If a match is made, their name will be changed to a random one from a table called 'random_names'.
 
-             As random names get assigned, they become marked as "used" until the player quits the server.
+             As random names get assigned, they become marked as 'used' until the player quits the server.
              This is to prevent someone else from being assigned the same random name.
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
@@ -15,166 +15,133 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
-api_version = "1.12.0.0"
+api_version = '1.12.0.0'
 
 -- config starts --
 
-local NameReplacer = {
+--
+-- BLACKLIST TABLE:
+--
+local blacklist = {
+    'Butcher',
+    'Caboose',
+    'Crazy',
+    'Cupid',
+    'Darling',
+    'Dasher',
+    'Disco',
+    'Donut',
+    'Dopey',
+    'Ghost',
+    'Goat',
+    'Grumpy',
+    'Hambone',
+    'Hollywood',
+    'Howard',
+    'Jack',
+    'Killer',
+    'King',
+    'Mopey',
+    'New001',
+    'Noodle',
+    'Nuevo001',
+    'Penguin',
+    'Pirate',
+    'Prancer',
+    'Saucy',
+    'Shadow',
+    'Sleepy',
+    'Snake',
+    'Sneak',
+    'Stompy',
+    'Stumpy',
+    'The Bear',
+    'The Big L',
+    'Tooth',
+    'Walla Walla',
+    'Weasel',
+    'Wheezy',
+    'Whicker',
+    'Whisp',
+    'Wilshire'
+}
 
+--
+-- NAMES TABLE:
+--
+local random_names = {
+    { 'Liam' },
+    { 'Noah' },
+    { 'Oliver' },
+    { 'Elijah' },
+    { 'William' },
+    { 'James' },
+    { 'Benjamin' },
+    { 'Lucas' },
+    { 'Henry' },
+    { 'Alexander' },
+    { 'Mason' },
+    { 'Michael' },
+    { 'Ethan' },
+    { 'Daniel' },
+    { 'Jacob' },
+    { 'Logan' },
+    { 'Jackson' },
+    { 'Levi' },
+    { 'Sebastian' },
+    { 'Mateo' },
+    { 'Jack' },
+    { 'Owen' },
+    { 'Theodore' },
+    { 'Aiden' },
+    { 'Samuel' },
+    { 'Joseph' },
+    { 'John' },
+    { 'David' },
+    { 'Wyatt' },
+    { 'Matthew' },
+    { 'Luke' },
+    { 'Asher' },
+    { 'Carter' },
+    { 'Julian' },
+    { 'Grayson' },
+    { 'Leo' },
+    { 'Jayden' },
+    { 'Gabriel' },
+    { 'Isaac' },
+    { 'Lincoln' },
+    { 'Anthony' },
+    -- repeat the structure to add more entries
     --
-    -- BLACKLIST TABLE:
-    --
-    blacklist = {
-        "Butcher",
-        "Caboose",
-        "Crazy",
-        "Cupid",
-        "Darling",
-        "Dasher",
-        "Disco",
-        "Donut",
-        "Dopey",
-        "Ghost",
-        "Goat",
-        "Grumpy",
-        "Hambone",
-        "Hollywood",
-        "Howard",
-        "Jack",
-        "Killer",
-        "King",
-        "Mopey",
-        "New001",
-        "Noodle",
-        "Nuevo001",
-        "Penguin",
-        "Pirate",
-        "Prancer",
-        "Saucy",
-        "Shadow",
-        "Sleepy",
-        "Snake",
-        "Sneak",
-        "Stompy",
-        "Stumpy",
-        "The Bear",
-        "The Big L",
-        "Tooth",
-        "Walla Walla",
-        "Weasel",
-        "Wheezy",
-        "Whicker",
-        "Whisp",
-        "Wilshire",
-    },
-
-    --
-    -- NAMES TABLE:
-    --
-    random_names = {
-        { "Liam" },
-        { "Noah" },
-        { "Oliver" },
-        { "Elijah" },
-        { "William" },
-        { "James" },
-        { "Benjamin" },
-        { "Lucas" },
-        { "Henry" },
-        { "Alexander" },
-        { "Mason" },
-        { "Michael" },
-        { "Ethan" },
-        { "Daniel" },
-        { "Jacob" },
-        { "Logan" },
-        { "Jackson" },
-        { "Levi" },
-        { "Sebastian" },
-        { "Mateo" },
-        { "Jack" },
-        { "Owen" },
-        { "Theodore" },
-        { "Aiden" },
-        { "Samuel" },
-        { "Joseph" },
-        { "John" },
-        { "David" },
-        { "Wyatt" },
-        { "Matthew" },
-        { "Luke" },
-        { "Asher" },
-        { "Carter" },
-        { "Julian" },
-        { "Grayson" },
-        { "Leo" },
-        { "Jayden" },
-        { "Gabriel" },
-        { "Isaac" },
-        { "Lincoln" },
-        { "Anthony" },
-        -- repeat the structure to add more entries
-        --
-    }
 }
 
 -- config ends --
 
+local players = {}
 local network_struct
 
+local ce
 local byte = string.byte
 local char = string.char
-local random = math.random
 
 function OnScriptLoad()
 
-    register_callback(cb["EVENT_LEAVE"], "OnQuit")
-    register_callback(cb["EVENT_PREJOIN"], "OnPreJoin")
-    register_callback(cb["EVENT_GAME_START"], "OnStart")
+    register_callback(cb['EVENT_LEAVE'], 'OnQuit')
+    register_callback(cb['EVENT_PREJOIN'], 'OnPreJoin')
+    register_callback(cb['EVENT_GAME_START'], 'OnStart')
 
-    network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
+    network_struct = read_dword(sig_scan('F3ABA1????????BA????????C740??????????E8????????668B0D') + 3)
+    ce = (halo_type == 'PC' and 0x0 or 0x40)
 
     OnStart()
 end
 
-function NameReplacer:Init()
-    if (get_var(0, "$gt") ~= "n/a") then
-
-        self.players = { }
-
-        -- Set all names to "unused" by default:
-        --
-        for _, v in pairs(self.random_names) do
-            v.used = false
-        end
-
-        for i = 1, 16 do
-            if player_present(i) then
-                self:CheckNameExists(i)
-            end
-        end
-    end
-end
-
-function NameReplacer:OnQuit(Ply)
-
-    -- Mark name as "unused":
-    --
-    local id = self.players[Ply]
-
-    if (id ~= nil) then
-        self.random_names[id].used = false
-    end
-
-    self.players[Ply] = nil
-end
-
-function NameReplacer:GetRandomName(Ply)
+local function GetRandomName(ply)
 
     -- Determine and store all name candidates:
     --
     local t = {}
-    for i, v in pairs(self.random_names) do
+    for i, v in pairs(random_names) do
         if (v[1]:len() < 12 and not v.used) then
             t[#t + 1] = { v[1], i } -- {name, table index}
         end
@@ -188,35 +155,47 @@ function NameReplacer:GetRandomName(Ply)
         local name = t[n][1]
         local n_id = t[n][2] -- table index from names
 
-        self.players[Ply] = n_id
-        self.random_names[n_id].used = true
+        players[ply] = n_id
+        random_names[n_id].used = true
 
         return name
     end
 
     -- If the script was unable to pick a random name,
     -- generate a random 11 character
-    local name = ""
-    for _ = 1, random(1, 11) do
-        name = name .. char(random(97, 122))
+    local name = ''
+    for _ = 1, rand(1, 12) do
+        name = name .. char(rand(97, 123))
     end
 
     return name
 end
 
-function NameReplacer:PreJoin(Ply)
+--
+-- Checks if a newly-joined player's name is already in the random names table.
+-- If true, that name gets marked as 'used'.
+local function CheckNameExists(Ply)
+    local name = get_var(Ply, '$name')
+    for _, v in pairs(random_names) do
+        if (name == v[1]) then
+            v.used = true
+        end
+    end
+end
 
-    self:CheckNameExists(Ply)
+function OnPreJoin(Ply)
 
-    local name_on_join = get_var(Ply, "$name")
-    for _, black_listed_name in pairs(self.blacklist) do
+    CheckNameExists(Ply)
 
-        if (name_on_join == black_listed_name) then
+    local name = get_var(Ply, '$name')
+    for _, black_listed_name in ipairs(blacklist) do
 
-            local new_name = self:GetRandomName(Ply)
+        if (name == black_listed_name) then
+
+            local new_name = GetRandomName(Ply)
 
             local count = 0
-            local address = network_struct + 0x1AA + 0x40 + to_real_index(Ply) * 0x20
+            local address = network_struct + 0x1AA + ce + to_real_index(Ply) * 0x20
 
             for _ = 1, 12 do
                 write_byte(address + count, 0)
@@ -239,28 +218,34 @@ function NameReplacer:PreJoin(Ply)
     end
 end
 
---
--- Checks if a newly-joined player's name is already in the random names table.
--- If true, that name gets marked as "used".
-function NameReplacer:CheckNameExists(Ply)
-    local name = get_var(Ply, "$name")
-    for _, v in pairs(self.random_names) do
-        if (name == v[1]) then
-            v.used = true
-        end
-    end
-end
+function OnQuit(Ply)
 
-function OnPreJoin(Ply)
-    NameReplacer:PreJoin(Ply)
+    -- Mark name as 'unused':
+    --
+    local id = players[Ply]
+
+    if (id ~= nil) then
+        random_names[id].used = false
+    end
+
+    players[Ply] = nil
 end
 
 function OnStart()
-    NameReplacer:Init()
-end
+    if (get_var(0, '$gt') ~= 'n/a') then
 
-function OnQuit(Ply)
-    NameReplacer:OnQuit(Ply)
-end
+        players = { }
 
-return NameReplacer
+        -- Set all names to 'unused' by default:
+        --
+        for _, v in pairs(random_names) do
+            v.used = false
+        end
+
+        for i = 1, 16 do
+            if player_present(i) then
+                CheckNameExists(i)
+            end
+        end
+    end
+end
