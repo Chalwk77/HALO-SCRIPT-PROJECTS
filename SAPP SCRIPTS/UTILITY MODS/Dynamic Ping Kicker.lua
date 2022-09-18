@@ -27,7 +27,7 @@ local PingKicker = {
     --
     warnings = 5,
 
-    -- Reset a players warnings if their ping has been below the current limit for this many seconds:
+    -- Reset a player's warnings if their ping has been below the current limit for this many seconds:
     -- Default: 20s
     --
     grace_period = 20,
