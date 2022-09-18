@@ -105,17 +105,6 @@ function OnScriptLoad()
     register_callback(cb["EVENT_JOIN"], "OnJoin")
 end
 
-local function NameIsBanned(Ply)
-    local name = get_var(Ply, "$name")
-    for i = 1, #bad_names do
-        local pattern = bad_names[i]
-        if (name:match(pattern)) then
-            return true
-        end
-    end
-    return false
-end
-
 function OnJoin(Ply)
     local cmd = action
     local name = get_var(Ply, '$name')
