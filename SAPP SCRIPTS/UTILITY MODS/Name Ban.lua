@@ -17,7 +17,7 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 -- This script will kick or ban a player if they use a vulgar name:
 -- Valid actions: "kick" or "ban"
 --
-local action = "kick"
+local action = 'kick'
 
 -- Ban time (in minutes), requires action to be set to "ban".
 --
@@ -25,47 +25,48 @@ local time = 10
 
 -- Action reason:
 --
-local reason = "Inappropriate name. Please change it!"
+local reason = 'Inappropriate name. Please change it!'
 
 -- List of names to kick/ban:
 --
 local banned_names = {
-    "penis",
-    "nigger",
+    'penis',
+    'nigger',
     --
     -- repeat the structure to add more names
     --
 }
 
 -- Advanced users only:
+-- Patterns to detect variations of names.
 --
 local patterns = {
-    ["a"] = { "[aA@ÀÂÃÄÅ]" },
-    ["b"] = { "[bBßḄɃḂ]" },
-    ["c"] = { "[cCkKÇ]" },
-    ["d"] = { "[dDĐĎɗḏ]" },
-    ["e"] = { "[eE3Èé]" },
-    ["f"] = { "[fFḟḞƒƑ]" },
-    ["g"] = { "[gG6ǵĝĠĞ]" },
-    ["h"] = { "[hHĤȞĥĦḪ]" },
-    ["i"] = { "[iIl!1Ì]" },
-    ["j"] = { "[jJɈɉǰĴĵ]" },
-    ["k"] = { "[cCkKǨƙķḲ]" },
-    ["l"] = { "[lL1!i£]" },
-    ["m"] = { "[mMḿḾṀṃṂ]" },
-    ["n"] = { "[nNñÑ]" },
-    ["o"] = { "[oO0Ò]" },
-    ["p"] = { "[pPþᵽṗṕ]" },
-    ["q"] = { "[qQ9Ɋɋ]" },
-    ["r"] = { "[rR®ȐŖ]" },
-    ["s"] = { "[sS$5ŜṤŞṩ]" },
-    ["t"] = { "[tT7ƬṬțṰ]" },
-    ["u"] = { "[vVuUÙ]" },
-    ["v"] = { "[vVuUÙṼṾṽ]" },
-    ["w"] = { "[wWŴẄẆⱳ]" },
-    ["x"] = { "[xXẌẍẊẋ]" },
-    ["y"] = { "[yYýÿÝ]" },
-    ["z"] = { "[zZ2ẑẐȥ]" },
+    ['a'] = { '[aA@ÀÂÃÄÅ]' },
+    ['b'] = { '[bBßḄɃḂ]' },
+    ['c'] = { '[cCkKÇ]' },
+    ['d'] = { '[dDĐĎɗḏ]' },
+    ['e'] = { '[eE3Èé]' },
+    ['f'] = { '[fFḟḞƒƑ]' },
+    ['g'] = { '[gG6ǵĝĠĞ]' },
+    ['h'] = { '[hHĤȞĥĦḪ]' },
+    ['i'] = { '[iIl!1Ì]' },
+    ['j'] = { '[jJɈɉǰĴĵ]' },
+    ['k'] = { '[cCkKǨƙķḲ]' },
+    ['l'] = { '[lL1!i£]' },
+    ['m'] = { '[mMḿḾṀṃṂ]' },
+    ['n'] = { '[nNñÑ]' },
+    ['o'] = { '[oO0Ò]' },
+    ['p'] = { '[pPþᵽṗṕ]' },
+    ['q'] = { '[qQ9Ɋɋ]' },
+    ['r'] = { '[rR®ȐŖ]' },
+    ['s'] = { '[sS$5ŜṤŞṩ]' },
+    ['t'] = { '[tT7ƬṬțṰ]' },
+    ['u'] = { '[vVuUÙ]' },
+    ['v'] = { '[vVuUÙṼṾṽ]' },
+    ['w'] = { '[wWŴẄẆⱳ]' },
+    ['x'] = { '[xXẌẍẊẋ]' },
+    ['y'] = { '[yYýÿÝ]' },
+    ['z'] = { '[zZ2ẑẐȥ]' },
 }
 
 -- config ends --
@@ -87,22 +88,18 @@ function OnScriptLoad()
     action = (action == "kick" and 'k $n' or 'ipban $n ' .. time) .. ' "' .. reason .. '"'
 
     for i = 1, #banned_names do
-
-        local word = ""
         local name = banned_names[i]
         local t = StringToTable(name)
-
+        local pattern = ''
         for j = 1, #t do
-            local char = t[j]
-            if (patterns[char]) then
-                for k, v in pairs(patterns[char]) do
-                    if (patterns[char][k]) then
-                        word = word .. v
-                    end
-                end
+            local letter = t[j]
+            if (patterns[letter]) then
+                pattern = pattern .. patterns[letter][1]
+            else
+                pattern = pattern .. letter
             end
         end
-        bad_names[#bad_names + 1] = word
+        bad_names[#bad_names + 1] = pattern
     end
 
     register_callback(cb["EVENT_JOIN"], "OnJoin")
@@ -111,7 +108,8 @@ end
 local function NameIsBanned(Ply)
     local name = get_var(Ply, "$name")
     for i = 1, #bad_names do
-        if name:match(bad_names[i]) then
+        local pattern = bad_names[i]
+        if (name:match(pattern)) then
             return true
         end
     end
@@ -119,8 +117,14 @@ local function NameIsBanned(Ply)
 end
 
 function OnJoin(Ply)
-    if NameIsBanned(Ply) then
-        execute_command(action:gsub("$n", Ply))
+    local cmd = action
+    local name = get_var(Ply, '$name')
+    for i = 1, #bad_names do
+        local pattern = bad_names[i]
+        if (name:match(pattern)) then
+            execute_command(cmd:gsub('$n', Ply))
+            break
+        end
     end
 end
 
