@@ -55,6 +55,11 @@ local VoteKick = {
     --
     announce_on_initiate = true,
 
+    -- If true, admins will be immune:
+    -- Default: true
+    --
+    admin_immunity = true,
+
     -- A message relay function temporarily removes the msg_prefix and restores
     -- it to this when done:
     -- Default: **SAPP**
@@ -95,7 +100,8 @@ function VoteKick:NewPlayer(o)
 end
 
 function VoteKick:IsAdmin()
-    return (tonumber(get_var(self.id, '$lvl')) >= 1)
+    local lvl = tonumber(get_var(self.id, "$lvl"))
+    return (self.admin_immunity and lvl >= 1) or false
 end
 
 function VoteKick:Send(msg)
