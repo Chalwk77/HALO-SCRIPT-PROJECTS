@@ -91,6 +91,7 @@ Command | Description
 -- | --
 nano /etc/ssh/sshd_config|By default, SSH listens on port 22.<br/>Changing the default SSH port adds an extra layer of security to your server by reducing the risk of automated attacks.<br/><br/>To change the default SSH port in Ubuntu, Open the **sshd_config** file this command.<br/><br/>**Technical note: To save and exit nano screen, press CTRL-S (save), CTRL-X (exit).**<br/><br/>*Locate this line:*<br/>**#Port 22**<br/><br/>*Uncomment (remove the leading # character) it and change the value with an appropriate port number (for example, 22000):*<br/>**Port 22000**
 systemctl restart sshd|Restart the SSH server
+apt install net-tools|Install net-tools
 netstat -tulpn \| grep ssh|After that, run the netstat command and make sure that the ssh daemon now listens on the new ssh port
 sudo ufw allow 22000/tcp|Add a rule to allow new SSH port.<br/>Furthermore, future SSH connections with BitVise will require you to specify the port in the port field.
 
@@ -113,9 +114,9 @@ systemctl enable fail2ban|Ensures the fail2ban service is started automatically 
 ### 12). Launching your server(s):
 - Navigate to */root/Desktop/\<server folder>/Wine Launch Files*
 - Double-click on *run.desktop* to launch your server.<br/>
-Upon the first launch, you may be prompted to install some mono software in order to launch the server.<br/>
-Follow the on-screen prompts to do this. It's straightforward.
-   
+  Upon the first launch, you may be prompted to install some mono software in order to launch the server.<br/>
+  Follow the on-screen prompts to do this. It's straightforward.
+
 ----
 
 ### REMOTE CONNECTING WITH TIGHT VNC CLIENT:<br/>
