@@ -11,7 +11,7 @@ local sqrt = math.sqrt
 -- @arg [number] (x2) - x coordinate of point 2
 -- @arg [number] (y2) - y coordinate of point 2
 -- @arg [number] (z2) - z coordinate of point 2
-local function GetDistance(pX, pY, pZ, cX, cY, cZ)
+function Helper:GetDistance(pX, pY, pZ, cX, cY, cZ)
     return sqrt((pX - cX) ^ 2 + (pY - cY) ^ 2 + (pZ - cZ) ^ 2)
 end
 
@@ -42,7 +42,7 @@ function Helper:lineIntersect(px, py, pz, coords)
     local midpointY = (pointAY + pointBY) / 2
     local midpointZ = (pointAZ + pointBZ) / 2
 
-    local distance = GetDistance(px, py, pz, midpointX, midpointY, midpointZ)
+    local distance = self:GetDistance(px, py, pz, midpointX, midpointY, midpointZ)
 
     return distance < 1
 end

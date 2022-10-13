@@ -8,8 +8,8 @@ function IP:NewIP()
 
     local index = self.client_index_type
     local ip = get_var(self.id, '$ip')
-    ip = (index == 1 and ip or ip:match('%d+.%d+.%d+.%d+'))
 
+    ip = (index == 1 and ip:match('%d+.%d+.%d+.%d+') or ip)
     self.ip = ip
 
     return ip

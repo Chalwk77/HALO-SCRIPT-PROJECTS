@@ -13,20 +13,42 @@ return {
     --
     client_index_type = 1,
 
+
+    -- Player HUD:
+    -- Shows the player's current time for this run.
+    -- Shows the ID of the last checkpoint they reached.
+    -- Shows the player's best time for this map.
+    heads_up_display = "Time: $time | Checkpoint: $checkpoint | Best: $best",
+
+
+    -- Set to true to enable flag spawning:
+    -- Flag poles are a visual representation of the start/finish lines:
+    -- Players need to cross a line to start or finish the course.
+    -- Default: true
+    --
+    spawn_flags = true,
+
+
+    -- If you die this many times, you will have to restart the course:
+    -- Default: 10
+    --
+    restart_after = 10, -- CURRENTLY SET TO TWO FOR TESTING PURPOSES
+
+
+    -- Set the respawn time (in seconds):
+    -- Default: 3
+    --
+    respawn_time = 3, -- CURRENTLY SET TO ZERO FOR TESTING PURPOSES
+
+
+    -- Set the running speed:
+    -- Default: 1.4
+    running_speed = 1.4,
+
+
     ----------------------------------
     -- Parkour Maps:
     ----------------------------------
-
-    ['bloodgulch'] = {
-        start = {
-            96.45, -154.21, 0.13,
-            94.65, -154.21, 0.13,
-        },
-        finish = {
-            39.18, -84.43, 0.13,
-            40.97, -84.43, 0.13,
-        }
-    },
 
     ['EV_Jump'] = {
 
@@ -47,6 +69,21 @@ return {
 
             -- Point B (3x 32-bit floating point numbers):
             52.79, 259.27, -18.62
+        },
+
+        -- Checkpoint coordinates:
+        --
+        checkpoints = {
+            { 0.13, 11.79, 0.00 },
+            { -10.32, 44.99, 0.00 },
+            { -7.40, 63.75, 1.00 },
+            { 10.30, 104.67, -6.62 },
+            { 29.80, 125.55, -6.62 },
+            { 27.86, 129.01, 0.28 },
+            { 40.88, 129.08, 2.78 },
+            { 28.25, 134.73, 5.23 },
+            { 39.51, 137.22, 2.78 },
+            { 51.54, 198.80, 5.36 }
         }
     },
 
@@ -57,6 +94,8 @@ return {
         start = {
         },
         finish = {
+        },
+        checkpoints = {
         }
     }
 }
