@@ -15,13 +15,10 @@ function Helper:saveTime()
     local database = self.database
 
     database[ip].name = name -- update the name in case it changed
-    insert(database[ip].times, time)
-    sort(database[ip].times)
+    insert(database[ip].times[self.map], time)
+    sort(database[ip].times[self.map])
 
-    self.timer:stop()
-    self.hud = nil
-    self.checkpoint = 0
-    self.x, self.y, self.z = nil, nil, nil
+    self:Reset()
 
     self:WriteFile(self.database)
 end

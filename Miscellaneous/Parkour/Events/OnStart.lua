@@ -15,8 +15,8 @@ end
 -- Setup function called when a new game begins:
 function Event:OnStart()
 
-    local map = get_var(0, '$map')
-    if (get_var(0, '$gt') == 'n/a' or not self[map]) then
+    self.map = get_var(0, '$map')
+    if (get_var(0, '$gt') == 'n/a' or not self[self.map]) then
         return
     end
 
@@ -32,10 +32,10 @@ function Event:OnStart()
         end
     end
 
-    local start = self[map].start
-    local finish = self[map].finish
+    local start = self[self.map].start
+    local finish = self[self.map].finish
 
-    self.map_checkpoints = self[map].checkpoints
+    self.map_checkpoints = self[self.map].checkpoints
 
     self.starting_line = {
         { -- point A

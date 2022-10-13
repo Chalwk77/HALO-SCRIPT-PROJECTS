@@ -11,11 +11,7 @@ function Event:OnDeath()
     self.deaths = self.deaths + 1
 
     if (self.deaths >= self.restart_after) then
-        self.x, self.y, self.z = nil, nil, nil
-        self.deaths = 0
-        self:setPlayerCheckPoints()
-        self.timer:stop()
-        self.hud = nil
+        self:Reset()
         rprint(self.id, "You have died too many times. Restarting...")
         goto continue
     end

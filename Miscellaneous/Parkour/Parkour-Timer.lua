@@ -26,6 +26,7 @@ local Parkour = {
             'LineIntersection',
             'NewIP',
             'ReachedCheckpoint',
+            'Reset',
             'SaveTime'
         },
         ['./Parkour/Hud/'] = { 'HeadsUpDisplay' },
