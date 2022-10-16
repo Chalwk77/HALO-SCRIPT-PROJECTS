@@ -1,357 +1,648 @@
 --[[
 --=====================================================================================================--
 Script Name: Weapon Assigner, for SAPP (PC & CE)
-Description: This script will assign weapons to players when they spawn.
+Description: Custom weapon assigner script.
 
              Weapons are assigned based on the player's team.
              You can also set the ammo for each weapon (loaded, reserve, and battery).
 
-Copyright (c) 2019-2022, Jericho Crosby <jericho.crosby227@gmail.com>
+             - Features -
+                * Weapon loadouts for individual custom game modes (per map).
+                  These include separate weapon settings for red/blue or ffa teams.
+                * If the current map has no game mode layout configured, the script will use the default weapon loadout for that map.
+
+Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
-api_version = "1.12.0.0"
-local WA = {
+local WeaponAssigner = {
 
+    -------------------
     -- config starts --
+    -------------------
 
     -- Weapon tags:
     --
-    [1] = "weapons\\pistol\\pistol",
-    [2] = "weapons\\sniper rifle\\sniper rifle",
-    [3] = "weapons\\plasma_cannon\\plasma_cannon",
-    [4] = "weapons\\rocket launcher\\rocket launcher",
-    [5] = "weapons\\plasma pistol\\plasma pistol",
-    [6] = "weapons\\plasma rifle\\plasma rifle",
-    [7] = "weapons\\assault rifle\\assault rifle",
-    [8] = "weapons\\flamethrower\\flamethrower",
-    [9] = "weapons\\needler\\mp_needler",
-    [10] = "weapons\\shotgun\\shotgun",
-    [11] = "weapons\\ball\\ball",
-    [12] = "weapons\\gravity rifle\\gravity rifle",
+    [1] = 'weapons\\pistol\\pistol',
+    [2] = 'weapons\\sniper rifle\\sniper rifle',
+    [3] = 'weapons\\plasma_cannon\\plasma_cannon',
+    [4] = 'weapons\\rocket launcher\\rocket launcher',
+    [5] = 'weapons\\plasma pistol\\plasma pistol',
+    [6] = 'weapons\\plasma rifle\\plasma rifle',
+    [7] = 'weapons\\assault rifle\\assault rifle',
+    [8] = 'weapons\\flamethrower\\flamethrower',
+    [9] = 'weapons\\needler\\mp_needler',
+    [10] = 'weapons\\shotgun\\shotgun',
+    [11] = 'weapons\\ball\\ball',
+    [12] = 'weapons\\gravity rifle\\gravity rifle',
     --
     -- repeat the structure to add custom tags.
     --
 
-    -- Format: [weapon id (see above)] = {loaded ammo, reserve ammo, battery}
-
-    -- map settings:
     --
+    -- Weapon settings:
+    --
+    -- Customize weapons for red/blue/ffa teams on a per game mode basis.
+    -- Format: [weapon id (see above)] = {loaded ammo, reserve ammo, battery}
+    -- Leave any of the values blank to use the default values.
+    --
+
+    -------------------------------
+    -- Pre-configured map settings:
+    -------------------------------
+
     ["beavercreek"] = {
-        ["red"] = {
-            [1] = { nil, 60, nil }, -- pistol
+
+        --
+        -- SCRIPT WILL USE (default) TABLE SETTINGS IF NO GAME MODE LAYOUT IS CONFIGURED FOR THE CURRENT MAP.
+        --
+
+        default = {
+            ["red"] = {
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["blue"] = {
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["ffa"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [2] = { nil, 12, nil }, -- sniper
+            },
         },
-        ["blue"] = {
-            [1] = { nil, 60, nil }, -- pistol
+
+        -- CUSTOM GAME MODE 1:
+        ["example_game_mode"] = {
+            ["red"] = {
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["blue"] = {
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["ffa"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [2] = { nil, 12, nil }, -- sniper
+            },
         },
-        ["ffa"] = {
-            [1] = { nil, 60, nil }, -- pistol
-            [2] = { nil, 12, nil }, -- sniper
+
+        -- CUSTOM GAME MODE 2:
+        ["another_example_game_mode"] = {
+            ["red"] = {
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["blue"] = {
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["ffa"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [2] = { nil, 12, nil }, -- sniper
+            },
         },
     },
 
     ["bloodgulch"] = {
-        ["red"] = {
-            [2] = { nil, 12, nil }, -- sniper
-            [1] = { nil, 60, nil }, -- pistol
-            [7] = { nil, 240, nil }, -- assault rifle
+        default = {
+            ["red"] = {
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["blue"] = {
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["ffa"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [2] = { nil, 12, nil }, -- sniper
+            },
         },
-        ["blue"] = {
-            [2] = { nil, 12, nil }, -- sniper
-            [1] = { nil, 60, nil }, -- pistol
-            [9] = { nil, 120, nil }, -- needler
-            [5] = { nil, nil, 100 }, -- plasma pistol
-        },
-        ["ffa"] = {
-            [2] = { nil, 12, nil }, -- sniper
-            [1] = { nil, 60, nil }, -- pistol
-            [9] = { nil, 120, nil }, -- needler
-            [5] = { nil, nil, 100 }, -- plasma pistol
+        ["example_game_mode"] = {
+            ["red"] = {
+                [2] = { nil, 12, nil }, -- sniper
+                [1] = { nil, 60, nil }, -- pistol
+                [7] = { nil, 240, nil }, -- assault rifle
+            },
+            ["blue"] = {
+                [2] = { nil, 12, nil }, -- sniper
+                [1] = { nil, 60, nil }, -- pistol
+                [9] = { nil, 120, nil }, -- needler
+                [5] = { nil, nil, 100 }, -- plasma pistol
+            },
+            ["ffa"] = {
+                [2] = { nil, 12, nil }, -- sniper
+                [1] = { nil, 60, nil }, -- pistol
+                [9] = { nil, 120, nil }, -- needler
+                [5] = { nil, nil, 100 }, -- plasma pistol
+            }
         }
     },
 
     ["boardingaction"] = {
-        ["red"] = {
-            [10] = { nil, 24, nil }, -- shotgun
-            [1] = { nil, 60, nil }, -- pistol
+        default = {
+            ["red"] = {
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["blue"] = {
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["ffa"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [2] = { nil, 12, nil }, -- sniper
+            },
         },
-        ["blue"] = {
-            [10] = { nil, 24, nil }, -- shotgun
-            [1] = { nil, 60, nil }, -- pistol
-        },
-        ["ffa"] = {
-            [10] = { nil, 24, nil }, -- shotgun
-            [1] = { nil, 60, nil }, -- pistol
+        ["example_game_mode"] = {
+            ["red"] = {
+                [10] = { nil, 24, nil }, -- shotgun
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["blue"] = {
+                [10] = { nil, 24, nil }, -- shotgun
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["ffa"] = {
+                [10] = { nil, 24, nil }, -- shotgun
+                [1] = { nil, 60, nil }, -- pistol
+            }
         }
     },
 
     ["carousel"] = {
-        ["red"] = {
-            [2] = { nil, 12, nil }, -- sniper
-            [1] = { nil, 60, nil }, -- pistol
-            [10] = { nil, 24, nil }, -- shotgun
+        default = {
+            ["red"] = {
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["blue"] = {
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["ffa"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [2] = { nil, 12, nil }, -- sniper
+            },
         },
-        ["blue"] = {
-            [2] = { nil, 12, nil }, -- sniper
-            [1] = { nil, 60, nil }, -- pistol
-            [10] = { nil, 24, nil }, -- shotgun
-        },
-        ["ffa"] = {
-            [2] = { nil, 12, nil }, -- sniper
-            [1] = { nil, 60, nil }, -- pistol
-            [10] = { nil, 24, nil }, -- shotgun
+        ["example_game_mode"] = {
+            ["red"] = {
+                [2] = { nil, 12, nil }, -- sniper
+                [1] = { nil, 60, nil }, -- pistol
+                [10] = { nil, 24, nil }, -- shotgun
+            },
+            ["blue"] = {
+                [2] = { nil, 12, nil }, -- sniper
+                [1] = { nil, 60, nil }, -- pistol
+                [10] = { nil, 24, nil }, -- shotgun
+            },
+            ["ffa"] = {
+                [2] = { nil, 12, nil }, -- sniper
+                [1] = { nil, 60, nil }, -- pistol
+                [10] = { nil, 24, nil }, -- shotgun
+            }
         }
     },
 
     ["dangercanyon"] = {
-        ["red"] = {
-            [1] = { nil, 60, nil }, -- pistol
-            [4] = { nil, 8, nil }, -- rocket launcher
-            [7] = { nil, 240, nil }, -- assault rifle
+        default = {
+            ["red"] = {
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["blue"] = {
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["ffa"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [2] = { nil, 12, nil }, -- sniper
+            },
         },
-        ["blue"] = {
-            [1] = { nil, 60, nil }, -- pistol
-            [4] = { nil, 8, nil }, -- rocket launcher
-            [7] = { nil, 240, nil }, -- assault rifle
-        },
-        ["ffa"] = {
-            [1] = { nil, 60, nil }, -- pistol
-            [4] = { nil, 8, nil }, -- rocket launcher
-            [7] = { nil, 240, nil }, -- assault rifle
+        ["example_game_mode"] = {
+            ["red"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [4] = { nil, 8, nil }, -- rocket launcher
+                [7] = { nil, 240, nil }, -- assault rifle
+            },
+            ["blue"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [4] = { nil, 8, nil }, -- rocket launcher
+                [7] = { nil, 240, nil }, -- assault rifle
+            },
+            ["ffa"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [4] = { nil, 8, nil }, -- rocket launcher
+                [7] = { nil, 240, nil }, -- assault rifle
+            }
         }
     },
 
     ["chillout"] = {
-        ["red"] = {
-            [2] = { nil, 12, nil }, -- sniper
-            [1] = { nil, 60, nil }, -- pistol
-            [7] = { nil, 240, nil }, -- assault rifle
+        default = {
+            ["red"] = {
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["blue"] = {
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["ffa"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [2] = { nil, 12, nil }, -- sniper
+            },
         },
-        ["blue"] = {
-            [2] = { nil, 12, nil }, -- sniper
-            [1] = { nil, 60, nil }, -- pistol
-            [7] = { nil, 240, nil }, -- assault rifle
-        },
-        ["ffa"] = {
-            [2] = { nil, 12, nil }, -- sniper
-            [8] = { nil, 300, nil }, -- flamethrower
-            [1] = { nil, 60, nil }, -- pistol
-            [12] = { nil, 240, nil }, -- assault rifle
+        ["example_game_mode"] = {
+            ["red"] = {
+                [2] = { nil, 12, nil }, -- sniper
+                [1] = { nil, 60, nil }, -- pistol
+                [7] = { nil, 240, nil }, -- assault rifle
+            },
+            ["blue"] = {
+                [2] = { nil, 12, nil }, -- sniper
+                [1] = { nil, 60, nil }, -- pistol
+                [7] = { nil, 240, nil }, -- assault rifle
+            },
+            ["ffa"] = {
+                [2] = { nil, 12, nil }, -- sniper
+                [8] = { nil, 300, nil }, -- flamethrower
+                [1] = { nil, 60, nil }, -- pistol
+                [12] = { nil, 240, nil }, -- assault rifle
+            }
         }
     },
 
     ["deathisland"] = {
-        ["red"] = {
-            [2] = { nil, 12, nil }, -- sniper
-            [1] = { nil, 60, nil }, -- pistol
-            [7] = { nil, 240, nil }, -- assault rifle
+        default = {
+            ["red"] = {
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["blue"] = {
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["ffa"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [2] = { nil, 12, nil }, -- sniper
+            },
         },
-        ["blue"] = {
-            [2] = { nil, 12, nil }, -- sniper
-            [1] = { nil, 60, nil }, -- pistol
-            [7] = { nil, 240, nil }, -- assault rifle
-        },
-        ["ffa"] = {
-            [2] = { nil, 12, nil }, -- sniper
-            [8] = { nil, 300, nil }, -- flamethrower
-            [1] = { nil, 60, nil }, -- pistol
-            [12] = { nil, 240, nil }, -- assault rifle
+        ["example_game_mode"] = {
+            ["red"] = {
+                [2] = { nil, 12, nil }, -- sniper
+                [1] = { nil, 60, nil }, -- pistol
+                [7] = { nil, 240, nil }, -- assault rifle
+            },
+            ["blue"] = {
+                [2] = { nil, 12, nil }, -- sniper
+                [1] = { nil, 60, nil }, -- pistol
+                [7] = { nil, 240, nil }, -- assault rifle
+            },
+            ["ffa"] = {
+                [2] = { nil, 12, nil }, -- sniper
+                [8] = { nil, 300, nil }, -- flamethrower
+                [1] = { nil, 60, nil }, -- pistol
+                [12] = { nil, 240, nil }, -- assault rifle
+            }
         }
     },
 
     ["gephyrophobia"] = {
-        ["red"] = {
-            [2] = { nil, 12, nil }, -- sniper
-            [1] = { nil, 60, nil }, -- pistol
-            [4] = { nil, 8, nil }, -- rocket launcher
+        default = {
+            ["red"] = {
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["blue"] = {
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["ffa"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [2] = { nil, 12, nil }, -- sniper
+            },
         },
-        ["blue"] = {
-            [2] = { nil, 12, nil }, -- sniper
-            [1] = { nil, 60, nil }, -- pistol
-            [4] = { nil, 8, nil }, -- rocket launcher
-        },
-        ["ffa"] = {
-            [2] = { nil, 12, nil }, -- sniper
-            [1] = { nil, 60, nil }, -- pistol
-            [4] = { nil, 8, nil }, -- rocket launcher
+        ["example_game_mode"] = {
+            ["red"] = {
+                [2] = { nil, 12, nil }, -- sniper
+                [1] = { nil, 60, nil }, -- pistol
+                [4] = { nil, 8, nil }, -- rocket launcher
+            },
+            ["blue"] = {
+                [2] = { nil, 12, nil }, -- sniper
+                [1] = { nil, 60, nil }, -- pistol
+                [4] = { nil, 8, nil }, -- rocket launcher
+            },
+            ["ffa"] = {
+                [2] = { nil, 12, nil }, -- sniper
+                [1] = { nil, 60, nil }, -- pistol
+                [4] = { nil, 8, nil }, -- rocket launcher
+            }
         }
     },
 
     ["icefields"] = {
-        ["red"] = {
-            [1] = { nil, 60, nil }, -- pistol
-            [7] = { nil, 240, nil }, -- assault rifle
+        default = {
+            ["red"] = {
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["blue"] = {
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["ffa"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [2] = { nil, 12, nil }, -- sniper
+            },
         },
-        ["blue"] = {
-            [1] = { nil, 60, nil }, -- pistol
-            [7] = { nil, 240, nil }, -- assault rifle
-        },
-        ["ffa"] = {
-            [1] = { nil, 60, nil }, -- pistol
-            [7] = { nil, 240, nil }, -- assault rifle
+        ["example_game_mode"] = {
+            ["red"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [7] = { nil, 240, nil }, -- assault rifle
+            },
+            ["blue"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [7] = { nil, 240, nil }, -- assault rifle
+            },
+            ["ffa"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [7] = { nil, 240, nil }, -- assault rifle
+            }
         }
     },
 
     ["infinity"] = {
-        ["red"] = {
-            [1] = { nil, 60, nil }, -- pistol
-            [2] = { nil, 12, nil }, -- sniper
-            [4] = { nil, 8, nil }, -- rocket launcher
+        default = {
+            ["red"] = {
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["blue"] = {
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["ffa"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [2] = { nil, 12, nil }, -- sniper
+            },
         },
-        ["blue"] = {
-            [1] = { nil, 60, nil }, -- pistol
-            [2] = { nil, 12, nil }, -- sniper
-            [4] = { nil, 8, nil }, -- rocket launcher
-        },
-        ["ffa"] = {
-            [1] = { nil, 60, nil }, -- pistol
-            [2] = { nil, 12, nil }, -- sniper
-            [4] = { nil, 8, nil }, -- rocket launcher
+        ["example_game_mode"] = {
+            ["red"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [2] = { nil, 12, nil }, -- sniper
+                [4] = { nil, 8, nil }, -- rocket launcher
+            },
+            ["blue"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [2] = { nil, 12, nil }, -- sniper
+                [4] = { nil, 8, nil }, -- rocket launcher
+            },
+            ["ffa"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [2] = { nil, 12, nil }, -- sniper
+                [4] = { nil, 8, nil }, -- rocket launcher
+            }
         }
     },
 
     ["sidewinder"] = {
-        ["red"] = {
-            [1] = { nil, 60, nil }, -- pistol
-            [4] = { nil, 8, nil }, -- rocket launcher
-            [3] = { nil, nil, 100 }, -- plasma cannon
-            [2] = { nil, 12, nil }, -- sniper
+        default = {
+            ["red"] = {
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["blue"] = {
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["ffa"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [2] = { nil, 12, nil }, -- sniper
+            },
         },
-        ["blue"] = {
-            [1] = { nil, 60, nil }, -- pistol
-            [4] = { nil, 8, nil }, -- rocket launcher
-            [3] = { nil, nil, 100 }, -- plasma cannon
-            [2] = { nil, 12, nil }, -- sniper
-        },
-        ["ffa"] = {
-            [1] = { nil, 60, nil }, -- pistol
-            [4] = { nil, 8, nil }, -- rocket launcher
-            [3] = { nil, nil, 100 }, -- plasma cannon
-            [2] = { nil, 12, nil }, -- sniper
+        ["example_game_mode"] = {
+            ["red"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [4] = { nil, 8, nil }, -- rocket launcher
+                [3] = { nil, nil, 100 }, -- plasma cannon
+                [2] = { nil, 12, nil }, -- sniper
+            },
+            ["blue"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [4] = { nil, 8, nil }, -- rocket launcher
+                [3] = { nil, nil, 100 }, -- plasma cannon
+                [2] = { nil, 12, nil }, -- sniper
+            },
+            ["ffa"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [4] = { nil, 8, nil }, -- rocket launcher
+                [3] = { nil, nil, 100 }, -- plasma cannon
+                [2] = { nil, 12, nil }, -- sniper
+            }
         }
     },
 
     ["timberland"] = {
-        ["red"] = {
-            [1] = { nil, 60, nil }, -- pistol
-            [7] = { nil, 240, nil }, -- assault rifle
-            [9] = { nil, 120, nil }, -- needler
+        default = {
+            ["red"] = {
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["blue"] = {
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["ffa"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [2] = { nil, 12, nil }, -- sniper
+            },
         },
-        ["blue"] = {
-            [1] = { nil, 60, nil }, -- pistol
-            [7] = { nil, 240, nil }, -- assault rifle
-            [9] = { nil, 120, nil }, -- needler
-        },
-        ["ffa"] = {
-            [1] = { nil, 60, nil }, -- pistol
-            [7] = { nil, 240, nil }, -- assault rifle
-            [9] = { nil, 120, nil }, -- needler
+        ["example_game_mode"] = {
+            ["red"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [7] = { nil, 240, nil }, -- assault rifle
+                [9] = { nil, 120, nil }, -- needler
+            },
+            ["blue"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [7] = { nil, 240, nil }, -- assault rifle
+                [9] = { nil, 120, nil }, -- needler
+            },
+            ["ffa"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [7] = { nil, 240, nil }, -- assault rifle
+                [9] = { nil, 120, nil }, -- needler
+            }
         }
     },
 
     ["hangemhigh"] = {
-        ["red"] = {
-            [1] = { nil, 60, nil }, -- pistol
-            [10] = { nil, 24, nil }, -- shotgun
+        default = {
+            ["red"] = {
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["blue"] = {
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["ffa"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [2] = { nil, 12, nil }, -- sniper
+            },
         },
-        ["blue"] = {
-            [1] = { nil, 60, nil }, -- pistol
-            [10] = { nil, 24, nil }, -- shotgun
-        },
-        ["ffa"] = {
-            [1] = { nil, 60, nil }, -- pistol
-            [10] = { nil, 24, nil }, -- shotgun
+        ["example_game_mode"] = {
+            ["red"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [10] = { nil, 24, nil }, -- shotgun
+            },
+            ["blue"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [10] = { nil, 24, nil }, -- shotgun
+            },
+            ["ffa"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [10] = { nil, 24, nil }, -- shotgun
+            }
         }
     },
 
     ["ratrace"] = {
-        ["red"] = {
-            [4] = { nil, 14, nil }, -- assault rifle
-            [1] = { nil, 60, nil }, -- pistol
-            [9] = { nil, 120, nil }, -- needler
+        default = {
+            ["red"] = {
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["blue"] = {
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["ffa"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [2] = { nil, 12, nil }, -- sniper
+            },
         },
-        ["blue"] = {
-            [7] = { nil, 240, nil }, -- assault rifle
-            [1] = { nil, 60, nil }, -- pistol
-            [9] = { nil, 120, nil }, -- needler
-        },
-        ["ffa"] = {
-            [7] = { nil, 240, nil }, -- assault rifle
-            [1] = { nil, 60, nil }, -- pistol
-            [9] = { nil, 120, nil }, -- needler
+        ["example_game_mode"] = {
+            ["red"] = {
+                [4] = { nil, 14, nil }, -- assault rifle
+                [1] = { nil, 60, nil }, -- pistol
+                [9] = { nil, 120, nil }, -- needler
+            },
+            ["blue"] = {
+                [7] = { nil, 240, nil }, -- assault rifle
+                [1] = { nil, 60, nil }, -- pistol
+                [9] = { nil, 120, nil }, -- needler
+            },
+            ["ffa"] = {
+                [7] = { nil, 240, nil }, -- assault rifle
+                [1] = { nil, 60, nil }, -- pistol
+                [9] = { nil, 120, nil }, -- needler
+            }
         }
     },
 
     ["damnation"] = {
-        ["red"] = {
-            [7] = { nil, 240, nil }, -- assault rifle
-            [1] = { nil, 60, nil }, -- pistol
+        default = {
+            ["red"] = {
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["blue"] = {
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["ffa"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [2] = { nil, 12, nil }, -- sniper
+            },
         },
-        ["blue"] = {
-            [7] = { nil, 240, nil }, -- assault rifle
-            [1] = { nil, 60, nil }, -- pistol
-        },
-        ["ffa"] = {
-            [7] = { nil, 240, nil }, -- assault rifle
-            [1] = { nil, 60, nil }, -- pistol
+        ["example_game_mode"] = {
+            ["red"] = {
+                [7] = { nil, 240, nil }, -- assault rifle
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["blue"] = {
+                [7] = { nil, 240, nil }, -- assault rifle
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["ffa"] = {
+                [7] = { nil, 240, nil }, -- assault rifle
+                [1] = { nil, 60, nil }, -- pistol
+            }
         }
     },
 
     ["putput"] = {
-        ["red"] = {
-            [5] = { nil, nil, 100 }, -- plasma pistol
-            [6] = { nil, nil, 100 }, -- plasma rifle
-            [3] = { nil, nil, 100 }, -- plasma cannon
-            [8] = { nil, 300, nil }, -- flamethrower
+        default = {
+            ["red"] = {
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["blue"] = {
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["ffa"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [2] = { nil, 12, nil }, -- sniper
+            },
         },
-        ["blue"] = {
-            [5] = { nil, nil, 100 }, -- plasma pistol
-            [6] = { nil, nil, 100 }, -- plasma rifle
-            [3] = { nil, nil, 100 }, -- plasma cannon
-            [8] = { nil, 300, nil }, -- flamethrower
-        },
-        ["ffa"] = {
-            [5] = { nil, nil, 100 }, -- plasma pistol
-            [6] = { nil, nil, 100 }, -- plasma rifle
-            [3] = { nil, nil, 100 }, -- plasma cannon
-            [8] = { nil, 300, nil }, -- flamethrower
+        ["example_game_mode"] = {
+            ["red"] = {
+                [5] = { nil, nil, 100 }, -- plasma pistol
+                [6] = { nil, nil, 100 }, -- plasma rifle
+                [3] = { nil, nil, 100 }, -- plasma cannon
+                [8] = { nil, 300, nil }, -- flamethrower
+            },
+            ["blue"] = {
+                [5] = { nil, nil, 100 }, -- plasma pistol
+                [6] = { nil, nil, 100 }, -- plasma rifle
+                [3] = { nil, nil, 100 }, -- plasma cannon
+                [8] = { nil, 300, nil }, -- flamethrower
+            },
+            ["ffa"] = {
+                [5] = { nil, nil, 100 }, -- plasma pistol
+                [6] = { nil, nil, 100 }, -- plasma rifle
+                [3] = { nil, nil, 100 }, -- plasma cannon
+                [8] = { nil, 300, nil }, -- flamethrower
+            }
         }
     },
 
     ["prisoner"] = {
-        ["red"] = {
-            [1] = { nil, 60, nil }, -- pistol
-            [4] = { nil, 8, nil }, -- rocket launcher
+        default = {
+            ["red"] = {
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["blue"] = {
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["ffa"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [2] = { nil, 12, nil }, -- sniper
+            },
         },
-        ["blue"] = {
-            [1] = { nil, 60, nil }, -- pistol
-            [4] = { nil, 8, nil }, -- rocket launcher
-        },
-        ["ffa"] = {
-            [1] = { nil, 60, nil }, -- pistol
-            [4] = { nil, 8, nil }, -- rocket launcher
+        ["example_game_mode"] = {
+            ["red"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [4] = { nil, 8, nil }, -- rocket launcher
+            },
+            ["blue"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [4] = { nil, 8, nil }, -- rocket launcher
+            },
+            ["ffa"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [4] = { nil, 8, nil }, -- rocket launcher
+            }
         }
     },
 
     ["wizard"] = {
-        ["red"] = {
-            [1] = { nil, 60, nil }, -- pistol
-            [2] = { nil, 12, nil }, -- sniper
+        default = {
+            ["red"] = {
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["blue"] = {
+                [1] = { nil, 60, nil }, -- pistol
+            },
+            ["ffa"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [2] = { nil, 12, nil }, -- sniper
+            },
         },
-        ["blue"] = {
-            [1] = { nil, 60, nil }, -- pistol
-            [2] = { nil, 12, nil }, -- sniper
-        },
-        ["ffa"] = {
-            [1] = { nil, 60, nil }, -- pistol
-            [2] = { nil, 12, nil }, -- sniper
+        ["example_game_mode"] = {
+            ["red"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [2] = { nil, 12, nil }, -- sniper
+            },
+            ["blue"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [2] = { nil, 12, nil }, -- sniper
+            },
+            ["ffa"] = {
+                [1] = { nil, 60, nil }, -- pistol
+                [2] = { nil, 12, nil }, -- sniper
+            }
         }
     }
 }
 
+-----------------
 -- config ends --
+-----------------
+
+api_version = "1.12.0.0"
 
 local players = {}
 local weapons = {}
@@ -360,6 +651,9 @@ function OnScriptLoad()
     register_callback(cb['EVENT_GAME_START'], 'OnStart')
 end
 
+-- Sets ammo for this player:
+-- @arg [number] (player) - Player Index
+-- @arg [number] (dyn) - Player Memory Address Index
 function SetAmmo(player, dyn)
 
     player = tonumber(player)
@@ -394,25 +688,40 @@ function SetAmmo(player, dyn)
     end
 end
 
-function OnSpawn(p)
-    players[p] = { assign = true }
+-- Called when a player spawns:
+-- @arg [number] (player) - Player Index
+function OnSpawn(player)
+    players[player] = { assign = true }
 end
 
-function OnJoin(p)
-    players[p] = { assign = false }
+-- Called when a player joins the server:
+-- @arg [number] (player) - Player Index
+-- Create a table for the player:
+function OnJoin(player)
+    players[player] = { assign = false }
 end
 
-function OnQuit(p)
-    players[p] = nil
+-- Called when a player quits the server:
+-- @arg [number] (player) - Player Index
+-- Delete player table (no longer needed):
+function OnQuit(player)
+    players[player] = nil
 end
 
-local function getWeaponTable(p)
+-- Returns the weapon table for this player:
+-- @arg [number] (p) - Player Index
+-- @return [table] - Weapon table
+local function getWeaponTable(player)
     local ffa = (get_var(0, '$ffa') == '1')
-    local team = get_var(p, '$team')
+    local team = get_var(player, '$team')
     return (weapons[ffa and 'ffa' or team])
 end
 
+-- Weapon Assigner function:
+-- Called every tick (1/30th second)
 function OnTick()
+
+    -- Loop over all players in the server and check if we need to assign a weapon:
     for i, player in ipairs(players) do
         if (i and player.assign and player_alive(i)) then
 
@@ -422,9 +731,11 @@ function OnTick()
                 player.assign = false
                 execute_command("wdel " .. i)
 
+                -- Returns the correct weapon table for this player:
                 local weaponTable = getWeaponTable(i)
                 player.weapons = weaponTable
 
+                -- Assign the weapons:
                 local slot = 0
                 for metaID, _ in pairs(weaponTable) do
                     slot = slot + 1
@@ -435,28 +746,36 @@ function OnTick()
                         timer(250, 'Assign', object, i)
                     end
                 end
+
+                -- Tertiary and quaternary weapons are not assigned immediately, so we need to delay this:
                 timer(300, 'SetAmmo', i, dyn)
             end
         end
     end
 end
 
+-- Assigns the weapon to the player using its object ID:
 function Assign(weaponID, player)
     assign_weapon(weaponID, player)
 end
 
-local function GetTag(Class, Name)
-    local Tag = lookup_tag(Class, Name)
+-- Returns the meta id of an object using its tag class and name:
+-- @arg [string] (class) - Tag class of the object.
+-- @arg [string] (name) - Tag name of the object.
+-- @return [number] (Meta ID) - Meta ID of the object.
+local function GetTag(class, name)
+    local Tag = lookup_tag(class, name)
     return Tag ~= 0 and read_dword(Tag + 0xC) or nil
 end
 
+-- Converts weapon tag addresses to their meta IDs:
 local function tagsToID()
 
     local t = {}
     for team, v in pairs(weapons) do
         t[team] = t[team] or {}
         for weaponID, _ in pairs(v) do
-            local tag = GetTag('weap', WA[weaponID])
+            local tag = GetTag('weap', WeaponAssigner[weaponID])
             if (tag) then
                 t[team][tag] = weapons[team][weaponID]
             end
@@ -466,6 +785,7 @@ local function tagsToID()
     return t
 end
 
+-- Called when a new game begins:
 function OnStart()
 
     if (get_var(0, '$gt') ~= 'n/a') then
@@ -474,11 +794,22 @@ function OnStart()
         weapons = nil
 
         local map = get_var(0, '$map')
-        weapons = (WA[map] or nil)
+        local mode = get_var(0, '$mode')
+
+        -- Load the settings for this map:
+        local map_settings = WeaponAssigner[map]
+
+        -- Get the weapon table for this map and mode:
+        weapons = (map_settings and map_settings[mode])
+
+        -- Get the default weapon table for this map if the mode table is not set:
+        if (not weapons and map_settings) then
+            weapons = map_settings.default
+        end
 
         if (weapons) then
 
-            weapons = tagsToID()
+            weapons = tagsToID(mode)
 
             register_callback(cb['EVENT_TICK'], 'OnTick')
             register_callback(cb['EVENT_JOIN'], 'OnJoin')
