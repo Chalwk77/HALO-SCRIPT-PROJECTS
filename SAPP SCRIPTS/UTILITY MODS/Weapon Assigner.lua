@@ -1,7 +1,10 @@
 --[[
 --=====================================================================================================--
 Script Name: Weapon Assigner, for SAPP (PC & CE)
-Description: Easily assign up to 4 weapons on a per-map basis & Per-Team Basis
+Description: This script will assign weapons to players when they spawn.
+
+             Weapons are assigned based on the player's team.
+             You can also set the ammo for each weapon (loaded, reserve, and battery).
 
 Copyright (c) 2019-2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -32,7 +35,7 @@ local WA = {
     -- repeat the structure to add custom tags.
     --
 
-    -- Format: [weapon id (see above)] = {reserve ammo, loaded ammo, battery}
+    -- Format: [weapon id (see above)] = {loaded ammo, reserve ammo, battery}
 
     -- map settings:
     --
@@ -350,148 +353,152 @@ local WA = {
 
 -- config ends --
 
-function WA:Init()
-
-    self.players = { }
-    self.weapons = nil
-
-    if (get_var(0, "$gt") ~= "n/a") then
-
-        local map = get_var(0, "$map")
-        self.weapons = self[map]
-
-        if (self.weapons) then
-            register_callback(cb["EVENT_TICK"], "OnTick")
-            register_callback(cb["EVENT_JOIN"], "OnJoin")
-            register_callback(cb["EVENT_LEAVE"], "OnQuit")
-            register_callback(cb["EVENT_SPAWN"], "OnSpawn")
-        else
-            unregister_callback(cb["EVENT_TICK"])
-            unregister_callback(cb["EVENT_JOIN"])
-            unregister_callback(cb["EVENT_SPAWN"])
-            unregister_callback(cb["EVENT_LEAVE"])
-            error("[Weapon Assigner] " .. map .. " not configured.")
-        end
-    end
-end
+local players = {}
+local weapons = {}
 
 function OnScriptLoad()
-    register_callback(cb["EVENT_GAME_START"], "OnStart")
+    register_callback(cb['EVENT_GAME_START'], 'OnStart')
 end
 
-local function GetXYZ(DyN)
-    local vehicle = read_dword(DyN + 0x11C)
-    if (vehicle == 0xFFFFFFFF) then
-        return read_vector3d(DyN + 0x5C)
-    end
-    return nil
-end
+function SetAmmo(player, dyn)
 
-function WA:GameTick()
-    for i, player in pairs(self.players) do
-        if (i and player.assign and player_alive(i)) then
-
-            local DyN = get_dynamic_player(i)
-            if (DyN ~= 0) then
-
-                local x, y, z = GetXYZ(DyN)
-                if (x) then
-
-                    player.assign = false
-                    execute_command("wdel " .. i)
-
-                    local slot = 0
-                    for j, _ in pairs(player.weapons) do
-                        slot = slot + 1
-                        if (slot == 1 or slot == 2) then
-                            assign_weapon(spawn_object("weap", self[j], x, y, z), i)
-                        elseif (slot == 3 or slot == 4) then
-                            timer(250, "DelaySecQuat", i, self[j], x, y, z)
-                        end
-                    end
-                    timer(300, "SetAmmo", i, DyN)
-                end
-            end
-        end
-    end
-end
-
-function WA:InitPlayer(Ply, Reset)
-    if (not Reset) then
-        self.players[Ply] = { weapons = nil, assign = false }
-    else
-        self.players[Ply] = nil
-    end
-end
-
-function WA:WeaponTable(Ply)
-    local ffa = (get_var(0, "$ffa") == "1")
-    local team = get_var(Ply, "$team")
-    return (self.weapons[ffa and "ffa" or team])
-end
-
-local function GetTagName(Object)
-    if (Object ~= nil and Object ~= 0) then
-        return read_string(read_dword(read_word(Object) * 32 + 0x40440038))
-    end
-    return nil
-end
-
-function SetAmmo(Ply, DyN)
-
-    Ply = tonumber(Ply)
+    player = tonumber(player)
+    local playerWeapons = players[player].weapons
 
     for i = 0, 3 do
-        local WeaponID = read_dword(DyN + 0x2F8 + (i * 4))
-        if (WeaponID ~= 0xFFFFFFFF) then
-            local object = get_object_memory(WeaponID)
-            local tag = GetTagName(object)
-            if (tag) then
-                for j, v in pairs(WA.players[Ply].weapons) do
-                    if (tag == WA[j]) then
-                        -- loaded:
-                        if (v[1]) then
-                            write_word(object + 0x2B8, v[1])
-                        end
-                        -- unloaded:
-                        if (v[2]) then
-                            write_word(object + 0x2B6, v[2])
-                        end
-                        -- battery:
-                        if (v[3]) then
-                            execute_command_sequence("w8 1;battery " .. Ply .. " " .. v[3] .. " " .. i)
-                        end
-                    end
-                end
-                sync_ammo(WeaponID)
+        local weapon = read_dword(dyn + 0x2F8 + (i * 4))
+        local object = get_object_memory(weapon)
+        if (weapon ~= 0xFFFFFFFF and object ~= 0) then
+
+            local metaID = read_dword(object)
+            local weaponSettings = playerWeapons[metaID]
+
+            local loaded_ammo = weaponSettings[1]
+            local reserve_clip = weaponSettings[2]
+            local battery = weaponSettings[3]
+
+            if (loaded_ammo) then
+                write_word(object + 0x2B8, loaded_ammo)
             end
+
+            if (reserve_clip) then
+                write_word(object + 0x2B6, reserve_clip)
+            end
+
+            if (battery) then
+                execute_command_sequence('w8 1;battery ' .. player .. ' ' .. battery .. ' ' .. i)
+            end
+
+            sync_ammo(weapon)
         end
     end
 end
 
-function DelaySecQuat(Ply, Weapon, x, y, z)
-    assign_weapon(spawn_object("weap", Weapon, x, y, z), Ply)
+function OnSpawn(p)
+    players[p] = { assign = true }
 end
 
-function OnSpawn(Ply)
-    WA.players[Ply].weapons = WA:WeaponTable(Ply)
-    WA.players[Ply].assign = true
+function OnJoin(p)
+    players[p] = { assign = false }
 end
 
-function OnJoin(Ply)
-    WA:InitPlayer(Ply, false)
+function OnQuit(p)
+    players[p] = nil
 end
 
-function OnQuit(Ply)
-    WA:InitPlayer(Ply, true)
+local function getWeaponTable(p)
+    local ffa = (get_var(0, '$ffa') == '1')
+    local team = get_var(p, '$team')
+    return (weapons[ffa and 'ffa' or team])
 end
 
 function OnTick()
-    WA:GameTick()
+    for i, player in ipairs(players) do
+        if (i and player.assign and player_alive(i)) then
+
+            local dyn = get_dynamic_player(i)
+            if (dyn ~= 0) then
+
+                player.assign = false
+                execute_command("wdel " .. i)
+
+                local weaponTable = getWeaponTable(i)
+                player.weapons = weaponTable
+
+                local slot = 0
+                for metaID, _ in pairs(weaponTable) do
+                    slot = slot + 1
+                    local object = spawn_object('', '', 0, 0, 0, 0, metaID)
+                    if (slot == 1 or slot == 2) then
+                        Assign(object, i)
+                    else
+                        timer(250, 'Assign', object, i)
+                    end
+                end
+                timer(300, 'SetAmmo', i, dyn)
+            end
+        end
+    end
+end
+
+function Assign(weaponID, player)
+    assign_weapon(weaponID, player)
+end
+
+local function GetTag(Class, Name)
+    local Tag = lookup_tag(Class, Name)
+    return Tag ~= 0 and read_dword(Tag + 0xC) or nil
+end
+
+local function tagsToID()
+
+    local t = {}
+    for team, v in pairs(weapons) do
+        t[team] = t[team] or {}
+        for weaponID, _ in pairs(v) do
+            local tag = GetTag('weap', WA[weaponID])
+            if (tag) then
+                t[team][tag] = weapons[team][weaponID]
+            end
+        end
+    end
+
+    return t
 end
 
 function OnStart()
-    WA:Init()
+
+    if (get_var(0, '$gt') ~= 'n/a') then
+
+        players = { }
+        weapons = nil
+
+        local map = get_var(0, '$map')
+        weapons = (WA[map] or nil)
+
+        if (weapons) then
+
+            weapons = tagsToID()
+
+            register_callback(cb['EVENT_TICK'], 'OnTick')
+            register_callback(cb['EVENT_JOIN'], 'OnJoin')
+            register_callback(cb['EVENT_LEAVE'], 'OnQuit')
+            register_callback(cb['EVENT_SPAWN'], 'OnSpawn')
+
+            for i = 1, 16 do
+                if player_present(i) then
+                    OnJoin(i)
+                end
+            end
+
+            return
+        end
+
+        unregister_callback(cb['EVENT_TICK'])
+        unregister_callback(cb['EVENT_JOIN'])
+        unregister_callback(cb['EVENT_SPAWN'])
+        unregister_callback(cb['EVENT_LEAVE'])
+    end
 end
 
 function OnScriptUnload()
