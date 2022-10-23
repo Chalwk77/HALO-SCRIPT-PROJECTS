@@ -35,9 +35,11 @@ local function shuffle(s)
     table.sort(letters, function(a, b)
         return a.rnd < b.rnd
     end)
-    for i, v in ipairs(letters) do
-        letters[i] = v.letter
+
+    for i = 1,#letters do
+        letters[i] = letters[i].letter
     end
+
     return concat(letters)
 end
 
