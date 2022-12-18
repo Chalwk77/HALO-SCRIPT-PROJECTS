@@ -55,6 +55,14 @@ local VoteKick = {
     --
     announce_on_initiate = true,
 
+    -- If true, a message announcing command usage will be displayed after a certain time, recurrently
+    -- Default: true
+    announce_usage = true,
+
+    -- Interval in which announcement messages will be displayed (in seconds)
+    -- Default: 120s
+    announce_interval = 120,
+
     -- If true, admins will be immune:
     -- Default: true
     --
@@ -80,6 +88,7 @@ function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'], 'OnCommand')
     register_callback(cb['EVENT_GAME_START'], 'OnStart')
     OnStart()
+    InitAnnouncements()
 end
 
 local function GetIP(ply)
@@ -101,11 +110,11 @@ end
 
 function VoteKick:IsAdmin()
     local lvl = tonumber(get_var(self.id, "$lvl"))
-    return (self.admin_immunity and lvl >= 1) or false
+    return (self.admin_immunity and lvl >= 0) or false
 end
 
 function VoteKick:Send(msg)
-    rprint(self.id, msg)
+    rprint(self.id, "|c" .. msg)
 end
 
 function VoteKick:VoteList()
@@ -192,7 +201,7 @@ end
 function VoteKick:Kick(voter, votes_remaining)
     self:Send('Vote kick passed.')
     self:Send('You have been kicked from the server.')
-    execute_command('k ' .. self.id)
+    execute_command('k ' .. self.id .. ' "[Vote-Kick ' .. self.votes.total .. ' votes]"')
     if (not self.anonymous_votes) then
         self:SayAll(voter, votes_remaining)
     end
@@ -221,6 +230,25 @@ function OnCommand(Ply, CMD)
         elseif (args[1] == VoteKick.vote_list_command) then
             players[GetIP(Ply)]:VoteList()
             return false
+        
+        elseif (args[1] == "usage" and #args > 1) then
+	    if( args[2] == VoteKick.vote_command ) then
+	       players[GetIP(Ply)]:Send( 
+		   "Usage: " .. VoteKick.vote_command .. " <ID> (Retrieve ID from /" .. VoteKick.vote_list_command .. ")" 
+		)
+	       players[GetIP(Ply)]:Send(
+		   "Description: Vote for kick a player from the server (Do it responsibly)"
+		)
+	       return false
+	    elseif ( args[2] == VoteKick.vote_list_command ) then
+	      players[GetIP(Ply)]:Send(
+		   "Usage: " .. VoteKick.vote_list_command
+	      )
+	      players[GetIP(Ply)]:Send(
+		   "Description: Get a list of players who can be kicked from the server"
+	      )
+	      return false
+	    end
         end
     end
 end
@@ -234,6 +262,25 @@ function OnStart()
             end
         end
     end
+end
+
+function InitAnnouncements()
+   function announce_usage ()
+       message = "Vote kick is enabled, type /usage " .. VoteKick.vote_list_command .. 
+	" and /usage " .. VoteKick.vote_command  
+       
+       for ip, v in pairs(players) do
+          if ( not v.quit ) then
+	      v:Send( message )
+	  end
+       end
+       return true
+   end
+
+   if ( VoteKick.announce_usage ) then
+       timer( VoteKick.announce_interval * 1000, "announce_usage" )
+   end
+
 end
 
 function OnTick()
