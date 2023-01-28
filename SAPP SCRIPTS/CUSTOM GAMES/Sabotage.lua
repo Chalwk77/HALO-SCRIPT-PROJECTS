@@ -568,8 +568,12 @@ function Sabotage:RespawnBomb()
                 announce_respawn = false
                 Say(_, 'Bomb will respawn in ' .. finish - start() .. ' seconds.')
             elseif (time_remaining <= 0) then
-                local z_off = 0.3
-                write_vector3d(bomb.object_mem + 0x5C, x, y, z + z_off)
+
+                write_vector3d(bomb.object_mem + 0x5C, x, y, z + 0.3)
+                -- 28/01/23
+                write_bit(bomb.object_mem + 0x10, 5, 0)
+                --
+
                 bomb.respawn_timer = nil
                 Say(_, 'Bomb has respawned.')
             end
