@@ -82,7 +82,7 @@ sudo ufw allow 2302:2303/udp|Allow UDP connections for Halo on ports 2302, 2303
 sudo ufw allow 2310:2312/udp|Allow UDP connections for server ports (or any port range you desire)
 ufw allow 5901/tcp|If you don't have a static IP, do this command (and skip the next two commands).
 ufw allow from 0.0.0.0 to any port 5901|Optionally allow your IP Address and reject all others.<br/>This will make it so that only the specified IP(s) can connect to the vnc server.<br/><br/>Replace 0.0.0.0 with your own ipv4 address.
-ufw default deny incoming|If you did the previous step, then we also need to deny other inbound connections. If you didn't do the previous step, skip to the next command.
+ufw default deny incoming|If you executed the previous command, then we also need to deny other inbound connections. If you didn't execute the previous command, skip to the next one below.
 sudo ufw enable|Enable the UFW
 
 ### 9). Change SSH Port (optional but recommended):
