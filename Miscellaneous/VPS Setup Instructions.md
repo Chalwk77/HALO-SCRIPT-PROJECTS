@@ -74,7 +74,7 @@ nano /etc/systemd/system/vncserver.service|By default, TightVNC does not have a 
 systemctl daemon-reload|Reload systemd
 systemctl enable --now vncserver|Enable autorun of the TightVNC server and start it.
 
-### 8). Set up UFW (firewall)
+### 8). Set up UFW (firewall) **READ DESCRIPTIONS ON THIS STEP CAREFULLY**
 We need to enable the firewall so that only certain ports are accessible from the outside world.
 Command | Description
 -- | --
