@@ -94,7 +94,7 @@ nano /etc/ssh/sshd_config|By default, SSH listens on port 22.<br/>Changing the d
 systemctl restart sshd|Restart the SSH server
 apt install net-tools|Install net-tools<br><br>A **Pending Kernel Upgrade** page may appear - click OK.<br><br>Another window (Deamons using outdated libraries) may appear - click cancel.<br/>
 netstat -tulpn \| grep ssh|After that, run the netstat command and make sure that the ssh daemon now listens on the new ssh port
-sudo ufw allow 22000/tcp|Add a rule to allow new SSH port.<br/>Furthermore, future SSH connections with BitVise will require you to specify the port in the port field.
+sudo ufw allow 22000/tcp|Add a rule to allow new SSH port.<br/>Furthermore, future SSH connections with BitVise will require you to specify the port in the port field. Use the port that you decided on in command 1 of step 9. 
 
 ### 10). Enable fail2ban (optional but recommended):
 fail2ban will monitor all incoming traffic.<br/> There are often a lot of bots trying to see if you have any open loopholes within your VPS to see if they can exploit something.<br/>One of the features of fail2ban is to automatically monitor those types of IPs and block them from connecting in general.
