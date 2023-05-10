@@ -36,13 +36,14 @@ Please see [this page](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases
 - Navigate to the [Deploy](https://my.vultr.com/deploy/) page on Vultr
 - Select Cloud Compute
 - Choose your server location
-- Under Server Type, select **Ubuntu 21.10 x64**
+- Under Server Type, select **Ubuntu 23.04 x64**
 - Choose your monthly subscription plan
 - Select any Additional Features you require (optional)
 - Label your VPS instance and click **Deploy Now**
 
 ### 4). Open BitVise SSH Client:
 - Fill in the host & username (get from the VPS control panel overview page).
+- Set the port field to **22**.
 - In the **Initial method** drop-down box, select *password*.<br/>Paste your password in the password field (get from the VPS control panel overview page).<br/>Make sure *Store encrypted password in profile* is ticked.<br/>Click **Save profile as** and save.
 - Click login.<br/>You will be prompted to accept and save a host key. Click accept and save.
 - Click the "New Terminal Console" button.
@@ -55,7 +56,7 @@ wget -nc https://dl.winehq.org/wine-builds/winehq.key|Add the WineHQ Ubuntu repo
 sudo -H gpg -o /etc/apt/trusted.gpg.d/winehq.key.gpg --dearmor winehq.key|Get and install the repository key.
 sudo add-apt-repository 'deb https://dl.winehq.org/wine-builds/ubuntu/ impish main'|Add the repository.
 sudo apt update|Update the package database.
-sudo apt install --install-recommends winehq-stable|Install Wine.<br><br>A **Pending Kernel Upgrade** page may appear - click OK.<br><br>Another window (Deamons using outdated libraries) may appear - click cancel.<br/>
+apt install wine|Install Wine.<br><br>A **Pending Kernel Upgrade** page may appear - click OK.<br><br>Another window (Deamons using outdated libraries) may appear - click cancel.<br/>
 wine --version|Verify the installation has succeeded.
 
 ### 6). Installing TightVNC Server:
