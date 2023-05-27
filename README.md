@@ -2,7 +2,7 @@
 
 - - - - 
 
-Hi there. I'm Chalwk, a passionate independent game developer and open source enthusiast from New Zealand. You'll find
+Hi there. I'm Chalwk, a passionate independent game developer and open-source enthusiast from New Zealand. You'll find
 me doing all sorts of coding projects, from software engineering through research and development to creative coding.
 
 The HSP (Halo Script Projects) GitHub repository is the platform to which I upload all of my Lua scripts for SAPP and
