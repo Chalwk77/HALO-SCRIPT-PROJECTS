@@ -245,7 +245,7 @@ function OnTick()
                                             if (slot == 1 or slot == 2) then
                                                 assign_weapon(spawn_object("null", "null", coords.x, coords.y, coords.z, 0, Weapon), shooter.id)
 
-                                                -- To assign a 3rd and 4 weapon, we have to delay 
+                                                -- To assign a 3rd and 4 weapon, we have to delay
                                                 -- the tertiary and quaternary assignments by at least 250 ms:
                                             elseif (slot == 3 or slot == 4) then
                                                 timer(250, "DelayAssign", shooter.id, Weapon, coords.x, coords.y, coords.z)
