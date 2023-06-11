@@ -289,9 +289,7 @@ end
 function Sabotage:BombHeld()
     for i, v in ipairs(players) do
         local dyn = get_dynamic_player(i)
-        if (dyn ~= 0 and player_alive(i) and v.has_bomb) then
-            return true
-        end
+        return (dyn ~= 0 and player_alive(i) and v.has_bomb) or false
     end
     return false
 end
