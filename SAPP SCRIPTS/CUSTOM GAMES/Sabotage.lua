@@ -526,17 +526,17 @@ end
 
 local function UpdateVectors(object, x, y, z)
 
-    -- update orb x,y,z map coordinates:
+    -- update bomb x,y,z map coordinates:
     write_float(object + 0x5C, x)
     write_float(object + 0x60, y)
     write_float(object + 0x64, z)
 
-    -- update orb velocities:
+    -- update bomb velocities:
     write_float(object + 0x68, 0) -- x vel
     write_float(object + 0x6C, 0) -- y vel
     write_float(object + 0x70, 0) -- z vel
 
-    -- update orb yaw, pitch, roll
+    -- update bomb yaw, pitch, roll
     write_float(object + 0x90, 0) -- yaw
     write_float(object + 0x8C, 0) -- pitch
     write_float(object + 0x94, 0) -- roll
