@@ -81,6 +81,6 @@ You can further support me by clicking the 👁️ watch and ⭐ star buttons at
 ### Contact Me:
 
 Email: **jericho.crosby227@gmail.com**<br/>
-Discord: **Chalwk (formally Chalwk#9284)**
+Discord: **Chalwk** (formally Chalwk#9284)
 
 ----
