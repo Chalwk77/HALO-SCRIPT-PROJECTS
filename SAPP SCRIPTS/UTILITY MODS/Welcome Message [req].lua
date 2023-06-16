@@ -1,7 +1,10 @@
 --[[
 --=====================================================================================================--
 Script Name: Welcome Message, for SAPP (PC & CE)
-Description: This mod was requested by someone called mdc81 on opencarnage.net for use on their private server.
+Description: This script was requested by "mdc81" on opencarnage.net for use on their private server.
+
+            NOTE: This can be easily achieved by using SAPP's event system:
+            event_join 'say $n "Welcome friend, $name"'
 
 Copyright (c) 2016-2022, Jericho Crosby <jericho.crosby227@gmail.com>
 Notice: You can use this document subject to the following conditions:
