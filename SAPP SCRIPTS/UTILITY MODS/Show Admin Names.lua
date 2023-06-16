@@ -17,18 +17,18 @@ function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'], 'CheckAdmins')
 end
 
-local function IsAdmin(Ply)
-    local lvl = tonumber(get_var(Ply, "$lvl"))
-    return (lvl > 0 and lvl) or nil
+local function isAdmin(Ply)
+    local level = tonumber(get_var(Ply, "$lvl"))
+    return (level > 0 and level) or nil
 end
 
 function CheckAdmins(Ply, CMD)
     if (CMD:sub(1, command:len()):lower() == command) then
         for i = 1, 16 do
             if player_present(i) then
-                local lvl = IsAdmin(i)
-                if (lvl) then
-                    rprint(Ply, get_var(i, '$name') .. ' [level: ' .. lvl .. ']')
+                local level = isAdmin(i)
+                if (level) then
+                    rprint(Ply, get_var(i, '$name') .. ' [level: ' .. level .. ']')
                 end
             end
         end
