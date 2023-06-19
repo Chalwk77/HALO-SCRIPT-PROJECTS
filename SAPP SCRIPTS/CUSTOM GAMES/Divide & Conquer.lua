@@ -36,48 +36,37 @@ end
 
 function timer:start()
     self.start_time = clock()
-    self.paused_time = 0
-    self.paused = false
 end
 
 function timer:stop()
     self.start_time = nil
-    self.paused_time = 0
-    self.paused = false
 end
 
 function timer:get()
-    if (self.start_time) then
-        if (self.paused) then
-            return self.paused_time - self.start_time
-        else
-            return clock() - self.start_time
-        end
-    end
-    return 0
+    return (self.start_time and clock() - self.start_time) or 0
 end
 
 function OnScriptLoad()
 
-    register_callback(cb['EVENT_DIE'], 'OnDeath')
-    register_callback(cb['EVENT_DAMAGE_APPLICATION'], 'OnDeath')
+    register_callback(cb['EVENT_DIE'], 'onDeath')
+    register_callback(cb['EVENT_DAMAGE_APPLICATION'], 'onDeath')
 
-    register_callback(cb['EVENT_TICK'], 'OnTick')
-    register_callback(cb['EVENT_TEAM_SWITCH'], 'OnTeamSwitch')
+    register_callback(cb['EVENT_TICK'], 'onTick')
+    register_callback(cb['EVENT_TEAM_SWITCH'], 'onTeamSwitch')
 
-    register_callback(cb['EVENT_JOIN'], 'OnJoin')
-    register_callback(cb['EVENT_LEAVE'], 'OnQuit')
+    register_callback(cb['EVENT_JOIN'], 'onJoin')
+    register_callback(cb['EVENT_LEAVE'], 'onQuit')
 
-    register_callback(cb['EVENT_GAME_END'], 'OnEnd')
-    register_callback(cb['EVENT_GAME_START'], 'OnStart')
+    register_callback(cb['EVENT_GAME_END'], 'onEnd')
+    register_callback(cb['EVENT_GAME_START'], 'onStart')
 
-    OnStart()
+    onStart()
 
     death_message_address = sig_scan("8B42348A8C28D500000084C9") + 3
     original_death_message_address = read_dword(death_message_address)
 end
 
-function OnStart()
+function onStart()
     if (get_var(0, '$gt') ~= 'n/a') then
 
         players = {}
@@ -88,7 +77,7 @@ function OnStart()
 
         for i = 1, 16 do
             if player_present(i) then
-                OnJoin(i)
+                onJoin(i)
             end
         end
     end
@@ -115,7 +104,7 @@ local function say(message, tick)
     execute_command('msg_prefix "' .. prefix .. '"')
 end
 
-function OnEnd()
+function onEnd()
 
     if (winner) then
         say('Game Over! Winner: ' .. winner .. ' team')
@@ -140,7 +129,7 @@ local function enableDeathMessages()
     safe_write(false)
 end
 
-function OnTick()
+function onTick()
 
     if (not game or game.started) then
         return
@@ -201,7 +190,7 @@ local function gameCheck(quit)
     end
 end
 
-function OnJoin(id)
+function onJoin(id)
     players[id] = {
         id = id,
         team = get_var(id, '$team')
@@ -209,7 +198,7 @@ function OnJoin(id)
     gameCheck()
 end
 
-function OnQuit(id)
+function onQuit(id)
     players[id] = nil
     gameCheck(true)
 end
@@ -227,7 +216,7 @@ local function switchTeam(player, team)
     execute_command('team_score ' .. team .. ' ' .. (team == 'red' and redScore() - 1 or blueScore() - 1))
 end
 
-function OnDeath(victim, killer, meta_id)
+function onDeath(victim, killer, meta_id)
 
     if (not game or not game.started) then
         return
@@ -240,8 +229,8 @@ function OnDeath(victim, killer, meta_id)
         return
     end
 
-    killer = players[killer]
     victim = players[victim]
+    killer = players[killer]
 
     if (meta_id and killer.team == victim.team) then
         return false
@@ -256,7 +245,7 @@ function OnDeath(victim, killer, meta_id)
     endGame()
 end
 
-function OnTeamSwitch(id)
+function onTeamSwitch(id)
     players[id].team = get_var(id, '$team')
 end
 
