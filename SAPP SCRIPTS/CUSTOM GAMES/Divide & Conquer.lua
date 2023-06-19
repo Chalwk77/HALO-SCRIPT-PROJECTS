@@ -22,6 +22,7 @@ local prefix = '**SAPP**'
 local game
 local winner
 local clock = os.clock
+local floor = math.floor
 local players, timer = {}, {}
 local death_message_address
 local original_death_message_address
@@ -124,7 +125,7 @@ function OnEnd()
 end
 
 local function timeRemaining()
-    return math.floor(delay - game:get())
+    return floor(delay - game:get())
 end
 
 local function disableDeathMessages()
