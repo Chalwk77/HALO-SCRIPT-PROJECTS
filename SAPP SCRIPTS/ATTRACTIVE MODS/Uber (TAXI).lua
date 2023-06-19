@@ -370,7 +370,7 @@ function Uber:GetVehicles()
     local done = {}
     local index = 0
 
-    for i, v in ipairs(players) do
+    for i, v in pairs(players) do
 
         local alive = player_alive(i)
         local dyn = get_dynamic_player(i)
@@ -452,7 +452,7 @@ end
 
 function Uber:EjectionCheck()
     if (self.seat == 0) then
-        for i, v in ipairs(players) do
+        for i, v in pairs(players) do
 
             local dyn = get_dynamic_player(i)
             if (i ~= self.id and player_alive(i) and dyn ~= 0) then
@@ -502,7 +502,7 @@ local function Cooldown(self)
 end
 
 function OnTick()
-    for i, v in ipairs(players) do
+    for i, v in pairs(players) do
         local dyn = get_dynamic_player(i)
         if (i and dyn ~= 0 and player_alive(i)) then
 
@@ -520,7 +520,7 @@ function OnTick()
 end
 
 local function CancelEjection(Ply, Obj)
-    for i, v in ipairs(players) do
+    for i, v in pairs(players) do
         local dyn = get_dynamic_player(i)
         if (i ~= Ply and dyn ~= 0 and player_alive(i) and v.auto_eject and v.auto_eject.object == Obj) then
             v.auto_eject = nil

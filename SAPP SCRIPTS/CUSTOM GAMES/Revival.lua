@@ -234,7 +234,7 @@ end
 
 function Attrition:OnTick()
 
-    for i, victim in ipairs(players) do
+    for i, victim in pairs(players) do
 
         if (not player_alive(i)) then
             write_dword(get_player(i) + 0x2C, 0.1 * 33)
@@ -249,7 +249,7 @@ function Attrition:OnTick()
                     local h = self.orb_height_offset
                     UpdateVectors(object, orb.x, orb.y, orb.z + h)
 
-                    for j, teammate in ipairs(players) do
+                    for j, teammate in pairs(players) do
 
                         local dyn = get_dynamic_player(j)
                         if (dyn ~= 0) then

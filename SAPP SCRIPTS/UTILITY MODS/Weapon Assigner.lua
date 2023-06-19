@@ -722,7 +722,7 @@ end
 function OnTick()
 
     -- Loop over all players in the server and check if we need to assign a weapon:
-    for i, player in ipairs(players) do
+    for i, player in pairs(players) do
         if (i and player.assign and player_alive(i)) then
 
             local dyn = get_dynamic_player(i)

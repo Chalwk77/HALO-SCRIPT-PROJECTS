@@ -287,7 +287,7 @@ local function GetTag(Class, Name)
 end
 
 function Sabotage:BombHeld()
-    for i, v in ipairs(players) do
+    for i, v in pairs(players) do
         local dyn = get_dynamic_player(i)
         return (dyn ~= 0 and player_alive(i) and v.has_bomb) or false
     end
@@ -603,13 +603,13 @@ function Sabotage:OnTick()
             bomb, bomb_planted = nil, false
             return
         else
-            for i, _ in ipairs(players) do
+            for i, _ in pairs(players) do
                 Say(i, 'Bomb will explode in ' .. (finish - start()) .. ' seconds!')
             end
         end
     end
 
-    for i, v in ipairs(players) do
+    for i, v in pairs(players) do
 
         local dyn = get_dynamic_player(i)
         if (player_alive(i) and dyn ~= 0) then

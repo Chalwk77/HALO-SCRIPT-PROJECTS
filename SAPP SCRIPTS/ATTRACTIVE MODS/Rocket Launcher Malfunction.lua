@@ -99,7 +99,7 @@ end
 local time_scale = 1 / 30
 function OnTick()
 
-    for i, v in ipairs(players) do
+    for i, v in pairs(players) do
         local dyn = get_dynamic_player(i)
         if (player_present(i) and player_alive(i) and dyn ~= 0) then
 
