@@ -26,7 +26,7 @@ local CSpy = {
     -- This is the custom command used to toggle command spy on or off:
     -- Command syntax: /command
     --
-    command = 'spy',
+    command = "spy",
 
     -- Minimum permission required to execute /command:
     --
@@ -44,20 +44,20 @@ local CSpy = {
     --
     output = {
         -- RCON:
-        [1] = '[R-SPY] $name: $cmd',
+        [1] = "[R-SPY] $name: $cmd",
         -- CHAT:
-        [2] = '[C-SPY] $name: /$cmd'
+        [2] = "[C-SPY] $name: /$cmd"
     },
 
     -- Command(s) containing these words will not be seen:
     --
     blacklist = {
-        'login',
-        'admin_add',
-        'sv_password',
-        'change_password',
-        'admin_change_pw',
-        'admin_add_manually',
+        "login",
+        "admin_add",
+        "sv_password",
+        "change_password",
+        "admin_change_pw",
+        "admin_add_manually",
         -- Repeat the structure to add more commands.
     }
 }
@@ -65,14 +65,14 @@ local CSpy = {
 
 local players = {}
 
-api_version = '1.12.0.0'
+api_version = "1.12.0.0"
 
 function OnScriptLoad()
 
-    register_callback(cb['EVENT_JOIN'], 'OnJoin')
-    register_callback(cb['EVENT_LEAVE'], 'OnQuit')
-    register_callback(cb['EVENT_COMMAND'], 'OnCommand')
-    register_callback(cb['EVENT_GAME_START'], 'OnStart')
+    register_callback(cb["EVENT_JOIN"], "OnJoin")
+    register_callback(cb["EVENT_LEAVE"], "OnQuit")
+    register_callback(cb["EVENT_COMMAND"], "OnCommand")
+    register_callback(cb["EVENT_GAME_START"], "OnStart")
 
     OnStart()
 end
@@ -87,7 +87,7 @@ function CSpy:NewPlayer(o)
     self.__index = self
 
     o.lvl = function()
-        return tonumber(get_var(o.pid, '$lvl'))
+        return tonumber(get_var(o.pid, "$lvl"))
     end
 
     local state = (o.lvl() >= self.permission and self.enabled_by_default)
@@ -99,9 +99,9 @@ end
 function CSpy:Toggle()
     if (self.lvl() >= self.permission) then
         self.state = (not self.state and true or false)
-        Respond(self.pid, 'Command Spy ' .. (self.state and 'on' or not self.state and 'off'))
+        Respond(self.pid, "Command Spy " .. (self.state and "on" or not self.state and "off"))
     else
-        Respond(self.pid, 'Insufficient Permission')
+        Respond(self.pid, "Insufficient Permission")
     end
     return true
 end
@@ -112,15 +112,12 @@ function CSpy:ShowCommand(ENV, CMD)
         goto done
     end
 
-    for i = 1, 16 do
-        if (player_present(i) and i ~= self.pid) then
-            local spy = players[i]
-            if (spy.state and spy.lvl() >= self.permission) then
-                local msg = self.output[ENV]
-                local name = get_var(self.pid, '$name')
-                msg = msg:gsub('$name', name):gsub('$cmd', CMD)
-                Respond(i, msg)
-            end
+    for i, spy in pairs(players) do
+        if (i ~= self.pid and spy.state and spy.lvl() >= self.permission) then
+            local msg = self.output[ENV]
+            local name = get_var(self.pid, '$name')
+            msg = msg:gsub('$name', name):gsub('$cmd', CMD)
+            Respond(i, msg)
         end
     end
 
@@ -128,7 +125,7 @@ function CSpy:ShowCommand(ENV, CMD)
 end
 
 function OnStart()
-    if (get_var(0, '$gt') ~= 'n/a') then
+    if (get_var(0, "$gt") ~= "n/a") then
         players = { }
         for i = 1, 16 do
             if player_present(i) then
@@ -138,8 +135,8 @@ function OnStart()
     end
 end
 
-local function blacklisted(CMD)
-    for _, word in ipairs(CSpy.blacklist) do
+local function BlackListed(CMD)
+    for _, word in pairs(CSpy.blacklist) do
         if CMD:lower():find(word) then
             return true
         end
@@ -153,7 +150,7 @@ function OnCommand(Ply, CMD, ENV, _)
         local cmd = CMD:sub(1, CMD:len()):lower()
         if (cmd == t.command and t:Toggle()) then
             return false
-        elseif (Ply > 0 and not blacklisted(cmd)) then
+        elseif (Ply > 0 and not BlackListed(cmd)) then
             t:ShowCommand(ENV, CMD)
         end
     end
