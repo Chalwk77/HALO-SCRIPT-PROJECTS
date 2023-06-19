@@ -230,6 +230,8 @@ local CTF = {
 }
 -- config ends --
 
+-- todo: rewrite this
+
 api_version = "1.12.0.0"
 
 -- This function is called when the script is loaded into SAPP:
