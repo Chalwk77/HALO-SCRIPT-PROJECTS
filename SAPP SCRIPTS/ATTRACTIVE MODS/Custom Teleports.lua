@@ -138,7 +138,7 @@ function OnStart()
 
         map = get_var(0, "$map")
         if (Teleports[map] and #Teleports[map] > 0) then
-            register_callback(cb["EVENT_TICK"], "GameTick")
+            register_callback(cb["EVENT_TICK"], "onTick")
             goto done
         end
 
@@ -150,38 +150,37 @@ function OnStart()
 end
 
 local sqrt = math.sqrt
-local function GetDist(x1, y1, z1, x2, y2, z2)
+local function getDistance(x1, y1, z1, x2, y2, z2)
     return sqrt((x1 - x2) ^ 2 + (y1 - y2) ^ 2 + (z1 - z2) ^ 2)
 end
 
-local function GetXYZ(dyn)
+local function getXYZ(dyn)
 
     local crouch = read_float(dyn + 0x50C)
     local x, y, z = read_vector3d(dyn + 0x5C)
 
     if (crouch_activated) then
-        z = (crouch == 0 and z + 0.65 or z + (0.35 * crouch))
+        z = (crouch == 0 and z + 0.65)  or (z + 0.35 * crouch)
     end
 
     return x, y, z
 end
 
-function GameTick()
+function onTick()
     for i = 1, 16 do
         local dyn = get_dynamic_player(i)
         if (player_present(i) and player_alive(i) and dyn ~= 0) then
             local vehicle = read_dword(dyn + 0x11C)
             if (vehicle == 0xFFFFFFFF) then
 
-                local x, y, z = GetXYZ(dyn)
+                local x, y, z = getXYZ(dyn)
                 for j = 1, #Teleports[map] do
                     local v = Teleports[map][j]
                     local z_off = v[8] -- extra height above ground at destination z-coord
                     local x2, y2, z2 = v[1], v[2], v[3] -- destination x,y,z
                     local trigger_distance = v[4] -- origin x,y,z trigger radius
 
-                    local distance = GetDist(x, y, z, x2, y2, z2)
-
+                    local distance = getDistance(x, y, z, x2, y2, z2)
                     if (distance <= trigger_distance) then
                         write_vector3d(dyn + 0x5C, v[5], v[6], v[7] + z_off)
                         rprint(i, 'WOOSH!')
@@ -190,6 +189,7 @@ function GameTick()
                 end
             end
         end
+
         :: next ::
     end
 end

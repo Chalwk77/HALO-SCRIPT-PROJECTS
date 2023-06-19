@@ -120,7 +120,7 @@ function OnScriptLoad()
     OnStart()
 end
 
-function GunGame:NewPlayer(o)
+function GunGame:newPlayer(o)
 
     setmetatable(o, self)
     self.__index = self
@@ -129,7 +129,7 @@ function GunGame:NewPlayer(o)
     return o
 end
 
-function GunGame:LevelUP()
+function GunGame:levelUp()
     if (not game_over) then
 
         self.level = self.level + 1
@@ -149,17 +149,17 @@ function GunGame:LevelUP()
     end
 end
 
-local function GetTag(Class, Name)
-    local Tag = lookup_tag(Class, Name)
-    return Tag ~= 0 and read_dword(Tag + 0xC) or nil
+local function getTag(class, name)
+    local tag = lookup_tag(class, name)
+    return tag ~= 0 and read_dword(tag + 0xC) or nil
 end
 
-function GunGame:TagsToID()
+function GunGame:tagsToID()
     cprint('------------------ [GUN GAME] ------------------', 10)
     local t = {}
     for i, w in ipairs(self.levels) do
         for k, v in pairs(w) do
-            local tag = GetTag('weap', v[1])
+            local tag = getTag('weap', v[1])
             if (tag) then
                 t[#t + 1] = { [k] = v }
                 cprint('Level: [' .. #t .. '] [' .. k .. '] Frags: ' .. v[2] .. ' Plasmas: ' .. v[3], 10)
@@ -172,7 +172,7 @@ function GunGame:TagsToID()
     self.weapons = t
 end
 
-function GunGame:EnableDisableWeapons(state)
+function GunGame:setWeapons(state)
     state = (state and 'enable_object') or 'disable_object'
     for _, v in pairs(self.objects) do
         execute_command(state .. " '" .. v .. "'")
@@ -182,12 +182,12 @@ end
 function OnStart()
     if (get_var(0, '$gt') ~= 'n/a') then
 
-        GunGame:TagsToID()
+        GunGame:tagsToID()
 
         -- override scorelimit:
         execute_command("scorelimit 99999")
 
-        GunGame:EnableDisableWeapons()
+        GunGame:setWeapons()
 
         players = {}
         game_over = false
@@ -247,65 +247,36 @@ function OnTick()
     end
 end
 
-function OnJoin(Ply)
-    players[Ply] = GunGame:NewPlayer({
-        id = Ply,
-        name = get_var(Ply, "$name")
+function OnJoin(id)
+    players[id] = GunGame:newPlayer({
+        id = id,
+        name = get_var(id, "$name")
     })
 end
 
-function OnQuit(Ply)
-    players[Ply] = nil
+function OnQuit(id)
+    players[id] = nil
 end
 
-function OnSpawn(Ply)
-    if (players[Ply]) then
-        players[Ply].assign = true
+function OnSpawn(id)
+    if (players[id]) then
+        players[id].assign = true
     end
 end
 
-function OnDeath(Victim, Killer)
+function OnDeath(victim ,killer)
     if (not game_over) then
-        local victim = tonumber(Victim)
-        local killer = tonumber(Killer)
+
+        victim = tonumber(victim)
+        killer = tonumber(killer)
+
         local k = players[killer]
         if (k and killer > 0 and killer ~= victim) then
-            k:LevelUP()
+            k:levelUp()
         end
     end
 end
 
 function OnScriptUnload()
-    GunGame:EnableDisableWeapons(true)
-end
-
-local function WriteErr(str)
-    local file = io.open('Gun Game Errors.log', 'a+')
-    if (file) then
-        file:write(str .. '\n')
-        file:close()
-    end
-end
-
-function report(StackTrace, Err)
-
-    cprint(StackTrace, 12)
-
-    cprint('--------------------------------------------------------', 13)
-    cprint('Please report this error on github:', 15)
-    cprint('https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues', 13)
-    cprint('Script Version: ' .. script_version, 15)
-    cprint('--------------------------------------------------------', 13)
-
-    WriteErr(os.date('[%H:%M:%S - %d/%m/%Y]'))
-    WriteErr('Please report this error on github:')
-    WriteErr('https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues')
-    WriteErr('Script Version: ' .. tostring(script_version))
-    WriteErr(Err)
-    WriteErr(StackTrace)
-    WriteErr('\n')
-end
-
-function OnError(err)
-    timer(50, "report", debug.traceback(), err)
+    GunGame:setWeapons(true)
 end

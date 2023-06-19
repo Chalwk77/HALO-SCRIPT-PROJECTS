@@ -51,25 +51,25 @@ function OnStart()
     end
 end
 
-local function CMDSplit(s)
-    local args = { }
+local function stringSplit(s)
+    local t = { }
     for arg in s:gmatch('([^%s]+)') do
-        args[#args + 1] = arg:lower()
+        t[#t + 1] = arg:lower()
     end
-    return args
+    return t
 end
 
-local function HasPermission(Ply)
+local function hasPermission(Ply)
     local lvl = tonumber(get_var(Ply, '$lvl'))
     return (lvl >= permission_level)
 end
 
 function OnCommand(Ply, CMD)
 
-    local args = CMDSplit(CMD)
+    local args = stringSplit(CMD)
     if (args[1] == command) then
 
-        if HasPermission(Ply) then
+        if hasPermission(Ply) then
 
             local min = min_max[1]
             local max = min_max[2]

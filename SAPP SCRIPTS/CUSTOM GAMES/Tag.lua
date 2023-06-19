@@ -138,7 +138,7 @@ local objects = {
 -- * Creates a new player table; Inherits the Tag parent object.
 -- @Param o (player table [table])
 -- @Return o (player table [table])
-function Tag:NewPlayer(o)
+function Tag:newPlayer(o)
 
     setmetatable(o, self) -- inherit the .__index of Tag.
     self.__index = self
@@ -156,13 +156,13 @@ function Tag:NewPlayer(o)
 end
 
 -- Returns true if this player is the tagger:
-function Tag:IsTagger()
+function Tag:isTagger()
     return (self.pid == tagger)
 end
 
 -- Sets running speed of all players:
 -- @Param last_man (id of the last person online):
-function Tag:SetSpeed(last_man)
+function Tag:setSpeed(last_man)
     execute_command('s ' .. self.pid .. ' ' .. self.speed[1])
     for i, v in pairs(players) do
         if (i ~= self.pid or i == last_man) then
@@ -171,44 +171,44 @@ function Tag:SetSpeed(last_man)
     end
 end
 
-local function SetPeriodicTimers()
+local function setPeriodicTimers()
     for i, v in pairs(players) do
         if (i == tagger) then
             v.periodic_scoring = false
 
             -- only do this if it's not already set:
         elseif (not v.periodic_scoring) then
-            v:NewRunnerTime()
+            v:newRunnerTime()
         end
     end
 end
 
 -- Sets the tagger:
--- @Param TaggerName (name of the person who just tagged someone) [string]
-function Tag:SetTagger(TaggerName)
+-- @Param name (string) name of the tagger to set.
+function Tag:setTagger(name)
 
     tagger = self.pid
     self.assign = true
     self.periodic_scoring = false
 
-    self:NewTurnTime()
-    self:SetSpeed()
+    self:newTurnTime()
+    self:setSpeed()
 
-    SetPeriodicTimers()
+    setPeriodicTimers()
 
-    if (TaggerName) then
+    if (name) then
 
         local t_msg = self.on_tag[1]
-        local to_tagger = t_msg:gsub('$name', TaggerName)
+        local to_tagger = t_msg:gsub('$name', name)
 
         local r_msg = self.on_tag[2]
-        local to_runner = r_msg:gsub('$name', self.name):gsub('$tagger', TaggerName)
+        local to_runner = r_msg:gsub('$name', self.name):gsub('$tagger', name)
 
         for i, v in pairs(players) do
             if (i == tagger) then
-                v:Broadcast(to_tagger, true)
+                v:broadcast(to_tagger, true)
             else
-                v:Broadcast(to_runner, true)
+                v:broadcast(to_runner, true)
             end
         end
         return
@@ -216,24 +216,24 @@ function Tag:SetTagger(TaggerName)
 
     local msg = self.random_tagger
     msg = msg:gsub('$name', self.name)
-    self:Broadcast(msg)
+    self:broadcast(msg)
 end
 
 -- Resets turn timer variables:
-function Tag:NewTurnTime()
+function Tag:newTurnTime()
     self.turn_start = time
     self.turn_finish = time() + self.turn_time
 end
 
 -- Timer variables used to periodically update runner score:
-function Tag:NewRunnerTime()
+function Tag:newRunnerTime()
     self.periodic_scoring = true
     self.runner_start = time
     self.runner_finish = time() + self.points_interval
 end
 
 -- Function responsible for handling scoring:
-function Tag:UpdateScore(Deduct, RunnerPoints)
+function Tag:updateScore(Deduct, RunnerPoints)
     local score = tonumber(get_var(self.pid, '$score'))
 
     -- prevent player from scoring from last kill:
@@ -249,7 +249,7 @@ function Tag:UpdateScore(Deduct, RunnerPoints)
 end
 
 -- Binds nav marker to tagger:
-function Tag:SetNav()
+function Tag:setNav()
     local player = get_player(self.pid)
     if (tagger and self.pid ~= tagger) then
         write_word(player + 0x88, to_real_index(tagger))
@@ -262,15 +262,15 @@ end
 -- @Param Type (tag class)
 -- @Param Name (tag path)
 -- @Return tag address [number]
-local function GetTag(Type, Name)
-    local ObjTag = lookup_tag(Type, Name)
-    return (ObjTag ~= 0 and read_dword(ObjTag + 0xC)) or nil
+local function getTag(class, name)
+    local tag = lookup_tag(class, name)
+    return (tag ~= 0 and read_dword(tag + 0xC)) or nil
 end
 
 -- Sends a server-wide message:
 -- * Temporarily removes the server prefix.
 -- @Params msg (message string)
-function Tag:Broadcast(msg, pm)
+function Tag:broadcast(msg, pm)
     execute_command('msg_prefix ""')
     if (not pm) then
         say_all(msg)
@@ -282,13 +282,13 @@ end
 
 -- Destroy the players weapon:
 -- @Param Assign [boolean], true if we need to trigger weapon a assignment.
-function Tag:DeleteDrone(Assign)
+function Tag:deleteDrone(assign)
     destroy_object(self.drone)
-    self.assign = Assign
+    self.assign = assign
 end
 
 -- Weapon assignment logic:
-function Tag:AssignWeapons()
+function Tag:assignWeapons()
 
     -- Assign appropriate weapons:
     if (self.assign) then
@@ -307,7 +307,7 @@ end
 -- @Param quit [boolean], true if we need to deduct 1 from n:
 -- SAPP var $pn does not update immediately after a player quits,
 -- so we have to deduct one manually.
-function Tag:EnoughPlayers(quit)
+function Tag:enoughPlayers(quit)
     local n = tonumber(get_var(0, '$pn'))
     n = (quit and n - 1 or n)
     return (n >= self.players_required)
@@ -315,13 +315,13 @@ end
 
 -- Picks a random player to become the tagger.
 -- Excludes the previous tagger.
--- @Param quit (boolean), true if we need to deduct 1 from n in EnoughPlayers().
-function Tag:PickRandomTagger(quit)
+-- @Param quit (boolean), true if we need to deduct 1 from n in enoughPlayers().
+function Tag:pickRandomPlayer(quit)
 
-    if not self:EnoughPlayers(quit) then
+    if not self:enoughPlayers(quit) then
         tagger = nil
-        self:SetSpeed(self.pid)
-        self:Broadcast('Game of tag has ended. Not enough players.')
+        self:setSpeed(self.pid)
+        self:broadcast('Game of tag has ended. Not enough players.')
         return
     end
 
@@ -338,7 +338,7 @@ function Tag:PickRandomTagger(quit)
 
     -- Pick and set new tagger from t{}:
     if (#t > 0) then
-        players[t[rand(1, #t + 1)]]:SetTagger()
+        players[t[rand(1, #t + 1)]]:setTagger()
     end
 end
 
@@ -355,11 +355,11 @@ end
 function OnStart()
     if (get_var(0, '$gt') ~= 'n/a') then
 
-        tagger_weapon_meta_id = GetTag('jpt!', 'weapons\\ball\\melee')
-        runner_weapon_meta_id = GetTag('jpt!', 'weapons\\plasma rifle\\melee')
+        tagger_weapon_meta_id = getTag('jpt!', 'weapons\\ball\\melee')
+        runner_weapon_meta_id = getTag('jpt!', 'weapons\\plasma rifle\\melee')
 
-        tagger_weapon = GetTag('weap', 'weapons\\ball\\ball')
-        runner_weapon = GetTag('weap', 'weapons\\plasma rifle\\plasma rifle')
+        tagger_weapon = getTag('weap', 'weapons\\ball\\ball')
+        runner_weapon = getTag('weap', 'weapons\\plasma rifle\\plasma rifle')
 
         -- set up game tables:
         game_over = false
@@ -391,18 +391,18 @@ function OnTick()
 
         if (not game_over and player_present(i) and player_alive(i)) then
 
-            v:SetNav()
-            v:AssignWeapons()
+            v:setNav()
+            v:assignWeapons()
 
             execute_command('battery ' .. i .. ' 100')
 
-            if (v:IsTagger() and v.turn_start() >= v.turn_finish) then
-                v:PickRandomTagger()
+            if (v:isTagger() and v.turn_start() >= v.turn_finish) then
+                v:pickRandomPlayer()
 
                 -- Update runner score periodically:
             elseif (v.periodic_scoring and v.runner_start() >= v.runner_finish) then
-                v:NewRunnerTime()
-                v:UpdateScore(false, true) -- update runner points
+                v:newRunnerTime()
+                v:updateScore(false, true) -- update runner points
             end
         end
     end
@@ -420,7 +420,7 @@ function OnDamage(Victim, Causer, MetaID)
     local k = players[killer]
     local v = players[victim]
 
-    if (not game_over and killer > 0 and k and v and k:EnoughPlayers()) then
+    if (not game_over and killer > 0 and k and v and k:enoughPlayers()) then
 
         --
         -- event_damage_application:
@@ -428,11 +428,11 @@ function OnDamage(Victim, Causer, MetaID)
         if (MetaID) then
 
             -- Prevent runners from attacking each other:
-            if (tagger and not k:IsTagger() and not v:IsTagger()) then
+            if (tagger and not k:isTagger() and not v:isTagger()) then
                 return false
             end
 
-            local case1 = (not tagger and MetaID == runner_weapon_meta_id or k:IsTagger())
+            local case1 = (not tagger and MetaID == runner_weapon_meta_id or k:isTagger())
             local case2 = (tagger and MetaID == tagger_weapon_meta_id)
 
             if (killer ~= victim) and (case1 or case2) then
@@ -440,9 +440,9 @@ function OnDamage(Victim, Causer, MetaID)
                 k.assign = true -- trigger weapon assignment
                 v.killer = killer -- keep track of the player who just killed you
 
-                k:UpdateScore() -- update current tagger score
-                k:NewRunnerTime() -- reset periodic scoring for this player
-                v:SetTagger(k.name) -- make victim the tagger
+                k:updateScore() -- update current tagger score
+                k:newRunnerTime() -- reset periodic scoring for this player
+                v:setTagger(k.name) -- make victim the tagger
             end
             return
         end
@@ -451,11 +451,11 @@ function OnDamage(Victim, Causer, MetaID)
         -- event_die:
         --
 
-        v:DeleteDrone() -- prevent weapon drop
-        k:UpdateScore(true) -- prevent this kill from being counted towards score
+        v:deleteDrone() -- prevent weapon drop
+        k:updateScore(true) -- prevent this kill from being counted towards score
 
-        if (v.new_tagger_on_death and v:IsTagger() and v.killer ~= killer) then
-            v:PickRandomTagger()
+        if (v.new_tagger_on_death and v:isTagger() and v.killer ~= killer) then
+            v:pickRandomPlayer()
         end
     end
 end
@@ -463,7 +463,7 @@ end
 -- Called when a player has finished connecting:
 -- @Param P (player id) [number]
 function OnJoin(Ply)
-    players[Ply] = Tag:NewPlayer({
+    players[Ply] = Tag:newPlayer({
         pid = Ply,
         name = get_var(Ply, '$name')
     })
@@ -477,11 +477,11 @@ function OnQuit(Ply)
     local t = players[Ply]
 
     -- Pick a random player to be the tagger:
-    if (not game_over and t.new_tagger_on_quit and t:IsTagger()) then
-        t:PickRandomTagger(true)
+    if (not game_over and t.new_tagger_on_quit and t:isTagger()) then
+        t:pickRandomPlayer(true)
     end
 
-    t:DeleteDrone() -- delete their dropped weapon
+    t:deleteDrone() -- delete their dropped weapon
 
     players[Ply] = nil
 end
@@ -495,17 +495,17 @@ function OnSpawn(Ply)
     t.assign = true
     t.killer = 0
 
-    if (t:IsTagger()) then
-        t:SetSpeed() -- just in case
+    if (t:isTagger()) then
+        t:setSpeed() -- just in case
     elseif (tagger) then
-        t:NewRunnerTime() -- only do this if a game of tag is in play:
+        t:newRunnerTime() -- only do this if a game of tag is in play:
     end
 end
 
 -- Called when a player drops a weapon.
 -- Makes a call  to destroy their weapon.
 function OnDrop(Ply)
-    players[Ply]:DeleteDrone(true)
+    players[Ply]:deleteDrone(true)
 end
 
 -- Registers needed event callbacks for SAPP:

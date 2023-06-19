@@ -47,80 +47,83 @@ local format = string.format
 api_version = '1.12.0.0'
 
 function OnScriptLoad()
-    register_callback(cb['EVENT_DIE'], 'OnDeath')
-    register_callback(cb['EVENT_TICK'], 'OnTick')
-    register_callback(cb['EVENT_JOIN'], 'OnJoin')
-    register_callback(cb['EVENT_LEAVE'], 'OnQuit')
-    register_callback(cb['EVENT_SPAWN'], 'OnSpawn')
-    register_callback(cb['EVENT_GAME_END'], 'OnEnd')
-    register_callback(cb['EVENT_GAME_START'], 'OnStart')
-    OnStart()
+    register_callback(cb['EVENT_DIE'], 'onDeath')
+    register_callback(cb['EVENT_TICK'], 'onTick')
+    register_callback(cb['EVENT_JOIN'], 'onJoin')
+    register_callback(cb['EVENT_LEAVE'], 'onQuit')
+    register_callback(cb['EVENT_SPAWN'], 'onSpawn')
+    register_callback(cb['EVENT_GAME_END'], 'onEnd')
+    register_callback(cb['EVENT_GAME_START'], 'onStart')
+    onStart()
 end
 
-function SurvivalSlayer:NewPlayer(o)
+function SurvivalSlayer:newPlayer(o)
     setmetatable(o, { __index = self })
     self.__index = self
     return o
 end
 
-function OnStart()
+function onStart()
     if (get_var(0, '$gt') ~= 'n/a') then
         players = {}
         game_started = true
         execute_command('scorelimit ' .. SurvivalSlayer.kills_to_win)
         for i = 1, 16 do
             if player_present(i) then
-                OnJoin(i)
+                onJoin(i)
             end
         end
     end
 end
 
-function OnEnd()
+function onEnd()
     game_started = false
 end
 
-function OnJoin(Ply)
-    players[Ply] = SurvivalSlayer:NewPlayer({
+function onJoin(Ply)
+    players[Ply] = SurvivalSlayer:newPlayer({
         name = get_var(Ply, '$name')
     })
 end
 
-function OnQuit(Ply)
+function onQuit(Ply)
     players[Ply] = nil
 end
 
-function OnSpawn(Ply)
+function onSpawn(Ply)
     local p = players[Ply]
     if (p) then
         p.life = p.life_time
     end
 end
 
-local function Say(Ply, Msg)
+local function say(Ply, Msg)
     for _ = 1, 25 do
         rprint(Ply, ' ')
     end
     rprint(Ply, Msg)
 end
 
-function OnTick()
-    if (game_started) then
-        for i, v in pairs(players) do
-            if (player_alive(i) and v.life) then
-                v.life = v.life - time_scale
-                if (v.life <= 0) then
-                    v.life = nil
-                    execute_command('kill ' .. i)
-                else
-                    Say(i, format('%s: %s', v.name, floor(v.life)))
-                end
+function onTick()
+
+    if (not game_started) then
+        return
+    end
+
+    for i, v in pairs(players) do
+        if (player_alive(i) and v.life) then
+            v.life = v.life - time_scale
+            if (v.life <= 0) then
+                v.life = nil
+                execute_command('kill ' .. i)
+            else
+                say(i, format('%s: %s', v.name, floor(v.life)))
             end
         end
     end
 end
 
-function OnDeath(Victim, Killer)
+function onDeath(Victim, Killer)
     local killer = tonumber(Killer)
     local victim = tonumber(Victim)
 
