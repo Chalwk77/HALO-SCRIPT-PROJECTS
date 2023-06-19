@@ -80,11 +80,10 @@ function OnStart()
     if (get_var(0, '$gt') ~= 'n/a') then
 
         players = {}
-
         winner, game = nil, nil
 
-        execute_command('sv_friendly_fire 0')
         execute_command('sv_tk_ban 0')
+        execute_command('sv_friendly_fire 0')
 
         for i = 1, 16 do
             if player_present(i) then
@@ -103,11 +102,9 @@ end
 local function say(message, tick)
 
     if (tick) then
-        for i, _ in ipairs(players) do
-            if player_present(i) then
-                cls(i)
-                rprint(i, message)
-            end
+        for i, _ in pairs(players) do
+            cls(i)
+            rprint(i, message)
         end
         return
     end
@@ -168,11 +165,9 @@ local function getTeamCounts()
 
     local reds, blues = 0, 0
 
-    for i, v in ipairs(players) do
-        if player_present(i) then
-            reds = (v.team == 'red') and reds + 1 or reds
-            blues = (v.team == 'blue') and blues + 1 or blues
-        end
+    for _, v in pairs(players) do
+        reds = (v.team == 'red') and reds + 1 or reds
+        blues = (v.team == 'blue') and blues + 1 or blues
     end
 
     return reds, blues
@@ -181,7 +176,6 @@ end
 local function endGame()
 
     local reds, blues = getTeamCounts()
-
     if (reds == 0 or blues == 0) then
 
         winner = (reds == 0) and 'Blue' or 'Red'
@@ -205,17 +199,17 @@ local function gameCheck(quit)
         game = nil
     end
 end
+
 function OnJoin(id)
     players[id] = {
         id = id,
         team = get_var(id, '$team')
     }
     gameCheck()
-
 end
 
 function OnQuit(id)
-    players[id] = {}
+    players[id] = nil
     gameCheck(true)
 end
 
