@@ -1,480 +1,268 @@
 --[[
 --=====================================================================================================--
-Script Name: Divide & Conquer (v2 rewrite), for SAPP (PC & CE)
-Description: When you kill someone on the opposing team, the victim is switched to your team. 
-              The main objective is to dominate the opposing team.
-              When the opposing team has no players left the game is over.
+Script Name: Divide & Conquer, for SAPP (PC & CE)
+Description: When you kill someone on the opposing team, the victim is switched to your team.
+             The main objective is to dominate the opposing team.
+             When the opposing team has no players left the game is over.
 
-Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2023, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
-api_version = "1.11.0.0"
+api_version = '1.12.0.0'
 
-local mod = {}
-function mod:init()
-    mod.settings = {
+local delay = 5
+local required_players = 3
+local prefix = '**SAPP**'
 
-        -- #Numbers of players required to set the game in motion (cannot be less than 3)
-        required_players = 3,
+local game
+local winner
+local clock = os.clock
+local players, timer = {}, {}
+local death_message_address
+local original_death_message_address
 
-        -- Continuous message emitted when there aren't enough players.
-        not_enough_players = "%current%/%required% players needed to start the game.",
-
-        -- #Countdown delay (in seconds)
-        -- This is a pre-game-start countdown initiated at the beginning of each game.
-        delay = 10,
-
-        -- #Pre Game message (%timeRemaining% will be replaced with the time remaining)
-        pre_game_message = "Game will begin in %time_remaining% second%s%",
-
-        -- #End of Game message (%team% will be replaced with the winning team)
-        end_of_game = "The %team% team won!",
-
-        -- #Respawn time (override)
-        -- When enabled, players who are killed by the opposing team will respawn immediately. 
-        -- Does not affect suicides or other deaths (PvP only by design).
-        respawn_override = true,
-        respawn_time = 0, -- In seconds (0 = immediate)
-
-        -- Some functions temporarily remove the server prefix while broadcasting a message.
-        -- This prefix will be restored to 'server_prefix' when the message relay is done.
-        -- Enter your servers default prefix here:
-        server_prefix = "** SERVER **",
-    }
+function timer:new()
+    local o = {}
+    setmetatable(o, self)
+    self.__index = self
+    return o
 end
 
--- Variables for String Library:
-local format = string.format
-local sub, gsub = string.sub, string.gsub
-local lower, upper = string.lower, string.upper
-local match, gmatch = string.match, string.gmatch
+function timer:start()
+    self.start_time = clock()
+    self.paused_time = 0
+    self.paused = false
+end
 
--- Variables for Math Library:
-local floor, sqrt = math.floor, math.sqrt
+function timer:stop()
+    self.start_time = nil
+    self.paused_time = 0
+    self.paused = false
+end
 
--- Game Variables:
-local gamestarted
-local countdown, init_countdown, print_nep
+function timer:get()
+    if (self.start_time) then
+        if (self.paused) then
+            return self.paused_time - self.start_time
+        else
+            return clock() - self.start_time
+        end
+    end
+    return 0
+end
 
 function OnScriptLoad()
-    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
-    register_callback(cb['EVENT_TICK'], "OnTick")
 
-    register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
+    register_callback(cb['EVENT_DIE'], 'OnDeath')
+    register_callback(cb['EVENT_DAMAGE_APPLICATION'], 'OnDeath')
 
-    register_callback(cb["EVENT_JOIN"], "OnPlayerConnect")
-    register_callback(cb["EVENT_LEAVE"], "OnPlayerDisconnect")
+    register_callback(cb['EVENT_TICK'], 'OnTick')
+    register_callback(cb['EVENT_TEAM_SWITCH'], 'OnTeamSwitch')
 
-    register_callback(cb['EVENT_DIE'], 'OnPlayerDeath')
-    register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
-    if (get_var(0, '$gt') ~= "n/a") then
-        mod:init()
+    register_callback(cb['EVENT_JOIN'], 'OnJoin')
+    register_callback(cb['EVENT_LEAVE'], 'OnQuit')
+
+    register_callback(cb['EVENT_GAME_END'], 'OnEnd')
+    register_callback(cb['EVENT_GAME_START'], 'OnStart')
+
+    OnStart()
+
+    death_message_address = sig_scan("8B42348A8C28D500000084C9") + 3
+    original_death_message_address = read_dword(death_message_address)
+end
+
+function OnStart()
+    if (get_var(0, '$gt') ~= 'n/a') then
+
+        players = {}
+
+        winner, game = nil, nil
+
+        execute_command('sv_friendly_fire 0')
+        execute_command('sv_tk_ban 0')
+
+        for i = 1, 16 do
+            if player_present(i) then
+                OnJoin(i)
+            end
+        end
     end
 end
 
-function OnScriptUnload()
-    --
+local function cls(id)
+    for _ = 1, 25 do
+        rprint(id, ' ')
+    end
+end
+
+local function say(message, tick)
+
+    if (tick) then
+        for i, _ in ipairs(players) do
+            if player_present(i) then
+                cls(i)
+                rprint(i, message)
+            end
+        end
+        return
+    end
+
+    execute_command('msg_prefix ""')
+    say_all(message)
+    execute_command('msg_prefix "' .. prefix .. '"')
+end
+
+function OnEnd()
+
+    if (winner) then
+        say('Game Over! Winner: ' .. winner .. ' team')
+    end
+
+    winner, game = nil, nil
+end
+
+local function timeRemaining()
+    return math.floor(delay - game:get())
+end
+
+local function disableDeathMessages()
+    safe_write(true)
+    write_dword(death_message_address, 0x03EB01B1)
+    safe_write(false)
+end
+
+local function enableDeathMessages()
+    safe_write(true)
+    write_dword(death_message_address, original_death_message_address)
+    safe_write(false)
 end
 
 function OnTick()
 
-    local set = mod.settings
-    local player_count = mod:GetPlayerCount()
+    if (not game or game.started) then
+        return
+    end
 
-    local countdown_begun = (init_countdown == true)
+    if (game:get() >= delay) then
 
-    -- # Continuous message emitted when there aren't enough players to start the game:
-    for i = 1, 16 do
+        game:stop()
+        game.started = true
+
+        disableDeathMessages()
+        execute_command('sv_map_reset')
+        enableDeathMessages()
+
+        say('Game Start!', true)
+
+    else
+        say('Game will start in ' .. timeRemaining() .. ' seconds!', true)
+    end
+end
+
+local function getTeamCounts()
+
+    local reds, blues = 0, 0
+
+    for i, v in ipairs(players) do
         if player_present(i) then
-            if (print_nep) and (not gamestarted) and (player_count < set.required_players) then
-                mod:cls(i, 25)
-                local msg = gsub(gsub(set.not_enough_players,
-                        "%%current%%", player_count),
-                        "%%required%%", set.required_players)
-                rprint(i, msg)
-            elseif (countdown_begun) and (not gamestarted) and (set.pregame) then
-                mod:cls(i, 25)
-                rprint(i, set.pregame)
-            end
+            reds = (v.team == 'red') and reds + 1 or reds
+            blues = (v.team == 'blue') and blues + 1 or blues
         end
     end
 
-    if (countdown_begun) then
-        countdown = countdown + 0.03333333333333333
+    return reds, blues
+end
 
-        local seconds = mod:secondsToTime(countdown)
-        local timeRemaining = set.delay - math.floor(seconds)
-        local char = mod:getChar(timeRemaining)
+local function endGame()
 
-        set.pregame = set.pregame or ""
-        set.pregame = gsub(gsub(set.pre_game_message, "%%time_remaining%%", timeRemaining), "%%s%%", char)
+    local reds, blues = getTeamCounts()
 
-        if (timeRemaining <= 0) then
-            gamestarted = true
-            mod:StopTimer()
-            for i = 1, 16 do
-                if player_present(i) then
-                    mod:sortPlayers(i)
-                    rprint(i, "The game has begun")
-                end
-            end
-        end
+    if (reds == 0 or blues == 0) then
+
+        winner = (reds == 0) and 'Blue' or 'Red'
+        execute_command('sv_map_next')
     end
 end
 
-function OnGameStart()
+local function gameCheck(quit)
 
-    if (get_var(0, '$gt') ~= "n/a") then
-        mod:init()
-		execute_command("sv_friendly_fire 1")
-		execute_command("sv_tk_ban 0")
-    end
+    local count = tonumber(get_var(0, '$pn'))
+    count = (quit and count - 1) or count
 
-    local set = mod.settings
-
-    if not mod:isTeamPlay() then
-        mod:unregisterSAPPEvents(' Only supports team play!')
-    elseif (set.required_players < 3) then
-        mod:unregisterSAPPEvents('Setting "required_players" cannot be less than 3!')
+    if (count >= required_players) then
+        if (not game) then
+            game = timer:new()
+            game:start()
+        end
+    elseif (game and game.started) then
+        endGame()
     else
-        mod:StopTimer()
-        local function oddOrEven(Min, Max)
-            math.randomseed(os.time())
-            math.random();
-            local num = math.random(Min, Max)
-            if (num) then
-                return num
-            end
-        end
-        if (oddOrEven(1, 2) % 2 == 0) then
-            -- Number is even
-            useEvenNumbers = true
-        else
-            -- Number is odd
-            useEvenNumbers = false
-        end
+        game = nil
     end
 end
+function OnJoin(id)
+    players[id] = {
+        id = id,
+        team = get_var(id, '$team')
+    }
+    gameCheck()
 
-function OnGameEnd()
-    mod:StopTimer()
 end
 
-function OnPlayerConnect(PlayerIndex)
+function OnQuit(id)
+    players[id] = {}
+    gameCheck(true)
+end
 
-    local set = mod.settings
-    local player_count = mod:GetPlayerCount()
-    local required = set.required_players
+local function blueScore()
+    return tonumber(get_var(0, '$bluescore'))
+end
 
-    local team_count = mod:getTeamCount() -- blues[1], reds[2]
+local function redScore()
+    return tonumber(get_var(0, '$redscore'))
+end
 
-    if (player_count >= required) and (not init_countdown) and (not gamestarted) then
-        mod:StartTimer()
-    elseif (player_count >= required) and (print_nep) then
-        print_nep = false
-    elseif (player_count > 0 and player_count < required) then
-        print_nep = true
+local function switchTeam(player, team)
+    execute_command('st ' .. player.id .. ' ' .. team)
+    execute_command('team_score ' .. team .. ' ' .. (team == 'red' and redScore() - 1 or blueScore() - 1))
+end
+
+function OnDeath(victim, killer, meta_id)
+
+    if (not game or not game.started) then
+        return
     end
 
-    -- Only sort player into new team if the game has already started...
-    if (gamestarted) then
+    victim = tonumber(victim)
+    killer = tonumber(killer)
 
-        -- Red team has less players (join this team)
-        if (team_count[2] < team_count[1]) then
-            SwitchTeam(PlayerIndex, "red", true)
-
-            -- Blue team has less players (join this team)
-        elseif (team_count[1] < team_count[2]) then
-            SwitchTeam(PlayerIndex, "blue", true)
-
-            -- Teams are even | Choose random team.
-        elseif (team_count[1] == team_count[2]) then
-
-            local new_team = mod:PickRandomTeam()
-            SwitchTeam(PlayerIndex, new_team, true)
-        end
-    end
-end
-
-function OnPlayerDisconnect(PlayerIndex)
-
-    local set = mod.settings
-    local player_count = mod:GetPlayerCount()
-    player_count = player_count - 1
-
-    local team_count = mod:getTeamCount() -- blues[1], reds[2]
-    local team = get_var(PlayerIndex, "$team")
-
-    if (team == "blue") then
-        team_count[1] = team_count[1] - 1
-    else
-        team_count[2] = team_count[2] - 1
+    if (killer == 0 or killer == -1 or killer == nil) then
+        return
     end
 
-    if (gamestarted) then
-        -- Ensures all parameters are set to their default values.
-        if (player_count <= 0) then
-            mod:StopTimer()
+    killer = players[killer]
+    victim = players[victim]
 
-            -- One player remains | ends the game.
-        elseif (player_count == 1) then
-            for i = 1, 16 do
-                if (tonumber(i) ~= tonumber(PlayerIndex)) then
-                    if player_present(i) then
-                        local team = get_var(i, "$team")
-                        mod:gameOver(gsub(set.end_of_game, "%%team%%", team))
-                        break
-                    end
-                end
-            end
-
-            -- Checks if the remaining players are on the same team | ends the game.
-        elseif (team_count[1] <= 0 and team_count[2] >= 1) then
-            mod:gameOver(gsub(set.end_of_game, "%%team%%", "red"))
-        elseif (team_count[2] <= 0 and team_count[1] >= 1) then
-            mod:gameOver(gsub(set.end_of_game, "%%team%%", "blue"))
-        end
-
-
-        -- Pre-Game countdown was initiated but someone left before the game began.
-        -- Stop the timer, reset the count and display the continuous
-        -- message emitted when there aren't enough players to start the game.
-    elseif (not gamestarted) and (init_countdown and player_count < set.required_players) then
-        print_nep = true
-        countdown, init_countdown = 0, false
-    end
-
-end
-
-function OnPlayerDeath(PlayerIndex, KillerIndex)
-
-    if (gamestarted) then
-
-        local killer = tonumber(KillerIndex)
-        local victim = tonumber(PlayerIndex)
-
-        local kteam = get_var(killer, "$team")
-        local vteam = get_var(victim, "$team")
-        local set = mod.settings
-
-        if (killer > 0 and killer ~= victim) then
-
-            local bluescore, redscore = get_var(0, "$bluescore"), get_var(0, "$redscore")
-
-            if kteam == "red" then
-                execute_command("slayer_score_team blue " .. bluescore - 1)
-                SwitchTeam(victim, "red")
-            elseif kteam == "blue" then
-                SwitchTeam(victim, "blue")
-                execute_command("slayer_score_team red " .. redscore - 1)
-            end
-
-            local team_count = mod:getTeamCount() -- blues[1], reds[2]
-
-            if (team_count[2] == 0 and team_count[1] >= 1) then
-                mod:gameOver(gsub(set.end_of_game, "%%team%%", "blue"))
-
-                -- No one left on BLUE team. | RED Team Wins
-            elseif (team_count[1] == 0 and team_count[2] >= 1) then
-                mod:gameOver(gsub(set.end_of_game, "%%team%%", "red"))
-
-                -- Game is in play | switch player
-            elseif (team_count[1] ~= 0 and team_count[2] ~= 0) then
-                SwitchTeam(victim, kteam)
-
-                execute_command("msg_prefix \"\"")
-                say_all(get_var(victim, "$name") .. " is now on " .. kteam .. " team.")
-                execute_command("msg_prefix \" " .. set.server_prefix .. "\"")
-            end
-        end
-    end
-end
-
-function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
-    if (tonumber(CauserIndex) > 0 and PlayerIndex ~= CauserIndex and gamestarted) then
-
-        local cTeam = get_var(CauserIndex, "$team")
-        local vTeam = get_var(PlayerIndex, "$team")
-
-        if (cTeam == vTeam) then
-            return false
-        end
-    end
-end
-
-function mod:killPlayer(PlayerIndex)
-    local PlayerObject = read_dword(get_player(PlayerIndex) + 0x34)
-    if PlayerObject ~= nil then
-        destroy_object(PlayerObject)
-    end
-end
-
-function SwitchTeam(PlayerIndex, team, bool)
-    if not (bool) then
-
-        local set = mod.settings
-
-        -- Temporarily disables default death messages (to prevent "Player Died" message).
-        local kma = sig_scan("8B42348A8C28D500000084C9") + 3
-        original = read_dword(kma)
-        safe_write(true)
-        write_dword(kma, 0x03EB01B1)
-        safe_write(false)
-
-        -- Switch player to relevant team
-        execute_command("st " .. tonumber(PlayerIndex) .. " " .. tostring(team))
-
-        -- Re enables default death messages
-        safe_write(true)
-        write_dword(kma, original)
-        safe_write(false)
-
-        if (set.respawn_override == true) then
-            write_dword(get_player(PlayerIndex) + 0x2C, set.respawn_time * 33)
-        end
-    else
-        execute_command("st " .. tonumber(PlayerIndex) .. " " .. tostring(team))
-    end
-end
-
-function mod:gameOver(message)
-    execute_command("msg_prefix \"\"")
-    say_all(message)
-    execute_command("msg_prefix \" " .. mod.settings.server_prefix .. "\"")
-    execute_command("sv_map_next")
-end
-
-function mod:secondsToTime(seconds)
-    seconds = seconds % 60
-    return seconds
-end
-
-function mod:StartTimer()
-    countdown, init_countdown = 0, true
-end
-
-function mod:StopTimer()
-    countdown, init_countdown = 0, false
-    print_nep = false
-    for i = 1, 16 do
-        if player_present(i) then
-            mod:cls(i, 25)
-        end
-    end
-end
-
-function mod:cls(PlayerIndex, count)
-    local count = count or 25
-    for _ = 1, count do
-        rprint(PlayerIndex, " ")
-    end
-end
-
-function mod:isTeamPlay()
-    if (get_var(0, "$ffa") == "0") then
-        return true
-    else
+    if (meta_id and killer.team == victim.team) then
         return false
     end
-end
 
-function mod:sortPlayers(PlayerIndex)
-    if (gamestarted) then
-        if (useEvenNumbers) then
-            if (tonumber(PlayerIndex) % 2 == 0) then
-                setTeam(PlayerIndex, "blue")
-            else
-                setTeam(PlayerIndex, "red")
-            end
-        else
-            if (tonumber(PlayerIndex) % 2 == 0) then
-                setTeam(PlayerIndex, "red")
-            else
-                setTeam(PlayerIndex, "blue")
-            end
-        end
-    end
-end
-
-function setTeam(PlayerIndex, team)
-
-    mod:deleteWeapons(PlayerIndex)
-    local PlayerObject = get_dynamic_player(PlayerIndex)
-    if (PlayerObject ~= 0) then
-        write_word(PlayerObject + 0x31E, 0)
-        write_word(PlayerObject + 0x31F, 0)
+    if (killer.team == 'red') then
+        switchTeam(victim, 'red')
+    elseif (killer.team == 'blue') then
+        switchTeam(victim, 'blue')
     end
 
-    mod:killPlayer(PlayerIndex)
-    SwitchTeam(tonumber(PlayerIndex), team)
-    mod:ResetScore(PlayerIndex)
+    endGame()
 end
 
-function mod:deleteWeapons(PlayerIndex)
-    local PlayerObject = get_dynamic_player(PlayerIndex)
-    if (PlayerObject ~= 0) then
-        local WeaponID = read_dword(PlayerObject + 0x118)
-        if WeaponID ~= 0 then
-            for j = 0, 3 do
-                local ObjectID = read_dword(PlayerObject + 0x2F8 + j * 4)
-                destroy_object(ObjectID)
-            end
-        end
-    end
+function OnTeamSwitch(id)
+    players[id].team = get_var(id, '$team')
 end
 
-function mod:unregisterSAPPEvents(error)
-    unregister_callback(cb['EVENT_TICK'])
-    unregister_callback(cb['EVENT_GAME_END'])
-    unregister_callback(cb['EVENT_JOIN'])
-    unregister_callback(cb['EVENT_LEAVE'])
-    unregister_callback(cb['EVENT_DIE'])
-    unregister_callback(cb['EVENT_DAMAGE_APPLICATION'])
-    execute_command("log_note \"" .. string.format('[Divide & Conquer] ' .. error) .. "\"")
-    cprint(string.format('[Divide & Conquer] ' .. error), 4 + 8)
-end
-
-function mod:GetPlayerCount()
-    return tonumber(get_var(0, "$pn"))
-end
-
-function mod:getTeamCount()
-    local blues = get_var(0, "$blues")
-    local reds = get_var(0, "$reds")
-    return { tonumber(blues), tonumber(reds) }
-end
-
-function mod:getChar(input)
-    local char = ""
-    if (tonumber(input) > 1) then
-        char = "s"
-    elseif (tonumber(input) <= 1) then
-        char = ""
-    end
-    return char
-end
-
-function mod:PickRandomTeam()
-    math.randomseed(os.time())
-    math.random();
-    math.random();
-    math.random();
-    local team, num = 0, math.random(1, 2)
-    if (num == 1) then
-        team = "red"
-    else
-        team = "blue"
-    end
-    return team
-end
-
-function mod:ResetScore(PlayerIndex)
-    execute_command("score " .. PlayerIndex .. " 0")
-    execute_command("kills " .. PlayerIndex .. " 0")
-    execute_command("deaths " .. PlayerIndex .. " 0")
-    execute_command("assists " .. PlayerIndex .. " 0")
-    execute_command_sequence("team_score 0 0")
+function OnScriptUnload()
+    -- N/A
 end
