@@ -137,13 +137,13 @@ function OnStart()
 end
 
 function OnTick()
-    for i = 1, #players do
+    for i, assign in pairs(players) do
 
-        if (player_alive(i) and players[i] and pistol and sniper) then
+        if (player_alive(i) and assign and pistol and sniper) then
 
             players[i] = false
-            execute_command('wdel ' .. i)
 
+            execute_command('wdel ' .. i)
             assign_weapon(spawn_object('', '', 0, 0, 0, 0, sniper), i)
             assign_weapon(spawn_object('', '', 0, 0, 0, 0, pistol), i)
 
@@ -152,47 +152,47 @@ function OnTick()
     end
 end
 
-function OnJoin(p)
-    players[p] = false
+function OnJoin(id)
+    players[id] = false
 end
 
-function OnSpawn(p)
-    players[p] = true
+function OnSpawn(id)
+    players[id] = true
 end
 
-function OnQuit(p)
-    players[p] = nil
+function OnQuit(id)
+    players[id] = nil
 end
 
-function OnDamage(Victim, Killer, _, Damage, HitString)
+function OnDamage(victim, killer, _, damage, hitString)
 
-    local killer = tonumber(Killer)
-    local victim = tonumber(Victim)
+    killer = tonumber(victim)
+    victim = tonumber(killer)
 
     local pvp = (killer > 0 and killer ~= victim)
 
-    if (pvp and HitString ~= 'head') then
+    if (pvp and hitString ~= 'head') then
         return false
     else
-        return true, Damage * 100
+        return true, damage * 100
     end
 end
 
-function OnObjectSpawn(Ply, MetaID)
-    if (Ply == 0 and objects[MetaID]) then
+function OnObjectSpawn(id, meta_id)
+    if (id == 0 and objects[meta_id]) then
         return true
     end
 end
 
-function UpdateAmmo(p)
+function UpdateAmmo(id)
     if (tags.infinite_ammo) then
-        execute_command('ammo ' .. p .. ' 999 5')
+        execute_command('ammo ' .. id .. ' 999 5')
     end
     if (tags.bottomless_clip) then
-        execute_command('mag ' .. p .. ' 999 5')
+        execute_command('mag ' .. id .. ' 999 5')
     end
     if (tags.disable_grenades) then
-        execute_command('nades ' .. p .. ' 0')
+        execute_command('nades ' .. id .. ' 0')
     end
 end
 

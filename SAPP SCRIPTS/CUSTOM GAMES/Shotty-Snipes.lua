@@ -137,8 +137,7 @@ function OnStart()
 end
 
 function OnTick()
-    for i = 1, #players do
-        local assign = players[i]
+    for i,assign in pairs(players) do
         if (player_alive(i) and assign and shotgun and sniper) then
 
             players[i] = false
@@ -152,29 +151,29 @@ function OnTick()
     end
 end
 
-function OnJoin(p)
-    players[p] = false
+function OnJoin(id)
+    players[id] = false
 end
 
-function OnSpawn(p)
-    players[p] = true
+function OnSpawn(id)
+    players[id] = true
 end
 
-function OnQuit(p)
-    players[p] = nil
+function OnQuit(id)
+    players[id] = nil
 end
 
-function UpdateAmmo(p)
+function UpdateAmmo(id)
     if (tags.infinite_ammo) then
-        execute_command('ammo ' .. p .. ' 999 5')
+        execute_command('ammo ' .. id .. ' 999 5')
     end
     if (tags.bottomless_clip) then
-        execute_command('mag ' .. p .. ' 999 5')
+        execute_command('mag ' .. id .. ' 999 5')
     end
 end
 
-function OnObjectSpawn(Ply, MID)
-    if (Ply == 0 and objects[MID]) then
+function OnObjectSpawn(id, meta_id)
+    if (id == 0 and objects[meta_id]) then
         return false
     end
 end
