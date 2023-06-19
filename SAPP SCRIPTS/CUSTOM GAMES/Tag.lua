@@ -330,7 +330,7 @@ function Tag:PickRandomTagger(quit)
 
     -- set candidates:
     local t = {}
-    for i = 1, #players do
+    for i,_ in pairs(players) do
         if (player_present(i) and i ~= tagger) then
             t[#t + 1] = i
         end

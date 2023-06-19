@@ -13,7 +13,7 @@ function Command_Setplasmas(executor, command, player, plasmas, count)
     if count == 3 and tonumber(plasmas) then
         local players = getvalidplayers(player, executor)
         if players then
-            for i = 1, #players do
+            for i,_ in pairs(players) do
                 local m_objectId = getplayerobjectid(players[i])
                 if m_objectId then
                     local m_object = getobject(m_objectId)

@@ -104,14 +104,13 @@ local function FormatMsg(Ply, Content, Type)
 end
 
 local function Global(str)
-    for i = 1, #players do
+    for i,_ in pairs(players) do
         rprint(i, str)
     end
 end
 
 local function Team(sender, str)
-    for i = 1, #players do
-        local v = players[i]
+    for i,v in pairs(players) do
         if (v.team == sender.team) then
             rprint(i, str)
         end
@@ -136,7 +135,7 @@ local function Vehicle(Ply, str)
         return false
     end
 
-    for i = 1, #players do
+    for i,_ in pairs(players) do
         local playerVehicle = GetVehicle(i)
         if (playerVehicle == senderVehicle) then
             rprint(i, str)

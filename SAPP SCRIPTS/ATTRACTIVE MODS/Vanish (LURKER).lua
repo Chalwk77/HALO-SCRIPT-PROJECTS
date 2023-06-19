@@ -553,8 +553,8 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 return false
             end
 
-            for i = 1, #players do
-                if (executor ~= tonumber(players[i])) then
+            for _,enabled in pairs(players) do
+                if (executor ~= enabled) then
                     execute_on_others_error[executor] = { }
                     execute_on_others_error[executor] = true
                 end
