@@ -19,11 +19,10 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --
 local max_afk_time = 300 -- default 5 minutes
 
--- Self explanatory?
-local kick_reason = "AFK for too long!"
+local kick_reason = 'AFK for too long!'
 -- config ends --
 
-api_version = "1.12.0.0"
+api_version = '1.12.0.0'
 
 local players = {}
 local mt = { __index = {
@@ -67,74 +66,74 @@ local mt = { __index = {
 } }
 
 function OnScriptLoad()
-    register_callback(cb["EVENT_TICK"], "OnTick")
-    register_callback(cb["EVENT_JOIN"], "OnJoin")
-    register_callback(cb["EVENT_LEAVE"], "OnQuit")
-    register_callback(cb["EVENT_SPAWN"], "OnSpawn")
-    register_callback(cb["EVENT_CHAT"], "ChatCommand")
-    register_callback(cb["EVENT_GAME_START"], "OnStart")
-    register_callback(cb["EVENT_PRESPAWN"], "OnPreSpawn")
-    register_callback(cb["EVENT_COMMAND"], "ChatCommand")
+    register_callback(cb['EVENT_TICK'], 'OnTick')
+    register_callback(cb['EVENT_JOIN'], 'OnJoin')
+    register_callback(cb['EVENT_LEAVE'], 'OnQuit')
+    register_callback(cb['EVENT_SPAWN'], 'OnSpawn')
+    register_callback(cb['EVENT_CHAT'], 'ChatCommand')
+    register_callback(cb['EVENT_GAME_START'], 'OnStart')
+    register_callback(cb['EVENT_PRESPAWN'], 'OnPreSpawn')
+    register_callback(cb['EVENT_COMMAND'], 'ChatCommand')
     OnStart()
 end
 
-local function NewPlayer(Ply)
-    players[Ply] = setmetatable({}, mt)
+local function newPlayer(id)
+    players[id] = setmetatable({}, mt)
 end
 
 function OnStart()
     players = { }
-    if (get_var(0, '$gt') ~= "n/a") then
+    if (get_var(0, '$gt') ~= 'n/a') then
         for i = 1, 16 do
             if player_present(i) then
-                NewPlayer(i)
+                newPlayer(i)
             end
         end
     end
 end
 
-function ChatCommand(Ply)
-    if (Ply > 0) then
-        players[Ply].timer = 0
+function ChatCommand(id)
+    if (id > 0) then
+        players[id].timer = 0
     end
 end
 
-local function UpdateAim(DyN, Camera)
-    if (DyN ~= 0) then
-        Camera[1] = read_float(DyN + 0x230)
-        Camera[2] = read_float(DyN + 0x234)
-        Camera[3] = read_float(DyN + 0x238)
+local function updateAim(dyn, Camera)
+    if (dyn ~= 0) then
+        Camera[1] = read_float(dyn + 0x230)
+        Camera[2] = read_float(dyn + 0x234)
+        Camera[3] = read_float(dyn + 0x238)
     end
 end
 
-local function CheckInputs(DyN, Player)
-    if (DyN ~= 0) then
-        for _, input in pairs(Player.inputs) do
+local function checkInputs(dyn, player)
+    if (dyn ~= 0) then
+        for _, input in pairs(player.inputs) do
 
             local func, address = input[1], input[2]
-            local state = func(DyN + address)
+            local state = func(dyn + address)
 
-            if (state ~= input.state and Player.update_aim) then
-                Player.timer = 0
+            if (state ~= input.state and player.update_aim) then
+                player.timer = 0
             end
             input.state = state
         end
     end
 end
 
-local function NoAimChange(x1, y1, z1, x2, y2, z2)
+local function checkAim(x1, y1, z1, x2, y2, z2)
     return (x1 == x2 and y1 == y2 and z1 == z2)
 end
 
 function OnTick()
 
     for i, v in pairs(players) do
-        local DyN = get_dynamic_player(i)
+        local dyn = get_dynamic_player(i)
 
-        CheckInputs(DyN, v)
+        checkInputs(dyn, v)
 
         -- update current aim:
-        UpdateAim(DyN, v.camera[1])
+        updateAim(dyn, v.camera[1])
 
         -- current Aim:
         local x1 = v.camera[1][1]
@@ -147,9 +146,9 @@ function OnTick()
         local z2 = v.camera[2][3]
 
         -- update old aim:
-        UpdateAim(DyN, v.camera[2])
+        updateAim(dyn, v.camera[2])
 
-        local no_aim_change = NoAimChange(x1, y1, z1, x2, y2, z2)
+        local no_aim_change = checkAim(x1, y1, z1, x2, y2, z2)
         local case = (no_aim_change or not v.update_aim)
 
         v.timer = (case and v.timer + 1 / 30) or 0
@@ -161,25 +160,25 @@ function OnTick()
     end
 end
 
-function OnPreSpawn(Ply)
-    players[Ply].update_aim = false
+function OnPreSpawn(id)
+    players[id].update_aim = false
 end
 
-function OnSpawn(Ply, DelayUpdate)
-    Ply = tonumber(Ply)
+function OnSpawn(id, DelayUpdate)
+    id = tonumber(id)
     if (not DelayUpdate) then
-        timer(500, "OnSpawn", Ply, 1)
+        timer(500, 'OnSpawn', id, 1)
     else
-        players[Ply].update_aim = true
+        players[id].update_aim = true
     end
 end
 
-function OnJoin(Ply)
-    NewPlayer(Ply)
+function OnJoin(id)
+    newPlayer(id)
 end
 
-function OnQuit(Ply)
-    players[Ply] = nil
+function OnQuit(id)
+    players[id] = nil
 end
 
 function OnScriptUnload()

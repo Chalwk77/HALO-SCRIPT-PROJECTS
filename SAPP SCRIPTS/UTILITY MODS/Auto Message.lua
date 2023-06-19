@@ -95,7 +95,7 @@ function OnScriptLoad()
     OnStart()
 end
 
-local function NewTimer(finish)
+local function newTimer(finish)
     return {
         start = time,
         finish = time() + finish,
@@ -105,7 +105,7 @@ end
 function OnStart()
     if (get_var(0, '$gt') ~= 'n/a') then
         index = 1
-        timer = NewTimer(AutoMessage.interval)
+        timer = newTimer(AutoMessage.interval)
     end
 end
 
@@ -148,7 +148,7 @@ end
 function OnTick()
     local am = AutoMessage
     if (timer and timer.start() >= timer.finish) then
-        timer = NewTimer(am.interval)
+        timer = newTimer(am.interval)
         Broadcast()
         index = (index == #am.announcements) and 1 or index + 1
     end
