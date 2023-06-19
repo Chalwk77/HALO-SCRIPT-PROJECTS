@@ -135,7 +135,7 @@ function OnStart()
     end
 end
 
-local function BlackListed(CMD)
+local function blackListed(CMD)
     for _, word in pairs(CSpy.blacklist) do
         if CMD:lower():find(word) then
             return true
@@ -150,7 +150,7 @@ function OnCommand(Ply, CMD, ENV, _)
         local cmd = CMD:sub(1, CMD:len()):lower()
         if (cmd == t.command and t:Toggle()) then
             return false
-        elseif (Ply > 0 and not BlackListed(cmd)) then
+        elseif (Ply > 0 and not blackListed(cmd)) then
             t:ShowCommand(ENV, CMD)
         end
     end
