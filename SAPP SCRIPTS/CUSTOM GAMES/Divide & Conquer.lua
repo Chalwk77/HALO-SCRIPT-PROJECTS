@@ -178,13 +178,13 @@ local function gameCheck(quit)
     local count = tonumber(get_var(0, '$pn'))
     count = (quit and count - 1) or count
 
-    if (count >= required_players) then
-        if (not game) then
-            game = timer:new()
-            game:start()
-        end
+    if (count >= required_players and not game) then
+        game = timer:new()
+        game:start()
     elseif (game and game.started) then
         endGame()
+    elseif (game and not game.started) then
+        return
     else
         game = nil
     end
