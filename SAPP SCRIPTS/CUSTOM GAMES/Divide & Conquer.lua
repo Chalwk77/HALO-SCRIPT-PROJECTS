@@ -74,6 +74,7 @@ function onStart()
 
         execute_command('sv_tk_ban 0')
         execute_command('sv_friendly_fire 0')
+        execute_command('scorelimit 99999')
 
         for i = 1, 16 do
             if player_present(i) then
@@ -129,6 +130,36 @@ local function enableDeathMessages()
     safe_write(false)
 end
 
+local function shuffle(t)
+    for i = #t, 2, -1 do
+        local j = rand(i) + 1
+        t[i], t[j] = t[j], t[i]
+    end
+    return t
+end
+
+local function switchTeam(player, team)
+    execute_command('st ' .. player.id .. ' ' .. team)
+end
+
+local function shuffleTeams()
+
+    local t = {}
+    for _, v in pairs(players) do
+        t[#t + 1] = v
+    end
+    t = shuffle(t)
+
+    for i, v in pairs(t) do
+        if (i <= #t / 2) then
+            v.team = 'red'
+        else
+            v.team = 'blue'
+        end
+        switchTeam(v, v.team)
+    end
+end
+
 function onTick()
 
     if (not game or game.started) then
@@ -142,6 +173,7 @@ function onTick()
 
         disableDeathMessages()
         execute_command('sv_map_reset')
+        shuffleTeams()
         enableDeathMessages()
 
         say('Game Start!', true)
@@ -201,19 +233,6 @@ end
 function onQuit(id)
     players[id] = nil
     gameCheck(true)
-end
-
-local function blueScore()
-    return tonumber(get_var(0, '$bluescore'))
-end
-
-local function redScore()
-    return tonumber(get_var(0, '$redscore'))
-end
-
-local function switchTeam(player, team)
-    execute_command('st ' .. player.id .. ' ' .. team)
-    execute_command('team_score ' .. team .. ' ' .. (team == 'red' and redScore() - 1 or blueScore() - 1))
 end
 
 function onDeath(victim, killer, meta_id)
