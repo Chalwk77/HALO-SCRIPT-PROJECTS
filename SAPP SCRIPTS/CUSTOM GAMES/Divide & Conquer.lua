@@ -114,7 +114,6 @@ function onEnd()
     end
 
     winner, game = nil, nil
-
     post_game_carnage_report = true
 end
 
@@ -221,13 +220,13 @@ local function gameCheck(quit)
     if (count >= required_players and not game) then
         game = timer:new()
         game:start()
+    elseif (count >= required_players and game) then
+        return
     elseif (game and game.started) then
         endGame()
     elseif (game and not game.started) then
         game = nil
         return
-    else
-        game = nil
     end
 end
 
