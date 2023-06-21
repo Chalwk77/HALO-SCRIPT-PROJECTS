@@ -211,7 +211,7 @@ end
 local function gameCheck(quit)
 
     if (post_game_carnage_report) then
-        return false
+        return
     end
 
     local count = tonumber(get_var(0, '$pn'))
@@ -260,7 +260,7 @@ function onDeath(victim, killer, meta_id)
     killer = players[killer]
 
     if (meta_id and killer.team == victim.team) then
-        return false
+        return false -- block team killing
     elseif (meta_id) then
         return true
     end
