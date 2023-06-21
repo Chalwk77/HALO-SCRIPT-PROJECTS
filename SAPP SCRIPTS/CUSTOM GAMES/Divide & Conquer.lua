@@ -23,6 +23,7 @@ local game
 local winner
 local clock = os.clock
 local floor = math.floor
+local post_game_carnage_report
 local players, timer = {}, {}
 local death_message_address
 local original_death_message_address
@@ -71,10 +72,11 @@ function onStart()
 
         players = {}
         winner, game = nil, nil
+        post_game_carnage_report = false
 
         execute_command('sv_tk_ban 0')
-        execute_command('sv_friendly_fire 0')
         execute_command('scorelimit 99999')
+        execute_command('sv_friendly_fire 0')
 
         for i = 1, 16 do
             if player_present(i) then
@@ -112,6 +114,8 @@ function onEnd()
     end
 
     winner, game = nil, nil
+
+    post_game_carnage_report = true
 end
 
 local function timeRemaining()
@@ -207,6 +211,10 @@ end
 
 local function gameCheck(quit)
 
+    if (post_game_carnage_report) then
+        return false
+    end
+
     local count = tonumber(get_var(0, '$pn'))
     count = (quit and count - 1) or count
 
@@ -216,6 +224,7 @@ local function gameCheck(quit)
     elseif (game and game.started) then
         endGame()
     elseif (game and not game.started) then
+        game = nil
         return
     else
         game = nil
@@ -238,14 +247,14 @@ end
 function onDeath(victim, killer, meta_id)
 
     if (not game or not game.started) then
-        return
+        goto next
     end
 
     victim = tonumber(victim)
     killer = tonumber(killer)
 
     if (killer == 0 or killer == -1 or killer == nil) then
-        return
+        goto next
     end
 
     victim = players[victim]
@@ -253,6 +262,8 @@ function onDeath(victim, killer, meta_id)
 
     if (meta_id and killer.team == victim.team) then
         return false
+    elseif (meta_id) then
+        return true
     end
 
     if (killer.team == 'red') then
@@ -262,6 +273,8 @@ function onDeath(victim, killer, meta_id)
     end
 
     endGame()
+
+    :: next ::
 end
 
 function onTeamSwitch(id)
