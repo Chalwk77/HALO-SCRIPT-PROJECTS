@@ -296,6 +296,7 @@ local function enableDeathMessages()
 end
 
 local function silentKill(id)
+
     disableDeathMessages()
     execute_command('kill ' .. id)
     enableDeathMessages()
@@ -334,7 +335,6 @@ function onTick()
         disableDeathMessages()
         execute_command('sv_map_reset')
         enableDeathMessages()
-
         setRandomJuggernaut()
     else
         local delay = Juggernaut.delay
@@ -375,8 +375,6 @@ function onDeath(victim, killer, meta_id, damage)
     killer = players[killer]
 
     if (meta_id) then
-
-
         return killer:multiplyDamage(damage)
     end
 
