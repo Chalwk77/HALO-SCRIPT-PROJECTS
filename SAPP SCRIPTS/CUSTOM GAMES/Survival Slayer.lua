@@ -58,7 +58,7 @@ function OnScriptLoad()
 end
 
 function SurvivalSlayer:newPlayer(o)
-    setmetatable(o, { __index = self })
+    setmetatable(o, self)
     self.__index = self
     return o
 end
@@ -124,6 +124,7 @@ function onTick()
 end
 
 function onDeath(Victim, Killer)
+
     local killer = tonumber(Killer)
     local victim = tonumber(Victim)
 
