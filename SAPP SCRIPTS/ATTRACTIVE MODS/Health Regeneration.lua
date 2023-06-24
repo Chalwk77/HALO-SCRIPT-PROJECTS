@@ -14,17 +14,17 @@ local increment = 0.1116
 api_version = '1.12.0.0'
 
 function OnScriptLoad()
-    register_callback(cb["EVENT_JOIN"], "OnJoin")
+    register_callback(cb['EVENT_JOIN'], 'OnJoin')
 end
 
-function OnJoin(Ply)
-    timer(1000, "Regen", Ply)
+function OnJoin(id)
+    timer(1000, 'Regen', id)
 end
 
-function Regen(Ply)
+function Regen(id)
 
-    local dyn = get_dynamic_player(Ply)
-    if (dyn ~= 0 and player_alive(Ply)) then
+    local dyn = get_dynamic_player(id)
+    if (dyn ~= 0 and player_alive(id)) then
         local health = read_float(dyn + 0xE0)
         if (health < 1) then
             write_float(dyn + 0xE0, health + increment)

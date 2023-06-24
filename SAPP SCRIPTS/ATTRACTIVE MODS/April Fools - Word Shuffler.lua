@@ -28,10 +28,12 @@ local random = math.random
 
 local function shuffle(s)
     math.randomseed(os.time())
+
     local letters = {}
     for letter in s:gmatch '.[\128-\191]*' do
         insert(letters, { letter = letter, rnd = random() })
     end
+
     table.sort(letters, function(a, b)
         return a.rnd < b.rnd
     end)

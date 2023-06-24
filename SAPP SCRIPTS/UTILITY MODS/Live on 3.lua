@@ -29,8 +29,8 @@ local permission = 1
 api_version = '1.12.0.0'
 
 local count = 3
-local kill_message_address
-local original_kill_message
+local death_message_address
+local original_death_message_address
 
 -- Called when the script is loaded:
 --
@@ -40,9 +40,9 @@ function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'], 'OnCommand')
     register_callback(cb['EVENT_GAME_START'], 'OnStart')
 
-    -- Death Message address sigs:
-    kill_message_address = sig_scan('8B42348A8C28D500000084C9') + 3
-    original_kill_message = read_dword(kill_message_address)
+    -- Death message address:
+    death_message_address = sig_scan('8B42348A8C28D500000084C9') + 3
+    original_death_message_address = read_dword(death_message_address)
 
     OnStart()
 end
@@ -58,7 +58,7 @@ end
 
 -- Responsible for enabling or disabling stock death messages:
 --
-local function PatchDeathMsgs(address, value)
+local function patchDeathMessages(address, value)
     safe_write(true)
     write_dword(address, value)
     safe_write(false)
@@ -67,15 +67,15 @@ end
 -- Map reset function:
 -- @return (recursively calls itself it count > 0)
 --
-function sv_map_reset()
+function resetMap()
 
     count = count - 1
-    execute_command('sv_map_reset')
+    execute_command('resetMap')
     say_all('Live on ' .. count + 1)
 
     -- enable default death messages:
     if (count <= 0) then
-        PatchDeathMsgs(kill_message_address, original_kill_message)
+        patchDeathMessages(death_message_address, original_death_message_address)
     end
 
     return (count > 0)
@@ -84,26 +84,26 @@ end
 -- Verify that the player has permission to execute the custom command:
 -- @param p (Player memory address index) [number]
 --
-local function HasPerm(P)
+local function hasPermission(P)
     return (P == 0 or tonumber(get_var(P, '$lvl')) >= permission)
 end
 
 -- Command Handler:
--- @param Ply (Player memory address index) [number]
+-- @param id (Player memory address index) [number]
 -- @param CMD (command string) [string]
 --
-function OnCommand(Ply, CMD)
-    if (CMD:sub(1, command:len()):lower() == command) then
+function OnCommand(id, cmd)
+    if (cmd:sub(1, command:len()):lower() == command) then
 
-        if not HasPerm(Ply) then
-            rprint(Ply, 'Insufficient Permission.')
+        if not hasPermission(id) then
+            rprint(id, 'Insufficient Permission.')
             return false
         end
 
-        PatchDeathMsgs(kill_message_address, 0x03EB01B1)
+        patchDeathMessages(death_message_address, 0x03EB01B1)
 
         count = 3
-        timer(1000, 'sv_map_reset')
+        timer(1000, 'resetMap')
         return false
     end
 end

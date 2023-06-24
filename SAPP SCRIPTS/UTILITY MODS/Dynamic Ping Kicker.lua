@@ -178,7 +178,7 @@ end
 
 function CheckPings()
     if (game_running) then
-        for _, v in ipairs(players) do
+        for _, v in pairs(players) do
             if (not v:Immune()) then
                 if (clock() >= v.check) then
                     v.check = clock() + v.check_interval

@@ -90,55 +90,54 @@ local shotgun, sniper
 
 function OnScriptLoad()
 
-    register_callback(cb['EVENT_JOIN'], 'OnJoin')
-    register_callback(cb['EVENT_TICK'], 'OnTick')
-    register_callback(cb['EVENT_LEAVE'], 'OnQuit')
-    register_callback(cb['EVENT_SPAWN'], 'OnSpawn')
-    register_callback(cb['EVENT_ALIVE'], 'UpdateAmmo')
-    register_callback(cb['EVENT_GAME_START'], 'OnStart')
-    register_callback(cb['EVENT_OBJECT_SPAWN'], 'OnObjectSpawn')
+    register_callback(cb['EVENT_JOIN'], 'onJoin')
+    register_callback(cb['EVENT_TICK'], 'onTick')
+    register_callback(cb['EVENT_LEAVE'], 'onQuit')
+    register_callback(cb['EVENT_SPAWN'], 'onSpawn')
+    register_callback(cb['EVENT_ALIVE'], 'updateAmmo')
+    register_callback(cb['EVENT_GAME_START'], 'onStart')
+    register_callback(cb['EVENT_OBJECT_SPAWN'], 'onObjectSpawn')
 
-    OnStart()
+    onStart()
 end
 
-local function GetTag(Class, Name)
-    local Tag = lookup_tag(Class, Name)
-    return Tag ~= 0 and read_dword(Tag + 0xC) or nil
+local function getTag(class, name)
+    local tag = lookup_tag(class, name)
+    return tag ~= 0 and read_dword(tag + 0xC) or nil
 end
 
-local function TagsToID()
+local function tagsToID()
 
     local t = {}
     for i = 1, #tags do
         local class, name = tags[i][1], tags[i][2]
-        local meta_id = GetTag(class, name)
+        local meta_id = getTag(class, name)
         t[meta_id] = (meta_id and true) or nil
     end
 
     objects = t
 end
 
-function OnStart()
+function onStart()
 
     if (get_var(0, '$gt') ~= 'n/a') then
 
         objects, players = {}, {}
-        TagsToID()
+        tagsToID()
 
-        sniper = GetTag('weap', 'weapons\\sniper rifle\\sniper rifle')
-        shotgun = GetTag('weap', 'weapons\\shotgun\\shotgun')
+        sniper = getTag('weap', 'weapons\\sniper rifle\\sniper rifle')
+        shotgun = getTag('weap', 'weapons\\shotgun\\shotgun')
 
         for i = 1, 16 do
             if player_present(i) then
-                OnJoin(i)
+                onJoin(i)
             end
         end
     end
 end
 
-function OnTick()
-    for i = 1, #players do
-        local assign = players[i]
+function onTick()
+    for i,assign in pairs(players) do
         if (player_alive(i) and assign and shotgun and sniper) then
 
             players[i] = false
@@ -147,34 +146,34 @@ function OnTick()
             assign_weapon(spawn_object('', '', 0, 0, 0, 0, sniper), i)
             assign_weapon(spawn_object('', '', 0, 0, 0, 0, shotgun), i)
 
-            UpdateAmmo(i)
+            updateAmmo(i)
         end
     end
 end
 
-function OnJoin(p)
-    players[p] = false
+function onJoin(id)
+    players[id] = false
 end
 
-function OnSpawn(p)
-    players[p] = true
+function onSpawn(id)
+    players[id] = true
 end
 
-function OnQuit(p)
-    players[p] = nil
+function onQuit(id)
+    players[id] = nil
 end
 
-function UpdateAmmo(p)
+function updateAmmo(id)
     if (tags.infinite_ammo) then
-        execute_command('ammo ' .. p .. ' 999 5')
+        execute_command('ammo ' .. id .. ' 999 5')
     end
     if (tags.bottomless_clip) then
-        execute_command('mag ' .. p .. ' 999 5')
+        execute_command('mag ' .. id .. ' 999 5')
     end
 end
 
-function OnObjectSpawn(Ply, MID)
-    if (Ply == 0 and objects[MID]) then
+function onObjectSpawn(id, meta_id)
+    if (id == 0 and objects[meta_id]) then
         return false
     end
 end

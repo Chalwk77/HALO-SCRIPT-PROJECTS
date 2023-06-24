@@ -70,8 +70,7 @@ function SpawnProtection:Protect()
 end
 
 function OnTick()
-    for i = 1, #players do
-        local v = players[i]
+    for _,v in pairs(players) do
         if (v.protected and v.start() >= v.finish) then
             v.protected = false
         end

@@ -28,6 +28,8 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
+-- todo: Rewrite this script!
+
 api_version = "1.12.0.0"
 local vanish = {}
 
@@ -425,7 +427,7 @@ function OnServerCommand(PlayerIndex, Command, Environment, Password)
                 return false
             end
 
-            for i = 1, #players do
+            for i,_ in pairs(players) do
                 if (executor ~= tonumber(players[i])) then
                     execute_on_others_error[executor] = { }
                     execute_on_others_error[executor] = true

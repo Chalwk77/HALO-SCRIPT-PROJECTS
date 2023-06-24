@@ -152,7 +152,7 @@ end
 
 local time = os.time
 function OnTick()
-    for i, v in ipairs(players) do
+    for i, v in pairs(players) do
         local dyn = get_dynamic_player(i)
         if (i and player_present(i) and player_alive(i) and dyn ~= 0) then
             for j = 1, #v.zones do

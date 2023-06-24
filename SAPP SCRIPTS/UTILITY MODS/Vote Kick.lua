@@ -122,11 +122,7 @@ function VoteKick:VoteList()
     for _, v in pairs(players) do
         if (self.id ~= v.id and not v:IsAdmin()) then
             local votes = v.votes
-            if (not votes.total) then
-                votes = 0
-            else
-                votes = votes.total
-            end
+            v.votes = (not votes.total and 0) or votes.total
             t[#t + 1] = { name = v.name, id = v.id, votes = votes }
         end
     end

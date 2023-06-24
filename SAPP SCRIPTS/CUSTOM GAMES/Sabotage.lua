@@ -273,7 +273,7 @@ function OnScriptLoad()
     OnStart()
 end
 
-function Sabotage:NewPlayer(o)
+function Sabotage:newPlayer(o)
 
     setmetatable(o, { __index = self })
     self.__index = self
@@ -281,22 +281,20 @@ function Sabotage:NewPlayer(o)
     return o
 end
 
-local function GetTag(Class, Name)
-    local tag = lookup_tag(Class, Name)
+local function getTag(class, name)
+    local tag = lookup_tag(class, name)
     return (tag ~= 0 and read_dword(tag + 0xC)) or nil
 end
 
-function Sabotage:BombHeld()
-    for i, v in ipairs(players) do
+function Sabotage:bombHeld()
+    for i, v in pairs(players) do
         local dyn = get_dynamic_player(i)
-        if (dyn ~= 0 and player_alive(i) and v.has_bomb) then
-            return true
-        end
+        return (dyn ~= 0 and player_alive(i) and v.has_bomb) or false
     end
     return false
 end
 
-function Sabotage:SpawnBomb()
+function Sabotage:spawnBomb()
 
     local x = map.spawn_location[1]
     local y = map.spawn_location[2]
@@ -314,14 +312,14 @@ function Sabotage:SpawnBomb()
     end
 end
 
-function Sabotage:NewTimer(finish)
+function Sabotage:newTimer(finish)
     return {
         start = time,
         finish = time() + finish
     }
 end
 
-local function Say(Ply, Msg)
+local function say(Ply, Msg)
     local prefix = Sabotage.prefix
     if (not Ply) then
         execute_command('msg_prefix ""')
@@ -335,7 +333,7 @@ local function Say(Ply, Msg)
     rprint(Ply, '|c' .. Msg)
 end
 
-local function ProgressBar(start, finish, plant_time)
+local function progressBar(start, finish, plant_time)
 
     local bar = ''
     local time_remaining = finish - start()
@@ -349,11 +347,11 @@ local function ProgressBar(start, finish, plant_time)
     return bar
 end
 
-local function GetOppositeTeam(team)
+local function getOppositeTeam(team)
     return (team == 'red' and 'blue' or 'red')
 end
 
-function Sabotage:PlantBomb(timer)
+function Sabotage:plantBomb(timer)
 
     local start = timer.start
     local finish = timer.finish
@@ -367,32 +365,32 @@ function Sabotage:PlantBomb(timer)
         drop_weapon(self.id)
 
         -- set the team bomb belongs to:
-        bomb.team = GetOppositeTeam(self.team)
+        bomb.team = getOppositeTeam(self.team)
 
         bomb_planted = true
 
-        explosion_timer = self:NewTimer(self.explosion_delay)
+        explosion_timer = self:newTimer(self.explosion_delay)
 
-        Say(_, 'Bomb has been planted!')
+        say(_, 'Bomb has been planted!')
         return
     end
 
-    local bar = ProgressBar(start, finish, self.plant_time)
-    Say(self.id, 'Planting the bomb [' .. bar .. ']')
+    local bar = progressBar(start, finish, self.plant_time)
+    say(self.id, 'Planting the bomb [' .. bar .. ']')
 
     for i = 1, 16 do
         if (i ~= self.id) then
-            Say(i, self.name .. ' is planting the bomb!')
+            say(i, self.name .. ' is planting the bomb!')
         end
     end
 end
 
-local function UpdateTeamScore(team)
+local function updateTeamScore(team)
     local score = (team == 'red' and get_var(0, '$redscore') or get_var(0, '$bluescore'))
     execute_command("team_score " .. team .. " " .. score + 100000)
 end
 
-function Sabotage:DefuseBomb(timer)
+function Sabotage:defuseBomb(timer)
 
     local start = timer.start
     local finish = timer.finish
@@ -402,18 +400,18 @@ function Sabotage:DefuseBomb(timer)
     end
 
     if (self.id ~= bomb.defuser) then
-        Say(self.id, players[bomb.defuser].name .. ' is already defusing the bomb!')
+        say(self.id, players[bomb.defuser].name .. ' is already defusing the bomb!')
         return
     elseif (start() >= finish) then
-        UpdateTeamScore(bomb.team)
+        updateTeamScore(bomb.team)
         destroy_object(bomb.object)
-        Say(_, 'Bomb has been defused! ' .. bomb.team .. ' team won!')
+        say(_, 'Bomb has been defused! ' .. bomb.team .. ' team won!')
         bomb, bomb_planted = nil, false
         return
     end
 
-    local bar = ProgressBar(start, finish, self.plant_time)
-    Say(self.id, 'Defusing the bomb [' .. bar .. ']')
+    local bar = progressBar(start, finish, self.plant_time)
+    say(self.id, 'Defusing the bomb [' .. bar .. ']')
 end
 
 function OnStart()
@@ -433,8 +431,8 @@ function OnStart()
                 execute_command('scorelimit 10000')
                 execute_command('enable_object ' .. '"' .. map.bomb[2] .. '" 0')
 
-                local bomb_meta = GetTag(map.bomb[1], map.bomb[2])
-                local bomb_effect_meta = GetTag(map.explosion_effect[1], map.explosion_effect[2])
+                local bomb_meta = getTag(map.bomb[1], map.bomb[2])
+                local bomb_effect_meta = getTag(map.explosion_effect[1], map.explosion_effect[2])
 
                 bomb = {
                     meta_id = bomb_meta,
@@ -455,7 +453,7 @@ function OnStart()
                 register_callback(cb['EVENT_SPAWN'], 'SpawnDeath')
                 register_callback(cb['EVENT_TEAM_SWITCH'], 'OnTeamSwitch')
 
-                Sabotage:SpawnBomb()
+                Sabotage:spawnBomb()
                 return
             end
 
@@ -478,7 +476,7 @@ local function GetDist(x1, y1, z1, x2, y2, z2)
     return sqrt(dist)
 end
 
-local function GetXYZ(dyn)
+local function getXYZ(dyn)
 
     local x, y, z
     local vehicle = read_dword(dyn + 0x11C)
@@ -493,7 +491,7 @@ local function GetXYZ(dyn)
     return x, y, z
 end
 
-function Sabotage:HasBomb(dyn)
+function Sabotage:hasBomb(dyn)
     for i = 0, 3 do
         local weapon = read_dword(dyn + 0x2F8 + 0x4 * i)
         local object = get_object_memory(weapon)
@@ -511,7 +509,7 @@ function Sabotage:HasBomb(dyn)
     return false
 end
 
-function Sabotage:Explode(x, y, z)
+    function Sabotage:explode(x, y, z)
     local object = bomb.bomb_effect
     for _ = 1, 10 do
         local payload = spawn_projectile(object, 0, x, y, z)
@@ -526,24 +524,24 @@ end
 
 local function UpdateVectors(object, x, y, z)
 
-    -- update orb x,y,z map coordinates:
+    -- update bomb x,y,z map coordinates:
     write_float(object + 0x5C, x)
     write_float(object + 0x60, y)
     write_float(object + 0x64, z)
 
-    -- update orb velocities:
+    -- update bomb velocities:
     write_float(object + 0x68, 0) -- x vel
     write_float(object + 0x6C, 0) -- y vel
     write_float(object + 0x70, 0) -- z vel
 
-    -- update orb yaw, pitch, roll
+    -- update bomb yaw, pitch, roll
     write_float(object + 0x90, 0) -- yaw
     write_float(object + 0x8C, 0) -- pitch
     write_float(object + 0x94, 0) -- roll
 end
 
-function Sabotage:RespawnBomb()
-    local bomb_held = self:BombHeld()
+function Sabotage:respawnBomb()
+    local bomb_held = self:bombHeld()
     if (bomb and not bomb_held and not bomb_planted) then
 
         local bx, by, bz = read_vector3d(bomb.object_mem + 0x5C)
@@ -556,7 +554,7 @@ function Sabotage:RespawnBomb()
 
         if (dist > 1 and not bomb.respawn_timer) then
             announce_respawn = true
-            bomb.respawn_timer = self:NewTimer(self.bomb_respawn_time)
+            bomb.respawn_timer = self:newTimer(self.bomb_respawn_time)
 
         elseif (dist > 1 and bomb.respawn_timer) then
 
@@ -566,18 +564,22 @@ function Sabotage:RespawnBomb()
             local time_remaining = math.floor(finish - start())
             if (time_remaining == self.bomb_respawn_time / 2 and announce_respawn) then
                 announce_respawn = false
-                Say(_, 'Bomb will respawn in ' .. finish - start() .. ' seconds.')
+                say(_, 'Bomb will respawn in ' .. finish - start() .. ' seconds.')
             elseif (time_remaining <= 0) then
-                local z_off = 0.3
-                write_vector3d(bomb.object_mem + 0x5C, x, y, z + z_off)
+
+                write_vector3d(bomb.object_mem + 0x5C, x, y, z + 0.3)
+                -- 28/01/23
+                write_bit(bomb.object_mem + 0x10, 5, 0)
+                --
+
                 bomb.respawn_timer = nil
-                Say(_, 'Bomb has respawned.')
+                say(_, 'Bomb has respawned.')
             end
         end
     end
 end
 
-function Sabotage:OnTick()
+function Sabotage:onTick()
 
     if (bomb_planted) then
 
@@ -592,31 +594,31 @@ function Sabotage:OnTick()
 
         if (start() >= finish) then
 
-            team = GetOppositeTeam(team)
-            UpdateTeamScore(team)
+            team = getOppositeTeam(team)
+            updateTeamScore(team)
             destroy_object(bomb.object)
-            Say(_, 'Bomb has exploded! ' .. team .. ' team won!')
-            self:Explode(x, y, z)
+            say(_, 'Bomb has exploded! ' .. team .. ' team won!')
+            self:explode(x, y, z)
 
             bomb, bomb_planted = nil, false
             return
         else
-            for i, _ in ipairs(players) do
-                Say(i, 'Bomb will explode in ' .. (finish - start()) .. ' seconds!')
+            for i, _ in pairs(players) do
+                say(i, 'Bomb will explode in ' .. (finish - start()) .. ' seconds!')
             end
         end
     end
 
-    for i, v in ipairs(players) do
+    for i, v in pairs(players) do
 
         local dyn = get_dynamic_player(i)
         if (player_alive(i) and dyn ~= 0) then
 
-            local has_bomb = v:HasBomb(dyn)
+            local has_bomb = v:hasBomb(dyn)
             if (has_bomb and not bomb_planted) then
 
-                local px, py, pz = GetXYZ(dyn)
-                local team = GetOppositeTeam(v.team)
+                local px, py, pz = getXYZ(dyn)
+                local team = getOppositeTeam(v.team)
                 local loc = map.base_locations[team]
 
                 local bx, by, bz = loc[1], loc[2], loc[3]
@@ -626,9 +628,9 @@ function Sabotage:OnTick()
 
                 if (dist <= radius and crouching == 1) then
                     if (not v.timer) then
-                        v.timer = v:NewTimer(v.plant_time)
+                        v.timer = v:newTimer(v.plant_time)
                     else
-                        v:PlantBomb(v.timer)
+                        v:plantBomb(v.timer)
                     end
                 else
                     v.timer = nil
@@ -638,15 +640,15 @@ function Sabotage:OnTick()
                 local loc = map.base_locations[bomb.team]
                 local bx, by, bz = loc[1], loc[2], loc[3]
                 local radius = loc[4]
-                local px, py, pz = GetXYZ(dyn)
+                local px, py, pz = getXYZ(dyn)
                 local crouching = read_bit(dyn + 0x208, 0)
                 local dist = GetDist(px, py, pz, bx, by, bz)
 
                 if (dist <= radius and crouching == 1) then
                     if (not v.timer) then
-                        v.timer = v:NewTimer(self.defuse_time)
+                        v.timer = v:newTimer(self.defuse_time)
                     else
-                        v:DefuseBomb(v.timer)
+                        v:defuseBomb(v.timer)
                     end
                 else
                     v.timer = nil
@@ -656,11 +658,11 @@ function Sabotage:OnTick()
         end
     end
 
-    self:RespawnBomb()
+    self:respawnBomb()
 end
 
 function OnJoin(Ply)
-    players[Ply] = Sabotage:NewPlayer({
+    players[Ply] = Sabotage:newPlayer({
         id = Ply,
         name = get_var(Ply, '$name'),
         team = get_var(Ply, '$team')
@@ -671,7 +673,7 @@ function OnQuit(Ply)
     players[Ply] = nil
     if (#players ==0 and bomb) then
         bomb_planted = false
-        bomb.respawn_timer = Sabotage:NewTimer(0)
+        bomb.respawn_timer = Sabotage:newTimer(0)
         execute_command('enable_object ' .. '"' .. map.bomb[2] .. '" 0')
     end
 end
@@ -681,7 +683,7 @@ function OnTeamSwitch(Ply)
 end
 
 function OnTick()
-    Sabotage:OnTick()
+    Sabotage:onTick()
 end
 
 function SpawnDeath(Ply)

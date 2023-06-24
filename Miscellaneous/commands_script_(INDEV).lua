@@ -1291,8 +1291,8 @@ function OnPlayerChat(PlayerIndex, Message, type)
         local receiverID = string.sub(ct[1], 2, ct[1]:len())
         local players = getvalidplayers(receiverID, PlayerIndex)
         if players then
-            for i = 1, #players do
-                if PlayerIndex ~= players[i] then
+            for i,player in pairs(players) do
+                if PlayerIndex ~= i then
                     local privatemessage = table.concat(ct, " ", 2, #ct)
                     privateSay(PlayerIndex, "to " .. getname(players[i]) .. " (" .. players[i] + 1 .. ") :  " .. privatemessage)
                     privateSay(players[i], getname(PlayerIndex) .. " (" .. players[i] + 1 .. ") :  " .. privatemessage)

@@ -136,7 +136,7 @@ local function IgnoreAdmin(Ply)
 end
 
 function OnTick()
-    for i, v in ipairs(players) do
+    for i, v in pairs(players) do
         if (v.ignore_admins and IgnoreAdmin(i)) then
             goto next
         elseif (v.timer and player_alive(i) and not InVehicle(i)) then

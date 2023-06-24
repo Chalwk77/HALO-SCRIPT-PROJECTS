@@ -96,8 +96,8 @@ local function Dist(x1, y1, z1, x2, y2, z2, r)
 end
 
 function OnTick()
-    for _, k in ipairs(players) do
-        for _, v in ipairs(players) do
+    for _, k in pairs(players) do
+        for _, v in pairs(players) do
             if (k and v and k.pid ~= v.pid and #v.loc > 0) then
                 for i, pos in pairs(v.loc) do
                     if (time() >= pos.finish) then

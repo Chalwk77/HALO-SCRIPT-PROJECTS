@@ -154,8 +154,8 @@ local players = { }
 local ffa, falling, distance, first_blood
 
 local time = os.time
+local gmatch = string.gmatch
 local match, gsub = string.match, string.gsub
-local gmatch, lower = string.gmatch, string.lower
 
 api_version = '1.12.0.0'
 

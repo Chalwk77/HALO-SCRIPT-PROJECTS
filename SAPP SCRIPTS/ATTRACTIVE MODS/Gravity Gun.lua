@@ -38,7 +38,7 @@ local GravityGun = {
     -- initial launch velocity --
     launch_velocity = 1.2,
 
-    -- Suspended yaw, pitch & roll velocities:
+    -- suspended yaw, pitch & roll velocities:
     yaw = 0.1, pitch = 0.1, roll = 0.1
 }
 -- config ends --
@@ -70,7 +70,7 @@ function OnStart()
     end
 end
 
-function GravityGun:NewPlayer(o)
+function GravityGun:newPlayer(o)
 
     setmetatable(o, self)
     self.__index = self
@@ -81,7 +81,7 @@ function GravityGun:NewPlayer(o)
     return o
 end
 
-function GravityGun:Shooting(dyn)
+function GravityGun:isShooting(dyn)
     local shooting = read_float(dyn + 0x490)
     if (shooting ~= self.shooting and shooting == 1) then
         self.shooting = shooting
@@ -91,7 +91,7 @@ function GravityGun:Shooting(dyn)
     return false
 end
 
-function GravityGun:Toggle(args)
+function GravityGun:toggle(args)
 
     local id = self.pid
     local toggled = (self.enabled)
@@ -128,7 +128,7 @@ function GravityGun:Toggle(args)
     end
 end
 
-function GravityGun:Suspend(px, py, pz, cx, cy, cz, shooting)
+function GravityGun:suspend(px, py, pz, cx, cy, cz, shooting)
 
     -- vehicle will be suspended in front of the player at this distance:
     local distance = self.distance
@@ -168,7 +168,7 @@ function GravityGun:Suspend(px, py, pz, cx, cy, cz, shooting)
     end
 end
 
-local function GetXYZ(dyn)
+local function getXYZ(dyn)
     local x, y, z
     local crouch = read_float(dyn + 0x50C)
     local vehicle = read_dword(dyn + 0x11C)
@@ -178,18 +178,18 @@ local function GetXYZ(dyn)
     elseif (object ~= 0) then
         x, y, z = read_vector3d(object + 0x5c)
     end
-    return x, y, (crouch == 0 and z + 0.65 or z + 0.35 * crouch)
+    return x, y, (crouch == 0 and z + 0.65) or (z + 0.35 * crouch)
 end
 
-local function GetCamera(dyn)
+local function getCamera(dyn)
     local cx = read_float(dyn + 0x230)
     local cy = read_float(dyn + 0x234)
     local cz = read_float(dyn + 0x238)
     return cx, cy, cz
 end
 
-local function Intersecting(px, py, pz, cx, cy, cz, Ply)
-    local ignore = read_dword(get_player(Ply) + 0x34)
+local function isIntersecting(px, py, pz, cx, cy, cz, id)
+    local ignore = read_dword(get_player(id) + 0x34)
     local success, _, _, _, map_object = intersect(px, py, pz, cx * 1000, cy * 1000, cz * 1000, ignore)
     local object = get_object_memory(map_object)
     if (object ~= 0 and (read_byte(object + 0xB4) == 1)) then
@@ -206,30 +206,30 @@ function OnTick()
             local dyn = get_dynamic_player(i)
             if (player_alive(i) and dyn ~= 0) then
 
-                local shot_fire = v:Shooting(dyn)
+                local shot_fire = v:isShooting(dyn)
 
-                local px, py, pz = GetXYZ(dyn)
-                local cx, cy, cz = GetCamera(dyn)
+                local px, py, pz = getXYZ(dyn)
+                local cx, cy, cz = getCamera(dyn)
 
                 if (not v.object and shot_fire) then
-                    local vehicle = Intersecting(px, py, pz, cx, cy, cz, i)
+                    local vehicle = isIntersecting(px, py, pz, cx, cy, cz, i)
                     if (vehicle) then
                         v.object = vehicle
                     end
                 elseif (v.object) then
-                    v:Suspend(px, py, pz, cx, cy, cz, shot_fire)
+                    v:suspend(px, py, pz, cx, cy, cz, shot_fire)
                 end
             end
         end
     end
 end
 
-local function HasPermission(Ply)
-    local lvl = tonumber(get_var(Ply, "$lvl"))
-    return (lvl >= GravityGun.permission) or rprint(Ply, 'Insufficient Permission')
+local function hasPermission(id)
+    local lvl = tonumber(get_var(id, "$lvl"))
+    return (lvl >= GravityGun.permission) or rprint(id, 'Insufficient Permission')
 end
 
-local function CmdSplit(cmd)
+local function stringSplit(cmd)
     local t = { }
     for arg in cmd:gmatch('([^%s]+)') do
         t[#t + 1] = arg:lower()
@@ -237,25 +237,25 @@ local function CmdSplit(cmd)
     return t
 end
 
-function OnCommand(Ply, CMD, _, _)
-    local t = players[Ply]
-    local args = CmdSplit(CMD)
-    if (t and #args > 0 and args[1] == t.command and HasPermission(Ply)) then
-        t:Toggle(args)
+function OnCommand(id, cmd)
+    local t = players[id]
+    local args = stringSplit(cmd)
+    if (t and #args > 0 and args[1] == t.command and hasPermission(id)) then
+        t:toggle(args)
         return false
     end
 end
 
-function OnJoin(Ply)
-    players[Ply] = GravityGun:NewPlayer({ pid = Ply })
+function OnJoin(id)
+    players[id] = GravityGun:newPlayer({ pid = id })
 end
 
-function OnSpawn(Ply)
-    players[Ply].object = nil
+function OnSpawn(id)
+    players[id].object = nil
 end
 
-function OnQuit(Ply)
-    players[Ply] = nil
+function OnQuit(id)
+    players[id] = nil
 end
 
 function OnScriptUnload()

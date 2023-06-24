@@ -98,7 +98,7 @@ local function GetDist(old, new)
 end
 
 function OnTick()
-    for i, v in ipairs(players) do
+    for i, v in pairs(players) do
 
         local dyn = get_dynamic_player(i)
         if (dyn ~= 0 and player_alive(i)) then

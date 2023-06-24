@@ -53,14 +53,14 @@ function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'], 'OnCommand')
 end
 
-local function HasPermission(Ply)
+local function hasPermission(Ply)
     local lvl = tonumber(get_var(Ply, '$lvl'))
     return (lvl >= permission_level)
 end
 
 function OnCommand(Ply, CMD)
     if (CMD:sub(1, command:len()):lower() == command) then
-        if (HasPermission(Ply)) then
+        if (hasPermission(Ply)) then
 
             -- update ammo:
             execute_command('ammo ' .. Ply .. ' ' .. ammo .. ' 5')

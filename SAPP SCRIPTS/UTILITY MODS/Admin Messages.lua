@@ -15,28 +15,28 @@ local Join_Messages = {
 
     -- Level 1:
     --
-    [1] = "[TRIAL-MOD] $name joined the server. Everybody hide!",
+    [1] = '[TRIAL-MOD] $name joined the server. Everybody hide!',
 
     -- Level 2:
     --
-    [2] = "[MODERATOR] $name just showed up. Hold my beer!",
+    [2] = '[MODERATOR] $name just showed up. Hold my beer!',
 
     -- Level 3:
     --
-    [3] = "[ADMIN] $name just joined. Hide your bananas!",
+    [3] = '[ADMIN] $name just joined. Hide your bananas!',
 
     -- Level 4:
     --
-    [4] = "[SENIOR-ADMIN] $name joined the server.",
+    [4] = '[SENIOR-ADMIN] $name joined the server.',
 
     -- Where should messages appear, chat or rcon?
     --
-    environment = "chat",
+    environment = 'chat',
 
     -- Message alignment (has not affect for clients running Chimera)
     -- Left = |l, Right = |r, Center = |c, Tab: |t
     --
-    alignment = "|l",
+    alignment = '|l',
 
     --
 
@@ -53,23 +53,23 @@ local Join_Messages = {
 api_version = '1.11.0.0'
 
 function OnScriptLoad()
-    register_callback(cb['EVENT_JOIN'], "OnJoin")
+    register_callback(cb['EVENT_JOIN'], 'OnJoin')
 end
 
 function Join_Messages:Broadcast(Ply)
 
-    local lvl = tonumber(get_var(Ply, "$lvl"))
+    local lvl = tonumber(get_var(Ply, '$lvl'))
     if (lvl >= 1) then
 
-        local name = get_var(Ply, "$name")
-        local msg = self.alignment .. " " .. self[lvl]
-        msg = msg:gsub("$name", name)
+        local name = get_var(Ply, '$name')
+        local msg = self.alignment .. ' ' .. self[lvl]
+        msg = msg:gsub('$name', name)
 
-        if (self.environment == "chat") then
+        if (self.environment == 'chat') then
             execute_command('msg_prefix ""')
             say_all(msg)
             execute_command('msg_prefix ' .. self.server_prefix .. '"')
-        elseif (self.environment == "rcon") then
+        elseif (self.environment == 'rcon') then
             for i = 1, 16 do
                 if player_present(i) then
                     rprint(i, msg)

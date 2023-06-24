@@ -37,7 +37,7 @@ function Game:ShuffleTeams()
 
     execute_command('sv_map_reset')
 
-    for i, id in ipairs(players) do
+    for i, id in pairs(players) do
 
         ClearConsole(id)
         local t = self.players[id]

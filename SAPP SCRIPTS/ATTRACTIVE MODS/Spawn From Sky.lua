@@ -120,9 +120,9 @@ function OnStart()
 end
 
 function OnTick()
-    for i = 1, #players do
+    for i,enabled in pairs(players) do
         local dyn = get_dynamic_player(i)
-        if (players[i] and player_alive(i) and dyn ~= 0) then
+        if (enabled and player_alive(i) and dyn ~= 0) then
             local state = read_byte(dyn + 0x2A3) -- un-god player when they hit the ground
             if (state == 21 or state == 22) then
                 execute_command('ungod ' .. i)

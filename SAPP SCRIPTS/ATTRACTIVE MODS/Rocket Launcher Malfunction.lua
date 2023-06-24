@@ -52,7 +52,7 @@ function OnStart()
         rocket_weap = GetTag('weap', 'weapons\\rocket launcher\\rocket launcher')
         if (rocket_proj and rocket_weap) then
             register_callback(cb['EVENT_TICK'], 'OnTick')
-            for i = 1, #players do
+            for i,_ in pairs(players) do
                 if player_present(i) then
                     ResetTimer(i)
                 end
@@ -99,7 +99,7 @@ end
 local time_scale = 1 / 30
 function OnTick()
 
-    for i, v in ipairs(players) do
+    for i, v in pairs(players) do
         local dyn = get_dynamic_player(i)
         if (player_present(i) and player_alive(i) and dyn ~= 0) then
 

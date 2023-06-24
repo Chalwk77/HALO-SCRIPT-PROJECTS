@@ -13,7 +13,7 @@ api_version = '1.12.0.0'
 
 -- config starts --
 -- Command to show custom player list:
-local command = "pls"
+local command = 'pls'
 
 -- Minimum level required to execute custom command:
 local level = 1
@@ -25,20 +25,20 @@ local players = {}
 function OnScriptLoad()
 
     -- Register needed event callbacks:
-    register_callback(cb['EVENT_JOIN'], "OnJoin")
-    register_callback(cb['EVENT_LEAVE'], "OnQuit")
-    register_callback(cb['EVENT_COMMAND'], "OnCommand")
-    register_callback(cb['EVENT_GAME_START'], "OnStart")
-    register_callback(cb['EVENT_TEAM_SWITCH'], "OnTeamSwitch")
+    register_callback(cb['EVENT_JOIN'], 'OnJoin')
+    register_callback(cb['EVENT_LEAVE'], 'OnQuit')
+    register_callback(cb['EVENT_COMMAND'], 'OnCommand')
+    register_callback(cb['EVENT_GAME_START'], 'OnStart')
+    register_callback(cb['EVENT_TEAM_SWITCH'], 'OnTeamSwitch')
 
     OnStart()
 end
 
 function OnStart()
-    if (get_var(0, "$gt") ~= 'n/a') then
+    if (get_var(0, '$gt') ~= 'n/a') then
 
         players = { }
-        ffa = (get_var(0, "$ffa") == "1")
+        ffa = (get_var(0, '$ffa') == '1')
 
         for i = 1, 16 do
             if player_present(i) then
@@ -54,9 +54,9 @@ end
 function OnJoin(Ply)
 
     local team = get_var(Ply, '$team')
-    team = (not ffa and team or "FFA")
+    team = (not ffa and team or 'FFA')
 
-    local name = get_var(Ply, "$name")
+    local name = get_var(Ply, '$name')
     local ip = get_var(Ply, '$ip'):match('%d+.%d+.%d+.%d+')
 
     players[Ply] = {
@@ -91,7 +91,7 @@ local function Respond(Ply, Msg)
     return (Ply == 0 and cprint(Msg) or rprint(Ply, Msg))
 end
 
-local function NoPerm(Ply)
+local function noPerm(Ply)
     Respond(Ply, 'You do not have permission to execute that command.')
     return false
 end
@@ -100,17 +100,17 @@ end
 --
 -- @return (boolean), true if player has permission.
 --
-local function HasPermission(Ply)
-    local lvl = tonumber(get_var(Ply, "$lvl"))
-    return (Ply == 0 or lvl >= level or NoPerm(Ply))
+local function hasPermission(Ply)
+    local lvl = tonumber(get_var(Ply, '$lvl'))
+    return (Ply == 0 or lvl >= level or noPerm(Ply))
 end
 
-local function Spaces(str, pos)
-    local spaces = ''
+local function spaces(str, pos)
+    local s = ''
     for _ = 1, pos - str:len() do
-        spaces = spaces .. ' '
+        s = s .. ' '
     end
-    return spaces
+    return s
 end
 
 
@@ -118,31 +118,26 @@ end
 --
 function OnCommand(Ply, CMD)
 
-    if (CMD:sub(1,command:len()):lower() == command) then
-        if HasPermission(Ply) then
+    if (CMD:sub(1, command:len()):lower() == command) then
+        if hasPermission(Ply) then
 
             local t = {}
             for i, v in pairs(players) do
+                local ip = v.ip
                 local name = v.name
                 local team = v.team
-                local ip = v.ip
-                t[i] = name .. Spaces(name, 16) .. team .. Spaces(team, 16) .. ip
+                t[i] = name .. spaces(name, 16) .. team .. spaces(team, 16) .. ip
             end
 
-            local list = (#t > 0 and table.concat(t, '\n') or Respond(Ply, "No players online"))
-            if (list) then
-                Respond(Ply, "NAME            TEAM            IP\n")
-                Respond(Ply, list)
-            end
+            local list = (#t > 0 and table.concat(t, '\n') or 'No players online')
+            Respond(Ply, 'NAME            TEAM            IP\n')
+            Respond(Ply, list)
+
         end
         return false
     end
 end
 
--- Although we have no code in the scope of this function,
--- SAPP will throw an error (without it) if you attempt to unload this script
--- manually with /lua_unload ...
---
 function OnScriptUnload()
     -- N/A
 end

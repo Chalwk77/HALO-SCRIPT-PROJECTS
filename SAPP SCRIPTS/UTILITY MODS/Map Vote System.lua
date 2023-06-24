@@ -27,6 +27,8 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
+-- todo: rewrite this
+
 api_version = "1.12.0.0"
 
 -- Configuration Starts --

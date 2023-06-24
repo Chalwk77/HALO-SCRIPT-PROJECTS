@@ -37,24 +37,25 @@ function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'], 'OnCommand')
 end
 
-local function HasPerm(Ply)
-    return (Ply == 0 and true or tonumber(get_var(Ply, "$lvl")) >= permission_level)
+local function hasPerm(id)
+    local lvl = tonumber(get_var(id, '$lvl'))
+    return (id == 0 and true or lvl >= permission_level)
 end
 
-local function CMDSplit(s)
-    local args = {}
+local function stringSplit(s)
+    local t = {}
     for arg in s:gmatch('([^%s]+)') do
-        args[#args + 1] = arg:lower()
+        t[#t + 1] = arg:lower()
     end
-    return args
+    return t
 end
 
-local function Say(Ply, Msg)
-    return (Ply == 0 and cprint(Msg) or rprint(Ply, Msg))
+local function Say(id, Msg)
+    return (id == 0 and cprint(Msg) or rprint(id, Msg))
 end
 
-function OnCommand(Ply, CMD)
-    local args = CMDSplit(CMD)
+function OnCommand(id, CMD)
+    local args = stringSplit(CMD)
     if (args) then
 
         local cmd = (args[1]:sub(1, command:len()) == command)
@@ -62,11 +63,11 @@ function OnCommand(Ply, CMD)
             local victim = (args[2] and tonumber(args[2]:match('%d+')))
 
             if (not victim or not args[3]) then
-                Say(Ply, 'Usage: /fc <player> <message>')
+                Say(id, 'Usage: /fc <player> <message>')
                 return false
             elseif (cmd) then
 
-                if (HasPerm(Ply)) then
+                if (hasPerm(id)) then
 
                     if (victim and player_present(victim)) then
 
@@ -77,13 +78,13 @@ function OnCommand(Ply, CMD)
                             say_all(format:gsub('$name', name):gsub('$msg', message))
                             execute_command('msg_prefix "' .. prefix .. '"')
                         else
-                            Say(Ply, 'Usage: /fc <player> <message>')
+                            Say(id, 'Usage: /fc <player> <message>')
                         end
                     else
-                        Say(Ply, 'Player #' .. victim .. ' is not online.')
+                        Say(id, 'Player #' .. victim .. ' is not online.')
                     end
                 else
-                    Say(Ply, 'Insufficient Permission')
+                    Say(id, 'Insufficient Permission')
                 end
                 return false
             end

@@ -200,7 +200,7 @@ local function Say(Ply, Msg)
 end
 
 local function FlagHeld()
-    for i, v in ipairs(players) do
+    for i, v in pairs(players) do
         local dyn = get_dynamic_player(i)
         if (dyn ~= 0 and player_alive(i) and v.has_flag) then
             return true
@@ -287,7 +287,7 @@ function HunterPrey:CheckForFlag(dyn)
 end
 
 function OnTick()
-    for i, v in ipairs(players) do
+    for i, v in pairs(players) do
         local dyn = get_dynamic_player(i)
         if player_alive(i) and dyn ~= 0 then
             v:CheckForFlag(dyn)
@@ -317,7 +317,7 @@ end
 
 local function GetCompetitors()
     local competitors = {}
-    for _, v in ipairs(players) do
+    for _, v in pairs(players) do
         if (v.total_time > 0) then
             table.insert(competitors, v)
         end

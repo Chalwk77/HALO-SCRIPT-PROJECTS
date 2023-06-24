@@ -99,9 +99,8 @@ function DeleteWeapons(Ply, CMD)
             local players = GetPlayers(Ply, args)
             if (players) then
 
-                for i = 1, #players do
+                for _,player in pairs(players) do
 
-                    local player = tonumber(players[i])
                     local name = get_var(player, '$name')
 
                     local dyn = get_dynamic_player(player)

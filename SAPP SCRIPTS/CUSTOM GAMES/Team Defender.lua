@@ -4,7 +4,7 @@ Script Name: Team Defender (v1.5), for SAPP (PC & CE)
 Description: This is Team Defender from Call of Duty: Modern Warfare 3.
 
             * A flag will spawn somewhere on the map.
-            * One player must hold on to the flag for as long as possible, while his teammates defend him.
+            * One player must hold on to the flag for as long as possible while his teammates defend him.
             * The team holding the flag receives double points towards the match score.
             * Players holding the flag will get +20 assist points for every kill that a teammate gets.
             * The flag respawns after 15 seconds if not held.
@@ -133,19 +133,19 @@ api_version = "1.12.0.0"
 -- This function is called when the script is loaded into SAPP:
 --
 function OnScriptLoad()
-    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
-    OnGameStart()
+    register_callback(cb["EVENT_GAME_START"], "OnStart")
+    OnStart()
 end
 
 -- This function is called when a new game has started:
 --
-function OnGameStart()
+function OnStart()
     TD:Init()
 end
 
 -- This function is called when a new game has started:
 --
-function OnGameEnd()
+function OnEnd()
     TD.game_started = false
 end
 
@@ -381,6 +381,12 @@ function TD:AnnouncePickup(Ply)
     end
 end
 
+local function getWeapon(dyn, index)
+    local weapon_id = read_dword(dyn + 0x2F8 + (index * 4))
+    local object = get_object_memory(weapon_id)
+    return (weapon_id ~= 0xFFFFFFFF and object ~= 0 and object or nil)
+end
+
 -- Checks if a player is holding the flag:
 -- @param Ply (player index) [number]
 --
@@ -388,16 +394,13 @@ function TD:HasFlag(Ply)
     local DyN = get_dynamic_player(Ply)
     if (DyN ~= 0) then
         for i = 0, 3 do
-            local WeaponID = read_dword(DyN + 0x2F8 + (i * 4))
-            if (WeaponID ~= 0xFFFFFFFF) then
-                local Weapon = get_object_memory(WeaponID)
-                if (Weapon ~= 0) then
-                    local tag_address = read_word(Weapon)
-                    local tag_data = read_dword(read_dword(0x40440000) + tag_address * 0x20 + 0x14)
-                    if (read_bit(tag_data + 0x308, 3) == 1) then
-                        self:AnnouncePickup(Ply)
-                        return true
-                    end
+            local weapon = getWeapon(DyN, i)
+            if (weapon) then
+                local tag_address = read_word(weapon)
+                local tag_data = read_dword(read_dword(0x40440000) + tag_address * 0x20 + 0x14)
+                if (read_bit(tag_data + 0x308, 3) == 1) then
+                    self:AnnouncePickup(Ply)
+                    return true
                 end
             end
         end
@@ -408,8 +411,8 @@ end
 -- Sets up pre-game parameters:
 --
 function TD:Init()
-    local mode = get_var(0, "$gt")
-    if (mode ~= "n/a") then
+    local mode = get_var(0, '$gt')
+    if (mode ~= 'n/a') then
 
         self.flag = { }
         self.game_started = false
@@ -437,21 +440,21 @@ function TD:Init()
 
                     self:SpawnFlag()
 
-                    execute_command("scorelimit " .. self.scoring[5])
+                    execute_command('scorelimit ' .. self.scoring[5])
 
-                    register_callback(cb["EVENT_DIE"], "OnDeath")
-                    register_callback(cb["EVENT_TICK"], "OnTick")
-                    register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
-                    register_callback(cb["EVENT_DAMAGE_APPLICATION"], "OnDeath")
+                    register_callback(cb['EVENT_DIE'], 'OnDeath')
+                    register_callback(cb['EVENT_TICK'], 'OnTick')
+                    register_callback(cb['EVENT_GAME_END'], 'OnEnd')
+                    register_callback(cb['EVENT_DAMAGE_APPLICATION'], 'OnDeath')
                     goto done
                 end
             end
         end
 
-        unregister_callback(cb["EVENT_DIE"])
-        unregister_callback(cb["EVENT_TICK"])
-        unregister_callback(cb["EVENT_GAME_END"])
-        unregister_callback(cb["EVENT_DAMAGE_APPLICATION"])
+        unregister_callback(cb['EVENT_DIE'])
+        unregister_callback(cb['EVENT_TICK'])
+        unregister_callback(cb['EVENT_GAME_END'])
+        unregister_callback(cb['EVENT_DAMAGE_APPLICATION'])
 
         :: done ::
     end
@@ -465,22 +468,22 @@ end
 
 function TD:Proceed(mode)
 
-    local map = get_var(0, "$map")
+    local map = get_var(0, '$map')
 
-    local valid_mode = (get_var(0, "$ffa") == "0" and mode == "slayer")
+    local valid_mode = (get_var(0, '$ffa') == '0' and mode == 'slayer')
     if (not valid_mode) then
-        cprint("Team Defender - [Only Team Slayer is supported]", 10)
+        cprint('Team Defender - [Only Team Slayer is supported]', 10)
     end
 
     if (not self[map]) then
-        cprint("Capture The Flag - [" .. map .. " is not configured]", 10)
+        cprint('Capture The Flag - [' .. map .. ' is not configured]', 10)
     end
 
     return ((self[map] and valid_mode) and map) or false
 end
 
 function OnTick()
-    return TD:GameTick()
+    TD:GameTick()
 end
 
 function OnDeath(V, K, MID)
@@ -494,30 +497,30 @@ end
 -- Error handler:
 --
 local function WriteError(err)
-    local file = io.open(TD.error_file, "a+")
+    local file = io.open(TD.error_file, 'a+')
     if (file) then
-        file:write(err .. "\n")
+        file:write(err .. '\n')
         file:close()
     end
 end
 
 -- This function is called every time an error is raised:
 --
-function OnError(Error)
+function OnError(err)
 
     local log = {
 
         -- log format: {msg, console out [true/false], console color}
         -- If console out = false, the message will not be logged to console.
 
-        { os.date("[%H:%M:%S - %d/%m/%Y]"), true, 12 },
-        { Error, false, 12 },
+        { os.date('[%H:%M:%S - %d/%m/%Y]'), true, 12 },
+        { err, false, 12 },
         { debug.traceback(), true, 12 },
-        { "--------------------------------------------------------", true, 5 },
-        { "Please report this error on github:", true, 7 },
-        { "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", true, 7 },
-        { "Script Version: " .. TD.script_version, true, 7 },
-        { "--------------------------------------------------------", true, 5 }
+        { '--------------------------------------------------------', true, 5 },
+        { 'Please report this error on github:', true, 7 },
+        { 'https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues', true, 7 },
+        { 'Script Version: ' .. TD.script_version, true, 7 },
+        { '--------------------------------------------------------', true, 5 }
     }
 
     for _, v in pairs(log) do
@@ -527,8 +530,5 @@ function OnError(Error)
         end
     end
 
-    WriteError("\n")
+    WriteError('\n')
 end
-
--- For a future update:
-return TD

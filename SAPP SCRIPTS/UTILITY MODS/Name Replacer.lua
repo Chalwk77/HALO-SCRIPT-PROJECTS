@@ -9,7 +9,7 @@ Description: Change blacklisted names into something funny!
              As random names get assigned, they become marked as 'used' until the player quits the server.
              This is to prevent someone else from being assigned the same random name.
 
-Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2023, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
@@ -136,12 +136,13 @@ function OnScriptLoad()
     OnStart()
 end
 
-local function GetRandomName(ply)
+local function getRandomName(ply)
 
-    -- Determine and store all name candidates:
+    -- Store all name candidates:
     --
     local t = {}
-    for i, v in pairs(random_names) do
+    for i, v in ipairs(random_names) do
+        -- Only store names less than 12 characters:
         if (v[1]:len() < 12 and not v.used) then
             t[#t + 1] = { v[1], i } -- {name, table index}
         end
@@ -153,16 +154,17 @@ local function GetRandomName(ply)
 
         local n = rand(1, #t + 1)
         local name = t[n][1]
-        local n_id = t[n][2] -- table index from names
+        local id = t[n][2] -- table index from names
 
-        players[ply] = n_id
-        random_names[n_id].used = true
+        players[ply] = id
+        random_names[id].used = true
 
         return name
     end
 
     -- If the script was unable to pick a random name,
-    -- generate a random 11 character
+    -- generate a random 11 character name:
+    -- Technical note (FYI): SAPP's rand() function is exclusive of the max value.
     local name = ''
     for _ = 1, rand(1, 12) do
         name = name .. char(rand(97, 123))
@@ -174,44 +176,52 @@ end
 --
 -- Checks if a newly-joined player's name is already in the random names table.
 -- If true, that name gets marked as 'used'.
-local function CheckNameExists(Ply)
-    local name = get_var(Ply, '$name')
-    for _, v in pairs(random_names) do
+local function checkName(name)
+    for _, v in ipairs(random_names) do
         if (name == v[1]) then
             v.used = true
         end
     end
 end
 
+-- Sets the player's name to a random name from the random_names table:
+-- @arg: id = player id
+-- @arg newName = new name
+local function setNewName(id, newName)
+    local count = 0
+    local address = network_struct + 0x1AA + ce + to_real_index(id) * 0x20
+
+    for _ = 1, 12 do
+        write_byte(address + count, 0)
+        count = count + 2
+    end
+
+    count = 0
+
+    local str = newName:sub(1, 11)
+    local length = str:len()
+
+    for j = 1, length do
+        local new_byte = byte(str:sub(j, j))
+        write_byte(address + count, new_byte)
+        count = count + 2
+    end
+end
+
+-- @arg Ply = player id
 function OnPreJoin(Ply)
 
-    CheckNameExists(Ply)
-
     local name = get_var(Ply, '$name')
-    for _, black_listed_name in ipairs(blacklist) do
+    checkName(name)
 
+
+    -- Check if their name is blacklisted:
+    for _, black_listed_name in ipairs(blacklist) do
         if (name == black_listed_name) then
 
-            local new_name = GetRandomName(Ply)
-
-            local count = 0
-            local address = network_struct + 0x1AA + ce + to_real_index(Ply) * 0x20
-
-            for _ = 1, 12 do
-                write_byte(address + count, 0)
-                count = count + 2
-            end
-
-            count = 0
-
-            local str = new_name:sub(1, 11)
-            local length = str:len()
-
-            for j = 1, length do
-                local new_byte = byte(str:sub(j, j))
-                write_byte(address + count, new_byte)
-                count = count + 2
-            end
+            -- If so, generate a new name and set it:
+            local new_name = getRandomName(Ply)
+            setNewName(Ply, new_name)
 
             break
         end
@@ -228,6 +238,7 @@ function OnQuit(Ply)
         random_names[id].used = false
     end
 
+    -- Remove player from table (garbage collection):
     players[Ply] = nil
 end
 
@@ -238,13 +249,14 @@ function OnStart()
 
         -- Set all names to 'unused' by default:
         --
-        for _, v in pairs(random_names) do
+        for _, v in ipairs(random_names) do
             v.used = false
         end
 
+        -- Check all players in the server:
         for i = 1, 16 do
             if player_present(i) then
-                CheckNameExists(i)
+                checkName(get_var(i, '$name'))
             end
         end
     end

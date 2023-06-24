@@ -112,15 +112,12 @@ function CSpy:ShowCommand(ENV, CMD)
         goto done
     end
 
-    for i = 1, 16 do
-        if (player_present(i) and i ~= self.pid) then
-            local spy = players[i]
-            if (spy.state and spy.lvl() >= self.permission) then
-                local msg = self.output[ENV]
-                local name = get_var(self.pid, "$name")
-                msg = msg:gsub("$name", name):gsub("$cmd", CMD)
-                Respond(i, msg)
-            end
+    for i, spy in pairs(players) do
+        if (i ~= self.pid and spy.state and spy.lvl() >= self.permission) then
+            local msg = self.output[ENV]
+            local name = get_var(self.pid, '$name')
+            msg = msg:gsub('$name', name):gsub('$cmd', CMD)
+            Respond(i, msg)
         end
     end
 
@@ -138,7 +135,7 @@ function OnStart()
     end
 end
 
-local function BlackListed(CMD)
+local function blackListed(CMD)
     for _, word in pairs(CSpy.blacklist) do
         if CMD:lower():find(word) then
             return true
@@ -153,7 +150,7 @@ function OnCommand(Ply, CMD, ENV, _)
         local cmd = CMD:sub(1, CMD:len()):lower()
         if (cmd == t.command and t:Toggle()) then
             return false
-        elseif (Ply > 0 and not BlackListed(cmd)) then
+        elseif (Ply > 0 and not blackListed(cmd)) then
             t:ShowCommand(ENV, CMD)
         end
     end
