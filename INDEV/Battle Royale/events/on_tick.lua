@@ -1,0 +1,53 @@
+local event = {}
+
+-- [!] This is not currently being used:
+local function UpdateVectors(object, x, y, z)
+
+    object = get_object_memory(object)
+    if (object == 0) then
+        return
+    end
+
+    -- update x,y,z coordinates:
+    write_float(object + 0x5C, x)
+    write_float(object + 0x60, y)
+    write_float(object + 0x64, z)
+
+    -- update velocities:
+    write_float(object + 0x68, 0) -- x vel
+    write_float(object + 0x6C, 0) -- y vel
+    write_float(object + 0x70, 0) -- z vel
+
+    -- update yaw, pitch, roll
+    write_float(object + 0x90, 0) -- yaw
+    write_float(object + 0x8C, 0) -- pitch
+    write_float(object + 0x94, 0) -- roll
+end
+
+function event:onTick()
+
+    self:preGameTimer() -- pre-game timer
+    self:landing() -- sky spawning / god mode timer
+    self:outsideSafeZone() -- checks if player is outside the safe zone
+    self:shrinkSafeZone() -- safe zone shrinking
+    self:monitorLoot()
+
+    local game_started = (self.pre_game_timer and self.pre_game_timer.started)
+    for i, v in pairs(self.players) do
+
+        v:intersecting()
+
+        if (self.weight.enabled and game_started) then
+            local new_speed = v:getSpeed()
+            execute_command('s ' .. i .. ' ' .. new_speed)
+        end
+    end
+
+    --for object, v in pairs(self.barrier) do
+    --    UpdateVectors(object, v.x, v.y, v.z)
+    --end
+end
+
+register_callback(cb['EVENT_TICK'], 'OnTick')
+
+return event

@@ -1,86 +1,81 @@
--- Column sorting routine by Chalwk
+--[[
+--=====================================================================================================--
+Script Name: Column sorting routine, for SAPP (PC & CE)
 
-api_version = "1.12.0.0"
+Copyright (c) 2023, Jericho Crosby <jericho.crosby227@gmail.com>
+* Notice: You can use this document subject to the following conditions:
+https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
+--=====================================================================================================--
+]]--
 
--- Configuration [starts]
-local input = { "1", "2", "3", "4", "5", "6" } -- example input data
-local max_columns, max_results = 4, #input
-local startIndex = 1
-local endIndex = max_columns
-local spaces = 3
--- Configuration [ends].
+local names = {
+    "Elijah", "Samuel", "Nathaniel", "Jericho",
+    "Ezekiel", "Isaiah", "Christopher", "Jordan",
+    "Benjamin", "Anthony", "Felicity", "Chalwk"
+}
 
-local data, concat, gmatch = { }, table.concat, string.gmatch
-local weapons_table = { }
-local initialStartIndex
+local max_rows = 5
+local max_columns = 5
+local max_results = 50
+
+api_version = '1.12.0.0'
+
 function OnScriptLoad()
-    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
-end
-
-local function stringSplit(inp, sep)
-    if (sep == nil) then
-        sep = "%s"
-    end
-    local t, i = {}, 1
-    for str in gmatch(inp, "([^" .. sep .. "]+)") do
-        t[i] = str
-        i = i + 1
-    end
-    return t
-end
-
-function OnGameStart()
-    initialStartIndex = tonumber(startIndex)
-    for k, v in pairs(input) do
-        content = stringSplit(v, ",")
-        weapons_table[#weapons_table + 1] = content
-    end
-    data:align(input)
+    register_callback(cb['EVENT_GAME_START'], 'OnStart')
+    OnStart()
 end
 
 local function spacing(n)
-    local spacing = ""
-    for i = 1, n do
-        spacing = spacing .. " "
+    local str = ""
+    for _ = 1, n do
+        str = str .. " "
     end
-    return spacing
+    return str
 end
 
-function data:align(table)
-    local proceed, finished = true
-    local function formatResults()
-        local placeholder, row = { }
+function OnStart()
+    if (get_var(0, '$gt') ~= 'n/a') then
 
-        for i = tonumber(startIndex), tonumber(endIndex) do
-            if table[i] then
-                placeholder[#placeholder + 1] = table[i]
-                row = concat(placeholder, spacing(spaces))
+        local row = {}
+        local row_count = 0
+        local longest_name = 0
+        local longest_name_index = 0
+        local longest_name_length = 0
+        local longest_name_spacing = 0
+
+        for i = 1, #names do
+            local name = names[i]
+            local name_length = string.len(name)
+            if (name_length > longest_name_length) then
+                longest_name_length = name_length
+                longest_name_index = i
             end
         end
 
-        if (row ~= nil) then
-            cprint(row)
+        longest_name = names[longest_name_index]
+        longest_name_spacing = string.len(longest_name)
+
+        for i = 1, #names do
+            local name = names[i]
+            local name_length = string.len(name)
+            local s = longest_name_spacing - name_length
+            row[#row + 1] = name .. spacing(s)
+            if (#row == max_columns) then
+                row_count = row_count + 1
+                local str = table.concat(row, "    ")
+                cprint(str)
+                row = {}
+            end
         end
 
-        if (startIndex == max_results + 1) then
-            proceed, finished = false, true
+        if (#row > 0) then
+            row_count = row_count + 1
+            local str = table.concat(row, "    ")
+            cprint(str)
         end
-
-        for b in pairs(placeholder) do
-            placeholder[b] = nil
-        end
-        startIndex = (endIndex + 1)
-        endIndex = (endIndex + (max_columns))
     end
+end
 
-    if (proceed) and not (finished) then
-        while (endIndex < max_results + max_columns) do
-            formatResults()
-        end
-    end
-
-    if (finished) and not (proceed) then
-        startIndex = initialStartIndex
-        endIndex = max_columns
-    end
+function OnScriptUnload()
+    -- N/A
 end
