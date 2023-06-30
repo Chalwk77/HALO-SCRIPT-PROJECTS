@@ -59,7 +59,7 @@ local VPNBlocker = {
 
     -- IP Quality Score API KEY:
     --
-    api_key = 'nZLmnd32Z4aRybTpaIKWA7JuBnuU6d6v',
+    api_key = 'API_KEY',
 
 
     -- If the player is using a VPN Connection, do this action:
