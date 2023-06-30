@@ -5,6 +5,7 @@ function sky_spawn:landed(dynamic_player)
     if (state == 21 or state == 22) then
         execute_command('ungod ' .. self.id)
         write_word(dynamic_player + 0x104, 0) -- force shield to regenerate immediately
+        write_float(dynamic_player + 0x424, 0) -- stun ??
         return true
     end
     return false

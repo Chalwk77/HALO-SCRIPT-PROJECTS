@@ -28,21 +28,32 @@ function loot:spawnLoot()
         for tag_name, coordinates in pairs(v) do
 
             local tag = self:getTag(tag_class, tag_name)
-            local item_count = numberOfItem(coordinates)
+            if (not tag) then
+                goto next -- tag not found, skip to next object
+            end
 
+            local item_count = numberOfItem(coordinates)
             for i = 1, item_count do
 
                 local coord_table = coordinates[i]
                 local delay = coord_table[#coord_table]
                 local x, y, z = coord_table[1], coord_table[2], coord_table[3]
 
-                local object = self:spawn(tag, x, y, z)
-                if (tag and object) then
+                local meta_id = self:spawn(tag, x, y, z)
+                if (meta_id) then
                     cprint('Spawning: ' .. tag_class .. ', ' .. tag_name .. ' (' .. i .. ' of ' .. item_count .. ')')
-                    t[object] = { tag = tag, x = x, y = y, z = z, delay = delay }
+                    t[meta_id] = {
+                        tag = tag,
+                        x = x,
+                        y = y,
+                        z = z,
+                        delay = delay
+                    }
                 end
             end
         end
+
+        :: next ::
     end
 
     self.loot = t

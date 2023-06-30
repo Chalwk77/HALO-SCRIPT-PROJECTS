@@ -4,8 +4,6 @@ local format = string.format
 function event:onStart(state)
     if (get_var(0, '$gt') ~= 'n/a') then
 
-        execute_command('disable_object "powerups\\full-spectrum vision"')
-
         -- pre game timer:
         self.pre_game_timer = nil
         self.post_game_carnage_report = false
@@ -16,12 +14,8 @@ function event:onStart(state)
         -- safe zone timer and total game time:
         self.total_time = self:getTotalGameTime()
 
-        local m, h, s = self:secondsToTime(self.total_time)
-
-        cprint('----------------------------------------------------------', 10)
-        cprint('- BATTLE ROYALE -', 10)
-        cprint(format("This game will end in %s hours, %s minutes and %s seconds", m, h, s), 10)
-        cprint('----------------------------------------------------------', 10)
+        local h, m, s = self:secondsToTime(self.total_time)
+        timer(33, 'pluginLogo', h, m, s, self.end_after * 60)
 
         -- Just in case the plugin is loaded mid-game:
         for i = 1, 16 do
@@ -41,6 +35,19 @@ function event:onStart(state)
 
         --self:spawnBarrier()
     end
+end
+
+function pluginLogo(h, m, s, b)
+    cprint('=======================================================================================================================', 10)
+    cprint("'||''|.       |     |''||''| |''||''| '||'      '||''''|     '||''|.    ..|''||   '||' '|'     |     '||'      '||''''|", 12)
+    cprint(" ||   ||     |||       ||       ||     ||        ||  .        ||   ||  .|'    ||    || |      |||     ||        ||  .", 12)
+    cprint(" ||'''|.    |  ||      ||       ||     ||        ||''|        ||''|'   ||      ||    ||      |  ||    ||        ||''|", 12)
+    cprint(" ||    ||  .''''|.     ||       ||     ||        ||           ||   |.  '|.     ||    ||     .''''|.   ||        ||", 12)
+    cprint(".||...|'  .|.  .||.   .||.     .||.   .||.....| .||.....|    .||.  '|'  ''|...|'    .||.   .|.  .||. .||.....| .||.....|", 12)
+    cprint('========================================================================================================================', 10)
+
+    cprint(format("1). This game will end in %s hours, %s minutes and %s seconds", h, m, s), 15)
+    cprint(format('Bonus Time: %s', b), 15)
 end
 
 register_callback(cb['EVENT_GAME_START'], 'OnStart')

@@ -28,6 +28,7 @@ local BattleRoyale = {
             'on_command',
             'on_end',
             'on_join',
+            'on_object_spawn',
             'on_pre_spawn',
             'on_quit',
             'on_spawn',
@@ -145,8 +146,20 @@ function OnTick()
     BattleRoyale:onTick()
 end
 
-function OnCommand(id, command)
-    return BattleRoyale:onCommand(id, command)
+function OnWeaponDrop(...)
+    BattleRoyale:onWeaponDrop(...)
+end
+
+function OnWeaponPickup(...)
+    BattleRoyale:onWeaponPickup(...)
+end
+
+function OnCommand(...)
+    return BattleRoyale:onCommand(...)
+end
+
+function OnObjectSpawn(...)
+    return BattleRoyale:onObjectSpawn(...)
 end
 
 function OnError()

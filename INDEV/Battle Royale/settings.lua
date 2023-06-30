@@ -13,12 +13,13 @@ return {
     -- The safe zone will shrink over time, forcing players to fight in a tight space.
     -- When the safe zone is at its minimum size, players will have an extra 2 minutes (end_after) to fight.
     -- The x,y,z coordinates are the center of the sphere.
+    -- [note]: 1 world unit is 10 feet or ~3.048 meters.
     --
     safe_zone = {
         x = 1.245,
         y = -1.028,
         z = -21.186,
-        min = 49.47, -- default (49.47 world/units)
+        min = 6, -- default (6 world/units)
         max = 4700 -- default (4700 world/units)
     },
 
@@ -32,9 +33,9 @@ return {
 
     --- Reduction amount:
     -- How much the safe zone will shrink by (in world units):
-    -- Default (50) = 50 world units
+    -- Default (103) = 103 world units
     --
-    shrink_amount = 50,
+    shrink_amount = 103,
 
 
     --- End after:
@@ -180,13 +181,13 @@ return {
                     { 1.13, -0.98, -21.17, 30 }
                 },
                 ['weapons\\pistol\\pistol'] = {
-
+                    { -4.74, -33.42, -21.78 }
                 },
                 ['weapons\\plasma pistol\\plasma pistol'] = {
 
                 },
                 ['weapons\\needler\\mp_needler'] = {
-
+                    { -13.44, 18.48, -20.85 }
                 },
                 ['weapons\\plasma rifle\\plasma rifle'] = {
 

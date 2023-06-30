@@ -7,12 +7,12 @@ local format = string.format
 function misc:secondsToTime(s)
 
     if (s <= 0) then
-        return "00", "00", "00";
+        return '00', '00', '00';
     end
 
-    local hours = format("%02.f", floor(s / 3600));
-    local mins = format("%02.f", floor(s / 60 - (hours * 60)));
-    local secs = format("%02.f", floor(s - hours * 3600 - mins * 60));
+    local hours = format('%02.f', floor(s / 3600));
+    local mins = format('%02.f', floor(s / 60 - (hours * 60)));
+    local secs = format('%02.f', floor(s - hours * 3600 - mins * 60));
 
     return hours, mins, secs
 end
@@ -127,5 +127,8 @@ function misc:hasPermission(level)
     return false
 end
 
+function misc:pluralize(n)
+    return (n > 1 and 's' or '')
+end
 
 return misc

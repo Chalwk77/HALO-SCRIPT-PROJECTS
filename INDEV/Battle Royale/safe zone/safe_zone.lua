@@ -1,5 +1,6 @@
 local SafeZone = {}
 local format = string.format
+local floor = math.floor
 
 function SafeZone:shrinkSafeZone()
 
@@ -86,6 +87,7 @@ function SafeZone:outsideSafeZone()
 
             local px, py, pz = self:getXYZ(dyn)
             local distance = self:getDistance(px, py, pz, bX, bY, bZ)
+
             if (distance > self.safe_zone_size) then
                 self:hurt(v)
             else
@@ -101,9 +103,9 @@ function SafeZone:getTotalGameTime()
     local min_size, max_size = self.safe_zone.min, self.safe_zone.max
     local reduction_rate, reduction_amount = self.duration, self.shrink_amount
 
-    local total_time = (max_size / min_size) * reduction_rate
+    local total_time = (max_size - min_size) / reduction_amount * reduction_rate
 
-    self.reductions = (max_size - min_size) / reduction_amount
+    self.reductions = floor((total_time / reduction_rate))
     self.safe_zone_size = max_size
 
     return total_time

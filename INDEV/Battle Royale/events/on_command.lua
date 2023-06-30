@@ -21,6 +21,7 @@ function event:onCommand(id, command)
     if (cmd) then
         if (id == 0) then
             cprint('Cannot execute commands from console.', 12)
+            return false
         else
             cmd:run(id, args)
             return false
