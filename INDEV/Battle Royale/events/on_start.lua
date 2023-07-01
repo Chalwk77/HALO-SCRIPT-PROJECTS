@@ -4,6 +4,11 @@ local format = string.format
 function event:onStart(state)
     if (get_var(0, '$gt') ~= 'n/a') then
 
+        execute_command('disable_object "' .. 'powerups\\full-spectrum vision"')
+
+        self.loot = nil
+        self.loot_crates = nil
+
         -- pre game timer:
         self.pre_game_timer = nil
         self.post_game_carnage_report = false
@@ -39,15 +44,16 @@ end
 
 function pluginLogo(h, m, s, b)
     cprint('=======================================================================================================================', 10)
+    cprint(" ")
     cprint("'||''|.       |     |''||''| |''||''| '||'      '||''''|     '||''|.    ..|''||   '||' '|'     |     '||'      '||''''|", 12)
     cprint(" ||   ||     |||       ||       ||     ||        ||  .        ||   ||  .|'    ||    || |      |||     ||        ||  .", 12)
     cprint(" ||'''|.    |  ||      ||       ||     ||        ||''|        ||''|'   ||      ||    ||      |  ||    ||        ||''|", 12)
     cprint(" ||    ||  .''''|.     ||       ||     ||        ||           ||   |.  '|.     ||    ||     .''''|.   ||        ||", 12)
     cprint(".||...|'  .|.  .||.   .||.     .||.   .||.....| .||.....|    .||.  '|'  ''|...|'    .||.   .|.  .||. .||.....| .||.....|", 12)
+    cprint(" ")
+    cprint(format("This game will end in %s hours, %s minutes and %s seconds", h, m, s), 15)
+    cprint(format('Crunch time: %s', b / 60 .. ' minutes'), 15)
     cprint('========================================================================================================================', 10)
-
-    cprint(format("1). This game will end in %s hours, %s minutes and %s seconds", h, m, s), 15)
-    cprint(format('Bonus Time: %s', b), 15)
 end
 
 register_callback(cb['EVENT_GAME_START'], 'OnStart')

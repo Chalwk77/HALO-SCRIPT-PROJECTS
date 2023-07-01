@@ -167,10 +167,20 @@ return {
         enabled = true,
 
         -- Format:
-        -- { 'tag class', 'tag name', x, y, z, respawn time (in seconds) }
-        -- The respawn logic will take take effect until the object has been despawned.
+        -- Format: ['tag class'] = { ['tag name'] = { x, y, z, respawn time (in seconds) } }
         --
 
+        -- Loot crates:
+        --
+        crates = {
+            ['eqip'] = {
+                ['powerups\\full-spectrum vision'] = {
+                    { 11.57, -14.18, -20.98, 30 }
+                }
+            }
+        },
+
+        -- Loot weapons/powerups:
         objects = {
 
             ['weap'] = {
@@ -210,9 +220,6 @@ return {
             },
 
             ['eqip'] = {
-                ['powerups\\full-spectrum vision'] = {
-                    { 15.52, 22.95, -16.28, 30 }
-                },
                 ['powerups\\flamethrower ammo\\flamethrower ammo'] = {
                     { 17.01, 24.38, -16.69, 30 },
                     { -24.31, 17.07, -18.78, 30 },

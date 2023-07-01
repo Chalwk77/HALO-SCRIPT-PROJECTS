@@ -16,14 +16,13 @@ local function numberOfItem(t)
     return rand(min, max + 1)
 end
 
-function loot:spawnLoot()
+function loot:spawnLoot(objects, type) -- self.looting.objects or self.looting.crates
 
     if (not self.looting.enabled) then
         return
     end
 
     local t = {}
-    local objects = self.looting.objects
     for tag_class, v in pairs(objects) do
         for tag_name, coordinates in pairs(v) do
 
@@ -41,8 +40,10 @@ function loot:spawnLoot()
 
                 local meta_id = self:spawn(tag, x, y, z)
                 if (meta_id) then
-                    cprint('Spawning: ' .. tag_class .. ', ' .. tag_name .. ' (' .. i .. ' of ' .. item_count .. ')')
+                    cprint(tag_class .. ', ' .. tag_name .. ' (' .. i .. ' of ' .. item_count .. ')', 15)
                     t[meta_id] = {
+                        tag_class = tag_class,
+                        tag_name = tag_name,
                         tag = tag,
                         x = x,
                         y = y,
@@ -56,7 +57,11 @@ function loot:spawnLoot()
         :: next ::
     end
 
-    self.loot = t
+    if (type == 'crates') then
+        self.loot_crates = t
+    else
+        self.loot = t
+    end
 end
 
 return loot

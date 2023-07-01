@@ -30,17 +30,13 @@ function event:onTick()
     self:landing() -- sky spawning / god mode timer
     self:outsideSafeZone() -- checks if player is outside the safe zone
     self:shrinkSafeZone() -- safe zone shrinking
-    self:monitorLoot()
 
-    local game_started = (self.pre_game_timer and self.pre_game_timer.started)
-    for i, v in pairs(self.players) do
+    self:monitorLoot(self.loot_crates) -- loot crate monitor
+    self:monitorLoot(self.loot) -- loot crate monitor
 
-        v:intersecting()
-
-        if (self.weight.enabled and game_started) then
-            local new_speed = v:getSpeed()
-            execute_command('s ' .. i .. ' ' .. new_speed)
-        end
+    for _, v in pairs(self.players) do
+        v:crateIntersect()
+        v:setSpeed()
     end
 
     --for object, v in pairs(self.barrier) do

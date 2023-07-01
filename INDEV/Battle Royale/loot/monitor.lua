@@ -1,12 +1,12 @@
 local loot = {}
 
-function loot:monitorLoot()
+function loot:monitorLoot(objects)
 
-    if (not self.looting.enabled or not self.loot) then
+    if (not self.looting.enabled or not objects) then
         return
     end
 
-    for meta_id, v in pairs(self.loot) do
+    for meta_id, v in pairs(objects) do
 
         local object_memory = get_object_memory(meta_id)
         if (object_memory == 0) then
@@ -22,10 +22,10 @@ function loot:monitorLoot()
                 local x, y, z = v.x, v.y, v.z
 
                 local object_meta = self:spawn(tag, x, y, z)
-                self.loot[object_meta] = v
-                self.loot[meta_id] = nil
-                --else
-                --    print('respawning item in ' .. v.delay - v.timer:get() .. ' seconds')
+                objects[object_meta] = v
+                objects[meta_id] = nil
+            --else
+            --    print('Respawning ' .. v.tag_class .. '/' .. v.tag_name .. ' in ' .. v.delay - v.timer:get() .. ' seconds')
             end
         end
         :: next ::

@@ -46,6 +46,16 @@ function misc:say(message, tick)
     execute_command('msg_prefix "' .. self.prefix .. '"')
 end
 
+-- Sets the player's speed:
+function misc:setSpeed()
+    local game_started = (self.pre_game_timer and self.pre_game_timer.started)
+    if (self.weight.enabled and game_started) then
+        local new_speed = self:getSpeed()
+        execute_command('s ' .. self.id .. ' ' .. new_speed)
+    end
+end
+
+-- Gets the player's current coordinates:
 function misc:getXYZ(dyn)
 
     local x, y, z

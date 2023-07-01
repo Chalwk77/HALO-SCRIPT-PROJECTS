@@ -39,6 +39,7 @@ local BattleRoyale = {
             'hud'
         },
         ['./Battle Royale/loot/'] = {
+            'crates',
             'monitor',
             'spawn'
         },

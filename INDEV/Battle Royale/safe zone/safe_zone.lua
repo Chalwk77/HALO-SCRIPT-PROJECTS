@@ -92,7 +92,7 @@ function SafeZone:outsideSafeZone()
                 self:hurt(v)
             else
                 v.kill_timer = nil
-                v:showHUD("primary", distance)
+                v:showHUD('primary', distance)
             end
         end
     end

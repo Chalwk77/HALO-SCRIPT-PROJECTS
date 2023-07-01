@@ -31,7 +31,11 @@ function timer:preGameTimer()
         self.safe_zone_timer = self:new()
         self.safe_zone_timer:start()
 
-        self:spawnLoot()
+        cprint('Spawning Loot: ')
+        self:spawnLoot(self.looting.objects, 'loot')
+        cprint(' ')
+        cprint('Spawning Crates: ')
+        self:spawnLoot(self.looting.crates, 'crates')
     else
         self:say('Game will start in ' .. timeRemaining(delay, self.pre_game_timer) .. ' seconds!', true)
     end
