@@ -16,7 +16,8 @@ local function numberOfItem(t)
     return rand(min, max + 1)
 end
 
-function loot:spawnLoot(objects, type) -- self.looting.objects or self.looting.crates
+function loot:spawnLoot(objects, type)
+    -- self.looting.objects or self.looting.crates
 
     if (not self.looting.enabled) then
         return

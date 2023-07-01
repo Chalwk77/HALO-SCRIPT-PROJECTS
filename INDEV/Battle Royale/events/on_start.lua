@@ -1,8 +1,14 @@
 local event = {}
 local format = string.format
 
-function event:onStart(state)
+function event:onStart()
     if (get_var(0, '$gt') ~= 'n/a') then
+
+        local map = get_var(0, '$map')
+        local map_settings = require('./Battle Royale/map settings/' .. map)
+        for k, v in pairs(map_settings) do
+            self[k] = v
+        end
 
         execute_command('disable_object "' .. 'powerups\\full-spectrum vision"')
 

@@ -26,6 +26,4 @@ Planned features:
   - Attributes will be affected by the player's weight.
 - [ ] Different types of ammo (**WIP**):
   - Armoured-piercing, explosive, nukes etc.
-
-Currently, this custom game mode is in a very early stage of development,
-and is only designed for one map (Timberland).
+- [x] Support for all stock maps

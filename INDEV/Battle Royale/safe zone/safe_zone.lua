@@ -19,7 +19,7 @@ function SafeZone:shrinkSafeZone()
     local time = timer:get()
 
     --
-    --- BOUNDARY SHRINKING:
+    --- SAFE ZONE SHRINKING:
     -- The safe zone will shrink every 'x' seconds (default 60).
     --
     if (not timer.crunch_time) then
