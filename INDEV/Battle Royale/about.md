@@ -5,7 +5,7 @@ Planned features:
   - The safe zone will shrink over time, forcing players to move closer together.
   - Players outside the safe zone will take damage over time.
   - The safe zone will be marked on the map with flag poles (**WIP**)
-- [ ] Spectator mode: (**WIP**):
+- [x] Spectator mode: (**WIP**):
   - Players will be able to spectate other players after they die.
   - They will be invisible, invulnerable, and unable to interact with the world.
 - [x] Randomized loot:
@@ -26,14 +26,21 @@ Planned features:
 - [x] Weapon weights:
   - Weapons will have weights, and players will have a weight limit.
   - Players will be able to drop weapons to reduce their weight.
-- [ ] Weapons (**WIP**):
+- [x] Weapons:
   - Players will start with no weapons.
-  - Players will be able to wield up to four weapons at a time.
-  - Weapons will have different stats, such as damage and degradation.
-  - You will have to find weapon 'parts' to repair weapons.
+  - Players will be able to wield up to four weapons at a time. (**WIP**)
+  - Weapons will have different stats, such as damage and degradation. (**WIP**)
+  - You will have to find weapon 'parts' to repair weapons. (**WIP**)
 - [x] Player attributes (**WIP**):
-  - Players will have attributes such as extra strength, speed, and health.
+  - Players will have attributes such as extra strength, speed, and health. (**WIP**)
   - Attributes will be affected by the player's weight.
 - [ ] Different types of ammo (**WIP**):
   - Armoured-piercing, explosive, nukes etc.
-- [x] Support for all stock maps
+- [x] Support for all stock maps:
+  - It currently supports:
+    - `timberland`, `bloodgulch`  
+
+
+# Progress:
+![alt text](https://progress-bar.dev/50/?title=Progress)
+  

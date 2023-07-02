@@ -73,6 +73,7 @@ return {
     -- When the game begins, players will be randomly assigned to one of these coordinates.
     -- Coordinates are in the format: {x, y, z, height}.
     -- The 'height' value is the height above the ground that the player will spawn at.
+    -- [Note]: Make sure there are at least 16 sets of coordinates.
     --
     sky_spawn_coordinates = {
 
