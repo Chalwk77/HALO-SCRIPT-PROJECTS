@@ -49,7 +49,7 @@ return {
     -- The start delay will not begin until the required players have joined.
     -- Default (30) = 30 seconds
     --
-    start_delay = 2,
+    start_delay = 30,
 
 
     --- Health:
@@ -79,7 +79,7 @@ return {
         --- red base:
         { 111.08, -176.01, 0.83, 35 },
         { 108.50, -168.04, 0.05, 35 },
-        { 109.78, -160.53, 0.03, 35 },
+        { 109.78, -160.53, 0.03, 35},
         { 104.16, -151.83, 0.09, 35 },
         { 94.60, -149.44, 0.06, 35 },
         { 83.13, -155.03, -0.14, 35 },
@@ -160,6 +160,22 @@ return {
     looting = {
 
         enabled = true,
+
+        --
+        -- Spoils found in loot crates:
+        -- Set an item to 'false' to disable.
+        --
+        --
+        -- [!] Do not rename the labels!
+        spoils = {
+            ['Nuke'] = true,
+            ['Stun Grenade(s)'] = true,
+            ['Ammo'] = true,
+            ['Weapon(s)'] = true,
+            ['Air Strike Ability'] = true,
+            ['Weapon Parts'] = true,
+            ['Grenade Launcher'] = true
+        },
 
         -- Format:
         -- Format: ['tag class'] = { ['tag name'] = { x, y, z, respawn time (in seconds) } }

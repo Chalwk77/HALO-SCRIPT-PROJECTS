@@ -1,6 +1,16 @@
 local event = {}
 local format = string.format
 
+local function convertToNumericalArray(t)
+    local arr = {}
+    for label, enabled in pairs(t) do
+        if (enabled) then
+            arr[#arr + 1] = label
+        end
+    end
+    return arr
+end
+
 function event:onStart()
     if (get_var(0, '$gt') ~= 'n/a') then
 
@@ -11,6 +21,8 @@ function event:onStart()
         end
 
         execute_command('disable_object "' .. 'powerups\\full-spectrum vision"')
+
+        self.spoils = convertToNumericalArray(self.looting.spoils)
 
         self.loot = nil
         self.loot_crates = nil

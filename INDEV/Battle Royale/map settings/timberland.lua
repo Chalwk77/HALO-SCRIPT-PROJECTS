@@ -180,16 +180,16 @@ return {
 
                 },
                 ['weapons\\flamethrower\\flamethrower'] = {
-                    { 1.13, -0.98, -21.17, 30 }
+                    { 1.13, -0.98, -21.17, 30 },
                 },
                 ['weapons\\pistol\\pistol'] = {
-                    { -4.74, -33.42, -21.78 }
+                    { -4.74, -33.42, -21.78, 30}
                 },
                 ['weapons\\plasma pistol\\plasma pistol'] = {
 
                 },
                 ['weapons\\needler\\mp_needler'] = {
-                    { -13.44, 18.48, -20.85 }
+                    { -13.44, 18.48, -20.85, 30 }
                 },
                 ['weapons\\plasma rifle\\plasma rifle'] = {
 

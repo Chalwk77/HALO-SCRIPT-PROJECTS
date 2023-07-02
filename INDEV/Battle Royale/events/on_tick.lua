@@ -37,6 +37,8 @@ function event:onTick()
     for _, v in pairs(self.players) do
         v:crateIntersect()
         v:setSpeed()
+        v:spectate()
+        v:displaySecondaryHUD()
     end
 
     --for object, v in pairs(self.barrier) do

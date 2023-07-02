@@ -1,6 +1,6 @@
 local loot = {}
 
-function loot:spawn(object, x, y, z)
+function loot:spawnObject(object, x, y, z)
     return spawn_object('', '', x, y, z + 0.3, 0, object)
 end
 
@@ -39,7 +39,7 @@ function loot:spawnLoot(objects, type)
                 local delay = coord_table[#coord_table]
                 local x, y, z = coord_table[1], coord_table[2], coord_table[3]
 
-                local meta_id = self:spawn(tag, x, y, z)
+                local meta_id = self:spawnObject(tag, x, y, z)
                 if (meta_id) then
                     cprint(tag_class .. ', ' .. tag_name .. ' (' .. i .. ' of ' .. item_count .. ')', 15)
                     t[meta_id] = {

@@ -31,7 +31,7 @@ function safe_zone:hurt(player)
         local amount = self.health_reduction
         write_float(dyn + 0xE0, health - amount)
 
-        player:showHUD("warning")
+        player:setHUD("warning")
         return
     end
 end

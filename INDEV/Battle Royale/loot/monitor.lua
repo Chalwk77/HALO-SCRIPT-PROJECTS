@@ -21,7 +21,7 @@ function loot:monitorLoot(objects)
                 local tag = v.tag
                 local x, y, z = v.x, v.y, v.z
 
-                local object_meta = self:spawn(tag, x, y, z)
+                local object_meta = self:spawnObject(tag, x, y, z)
                 objects[object_meta] = v
                 objects[meta_id] = nil
             --else

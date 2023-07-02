@@ -26,6 +26,8 @@ local BattleRoyale = {
         },
         ['./Battle Royale/events/'] = {
             'on_command',
+            'on_damage',
+            'on_death',
             'on_end',
             'on_join',
             'on_object_spawn',
@@ -54,6 +56,9 @@ local BattleRoyale = {
             'getters_and_setters',
             'god_mode',
             'teleport'
+        },
+        ['./Battle Royale/spectator/'] = {
+          'spectate'
         },
         ['./Battle Royale/util/'] = {
             'object_intersect',
@@ -147,12 +152,8 @@ function OnTick()
     BattleRoyale:onTick()
 end
 
-function OnWeaponDrop(...)
-    BattleRoyale:onWeaponDrop(...)
-end
-
-function OnWeaponPickup(...)
-    BattleRoyale:onWeaponPickup(...)
+function OnDeath(...)
+    BattleRoyale:onDeath(...)
 end
 
 function OnCommand(...)
@@ -161,6 +162,10 @@ end
 
 function OnObjectSpawn(...)
     return BattleRoyale:onObjectSpawn(...)
+end
+
+function OnDamage(...)
+    return BattleRoyale:onDamage(...)
 end
 
 function OnError()

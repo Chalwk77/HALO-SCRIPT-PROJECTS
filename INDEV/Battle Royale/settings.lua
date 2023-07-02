@@ -1,5 +1,24 @@
 return {
 
+    -- Lock the server after a game has started:
+    -- Default: false
+    -- NOTE: This will prevent players from joining mid-game.
+    --       If you want to allow players to join mid-game, set this to false.
+    --       If this is set to false, new players will be put into spectator mode.
+    lock_server = false,
+
+
+    -- Server password set if the server is locked:
+    -- Default: 'Broy@13'
+    --
+    password = 'Broy@13',
+
+
+    -- If a player joins mid-game, should they be put into spectator mode?
+    -- Default: true
+    --
+    new_player_spectate = true,
+
     commands = {
         ['restart'] = {
             enabled = true,

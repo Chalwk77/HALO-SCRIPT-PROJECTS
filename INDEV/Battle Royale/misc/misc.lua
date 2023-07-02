@@ -17,9 +17,9 @@ function misc:secondsToTime(s)
     return hours, mins, secs
 end
 
-local function cls(id)
+function misc:cls()
     for _ = 1, 25 do
-        rprint(id, ' ')
+        rprint(self.id, ' ')
     end
 end
 
@@ -27,15 +27,15 @@ function misc:say(message, tick)
 
     -- global rcon message to all players:
     if (tick) then
-        for i, _ in pairs(self.players) do
-            cls(i)
+        for i, v in pairs(self.players) do
+            v:cls(i)
             rprint(i, message)
         end
         return
 
         -- private rcon message:
     elseif (self.id) then
-        cls(self.id)
+        self:cls(self.id)
         rprint(self.id, message)
         return
     end

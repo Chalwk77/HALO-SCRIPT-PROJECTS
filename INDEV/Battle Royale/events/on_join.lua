@@ -1,8 +1,17 @@
 local event = {}
+local time = os.time
 
 function event:newPlayer(o)
+
     setmetatable(o, self)
     self.__index = self
+
+    o.messages = { primary = '' }
+    o.hud = {
+        pause = false,
+        timer = self:new()
+    }
+
     return o
 end
 
@@ -13,7 +22,7 @@ function event:onJoin(id)
         name = get_var(id, '$name')
     })
 
-    self:phaseCheck()
+    self:phaseCheck(_, id)
 end
 
 register_callback(cb['EVENT_JOIN'], 'OnJoin')

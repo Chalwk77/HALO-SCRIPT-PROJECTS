@@ -5,9 +5,19 @@ Planned features:
   - The safe zone will shrink over time, forcing players to move closer together.
   - Players outside the safe zone will take damage over time.
   - The safe zone will be marked on the map with flag poles (**WIP**)
+- [ ] Spectator mode: (**WIP**):
+  - Players will be able to spectate other players after they die.
+  - They will be invisible, invulnerable, and unable to interact with the world.
 - [x] Randomized loot:
   - Loot will be randomized and spawn in random locations
-  - Loot includes ammo, weapons, and powerups (**WIP**)
+  - Loot includes ammo, weapons, powerups and special abilities (**WIP**)
+    - Nuke
+    - Stun grenades
+    - Air Strike ability
+    - Weapon parts (for weapon repair system)
+    - Ammo (different types)
+    - Weapons (different types)
+    - Grenade launcher
 - [x] Sky spawn system:
   - Players will spawn in the sky and fall to the ground.
   - Players will be invulnerable until they land.

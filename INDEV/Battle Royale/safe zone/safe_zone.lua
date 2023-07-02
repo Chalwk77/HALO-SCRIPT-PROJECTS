@@ -91,8 +91,21 @@ function SafeZone:outsideSafeZone()
             if (distance > self.safe_zone_size) then
                 self:hurt(v)
             else
+
                 v.kill_timer = nil
-                v:showHUD('primary', distance)
+
+                --local hud = v.hud
+                --local timer = hud.timer
+                --if (hud.paused) then
+                --    local delay = timer:get()
+                --    if (delay >= 6) then
+                --        hud.paused = false
+                --    end
+                --    goto next
+                --end
+
+                v:setHUD('primary', distance)
+                :: next ::
             end
         end
     end

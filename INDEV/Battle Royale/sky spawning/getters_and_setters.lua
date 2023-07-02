@@ -3,32 +3,35 @@ local spawns = {}
 function spawns:getSpawns()
 
     local points = {}
-    local total = #self.players
     local locations = self.sky_spawn_coordinates
 
-    for _ = 1, total do
-        math.randomseed(os.clock())
-        local index = math.random(#locations)
-        local point = locations[index]
-        points[#points + 1] = point
+    for i = 1, #locations do
+        points[#points + 1] = locations[i]
     end
 
     return points
 end
 
+local function getRandomPoint(t)
+    local index = rand(1, #t + 1)
+    return t[index]
+end
+
 function spawns:setSpawns()
 
     local locations = self:getSpawns()
+    if (#locations == 0 or #locations < 16) then
+        error("Not enough sky-spawn points configured! (16+ required)")
+        return
+    end
 
     for _, v in pairs(self.players) do
-
-        math.randomseed(os.clock())
-        local index = math.random(#locations)
-        local point = locations[index]
-
+        local point = getRandomPoint(locations)
+        while (point.used) do
+            point = getRandomPoint(locations)
+        end
+        point.used = true
         v.spawn = point
-
-        locations[index] = nil
     end
 end
 

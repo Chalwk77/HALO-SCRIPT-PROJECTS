@@ -34,10 +34,26 @@ function crates:crateIntersect()
                 --
                 --
                 --
-
+                self:openCrate()
             end
         end
     end
+end
+
+local function getSpoils(self)
+
+    local spoils = self.spoils
+    local n = rand(1, #spoils + 1)
+    local chosen_spoils = spoils[n]
+
+    return chosen_spoils.label
+end
+
+function crates:openCrate()
+
+    local loot = getSpoils(self)
+
+    self:newMessage('You opened a loot crate', 5)
 end
 
 return crates
