@@ -28,7 +28,6 @@ Planned features:
   - Players will be able to drop weapons to reduce their weight.
 - [x] Weapons:
   - Players will start with no weapons.
-  - Players will be able to wield up to four weapons at a time. (**WIP**)
   - Weapons will have different stats, such as damage and degradation. (**WIP**)
   - You will have to find weapon 'parts' to repair weapons. (**WIP**)
 - [x] Player attributes (**WIP**):
@@ -43,4 +42,3 @@ Planned features:
 
 # Progress:
 ![alt text](https://progress-bar.dev/50/?title=Progress)
-  

@@ -26,6 +26,13 @@ return {
             description = 'Restart the game',
             level = 4,
             help = 'Syntax: /$cmd'
+        },
+        ['get_spawn_coords'] = {
+            enabled = true,
+            name = 'c',
+            description = 'Get coordinates: {x,y,z,rotation,height}',
+            level = 4,
+            help = 'Syntax: /$cmd'
         }
     },
 

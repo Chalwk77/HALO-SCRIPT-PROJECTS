@@ -55,21 +55,37 @@ function misc:setSpeed()
     end
 end
 
+local function getRotation(dynamic_player)
+
+    local aimX = read_float(dynamic_player + 0x230)
+    local aimY = read_float(dynamic_player + 0x234)
+
+    local rotation = math.atan2(aimY, aimX) * (180 / math.pi)
+    if (rotation < 0) then
+        rotation = rotation + 360
+    end
+    rotation = rotation * (math.pi / 180)
+
+    return rotation
+end
+
 -- Gets the player's current coordinates:
-function misc:getXYZ(dyn)
+function misc:getXYZ(dynamic_player)
 
-    local x, y, z
+    local x, y, z, r
 
-    local vehicle = read_dword(dyn + 0x11C)
+    local vehicle = read_dword(dynamic_player + 0x11C)
     local object = get_object_memory(vehicle)
 
     if (vehicle == 0xFFFFFFFF) then
-        x, y, z = read_vector3d(dyn + 0x5c)
+        x, y, z = read_vector3d(dynamic_player + 0x5c)
+        r = getRotation(dynamic_player)
     elseif (object ~= 0) then
         x, y, z = read_vector3d(object + 0x5c)
+        r = getRotation(object)
     end
 
-    return x, y, z
+    return x, y, z, r
 end
 
 -- Calculates the distance between two sets of coordinates:

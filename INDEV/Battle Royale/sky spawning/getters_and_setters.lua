@@ -21,7 +21,7 @@ function spawns:setSpawns()
 
     local locations = self:getSpawns()
     if (#locations == 0 or #locations < 16) then
-        error("Not enough sky-spawn points configured! (16+ required)")
+        error('Not enough sky-spawn points configured! (16+ required)')
         return
     end
 
