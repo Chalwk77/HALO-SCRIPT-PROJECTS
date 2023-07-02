@@ -71,7 +71,8 @@ return {
 
     --- Sky spawn coordinates:
     -- When the game begins, players will be randomly assigned to one of these coordinates.
-    -- Coordinates are in the format: {x, y, z, rotation (in radians) height}.
+    -- Coordinates are in the format: {x, y, z, rotation, height}.
+    -- The 'rotation' value is the direction that the player will face (in radians, not degrees).
     -- The 'height' value is the height above the ground that the player will spawn at.
     -- [Note]: Make sure there are at least 16 sets of coordinates.
     --
