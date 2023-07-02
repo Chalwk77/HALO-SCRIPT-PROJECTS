@@ -31,8 +31,7 @@ function Command:run(id, args)
     z = threeDecimal(z)
     r = threeDecimal(r)
 
-    print('{' .. x .. ', ' .. y .. ', ' .. z .. ', ' .. r .. ', 35}')
-
+    cprint('{' .. x .. ', ' .. y .. ', ' .. z .. ', ' .. r .. ', 35},')
 end
 
 return Command

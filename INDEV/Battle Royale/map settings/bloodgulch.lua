@@ -40,6 +40,7 @@ return {
 
     --- Required players:
     -- The minimum amount of players required to start the game:
+    -- Default: (2)
     --
     required_players = 1,
 

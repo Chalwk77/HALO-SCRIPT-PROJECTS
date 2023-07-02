@@ -40,8 +40,9 @@ return {
 
     --- Required players:
     -- The minimum amount of players required to start the game:
+    -- Default: (2)
     --
-    required_players = 1,
+    required_players = 2,
 
 
     --- Game start delay:
@@ -49,7 +50,7 @@ return {
     -- The start delay will not begin until the required players have joined.
     -- Default (30) = 30 seconds
     --
-    start_delay = 2,
+    start_delay = 30,
 
 
     --- Health:
@@ -71,44 +72,53 @@ return {
 
     --- Sky spawn coordinates:
     -- When the game begins, players will be randomly assigned to one of these coordinates.
-    -- Coordinates are in the format: {x, y, z, height}.
+    -- Coordinates are in the format: {x, y, z, rotation, height}.
+    -- The 'rotation' value is the direction that the player will face (in radians, not degrees).
     -- The 'height' value is the height above the ground that the player will spawn at.
+    -- [Note]: Make sure there are at least 16 sets of coordinates.
     --
     sky_spawn_coordinates = {
 
         --- red base:
-        { 17.27, -46.85, -17.95, 35 },
-        { 16.86, -43.96, -18.16, 35 },
-        { 12.55, -49.42, -17.48, 35 },
-        { 22.11, -49.14, -17.50, 35 },
-        { 23.31, -42.19, -17.14, 35 },
-        { 9.99, -38.28, -16.96, 35 },
-        { 15.96, -34.87, -16.26, 35 },
+        {13.505, -50.329, -17.586, 2.189, 35},
+        {20.976, -50.308, -17.652, 1.294, 35},
+        {17.412, -47.249, -17.932, 1.680, 35},
+        {7.548, -42.685, -17.048, 0.834, 35},
+        {25.585, -41.356, -16.481, 3.490, 35},
+        {16.535, -36.548, -16.950, 4.767, 35},
+        {17.349, -43.527, -18.165, 1.936, 35},
 
         --- blue base:
-        { -16.34, 47.30, -17.84, 35 },
-        { -16.29, 44.24, -18.14, 35 },
-        { -12.10, 49.70, -17.52, 35 },
-        { -20.79, 49.45, -17.54, 35 },
-        { -23.49, 42.21, -16.98, 35 },
-        { -7.32, 41.62, -17.20, 35 },
-        { -15.55, 34.67, -16.33, 35 },
+        {-12.817, 50.250, -17.628, 5.320, 35},
+        {-20.055, 50.331, -17.650, 4.420, 35},
+        {-16.208, 47.301, -17.832, 4.987, 35},
+        {-5.992, 42.321, -16.783, 3.749, 35},
+        {-24.433, 43.589, -16.989, 0.131, 35},
+        {-16.004, 43.543, -18.188, 5.324, 35},
+        {-16.105, 35.453, -16.580, 1.598, 35},
 
         --- random locations:
-        { 16.25, 24.46, -16.69, 35 },
-        { 5.23, 31.86, -21.83, 35 },
-        { -4.60, -33.38, -21.78, 35 },
-        { -15.55, -24.34, -16.69, 35 },
-        { -25.38, -13.21, -20.71, 35 },
-        { 18.13, -8.62, -20.97, 35 },
-        { 31.38, -21.18, -18.45, 35 },
-        { 38.87, -33.13, -19.87, 35 },
-        { 26.59, 14.65, -20.96, 35 },
-        { 34.11, 33.89, -21.40, 35 },
-        { -16.20, 11.87, -20.72, 35 },
-        { -29.88, 20.80, -18.54, 35 },
-        { -39.18, 34.03, -19.67, 35 },
-        { -31.09, -34.47, -21.07, 35 }
+        {-5.130, -34.157, -21.726, 1.094, 35},
+        {3.287, -15.268, -22.008, 0.372, 35},
+        {1.014, 14.968, -21.893, 2.915, 35},
+        {6.067, 34.193, -21.637, 4.393, 35},
+        {-15.863, 12.535, -20.735, 5.331, 35},
+        {-39.861, 33.584, -19.582, 5.783, 35},
+        {-33.849, 15.627, -20.580, 5.779, 35},
+        {-24.759, -13.775, -20.698, 0.027, 35},
+        {-31.055, -32.722, -20.980, 0.403, 35},
+        {-9.381, -40.382, -20.353, 0.941, 35},
+        {-4.412, -13.981, -20.763, 6.205, 35},
+        {9.626, -15.226, -21.027, 3.092, 35},
+        {19.146, -7.242, -20.933, 3.971, 35},
+        {42.453, -27.017, -20.742, 1.961, 35},
+        {19.655, -25.953, -20.633, 2.556, 35},
+        {26.918, 15.004, -20.954, 3.776, 35},
+        {33.074, 32.879, -21.387, 4.166, 35},
+        {17.004, 20.854, -16.115, 4.277, 35},
+        {10.764, 1.191, -19.139, 3.492, 35},
+        {31.042, -21.462, -18.446, 2.918, 35},
+        {-17.024, -24.225, -16.706, 0.155, 35},
     },
 
 
@@ -158,6 +168,22 @@ return {
 
         enabled = true,
 
+        --
+        -- Spoils found in loot crates:
+        -- Set an item to 'false' to disable.
+        --
+        --
+        -- [!] Do not rename the labels!
+        spoils = {
+            ['Nuke'] = true,
+            ['Stun Grenade(s)'] = true,
+            ['Ammo'] = true,
+            ['Weapon(s)'] = true,
+            ['Air Strike Ability'] = true,
+            ['Weapon Parts'] = true,
+            ['Grenade Launcher'] = true
+        },
+
         -- Format:
         -- Format: ['tag class'] = { ['tag name'] = { x, y, z, respawn time (in seconds) } }
         --
@@ -167,7 +193,6 @@ return {
         crates = {
             ['eqip'] = {
                 ['powerups\\full-spectrum vision'] = {
-                    { 11.57, -14.18, -20.98, 30 }
                 }
             }
         },
@@ -177,75 +202,51 @@ return {
 
             ['weap'] = {
                 ['weapons\\assault rifle\\assault rifle'] = {
-
                 },
                 ['weapons\\flamethrower\\flamethrower'] = {
-                    { 1.13, -0.98, -21.17, 30 },
                 },
                 ['weapons\\pistol\\pistol'] = {
-                    { -4.74, -33.42, -21.78, 30}
                 },
                 ['weapons\\plasma pistol\\plasma pistol'] = {
-
                 },
                 ['weapons\\needler\\mp_needler'] = {
-                    { -13.44, 18.48, -20.85, 30 }
                 },
                 ['weapons\\plasma rifle\\plasma rifle'] = {
-
                 },
                 ['weapons\\shotgun\\shotgun'] = {
-
                 },
                 ['weapons\\sniper rifle\\sniper rifle'] = {
-
                 },
                 ['weapons\\plasma_cannon\\plasma_cannon'] = {
-
                 },
                 ['weapons\\rocket launcher\\rocket launcher'] = {
-
                 },
                 ['weapons\\sniper rifle\\sniper rifle'] = {
-
                 },
             },
 
             ['eqip'] = {
                 ['powerups\\flamethrower ammo\\flamethrower ammo'] = {
-                    { 17.01, 24.38, -16.69, 30 },
-                    { -24.31, 17.07, -18.78, 30 },
-                    { 18.48, -25.26, -20.60, 30 }
                 },
                 ['powerups\\shotgun ammo\\shotgun ammo'] = {
-                    { -6.17, 12.29, -21.11, 30 }
                 },
                 ['powerups\\sniper rifle ammo\\sniper rifle ammo'] = {
-                    { -5.15, -18.59, -20.89, 30 }
                 },
                 ['powerups\\active camouflage'] = {
-
                 },
                 ['powerups\\health pack'] = {
-
                 },
                 ['powerups\\over shield'] = {
-
                 },
                 ['weapons\\frag grenade\\frag grenade'] = {
-
                 },
                 ['weapons\\plasma grenade\\plasma grenade'] = {
-
                 },
                 ['powerups\\assault rifle ammo\\assault rifle ammo'] = {
-
                 },
                 ['powerups\\needler ammo\\needler ammo'] = {
-
                 },
                 ['powerups\\rocket launcher ammo\\rocket launcher ammo'] = {
-
                 }
             }
         }
