@@ -55,15 +55,22 @@ function misc:setSpeed()
     end
 end
 
+-- Gets the player's rotation based on their aim:
+-- @dynamic_player (number) | player dynamic memory address
+-- @return (number) | rotation in radians
 local function getRotation(dynamic_player)
 
-    local aimX = read_float(dynamic_player + 0x230)
-    local aimY = read_float(dynamic_player + 0x234)
+    -- xAim, yAim (aiming coordinates):
+    local xAim = read_float(dynamic_player + 0x230)
+    local yAim = read_float(dynamic_player + 0x234)
 
-    local rotation = math.atan2(aimY, aimX) * (180 / math.pi)
+    -- Calculate the rotation:
+    local rotation = math.atan2(yAim, xAim) * (180 / math.pi)
     if (rotation < 0) then
         rotation = rotation + 360
     end
+
+    -- Convert to radians:
     rotation = rotation * (math.pi / 180)
 
     return rotation

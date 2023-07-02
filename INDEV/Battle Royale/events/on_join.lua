@@ -7,10 +7,6 @@ function event:newPlayer(o)
     self.__index = self
 
     o.messages = { primary = '' }
-    o.hud = {
-        pause = false,
-        timer = self:new()
-    }
 
     return o
 end
