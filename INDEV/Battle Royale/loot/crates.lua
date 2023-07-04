@@ -43,6 +43,8 @@ local function getSpoils(t)
         end
     end
 
+
+    -- todo: fix chance calculation bug
     local spoil
     local random = rand(1, chance + 1)
     for i, _ in pairs(chance_table) do

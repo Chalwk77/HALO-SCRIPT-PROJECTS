@@ -1,10 +1,12 @@
 return {
 
+    -- todo: default speed value
+
     -- Lock the server after a game has started:
     -- Default: false
-    -- NOTE: This will prevent players from joining mid-game.
-    --       If you want to allow players to join mid-game, set this to false.
-    --       If this is set to false, new players will be put into spectator mode.
+    -- [Note]: This will prevent players from joining mid-game.
+    -- If you want to allow players to join mid-game, set this to false.
+    -- If this is set to false, new players will be put into spectator mode.
     lock_server = false,
 
 

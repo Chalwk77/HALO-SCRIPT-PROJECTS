@@ -77,6 +77,11 @@ return {
     health_reduction = 1 / 30,
 
 
+    --- Default running speed:
+    -- Default (1)
+    default_running_speed = 1,
+
+
     --- Sky spawn coordinates:
     -- When the game begins, players will be randomly assigned to one of these coordinates.
     -- Coordinates are in the format: {x, y, z, rotation, height}.
@@ -192,13 +197,13 @@ return {
 
         --- Spoils found in loot crates:
         -- Format: [chance] = { label = 'Spoil label (seen in game)' }
-        -- [!] Do not touch the index value.
         -- To disable a spoil, set its chance to 0.
+        -- [!] Do not touch the index value.
         --
         spoils = {
             [1] = {
                 index = 1,
-                label = 'Nuke',
+                label = 'Nuke'
             },
             [5] = {
                 index = 2,
@@ -206,7 +211,7 @@ return {
             },
             [10] = {
                 index = 3,
-                label = 'sStun Grenade(s)'
+                label = 'Stun Grenade(s)'
             },
             [15] = {
                 index = 4,
@@ -220,20 +225,24 @@ return {
                 index = 6,
                 label = 'Weapon(s)'
             },
-            [35] = {
-                index = 7,
-                label = 'Ammo'
-            },
             [40] = {
-                index = 8,
-                label = 'Active Camo'
+                index = 7,
+                label = '$speedX Speed Boost'
             },
             [45] = {
                 index = 8,
-                label = 'Overshield'
+                label = 'Ammo'
             },
             [50] = {
+                index = 9,
+                label = 'Active Camo'
+            },
+            [55] = {
                 index = 10,
+                label = 'Overshield'
+            },
+            [60] = {
+                index = 11,
                 label = 'Health Boost'
             }
         },

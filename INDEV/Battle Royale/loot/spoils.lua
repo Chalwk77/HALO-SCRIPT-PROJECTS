@@ -16,12 +16,14 @@ function spoils:unlock(t)
     elseif (index == 6) then
         -- give weapon
     elseif (index == 7) then
-        -- give ammo
+        -- give speed boost
     elseif (index == 8) then
-        -- give active camo
+        -- give ammo
     elseif (index == 9) then
-        -- give over shield
+        -- give active camo
     elseif (index == 10) then
+        -- give over shield
+    elseif (index == 11) then
         -- give health pack
     end
 end
