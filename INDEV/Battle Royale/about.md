@@ -48,7 +48,4 @@ Planned features:
     - `deathisland`, `gephyrophobia`
 
 # Progress:
-![alt text](https://progress-bar.dev/65/?title=Progress)
-
-
-Hi Aaron.
+![alt text](https://progress-bar.dev/70/?title=Progress)
