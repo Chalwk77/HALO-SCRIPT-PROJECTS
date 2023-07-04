@@ -76,6 +76,16 @@ local function getRotation(dynamic_player)
     return rotation
 end
 
+local function crouchZ(dynamic_player, z)
+    local crouch = read_float(dynamic_player + 0x50C)
+    if (crouch == 0) then
+        z = z + 0.65
+    else
+        z = z + 0.35
+    end
+    return z
+end
+
 -- Gets the player's current coordinates:
 function misc:getXYZ(dynamic_player)
 
@@ -91,6 +101,7 @@ function misc:getXYZ(dynamic_player)
         x, y, z = read_vector3d(object + 0x5c)
         r = getRotation(object)
     end
+    z = crouchZ(dynamic_player, z)
 
     return x, y, z, r
 end

@@ -1,28 +1,29 @@
 local event = {}
 local format = string.format
 
-local function convertToNumericalArray(t)
-    local arr = {}
-    for label, enabled in pairs(t) do
-        if (enabled) then
-            arr[#arr + 1] = label
-        end
-    end
-    return arr
-end
+function event:loadMapSettings()
 
-function event:onStart()
-    if (get_var(0, '$gt') ~= 'n/a') then
-
+    local success, error = pcall(function()
         local map = get_var(0, '$map')
         local map_settings = require('./Battle Royale/map settings/' .. map)
         for k, v in pairs(map_settings) do
             self[k] = v
         end
+    end)
+
+    return success, error
+end
+
+function event:onStart()
+    if (get_var(0, '$gt') ~= 'n/a') then
+
+        local success, error = self:loadMapSettings()
+        if (not success) then
+            cprint(error, 12)
+            return
+        end
 
         execute_command('disable_object "' .. 'powerups\\full-spectrum vision"')
-
-        self.spoils = convertToNumericalArray(self.looting.spoils)
 
         self.loot = nil
         self.loot_crates = nil

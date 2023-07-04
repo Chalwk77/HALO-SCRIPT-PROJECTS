@@ -8,6 +8,9 @@ Planned features:
 - [x] Spectator mode:  (**done**)
   - Players will be able to spectate other players after they die.
   - They will be invisible, invulnerable, and unable to interact with the world.
+- [x] Limited lives: (**done**)
+  - Players will have a limited number of lives.
+  - Players will be able to spectate other players after they die.
 - [ ] Randomized loot (**WIP**):
   - Loot will be randomized and spawn in random locations (**done**)
   - Loot includes ammo, weapons, powerups and special abilities (**WIP**)
@@ -18,6 +21,7 @@ Planned features:
     - Ammo (different types)
     - Weapons (different types)
     - Grenade launcher
+    - Health boost (50%, 100%, 150%, 200%)
 - [x] Sky spawn system: (**done**)
   - Players will spawn in the sky and fall to the ground.
   - Players will be invulnerable until they land.
@@ -37,8 +41,10 @@ Planned features:
   - Armoured-piercing, explosive, nukes etc.
 - [ ] Support for all stock maps:
   - It currently supports:
-    - `timberland`, `bloodgulch`
-
+    - `timberland`, `bloodgulch`, 
+    - `dangercanyon`, `icefields`
+    - `infinity`, `sidewinder`
+    - `deathisland`, `gephyrophobia`
 
 # Progress:
-![alt text](https://progress-bar.dev/50/?title=Progress)
+![alt text](https://progress-bar.dev/65/?title=Progress)

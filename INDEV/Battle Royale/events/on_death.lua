@@ -12,12 +12,20 @@ function event:onDeath(victim)
         return
     end
 
-    player.spectator = true
-    player:setSpectatorBits()
+    player.lives = player.lives - 1
+    if (player.lives <= 0) then
 
-    for _,v in pairs(self.players) do
-        v:newMessage(player.name .. ' has perished', 5)
+        player.spectator = true
+        player:setSpectatorBits()
+
+        for _, v in pairs(self.players) do
+            v:newMessage(player.name .. ' has been eliminated', 5)
+        end
+        return
     end
+
+    local life = (player.lives == 1 and 'life' or 'lives')
+    player:newMessage('You have ' .. player.lives .. ' ' .. life .. ' remaining', 5)
 end
 
 register_callback(cb['EVENT_DIE'], 'OnDeath')

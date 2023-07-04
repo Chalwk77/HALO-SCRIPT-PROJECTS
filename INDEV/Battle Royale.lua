@@ -19,6 +19,7 @@ local BattleRoyale = {
 
     dependencies = {
         ['./Battle Royale/commands/'] = {
+            'get_spawn_coords',
             'restart'
         },
         ['./Battle Royale/countdown/'] = {
@@ -43,7 +44,8 @@ local BattleRoyale = {
         ['./Battle Royale/loot/'] = {
             'crates',
             'monitor',
-            'spawn'
+            'spawn',
+            'spoils'
         },
         ['./Battle Royale/misc/'] = {
             'misc'
@@ -61,7 +63,6 @@ local BattleRoyale = {
           'spectate'
         },
         ['./Battle Royale/util/'] = {
-            'object_intersect',
             'timer'
         },
         ['./Battle Royale/weight/'] = {

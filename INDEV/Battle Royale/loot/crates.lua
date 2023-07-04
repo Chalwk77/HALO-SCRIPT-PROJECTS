@@ -1,15 +1,5 @@
 local crates = {}
 
-local function crouchZ(dynamic_player, z)
-    local crouch = read_float(dynamic_player + 0x50C)
-    if (crouch == 0) then
-        z = z + 0.65
-    else
-        z = z + 0.35
-    end
-    return z
-end
-
 function crates:crateIntersect()
 
     if (not self.looting.enabled or not self.loot_crates) then
@@ -22,38 +12,60 @@ function crates:crateIntersect()
     end
 
     local px, py, pz = self:getXYZ(dyn)
-    pz = crouchZ(dyn, pz)
 
     for meta_id, v in pairs(self.loot_crates) do
-        if (get_object_memory(meta_id) ~= 0) then
-            local ox, oy, oz = v.x, v.y, v.z
-            local distance = self:getDistance(px, py, pz, ox, oy, oz)
-            if (distance <= 1) then
-                destroy_object(meta_id)
 
-                --
-                --
-                --
-                self:openCrate()
-            end
+        local object = get_object_memory(meta_id)
+        if (object == 0) then
+            goto next
         end
+
+        local ox, oy, oz = v.x, v.y, v.z
+        local distance = self:getDistance(px, py, pz, ox, oy, oz)
+        if (distance <= 1) then
+            destroy_object(meta_id)
+            self:openCrate()
+        end
+        :: next ::
     end
 end
 
-local function getSpoils(self)
+-- Get a random spoil:
+-- @t: table (self.looting.spoils)
+local function getSpoils(t)
 
-    local spoils = self.spoils
-    local n = rand(1, #spoils + 1)
-    local chosen_spoils = spoils[n]
+    local chance = 0
+    local chance_table = {}
+    for i, _ in pairs(t) do
+        if (i ~= 0) then
+            chance = chance + i
+            chance_table[i] = chance
+        end
+    end
 
-    return chosen_spoils.label
+    local spoil
+    local random = rand(1, chance + 1)
+    for i, _ in pairs(chance_table) do
+        if (random <= chance_table[i]) then
+            spoil = t[i]
+            break
+        end
+    end
+
+    return spoil
 end
 
 function crates:openCrate()
 
-    local loot = getSpoils(self)
+    local spoils = getSpoils(self.looting.spoils)
 
-    self:newMessage('You opened a loot crate', 5)
+    if (not spoils) then
+        self:newMessage('Something went wrong. Unable to unlock spoils.', 5)
+        return
+    end
+
+    self:newMessage('You unlocked ' .. spoils.label, 5)
+    self:unlock(spoils)
 end
 
 return crates

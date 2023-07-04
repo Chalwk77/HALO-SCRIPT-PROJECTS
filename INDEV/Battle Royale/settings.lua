@@ -19,7 +19,10 @@ return {
     --
     new_player_spectate = true,
 
+
     commands = {
+
+        -- This command is used to restart Battle Royale:
         ['restart'] = {
             enabled = true,
             name = 'restart',
@@ -27,6 +30,10 @@ return {
             level = 4,
             help = 'Syntax: /$cmd'
         },
+
+        -- Useful command to get your map coordinates:
+        -- Used to generate sky-spawn or loot location coordinates.
+        -- Each set of coordinates will be printed to the servers console.
         ['get_spawn_coords'] = {
             enabled = true,
             name = 'c',

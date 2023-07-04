@@ -42,7 +42,7 @@ return {
     -- The minimum amount of players required to start the game:
     -- Default: (2)
     --
-    required_players = 2,
+    required_players = 1,
 
 
     --- Game start delay:
@@ -50,7 +50,14 @@ return {
     -- The start delay will not begin until the required players have joined.
     -- Default (30)
     --
-    start_delay = 30,
+    start_delay = 2,
+
+
+    --- Lives:
+    -- When a player's lives have been depleted, they will be eliminated from the game.
+    -- An eliminated player will be forced to spectate the remaining players.
+    -- Default: 3
+    max_lives = 3,
 
 
     --- Health:
@@ -164,27 +171,56 @@ return {
 
         enabled = true,
 
+        --- Spoils found in loot crates:
+        -- Format: [chance] = { label = 'Spoil label (seen in game)' }
+        -- [!] Do not touch the index value.
+        -- To disable a spoil, set its chance to 0.
         --
-        -- Spoils found in loot crates:
-        -- Set an item to 'false' to disable.
-        --
-        --
-        -- [!] Do not rename the labels!
         spoils = {
-            ['Nuke'] = true,
-            ['Stun Grenade(s)'] = true,
-            ['Ammo'] = true,
-            ['Weapon(s)'] = true,
-            ['Air Strike Ability'] = true,
-            ['Weapon Parts'] = true,
-            ['Grenade Launcher'] = true
+            [1] = {
+                index = 1,
+                label = 'Nuke'
+            },
+            [5] = {
+                index = 2,
+                label = 'Air Strike Ability'
+            },
+            [10] = {
+                index = 3,
+                label = 'Stun Grenade(s)'
+            },
+            [15] = {
+                index = 4,
+                label = 'Grenade Launcher'
+            },
+            [25] = {
+                index = 5,
+                label = 'Weapon Parts'
+            },
+            [30] = {
+                index = 6,
+                label = 'Weapon(s)'
+            },
+            [35] = {
+                index = 7,
+                label = 'Ammo'
+            },
+            [40] = {
+                index = 8,
+                label = 'Active Camo'
+            },
+            [45] = {
+                index = 8,
+                label = 'Overshield'
+            },
+            [50] = {
+                index = 10,
+                label = 'Health Boost'
+            }
         },
 
-        -- Format:
+        --- Loot crates:
         -- Format: ['tag class'] = { ['tag name'] = { x, y, z, respawn time (in seconds) } }
-        --
-
-        -- Loot crates:
         --
         crates = {
             ['eqip'] = {
@@ -207,7 +243,7 @@ return {
             }
         },
 
-        -- Loot weapons/powerups:
+        --- Random Loot weapon/power up spawns:
         objects = {
 
             ['weap'] = {
@@ -248,16 +284,16 @@ return {
                 },
                 ['powerups\\over shield'] = {
                 },
-                ['weapons\\frag grenade\\frag grenade'] = {
-                },
-                ['weapons\\plasma grenade\\plasma grenade'] = {
-                },
                 ['powerups\\assault rifle ammo\\assault rifle ammo'] = {
                 },
                 ['powerups\\needler ammo\\needler ammo'] = {
                 },
                 ['powerups\\rocket launcher ammo\\rocket launcher ammo'] = {
-                }
+                },
+                ['weapons\\frag grenade\\frag grenade'] = {
+                },
+                ['weapons\\plasma grenade\\plasma grenade'] = {
+                },
             }
         }
     }

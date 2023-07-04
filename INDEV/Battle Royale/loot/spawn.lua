@@ -17,7 +17,6 @@ local function numberOfItem(t)
 end
 
 function loot:spawnLoot(objects, type)
-    -- self.looting.objects or self.looting.crates
 
     if (not self.looting.enabled) then
         return

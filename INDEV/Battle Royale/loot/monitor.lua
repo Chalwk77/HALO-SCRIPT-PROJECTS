@@ -2,7 +2,7 @@ local loot = {}
 
 function loot:monitorLoot(objects)
 
-    if (not self.looting.enabled or not objects) then
+    if (not self.looting or not self.looting.enabled or not objects) then
         return
     end
 
@@ -10,11 +10,9 @@ function loot:monitorLoot(objects)
 
         local object_memory = get_object_memory(meta_id)
         if (object_memory == 0) then
-
             if (not v.timer) then
                 v.timer = self:new()
                 v.timer:start()
-                goto next
             elseif (v.timer:get() >= v.delay) then
                 v.timer = nil -- just in case
 
@@ -28,7 +26,6 @@ function loot:monitorLoot(objects)
             --    print('Respawning ' .. v.tag_class .. '/' .. v.tag_name .. ' in ' .. v.delay - v.timer:get() .. ' seconds')
             end
         end
-        :: next ::
     end
 end
 

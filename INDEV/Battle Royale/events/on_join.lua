@@ -7,6 +7,7 @@ function event:newPlayer(o)
     self.__index = self
 
     o.messages = { primary = '' }
+    o.lives = self.max_lives
 
     return o
 end
