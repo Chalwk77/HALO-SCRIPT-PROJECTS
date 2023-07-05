@@ -29,7 +29,7 @@ function weight:getSpeed()
         return self:getWeight(weapon_in_hand)
     end
 
-    for i = 0,3 do
+    for i = 0, 3 do
         local weapon = read_dword(dyn + 0x2F8 + i * 4)
         speed = speed - self:getWeight(weapon)
     end

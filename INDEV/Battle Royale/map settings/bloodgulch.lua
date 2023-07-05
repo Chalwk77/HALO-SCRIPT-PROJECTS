@@ -181,48 +181,80 @@ return {
         -- [!] Do not touch the '_function__' value. It is used internally.
         --
         spoils = {
+
+            --- NUKE:
             [1] = {
                 label = 'Nuke',
+                radius = 10, -- kills all players within this radius
                 _function_ = 'giveNuke'
             },
+
+            --- AIR STRIKE:
             [5] = {
                 label = 'Air Strike Ability',
                 _function_ = 'enableAirstrike'
             },
+
+            --- STUN GRENADES:
             [10] = {
                 label = 'Stun Grenade(s)',
                 _function_ = 'giveStunGrenades'
             },
+
+            --- FRAG GRENADES:
+            [10] = {
+                label = 'Frag Grenade(s)',
+                _function_ = 'giveFragGrenades'
+            },
+
+            --- GRENADE LAUNCHER:
             [15] = {
                 label = 'Grenade Launcher',
                 _function_ = 'giveGrenadeLauncher'
             },
+
+            --- WEAPON PARTS:
             [25] = {
                 label = 'Weapon Parts',
                 _function_ = 'giveWeaponParts'
             },
+
+            --- RANDOM WEAPON:
             [30] = {
                 label = 'Weapon(s)',
                 _function_ = 'giveRandomWeapon'
             },
-            [40] = {
-                label = '$speedX Speed Boost',
+
+            --- SPEED BOOST:
+            -- Format: { { multiplier, duration (in seconds) } }
+            [10000] = {
+                label = '$speedX Speed Boost for $duration seconds',
+                levels = { { 1.2, 5 }, { 1.3, 5 }, { 1.4, 5 }, { 1.5, 5 } },
                 _function_ = 'giveSpeedBoost'
             },
+
+            --- AMMO:
             [45] = {
                 label = 'Ammo',
                 _function_ = 'giveAmmo'
             },
+
+            --- CAMOUFLAGE:
             [50] = {
                 label = 'Active Camo',
                 _function_ = 'giveCamo'
             },
+
+            --- OVERSHIELD:
             [55] = {
                 label = 'Overshield',
                 _function_ = 'giveOvershield'
             },
+
+            --- HEALTH BOOST:
             [60] = {
                 label = 'Health Boost',
+                levels = { 1.2, 1.3, 1.4, 1.5 },
                 _function_ = 'giveHealthBoost'
             }
         },

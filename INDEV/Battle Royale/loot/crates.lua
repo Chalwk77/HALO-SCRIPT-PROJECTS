@@ -52,14 +52,13 @@ end
 
 function crates:openCrate()
 
-    local chance, spoils = getSpoils(self.looting.spoils)
+    local _, spoils = getSpoils(self.looting.spoils)
 
     if (not spoils) then
         self:newMessage('Something went wrong. Unable to unlock spoils.', 5)
         return
     end
 
-    self:newMessage('You unlocked ' .. spoils.label .. ' (Chance: ' .. chance .. '%)', 5)
     self[spoils._function_](self, spoils)
 end
 

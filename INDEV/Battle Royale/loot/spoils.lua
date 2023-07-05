@@ -1,46 +1,64 @@
 local spoils = {}
 
-function spoils:giveNuke(spoil)
-    print('Executing spoils:giveNuke()', self.name)
+-- Gives the player a nuke.
+-- This will kill all players within a X world/unit radius.
+function spoils:giveNuke(args)
+    local radius = args.radius
 end
 
-function spoils:enableAirstrike(spoil)
+function spoils:enableAirstrike(args)
     print('Executing spoils:enableAirstrike()', self.name)
 end
 
-function spoils:giveStunGrenades(spoil)
+function spoils:giveStunGrenades(args)
     print('Executing spoils:giveStunGrenades()', self.name)
 end
 
-function spoils:giveGrenadeLauncher(spoil)
+function spoils:giveGrenadeLauncher(args)
     print('Executing spoils:giveGrenadeLauncher()', self.name)
 end
 
-function spoils:giveWeaponParts(spoil)
+function spoils:giveWeaponParts(args)
     print('Executing spoils:giveWeaponParts()', self.name)
 end
 
-function spoils:giveRandomWeapon(spoil)
+function spoils:giveRandomWeapon(args)
     print('Executing spoils:giveRandomWeapon()', self.name)
 end
 
-function spoils:giveSpeedBoost(spoil)
-    print('Executing spoils:giveSpeedBoost()', self.name)
+function spoils:giveSpeedBoost(args)
+
+    local label = args.label
+    local levels = args.levels
+
+    local level = levels[rand(1, #levels + 1)]
+    local speed_multiplier = level[1]
+    local duration = level[2]
+
+    local new_speed = self.speed.current * speed_multiplier
+    self.speed.current = new_speed
+    self.speed.duration = duration
+
+    self.speed.timer = self:new()
+    self.speed.timer:start()
+
+    label = label:gsub('$speed', new_speed):gsub('$duration', duration)
+    self:newMessage('You unlocked ' .. label, 5)
 end
 
-function spoils:giveAmmo(spoil)
+function spoils:giveAmmo(args)
     print('Executing spoils:giveAmmo()', self.name)
 end
 
-function spoils:giveCamo(spoil)
+function spoils:giveCamo(args)
     print('Executing spoils:giveCamo()', self.name)
 end
 
-function spoils:giveOvershield(spoil)
+function spoils:giveOvershield(args)
     print('Executing spoils:giveOvershield()', self.name)
 end
 
-function spoils:giveHealthBoost(spoil)
+function spoils:giveHealthBoost(args)
     print('Executing spoils:giveHealthBoost()', self.name)
 end
 

@@ -9,6 +9,10 @@ function event:newPlayer(o)
     o.messages = { primary = '' }
     o.lives = self.max_lives
 
+    o.speed = {
+        current = self.default_running_speed
+    }
+
     return o
 end
 

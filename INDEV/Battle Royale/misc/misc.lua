@@ -48,11 +48,25 @@ end
 
 -- Sets the player's speed:
 function misc:setSpeed()
+
+    local weight = self.weight.enabled
+    local default = self.default_running_speed
+
     local game_started = (self.pre_game_timer and self.pre_game_timer.started)
-    if (self.weight.enabled and game_started) then
-        local new_speed = self:getSpeed()
-        execute_command('s ' .. self.id .. ' ' .. new_speed)
+    if (not game_started) then
+        return
     end
+
+    local speed_timer = self.speed.timer
+    if (speed_timer and speed_timer:get() >= self.speed.duration) then
+        self.speed.current = default
+        self.speed.timer = nil
+    elseif (not speed_timer and weight) then
+        local speed = self:getSpeed()
+        self.speed.current = speed
+    end
+
+    execute_command('s ' .. self.id .. ' ' .. self.speed.current)
 end
 
 -- Gets the player's rotation based on their aim:
