@@ -29,11 +29,11 @@ end
 function spoils:giveSpeedBoost(args)
 
     local label = args.label
-    local levels = args.levels
+    local multipliers = args.multipliers
 
-    local level = levels[rand(1, #levels + 1)]
-    local speed_multiplier = level[1]
-    local duration = level[2]
+    local mult = multipliers[rand(1, #multipliers + 1)]
+    local speed_multiplier = mult[1]
+    local duration = mult[2]
 
     local new_speed = self.speed.current * speed_multiplier
     self.speed.current = new_speed

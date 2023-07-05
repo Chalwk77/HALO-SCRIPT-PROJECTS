@@ -233,7 +233,7 @@ return {
             -- Format: { { multiplier, duration (in seconds) } }
             [35] = {
                 label = '$speedX Speed Boost for $duration seconds',
-                levels = { { 1.2, 10 }, { 1.3, 15 }, { 1.4, 20 }, { 1.5, 25 } },
+                multipliers = { { 1.2, 10 }, { 1.3, 15 }, { 1.4, 20 }, { 1.5, 25 } },
                 _function_ = 'giveSpeedBoost'
             },
 

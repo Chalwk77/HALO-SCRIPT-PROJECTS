@@ -22,7 +22,7 @@ Planned features:
     - Weapons (different types)
     - Grenade launcher
     - Health boost (50%, 100%, 150%, 200%)
-    - Speed boost (1.2, 1.3, 1.4, 1.5)
+    - Speed boost (1.2, 1.3, 1.4, 1.5) (**done**)
 - [x] Sky spawn system: (**done**)
   - Players will spawn in the sky and fall to the ground.
   - Players will be invulnerable until they land.
@@ -48,4 +48,4 @@ Planned features:
     - `deathisland`, `gephyrophobia`
 
 # Progress:
-![alt text](https://progress-bar.dev/65/?title=Progress)
+![alt text](https://progress-bar.dev/58/?title=Progress)
