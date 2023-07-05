@@ -42,6 +42,8 @@ function spoils:giveSpeedBoost(args)
     self.speed.timer = self:new()
     self.speed.timer:start()
 
+    new_speed = string.format('%.2f', new_speed)
+
     label = label:gsub('$speed', new_speed):gsub('$duration', duration)
     self:newMessage('You unlocked ' .. label, 5)
 end

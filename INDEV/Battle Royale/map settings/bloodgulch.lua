@@ -56,7 +56,7 @@ return {
     -- When a player's lives have been depleted, they will be eliminated from the game.
     -- An eliminated player will be forced to spectate the remaining players.
     -- Default: 3
-    max_lives = 1,
+    max_lives = 3,
 
 
     --- Health:
@@ -202,13 +202,13 @@ return {
             },
 
             --- FRAG GRENADES:
-            [10] = {
+            [15] = {
                 label = 'Frag Grenade(s)',
                 _function_ = 'giveFragGrenades'
             },
 
             --- GRENADE LAUNCHER:
-            [15] = {
+            [20] = {
                 label = 'Grenade Launcher',
                 _function_ = 'giveGrenadeLauncher'
             },
@@ -227,32 +227,32 @@ return {
 
             --- SPEED BOOST:
             -- Format: { { multiplier, duration (in seconds) } }
-            [10000] = {
+            [35] = {
                 label = '$speedX Speed Boost for $duration seconds',
-                levels = { { 1.2, 5 }, { 1.3, 5 }, { 1.4, 5 }, { 1.5, 5 } },
+                levels = { { 1.2, 10 }, { 1.3, 15 }, { 1.4, 20 }, { 1.5, 25 } },
                 _function_ = 'giveSpeedBoost'
             },
 
             --- AMMO:
-            [45] = {
+            [40] = {
                 label = 'Ammo',
                 _function_ = 'giveAmmo'
             },
 
             --- CAMOUFLAGE:
-            [50] = {
+            [45] = {
                 label = 'Active Camo',
                 _function_ = 'giveCamo'
             },
 
             --- OVERSHIELD:
-            [55] = {
+            [50] = {
                 label = 'Overshield',
                 _function_ = 'giveOvershield'
             },
 
             --- HEALTH BOOST:
-            [60] = {
+            [55] = {
                 label = 'Health Boost',
                 levels = { 1.2, 1.3, 1.4, 1.5 },
                 _function_ = 'giveHealthBoost'
