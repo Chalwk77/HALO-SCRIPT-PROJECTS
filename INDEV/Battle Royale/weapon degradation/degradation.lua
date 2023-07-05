@@ -17,6 +17,7 @@ function weapons:addWeapon(object, weapon)
         weapon = weapon,
         timer = self:new(),
         decay = 0, -- out of 100 (100 = completely broken),
+        notify = true,
     }
 end
 
@@ -90,10 +91,19 @@ function weapons:degrade()
             end
 
             local decay = math.floor(weapon.decay)
-            --print('DECAY: ' .. decay, decay % 15 == 1)
+            --print('DECAY: ' .. decay)
 
-            if (decay >= 15 and decay % 15 == 0) then
-                self:newMessage('Your weapon is at ' .. decay .. '% decay', 15)
+            if (decay >= 15) then
+
+                local notify = weapon.notify
+                local mult_of_15 = (decay % 15 == 0)
+
+                if (notify and mult_of_15) then
+                    self:newMessage('Your weapon is at ' .. decay .. '% decay', 10)
+                    weapon.notify = false
+                elseif (not mult_of_15) then
+                    weapon.notify = true
+                end
             end
         end
     end
