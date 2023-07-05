@@ -59,7 +59,12 @@ function crates:openCrate()
         return
     end
 
-    self[spoils._function_](self, spoils)
+    local f = spoils._function_
+    if (not self[f]) then
+        error('Unable to execute function "' .. f.. '", not found.')
+        return
+    end
+    self[f](self, spoils)
 end
 
 -- Test the loot system:

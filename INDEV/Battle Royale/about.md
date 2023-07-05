@@ -31,6 +31,10 @@ Planned features:
 - [x] Weapon weights: (**done**)
   - Weapons will have weights, and players will have a weight limit.
   - Players will be able to drop weapons to reduce their weight.
+- [x] Weapon degradation: (**done**)
+  - Weapons will degrade over time.
+  - Weapons will have a limited number of shots before they break.
+  - Weapons will have a limited number of reloads before they break.
 - [ ] Weapons (**WIP**)
   - Players will start with no weapons. (**done**)
   - Weapons will have different stats, such as damage and degradation. (**WIP**)

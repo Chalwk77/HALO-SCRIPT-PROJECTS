@@ -81,39 +81,6 @@ return {
     default_running_speed = 1,
 
 
-    --- Weapon degradation (decay):
-    weapon_degradation = {
-
-        -- If enabled, weapons will degrade over time.
-        -- Default (true)
-        --
-        enabled = true,
-
-        decay_rate = {
-
-            -- The lower the percentage value, the faster the weapon will degrade.
-
-            -- 0.0111% = 1/90
-            ['weapons\\pistol\\pistol'] = 1 / 50,
-            ['weapons\\needler\\mp_needler'] = 1 / 50,
-            ['weapons\\plasma rifle\\plasma rifle'] = 1 / 50,
-            ['weapons\\plasma pistol\\plasma pistol'] = 1 / 50,
-
-            -- 0.100% = 1/10
-            ['weapons\\shotgun\\shotgun'] = 1 / 10,
-            ['weapons\\flamethrower\\flamethrower'] = 1 / 10,
-            ['weapons\\assault rifle\\assault rifle'] = 1 / 10,
-
-            -- 0.0222% = 1/45
-            ['weapons\\sniper rifle\\sniper rifle'] = 1 / 55,
-            ['weapons\\plasma_cannon\\plasma_cannon'] = 1 / 55,
-
-            -- 0.066% = 1/15
-            ['weapons\\rocket launcher\\rocket launcher'] = 1 / 15,
-        }
-    },
-
-
     --- Sky spawn coordinates:
     -- When the game begins, players will be randomly assigned to one of these coordinates.
     -- Coordinates are in the format: {x, y, z, rotation, height}.
@@ -196,6 +163,39 @@ return {
 
             ['weapons\\plasma_cannon\\plasma_cannon'] = 0.098,
             ['weapons\\rocket launcher\\rocket launcher'] = 0.104
+        }
+    },
+
+
+    --- Weapon degradation (decay):
+    weapon_degradation = {
+
+        -- If enabled, weapons will degrade over time.
+        -- Default (true)
+        --
+        enabled = true,
+
+        decay_rate = {
+
+            -- The lower the percentage value, the faster the weapon will degrade.
+
+            -- 0.0111% = 1/90
+            ['weapons\\pistol\\pistol'] = 1 / 50,
+            ['weapons\\needler\\mp_needler'] = 1 / 50,
+            ['weapons\\plasma rifle\\plasma rifle'] = 1 / 50,
+            ['weapons\\plasma pistol\\plasma pistol'] = 1 / 50,
+
+            -- 0.100% = 1/10
+            ['weapons\\shotgun\\shotgun'] = 1 / 10,
+            ['weapons\\flamethrower\\flamethrower'] = 1 / 10,
+            ['weapons\\assault rifle\\assault rifle'] = 1 / 10,
+
+            -- 0.0222% = 1/45
+            ['weapons\\sniper rifle\\sniper rifle'] = 1 / 55,
+            ['weapons\\plasma_cannon\\plasma_cannon'] = 1 / 55,
+
+            -- 0.066% = 1/15
+            ['weapons\\rocket launcher\\rocket launcher'] = 1 / 15,
         }
     },
 
@@ -292,7 +292,7 @@ return {
             }
         },
 
-        --- Loot crates:
+        --- Loot crate locations:
         -- Format: ['tag class'] = { ['tag name'] = { x, y, z, respawn time (in seconds) } }
         --
         crates = {

@@ -172,6 +172,39 @@ return {
     },
 
 
+    --- Weapon degradation (decay):
+    weapon_degradation = {
+
+        -- If enabled, weapons will degrade over time.
+        -- Default (true)
+        --
+        enabled = true,
+
+        decay_rate = {
+
+            -- The lower the percentage value, the faster the weapon will degrade.
+
+            -- 0.0111% = 1/90
+            ['weapons\\pistol\\pistol'] = 1 / 50,
+            ['weapons\\needler\\mp_needler'] = 1 / 50,
+            ['weapons\\plasma rifle\\plasma rifle'] = 1 / 50,
+            ['weapons\\plasma pistol\\plasma pistol'] = 1 / 50,
+
+            -- 0.100% = 1/10
+            ['weapons\\shotgun\\shotgun'] = 1 / 10,
+            ['weapons\\flamethrower\\flamethrower'] = 1 / 10,
+            ['weapons\\assault rifle\\assault rifle'] = 1 / 10,
+
+            -- 0.0222% = 1/45
+            ['weapons\\sniper rifle\\sniper rifle'] = 1 / 55,
+            ['weapons\\plasma_cannon\\plasma_cannon'] = 1 / 55,
+
+            -- 0.066% = 1/15
+            ['weapons\\rocket launcher\\rocket launcher'] = 1 / 15,
+        }
+    },
+
+
     --- Loot:
     -- The loot system will spawn items at pre-defined locations.
     --
@@ -263,7 +296,7 @@ return {
             }
         },
 
-        --- Loot crates:
+        --- Loot crate locations:
         -- Format: ['tag class'] = { ['tag name'] = { x, y, z, respawn time (in seconds) } }
         --
         crates = {

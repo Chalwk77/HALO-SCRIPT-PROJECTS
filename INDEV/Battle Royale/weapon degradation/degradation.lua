@@ -52,6 +52,8 @@ function weapons:degrade()
         weapon.timer:start()
     end
 
+    -- todo: offset for reloading
+    
     if not reloading(dyn) and isFiring(dyn) then
 
         local meta_id = read_dword(object)
@@ -66,15 +68,16 @@ function weapons:degrade()
         else
 
             local ammo = read_word(object + 0x2B8) -- bullets in clip
-            local reserve = read_word(object + 0x2B6) -- reserve bullets
-            local time_elapsed = weapon.timer:get()
             if (ammo == 0) then
                 return
             end
 
+            local time_elapsed = weapon.timer:get()
             if (time_elapsed >= 0.5) then
 
+                local reserve = read_word(object + 0x2B6) -- reserve bullets
                 local bullets = math.floor(weapon.decay / 10)
+
                 if (bullets > 0) then
                     if (ammo > 0) then
                         print('taking ' .. bullets .. ' bullets from clip')
