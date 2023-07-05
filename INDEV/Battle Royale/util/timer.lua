@@ -16,6 +16,15 @@ function timer:stop()
     self.start_time = nil
 end
 
+function timer:isStarted()
+    return (self.start_time ~= nil)
+end
+
+--weapon.timer:set(time)
+function timer:set(time)
+    self.start_time = clock() - time
+end
+
 function timer:restart()
     self:start()
 end

@@ -138,6 +138,10 @@ function misc:edgeCheck(px, py, pz, bx, by, bz)
     return distance - self.safe_zone_size
 end
 
+function misc:inVehicle(dynamic_player)
+    return (read_dword(dynamic_player + 0x11C) ~= 0xFFFFFFFF)
+end
+
 function misc:getTag(class, name)
     local tag = lookup_tag(class, name)
     return (tag ~= 0 and read_dword(tag + 0xC)) or nil

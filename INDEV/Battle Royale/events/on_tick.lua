@@ -38,6 +38,7 @@ function event:onTick()
         v:crateIntersect()
         v:setSpeed()
         v:spectate()
+        v:degrade()
         v:displaySecondaryHUD()
     end
 

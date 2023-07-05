@@ -23,6 +23,8 @@ function event:onStart()
             return
         end
 
+        self.decay = {}
+
         -- Disable Full Spectrum Vision:
         execute_command('disable_object "' .. 'powerups\\full-spectrum vision"')
 
@@ -49,14 +51,21 @@ function event:onStart()
             end
         end
 
-        local t = {}
+        self.weapon_weights = {}
         for name, speed in pairs(self.weight.weapons) do
             local tag = self:getTag('weap', name)
             if (tag) then
-                t[tag] = speed
+                self.weapon_weights[tag] = speed
             end
         end
-        self.weapon_weights = t
+
+        self.decay_rates = {}
+        for name, rate in pairs(self.weapon_degradation.decay_rate) do
+            local tag = self:getTag('weap', name)
+            if (tag) then
+                self.decay_rates[tag] = rate
+            end
+        end
 
         --self:spawnBarrier()
     end
