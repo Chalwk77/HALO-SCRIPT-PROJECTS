@@ -34,40 +34,72 @@ end
 -- @t: table (self.looting.spoils)
 local function getSpoils(t)
 
-    local chance = 0
-    local chance_table = {}
-    for i, _ in pairs(t) do
-        if (i ~= 0) then
-            chance = chance + i
-            chance_table[i] = chance
-        end
+    local total = 0
+    for k, _ in pairs(t) do
+        total = total + k
     end
 
+    local index = 0
+    local random = rand(1, total + 1)
 
-    -- todo: fix chance calculation bug
-    local spoil
-    local random = rand(1, chance + 1)
-    for i, _ in pairs(chance_table) do
-        if (random <= chance_table[i]) then
-            spoil = t[i]
-            break
+    for k, v in pairs(t) do
+        index = index + k
+        if (random <= index) then
+            return k, v
         end
     end
-
-    return spoil
 end
 
 function crates:openCrate()
 
-    local spoils = getSpoils(self.looting.spoils)
+    local chance, spoils = getSpoils(self.looting.spoils)
 
     if (not spoils) then
         self:newMessage('Something went wrong. Unable to unlock spoils.', 5)
         return
     end
 
-    self:newMessage('You unlocked ' .. spoils.label, 5)
+    self:newMessage('You unlocked ' .. spoils.label .. ' (Chance: ' .. chance .. '%)', 5)
     self:unlock(spoils)
+end
+
+-- Test the loot system:
+function crates:testLoot()
+
+    local iterations = 1000
+
+    local chances = {}
+    for _ = 1, iterations do
+
+        local _, spoils = getSpoils(self.looting.spoils)
+        local label = spoils.label
+
+        if (not chances[label]) then
+            chances[label] = 0
+        end
+
+        chances[label] = chances[label] + 1
+    end
+
+    print(' ')
+    for k, v in pairs(chances) do
+
+        -- k = label
+        -- v = how many times the loot was chosen out of 'iterations'
+
+        print('Label: ' .. k, 'Chosen: ' .. v .. ' times')
+    end
+
+    -- Get the one that was chosen the most:
+    print(' ')
+    local max, label = 0, nil
+    for k, v in pairs(chances) do
+        if (v > max) then
+            max = v
+            label = k
+        end
+    end
+    print('Most chosen: ' .. label .. ' (' .. max .. ' times)')
 end
 
 return crates

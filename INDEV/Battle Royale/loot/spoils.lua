@@ -5,6 +5,8 @@ function spoils:unlock(t)
     local index = t.index
     if (index == 1) then
         -- assign nuke (rocket launcher)
+
+
     elseif (index == 2) then
         -- unlock air strike ability
     elseif (index == 3) then

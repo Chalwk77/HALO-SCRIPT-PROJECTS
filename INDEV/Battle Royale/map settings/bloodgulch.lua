@@ -42,7 +42,7 @@ return {
     -- The minimum amount of players required to start the game:
     -- Default: (2)
     --
-    required_players = 2,
+    required_players = 1,
 
 
     --- Game start delay:
@@ -50,7 +50,7 @@ return {
     -- The start delay will not begin until the required players have joined.
     -- Default (30)
     --
-    start_delay = 2,
+    start_delay = 5,
 
 
     --- Lives:
@@ -179,7 +179,7 @@ return {
         --- Spoils found in loot crates:
         -- Format: [chance] = { label = 'Spoil label (seen in game)' }
         -- To disable a spoil, set its chance to 0.
-        -- [!] Do not touch the index value.
+        -- [!] Do not touch the index value. This is used internally.
         --
         spoils = {
             [1] = {

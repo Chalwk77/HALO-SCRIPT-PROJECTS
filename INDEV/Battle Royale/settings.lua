@@ -1,7 +1,5 @@
 return {
 
-    -- todo: default speed value
-
     -- Lock the server after a game has started:
     -- Default: false
     -- [Note]: This will prevent players from joining mid-game.

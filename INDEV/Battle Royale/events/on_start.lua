@@ -23,6 +23,7 @@ function event:onStart()
             return
         end
 
+        -- Disable Full Spectrum Vision:
         execute_command('disable_object "' .. 'powerups\\full-spectrum vision"')
 
         self.loot = nil

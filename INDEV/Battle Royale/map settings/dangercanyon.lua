@@ -77,6 +77,11 @@ return {
     health_reduction = 1 / 30,
 
 
+    --- Default running speed:
+    -- Default (1)
+    default_running_speed = 1,
+
+
     --- Sky spawn coordinates:
     -- When the game begins, players will be randomly assigned to one of these coordinates.
     -- Coordinates are in the format: {x, y, z, rotation, height}.
