@@ -42,8 +42,9 @@ function weapons:degrade()
 
     self:addWeapon(object, weapon)
 
+    local is_reloading = reloading(dyn)
     local in_vehicle = self:inVehicle(dyn)
-    if (in_vehicle) then
+    if (in_vehicle or is_reloading) then
         return
     end
 
@@ -52,9 +53,7 @@ function weapons:degrade()
         weapon.timer:start()
     end
 
-    -- todo: offset for reloading
-    
-    if not reloading(dyn) and isFiring(dyn) then
+    if (isFiring(dyn)) then
 
         local meta_id = read_dword(object)
         local rate = self.decay_rates[meta_id]
@@ -80,10 +79,10 @@ function weapons:degrade()
 
                 if (bullets > 0) then
                     if (ammo > 0) then
-                        print('taking ' .. bullets .. ' bullets from clip')
+                        --print('taking ' .. bullets .. ' bullets from clip')
                         execute_command('mag ' .. id .. ' ' .. ammo - bullets)
                     elseif (reserve > 0) then
-                        print('taking ' .. bullets .. ' bullets from reserve')
+                        --print('taking ' .. bullets .. ' bullets from reserve')
                         execute_command('ammo ' .. id .. ' ' .. reserve - bullets)
                     end
                 end
@@ -91,7 +90,7 @@ function weapons:degrade()
             end
 
             local decay = math.floor(weapon.decay)
-            print('DECAY: ' .. decay, decay % 15 == 1)
+            --print('DECAY: ' .. decay, decay % 15 == 1)
 
             if (decay >= 15 and decay % 15 == 0) then
                 self:newMessage('Your weapon is at ' .. decay .. '% decay', 15)
