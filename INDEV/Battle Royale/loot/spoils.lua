@@ -1,33 +1,47 @@
 local spoils = {}
 
-function spoils:unlock(t)
+function spoils:giveNuke(spoil)
+    print('Executing spoils:giveNuke()', self.name)
+end
 
-    local index = t.index
-    if (index == 1) then
-        -- assign nuke (rocket launcher)
+function spoils:enableAirstrike(spoil)
+    print('Executing spoils:enableAirstrike()', self.name)
+end
 
+function spoils:giveStunGrenades(spoil)
+    print('Executing spoils:giveStunGrenades()', self.name)
+end
 
-    elseif (index == 2) then
-        -- unlock air strike ability
-    elseif (index == 3) then
-        -- give stun grenades
-    elseif (index == 4) then
-        -- assign grenade launcher (assault rifle)
-    elseif (index == 5) then
-        -- give weapon parts
-    elseif (index == 6) then
-        -- give weapon
-    elseif (index == 7) then
-        -- give speed boost
-    elseif (index == 8) then
-        -- give ammo
-    elseif (index == 9) then
-        -- give active camo
-    elseif (index == 10) then
-        -- give over shield
-    elseif (index == 11) then
-        -- give health pack
-    end
+function spoils:giveGrenadeLauncher(spoil)
+    print('Executing spoils:giveGrenadeLauncher()', self.name)
+end
+
+function spoils:giveWeaponParts(spoil)
+    print('Executing spoils:giveWeaponParts()', self.name)
+end
+
+function spoils:giveRandomWeapon(spoil)
+    print('Executing spoils:giveRandomWeapon()', self.name)
+end
+
+function spoils:giveSpeedBoost(spoil)
+    print('Executing spoils:giveSpeedBoost()', self.name)
+end
+
+function spoils:giveAmmo(spoil)
+    print('Executing spoils:giveAmmo()', self.name)
+end
+
+function spoils:giveCamo(spoil)
+    print('Executing spoils:giveCamo()', self.name)
+end
+
+function spoils:giveOvershield(spoil)
+    print('Executing spoils:giveOvershield()', self.name)
+end
+
+function spoils:giveHealthBoost(spoil)
+    print('Executing spoils:giveHealthBoost()', self.name)
 end
 
 return spoils

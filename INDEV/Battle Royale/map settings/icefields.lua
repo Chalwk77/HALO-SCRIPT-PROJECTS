@@ -180,52 +180,52 @@ return {
         --- Spoils found in loot crates:
         -- Format: [chance] = { label = 'Spoil label (seen in game)' }
         -- To disable a spoil, set its chance to 0.
-        -- [!] Do not touch the index value.
+        -- [!] Do not touch the '_function__' value. It is used internally.
         --
         spoils = {
             [1] = {
-                index = 1,
-                label = 'Nuke'
+                label = 'Nuke',
+                _function_ = 'giveNuke'
             },
             [5] = {
-                index = 2,
-                label = 'Air Strike Ability'
+                label = 'Air Strike Ability',
+                _function_ = 'enableAirstrike'
             },
             [10] = {
-                index = 3,
-                label = 'Stun Grenade(s)'
+                label = 'Stun Grenade(s)',
+                _function_ = 'giveStunGrenades'
             },
             [15] = {
-                index = 4,
-                label = 'Grenade Launcher'
+                label = 'Grenade Launcher',
+                _function_ = 'giveGrenadeLauncher'
             },
             [25] = {
-                index = 5,
-                label = 'Weapon Parts'
+                label = 'Weapon Parts',
+                _function_ = 'giveWeaponParts'
             },
             [30] = {
-                index = 6,
-                label = 'Weapon(s)'
+                label = 'Weapon(s)',
+                _function_ = 'giveRandomWeapon'
             },
             [40] = {
-                index = 7,
-                label = '$speedX Speed Boost'
+                label = '$speedX Speed Boost',
+                _function_ = 'giveSpeedBoost'
             },
             [45] = {
-                index = 8,
-                label = 'Ammo'
+                label = 'Ammo',
+                _function_ = 'giveAmmo'
             },
             [50] = {
-                index = 9,
-                label = 'Active Camo'
+                label = 'Active Camo',
+                _function_ = 'giveCamo'
             },
             [55] = {
-                index = 10,
-                label = 'Overshield'
+                label = 'Overshield',
+                _function_ = 'giveOvershield'
             },
             [60] = {
-                index = 11,
-                label = 'Health Boost'
+                label = 'Health Boost',
+                _function_ = 'giveHealthBoost'
             }
         },
 

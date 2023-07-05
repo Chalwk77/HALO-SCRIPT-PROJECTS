@@ -1,7 +1,7 @@
 # Battle Royale (WIP)
 
 Planned features:
-- [ ] Shrinking "safe zone" boundary (**WIP**):
+- [ ] Shrinking "safe zone" boundary (**WIP**)
   - The safe zone will shrink over time, forcing players to move closer together. (**done**)
   - Players outside the safe zone will take damage over time. (**done**)
   - The safe zone will be marked on the map with flag poles (**WIP**)
@@ -11,7 +11,7 @@ Planned features:
 - [x] Limited lives: (**done**)
   - Players will have a limited number of lives.
   - Players will be able to spectate other players after they die.
-- [ ] Randomized loot (**WIP**):
+- [ ] Randomized loot (**WIP**)
   - Loot will be randomized and spawn in random locations (**done**)
   - Loot includes ammo, weapons, powerups and special abilities (**WIP**)
     - Nuke
@@ -31,14 +31,14 @@ Planned features:
 - [x] Weapon weights: (**done**)
   - Weapons will have weights, and players will have a weight limit.
   - Players will be able to drop weapons to reduce their weight.
-- [ ] Weapons (**WIP**):
+- [ ] Weapons (**WIP**)
   - Players will start with no weapons. (**done**)
   - Weapons will have different stats, such as damage and degradation. (**WIP**)
   - You will have to find weapon 'parts' to repair weapons. (**WIP**)
-- [ ] Player attributes (**WIP**):
+- [ ] Player attributes (**WIP**)
   - Players will have attributes such as extra strength, speed, and health. (**WIP**)
   - Attributes will be affected by the player's weight.
-- [ ] Different types of ammo (**WIP**):
+- [ ] Different types of ammo (**WIP**)
   - Armoured-piercing, explosive, nukes etc.
 - [ ] Support for all stock maps:
   - It currently supports:
@@ -48,4 +48,4 @@ Planned features:
     - `deathisland`, `gephyrophobia`
 
 # Progress:
-![alt text](https://progress-bar.dev/100/?title=Progress)
+![alt text](https://progress-bar.dev/65/?title=Progress)

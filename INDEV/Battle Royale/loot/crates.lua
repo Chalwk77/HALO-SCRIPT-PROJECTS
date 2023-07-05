@@ -60,7 +60,7 @@ function crates:openCrate()
     end
 
     self:newMessage('You unlocked ' .. spoils.label .. ' (Chance: ' .. chance .. '%)', 5)
-    self:unlock(spoils)
+    self[spoils._function_](self, spoils)
 end
 
 -- Test the loot system:
