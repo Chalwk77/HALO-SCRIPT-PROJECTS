@@ -20,6 +20,7 @@ local BattleRoyale = {
     dependencies = {
         ['./Battle Royale/commands/'] = {
             'get_spawn_coords',
+            'repair_weapons',
             'restart'
         },
         ['./Battle Royale/countdown/'] = {

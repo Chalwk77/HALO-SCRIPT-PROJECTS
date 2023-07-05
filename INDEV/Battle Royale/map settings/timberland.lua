@@ -252,7 +252,7 @@ return {
 
             --- WEAPON PARTS:
             [25] = {
-                label = 'Weapon Parts',
+                label = 'Weapon Parts! Use /repair',
                 _function_ = 'giveWeaponParts'
             },
 

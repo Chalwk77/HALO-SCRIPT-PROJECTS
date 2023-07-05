@@ -8,6 +8,8 @@ function event:onDeath(victim)
 
     victim = tonumber(victim)
     local player = self.players[victim]
+    player.weapon_parts = false -- weapons parts loot
+
     if (not player.can_spectate) then
         return
     end

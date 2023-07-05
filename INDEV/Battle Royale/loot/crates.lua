@@ -64,6 +64,7 @@ function crates:openCrate()
         error('Unable to execute function "' .. f.. '", not found.')
         return
     end
+
     self[f](self, spoils)
 end
 

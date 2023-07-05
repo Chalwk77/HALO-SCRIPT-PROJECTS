@@ -31,6 +31,15 @@ return {
             help = 'Syntax: /$cmd'
         },
 
+        -- This command is used to repair your weapons:
+        ['repair_weapons'] = {
+            enabled = true,
+            name = 'repair',
+            description = 'Repair your weapons',
+            level = -1,
+            help = 'Syntax: /$cmd'
+        },
+
         -- Useful command to get your map coordinates:
         -- Used to generate sky-spawn or loot location coordinates.
         -- Each set of coordinates will be printed to the servers console.

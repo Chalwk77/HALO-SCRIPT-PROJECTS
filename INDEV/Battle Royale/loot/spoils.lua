@@ -3,27 +3,35 @@ local spoils = {}
 -- Gives the player a nuke.
 -- This will kill all players within a X world/unit radius.
 function spoils:giveNuke(args)
+    local label = args.label
     local radius = args.radius
+    self:newMessage('You unlocked ' .. label, 5)
 end
 
 function spoils:enableAirstrike(args)
-    print('Executing spoils:enableAirstrike()', self.name)
+    local label = args.label
+    self:newMessage('You unlocked ' .. label, 5)
 end
 
 function spoils:giveStunGrenades(args)
-    print('Executing spoils:giveStunGrenades()', self.name)
+    local label = args.label
+    self:newMessage('You unlocked ' .. label, 5)
 end
 
 function spoils:giveGrenadeLauncher(args)
-    print('Executing spoils:giveGrenadeLauncher()', self.name)
+    local label = args.label
+    self:newMessage('You unlocked ' .. label, 5)
 end
 
 function spoils:giveWeaponParts(args)
-    print('Executing spoils:giveWeaponParts()', self.name)
+    self.weapon_parts = true
+    local label = args.label
+    self:newMessage('You unlocked ' .. label, 5)
 end
 
 function spoils:giveRandomWeapon(args)
-    print('Executing spoils:giveRandomWeapon()', self.name)
+    local label = args.label
+    self:newMessage('You unlocked ' .. label, 5)
 end
 
 function spoils:giveSpeedBoost(args)
@@ -49,19 +57,23 @@ function spoils:giveSpeedBoost(args)
 end
 
 function spoils:giveAmmo(args)
-    print('Executing spoils:giveAmmo()', self.name)
+    local label = args.label
+    self:newMessage('You unlocked ' .. label, 5)
 end
 
 function spoils:giveCamo(args)
-    print('Executing spoils:giveCamo()', self.name)
+    local label = args.label
+    self:newMessage('You unlocked ' .. label, 5)
 end
 
 function spoils:giveOvershield(args)
-    print('Executing spoils:giveOvershield()', self.name)
+    local label = args.label
+    self:newMessage('You unlocked ' .. label, 5)
 end
 
 function spoils:giveHealthBoost(args)
-    print('Executing spoils:giveHealthBoost()', self.name)
+    local label = args.label
+    self:newMessage('You unlocked ' .. label, 5)
 end
 
 return spoils
