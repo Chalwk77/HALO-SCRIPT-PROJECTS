@@ -49,6 +49,7 @@ end
 -- Sets the player's speed:
 function misc:setSpeed()
 
+    local id = self.id
     local weight = self.weight.enabled
     local default = self.default_running_speed
 
@@ -64,9 +65,16 @@ function misc:setSpeed()
     elseif (not speed_timer and weight) then
         local speed = self:getSpeed()
         self.speed.current = speed
+    elseif (not player_alive(id)) then
+        return
     end
 
-    execute_command('s ' .. self.id .. ' ' .. self.speed.current)
+    local player = get_player(id)
+    local current_speed = read_float(player + 0x6C)
+    if (current_speed == self.speed.current) then
+        return
+    end
+    write_float(player + 0x6C, self.speed.current)
 end
 
 -- Gets the player's rotation based on their aim:

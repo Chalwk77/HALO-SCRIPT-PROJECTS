@@ -36,7 +36,7 @@ function event:onTick()
 
     for _, v in pairs(self.players) do
         v:crateIntersect()
-        v:setSpeed()
+        v:setSpeed() --todo: move this to a function called every 1 second.
         v:spectate()
         v:degrade()
         v:displaySecondaryHUD()

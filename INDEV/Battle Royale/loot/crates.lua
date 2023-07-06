@@ -65,7 +65,7 @@ function crates:openCrate()
         return
     end
 
-    self[f](self, spoils)
+    self['f'](self, spoils)
 end
 
 -- Test the loot system:

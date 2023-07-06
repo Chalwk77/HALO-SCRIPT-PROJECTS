@@ -1,11 +1,11 @@
 local weapons = {}
 
-local function isFiring(dyn)
-    return (read_float(dyn + 0x490) == 1)
+local function isFiring(dynamic_player)
+    return (read_byte(dynamic_player + 0x2A5) == 1)
 end
 
-local function reloading(dyn)
-    return (read_byte(dyn + 0x2A4) == 5)
+local function reloading(dynamic_player)
+    return (read_byte(dynamic_player + 0x2A4) == 5)
 end
 
 function weapons:getWeapon(object)
@@ -80,10 +80,10 @@ function weapons:degrade()
 
                 if (bullets > 0) then
                     if (ammo > 0) then
-                        --print('taking ' .. bullets .. ' bullets from clip')
+                        print('taking ' .. bullets .. ' bullets from clip')
                         execute_command('mag ' .. id .. ' ' .. ammo - bullets)
                     elseif (reserve > 0) then
-                        --print('taking ' .. bullets .. ' bullets from reserve')
+                        print('taking ' .. bullets .. ' bullets from reserve')
                         execute_command('ammo ' .. id .. ' ' .. reserve - bullets)
                     end
                 end
@@ -91,7 +91,7 @@ function weapons:degrade()
             end
 
             local decay = math.floor(weapon.decay)
-            --print('DECAY: ' .. decay)
+            print('DECAY: ' .. decay)
 
             if (decay >= 15) then
 
