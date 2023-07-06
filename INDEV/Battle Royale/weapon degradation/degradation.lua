@@ -59,7 +59,7 @@ function weapons:degrade()
         local meta_id = read_dword(object)
         local rate = self.decay_rates[meta_id]
 
-        weapon.decay = weapon.decay + rate
+        weapon.decay = weapon.decay + (rate / 30)
 
         if (weapon.decay >= 100) then
             weapon.decay = 100
@@ -67,31 +67,45 @@ function weapons:degrade()
             destroy_object(weapon.weapon)
         else
 
-            local ammo = read_word(object + 0x2B8) -- bullets in clip
-            if (ammo == 0) then
-                return
-            end
-
             local time_elapsed = weapon.timer:get()
             if (time_elapsed >= 0.5) then
 
-                local reserve = read_word(object + 0x2B6) -- reserve bullets
-                local bullets = math.floor(weapon.decay / 10)
+                --- bullets in non-battery weapon clip:
+                local ammo = read_word(object + 0x2B8)
 
-                if (bullets > 0) then
-                    if (ammo > 0) then
-                        print('taking ' .. bullets .. ' bullets from clip')
-                        execute_command('mag ' .. id .. ' ' .. ammo - bullets)
-                    elseif (reserve > 0) then
-                        print('taking ' .. bullets .. ' bullets from reserve')
-                        execute_command('ammo ' .. id .. ' ' .. reserve - bullets)
-                    end
+                --- current battery level (0=full, 1=empty):
+                local battery = read_float(object + 0x240)
+
+                --- energy bullets in battery:
+                local energy_bullets = math.floor(battery * 100)
+
+                --- energy bullets to take:
+                local energy_bullets_to_take = math.floor(energy_bullets - (energy_bullets * (weapon.decay / 100)))
+                local offset = rand(35, 50 + 1)
+                energy_bullets_to_take = energy_bullets_to_take - offset
+
+                if (energy_bullets_to_take > energy_bullets) then
+                    energy_bullets_to_take = energy_bullets
                 end
+
+                --- Non-battery weapons:
+                local bullets = math.floor(weapon.decay / 10)
+                if (bullets > 0 and ammo > 0 and ammo - bullets > 0) then
+                    --print('taking ' .. bullets .. ' bullets from clip')
+                    execute_command('mag ' .. id .. ' ' .. ammo - bullets)
+                end
+
+                --- Battery weapons:
+                if (energy_bullets_to_take > 0) then
+                    --print('taking ' .. energy_bullets_to_take .. ' energy bullets from battery')
+                    execute_command('battery ' .. id .. ' ' .. 100 - energy_bullets - energy_bullets_to_take .. ' 0')
+                end
+
                 weapon.timer:restart()
             end
 
             local decay = math.floor(weapon.decay)
-            print('DECAY: ' .. decay)
+            --print('DECAY: ' .. decay)
 
             if (decay >= 15) then
 
