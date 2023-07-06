@@ -180,11 +180,11 @@ return {
         -- All weapons start with a decay value of 0 and a max decay value of 100.
         -- The lower the percentage value, the faster the weapon will degrade.
         -- The percentage is added to the weapons decay value every 1/30th second (while firing).
-        -- Example: 0.066%*30 = 1.98% per second.
+        -- Example: 1.98% = 0.066%*30 per second.
 
-            -- 1.98% every second (0.066% every 1/30th second)
-            ['weapons\\pistol\\pistol'] = 1.98,
-            ['weapons\\needler\\mp_needler'] = 1.98,
+            -- 2.12% every second (0.070% every 1/30th second)
+            ['weapons\\pistol\\pistol'] = 2.12,
+            ['weapons\\needler\\mp_needler'] = 2.12,
 
             -- 2.10% every second (0.07% every 1/30th second)
             ['weapons\\flamethrower\\flamethrower'] = 2.10,
@@ -196,11 +196,11 @@ return {
             -- 1.90% every second (0.063% every 1/30th second)
             ['weapons\\shotgun\\shotgun'] = 1.90,
 
-            -- 2.30% every second (0.078% every 1/30th second)
-            ['weapons\\assault rifle\\assault rifle'] = 2.30,
+            -- 0.45% every second (0.015% every 1/30th second)
+            ['weapons\\assault rifle\\assault rifle'] = 0.45,
 
             -- 2.45% every second (0.078% every 1/30th second)
-            ['weapons\\sniper rifle\\sniper rifle'] = 2.45,
+            ['weapons\\sniper rifle\\sniper rifle'] = 5.0,
             ['weapons\\plasma_cannon\\plasma_cannon'] = 2.45,
 
             -- 2.35% every second (0.078% every 1/30th second)

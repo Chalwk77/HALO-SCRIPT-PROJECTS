@@ -183,27 +183,31 @@ return {
             -- All weapons start with a decay value of 0 and a max decay value of 100.
             -- The lower the percentage value, the faster the weapon will degrade.
             -- The percentage is added to the weapons decay value every 1/30th second (while firing).
-            -- Example: 0.066% (1/15) will add 1.98% (1/15 * 30) to the weapons decay value every second.
+            -- Example: 0.066%*30 = 1.98% per second.
 
-            -- 0.066% = 1/15
-            ['weapons\\pistol\\pistol'] = 1 / 15,
-            ['weapons\\rocket launcher\\rocket launcher'] = 1 / 15,
+            -- 1.98% every second (0.066% every 1/30th second)
+            ['weapons\\pistol\\pistol'] = 1.98,
+            ['weapons\\needler\\mp_needler'] = 1.98,
 
-            -- 0.02% = 1/50
-            ['weapons\\needler\\mp_needler'] = 1 / 50,
-            ['weapons\\flamethrower\\flamethrower'] = 1 / 50,
-            ['weapons\\plasma rifle\\plasma rifle'] = 1 / 50,
-            ['weapons\\plasma pistol\\plasma pistol'] = 1 / 50,
+            -- 2.10% every second (0.07% every 1/30th second)
+            ['weapons\\flamethrower\\flamethrower'] = 2.10,
 
-            -- 0.05% = 1/20
-            ['weapons\\shotgun\\shotgun'] = 1 / 20,
+            -- 1.20% every second (0.04% every 1/30th second)
+            ['weapons\\plasma rifle\\plasma rifle'] = 1.2,
+            ['weapons\\plasma pistol\\plasma pistol'] = 1.2,
 
-            -- 0.1% = 1/10
-            ['weapons\\assault rifle\\assault rifle'] = 1 / 10,
+            -- 1.90% every second (0.063% every 1/30th second)
+            ['weapons\\shotgun\\shotgun'] = 1.90,
 
-            -- 0.018% = 1/55
-            ['weapons\\sniper rifle\\sniper rifle'] = 1 / 55,
-            ['weapons\\plasma_cannon\\plasma_cannon'] = 1 / 55,
+            -- 2.30% every second (0.078% every 1/30th second)
+            ['weapons\\assault rifle\\assault rifle'] = 2.30,
+
+            -- 2.45% every second (0.078% every 1/30th second)
+            ['weapons\\sniper rifle\\sniper rifle'] = 2.45,
+            ['weapons\\plasma_cannon\\plasma_cannon'] = 2.45,
+
+            -- 2.35% every second (0.078% every 1/30th second)
+            ['weapons\\rocket launcher\\rocket launcher'] = 2.35,
         }
     },
 
