@@ -43,7 +43,8 @@ Planned features:
   - Players will have attributes such as extra strength, speed, and health. (**WIP**)
   - Attributes will be affected by the player's weight.
 - [ ] Different types of ammo (**WIP**)
-  - Armoured-piercing, explosive, nukes etc.
+  - Armoured-piercing, explosive, nukes
+  - Golden bullets (one shot kill)
 - [ ] Support for all stock maps:
   - It currently supports:
     - `timberland`, `bloodgulch`, 

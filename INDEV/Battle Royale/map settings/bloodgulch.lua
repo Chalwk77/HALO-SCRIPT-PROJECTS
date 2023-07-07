@@ -49,7 +49,7 @@ return {
     -- The start delay will not begin until the required players have joined.
     -- Default (30)
     --
-    start_delay = 2,
+    start_delay = 1,
 
 
     --- Lives:
@@ -197,7 +197,7 @@ return {
             ['weapons\\shotgun\\shotgun'] = 1.90,
 
             -- 0.45% every second (0.015% every 1/30th second)
-            ['weapons\\assault rifle\\assault rifle'] = 0.45,
+            ['weapons\\assault rifle\\assault rifle'] = 3.45,
 
             -- 2.45% every second (0.078% every 1/30th second)
             ['weapons\\sniper rifle\\sniper rifle'] = 5.0,
