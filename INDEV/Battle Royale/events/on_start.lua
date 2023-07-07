@@ -26,8 +26,6 @@ function event:onStart()
         self.death_message_address = sig_scan("8B42348A8C28D500000084C9") + 3
         self.original_death_message_address = read_dword(self.death_message_address)
 
-        self.decay = {}
-
         -- Disable Full Spectrum Vision:
         execute_command('disable_object "' .. 'powerups\\full-spectrum vision"')
 

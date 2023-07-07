@@ -38,6 +38,7 @@ function event:onTick()
         v:crateIntersect()
         v:setSpeed() --todo: move this to a function called every 1 second.
         v:spectate()
+        v:newWeapon()
         v:degrade()
         v:displaySecondaryHUD()
     end

@@ -2,51 +2,46 @@
 
 Planned features:
 - [ ] Shrinking "safe zone" boundary (**WIP**)
-  - The safe zone will shrink over time, forcing players to move closer together. (**done**)
-  - Players outside the safe zone will take damage over time. (**done**)
-  - The safe zone will be marked on the map with flag poles (**WIP**)
-- [x] Spectator mode:  (**done**)
-  - Players will be able to spectate other players after they die.
-  - They will be invisible, invulnerable, and unable to interact with the world.
-- [x] Limited lives: (**done**)
-  - Players will have a limited number of lives.
-  - Players will be able to spectate other players after they die.
+  - [x] The safe zone will shrink over time, forcing players to move closer together.
+  - [x] Players outside the safe zone will take damage over time.
+  - [ ] The safe zone will be marked on the map with flag poles
+- [x] Spectator mode:
+  - [x] Players will be able to spectate other players after they die.
+  - [x] They will be invisible, invulnerable, and unable to interact with the world.
+- [x] Limited lives:
+  - [x] Players will have a limited number of lives.
+  - [x] Players will be able to spectate other players after they die.
 - [ ] Randomized loot (**WIP**)
-  - Loot will be randomized and spawn in random locations (**done**)
-  - Loot includes ammo, weapons, powerups and special abilities (**WIP**)
-    - Nuke
-    - Stun grenades
-    - Air Strike ability
-    - Weapon parts (for weapon repair system)
-    - Ammo (different types)
-    - Weapons (different types)
-    - Grenade launcher
-    - Health boost (50%, 100%, 150%, 200%)
-    - Speed boost (1.2, 1.3, 1.4, 1.5) (**done**)
-- [x] Sky spawn system: (**done**)
-  - Players will spawn in the sky and fall to the ground.
-  - Players will be invulnerable until they land.
-- [x] Randomized player spawn locations: (**done**)
-  - No two players will spawn in the same location.
-- [x] Weapon weights: (**done**)
-  - Weapons will have weights, and players will have a weight limit.
-  - Players will be able to drop weapons to reduce their weight.
-- [x] Weapon degradation: (**done**)
-  - Weapons will degrade over time.
-  - Weapons will have a limited number of shots before they break.
-- [ ] Weapons (**WIP**)
-  - Players will start with no weapons. (**done**)
-  - Weapons will have different stats, such as damage and degradation. (**WIP**)
-  - You will have to find weapon 'parts' to repair weapons. (**WIP**)
-- [ ] Player attributes (**WIP**)
-  - Players will have attributes such as extra strength, speed, and health. (**WIP**)
-  - Attributes will be affected by the player's weight.
+  - [x] Loot will be randomized and spawn in random locations
+  - Loot includes ammo:
+    - [ ] Nuke
+    - [ ] Stun grenades
+    - [ ] Air Strike ability
+    - [x] Weapon parts (for weapon repair system)
+    - [ ] Ammo (different types)
+    - [ ] Weapons (different types)
+    - [ ] Grenade launcher
+    - [x] Health boost (50%, 100%, 150%, 200%)
+    - [x] Speed boost (1.2, 1.3, 1.4, 1.5)
+- [x] Sky spawn system:
+  - [x] Players will spawn in the sky and fall to the ground.
+  - [x] Players will be invulnerable until they land.
+  - [x] No two players will spawn in the same location.
+- [x] Weapon weights:
+  - [x] Weapons will have weights, and players will have a weight limit.
+  - [x] Players will be able to drop weapons to reduce their weight.
+- [x] Weapon degradation:
+  - [x] Weapons will degrade over time.
+  - [x] Durability decreases when: *shooting*, *reloading* or *melee*.
+- [x] Weapons (general):
+  - [x] Players will start with no weapons.
+  - [x] You will have to find weapon *parts* to repair damaged weapons.
 - [ ] Different types of ammo (**WIP**)
   - Armoured-piercing, explosive, nukes
-  - Golden bullets (one shot kill)
-- [ ] Support for all stock maps:
+  - Golden bullets (one-shot kill)
+- [ ] Support for all stock maps: (**WIP**)
   - It currently supports:
-    - `timberland`, `bloodgulch`, 
+    - `timberland`, `bloodgulch`,
     - `dangercanyon`, `icefields`
     - `infinity`, `sidewinder`
     - `deathisland`, `gephyrophobia`

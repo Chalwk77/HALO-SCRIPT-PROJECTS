@@ -19,20 +19,6 @@ local function overheating(object)
     return (read_bit(object + 0x22C, 0) == 1)
 end
 
-function weapons:getWeapon(object)
-    return self.decay[object]
-end
-
-function weapons:addWeapon(object, weapon)
-    self.decay[object] = self.decay[object] or {
-        object = object,
-        weapon = weapon,
-        timer = self:new(),
-        durability = self.weapon_degradation.max_durability, -- 0% = broken, 100% = new
-        notify = true,
-    }
-end
-
 local function getAmmunition(object)
 
     -- non-energy weapons:
@@ -110,11 +96,9 @@ function weapons:degrade()
     if (weapon == 0xFFFFFFFF) then
         return
     elseif (object == 0) then
-        self.decay[object] = nil
+        self.weapons[object] = nil
         return
     end
-
-    self:addWeapon(object, weapon)
 
     weapon = self:getWeapon(object)
 

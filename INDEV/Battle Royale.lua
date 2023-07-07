@@ -69,6 +69,9 @@ local BattleRoyale = {
         ['./Battle Royale/weapon degradation/'] = {
             'degradation'
         },
+        ['./Battle Royale/weapons/'] = {
+            'weapons'
+        },
         ['./Battle Royale/weight/'] = {
             'weapons'
         }

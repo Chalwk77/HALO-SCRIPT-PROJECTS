@@ -39,7 +39,7 @@ function Command:repairsWeapons(player)
 
         if (this_weapon ~= 0xFFFFFFFF and object ~= 0) then
 
-            local weapon = self.decay[object]
+            local weapon = self.weapons[object]
             local max = self.weapon_degradation.max_durability
 
             if (weapon and weapon.durability < max) then
@@ -54,7 +54,7 @@ function Command:repairsWeapons(player)
 
     player.weapon_parts = nil
     if (repaired) then
-        player:newMessage('Weapon repaired!', 5)
+        player:newMessage('Weapons repaired!', 5)
     else
         player:newMessage('Nothing was repaired!', 5)
     end
