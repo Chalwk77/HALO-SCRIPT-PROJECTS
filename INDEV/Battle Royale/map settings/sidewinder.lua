@@ -167,11 +167,16 @@ return {
     },
 
 
-    --- Weapon degradation (decay):
-    -- Weapons will jam over time, as they degrade.
+    --- Weapon degradation (durability):
+    -- Weapons will jam over time, as the durability decreases.
     -- They will progressively jam more often as they get closer to breaking.
+    --
     -- When a weapon jams, it will not fire until it is unjammed.
     -- The player will have to unjam the weapon by pressing the melee button.
+    --
+    -- Durability will decrease when: You shoot, reload or melee.
+    -- Durability will decrease faster when the weapon is fired and reloading, the former being the most significant.
+
     weapon_degradation = {
 
         -- If enabled, weapons will degrade over time.
@@ -179,36 +184,33 @@ return {
         --
         enabled = true,
 
-        -- Weapons cannot jam if the decay is below this value:
-        min = 10,
+        -- Maximum durability value:
+        max_durability = 100,
 
-        -- Weapons will always jam if the decay is above this value:
-        max = 100,
+        -- Jamming will never occur above this value:
+        no_jam_before = 90,
 
-        -- Format: ['tag name'] = decay rate
+        --- Durability decay rates:
+        -- Format: ['tag name'] = durability decay rate
+        -- Be careful not to set the decay rate too high!
+        -- Max recommended decay rate: 50
+        -- Do not set values lower than 0.1
         decay_rate = {
 
-            -- All weapons start with a decay value of 0 and a max decay value of 100.
-            -- The higher the percentage value, the faster the weapon will degrade.
-            -- Example: 1.98% = 0.066*30% per 30 ticks.
-            -- [note]: Weapons will only decay while in use (firing, but not reloading).
+            ['weapons\\plasma rifle\\plasma rifle'] = 1.0,
+            ['weapons\\plasma pistol\\plasma pistol'] = 1.0,
 
-            ['weapons\\plasma rifle\\plasma rifle'] = 3.0,
-            ['weapons\\plasma pistol\\plasma pistol'] = 3.0,
+            ['weapons\\assault rifle\\assault rifle'] = 3.10,
 
-            ['weapons\\shotgun\\shotgun'] = 4.5,
+            ['weapons\\pistol\\pistol'] = 4.10,
+            ['weapons\\needler\\mp_needler'] = 4.50,
 
-            ['weapons\\flamethrower\\flamethrower'] = 5.0,
+            ['weapons\\shotgun\\shotgun'] = 5.05,
+            ['weapons\\flamethrower\\flamethrower'] = 5.15,
 
-            ['weapons\\pistol\\pistol'] = 5.3,
-            ['weapons\\needler\\mp_needler'] = 5.3,
-
-            ['weapons\\assault rifle\\assault rifle'] = 5.5,
-
-            ['weapons\\rocket launcher\\rocket launcher'] = 10.0,
-
-            ['weapons\\sniper rifle\\sniper rifle'] = 10.50,
-            ['weapons\\plasma_cannon\\plasma_cannon'] = 10.50
+            ['weapons\\sniper rifle\\sniper rifle'] = 23.0,
+            ['weapons\\plasma_cannon\\plasma_cannon'] = 25.0,
+            ['weapons\\rocket launcher\\rocket launcher'] = 40.0,
         }
     },
 

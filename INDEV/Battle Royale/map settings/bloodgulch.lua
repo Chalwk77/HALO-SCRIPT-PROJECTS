@@ -170,9 +170,13 @@ return {
     --- Weapon degradation (durability):
     -- Weapons will jam over time, as the durability decreases.
     -- They will progressively jam more often as they get closer to breaking.
+    --
     -- When a weapon jams, it will not fire until it is unjammed.
     -- The player will have to unjam the weapon by pressing the melee button.
-    -- Durability will decrease faster when the weapon is fired.
+    --
+    -- Durability will decrease when: You shoot, reload or melee.
+    -- Durability will decrease faster when the weapon is fired and reloading, the former being the most significant.
+
     weapon_degradation = {
 
         -- If enabled, weapons will degrade over time.
@@ -183,33 +187,30 @@ return {
         -- Maximum durability value:
         max_durability = 100,
 
-
         -- Jamming will never occur above this value:
         no_jam_before = 90,
 
-
         --- Durability decay rates:
         -- Format: ['tag name'] = durability decay rate
+        -- Be careful not to set the decay rate too high!
+        -- Max recommended decay rate: 50
+        -- Do not set values lower than 0.1
         decay_rate = {
-
-            -- Be careful not to set the decay rate too high!
-            -- Max recommended decay rate: 15.0
-            -- Do not set values lower than 0.1
 
             ['weapons\\plasma rifle\\plasma rifle'] = 1.0,
             ['weapons\\plasma pistol\\plasma pistol'] = 1.0,
 
             ['weapons\\assault rifle\\assault rifle'] = 3.10,
 
-            ['weapons\\pistol\\pistol'] = 4.1,
+            ['weapons\\pistol\\pistol'] = 4.10,
             ['weapons\\needler\\mp_needler'] = 4.50,
 
-            ['weapons\\shotgun\\shotgun'] = 5.0,
-            ['weapons\\flamethrower\\flamethrower'] = 5.0,
+            ['weapons\\shotgun\\shotgun'] = 5.05,
+            ['weapons\\flamethrower\\flamethrower'] = 5.15,
 
             ['weapons\\sniper rifle\\sniper rifle'] = 23.0,
             ['weapons\\plasma_cannon\\plasma_cannon'] = 25.0,
-            ['weapons\\rocket launcher\\rocket launcher'] = 45.0,
+            ['weapons\\rocket launcher\\rocket launcher'] = 40.0,
         }
     },
 

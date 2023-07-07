@@ -117,11 +117,13 @@ function weapons:degrade()
 
     weapon = self:getWeapon(object)
     local jammed = self:jamWeapon(weapon, dyn)
+    local melee = meleeButton(dyn)
 
-    if (not jammed and not in_vehicle) and (is_firing or is_reloading) then
+    if (not jammed and not in_vehicle) and (is_firing or is_reloading or melee) then
 
         local meta_id = read_dword(object) -- weapon tag id
         local rate = self.decay_rates[meta_id]
+
         rate = (is_reloading and rate / 5) or rate
 
         if (weapon.durability <= 0) then
