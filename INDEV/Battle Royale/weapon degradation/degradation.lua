@@ -47,8 +47,6 @@ function weapons:degrade()
         self.decay[object] = nil
     end
 
-    print(read_word(dyn + 0x208))
-
     self:addWeapon(object, weapon) -- add weapon to decay table
 
     local is_reloading = reloading(dyn)
@@ -111,7 +109,7 @@ function weapons:isJammed(weapon, dyn)
         return false
     end
 
-    --todo add support for energy weapons (energy weapons cannot be reloaded!)
+    --todo add support for energy weapons
 
     local melee = meleeButton(dyn)
     if (not melee) then
