@@ -21,7 +21,7 @@ function weapons:addWeapon(object, weapon)
         object = object,
         weapon = weapon,
         timer = self:new(),
-        durability = self.weapon_degradation.max, -- 0% = broken
+        durability = self.weapon_degradation.max_durability, -- 0% = broken, 100% = new
         notify = true,
     }
 end
@@ -46,9 +46,9 @@ local function checkDurability(weapon)
 end
 
 function weapons:notifyDurability(weapon)
-    local min = self.weapon_degradation.min
+    local min = self.weapon_degradation.no_jam_before
     local durability = math.floor(weapon.durability)
-    if (durability >= min) then
+    if (durability >= 90) then
         return -- do nothing
     elseif (durability % 10 == 0 and weapon.notify) then
         self:newMessage('This weapon is now at ' .. durability .. '% durability', 8)
@@ -106,12 +106,14 @@ function weapons:degrade()
     weapon = self:getWeapon(object)
 
     local jammed = self:jamWeapon(weapon, dyn)
-    local decay = (not jammed and isFiring(dyn) and not in_vehicle and not is_reloading)
+    local decay = (not jammed and isFiring(dyn) and not in_vehicle)
 
-    if (decay) then
+    if (decay or is_reloading) then
 
         local meta_id = read_dword(object) -- weapon tag id
         local rate = self.decay_rates[meta_id]
+
+        rate = (is_reloading and rate/5) or rate
 
         weapon.durability = weapon.durability - (rate / 30)
 

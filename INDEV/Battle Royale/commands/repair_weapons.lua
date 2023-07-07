@@ -38,9 +38,12 @@ function Command:repairsWeapons(player)
         local object = get_object_memory(this_weapon)
 
         if (this_weapon ~= 0xFFFFFFFF and object ~= 0) then
+
             local weapon = self.decay[object]
-            if (weapon and weapon.decay > 0) then
-                weapon.decay = 0
+            local max = self.weapon_degradation.max_durability
+
+            if (weapon and weapon.durability < max) then
+                weapon.durability = max
                 repaired = true
             end
         end
