@@ -21,20 +21,71 @@ function weapons:addWeapon(object, weapon)
         object = object,
         weapon = weapon,
         timer = self:new(),
-        decay = 0, -- out of 100 (100 = completely broken),
+        durability = self.weapon_degradation.max, -- 0% = broken
         notify = true,
     }
 end
 
-function weapons:degrade()
+local function checkDurability(weapon)
 
-    if (not self.weapon_degradation.enabled) then
-        return
+    if (not weapon.timer:isStarted()) then
+        weapon.timer:start()
     end
+
+    local time = weapon.timer:get()
+    local durability = weapon.durability
+    local frequency = (durability / 100) * (durability / 100) * 100
+
+    cprint('Jam when: ' .. time .. ' >= ' .. frequency)
+
+    if (time >= frequency) then
+        weapon.jammed = true
+        weapon.timer:restart()
+        return true
+    end
+end
+
+function weapons:notifyDurability(weapon)
+    local min = self.weapon_degradation.min
+    local durability = math.floor(weapon.durability)
+    if (durability >= min) then
+        return -- do nothing
+    elseif (durability % 10 == 0 and weapon.notify) then
+        self:newMessage('This weapon is now at ' .. durability .. '% durability', 8)
+        weapon.notify = false
+    elseif (durability % 10 ~= 0) then
+        weapon.notify = true
+    end
+end
+
+local function getAmmunition(object)
+
+    -- non-energy weapons:
+    local primary = read_word(object + 0x2B8) -- primary
+    local reserve = read_word(object + 0x2B6) -- reserve
+
+    -- energy weapons:
+    local battery = read_float(object + 0x240)
+    local energy_bullets = math.floor(battery * 100)
+
+    if (primary > 0 or energy_bullets > 0) then
+        return {
+            primary = primary,
+            reserve = reserve,
+            energy_bullets = energy_bullets
+        }
+    end
+    return nil
+end
+
+function weapons:degrade()
 
     local id = self.id
     local dyn = get_dynamic_player(id)
-    if (not player_alive(id) or dyn == 0) then
+
+    if (not self.weapon_degradation.enabled) then
+        return
+    elseif (not player_alive(id) or dyn == 0) then
         return
     end
 
@@ -47,71 +98,43 @@ function weapons:degrade()
         self.decay[object] = nil
     end
 
-    self:addWeapon(object, weapon) -- add weapon to decay table
+    self:addWeapon(object, weapon)
 
     local is_reloading = reloading(dyn)
     local in_vehicle = self:inVehicle(dyn)
 
     weapon = self:getWeapon(object)
 
-    local jammed = self:isJammed(weapon, dyn)
+    local jammed = self:jamWeapon(weapon, dyn)
     local decay = (not jammed and isFiring(dyn) and not in_vehicle and not is_reloading)
 
     if (decay) then
 
-        if (not weapon.timer:isStarted()) then
-            weapon.timer:start()
-        end
-
         local meta_id = read_dword(object) -- weapon tag id
         local rate = self.decay_rates[meta_id]
-        local min = self.weapon_degradation.min
-        local max = self.weapon_degradation.max
 
-        weapon.decay = weapon.decay + (rate / 30)
+        weapon.durability = weapon.durability - (rate / 30)
 
-        if (weapon.decay >= max) then
-            weapon.decay = 100
+        if (weapon.durability <= 0) then
+            weapon.durability = 0
             self:newMessage('Your weapon has been destroyed', 8)
             destroy_object(weapon.weapon)
         else
 
-            -- non-energy weapons:
-            local ammo = read_word(object + 0x2B8) -- primary
-            local mag = read_word(object + 0x2B6) -- reserve
-            
-            -- energy weapons:
-            local battery = read_float(object + 0x240)
-            local energy_bullets_left = math.floor(battery * 100)
-
-            if (ammo > 0 or energy_bullets_left > 0) then
-
-                local interval = rand(1, 6)
-                local time = weapon.timer:get()
-                local offset = rand(min, max + 1) -- random offset
-
-                if (time >= interval and offset <= (weapon.decay / 2)) then
-                    weapon.ammo = { ammo, mag, energy_bullets_left}
-                    weapon.jammed = true
-                    self:newMessage('Weapon jammed! Press MELEE to unjam.', 15)
-                    return
-                elseif (weapon.decay >= 10) then
-                    local current_decay = math.floor(weapon.decay)
-                    if (current_decay % 10 == 0 and weapon.notify) then
-                        self:newMessage('This weapon is at ' .. current_decay .. '% decay', 8)
-                        weapon.notify = false
-                    elseif (current_decay % 10 ~= 0) then
-                        weapon.notify = true
-                    end
+            local ammunition = getAmmunition(object)
+            if (ammunition) then
+                if (checkDurability(weapon)) then
+                    weapon.ammo = ammunition
+                    self:newMessage('Weapon jammed! Press MELEE to unjam.', 5)
+                else
+                    self:notifyDurability(weapon)
                 end
-
-                cprint('Decay: ' .. weapon.decay, 12)
             end
         end
     end
 end
 
-function weapons:isJammed(weapon, dyn)
+function weapons:jamWeapon(weapon, dyn)
 
     if (not weapon.jammed) then
         return false
@@ -126,14 +149,18 @@ function weapons:isJammed(weapon, dyn)
         return true
     end
 
-    write_word(weapon.object + 0x2B8, weapon.ammo[1]) -- primary
-    write_word(weapon.object + 0x2B6, weapon.ammo[2]) -- reserve
-    write_float(weapon.object + 0x240, weapon.ammo[3] / 100) -- battery
+    local ammunition = weapon.ammo
+    local primary = ammunition.primary
+    local reserve = ammunition.reserve
+    local battery = ammunition.energy_bullets / 100
+
+    write_word(weapon.object + 0x2B8, primary)
+    write_word(weapon.object + 0x2B6, reserve)
+    write_float(weapon.object + 0x240, battery)
     sync_ammo(weapon.weapon)
 
     weapon.jammed = nil
     weapon.ammo = nil
-    weapon.timer:restart()
 
     self:newMessage('Weapon UNJAMMED!', 5)
     return false
