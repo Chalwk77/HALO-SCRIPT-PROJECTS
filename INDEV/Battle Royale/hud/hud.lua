@@ -56,11 +56,13 @@ function hud:displaySecondaryHUD()
     self:cls()
     self:say(self.messages.primary)
 
-    for i, v in ipairs(self.messages) do
-        if (time() >= v.finish) then
-            self.messages[i] = nil
-        else
-            v:stdout()
+    for i, v in pairs(self.messages) do
+        if (v and v.finish) then
+            if (time() >= v.finish) then
+                self.messages[i] = nil
+            else
+                v:stdout()
+            end
         end
     end
 end

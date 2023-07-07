@@ -81,12 +81,12 @@ function weapons:degrade()
             local interval = rand(1, 6)
 
             if (time >= interval and rand(min, max) <= (weapon.decay / 2)) then
-                local ammo = read_word(object + 0x2B8) -- clip
-                local mag = read_word(object + 0x2B6) -- mag
+                local ammo = read_word(object + 0x2B8) -- primary
+                local mag = read_word(object + 0x2B6) -- reserve
                 if (ammo > 0) then
                     weapon.ammo = { ammo, mag }
                     weapon.jammed = true
-                    self:newMessage('Your weapon has jammed. Press reload to unjam.', 15)
+                    self:newMessage('Weapon jammed! Press MELEE to unjam.', 15)
                     return
                 end
             elseif (weapon.decay >= 10) then
@@ -113,8 +113,8 @@ function weapons:isJammed(weapon, dyn)
 
     local melee = meleeButton(dyn)
     if (not melee) then
-        write_word(weapon.object + 0x2B8, 0) -- primary clip
-        write_word(weapon.object + 0x2B6, 0) -- reserve ammo
+        write_word(weapon.object + 0x2B8, 0) -- primary
+        write_word(weapon.object + 0x2B6, 0) -- reserve
         sync_ammo(weapon.weapon)
         return true
     end
@@ -127,7 +127,7 @@ function weapons:isJammed(weapon, dyn)
     weapon.ammo = nil
     weapon.timer:restart()
 
-    self:newMessage('Weapon unjammed!', 10)
+    self:newMessage('Weapon UNJAMMED!', 5)
     return false
 end
 
