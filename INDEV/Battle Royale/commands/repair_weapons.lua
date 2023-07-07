@@ -44,6 +44,9 @@ function Command:repairsWeapons(player)
 
             if (weapon and weapon.durability < max) then
                 weapon.durability = max
+                weapon.jammed = nil
+                weapon.ammo = nil
+                weapon.timer:stop()
                 repaired = true
             end
         end
