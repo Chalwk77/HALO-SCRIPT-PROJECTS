@@ -76,16 +76,22 @@ function weapons:degrade()
             destroy_object(weapon.weapon)
         else
 
+            -- non-energy weapons:
             local ammo = read_word(object + 0x2B8) -- primary
             local mag = read_word(object + 0x2B6) -- reserve
-            if (ammo > 0) then
+            
+            -- energy weapons:
+            local battery = read_float(object + 0x240)
+            local energy_bullets_left = math.floor(battery * 100)
+
+            if (ammo > 0 or energy_bullets_left > 0) then
 
                 local interval = rand(1, 6)
                 local time = weapon.timer:get()
                 local offset = rand(min, max + 1) -- random offset
 
                 if (time >= interval and offset <= (weapon.decay / 2)) then
-                    weapon.ammo = { ammo, mag }
+                    weapon.ammo = { ammo, mag, energy_bullets_left}
                     weapon.jammed = true
                     self:newMessage('Weapon jammed! Press MELEE to unjam.', 15)
                     return
@@ -111,18 +117,18 @@ function weapons:isJammed(weapon, dyn)
         return false
     end
 
-    --todo add support for energy weapons
-
     local melee = meleeButton(dyn)
     if (not melee) then
         write_word(weapon.object + 0x2B8, 0) -- primary
         write_word(weapon.object + 0x2B6, 0) -- reserve
+        write_float(weapon.object + 0x240, 0) -- battery
         sync_ammo(weapon.weapon)
         return true
     end
 
     write_word(weapon.object + 0x2B8, weapon.ammo[1]) -- primary
     write_word(weapon.object + 0x2B6, weapon.ammo[2]) -- reserve
+    write_float(weapon.object + 0x240, weapon.ammo[3] / 100) -- battery
     sync_ammo(weapon.weapon)
 
     weapon.jammed = nil
