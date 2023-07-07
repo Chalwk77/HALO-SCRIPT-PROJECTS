@@ -168,6 +168,10 @@ return {
 
 
     --- Weapon degradation (decay):
+    -- Weapons will jam over time, as they degrade.
+    -- They will progressively jam more often as they get closer to breaking.
+    -- When a weapon jams, it will not fire until it is unjammed.
+    -- The player will have to unjam the weapon by pressing the reload button.
     weapon_degradation = {
 
         -- If enabled, weapons will degrade over time.
@@ -177,17 +181,10 @@ return {
 
         decay_rate = {
 
-        -- All weapons start with a decay value of 0 and a max decay value of 100.
-        -- The lower the percentage value, the faster the weapon will degrade.
-        -- The percentage is added to the weapons decay value every 1/30th second (while firing).
-        -- Example: 1.98% = 0.066%*30 per second.
-
-            -- 2.12% every second (0.070% every 1/30th second)
-            ['weapons\\pistol\\pistol'] = 2.12,
-            ['weapons\\needler\\mp_needler'] = 2.12,
-
-            -- 2.10% every second (0.07% every 1/30th second)
-            ['weapons\\flamethrower\\flamethrower'] = 2.10,
+            -- All weapons start with a decay value of 0 and a max decay value of 100.
+            -- The higher the percentage value, the faster the weapon will degrade.
+            -- Example: 1.98% = 0.066*30% per 30 ticks.
+            -- [note]: Weapons will only decay while in use (firing, but not reloading).
 
             -- 1.20% every second (0.04% every 1/30th second)
             ['weapons\\plasma rifle\\plasma rifle'] = 1.2,
@@ -196,15 +193,22 @@ return {
             -- 1.90% every second (0.063% every 1/30th second)
             ['weapons\\shotgun\\shotgun'] = 1.90,
 
-            -- 0.45% every second (0.015% every 1/30th second)
-            ['weapons\\assault rifle\\assault rifle'] = 3.45,
+            -- 2.10% every second (0.07% every 1/30th second)
+            ['weapons\\flamethrower\\flamethrower'] = 2.10,
 
-            -- 2.45% every second (0.078% every 1/30th second)
-            ['weapons\\sniper rifle\\sniper rifle'] = 5.0,
-            ['weapons\\plasma_cannon\\plasma_cannon'] = 2.45,
+            -- 2.12% every second (0.070% every 1/30th second)
+            ['weapons\\pistol\\pistol'] = 2.12,
+            ['weapons\\needler\\mp_needler'] = 2.12,
 
             -- 2.35% every second (0.078% every 1/30th second)
             ['weapons\\rocket launcher\\rocket launcher'] = 2.35,
+
+            -- 2.45% every second (0.081% every 1/30th second)
+            ['weapons\\sniper rifle\\sniper rifle'] = 2.45,
+            ['weapons\\plasma_cannon\\plasma_cannon'] = 2.45,
+
+            -- 3.45% every second (0.115% every 1/30th second)
+            ['weapons\\assault rifle\\assault rifle'] = 3.45,
         }
     },
 

@@ -8,6 +8,10 @@ local function reloading(dynamic_player)
     return (read_byte(dynamic_player + 0x2A4) == 5)
 end
 
+local function reloadButton(dynamic_player)
+    return (read_word(dynamic_player + 0x208) == 1024)
+end
+
 function weapons:getWeapon(object)
     return self.decay[object]
 end
@@ -50,7 +54,7 @@ function weapons:degrade()
 
     weapon = self:getWeapon(object)
 
-    local jammed = self:isJammed(weapon)
+    local jammed = self:isJammed(weapon, dyn)
     local decay = (not jammed and isFiring(dyn) and not in_vehicle and not is_reloading)
 
     if (decay) then
@@ -75,7 +79,6 @@ function weapons:degrade()
             local max = 101 -- weapons will always jam if the decay is above this value
 
             local interval = rand(1, 6)
-            local unjam_after = (time + 5)
 
             if (time >= interval and rand(min, max) <= (weapon.decay / 2)) then
                 local ammo = read_word(object + 0x2B8) -- clip
@@ -83,8 +86,7 @@ function weapons:degrade()
                 if (ammo > 0) then
                     weapon.ammo = { ammo, mag }
                     weapon.jammed = true
-                    weapon.interval = unjam_after
-                    self:newMessage('Your weapon has jammed', 15)
+                    self:newMessage('Your weapon has jammed. Press reload to unjam.', 15)
                     return
                 end
             elseif (weapon.decay >= 10) then
@@ -101,29 +103,31 @@ function weapons:degrade()
     end
 end
 
-function weapons:isJammed(weapon)
+function weapons:isJammed(weapon, dyn)
 
     if (not weapon.jammed) then
         return false
     end
 
-    local time = weapon.timer:get()
-    if (time < weapon.interval) then
-        write_word(weapon.object + 0x2B8, 0)
-        write_word(weapon.object + 0x2B6, 0)
+    --todo add support for energy weapons
+
+    local reload_pressed = reloadButton(dyn)
+    if (not reload_pressed) then
+        write_word(weapon.object + 0x2B8, 0) -- primary clip
+        write_word(weapon.object + 0x2B6, 0) -- reserve ammo
         sync_ammo(weapon.weapon)
         return true
-    elseif (time >= weapon.interval) then
-        write_word(weapon.object + 0x2B8, weapon.ammo[1])
-        write_word(weapon.object + 0x2B6, weapon.ammo[2])
-        sync_ammo(weapon.weapon)
-        weapon.jammed = nil
-        weapon.interval = nil
-        weapon.ammo = nil
-        weapon.timer:restart()
-        return false
     end
 
+    write_word(weapon.object + 0x2B8, weapon.ammo[1]) -- primary
+    write_word(weapon.object + 0x2B6, weapon.ammo[2]) -- reserve
+    sync_ammo(weapon.weapon)
+
+    weapon.jammed = nil
+    weapon.ammo = nil
+    weapon.timer:restart()
+
+    self:newMessage('Weapon unjammed!', 10)
     return false
 end
 

@@ -34,7 +34,6 @@ Planned features:
 - [x] Weapon degradation: (**done**)
   - Weapons will degrade over time.
   - Weapons will have a limited number of shots before they break.
-  - Weapons will have a limited number of reloads before they break.
 - [ ] Weapons (**WIP**)
   - Players will start with no weapons. (**done**)
   - Weapons will have different stats, such as damage and degradation. (**WIP**)
@@ -53,4 +52,4 @@ Planned features:
     - `deathisland`, `gephyrophobia`
 
 # Progress:
-![alt text](https://progress-bar.dev/58/?title=Progress)
+![alt text](https://progress-bar.dev/70/?title=Progress)
