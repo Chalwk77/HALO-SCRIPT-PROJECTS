@@ -64,7 +64,7 @@ local function checkDurability(weapon, rate, reload)
 
     local time = weapon.timer:get()
     local durability = weapon.durability
-    local frequency = (durability / 100) * (durability / 100) * 100
+    local frequency = (durability / 100) ^ 2 * 100
 
     cprint('Jam when: ' .. time .. ' / ' .. frequency)
 
@@ -107,6 +107,7 @@ function weapons:degrade()
         return
     elseif (object == 0) then
         self.decay[object] = nil
+        return
     end
 
     self:addWeapon(object, weapon)

@@ -195,18 +195,22 @@ return {
         -- Be careful not to set the decay rate too high!
         -- Max recommended decay rate: 50
         -- Do not set values lower than 0.1
+        --
+        -- Durability is decremented by rate/30 when shooting and (rate/5)/30 when reloading.
+        -- The frequency of jamming is: (durability / 100) ^ 2 * 100
+        --
         decay_rate = {
 
-            ['weapons\\plasma rifle\\plasma rifle'] = 1.0,
             ['weapons\\plasma pistol\\plasma pistol'] = 1.0,
+            ['weapons\\plasma rifle\\plasma rifle'] = 1.2,
 
-            ['weapons\\assault rifle\\assault rifle'] = 3.10,
+            ['weapons\\assault rifle\\assault rifle'] = 1.4,
 
             ['weapons\\pistol\\pistol'] = 4.10,
-            ['weapons\\needler\\mp_needler'] = 4.50,
+            ['weapons\\needler\\mp_needler'] = 4.20,
 
-            ['weapons\\shotgun\\shotgun'] = 5.05,
-            ['weapons\\flamethrower\\flamethrower'] = 5.15,
+            ['weapons\\flamethrower\\flamethrower'] = 7.05,
+            ['weapons\\shotgun\\shotgun'] = 8.0,
 
             ['weapons\\sniper rifle\\sniper rifle'] = 23.0,
             ['weapons\\plasma_cannon\\plasma_cannon'] = 25.0,
