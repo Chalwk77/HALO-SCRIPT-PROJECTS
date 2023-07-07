@@ -1,5 +1,8 @@
 local weapons = {}
 
+local floor = math.floor
+local format = string.format
+
 local function isFiring(dynamic_player)
     return (read_float(dynamic_player + 0x490) == 1)
 end
@@ -26,38 +29,6 @@ function weapons:addWeapon(object, weapon)
     }
 end
 
-local function checkDurability(weapon)
-
-    if (not weapon.timer:isStarted()) then
-        weapon.timer:start()
-    end
-
-    local time = weapon.timer:get()
-    local durability = weapon.durability
-    local frequency = (durability / 100) * (durability / 100) * 100
-
-    cprint('Jam when: ' .. time .. ' >= ' .. frequency)
-
-    if (time >= frequency) then
-        weapon.jammed = true
-        weapon.timer:restart()
-        return true
-    end
-end
-
-function weapons:notifyDurability(weapon)
-    local min = self.weapon_degradation.no_jam_before
-    local durability = math.floor(weapon.durability)
-    if (durability >= 90) then
-        return -- do nothing
-    elseif (durability % 10 == 0 and weapon.notify) then
-        self:newMessage('This weapon is now at ' .. durability .. '% durability', 8)
-        weapon.notify = false
-    elseif (durability % 10 ~= 0) then
-        weapon.notify = true
-    end
-end
-
 local function getAmmunition(object)
 
     -- non-energy weapons:
@@ -66,16 +37,56 @@ local function getAmmunition(object)
 
     -- energy weapons:
     local battery = read_float(object + 0x240)
-    local energy_bullets = math.floor(battery * 100)
+    local energy_bullets = floor(battery * 100)
 
-    if (primary > 0 or energy_bullets > 0) then
-        return {
-            primary = primary,
-            reserve = reserve,
-            energy_bullets = energy_bullets
-        }
+    return {
+        primary = primary,
+        reserve = reserve,
+        energy_bullets = energy_bullets
+    }
+end
+
+local function checkDurability(weapon, rate, reload)
+
+    if (not weapon.timer:isStarted()) then
+        weapon.timer:start()
     end
-    return nil
+
+    local ammunition = getAmmunition(weapon.object)
+    local primary = ammunition.primary
+    local energy_bullets = ammunition.energy_bullets
+
+    if (not reload and primary == 0 and energy_bullets == 0) then
+        return false
+    end
+
+    weapon.durability = weapon.durability - (rate / 30)
+
+    local time = weapon.timer:get()
+    local durability = weapon.durability
+    local frequency = (durability / 100) * (durability / 100) * 100
+
+    cprint('Jam when: ' .. time .. ' / ' .. frequency)
+
+    if (time >= frequency) then
+        weapon.ammo = ammunition
+        weapon.jammed = true
+        weapon.timer:restart()
+        return true
+    end
+end
+
+function weapons:notifyDurability(weapon)
+    local min = self.weapon_degradation.no_jam_before
+    local durability = floor(weapon.durability)
+    if (durability >= min) then
+        return -- do nothing
+    elseif (durability % 10 == 0 and weapon.notify) then
+        self:newMessage('This weapon is now at ' .. durability .. '% durability', 8)
+        weapon.notify = false
+    elseif (durability % 10 ~= 0) then
+        weapon.notify = true
+    end
 end
 
 function weapons:degrade()
@@ -102,36 +113,25 @@ function weapons:degrade()
 
     local is_reloading = reloading(dyn)
     local in_vehicle = self:inVehicle(dyn)
+    local is_firing = isFiring(dyn)
 
     weapon = self:getWeapon(object)
-
     local jammed = self:jamWeapon(weapon, dyn)
-    local decay = (not jammed and isFiring(dyn) and not in_vehicle)
 
-    if (decay or is_reloading) then
+    if (not jammed and not in_vehicle) and (is_firing or is_reloading) then
 
         local meta_id = read_dword(object) -- weapon tag id
         local rate = self.decay_rates[meta_id]
-
-        rate = (is_reloading and rate/5) or rate
-
-        weapon.durability = weapon.durability - (rate / 30)
+        rate = (is_reloading and rate / 5) or rate
 
         if (weapon.durability <= 0) then
             weapon.durability = 0
             self:newMessage('Your weapon has been destroyed', 8)
             destroy_object(weapon.weapon)
+        elseif (checkDurability(weapon, rate, is_reloading)) then
+            self:newMessage('Weapon jammed! Press MELEE to unjam.', 5)
         else
-
-            local ammunition = getAmmunition(object)
-            if (ammunition) then
-                if (checkDurability(weapon)) then
-                    weapon.ammo = ammunition
-                    self:newMessage('Weapon jammed! Press MELEE to unjam.', 5)
-                else
-                    self:notifyDurability(weapon)
-                end
-            end
+            self:notifyDurability(weapon)
         end
     end
 end
