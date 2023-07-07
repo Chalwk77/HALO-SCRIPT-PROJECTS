@@ -189,6 +189,10 @@ return {
 
 
     --- Weapon degradation (decay):
+    -- Weapons will jam over time, as they degrade.
+    -- They will progressively jam more often as they get closer to breaking.
+    -- When a weapon jams, it will not fire until it is unjammed.
+    -- The player will have to unjam the weapon by pressing the melee button.
     weapon_degradation = {
 
         -- If enabled, weapons will degrade over time.

@@ -8,8 +8,8 @@ local function reloading(dynamic_player)
     return (read_byte(dynamic_player + 0x2A4) == 5)
 end
 
-local function reloadButton(dynamic_player)
-    return (read_word(dynamic_player + 0x208) == 1024)
+local function meleeButton(dynamic_player)
+    return (read_word(dynamic_player + 0x208) == 128)
 end
 
 function weapons:getWeapon(object)
@@ -46,6 +46,8 @@ function weapons:degrade()
     elseif (object == 0) then
         self.decay[object] = nil
     end
+
+    print(read_word(dyn + 0x208))
 
     self:addWeapon(object, weapon) -- add weapon to decay table
 
@@ -109,10 +111,10 @@ function weapons:isJammed(weapon, dyn)
         return false
     end
 
-    --todo add support for energy weapons
+    --todo add support for energy weapons (energy weapons cannot be reloaded!)
 
-    local reload_pressed = reloadButton(dyn)
-    if (not reload_pressed) then
+    local melee = meleeButton(dyn)
+    if (not melee) then
         write_word(weapon.object + 0x2B8, 0) -- primary clip
         write_word(weapon.object + 0x2B6, 0) -- reserve ammo
         sync_ammo(weapon.weapon)
