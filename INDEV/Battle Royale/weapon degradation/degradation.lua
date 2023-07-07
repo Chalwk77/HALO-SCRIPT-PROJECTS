@@ -65,40 +65,42 @@ function weapons:degrade()
 
         local meta_id = read_dword(object) -- weapon tag id
         local rate = self.decay_rates[meta_id]
+        local min = self.weapon_degradation.min
+        local max = self.weapon_degradation.max
 
         weapon.decay = weapon.decay + (rate / 30)
 
-        if (weapon.decay >= 100) then
+        if (weapon.decay >= max) then
             weapon.decay = 100
             self:newMessage('Your weapon has been destroyed', 8)
             destroy_object(weapon.weapon)
         else
 
-            local time = weapon.timer:get()
-            local min = 10 -- weapons cannot jam if the decay is below this value
-            local max = 101 -- weapons will always jam if the decay is above this value
+            local ammo = read_word(object + 0x2B8) -- primary
+            local mag = read_word(object + 0x2B6) -- reserve
+            if (ammo > 0) then
 
-            local interval = rand(1, 6)
+                local interval = rand(1, 6)
+                local time = weapon.timer:get()
+                local offset = rand(min, max + 1) -- random offset
 
-            if (time >= interval and rand(min, max) <= (weapon.decay / 2)) then
-                local ammo = read_word(object + 0x2B8) -- primary
-                local mag = read_word(object + 0x2B6) -- reserve
-                if (ammo > 0) then
+                if (time >= interval and offset <= (weapon.decay / 2)) then
                     weapon.ammo = { ammo, mag }
                     weapon.jammed = true
                     self:newMessage('Weapon jammed! Press MELEE to unjam.', 15)
                     return
+                elseif (weapon.decay >= 10) then
+                    local current_decay = math.floor(weapon.decay)
+                    if (current_decay % 10 == 0 and weapon.notify) then
+                        self:newMessage('This weapon is at ' .. current_decay .. '% decay', 8)
+                        weapon.notify = false
+                    elseif (current_decay % 10 ~= 0) then
+                        weapon.notify = true
+                    end
                 end
-            elseif (weapon.decay >= 10) then
-                local current_decay = math.floor(weapon.decay)
-                if (current_decay % 10 == 0 and weapon.notify) then
-                    self:newMessage('This weapon is at ' .. current_decay .. '% decay', 8)
-                    weapon.notify = false
-                elseif (current_decay % 10 ~= 0) then
-                    weapon.notify = true
-                end
+
+                cprint('Decay: ' .. weapon.decay, 12)
             end
-            cprint('Decay: ' .. weapon.decay, 12)
         end
     end
 end
