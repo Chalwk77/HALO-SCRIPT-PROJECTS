@@ -15,6 +15,10 @@ local function meleeButton(dynamic_player)
     return (read_word(dynamic_player + 0x208) == 128)
 end
 
+local function overheating(object)
+    return (read_bit(object + 0x22C, 0) == 1)
+end
+
 function weapons:getWeapon(object)
     return self.decay[object]
 end
@@ -112,15 +116,21 @@ function weapons:degrade()
 
     self:addWeapon(object, weapon)
 
-    local is_reloading = reloading(dyn)
-    local in_vehicle = self:inVehicle(dyn)
-    local is_firing = isFiring(dyn)
-
     weapon = self:getWeapon(object)
-    local jammed = self:jamWeapon(weapon, dyn)
-    local melee = meleeButton(dyn)
 
-    if (not jammed and not in_vehicle) and (is_firing or is_reloading or melee) then
+    local in_vehicle = self:inVehicle(dyn)
+    local overheated = overheating(object)
+    if (in_vehicle or overheated) then
+        return
+    elseif (self:jamWeapon(weapon, dyn)) then -- only do this if they're not in a vehicle or overheated
+        return
+    end
+
+    local melee = meleeButton(dyn)
+    local is_firing = isFiring(dyn)
+    local is_reloading = reloading(dyn)
+
+    if (is_firing or is_reloading or melee) then
 
         local meta_id = read_dword(object) -- weapon tag id
         local rate = self.decay_rates[meta_id]
