@@ -149,23 +149,16 @@ return {
 
         -- Format: ['tag name'] = weight reduction value
         weapons = {
-
             ['weapons\\flag\\flag'] = 0.028,
             ['weapons\\ball\\ball'] = 0.028,
-
             ['weapons\\pistol\\pistol'] = 0.036,
             ['weapons\\plasma pistol\\plasma pistol'] = 0.036,
-
             ['weapons\\needler\\mp_needler'] = 0.042,
             ['weapons\\plasma rifle\\plasma rifle'] = 0.042,
-
             ['weapons\\shotgun\\shotgun'] = 0.047,
             ['weapons\\assault rifle\\assault rifle'] = 0.061,
-
             ['weapons\\flamethrower\\flamethrower'] = 0.073,
-
             ['weapons\\sniper rifle\\sniper rifle'] = 0.075,
-
             ['weapons\\plasma_cannon\\plasma_cannon'] = 0.098,
             ['weapons\\rocket launcher\\rocket launcher'] = 0.104
         }
@@ -205,18 +198,13 @@ return {
         -- The frequency of jamming is: (durability / 100) ^ 2 * 100
         --
         decay_rate = {
-
             ['weapons\\plasma pistol\\plasma pistol'] = 1.0,
             ['weapons\\plasma rifle\\plasma rifle'] = 1.2,
-
             ['weapons\\assault rifle\\assault rifle'] = 1.4,
-
             ['weapons\\pistol\\pistol'] = 4.10,
             ['weapons\\needler\\mp_needler'] = 4.20,
-
             ['weapons\\flamethrower\\flamethrower'] = 7.05,
             ['weapons\\shotgun\\shotgun'] = 8.0,
-
             ['weapons\\sniper rifle\\sniper rifle'] = 23.0,
             ['weapons\\plasma_cannon\\plasma_cannon'] = 25.0,
             ['weapons\\rocket launcher\\rocket launcher'] = 40.0,
@@ -226,6 +214,7 @@ return {
 
     --- Loot:
     -- The loot system will spawn items at pre-defined locations.
+    -- [!] These locations may be randomised in a later update.
     --
     looting = {
 
@@ -234,7 +223,7 @@ return {
         --- Spoils found in loot crates:
         -- Format: [chance] = { label = 'Spoil label (seen in game)' }
         -- To disable a spoil, set its chance to 0.
-        -- [!] Do not touch the '_function__' value. It is used internally.
+        -- [!] Do not touch the '_function_' value. It is used internally.
         --
         spoils = {
 
@@ -264,8 +253,17 @@ return {
             },
 
             --- GRENADE LAUNCHER:
+            -- Turns any weapon into a grenade launcher.
             [20] = {
+
                 label = 'Grenade Launcher',
+
+                -- How far (in world units) in front of the the player the frag will spawn:
+                distance = 1.5,
+
+                -- Grenade launcher projectile velocity:
+                velocity = 0.6,
+
                 _function_ = 'giveGrenadeLauncher'
             },
 
@@ -290,8 +288,32 @@ return {
             },
 
             --- AMMO:
+            -- When you pick up custom ammo, you will receive 1 clip of that ammo type.
+            -- Ammo types:
+            --  * 1 = normal bullets
+            --  * 2 = armour piercing bullets
+            --  * 3 = explosive bullets
+            --  * 4 = golden bullets (one-shot kill)
+            -- Format: { [type] = {multiplier, label}, ...}
             [40] = {
-                label = 'Ammo',
+                types = {
+                    [1] = { 0, '$ammoX normal bullets' },
+                    [2] = { 1.5, '$ammoX armour piercing bullets' },
+                    [3] = { 5, '$ammoX explosive bullets' },
+                    [4] = { 100, '$ammoX golden bullets' }
+                },
+                clip_sizes = {
+                    ['weapons\\plasma pistol\\plasma pistol'] = 100,
+                    ['weapons\\plasma rifle\\plasma rifle'] = 100,
+                    ['weapons\\assault rifle\\assault rifle'] = 60,
+                    ['weapons\\pistol\\pistol'] = 12,
+                    ['weapons\\needler\\mp_needler'] = 20,
+                    ['weapons\\flamethrower\\flamethrower'] = 100,
+                    ['weapons\\shotgun\\shotgun'] = 12,
+                    ['weapons\\sniper rifle\\sniper rifle'] = 4,
+                    ['weapons\\plasma_cannon\\plasma_cannon'] = 100,
+                    ['weapons\\rocket launcher\\rocket launcher'] = 2
+                },
                 _function_ = 'giveAmmo'
             },
 

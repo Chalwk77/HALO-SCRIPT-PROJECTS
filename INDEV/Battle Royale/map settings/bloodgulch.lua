@@ -218,7 +218,7 @@ return {
         --- Spoils found in loot crates:
         -- Format: [chance] = { label = 'Spoil label (seen in game)' }
         -- To disable a spoil, set its chance to 0.
-        -- [!] Do not touch the '_function__' value. It is used internally.
+        -- [!] Do not touch the '_function_' value. It is used internally.
         --
         spoils = {
 
@@ -248,8 +248,17 @@ return {
             },
 
             --- GRENADE LAUNCHER:
+            -- Turns any weapon into a grenade launcher.
             [20] = {
+
                 label = 'Grenade Launcher',
+
+                -- How far (in world units) in front of the the player the frag will spawn:
+                distance = 1.5,
+
+                -- Grenade launcher projectile velocity:
+                velocity = 0.6,
+
                 _function_ = 'giveGrenadeLauncher'
             },
 
@@ -281,7 +290,7 @@ return {
             --  * 3 = explosive bullets
             --  * 4 = golden bullets (one-shot kill)
             -- Format: { [type] = {multiplier, label}, ...}
-            [100000] = {
+            [40] = {
                 types = {
                     [1] = { 0, '$ammoX normal bullets' },
                     [2] = { 1.5, '$ammoX armour piercing bullets' },

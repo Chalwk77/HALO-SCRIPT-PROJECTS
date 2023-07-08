@@ -16,7 +16,31 @@ function spoils:giveStunGrenades(args)
 end
 
 function spoils:giveGrenadeLauncher(args)
-    self:newMessage('You unlocked ' .. args.label, 5)
+
+    local id = self.id
+
+    local dyn = get_dynamic_player(id)
+    local this_weapon = read_dword(dyn + 0x118)
+    if (this_weapon == 0xFFFFFFFF) then
+        self:newMessage('Picked up grenade launcher but no weapon to modify!', 5)
+        return true
+    end
+
+    local object = get_object_memory(this_weapon)
+    if (object ~= 0) then
+
+        local weapon = self:getWeapon(object)
+        weapon.velocity = args.velocity
+        weapon.distance = args.distance
+        weapon.projectile = self.frag_projectile
+
+        weapon:setAmmoType(5)
+        weapon:setAmmoDamage(100)
+
+        self:newMessage('You unlocked ' .. args.label)
+        return true
+    end
+    return false
 end
 
 function spoils:giveWeaponParts(args)
@@ -73,6 +97,13 @@ function spoils:giveAmmo(args)
     if (object ~= 0) then
 
         local weapon = self:getWeapon(object)
+
+        --- for explosive bullets:
+        weapon.velocity = 10
+        weapon.distance = 0.5
+        weapon.projectile = self.rocket_projectile
+        --
+
         weapon:setAmmoType(type)
         weapon:setAmmoDamage(multiplier)
 

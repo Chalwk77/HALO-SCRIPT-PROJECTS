@@ -48,6 +48,11 @@ function weapons:getWeapon(object)
 end
 
 -- Sets the weapon ammo type:
+-- 1 = normal bullets
+-- 2 = armour piercing bullets
+-- 3 = explosive bullets
+-- 4 = golden bullets (one-shot kill)
+-- 5 = grenade launcher
 function weapons:setAmmoType(type)
     self.ammo_type = type
 end
@@ -87,8 +92,8 @@ function weapons:customAmmo()
 
     weapon = self:getWeapon(object)
 
+    -- normal ammo, ignore:
     if (weapon:getAmmoType() == 1) then
-        -- normal ammo, ignore
         return
     end
 
@@ -101,32 +106,30 @@ function weapons:customAmmo()
     end
 end
 
-function weapons:createExplosiveBullet(dyn)
+function weapons:createProjectile(dyn, weapon)
 
     local id = self.id
-    local projectile = self.rocket_projectile
     local px, py, pz = self:getXYZ(dyn)
 
     local xAim = math.sin(read_float(dyn + 0x230))
     local yAim = math.sin(read_float(dyn + 0x234))
     local zAim = math.sin(read_float(dyn + 0x238))
 
-    local distance = 0.5
+    local distance = 0.3
 
     local x = px + (distance * xAim)
     local y = py + (distance * yAim)
     local z = pz + (distance * zAim)
 
-    if (projectile) then
+    if (weapon.projectile) then
 
-        local rocket = spawn_projectile(projectile, id, x, y, z)
+        local rocket = spawn_projectile(weapon.projectile, id, x, y, z)
         local object = get_object_memory(rocket)
 
         if (rocket and object ~= 0) then
-            local velocity = 10
-            write_float(object + 0x68, velocity * xAim)
-            write_float(object + 0x6C, velocity * yAim)
-            write_float(object + 0x70, velocity * zAim)
+            write_float(object + 0x68, weapon.velocity * xAim)
+            write_float(object + 0x6C, weapon.velocity * yAim)
+            write_float(object + 0x70, weapon.velocity * zAim)
         end
     end
 end

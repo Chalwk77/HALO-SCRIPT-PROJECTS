@@ -6,7 +6,7 @@ function event:onObjectSpawn(player, map_id, parent_id, object_id, sapp_spawning
         -- not currently used
     end
 
-    local dyn = get_dynamic_player(player.id)
+    local dyn = get_dynamic_player(player)
     if (player > 0 and dyn ~= 0) then
         player = self.players[player]
 
@@ -14,8 +14,10 @@ function event:onObjectSpawn(player, map_id, parent_id, object_id, sapp_spawning
         local object = get_object_memory(this_weapon)
 
         local weapon = self:getWeapon(object)
-        if (weapon and weapon.ammo_type == 3) then
-            return false, player:createExplosiveBullet(dyn)
+        if (not weapon) then
+            return
+        elseif (weapon.ammo_type == 3 or weapon.ammo_type == 5) then
+            return false, player:createProjectile(dyn, weapon)
         end
     end
 

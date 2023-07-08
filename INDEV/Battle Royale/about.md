@@ -20,7 +20,7 @@ Planned features:
     - [x] Weapon parts (for weapon repair system)
     - [x] Ammo (different types)
     - [ ] Weapons (different types)
-    - [ ] Grenade launcher
+    - [x] Grenade launcher
     - [x] Health boost (50%, 100%, 150%, 200%)
     - [x] Speed boost (1.2, 1.3, 1.4, 1.5)
 - [x] Sky spawn system:
