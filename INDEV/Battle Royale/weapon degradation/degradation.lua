@@ -84,7 +84,9 @@ function weapons:degrade()
     local id = self.id
     local dyn = get_dynamic_player(id)
 
-    if (not self.weapon_degradation.enabled) then
+    if (not self.pre_game_timer or not self.pre_game_timer.started) then
+        return
+    elseif (not self.weapon_degradation.enabled) then
         return
     elseif (not player_alive(id) or dyn == 0) then
         return

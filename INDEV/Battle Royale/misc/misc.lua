@@ -155,6 +155,11 @@ function misc:getTag(class, name)
     return (tag ~= 0 and read_dword(tag + 0xC)) or nil
 end
 
+function misc:getWeaponObject(dynamic_player)
+    local weapon = read_dword(dynamic_player + 0x118)
+    return (weapon ~= 0xFFFFFFFF and get_object_memory(weapon)) or nil
+end
+
 function misc:disableDeathMessages()
     safe_write(true)
     write_dword(self.death_message_address, 0x03EB01B1)

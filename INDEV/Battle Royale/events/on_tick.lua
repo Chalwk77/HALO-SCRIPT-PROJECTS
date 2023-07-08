@@ -35,10 +35,16 @@ function event:onTick()
     self:monitorLoot(self.loot) -- loot crate monitor
 
     for _, v in pairs(self.players) do
+
+        --
+        -- warning: The order of these functions is important.
+        --
+
         v:crateIntersect()
-        v:setSpeed() --todo: move this to a function called every 1 second.
+        v:setSpeed()
         v:spectate()
         v:newWeapon()
+        v:customAmmo()
         v:degrade()
         v:displaySecondaryHUD()
     end

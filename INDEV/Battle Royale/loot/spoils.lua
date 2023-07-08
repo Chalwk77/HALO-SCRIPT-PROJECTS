@@ -51,7 +51,37 @@ function spoils:giveSpeedBoost(args)
 end
 
 function spoils:giveAmmo(args)
-    self:newMessage('You unlocked ' .. args.label, 5)
+
+    local id = self.id
+    local ammo_types = args.types
+    local type = rand(1, #ammo_types + 1)
+    local multiplier = ammo_types[type][1]
+    local label = ammo_types[type][2]
+
+    local dyn = get_dynamic_player(id)
+    local weapon = read_dword(dyn + 0x118)
+    if (weapon == 0xFFFFFFFF) then
+        self:newMessage('Picked up custom ammo but no weapon to modify!', 5)
+        return
+    end
+
+    local object = get_object_memory(weapon)
+    if (object ~= 0) then
+
+        weapon = self:getWeapon(object)
+
+        weapon:setAmmoType(type)
+        weapon:setAmmoDamage(multiplier)
+
+        local meta_id = read_dword(object) -- weapon tag id
+        local clip_size = self.clip_sizes[meta_id]
+
+        write_word(weapon.object + 0x2B8, clip_size) -- primary
+        write_float(weapon.object + 0x240, clip_size) -- battery
+        sync_ammo(weapon.weapon)
+    end
+
+    self:newMessage('You unlocked ' .. label, 5)
 end
 
 function spoils:giveCamo(args)

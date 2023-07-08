@@ -49,7 +49,7 @@ return {
     -- The start delay will not begin until the required players have joined.
     -- Default (30)
     --
-    start_delay = 1,
+    start_delay = 5,
 
 
     --- Lives:
@@ -144,23 +144,16 @@ return {
 
         -- Format: ['tag name'] = weight reduction value
         weapons = {
-
             ['weapons\\flag\\flag'] = 0.028,
             ['weapons\\ball\\ball'] = 0.028,
-
             ['weapons\\pistol\\pistol'] = 0.036,
             ['weapons\\plasma pistol\\plasma pistol'] = 0.036,
-
             ['weapons\\needler\\mp_needler'] = 0.042,
             ['weapons\\plasma rifle\\plasma rifle'] = 0.042,
-
             ['weapons\\shotgun\\shotgun'] = 0.047,
             ['weapons\\assault rifle\\assault rifle'] = 0.061,
-
             ['weapons\\flamethrower\\flamethrower'] = 0.073,
-
             ['weapons\\sniper rifle\\sniper rifle'] = 0.075,
-
             ['weapons\\plasma_cannon\\plasma_cannon'] = 0.098,
             ['weapons\\rocket launcher\\rocket launcher'] = 0.104
         }
@@ -203,15 +196,11 @@ return {
 
             ['weapons\\plasma pistol\\plasma pistol'] = 1.0,
             ['weapons\\plasma rifle\\plasma rifle'] = 1.2,
-
             ['weapons\\assault rifle\\assault rifle'] = 1.4,
-
             ['weapons\\pistol\\pistol'] = 4.10,
             ['weapons\\needler\\mp_needler'] = 4.20,
-
             ['weapons\\flamethrower\\flamethrower'] = 7.05,
             ['weapons\\shotgun\\shotgun'] = 8.0,
-
             ['weapons\\sniper rifle\\sniper rifle'] = 23.0,
             ['weapons\\plasma_cannon\\plasma_cannon'] = 25.0,
             ['weapons\\rocket launcher\\rocket launcher'] = 40.0,
@@ -286,8 +275,32 @@ return {
             },
 
             --- AMMO:
-            [40] = {
-                label = 'Ammo',
+            -- When you pick up custom ammo, you will receive 1 clip of that ammo type.
+            -- Ammo types:
+            --  * 1 = normal bullets
+            --  * 2 = armour piercing bullets
+            --  * 3 = explosive bullets
+            --  * 4 = golden bullets (one-shot kill)
+            -- Format: { [type] = {multiplier, label}, ...}
+            [10000] = {
+                types = {
+                    [1] = { 0, '$countX normal bullets' },
+                    [2] = { 1.5, '$countX armour piercing bullets' },
+                    [3] = { 5, '$countX explosive bullets' },
+                    [4] = { 100, '$count golden bullets' }
+                },
+                clip_sizes = {
+                    ['weapons\\plasma pistol\\plasma pistol'] = 100,
+                    ['weapons\\plasma rifle\\plasma rifle'] = 100,
+                    ['weapons\\assault rifle\\assault rifle'] = 60,
+                    ['weapons\\pistol\\pistol'] = 12,
+                    ['weapons\\needler\\mp_needler'] = 20,
+                    ['weapons\\flamethrower\\flamethrower'] = 100,
+                    ['weapons\\shotgun\\shotgun'] = 12,
+                    ['weapons\\sniper rifle\\sniper rifle'] = 4,
+                    ['weapons\\plasma_cannon\\plasma_cannon'] = 100,
+                    ['weapons\\rocket launcher\\rocket launcher'] = 2
+                },
                 _function_ = 'giveAmmo'
             },
 

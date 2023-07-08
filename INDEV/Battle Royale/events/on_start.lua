@@ -14,6 +14,14 @@ function event:loadMapSettings()
     return success, error
 end
 
+function event:getClipSizesTable()
+    for _,v in pairs(self.looting.spoils) do
+        if (v.clip_sizes) then
+            return v.clip_sizes
+        end
+    end
+end
+
 function event:onStart()
     if (get_var(0, '$gt') ~= 'n/a') then
 
@@ -28,6 +36,8 @@ function event:onStart()
 
         -- Disable Full Spectrum Vision:
         execute_command('disable_object "' .. 'powerups\\full-spectrum vision"')
+
+        self.weapons = {}
 
         self.loot = nil
         self.loot_crates = nil
@@ -65,6 +75,14 @@ function event:onStart()
             local tag = self:getTag('weap', name)
             if (tag) then
                 self.decay_rates[tag] = rate
+            end
+        end
+
+        self.clip_sizes = {}
+        for name, size in pairs(self:getClipSizesTable()) do
+            local tag = self:getTag('weap', name)
+            if (tag) then
+                self.clip_sizes[tag] = size
             end
         end
 
