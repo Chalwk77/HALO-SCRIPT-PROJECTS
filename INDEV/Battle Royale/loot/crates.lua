@@ -61,7 +61,7 @@ function crates:openCrate()
 
     local f = spoils._function_
     if (not self[f]) then
-        error('Unable to execute function "' .. f.. '", not found.')
+        error('Unable to execute function "' .. f .. '", not found.')
         return
     end
 

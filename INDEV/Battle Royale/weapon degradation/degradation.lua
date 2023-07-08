@@ -108,7 +108,8 @@ function weapons:degrade()
     local overheated = overheating(object)
     if (in_vehicle or overheated) then
         return
-    elseif (self:jamWeapon(weapon, dyn)) then -- only do this if they're not in a vehicle or overheated
+    elseif (self:jamWeapon(weapon, dyn)) then
+        -- only do this if they're not in a vehicle or overheated
         return
     end
 

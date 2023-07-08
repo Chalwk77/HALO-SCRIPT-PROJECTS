@@ -15,7 +15,7 @@ function event:loadMapSettings()
 end
 
 function event:getClipSizesTable()
-    for _,v in pairs(self.looting.spoils) do
+    for _, v in pairs(self.looting.spoils) do
         if (v.clip_sizes) then
             return v.clip_sizes
         end

@@ -111,9 +111,9 @@ function weapons:createProjectile(dyn, weapon)
     local id = self.id
     local px, py, pz = self:getXYZ(dyn)
 
-    local xAim =  math.sin(read_float(dyn + 0x230))
-    local yAim =  math.sin(read_float(dyn + 0x234))
-    local zAim =  math.sin(read_float(dyn + 0x238))
+    local xAim = math.sin(read_float(dyn + 0x230))
+    local yAim = math.sin(read_float(dyn + 0x234))
+    local zAim = math.sin(read_float(dyn + 0x238))
 
     local xVel = weapon.velocity * xAim
     local yVel = weapon.velocity * yAim

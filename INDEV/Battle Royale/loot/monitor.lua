@@ -22,8 +22,8 @@ function loot:monitorLoot(objects)
                 local object_meta = self:spawnObject(tag, x, y, z)
                 objects[object_meta] = v
                 objects[meta_id] = nil
-            --else
-            --    print('Respawning ' .. v.tag_class .. '/' .. v.tag_name .. ' in ' .. v.delay - v.timer:get() .. ' seconds')
+                --else
+                --    print('Respawning ' .. v.tag_class .. '/' .. v.tag_name .. ' in ' .. v.delay - v.timer:get() .. ' seconds')
             end
         end
     end
