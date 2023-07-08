@@ -65,7 +65,10 @@ function crates:openCrate()
         return
     end
 
-    self[f](self, spoils)
+    local success = self[f](self, spoils)
+    if (not success) then
+        self:newMessage('Something went wrong. Unable to unlock spoils.')
+    end
 end
 
 -- Test the loot system:

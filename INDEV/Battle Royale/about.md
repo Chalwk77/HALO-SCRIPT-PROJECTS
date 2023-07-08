@@ -18,7 +18,7 @@ Planned features:
     - [ ] Stun grenades
     - [ ] Air Strike ability
     - [x] Weapon parts (for weapon repair system)
-    - [ ] Ammo (different types)
+    - [x] Ammo (different types)
     - [ ] Weapons (different types)
     - [ ] Grenade launcher
     - [x] Health boost (50%, 100%, 150%, 200%)
@@ -36,9 +36,10 @@ Planned features:
 - [x] Weapons (general):
   - [x] Players will start with no weapons.
   - [x] You will have to find weapon *parts* to repair damaged weapons.
-- [ ] Different types of ammo (**WIP**)
-  - Armoured-piercing, explosive, nukes
-  - Golden bullets (one-shot kill)
+- [x] Different types of ammo:
+  - [x] Armoured-piercing, 
+  - [x] Explosive
+  - [x] Golden bullets (one-shot kill)
 - [ ] Support for all stock maps: (**WIP**)
   - It currently supports:
     - `timberland`, `bloodgulch`,
@@ -47,4 +48,4 @@ Planned features:
     - `deathisland`, `gephyrophobia`
 
 # Progress:
-![alt text](https://progress-bar.dev/70/?title=Progress)
+![alt text](https://progress-bar.dev/75/?title=Progress)

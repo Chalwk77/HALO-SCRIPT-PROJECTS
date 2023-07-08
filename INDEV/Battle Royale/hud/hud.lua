@@ -38,6 +38,7 @@ function hud:setHUD(HUD, distance)
 end
 
 function hud:newMessage(content, duration)
+    duration = duration or 5
     self.messages[#self.messages + 1] = {
         content = content,
         finish = time() + duration,

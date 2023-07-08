@@ -39,6 +39,8 @@ function event:onStart()
 
         self.weapons = {}
 
+        self.rocket_projectile = self:getTag('proj', 'weapons\\rocket launcher\\rocket')
+
         self.loot = nil
         self.loot_crates = nil
 

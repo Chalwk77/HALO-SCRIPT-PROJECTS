@@ -49,7 +49,7 @@ return {
     -- The start delay will not begin until the required players have joined.
     -- Default (30)
     --
-    start_delay = 5,
+    start_delay = 1,
 
 
     --- Lives:
@@ -193,7 +193,6 @@ return {
         -- The frequency of jamming is: (durability / 100) ^ 2 * 100
         --
         decay_rate = {
-
             ['weapons\\plasma pistol\\plasma pistol'] = 1.0,
             ['weapons\\plasma rifle\\plasma rifle'] = 1.2,
             ['weapons\\assault rifle\\assault rifle'] = 1.4,
@@ -282,12 +281,12 @@ return {
             --  * 3 = explosive bullets
             --  * 4 = golden bullets (one-shot kill)
             -- Format: { [type] = {multiplier, label}, ...}
-            [10000] = {
+            [100000] = {
                 types = {
-                    [1] = { 0, '$countX normal bullets' },
-                    [2] = { 1.5, '$countX armour piercing bullets' },
-                    [3] = { 5, '$countX explosive bullets' },
-                    [4] = { 100, '$count golden bullets' }
+                    [1] = { 0, '$ammoX normal bullets' },
+                    [2] = { 1.5, '$ammoX armour piercing bullets' },
+                    [3] = { 5, '$ammoX explosive bullets' },
+                    [4] = { 100, '$ammoX golden bullets' }
                 },
                 clip_sizes = {
                     ['weapons\\plasma pistol\\plasma pistol'] = 100,

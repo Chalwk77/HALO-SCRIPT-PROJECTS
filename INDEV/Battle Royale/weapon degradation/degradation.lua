@@ -56,7 +56,7 @@ local function checkDurability(weapon, rate, reload)
     local durability = weapon.durability
     local frequency = (durability / 100) ^ 2 * 100
 
-    cprint('Jam when: ' .. time .. ' / ' .. frequency)
+    --cprint('Jam when: ' .. time .. ' / ' .. frequency)
 
     if (time >= frequency) then
         weapon.ammo = ammunition
@@ -92,17 +92,17 @@ function weapons:degrade()
         return
     end
 
-    local weapon = read_dword(dyn + 0x118)
-    local object = get_object_memory(weapon)
+    local this_weapon = read_dword(dyn + 0x118)
+    local object = get_object_memory(this_weapon)
 
-    if (weapon == 0xFFFFFFFF) then
+    if (this_weapon == 0xFFFFFFFF) then
         return
     elseif (object == 0) then
         self.weapons[object] = nil
         return
     end
 
-    weapon = self:getWeapon(object)
+    local weapon = self:getWeapon(object)
 
     local in_vehicle = self:inVehicle(dyn)
     local overheated = overheating(object)
@@ -126,7 +126,7 @@ function weapons:degrade()
         if (weapon.durability <= 0) then
             weapon.durability = 0
             self:newMessage('Your weapon has been destroyed', 8)
-            destroy_object(weapon.weapon)
+            destroy_object(this_weapon)
         elseif (checkDurability(weapon, rate, is_reloading)) then
             self:newMessage('Weapon jammed! Press MELEE to unjam.', 5)
         else
