@@ -63,6 +63,9 @@ local BattleRoyale = {
         ['./Battle Royale/spectator/'] = {
           'spectate'
         },
+        ['./Battle Royale/stun/'] = {
+          'stun'
+        },
         ['./Battle Royale/util/'] = {
             'timer'
         },

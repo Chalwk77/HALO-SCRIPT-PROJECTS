@@ -16,7 +16,7 @@ Planned features:
     - [x] Loot will be randomized and spawn in random locations
     - Loot includes ammo:
         - [ ] Nuke
-        - [ ] Stun grenades
+        - [x] Stun grenades
         - [ ] Air Strike ability
         - [x] Weapon parts (for weapon repair system)
         - [x] Ammo (different types)

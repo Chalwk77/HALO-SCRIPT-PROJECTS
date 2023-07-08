@@ -12,6 +12,8 @@ function event:onSpawn(id)
     execute_command('hp ' .. id .. ' ' .. self.health)
     execute_command('wdel ' .. id)
     execute_command('s ' .. id .. ' ' .. self.default_running_speed)
+
+    player.stun = nil
 end
 
 register_callback(cb['EVENT_SPAWN'], 'OnSpawn')

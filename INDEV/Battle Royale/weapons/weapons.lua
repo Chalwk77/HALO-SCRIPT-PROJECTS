@@ -90,6 +90,15 @@ function weapons:customAmmo()
         return
     end
 
+    local frags = read_byte(dyn + 0x31E)
+    local plasmas = read_byte(dyn + 0x31F)
+
+    if (self.can_stun and frags == 0 and plasmas == 0) then
+        self.can_stun = false
+        self:newMessage('You ran out of stun grenades', 5)
+    end
+
+    -- weapon object:
     weapon = self:getWeapon(object)
 
     -- normal ammo, ignore:

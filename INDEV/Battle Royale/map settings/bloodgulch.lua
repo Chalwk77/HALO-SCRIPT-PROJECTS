@@ -49,7 +49,7 @@ return {
     -- The start delay will not begin until the required players have joined.
     -- Default (30)
     --
-    start_delay = 1,
+    start_delay = 5,
 
 
     --- Lives:
@@ -236,8 +236,19 @@ return {
             },
 
             --- STUN GRENADES:
-            [10] = {
+            -- Grenade stunning is simulated by reducing the player's speed.
+            [100000] = {
                 label = 'Stun Grenade(s)',
+
+                -- How many of each grenade (frags, plasmas) to give:
+                count = { 2, 4 },
+
+                -- Format: { 'tag name', stun time, speed }
+                grenade_tags = {
+                    ['weapons\\frag grenade\\explosion'] = { 5, 0.5 },
+                    ['weapons\\plasma grenade\\explosion'] = { 5, 0.5 },
+                    ['weapons\\plasma grenade\\attached'] = { 10, 0.5 }
+                },
                 _function_ = 'giveStunGrenades'
             },
 

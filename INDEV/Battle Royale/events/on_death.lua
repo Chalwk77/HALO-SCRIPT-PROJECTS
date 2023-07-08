@@ -9,6 +9,8 @@ function event:onDeath(victim)
     victim = tonumber(victim)
     local player = self.players[victim]
     player.weapon_parts = false -- weapons parts loot
+    player.stun = nil -- stun grenades
+    player.can_stun = nil -- stun grenades
 
     if (not player.can_spectate) then
         return
@@ -16,10 +18,8 @@ function event:onDeath(victim)
 
     player.lives = player.lives - 1
     if (player.lives <= 0) then
-
         player.spectator = true
         player:setSpectatorBits()
-
         for _, v in pairs(self.players) do
             v:newMessage(player.name .. ' has been eliminated', 5)
         end

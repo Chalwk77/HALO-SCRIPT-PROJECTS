@@ -22,6 +22,14 @@ function event:getClipSizesTable()
     end
 end
 
+function event:getStunTags()
+    for _, v in pairs(self.looting.spoils) do
+        if (v.grenade_tags) then
+            return v.grenade_tags
+        end
+    end
+end
+
 function event:onStart()
     if (get_var(0, '$gt') ~= 'n/a') then
 
@@ -38,9 +46,6 @@ function event:onStart()
         execute_command('disable_object "' .. 'powerups\\full-spectrum vision"')
 
         self.weapons = {}
-
-        self.rocket_projectile = self:getTag('proj', 'weapons\\rocket launcher\\rocket')
-        self.frag_projectile = self:getTag('proj', 'weapons\\frag grenade\\frag grenade')
 
         self.loot = nil
         self.loot_crates = nil
@@ -65,29 +70,14 @@ function event:onStart()
             end
         end
 
-        self.weapon_weights = {}
-        for name, speed in pairs(self.weight.weapons) do
-            local tag = self:getTag('weap', name)
-            if (tag) then
-                self.weapon_weights[tag] = speed
-            end
-        end
+        self.weapon_weights = self:tagsToID(self.weight.weapons, 'weap')
+        self.decay_rates =  self:tagsToID(self.weapon_degradation.decay_rate, 'weap')
+        self.clip_sizes = self:tagsToID(self:getClipSizesTable(), 'weap')
+        self.stuns = self:tagsToID(self:getStunTags(), 'jpt!')
 
-        self.decay_rates = {}
-        for name, rate in pairs(self.weapon_degradation.decay_rate) do
-            local tag = self:getTag('weap', name)
-            if (tag) then
-                self.decay_rates[tag] = rate
-            end
-        end
-
-        self.clip_sizes = {}
-        for name, size in pairs(self:getClipSizesTable()) do
-            local tag = self:getTag('weap', name)
-            if (tag) then
-                self.clip_sizes[tag] = size
-            end
-        end
+        -- For explosive bullets and grenade launcher:
+        self.rocket_projectile = self:getTag('proj', 'weapons\\rocket launcher\\rocket')
+        self.frag_projectile = self:getTag('proj', 'weapons\\frag grenade\\frag grenade')
 
         --self:spawnBarrier()
     end

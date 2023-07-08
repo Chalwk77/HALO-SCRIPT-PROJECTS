@@ -17,6 +17,17 @@ function misc:secondsToTime(s)
     return hours, mins, secs
 end
 
+function misc:tagsToID(target, class)
+    local t = {}
+    for tag, value in pairs(target) do
+        local id = self:getTag(class, tag)
+        if (id) then
+            t[id] = value
+        end
+    end
+    return t
+end
+
 function misc:cls()
     for _ = 1, 25 do
         rprint(self.id, ' ')

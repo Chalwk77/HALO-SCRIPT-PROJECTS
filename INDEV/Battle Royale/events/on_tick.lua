@@ -41,7 +41,13 @@ function event:onTick()
         --
 
         v:crateIntersect()
-        v:setSpeed()
+
+        if (v.stun) then
+            v:stunPlayer()
+        else
+            v:setSpeed()
+        end
+
         v:spectate()
         v:newWeapon()
         v:customAmmo()
