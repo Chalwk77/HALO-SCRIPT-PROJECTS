@@ -111,12 +111,15 @@ function weapons:createProjectile(dyn, weapon)
     local id = self.id
     local px, py, pz = self:getXYZ(dyn)
 
-    local xAim = math.sin(read_float(dyn + 0x230))
-    local yAim = math.sin(read_float(dyn + 0x234))
-    local zAim = math.sin(read_float(dyn + 0x238))
+    local xAim =  math.sin(read_float(dyn + 0x230))
+    local yAim =  math.sin(read_float(dyn + 0x234))
+    local zAim =  math.sin(read_float(dyn + 0x238))
 
-    local distance = 0.3
+    local xVel = weapon.velocity * xAim
+    local yVel = weapon.velocity * yAim
+    local zVel = weapon.velocity * zAim
 
+    local distance = weapon.distance
     local x = px + (distance * xAim)
     local y = py + (distance * yAim)
     local z = pz + (distance * zAim)
@@ -127,9 +130,9 @@ function weapons:createProjectile(dyn, weapon)
         local object = get_object_memory(rocket)
 
         if (rocket and object ~= 0) then
-            write_float(object + 0x68, weapon.velocity * xAim)
-            write_float(object + 0x6C, weapon.velocity * yAim)
-            write_float(object + 0x70, weapon.velocity * zAim)
+            write_float(object + 0x68, xVel)
+            write_float(object + 0x6C, yVel)
+            write_float(object + 0x70, zVel)
         end
     end
 end

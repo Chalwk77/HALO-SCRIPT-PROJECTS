@@ -99,7 +99,7 @@ function spoils:giveAmmo(args)
         local weapon = self:getWeapon(object)
 
         --- for explosive bullets:
-        weapon.velocity = 10
+        weapon.velocity = 1000
         weapon.distance = 0.5
         weapon.projectile = self.rocket_projectile
         --
