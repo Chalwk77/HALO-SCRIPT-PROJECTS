@@ -30,6 +30,20 @@ function event:getStunTags()
     end
 end
 
+local function getTagData()
+    local tag_address = read_dword(0x40440000)
+    local tag_count = read_dword(0x4044000C)
+    for i = 0, tag_count - 1 do
+        local tag = tag_address + 0x20 * i
+        local tag_name = read_string(read_dword(tag + 0x10))
+        local tag_class = read_dword(tag)
+        if (tag_class == 1785754657 and tag_name == "weapons\\rocket launcher\\explosion") then
+            return read_dword(tag + 0x14)
+        end
+    end
+    return nil
+end
+
 function event:onStart()
     if (get_var(0, '$gt') ~= 'n/a') then
 
@@ -75,7 +89,7 @@ function event:onStart()
         end
 
         self.weapon_weights = self:tagsToID(self.weight.weapons, 'weap')
-        self.decay_rates =  self:tagsToID(self.weapon_degradation.decay_rate, 'weap')
+        self.decay_rates = self:tagsToID(self.weapon_degradation.decay_rate, 'weap')
         self.clip_sizes = self:tagsToID(self:getClipSizesTable(), 'weap')
         self.stuns = self:tagsToID(self:getStunTags(), 'jpt!')
 
@@ -85,6 +99,8 @@ function event:onStart()
 
         -- For nuke:
         self.rocket_launcher = self:getTag('weap', 'weapons\\rocket launcher\\rocket launcher')
+
+        self.rocket_tag_data = getTagData()
 
         --self:spawnBarrier()
     end

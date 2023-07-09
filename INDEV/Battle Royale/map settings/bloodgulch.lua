@@ -264,7 +264,7 @@ return {
 
                 label = 'Grenade Launcher',
 
-                -- How far (in world units) in front of the the player the frag will spawn:
+                -- How far (in world units) in front of the player the frag will spawn:
                 distance = 1.5,
 
                 -- Grenade launcher projectile velocity:

@@ -183,6 +183,26 @@ function misc:enableDeathMessages()
     safe_write(false)
 end
 
+function misc:modifyRocket()
+    local tag = self.rocket_tag_data
+    write_dword(tag + 0x0, 1084227584)
+    write_dword(tag + 0x4, 1084227584)
+    write_dword(tag + 0x1d0, 1065353216)
+    write_dword(tag + 0x1d4, 1065353216)
+    write_dword(tag + 0x1d8, 1065353216)
+    write_dword(tag + 0x1f4, 1092616192)
+end
+
+function misc:rollbackRocket()
+    local tag = self.rocket_tag_data
+    write_dword(tag + 0x0, 1056964608)
+    write_dword(tag + 0x4, 1073741824)
+    write_dword(tag + 0x1d0, 1117782016)
+    write_dword(tag + 0x1d4, 1133903872)
+    write_dword(tag + 0x1d8, 1134886912)
+    write_dword(tag + 0x1f4, 1086324736)
+end
+
 -- Checks if a command is enabled/disabled.
 -- @param enabled (boolean, -> command file 'enabled' property)
 -- @param name (string -> command file name property)
