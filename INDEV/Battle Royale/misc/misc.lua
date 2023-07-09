@@ -4,6 +4,10 @@ local sqrt = math.sqrt
 local floor = math.floor
 local format = string.format
 
+function misc:meleeButton(dynamic_player)
+    return (read_word(dynamic_player + 0x208) == 128)
+end
+
 function misc:secondsToTime(s)
 
     if (s <= 0) then

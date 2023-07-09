@@ -1,7 +1,6 @@
 local weapons = {}
 
 local floor = math.floor
-local format = string.format
 
 local function isFiring(dynamic_player)
     return (read_float(dynamic_player + 0x490) == 1)
@@ -11,59 +10,8 @@ local function reloading(dynamic_player)
     return (read_byte(dynamic_player + 0x2A4) == 5)
 end
 
-local function meleeButton(dynamic_player)
-    return (read_word(dynamic_player + 0x208) == 128)
-end
-
 local function overheating(object)
     return (read_bit(object + 0x22C, 0) == 1)
-end
-
-local function getAmmunition(object)
-
-    -- non-energy weapons:
-    local primary = read_word(object + 0x2B8) -- primary
-    local reserve = read_word(object + 0x2B6) -- reserve
-
-    -- energy weapons:
-    local battery = read_float(object + 0x240)
-    local energy_bullets = floor(battery * 100)
-
-    return {
-        primary = primary,
-        reserve = reserve,
-        energy_bullets = energy_bullets
-    }
-end
-
-local function checkDurability(weapon, rate, reload)
-
-    if (not weapon.timer:isStarted()) then
-        weapon.timer:start()
-    end
-
-    local ammunition = getAmmunition(weapon.object)
-    local primary = ammunition.primary
-    local energy_bullets = ammunition.energy_bullets
-
-    if (not reload and primary == 0 and energy_bullets == 0) then
-        return false
-    end
-
-    weapon.durability = weapon.durability - (rate / 30)
-
-    local time = weapon.timer:get()
-    local durability = weapon.durability
-    local frequency = (durability / 100) ^ 2 * 100
-
-    --cprint('Jam when: ' .. time .. ' / ' .. frequency)
-
-    if (time >= frequency) then
-        weapon.ammo = ammunition
-        weapon.jammed = true
-        weapon.timer:restart()
-        return true
-    end
 end
 
 function weapons:notifyDurability(weapon)
@@ -72,7 +20,7 @@ function weapons:notifyDurability(weapon)
     if (durability >= min) then
         return -- do nothing
     elseif (durability % 10 == 0 and weapon.notify) then
-        self:newMessage('This weapon is now at ' .. durability .. '% durability', 8)
+        self:newMessage('[DURABILITY NOW ' .. durability .. '%]', 8)
         weapon.notify = false
     elseif (durability % 10 ~= 0) then
         weapon.notify = true
@@ -108,12 +56,11 @@ function weapons:degrade()
     local overheated = overheating(object)
     if (in_vehicle or overheated) then
         return
-    elseif (self:jamWeapon(weapon, dyn)) then
-        -- only do this if they're not in a vehicle or overheated
+    elseif (weapon:jamWeapon(self, dyn)) then
         return
     end
 
-    local melee = meleeButton(dyn)
+    local melee = self:meleeButton(dyn)
     local is_firing = isFiring(dyn)
     local is_reloading = reloading(dyn)
 
@@ -124,48 +71,22 @@ function weapons:degrade()
 
         rate = (is_reloading and rate / 5) or rate
 
+        -- [To fix a glitch]
+        -- Object id of this weapon changes if the player is attempting to
+        -- shoot and throws a grenade simultaneously.
+        rate = rate or 0
+        --
+
         if (weapon.durability <= 0) then
             weapon.durability = 0
-            self:newMessage('Your weapon has been destroyed', 8)
+            self:newMessage('[YOUR WEAPON HAS BEEN DESTROYED]', 8)
             destroy_object(this_weapon)
-        elseif (checkDurability(weapon, rate, is_reloading)) then
-            self:newMessage('Weapon jammed! Press MELEE to unjam.', 5)
+        elseif (weapon:checkDurability(rate, is_reloading, is_firing, melee)) then
+            self:newMessage('[WEAPON JAMMED] Press MELEE to unjam.', 5)
         else
             self:notifyDurability(weapon)
         end
     end
-end
-
-function weapons:jamWeapon(weapon, dyn)
-
-    if (not weapon.jammed) then
-        return false
-    end
-
-    local melee = meleeButton(dyn)
-    if (not melee) then
-        write_word(weapon.object + 0x2B8, 0) -- primary
-        write_word(weapon.object + 0x2B6, 0) -- reserve
-        write_float(weapon.object + 0x240, 0) -- battery
-        sync_ammo(weapon.weapon)
-        return true
-    end
-
-    local ammunition = weapon.ammo
-    local primary = ammunition.primary
-    local reserve = ammunition.reserve
-    local battery = ammunition.energy_bullets / 100
-
-    write_word(weapon.object + 0x2B8, primary)
-    write_word(weapon.object + 0x2B6, reserve)
-    write_float(weapon.object + 0x240, battery)
-    sync_ammo(weapon.weapon)
-
-    weapon.jammed = nil
-    weapon.ammo = nil
-
-    self:newMessage('Weapon UNJAMMED!', 5)
-    return false
 end
 
 return weapons

@@ -15,12 +15,14 @@ Planned features:
 - [ ] Randomized loot (**WIP**)
     - [x] Loot will be randomized and spawn in random locations
     - Loot includes ammo:
-        - [ ] Nuke
+        - [x] Camo
+        - [x] Overshield
+        - [x] Nuke
         - [x] Stun grenades
         - [ ] Air Strike ability
         - [x] Weapon parts (for weapon repair system)
         - [x] Ammo (different types)
-        - [ ] Weapons (different types)
+        - [x] Random Weapons (different types)
         - [x] Grenade launcher
         - [x] Health boost (50%, 100%, 150%, 200%)
         - [x] Speed boost (1.2, 1.3, 1.4, 1.5)
@@ -49,5 +51,4 @@ Planned features:
         - `deathisland`, `gephyrophobia`
 
 # Progress:
-
-![alt text](https://progress-bar.dev/75/?title=Progress)
+![alt text](https://progress-bar.dev/80/?title=Progress)

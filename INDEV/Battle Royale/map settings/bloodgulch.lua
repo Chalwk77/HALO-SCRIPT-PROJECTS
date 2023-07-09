@@ -223,7 +223,7 @@ return {
         spoils = {
 
             --- NUKE:
-            [100000000] = {
+            [1] = {
                 label = 'Nuke',
                 radius = 10, -- kills all players within this radius
                 _function_ = 'giveNuke'
@@ -280,8 +280,21 @@ return {
             },
 
             --- RANDOM WEAPON:
-            [30] = {
-                label = 'Weapon(s)',
+            [1000000] = {
+                label = 'Random Weapon',
+                random_weapons = {
+                    -- format: ['tag name'] = {primary ammo, reserve ammo}
+                    ['weapons\\plasma pistol\\plasma pistol'] = { 100 },
+                    ['weapons\\plasma rifle\\plasma rifle'] = { 100 },
+                    ['weapons\\assault rifle\\assault rifle'] = { 60, 180 },
+                    ['weapons\\pistol\\pistol'] = { 12, 48 },
+                    ['weapons\\needler\\mp_needler'] = { 20, 60 },
+                    ['weapons\\flamethrower\\flamethrower'] = { 100, 200 },
+                    ['weapons\\shotgun\\shotgun'] = { 12, 12 },
+                    ['weapons\\sniper rifle\\sniper rifle'] = { 4, 8 },
+                    ['weapons\\plasma_cannon\\plasma_cannon'] = { 100 },
+                    ['weapons\\rocket launcher\\rocket launcher'] = { 2, 2 }
+                },
                 _function_ = 'giveRandomWeapon'
             },
 
@@ -325,19 +338,21 @@ return {
 
             --- CAMOUFLAGE:
             [45] = {
-                label = 'Active Camo',
+                label = 'Camo for $time seconds',
+                durations = { 30, 45, 60, 75, 90, 105, 120 },
                 _function_ = 'giveCamo'
             },
 
             --- OVERSHIELD:
             [50] = {
-                label = 'Overshield',
+                label = '$shieldX Overshield',
+                levels = { 2, 3 }, -- 2x, 3x
                 _function_ = 'giveOvershield'
             },
 
             --- HEALTH BOOST:
             [55] = {
-                label = 'Health Boost',
+                label = '$healthX Health Boost',
                 levels = { 1.2, 1.3, 1.4, 1.5 },
                 _function_ = 'giveHealthBoost'
             }
@@ -368,6 +383,7 @@ return {
         },
 
         --- Random Loot weapon/power up spawns:
+        -- These objects will spawn on the map!
         objects = {
 
             ['weap'] = {

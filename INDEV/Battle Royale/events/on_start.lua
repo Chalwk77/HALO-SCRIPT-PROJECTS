@@ -30,6 +30,14 @@ function event:getStunTags()
     end
 end
 
+function event:getRandomWeaponTags()
+    for _, v in pairs(self.looting.spoils) do
+        if (v.random_weapons) then
+            return v.random_weapons
+        end
+    end
+end
+
 local function getTagData()
     local tag_address = read_dword(0x40440000)
     local tag_count = read_dword(0x4044000C)
@@ -88,6 +96,8 @@ function event:onStart()
             end
         end
 
+        self.energy_weapons = self:tagsToID(self._energy_weapons_, 'weap')
+        self.random_weapons = self:tagsToID(self:getRandomWeaponTags(), 'weap')
         self.weapon_weights = self:tagsToID(self.weight.weapons, 'weap')
         self.decay_rates = self:tagsToID(self.weapon_degradation.decay_rate, 'weap')
         self.clip_sizes = self:tagsToID(self:getClipSizesTable(), 'weap')

@@ -72,7 +72,7 @@ function spoils:giveWeaponParts(args)
 end
 
 function spoils:giveRandomWeapon(args)
-    self:newMessage('You unlocked ' .. args.label, 5)
+    self:getRandomWeapon(args)
     return true
 end
 
@@ -145,17 +145,49 @@ function spoils:giveAmmo(args)
 end
 
 function spoils:giveCamo(args)
-    self:newMessage('You unlocked ' .. args.label, 5)
+
+    local id = self.id
+    local durations = args.durations
+    local duration = durations[rand(1, #durations + 1)]
+
+    local label = args.label
+    label = label:gsub('$time', duration)
+
+    self:newMessage('You unlocked ' .. label, 5)
+    execute_command('camo ' .. id .. ' ' .. duration)
+
     return true
 end
 
 function spoils:giveOvershield(args)
-    self:newMessage('You unlocked ' .. args.label, 5)
+
+    local id = self.id
+    local levels = args.levels
+    local level = levels[rand(1, #levels + 1)]
+
+    local label = args.label
+    label = label:gsub('$shield', level)
+
+    self:newMessage('You unlocked ' .. label, 5)
+
+    local dyn = get_dynamic_player(id)
+    write_word(dyn + 0x104, 0) -- force shield to regenerate immediately
+    execute_command('sh ' .. id .. ' ' .. level)
     return true
 end
 
 function spoils:giveHealthBoost(args)
-    self:newMessage('You unlocked ' .. args.label, 5)
+
+    local id = self.id
+    local levels = args.levels
+    local level = levels[rand(1, #levels + 1)]
+
+    execute_command('hp ' .. id .. ' ' .. level)
+
+    local label = args.label
+    label = label:gsub('$health', level)
+
+    self:newMessage('You unlocked ' .. label, 5)
     return true
 end
 
