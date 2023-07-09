@@ -78,8 +78,8 @@ local function createNuke(total, radius, projectile, cx, cy, cz)
         local rocket = spawn_projectile(projectile, 0, cx, cy, cz)
         local object = get_object_memory(rocket)
 
-        local x = cx + rand(-radius, radius+1)
-        local y = cy + rand(-radius, radius+1)
+        local x = cx + rand(-radius, radius + 1)
+        local y = cy + rand(-radius, radius + 1)
         local z = cz
 
         translate(rocket, object, x, y, z)

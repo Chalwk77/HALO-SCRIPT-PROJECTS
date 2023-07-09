@@ -2,10 +2,10 @@
 
 Planned features:
 
-- [ ] Shrinking "safe zone" boundary (**WIP**)
+- [x] Shrinking "safe zone" boundary
     - [x] The safe zone will shrink over time, forcing players to move closer together.
     - [x] Players outside the safe zone will take damage over time.
-    - [ ] The safe zone will be marked on the map with flag poles
+    - [ ] The safe zone will be marked on the map with flag poles. (**WIP**)
 - [x] Spectator mode:
     - [x] Players will be able to spectate other players after they die.
     - [x] They will be invisible, invulnerable, and unable to interact with the world.
@@ -42,12 +42,12 @@ Planned features:
     - [x] Armoured-piercing,
     - [x] Explosive
     - [x] Golden bullets (one-shot kill)
-- [ ] Support for all stock maps: (**WIP**)
-    - It currently supports:
-        - `timberland`, `bloodgulch`,
-        - `dangercanyon`, `icefields`
-        - `infinity`, `sidewinder`
-        - `deathisland`, `gephyrophobia`
+- [x] Support for these all stock maps:
+    - `timberland`, `bloodgulch`,
+    - `dangercanyon`, `icefields`
+    - `infinity`, `sidewinder`
+    - `deathisland`, `gephyrophobia`
 
-# Progress:
-![alt text](https://progress-bar.dev/90/?title=Progress)
+# [CODE](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/INDEV)
+
+![alt text](https://progress-bar.dev/95/?title=Progress)

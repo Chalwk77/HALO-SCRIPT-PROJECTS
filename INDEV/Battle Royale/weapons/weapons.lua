@@ -117,7 +117,7 @@ function weapons:customAmmo()
 
     local id = self.id
     local dyn = get_dynamic_player(id)
-    if (not player_alive(id) or dyn == 0) then
+    if (not self.pre_game_timer or not self.pre_game_timer.started or not player_alive(id) or dyn == 0) then
         return
     end
 
