@@ -280,7 +280,7 @@ return {
             },
 
             --- RANDOM WEAPON:
-            [1000000] = {
+            [30] = {
                 label = 'Random Weapon',
                 random_weapons = {
                     -- format: ['tag name'] = {primary ammo, reserve ammo}
