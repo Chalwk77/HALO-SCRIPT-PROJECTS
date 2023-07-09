@@ -41,7 +41,7 @@ return {
     -- The minimum amount of players required to start the game:
     -- Default: (2)
     --
-    required_players = 1,
+    required_players = 2,
 
 
     --- Game start delay:
@@ -49,7 +49,7 @@ return {
     -- The start delay will not begin until the required players have joined.
     -- Default (30)
     --
-    start_delay = 1,
+    start_delay = 30,
 
 
     --- Lives:
@@ -229,38 +229,9 @@ return {
                 _function_ = 'giveNuke'
             },
 
-            --- AIR STRIKE:
-            [5] = {
-                label = 'Air Strike Ability',
-                _function_ = 'enableAirstrike'
-            },
-
-            --- STUN GRENADES:
-            -- Grenade stunning is simulated by reducing the player's speed.
-            [10] = {
-                label = 'Stun Grenade(s)',
-
-                -- How many of each grenade (frags, plasmas) to give:
-                count = { 2, 4 },
-
-                -- Format: { 'tag name', stun time, speed }
-                grenade_tags = {
-                    ['weapons\\frag grenade\\explosion'] = { 5, 0.5 },
-                    ['weapons\\plasma grenade\\explosion'] = { 5, 0.5 },
-                    ['weapons\\plasma grenade\\attached'] = { 10, 0.5 }
-                },
-                _function_ = 'giveStunGrenades'
-            },
-
-            --- FRAG GRENADES:
-            [15] = {
-                label = 'Frag Grenade(s)',
-                _function_ = 'giveFragGrenades'
-            },
-
             --- GRENADE LAUNCHER:
             -- Turns any weapon into a grenade launcher.
-            [20] = {
+            [10] = {
 
                 label = 'Grenade Launcher',
 
@@ -273,14 +244,33 @@ return {
                 _function_ = 'giveGrenadeLauncher'
             },
 
+            --- STUN GRENADES:
+            -- Grenade stunning is simulated by reducing the player's speed.
+            -- Placeholders: $frags, $plasmas
+            [15] = {
+
+                label = 'Stun Grenade(s)',
+
+                -- How many of each grenade (frags, plasmas) to give:
+                count = { 2, 2 },
+
+                -- Format: { 'tag name', stun time, speed }
+                grenade_tags = {
+                    ['weapons\\frag grenade\\explosion'] = { 5, 0.5 },
+                    ['weapons\\plasma grenade\\explosion'] = { 5, 0.5 },
+                    ['weapons\\plasma grenade\\attached'] = { 10, 0.5 }
+                },
+                _function_ = 'giveStunGrenades'
+            },
+
             --- WEAPON PARTS:
-            [25] = {
+            [20] = {
                 label = 'Weapon Parts! Use /repair',
                 _function_ = 'giveWeaponParts'
             },
 
             --- RANDOM WEAPON:
-            [30] = {
+            [25] = {
                 label = 'Random Weapon',
                 random_weapons = {
                     -- format: ['tag name'] = {primary ammo, reserve ammo}
@@ -300,7 +290,8 @@ return {
 
             --- SPEED BOOST:
             -- Format: { { multiplier, duration (in seconds) } }
-            [35] = {
+            -- Placeholders: $speed, $duration
+            [30] = {
                 label = '$speedX Speed Boost for $duration seconds',
                 multipliers = { { 1.2, 10 }, { 1.3, 15 }, { 1.4, 20 }, { 1.5, 25 } },
                 _function_ = 'giveSpeedBoost'
@@ -314,7 +305,9 @@ return {
             --  * 3 = explosive bullets
             --  * 4 = golden bullets (one-shot kill)
             -- Format: { [type] = {multiplier, label}, ...}
-            [40] = {
+            --
+            -- Placeholders: $ammo
+            [35] = {
                 types = {
                     [1] = { 0, '$ammoX normal bullets' },
                     [2] = { 1.5, '$ammoX armour piercing bullets' },
@@ -336,7 +329,16 @@ return {
                 _function_ = 'giveAmmo'
             },
 
+            --- FRAG GRENADES:
+            -- Placeholders: $frags, $plasmas
+            [40] = {
+                label = '$fragsX frags, $plasmasX plasmas',
+                count = { 4, 4 },
+                _function_ = 'giveGrenades'
+            },
+
             --- CAMOUFLAGE:
+            -- Placeholders: $time
             [45] = {
                 label = 'Camo for $time seconds',
                 durations = { 30, 45, 60, 75, 90, 105, 120 },
@@ -344,6 +346,7 @@ return {
             },
 
             --- OVERSHIELD:
+            -- Placeholders: $shield
             [50] = {
                 label = '$shieldX Overshield',
                 levels = { 2, 3 }, -- 2x, 3x
@@ -351,6 +354,7 @@ return {
             },
 
             --- HEALTH BOOST:
+            -- Placeholders: $health
             [55] = {
                 label = '$healthX Health Boost',
                 levels = { 1.2, 1.3, 1.4, 1.5 },

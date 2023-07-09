@@ -13,10 +13,6 @@ function spoils:giveNuke(args)
     return true
 end
 
-function spoils:enableAirstrike(args)
-    self:newMessage('You unlocked ' .. args.label, 5)
-end
-
 function spoils:giveStunGrenades(args)
 
     self.can_stun = true
@@ -32,7 +28,25 @@ function spoils:giveStunGrenades(args)
 
     local label = args.label
     label = label:gsub('$frags', frags):gsub('$plasmas', plasmas)
-    self:newMessage('You unlocked ' .. args.label, 5)
+    self:newMessage('You unlocked ' .. label, 5)
+
+    return true
+end
+
+function spoils:giveGrenades(args)
+
+    local id = self.id
+    local dyn = get_dynamic_player(id)
+
+    local frags = args.count[1]
+    local plasmas = args.count[2]
+
+    write_byte(dyn + 0x31E, frags)
+    write_byte(dyn + 0x31F, plasmas)
+
+    local label = args.label
+    label = label:gsub('$frags', frags):gsub('$plasmas', plasmas)
+    self:newMessage('You unlocked ' .. label, 5)
 
     return true
 end

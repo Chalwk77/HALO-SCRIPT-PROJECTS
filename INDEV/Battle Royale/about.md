@@ -12,14 +12,13 @@ Planned features:
 - [x] Limited lives:
     - [x] Players will have a limited number of lives.
     - [x] Players will be able to spectate other players after they die.
-- [ ] Randomized loot (**WIP**)
+- [x] Randomized loot
     - [x] Loot will be randomized and spawn in random locations
     - Loot includes ammo:
         - [x] Camo
         - [x] Overshield
         - [x] Nuke
         - [x] Stun grenades
-        - [ ] Air Strike ability
         - [x] Weapon parts (for weapon repair system)
         - [x] Ammo (different types)
         - [x] Random Weapons (different types)
@@ -51,4 +50,4 @@ Planned features:
         - `deathisland`, `gephyrophobia`
 
 # Progress:
-![alt text](https://progress-bar.dev/80/?title=Progress)
+![alt text](https://progress-bar.dev/90/?title=Progress)

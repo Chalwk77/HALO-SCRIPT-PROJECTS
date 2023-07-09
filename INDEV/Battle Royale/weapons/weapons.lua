@@ -181,7 +181,7 @@ function weapons:checkDurability(rate, reload, is_firing, melee)
     local durability = self.durability
     local frequency = (durability / 100) ^ 2 * 100
 
-    //cprint('Jam when: ' .. time .. ' / ' .. frequency)
+    --cprint('Jam when: ' .. time .. ' / ' .. frequency)
 
     if (time >= frequency) then
         self.ammo = ammunition
