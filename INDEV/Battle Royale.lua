@@ -33,6 +33,7 @@ local BattleRoyale = {
             'on_end',
             'on_join',
             'on_object_spawn',
+            'on_pickup',
             'on_pre_spawn',
             'on_quit',
             'on_spawn',
@@ -143,20 +144,20 @@ function OnEnd()
     BattleRoyale:onEnd()
 end
 
-function OnJoin(id)
-    BattleRoyale:onJoin(id)
+function OnJoin(...)
+    BattleRoyale:onJoin(...)
 end
 
-function OnQuit(id)
-    BattleRoyale:onQuit(id)
+function OnQuit(...)
+    BattleRoyale:onQuit(...)
 end
 
-function OnPreSpawn(id)
-    BattleRoyale:onPreSpawn(id)
+function OnPreSpawn(...)
+    BattleRoyale:onPreSpawn(...)
 end
 
-function OnSpawn(id)
-    BattleRoyale:onSpawn(id)
+function OnSpawn(...)
+    BattleRoyale:onSpawn(...)
 end
 
 function OnTick()
@@ -165,6 +166,14 @@ end
 
 function OnDeath(...)
     BattleRoyale:onDeath(...)
+end
+
+function OnPickup(...)
+    return BattleRoyale:onPickup(...)
+end
+
+function OnDrop(...)
+    return BattleRoyale:onDrop(...)
 end
 
 function OnCommand(...)

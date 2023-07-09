@@ -39,6 +39,15 @@ function weapons:newWeapon()
 
         setmetatable(self.weapons[object], self)
         self.__index = self
+
+        if (self.nuke_created) then
+            self.nuke_created = false
+            self.weapons[object]:setAmmoType(6) -- nuke
+            self.weapons[object]:setAmmoDamage(100) -- damage multiplier
+            write_word(object + 0x2B8, 1) -- primary
+            write_word(object + 0x2B6, 0) -- reserve
+            sync_ammo(this_weapon)
+        end
     end
 end
 

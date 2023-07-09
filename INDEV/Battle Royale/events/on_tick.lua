@@ -34,6 +34,8 @@ function event:onTick()
     self:monitorLoot(self.loot_crates) -- loot crate monitor
     self:monitorLoot(self.loot) -- loot crate monitor
 
+    self:trackNuke() -- nuke projectile tracker
+
     for _, v in pairs(self.players) do
 
         --

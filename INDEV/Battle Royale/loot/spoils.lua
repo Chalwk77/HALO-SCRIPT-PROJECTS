@@ -3,8 +3,14 @@ local spoils = {}
 -- Gives the player a nuke.
 -- This will kill all players within a X world/unit radius.
 function spoils:giveNuke(args)
-    local radius = args.radius
+
+    local id = self.id
+    assign_weapon(self:spawnObject(self.rocket_launcher, 0, 0, 0), id)
+
+    self.nuke_created = true
     self:newMessage('You unlocked ' .. args.label, 5)
+
+    return true
 end
 
 function spoils:enableAirstrike(args)

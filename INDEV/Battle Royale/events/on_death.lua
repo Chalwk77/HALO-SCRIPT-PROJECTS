@@ -8,7 +8,7 @@ function event:onDeath(victim)
 
     victim = tonumber(victim)
     local player = self.players[victim]
-    player.weapon_parts = false -- weapons parts loot
+    player.weapon_parts = nil -- weapons parts loot
     player.stun = nil -- stun grenades
     player.can_stun = nil -- stun grenades
 

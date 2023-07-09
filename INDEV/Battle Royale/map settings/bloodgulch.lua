@@ -49,7 +49,7 @@ return {
     -- The start delay will not begin until the required players have joined.
     -- Default (30)
     --
-    start_delay = 5,
+    start_delay = 1,
 
 
     --- Lives:
@@ -223,7 +223,7 @@ return {
         spoils = {
 
             --- NUKE:
-            [1] = {
+            [100000000] = {
                 label = 'Nuke',
                 radius = 10, -- kills all players within this radius
                 _function_ = 'giveNuke'
@@ -237,7 +237,7 @@ return {
 
             --- STUN GRENADES:
             -- Grenade stunning is simulated by reducing the player's speed.
-            [100000] = {
+            [10] = {
                 label = 'Stun Grenade(s)',
 
                 -- How many of each grenade (frags, plasmas) to give:

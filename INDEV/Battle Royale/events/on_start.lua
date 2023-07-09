@@ -45,8 +45,6 @@ function event:onStart()
         -- Disable Full Spectrum Vision:
         execute_command('disable_object "' .. 'powerups\\full-spectrum vision"')
 
-        self.weapons = {}
-
         self.loot = nil
         self.loot_crates = nil
 
@@ -56,6 +54,12 @@ function event:onStart()
 
         -- players table:
         self.players = {}
+
+        -- weapons table:
+        self.weapons = {}
+
+        -- nuke:
+        self.nukes = {}
 
         -- safe zone timer and total game time:
         self.total_time = self:getTotalGameTime()
@@ -78,6 +82,9 @@ function event:onStart()
         -- For explosive bullets and grenade launcher:
         self.rocket_projectile = self:getTag('proj', 'weapons\\rocket launcher\\rocket')
         self.frag_projectile = self:getTag('proj', 'weapons\\frag grenade\\frag grenade')
+
+        -- For nuke:
+        self.rocket_launcher = self:getTag('weap', 'weapons\\rocket launcher\\rocket launcher')
 
         --self:spawnBarrier()
     end
