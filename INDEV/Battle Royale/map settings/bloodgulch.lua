@@ -26,7 +26,7 @@ return {
     -- How much the safe zone will shrink by (in world units):
     -- Default (5)
     --
-    shrink_amount = 5,
+    shrink_amount = 15,
 
 
     --- End after:
@@ -41,7 +41,7 @@ return {
     -- The minimum amount of players required to start the game:
     -- Default: (2)
     --
-    required_players = 2,
+    required_players = 1,
 
 
     --- Game start delay:
@@ -49,7 +49,7 @@ return {
     -- The start delay will not begin until the required players have joined.
     -- Default (30)
     --
-    start_delay = 30,
+    start_delay = 1,
 
 
     --- Lives:
@@ -223,7 +223,7 @@ return {
         spoils = {
 
             --- NUKE:
-            [1] = {
+            [1000000] = {
                 label = 'Nuke',
                 radius = 10, -- kills all players within this radius
                 _function_ = 'giveNuke'

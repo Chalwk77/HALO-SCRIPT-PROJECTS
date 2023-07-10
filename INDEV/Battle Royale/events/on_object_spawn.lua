@@ -36,20 +36,11 @@ function event:onObjectSpawn(player, map_id, parent_id, object_id, sapp_spawning
     end
 end
 
--- Just in case (to prevent rare projectile glitch):
-local function delete(rocket)
-    local object = get_object_memory(rocket)
-    if (object ~= 0) then
-        destroy_object(rocket)
-    end
-end
-
-local function translate(rocket, object, x, y, z)
+local function translate(object, x, y, z)
     write_vector3d(object + 0x5C, x, y, z)
     write_float(object + 0x68, 0) -- x velocity
     write_float(object + 0x6C, 0) -- y velocity
-    write_float(object + 0x70, -9999) -- z velocity
-    delete(rocket)
+    write_float(object + 0x70, -99999) -- z velocity
 end
 
 local function createNuke(total, radius, projectile, cx, cy, cz)
@@ -59,33 +50,27 @@ local function createNuke(total, radius, projectile, cx, cy, cz)
 
     -- Rockets with no spread but spawn in a circle:
     for _ = 1, total do
-
         local x = cx + (math.cos(angle) * radius)
         local y = cy + (math.sin(angle) * radius)
         local z = cz
-
         local rocket = spawn_projectile(projectile, 0, x, y, z)
         local object = get_object_memory(rocket)
-
-        translate(rocket, object, x, y, z)
-
+        translate(object, x, y, z)
         angle = angle + angle_step
     end
 
-    -- Rockets with random spread:
+     --Rockets with random spread:
     for _ = 1, 5 do
-
         local rocket = spawn_projectile(projectile, 0, cx, cy, cz)
         local object = get_object_memory(rocket)
-
         local x = cx + rand(-radius, radius + 1)
         local y = cy + rand(-radius, radius + 1)
         local z = cz
-
-        translate(rocket, object, x, y, z)
+        translate(object, x, y, z)
     end
 end
 
+-- called every tick:
 function event:trackNuke()
 
     local nukes = self.nukes
@@ -94,23 +79,16 @@ function event:trackNuke()
     end
 
     for k, v in pairs(self.nukes) do
-
         local object = get_object_memory(v.meta_id)
         if (object == 0) then
-
             self.nukes[k] = nil
             self:modifyRocket()
-
             createNuke(5, 5, v.projectile, v.x, v.y, v.z)
             createNuke(5, 10, v.projectile, v.x, v.y, v.z)
-
             self:rollbackRocket()
-
             goto next
         end
-
         v.x, v.y, v.z = read_vector3d(object + 0x5C)
-
         :: next ::
     end
 end

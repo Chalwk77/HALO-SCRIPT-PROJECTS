@@ -8,11 +8,12 @@ function hud:getPrimaryHUD(distance)
     distance = floor(distance)
     local size = self.safe_zone_size
     local timer = self.safe_zone_timer
+    local game_time = self.game_timer -- total game time
 
-    local time_elapsed = timer:get()
+    local time_elapsed = timer:get() -- time remaining until the next shrink
     time_elapsed = self.duration - time_elapsed
 
-    local time_remaining = self.total_time - timer:get()
+    local time_remaining = self.total_time - game_time:get() -- game time remaining
     local h, m, s = self:secondsToTime(time_remaining)
 
     return format('Safe Zone: %s/%s | Zone Shrink: %.2f | Time Remaining: %s:%s:%s',

@@ -35,6 +35,9 @@ function timer:preGameTimer()
         self.safe_zone_timer = self:new()
         self.safe_zone_timer:start()
 
+        self.game_timer = self:new()
+        self.game_timer:start()
+
         self:spawnLoot(self.looting.objects, 'loot')
         self:spawnLoot(self.looting.crates, 'crates')
 

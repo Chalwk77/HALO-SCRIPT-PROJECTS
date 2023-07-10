@@ -7,7 +7,7 @@ function spoils:giveNuke(args)
     local id = self.id
     assign_weapon(self:spawnObject(self.rocket_launcher, 0, 0, 0), id)
 
-    self.nuke_created = true
+    self.has_nuke = true
     self:newMessage('You unlocked ' .. args.label, 5)
 
     return true

@@ -46,8 +46,8 @@ function weapons:newWeapon()
         setmetatable(self.weapons[object], self)
         self.__index = self
 
-        if (self.nuke_created) then
-            self.nuke_created = false
+        if (self.has_nuke) then
+            self.has_nuke = false
             self.weapons[object]:setAmmoType(6) -- nuke
             self.weapons[object]:setAmmoDamage(100) -- damage multiplier
             write_word(object + 0x2B8, 1) -- primary
@@ -223,14 +223,6 @@ function weapons:jamWeapon(player, dyn)
     return false
 end
 
-local function getRandomKey(t)
-    local keys = {}
-    for k, _ in pairs(t) do
-        keys[#keys + 1] = k
-    end
-    return keys[rand(1, #keys + 1)]
-end
-
 local function hasThisWeapon(self, meta_id)
 
     local id = self.id
@@ -245,7 +237,7 @@ local function hasThisWeapon(self, meta_id)
         local weapon = read_dword(dyn + 0x2F8 + i * 4)
         local object = get_object_memory(weapon)
         if (weapon ~= 0xFFFFFFFF and object ~= 0) then
-            count = i + 1
+            count = count + 1
             local tag_id = read_dword(object)
             if (tag_id == meta_id) then
                 return true, count
@@ -266,16 +258,27 @@ local function giveWeapon(self, key, weapon, args)
     assign_weapon(weapon, id)
 
     local object = get_object_memory(weapon)
-    if (primary) then
-        write_word(object + 0x2B8, primary) -- primary
-        write_float(object + 0x240, primary) -- battery
-    end
+    write_word(object + 0x2B8, primary) -- primary
+
+    -- This is not working for some reason:
+    --write_float(object + 0x240, primary) -- battery
+    execute_command('battery ' .. id .. ' ' .. primary .. ' 0')
+
     if (reserve) then
         write_word(object + 0x2B6, reserve) -- reserve
     end
+
     sync_ammo(weapon)
 
     self:newMessage('[Unlocked] ' .. args.label, 5)
+end
+
+local function getRandomKey(t)
+    local keys = {}
+    for k, _ in pairs(t) do
+        keys[#keys + 1] = k
+    end
+    return keys[rand(1, #keys + 1)]
 end
 
 function weapons:getRandomWeapon(args)
@@ -294,6 +297,7 @@ function weapons:getRandomWeapon(args)
     while (has_weapon) do
         key = getRandomKey(random_weapons)
         weapon = random_weapons[key]
+        has_weapon = hasThisWeapon(self, key)
     end
 
     giveWeapon(self, key, weapon, args)

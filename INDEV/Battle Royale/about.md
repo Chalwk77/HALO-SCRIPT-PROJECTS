@@ -1,6 +1,16 @@
 # Battle Royale (WIP)
 
-Planned features:
+### Description:
+Battle Royale is a game mode inspired by the popular game *PlayerUnknown's Battlegrounds* (PUBG).
+The game mode is currently in development and is not ready for public release.
+
+Eliminate all other opponents while avoiding being trapped outside a shrinking "safe area",
+with the winner being the last player alive.
+
+Players start with no weapons and must find them scattered around the map.
+Loot crates will spawn randomly around the map, containing weapons, ammo, and other items.
+
+## Planned features:
 
 - [x] Shrinking "safe zone" boundary
     - [x] The safe zone will shrink over time, forcing players to move closer together.
@@ -39,14 +49,30 @@ Planned features:
     - [x] Players will start with no weapons.
     - [x] You will have to find weapon *parts* to repair damaged weapons.
 - [x] Different types of ammo:
-    - [x] Armoured-piercing,
-    - [x] Explosive
+    - [x] Armoured-piercing bullets,
+    - [x] Explosive bullets
     - [x] Golden bullets (one-shot kill)
-- [x] Support for these all stock maps:
+- [x] Support for these stock maps:
     - `timberland`, `bloodgulch`,
     - `dangercanyon`, `icefields`
     - `infinity`, `sidewinder`
     - `deathisland`, `gephyrophobia`
+
+# Coming in a future update:
+- [ ] Custom commands to spawn loot crates on demand (for host testing purposes)
+- [ ] Loot crate locations will be randomized every time they respawn.
+- [ ] Tweaks to loot crate respawn time:<br/>
+  *All loot crates currently have the same respawn time (albeit configurable), across all maps (30 seconds).
+  Some spawn near weapons - these need to have a longer respawn time.*
+
+# Known bugs:
+- ~~Energy weapons from loot crates don't have battery power.~~
+- ~~Receiving a weapon from a loot crate that you already have caused the server to crash.~~
+- Game doesn't end with the last man standing
+- ~~Time remaining HUD keeps resetting when the zone shrinks.~~
+- ~~Nuke is crashing the server.~~
+- When receiving an overshield from a loot crate, you won't see the shield bar change until you take damage.<br/>
+  Unfortunately, this is a limitation of Halo's net code.
 
 # [CODE](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/INDEV)
 

@@ -97,7 +97,7 @@ function SafeZone:outsideSafeZone()
     end
 end
 
-function SafeZone:getTotalGameTime()
+function SafeZone:setSafeZone()
 
     local min_size, max_size = self.safe_zone.min, self.safe_zone.max
     local reduction_rate, reduction_amount = self.duration, self.shrink_amount

@@ -83,8 +83,10 @@ function event:onStart()
         -- nuke:
         self.nukes = {}
 
-        -- safe zone timer and total game time:
-        self.total_time = self:getTotalGameTime()
+        -- Sets initial radius of the safe zone and the total game time:
+        self.total_time = self:setSafeZone()
+
+        self.game_timer = self:new()
 
         local h, m, s = self:secondsToTime(self.total_time)
         timer(33, 'pluginLogo', h, m, s, self.end_after * 60)
