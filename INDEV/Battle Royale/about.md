@@ -52,11 +52,13 @@ Loot crates will spawn randomly around the map, containing weapons, ammo, and ot
     - [x] Armoured-piercing bullets,
     - [x] Explosive bullets
     - [x] Golden bullets (one-shot kill)
-- [x] Support for these stock maps:
+- [x] Support for these maps:
     - `timberland`, `bloodgulch`,
     - `dangercanyon`, `icefields`
     - `infinity`, `sidewinder`
     - `deathisland`, `gephyrophobia`
+    - `portent`, `soli_deo_gloria`
+    - `yoyorast_island`
 
 # Coming in a future update:
 - [ ] Custom commands to spawn loot crates on demand (for host testing purposes)

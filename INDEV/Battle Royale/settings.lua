@@ -40,6 +40,16 @@ return {
             help = 'Syntax: /$cmd'
         },
 
+        -- Useful command to get loot crate coordinates:
+        -- Each set of coordinates will be printed to the servers console.
+        ['get_loot_coords'] = {
+            enabled = true,
+            name = 'l',
+            description = 'Get coordinates: {x,y,z,height}',
+            level = 4,
+            help = 'Syntax: /$cmd'
+        },
+
         -- Useful command to get your map coordinates:
         -- Used to generate sky-spawn or loot location coordinates.
         -- Each set of coordinates will be printed to the servers console.

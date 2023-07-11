@@ -403,6 +403,17 @@ return {
                     -- example locations:
                     -- {0,0,0,0},
                     -- {0,0,0,0}
+                    {-14.110, -64.008, 2.868, 30},
+                    {5.792, -60.481, 5.350, 30},
+                    {-80.016, -49.869, 1.103, 30},
+                    {-75.188, -15.920, 1.938, 30},
+                    {-73.318, -0.299, 3.382, 30},
+                    {-55.399, 2.519, 8.831, 30},
+                    {-55.969, 15.841, 5.187, 30},
+                    {-10.380, 0.674, 11.208, 30},
+                    {5.453, -29.187, 12.710, 30},
+                    {13.498, -15.646, 10.905, 30},
+                    {-8.923, -35.221, 8.991, 30},
                 },
                 ["cmt\\weapons\\evolved\\human\\battle_rifle\\_battle_rifle_specops\\battle_rifle_specops"] = {},
                 ["cmt\\weapons\\evolved_h1-spirit\\plasma_rifle\\_plasma_rifle_mp\\plasma_rifle_mp"] = {},
@@ -447,8 +458,6 @@ return {
 
     -- Tag addresses of covenant (energy) weapons:
     _energy_weapons_ = {
-        ['weapons\\plasma rifle\\plasma rifle'] = true,
-        ['weapons\\plasma_cannon\\plasma_cannon'] = true,
-        ['weapons\\plasma pistol\\plasma pistol'] = true
+        ['cmt\\weapons\\evolved_h1-spirit\\plasma_rifle\\_plasma_rifle_mp\\plasma_rifle_mp'] = true
     }
 }
