@@ -8,11 +8,11 @@ return {
     -- [note]: 1 world unit is 10 feet or ~3.048 meters.
     --
     safe_zone = {
-        x = 1.245,
-        y = -1.028,
-        z = -21.186,
+        x = 26.819,
+        y = -72.275,
+        z = -20.316,
         min = 6, -- default (6 world/units)
-        max = 610 -- default (610 world/units)
+        max = 206 -- default (206 world/units)
     },
 
 
@@ -25,9 +25,9 @@ return {
 
     --- Reduction amount:
     -- How much the safe zone will shrink by (in world units):
-    -- Default (103) = 103 world units
+    -- Default (5)
     --
-    shrink_amount = 103,
+    shrink_amount = 5,
 
 
     --- End after:
@@ -92,45 +92,56 @@ return {
     sky_spawn_coordinates = {
 
         --- red base:
-        { 13.505, -50.329, -17.586, 2.189, 35 },
-        { 20.976, -50.308, -17.652, 1.294, 35 },
-        { 17.412, -47.249, -17.932, 1.680, 35 },
-        { 7.548, -42.685, -17.048, 0.834, 35 },
-        { 25.585, -41.356, -16.481, 3.490, 35 },
-        { 16.535, -36.548, -16.950, 4.767, 35 },
-        { 17.349, -43.527, -18.165, 1.936, 35 },
+        { 31.780, -111.427, -15.633, 3.125, 20 },
+        { 21.657, -111.231, -15.633, 0.005, 20 },
+        { 21.722, -117.521, -17.043, 0.007, 20 },
+        { 32.126, -117.580, -17.043, 3.139, 20 },
+        { 33.505, -124.130, -15.895, 1.606, 20 },
+        { 19.627, -124.203, -15.897, 1.596, 20 },
+        { 24.595, -124.873, -15.628, 1.165, 20 },
+        { 29.636, -124.496, -15.629, 2.155, 20 },
 
         --- blue base:
-        { -12.817, 50.250, -17.628, 5.320, 35 },
-        { -20.055, 50.331, -17.650, 4.420, 35 },
-        { -16.208, 47.301, -17.832, 4.987, 35 },
-        { -5.992, 42.321, -16.783, 3.749, 35 },
-        { -24.433, 43.589, -16.989, 0.131, 35 },
-        { -16.004, 43.543, -18.188, 5.324, 35 },
-        { -16.105, 35.453, -16.580, 1.598, 35 },
+        { 34.464, -20.380, -15.900, 4.726, 20 },
+        { 20.190, -20.291, -15.894, 4.711, 20 },
+        { 24.557, -19.543, -15.627, 5.089, 20 },
+        { 29.374, -19.382, -15.628, 4.340, 20 },
+        { 31.809, -27.241, -17.043, 3.102, 20 },
+        { 21.372, -26.969, -17.043, 0.021, 20 },
+        { 30.479, -25.007, -15.633, 4.083, 20 },
+        { 22.868, -24.569, -15.633, 5.543, 20 },
 
         --- random locations:
-        { -5.130, -34.157, -21.726, 1.094, 35 },
-        { 3.287, -15.268, -22.008, 0.372, 35 },
-        { 1.014, 14.968, -21.893, 2.915, 35 },
-        { 6.067, 34.193, -21.637, 4.393, 35 },
-        { -15.863, 12.535, -20.735, 5.331, 35 },
-        { -39.861, 33.584, -19.582, 5.783, 35 },
-        { -33.849, 15.627, -20.580, 5.779, 35 },
-        { -24.759, -13.775, -20.698, 0.027, 35 },
-        { -31.055, -32.722, -20.980, 0.403, 35 },
-        { -9.381, -40.382, -20.353, 0.941, 35 },
-        { -4.412, -13.981, -20.763, 6.205, 35 },
-        { 9.626, -15.226, -21.027, 3.092, 35 },
-        { 19.146, -7.242, -20.933, 3.971, 35 },
-        { 42.453, -27.017, -20.742, 1.961, 35 },
-        { 19.655, -25.953, -20.633, 2.556, 35 },
-        { 26.918, 15.004, -20.954, 3.776, 35 },
-        { 33.074, 32.879, -21.387, 4.166, 35 },
-        { 17.004, 20.854, -16.115, 4.277, 35 },
-        { 10.764, 1.191, -19.139, 3.492, 35 },
-        { 31.042, -21.462, -18.446, 2.918, 35 },
-        { -17.024, -24.225, -16.706, 0.155, 35 },
+        { 19.181, -101.108, -14.474, 2.156, 20 },
+        { 10.133, -93.645, -14.474, 5.600, 20 },
+        { 18.369, -93.752, -14.474, 4.122, 20 },
+        { 14.212, -85.903, -14.323, 1.579, 20 },
+        { 18.357, -79.251, -12.712, 2.121, 20 },
+        { 14.433, -67.856, -12.712, 1.596, 20 },
+        { 14.381, -53.961, -14.474, 1.559, 20 },
+        { 17.405, -45.012, -14.474, 4.352, 20 },
+        { 31.085, -52.186, -18.326, 4.254, 20 },
+        { 23.111, -52.379, -18.326, 5.387, 20 },
+        { 26.875, -66.208, -20.316, 4.711, 20 },
+        { 26.809, -79.500, -20.316, 1.555, 20 },
+        { 30.815, -92.317, -18.326, 2.283, 20 },
+        { 22.764, -92.206, -18.326, 0.900, 20 },
+        { -19.448, -107.245, -1.255, 0.721, 20 },
+        { -22.418, -99.292, -1.255, 1.583, 20 },
+        { -21.760, -70.852, -1.255, 0.323, 20 },
+        { -22.887, -59.808, -1.255, 0.130, 20 },
+        { -26.136, -49.140, -1.255, 6.125, 20 },
+        { -23.419, -38.092, -1.255, 5.715, 20 },
+        { -18.068, -31.218, -1.255, 5.620, 20 },
+        { 67.612, -39.931, -1.062, 3.837, 20 },
+        { 71.014, -51.578, -1.062, 4.781, 20 },
+        { 70.861, -65.220, -1.062, 4.479, 20 },
+        { 67.505, -72.440, -1.062, 2.461, 20 },
+        { 67.438, -76.000, -1.062, 3.954, 20 },
+        { 70.393, -81.104, -1.062, 4.900, 20 },
+        { 71.472, -91.717, -1.062, 2.416, 20 },
+        { 70.117, -102.430, -1.062, 2.276, 20 },
+        { 67.340, -109.405, -1.062, 2.513, 20 },
     },
 
 
@@ -294,7 +305,7 @@ return {
             },
 
             --- SPEED BOOST:
-            -- Format: { { multiplier, duration (in seconds) } }
+            -- Format: { { multiplier, duration (in seconds) }, ... }
             -- Placeholders: $speed, $duration
             [30] = {
                 label = '$speedX Speed Boost for $duration seconds',
@@ -309,16 +320,17 @@ return {
             --  * 2 = armour piercing bullets
             --  * 3 = explosive bullets
             --  * 4 = golden bullets (one-shot kill)
-            -- Format: { [type] = {multiplier, label}, ...}
             --
-            -- Placeholders: $ammo
             [35] = {
                 types = {
+                    -- Format: { [type] = {multiplier, label}, ...}
+                    -- Placeholders: $ammo
                     [1] = { 0, '$ammoX normal bullets' },
                     [2] = { 1.5, '$ammoX armour piercing bullets' },
                     [3] = { 5, '$ammoX explosive bullets' },
                     [4] = { 100, '$ammoX golden bullets' }
                 },
+                -- Format: [tag name] = clip size
                 clip_sizes = {
                     ['weapons\\plasma pistol\\plasma pistol'] = 100,
                     ['weapons\\plasma rifle\\plasma rifle'] = 100,
@@ -368,83 +380,80 @@ return {
         },
 
         --- Loot crate locations:
-        -- Format: ['tag class'] = { ['tag name'] = { x, y, z, respawn time (in seconds) } }
-        --
         crates = {
-            ['eqip'] = {
+            ['eqip'] = { -- do not touch 'eqip'!
+
+                -- Object to represent 'loot crates':
                 ['powerups\\full-spectrum vision'] = {
-                    { 17.310, -52.052, -14.841, 30 },
-                    { 16.982, -64.373, -17.102, 30 },
-                    { 17.234, -51.399, -12.702, 30 },
-                    { -16.391, 51.935, -15.139, 30 },
-                    { -16.031, 64.373, -17.102, 30 },
-                    { -16.339, 51.359, -12.702, 30 },
-                    { 15.876, 24.232, -15.995, 30 },
-                    { -16.599, -24.193, -16.028, 30 },
-                    { -4.740, -18.035, -20.244, 30 },
-                    { 10.251, -20.222, -20.040, 30 },
-                    { 30.037, -20.545, -17.970, 30 },
-                    { -29.447, 20.724, -17.924, 30 },
-                    { -15.268, 13.691, -20.111, 30 },
-                    { 26.677, 14.758, -20.307, 30 },
-                    { 11.645, 3.522, -18.498, 30 },
+                    -- example locations:
+                    -- {0,0,0,0},
+                    -- {0,0,0,0}
+                    { 26.906, -72.088, -10.067, 30 },
+                    { 26.807, -93.023, -17.676, 30 },
+                    { 26.934, -51.887, -17.676, 30 },
+                    { 72.973, -70.886, 8.093, 30 },
+                    { 31.099, -118.227, -17.676, 30 },
+                    { 22.520, -116.893, -17.676, 30 },
+                    { 26.819, -72.095, -16.346, 30 },
+                    { 22.520, -26.311, -17.676, 30 },
+                    { 31.099, -27.640, -17.676, 30 },
+                    { 31.125, -72.305, 11.672, 30 },
+                    { 22.408, -72.293, 11.672, 30 },
+                    { -24.028, -84.697, -0.605, 30 },
                 }
             }
         },
 
-        --- Random Loot weapon/power up spawns:
-        -- These objects will spawn on the map!
+        --- Random weapon/power up spawns:
+        -- Format: ['tag class'] = { ['tag name'] = { { x, y, z, respawn time (in seconds)}, ... } }
         objects = {
 
             ['weap'] = {
                 ['weapons\\assault rifle\\assault rifle'] = {
+                    -- example locations:
+                    -- {0,0,0,0},
+                    -- {0,0,0,0}
                 },
-                ['weapons\\flamethrower\\flamethrower'] = {
-                },
-                ['weapons\\pistol\\pistol'] = {
-                },
-                ['weapons\\plasma pistol\\plasma pistol'] = {
-                },
-                ['weapons\\needler\\mp_needler'] = {
-                },
-                ['weapons\\plasma rifle\\plasma rifle'] = {
-                },
-                ['weapons\\shotgun\\shotgun'] = {
-                },
-                ['weapons\\sniper rifle\\sniper rifle'] = {
-                },
-                ['weapons\\plasma_cannon\\plasma_cannon'] = {
-                },
-                ['weapons\\rocket launcher\\rocket launcher'] = {
-                },
-                ['weapons\\sniper rifle\\sniper rifle'] = {
-                },
+                ['weapons\\flamethrower\\flamethrower'] = {},
+                ['weapons\\pistol\\pistol'] = {},
+                ['weapons\\plasma pistol\\plasma pistol'] = {},
+                ['weapons\\needler\\mp_needler'] = {},
+                ['weapons\\plasma rifle\\plasma rifle'] = {},
+                ['weapons\\shotgun\\shotgun'] = {},
+                ['weapons\\sniper rifle\\sniper rifle'] = {},
+                ['weapons\\plasma_cannon\\plasma_cannon'] = {},
+                ['weapons\\rocket launcher\\rocket launcher'] = {},
+                ['weapons\\sniper rifle\\sniper rifle'] = {},
             },
 
             ['eqip'] = {
-                ['powerups\\flamethrower ammo\\flamethrower ammo'] = {
-                },
-                ['powerups\\shotgun ammo\\shotgun ammo'] = {
-                },
-                ['powerups\\sniper rifle ammo\\sniper rifle ammo'] = {
-                },
-                ['powerups\\active camouflage'] = {
-                },
-                ['powerups\\health pack'] = {
-                },
-                ['powerups\\over shield'] = {
-                },
-                ['powerups\\assault rifle ammo\\assault rifle ammo'] = {
-                },
-                ['powerups\\needler ammo\\needler ammo'] = {
-                },
-                ['powerups\\rocket launcher ammo\\rocket launcher ammo'] = {
-                },
-                ['weapons\\frag grenade\\frag grenade'] = {
-                },
-                ['weapons\\plasma grenade\\plasma grenade'] = {
-                },
+                ['powerups\\flamethrower ammo\\flamethrower ammo'] = {},
+                ['powerups\\shotgun ammo\\shotgun ammo'] = {},
+                ['powerups\\sniper rifle ammo\\sniper rifle ammo'] = {},
+                ['powerups\\active camouflage'] = {},
+                ['powerups\\health pack'] = {},
+                ['powerups\\over shield'] = {},
+                ['powerups\\assault rifle ammo\\assault rifle ammo'] = {},
+                ['powerups\\needler ammo\\needler ammo'] = {},
+                ['powerups\\rocket launcher ammo\\rocket launcher ammo'] = {},
+                ['weapons\\frag grenade\\frag grenade'] = {},
+                ['weapons\\plasma grenade\\plasma grenade'] = {},
             }
         }
+    },
+
+    --
+    -- Do not touch unless you know what you're doing:
+    --
+    rocket_explosion_jpt_tag = 'weapons\\rocket launcher\\explosion',
+    rocket_projectile_tag = 'weapons\\rocket launcher\\rocket',
+    rocket_launcher_weapon = 'weapons\\rocket launcher\\rocket launcher',
+    frag_grenade_projectile = 'weapons\\frag grenade\\frag grenade',
+
+    -- Tag addresses of covenant (energy) weapons:
+    _energy_weapons_ = {
+        ['weapons\\plasma rifle\\plasma rifle'] = true,
+        ['weapons\\plasma_cannon\\plasma_cannon'] = true,
+        ['weapons\\plasma pistol\\plasma pistol'] = true
     }
 }

@@ -289,7 +289,7 @@ return {
             },
 
             --- SPEED BOOST:
-            -- Format: { { multiplier, duration (in seconds) } }
+            -- Format: { { multiplier, duration (in seconds) }, ... }
             -- Placeholders: $speed, $duration
             [30] = {
                 label = '$speedX Speed Boost for $duration seconds',
@@ -304,16 +304,17 @@ return {
             --  * 2 = armour piercing bullets
             --  * 3 = explosive bullets
             --  * 4 = golden bullets (one-shot kill)
-            -- Format: { [type] = {multiplier, label}, ...}
             --
-            -- Placeholders: $ammo
             [35] = {
                 types = {
+                    -- Format: { [type] = {multiplier, label}, ...}
+                    -- Placeholders: $ammo
                     [1] = { 0, '$ammoX normal bullets' },
                     [2] = { 1.5, '$ammoX armour piercing bullets' },
                     [3] = { 5, '$ammoX explosive bullets' },
                     [4] = { 100, '$ammoX golden bullets' }
                 },
+                -- Format: [tag name] = clip size
                 clip_sizes = {
                     ['weapons\\plasma pistol\\plasma pistol'] = 100,
                     ['weapons\\plasma rifle\\plasma rifle'] = 100,
@@ -363,11 +364,14 @@ return {
         },
 
         --- Loot crate locations:
-        -- Format: ['tag class'] = { ['tag name'] = { x, y, z, respawn time (in seconds) } }
-        --
         crates = {
-            ['eqip'] = {
+            ['eqip'] = { -- do not touch 'eqip'!
+
+                -- Object to represent 'loot crates':
                 ['powerups\\full-spectrum vision'] = {
+                    -- example locations:
+                    -- {0,0,0,0},
+                    -- {0,0,0,0}
                     { 43.090, 41.873, 2.408, 30 },
                     { -36.421, 30.705, 0.808, 30 },
                     { -17.797, 35.410, -3.272, 30 },
@@ -386,59 +390,56 @@ return {
             }
         },
 
-        --- Random Loot weapon/power up spawns:
-        -- These objects will spawn on the map!
+        --- Random weapon/power up spawns:
+        -- Format: ['tag class'] = { ['tag name'] = { { x, y, z, respawn time (in seconds)}, ... } }
         objects = {
 
             ['weap'] = {
                 ['weapons\\assault rifle\\assault rifle'] = {
+                    -- example locations:
+                    -- {0,0,0,0},
+                    -- {0,0,0,0}
                 },
-                ['weapons\\flamethrower\\flamethrower'] = {
-                },
-                ['weapons\\pistol\\pistol'] = {
-                },
-                ['weapons\\plasma pistol\\plasma pistol'] = {
-                },
-                ['weapons\\needler\\mp_needler'] = {
-                },
-                ['weapons\\plasma rifle\\plasma rifle'] = {
-                },
-                ['weapons\\shotgun\\shotgun'] = {
-                },
-                ['weapons\\sniper rifle\\sniper rifle'] = {
-                },
-                ['weapons\\plasma_cannon\\plasma_cannon'] = {
-                },
-                ['weapons\\rocket launcher\\rocket launcher'] = {
-                },
-                ['weapons\\sniper rifle\\sniper rifle'] = {
-                },
+                ['weapons\\flamethrower\\flamethrower'] = {},
+                ['weapons\\pistol\\pistol'] = {},
+                ['weapons\\plasma pistol\\plasma pistol'] = {},
+                ['weapons\\needler\\mp_needler'] = {},
+                ['weapons\\plasma rifle\\plasma rifle'] = {},
+                ['weapons\\shotgun\\shotgun'] = {},
+                ['weapons\\sniper rifle\\sniper rifle'] = {},
+                ['weapons\\plasma_cannon\\plasma_cannon'] = {},
+                ['weapons\\rocket launcher\\rocket launcher'] = {},
+                ['weapons\\sniper rifle\\sniper rifle'] = {},
             },
 
             ['eqip'] = {
-                ['powerups\\flamethrower ammo\\flamethrower ammo'] = {
-                },
-                ['powerups\\shotgun ammo\\shotgun ammo'] = {
-                },
-                ['powerups\\sniper rifle ammo\\sniper rifle ammo'] = {
-                },
-                ['powerups\\active camouflage'] = {
-                },
-                ['powerups\\health pack'] = {
-                },
-                ['powerups\\over shield'] = {
-                },
-                ['powerups\\assault rifle ammo\\assault rifle ammo'] = {
-                },
-                ['powerups\\needler ammo\\needler ammo'] = {
-                },
-                ['powerups\\rocket launcher ammo\\rocket launcher ammo'] = {
-                },
-                ['weapons\\frag grenade\\frag grenade'] = {
-                },
-                ['weapons\\plasma grenade\\plasma grenade'] = {
-                },
+                ['powerups\\flamethrower ammo\\flamethrower ammo'] = {},
+                ['powerups\\shotgun ammo\\shotgun ammo'] = {},
+                ['powerups\\sniper rifle ammo\\sniper rifle ammo'] = {},
+                ['powerups\\active camouflage'] = {},
+                ['powerups\\health pack'] = {},
+                ['powerups\\over shield'] = {},
+                ['powerups\\assault rifle ammo\\assault rifle ammo'] = {},
+                ['powerups\\needler ammo\\needler ammo'] = {},
+                ['powerups\\rocket launcher ammo\\rocket launcher ammo'] = {},
+                ['weapons\\frag grenade\\frag grenade'] = {},
+                ['weapons\\plasma grenade\\plasma grenade'] = {},
             }
         }
+    },
+
+    --
+    -- Do not touch unless you know what you're doing:
+    --
+    rocket_explosion_jpt_tag = 'weapons\\rocket launcher\\explosion',
+    rocket_projectile_tag = 'weapons\\rocket launcher\\rocket',
+    rocket_launcher_weapon = 'weapons\\rocket launcher\\rocket launcher',
+    frag_grenade_projectile = 'weapons\\frag grenade\\frag grenade',
+
+    -- Tag addresses of covenant (energy) weapons:
+    _energy_weapons_ = {
+        ['weapons\\plasma rifle\\plasma rifle'] = true,
+        ['weapons\\plasma_cannon\\plasma_cannon'] = true,
+        ['weapons\\plasma pistol\\plasma pistol'] = true
     }
 }

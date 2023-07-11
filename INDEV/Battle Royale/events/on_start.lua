@@ -3,15 +3,22 @@ local format = string.format
 
 function event:loadMapSettings()
 
-    local success, error = pcall(function()
-        local map = get_var(0, '$map')
-        local map_settings = require('./Battle Royale/map settings/' .. map)
-        for k, v in pairs(map_settings) do
-            self[k] = v
-        end
-    end)
+    local map = get_var(0, '$map')
+    local path = './Battle Royale/map settings/'
 
-    return success, error
+    -- Try stock maps first:
+    local success, data = xpcall(require, function()
+    end, path .. 'stock/' .. map)
+
+    -- Try custom maps:
+    if (not success) then
+        success, data = xpcall(require, function()
+        end, path .. 'custom/' .. map)
+    end
+
+    for k, v in pairs(data) do
+        self[k] = v
+    end
 end
 
 function event:getClipSizesTable()
@@ -31,21 +38,23 @@ function event:getStunTags()
 end
 
 function event:getRandomWeaponTags()
-    for _, v in pairs(self.looting.spoils) do
+    local spoils = self.looting.spoils
+    for _, v in pairs(spoils) do
         if (v.random_weapons) then
             return v.random_weapons
         end
     end
 end
 
-local function getTagData()
+local function getTagData(self)
+    local jpt = self.rocket_explosion_jpt_tag
     local tag_address = read_dword(0x40440000)
     local tag_count = read_dword(0x4044000C)
     for i = 0, tag_count - 1 do
         local tag = tag_address + 0x20 * i
         local tag_name = read_string(read_dword(tag + 0x10))
         local tag_class = read_dword(tag)
-        if (tag_class == 1785754657 and tag_name == "weapons\\rocket launcher\\explosion") then
+        if (tag_class == 1785754657 and tag_name == jpt) then
             return read_dword(tag + 0x14)
         end
     end
@@ -55,17 +64,16 @@ end
 function event:onStart()
     if (get_var(0, '$gt') ~= 'n/a') then
 
-        local success, error = self:loadMapSettings()
-        if (not success) then
-            cprint(error, 12)
-            return
-        end
+        self:loadMapSettings()
 
         self.death_message_address = sig_scan("8B42348A8C28D500000084C9") + 3
         self.original_death_message_address = read_dword(self.death_message_address)
 
         -- Disable Full Spectrum Vision:
-        execute_command('disable_object "' .. 'powerups\\full-spectrum vision"')
+
+        for name, _ in pairs(self.looting.crates['eqip']) do
+            execute_command('disable_object "' .. name .. '"')
+        end
 
         self.loot = nil
         self.loot_crates = nil
@@ -105,14 +113,16 @@ function event:onStart()
         self.clip_sizes = self:tagsToID(self:getClipSizesTable(), 'weap')
         self.stuns = self:tagsToID(self:getStunTags(), 'jpt!')
 
-        -- For explosive bullets and grenade launcher:
-        self.rocket_projectile = self:getTag('proj', 'weapons\\rocket launcher\\rocket')
-        self.frag_projectile = self:getTag('proj', 'weapons\\frag grenade\\frag grenade')
+        -- For explosive bullets:
+        self.rocket_projectile = self:getTag('proj', self.rocket_projectile_tag)
+
+        -- For grenade launcher:
+        self.frag_projectile = self:getTag('proj', self.frag_grenade_projectile)
 
         -- For nuke:
-        self.rocket_launcher = self:getTag('weap', 'weapons\\rocket launcher\\rocket launcher')
+        self.rocket_launcher = self:getTag('weap', self.rocket_launcher_weapon)
 
-        self.rocket_tag_data = getTagData()
+        self.rocket_tag_data = getTagData(self)
 
         --self:spawnBarrier()
     end

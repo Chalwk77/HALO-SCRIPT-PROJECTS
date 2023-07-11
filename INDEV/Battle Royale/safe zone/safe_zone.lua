@@ -66,6 +66,8 @@ function SafeZone:spawnBarrier()
             local x1 = x + radius * math.cos(angle)
             local y1 = y + radius * math.sin(angle)
             local z1 = z + height
+
+            -- todo: This may not work on some 'custom' maps! Needs further testing.
             local object = spawn_object('weap', 'weapons\\flag\\flag', x1, y1, z1)
             self.barrier[object] = { x = x1, y = y1, z = z1 }
         end

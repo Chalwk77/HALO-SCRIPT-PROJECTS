@@ -57,13 +57,4 @@ return {
     -- and will restore it after the message has been sent.
     --
     prefix = '**SAPP**',
-
-    --
-    -- Do not touch unless you know what you're doing:
-    --
-    _energy_weapons_ = {
-        ['weapons\\plasma rifle\\plasma rifle'] = true,
-        ['weapons\\plasma_cannon\\plasma_cannon'] = true,
-        ['weapons\\plasma pistol\\plasma pistol'] = true
-    }
 }

@@ -76,13 +76,17 @@ function timer:phaseCheck(quit, player)
             player:setSpectatorBits()
             player:newMessage('You have joined mid-game, you will be able to play next round', 5)
         end
-        return
 
 
         -- A player has quit the game before the pre-game timer has elapsed. Reset the timer:
     elseif (quit and self.pre_game_timer and not self.pre_game_timer.started) then
         self.pre_game_timer = nil
-        return
+
+
+        -- The game has started but there is only one player left, end the game:
+    elseif (quit and count == 1 and game_started) then
+        execute_command('sv_map_next')
+        print('[VICTORY] Game ended - last player wins!')
     end
 end
 
