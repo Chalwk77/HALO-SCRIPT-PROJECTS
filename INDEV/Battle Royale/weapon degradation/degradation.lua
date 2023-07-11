@@ -73,7 +73,7 @@ function weapons:degrade()
 
         -- [To fix a glitch]
         -- Object id of this weapon changes if the player is attempting to
-        -- shoot and throws a grenade simultaneously.
+        -- shoot and throws a grenade simultaneously - causes the rate to return nil.
         rate = rate or 0
         --
 

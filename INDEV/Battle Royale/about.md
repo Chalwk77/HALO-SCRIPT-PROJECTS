@@ -73,6 +73,7 @@ Loot crates will spawn randomly around the map, containing weapons, ammo, and ot
 - Game doesn't end with the last man standing
 - ~~Time remaining HUD keeps resetting when the zone shrinks.~~
 - ~~Nuke is crashing the server.~~
+- Players are given too many golden bullets (based on weapon clip size). Needs to be limited to 3 max?
 - When receiving an overshield from a loot crate, you won't see the shield bar change until you take damage.<br/>
   Unfortunately, this is a limitation of Halo's net code.
 
