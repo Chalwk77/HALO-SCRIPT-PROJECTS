@@ -24,6 +24,9 @@ function Command:run(id, args)
         return
     end
 
+    local height = tonumber(args[2])
+    height = height or 35
+
     local x, y, z, r = p:getXYZ(dyn)
 
     x = threeDecimal(x)
@@ -31,7 +34,9 @@ function Command:run(id, args)
     z = threeDecimal(z)
     r = threeDecimal(r)
 
-    cprint('{' .. x .. ', ' .. y .. ', ' .. z .. ', ' .. r .. ', 35},')
+    local str = string.format('{%s, %s, %s, %s, %s},', x, y, z, r, height)
+    p:say('[POS SET]: ' .. str)
+    cprint(str)
 end
 
 return Command

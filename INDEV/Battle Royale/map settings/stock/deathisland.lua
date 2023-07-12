@@ -410,58 +410,40 @@ return {
             }
         },
 
-        --- Random Loot weapon/power up spawns:
-        -- These objects will spawn on the map!
+        --- Random weapon/power up spawns:
+        -- Format: ['tag class'] = { ['tag name'] = { { x, y, z, respawn time (in seconds)}, ... } }
         objects = {
 
             ['weap'] = {
                 ['weapons\\assault rifle\\assault rifle'] = {
+                    -- example locations:
+                    -- {0,0,0,0},
+                    -- {0,0,0,0}
                 },
-                ['weapons\\flamethrower\\flamethrower'] = {
-                },
-                ['weapons\\pistol\\pistol'] = {
-                },
-                ['weapons\\plasma pistol\\plasma pistol'] = {
-                },
-                ['weapons\\needler\\mp_needler'] = {
-                },
-                ['weapons\\plasma rifle\\plasma rifle'] = {
-                },
-                ['weapons\\shotgun\\shotgun'] = {
-                },
-                ['weapons\\sniper rifle\\sniper rifle'] = {
-                },
-                ['weapons\\plasma_cannon\\plasma_cannon'] = {
-                },
-                ['weapons\\rocket launcher\\rocket launcher'] = {
-                },
-                ['weapons\\sniper rifle\\sniper rifle'] = {
-                },
+                ['weapons\\flamethrower\\flamethrower'] = {},
+                ['weapons\\pistol\\pistol'] = {},
+                ['weapons\\plasma pistol\\plasma pistol'] = {},
+                ['weapons\\needler\\mp_needler'] = {},
+                ['weapons\\plasma rifle\\plasma rifle'] = {},
+                ['weapons\\shotgun\\shotgun'] = {},
+                ['weapons\\sniper rifle\\sniper rifle'] = {},
+                ['weapons\\plasma_cannon\\plasma_cannon'] = {},
+                ['weapons\\rocket launcher\\rocket launcher'] = {},
+                ['weapons\\sniper rifle\\sniper rifle'] = {},
             },
 
             ['eqip'] = {
-                ['powerups\\flamethrower ammo\\flamethrower ammo'] = {
-                },
-                ['powerups\\shotgun ammo\\shotgun ammo'] = {
-                },
-                ['powerups\\sniper rifle ammo\\sniper rifle ammo'] = {
-                },
-                ['powerups\\active camouflage'] = {
-                },
-                ['powerups\\health pack'] = {
-                },
-                ['powerups\\over shield'] = {
-                },
-                ['powerups\\assault rifle ammo\\assault rifle ammo'] = {
-                },
-                ['powerups\\needler ammo\\needler ammo'] = {
-                },
-                ['powerups\\rocket launcher ammo\\rocket launcher ammo'] = {
-                },
-                ['weapons\\frag grenade\\frag grenade'] = {
-                },
-                ['weapons\\plasma grenade\\plasma grenade'] = {
-                },
+                ['powerups\\flamethrower ammo\\flamethrower ammo'] = {},
+                ['powerups\\shotgun ammo\\shotgun ammo'] = {},
+                ['powerups\\sniper rifle ammo\\sniper rifle ammo'] = {},
+                ['powerups\\active camouflage'] = {},
+                ['powerups\\health pack'] = {},
+                ['powerups\\over shield'] = {},
+                ['powerups\\assault rifle ammo\\assault rifle ammo'] = {},
+                ['powerups\\needler ammo\\needler ammo'] = {},
+                ['powerups\\rocket launcher ammo\\rocket launcher ammo'] = {},
+                ['weapons\\frag grenade\\frag grenade'] = {},
+                ['weapons\\plasma grenade\\plasma grenade'] = {},
             }
         }
     },

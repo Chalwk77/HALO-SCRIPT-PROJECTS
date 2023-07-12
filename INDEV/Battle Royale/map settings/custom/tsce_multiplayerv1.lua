@@ -387,9 +387,12 @@ return {
 
                 -- Object to represent 'loot crates':
                 ['cmt\\powerups\\human\\ammo_box\\powerups\\rocket_launcher_ammo_box'] = {
+
+                    -- Format: { x, y, z, respawn time (in seconds) }
                     -- example locations:
                     -- {0,0,0,0},
                     -- {0,0,0,0}
+
                     {-14.110, -64.008, 2.868, 30},
                     {5.792, -60.481, 5.350, 30},
                     {-80.016, -49.869, 1.103, 30},

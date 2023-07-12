@@ -385,9 +385,12 @@ return {
 
                 -- Object to represent 'loot crates':
                 ['powerups\\full-spectrum vision'] = {
+
+                    -- Format: { x, y, z, respawn time (in seconds) }
                     -- example locations:
                     -- {0,0,0,0},
                     -- {0,0,0,0}
+
                     { 26.906, -72.088, -10.067, 30 },
                     { 26.807, -93.023, -17.676, 30 },
                     { 26.934, -51.887, -17.676, 30 },

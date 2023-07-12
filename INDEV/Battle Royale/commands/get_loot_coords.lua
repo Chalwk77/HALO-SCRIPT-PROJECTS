@@ -24,14 +24,18 @@ function Command:run(id, args)
         return
     end
 
-    local x, y, z, r = p:getXYZ(dyn)
+    local respawn_time = tonumber(args[2])
+    respawn_time = respawn_time or 30
+
+    local x, y, z = p:getXYZ(dyn)
 
     x = threeDecimal(x)
     y = threeDecimal(y)
     z = threeDecimal(z)
-    r = threeDecimal(r)
 
-    cprint('{' .. x .. ', ' .. y .. ', ' .. z .. ', 30},')
+    local str = string.format('{%s, %s, %s, %s},', x, y, z, respawn_time)
+    p:say('[POS SET]: ' .. str)
+    cprint(str)
 end
 
 return Command

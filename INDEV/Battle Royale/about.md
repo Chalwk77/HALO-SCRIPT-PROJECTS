@@ -57,8 +57,7 @@ Loot crates will spawn randomly around the map, containing weapons, ammo, and ot
     - `dangercanyon`, `icefields`
     - `infinity`, `sidewinder`
     - `deathisland`, `gephyrophobia`
-    - `portent`, `soli_deo_gloria`
-    - `yoyorast_island`
+    - `portent`, `yoyorast_island`, `tsce_multiplayerv1`
 
 # Coming in a future update:
 - [ ] Custom commands to spawn loot crates on demand (for host testing purposes)
@@ -73,7 +72,7 @@ Loot crates will spawn randomly around the map, containing weapons, ammo, and ot
 - Game doesn't end with the last man standing
 - ~~Time remaining HUD keeps resetting when the zone shrinks.~~
 - ~~Nuke is crashing the server.~~
-- Players are given too many golden bullets (based on weapon clip size). Needs to be limited to 3 max?
+- ~~Players are given too many golden bullets. Needs to be limited to 3 max?~~
 - When receiving an overshield from a loot crate, you won't see the shield bar change until you take damage.<br/>
   Unfortunately, this is a limitation of Halo's net code.
 
