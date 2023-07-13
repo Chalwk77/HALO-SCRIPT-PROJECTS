@@ -51,7 +51,12 @@ function timer:get()
             return clock() - self.start_time
         end
     end
-    return 0
+    return clock() -- now
+end
+
+function timer:setTime(delay)
+    self:start()
+    self.start_time = self.start_time + delay
 end
 
 return timer

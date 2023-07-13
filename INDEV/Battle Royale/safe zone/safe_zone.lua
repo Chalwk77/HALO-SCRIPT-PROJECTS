@@ -2,47 +2,49 @@ local SafeZone = {}
 local format = string.format
 local floor = math.floor
 
+local function getWinner(self)
+
+    local t = {}
+    for _, v in pairs(self.players) do
+        local id = v.id
+        local kills = tonumber(get_var(id, '$kills'))
+        local deaths = tonumber(get_var(id, '$deaths'))
+        t[id] = kills / deaths
+    end
+
+    local winner
+    local highest = 0
+    for id, v in pairs(t) do
+        if (v > highest) then
+            highest = v
+            winner = id
+        end
+    end
+
+    return winner
+end
+
 function SafeZone:shrinkSafeZone()
 
     local timer = self.safe_zone_timer
-    local reductions = self.reductions
-
     if (not timer) then
         return
     end
 
-    --- TOTAL TIME REMAINING:
-    local time_remaining = self.total_time - timer:get()
-    local h, m, s = self:secondsToTime(time_remaining)
-    --cprint(format("This game will end in %s hours, %s minutes and %s seconds", h, m, s), 10)
-
     local time = timer:get()
-
-    --
-    --- SAFE ZONE SHRINKING:
-    -- The safe zone will shrink every 'x' seconds (default 60).
-    --
     if (not timer.crunch_time) then
-        local time_until_shrink = self.duration - time
-        --cprint('Safe Zone will shrink in ' .. time_until_shrink .. ' seconds')
-        if (time_until_shrink <= 0 and reductions > 0 and self.safe_zone_size > self.safe_zone.min) then
+        local interval = self.duration - time
+        if (interval <= 0 and self.safe_zone_size > self.safe_zone.min) then
             self:shrink()
         end
         return
-    end
-
-
-    --
-    --- CRUNCH TIME:
-    -- There is an additional 'x' minutes (default 2) of game play after the safe zone has shrunk to its minimum size.
-    -- This is to allow players to fight it out in a small area.
-    -- After this time has elapsed, the game will end.
-    --
-    local time_until_end = (self.end_after * 60) - time
-
-    if (time_until_end <= 0) then
+    elseif (time >= self.end_after * 60) then
         execute_command('sv_end_game')
-        return
+        local winner = getWinner(self)
+        if (winner) then
+            local name = self.players[winner].name
+            self:say(string.format('[VICTORY] %s has won the game!', name), true)
+        end
     end
 end
 
@@ -80,20 +82,20 @@ function SafeZone:outsideSafeZone()
         return
     end
 
-    local bX, bY, bZ = self.safe_zone.x, self.safe_zone.y, self.safe_zone.z
-
     for i, v in pairs(self.players) do
-
         local dyn = get_dynamic_player(i)
         if (dyn ~= 0 and player_alive(i)) then
 
+            local bX, bY, bZ = self.safe_zone.x, self.safe_zone.y, self.safe_zone.z
+            local radius = self.safe_zone_size
             local px, py, pz = self:getXYZ(dyn)
+
             local distance = self:getDistance(px, py, pz, bX, bY, bZ)
-            if (distance > self.safe_zone_size) then
-                self:hurt(v)
-            else
+            if (distance < radius) then
                 v.kill_timer = nil
                 v:setHUD('primary', distance)
+            else
+                self:hurt(v)
             end
         end
     end
@@ -106,7 +108,6 @@ function SafeZone:setSafeZone()
 
     local total_time = (max_size - min_size) / reduction_amount * reduction_rate
 
-    self.reductions = floor((total_time / reduction_rate))
     self.safe_zone_size = max_size
 
     return total_time
@@ -116,9 +117,7 @@ function SafeZone:shrink()
 
     local min, max = self.safe_zone.min, self.safe_zone.max
 
-    self.reductions = self.reductions - 1
     self.safe_zone_size = self.safe_zone_size - self.shrink_amount
-
     self.safe_zone_timer:restart()
 
     if (self.safe_zone_size <= min) then
@@ -126,7 +125,7 @@ function SafeZone:shrink()
 
         self.safe_zone_size = min
         self.safe_zone_timer.crunch_time = true
-
+        self.safe_zone_timer:restart()
         return
     end
 

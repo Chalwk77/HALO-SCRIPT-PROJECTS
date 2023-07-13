@@ -18,35 +18,20 @@ function event:onSpawn(id)
     -- Only in effect during game play.
     --
 
-    if (player.god) then
-        return
-    end
+    local game_started = (self.pre_game_timer and self.pre_game_timer.started)
+    if (not player.god and game_started) then
 
-    -- Gets all sky-spawn points:
-    local spawns = self:getSpawns()
+        local dyn = get_dynamic_player(id)
+        local px, py, pz = player:getXYZ(dyn)
 
-    -- Safe zone X, Y, Z and radius:
-    local radius = self.safe_zone_size
-    local bX, bY, bZ = self.safe_zone.x, self.safe_zone.y, self.safe_zone.z
-
-    -- Saves all points inside the circle:
-    local candidates = {}
-    for i = 1, #spawns do
-        local point = spawns[i]
-
-        local x = point[1]
-        local y = point[2]
-        local z = point[3]
-
-        local distance = self:getDistance(x, y, z, bX, bY, bZ)
+        local radius = self.safe_zone_size
+        local bX, bY, bZ = self.safe_zone.x, self.safe_zone.y, self.safe_zone.z
+        local distance = self:getDistance(px, py, pz, bX, bY, bZ)
         if (distance <= radius) then
-            candidates[#candidates + 1] = point
+            return
         end
-    end
 
-    -- If there are no points inside the circle, then we'll pick the closest one to the centre of the circle:
-    if (#candidates == 0) then
-
+        local spawns = self:getSpawns()
         local closest
         local closest_distance
         for i = 1, #spawns do
@@ -56,18 +41,15 @@ function event:onSpawn(id)
             local y = point[2]
             local z = point[3]
 
-            local distance = self:getDistance(x, y, z, bX, bY, bZ)
+            distance = self:getDistance(x, y, z, bX, bY, bZ)
             if (not closest or distance < closest_distance) then
                 closest = point
                 closest_distance = distance
             end
         end
         player.spawn = closest
-    else
-        player.spawn = candidates[rand(1, #candidates + 1)]
+        player:teleport(false, false)
     end
-
-    player:teleport(false, false)
 end
 
 register_callback(cb['EVENT_SPAWN'], 'OnSpawn')

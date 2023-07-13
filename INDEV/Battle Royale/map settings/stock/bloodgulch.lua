@@ -11,22 +11,22 @@ return {
         x = 65.749,
         y = -120.409,
         z = 0.118,
-        min = 6, -- default (6 world/units)
-        max = 206 -- default (206 world/units)
+        min = 5, -- default (6 world/units)
+        max = 100 -- default (206 world/units)
     },
 
     --- Reduction rate:
     -- How often the safe zone will shrink (in seconds):
     -- Default (60)
     --
-    duration = 60,
+    duration = 2,
 
 
     --- Reduction amount:
     -- How much the safe zone will shrink by (in world units):
     -- Default (5)
     --
-    shrink_amount = 5,
+    shrink_amount = 45,
 
 
     --- End after:

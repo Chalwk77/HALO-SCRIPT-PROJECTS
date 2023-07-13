@@ -69,13 +69,11 @@ function weapons:degrade()
         local meta_id = read_dword(object) -- weapon tag id
         local rate = self.decay_rates[meta_id]
 
-        rate = (is_reloading and rate / 5) or rate
-
-        -- [To fix a glitch]
-        -- Object id of this weapon changes if the player is attempting to
-        -- shoot and throws a grenade simultaneously - causes the rate to return nil.
-        rate = rate or 0
-        --
+        if (not rate) then
+            rate = 0
+        else
+            rate = (is_reloading and rate / 5) or rate
+        end
 
         if (weapon.durability <= 0) then
             weapon.durability = 0
