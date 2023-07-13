@@ -4,15 +4,17 @@ function safe_zone:hurt(player)
 
     if (self.spectator) then
         return
-    elseif (not player.kill_timer) then
-        player.kill_timer = self:new()
-        player.kill_timer:start()
+
+        -- Another name for kill_timer is "hurt_timer" or "damage_timer" or "damage_cooldown" or "hurt_cooldown" or "hurt_delay" or "damage_delay"
+    elseif (not player.hurt_cooldown) then
+        player.hurt_cooldown = self:new()
+        player.hurt_cooldown:start()
     end
 
-    local time = player.kill_timer:get()
+    local time = player.hurt_cooldown:get()
     if (time >= 1) then
 
-        player.kill_timer:restart()
+        player.hurt_cooldown:restart()
 
         local dyn = get_dynamic_player(player.id)
         if (dyn == 0 or not player_alive(player.id)) then

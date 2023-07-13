@@ -5,7 +5,7 @@ function event:onSpawn(id)
     local player = self.players[id]
     if (not player) then
         return
-    elseif (self.pre_game_timer and self.pre_game_timer.started and player.god) then
+    elseif (self.game and self.game.started and player.god) then
         execute_command('god ' .. id)
     end
 
@@ -18,15 +18,16 @@ function event:onSpawn(id)
     -- Only in effect during game play.
     --
 
-    local game_started = (self.pre_game_timer and self.pre_game_timer.started)
+    local game_started = (self.game and self.game.started)
     if (not player.god and game_started) then
 
         local dyn = get_dynamic_player(id)
         local px, py, pz = player:getXYZ(dyn)
 
-        local radius = self.safe_zone_size
+        local radius = self.safe_zone.size
         local bX, bY, bZ = self.safe_zone.x, self.safe_zone.y, self.safe_zone.z
         local distance = self:getDistance(px, py, pz, bX, bY, bZ)
+
         if (distance <= radius) then
             return
         end
@@ -47,6 +48,7 @@ function event:onSpawn(id)
                 closest_distance = distance
             end
         end
+
         player.spawn = closest
         player:teleport(false, false)
     end

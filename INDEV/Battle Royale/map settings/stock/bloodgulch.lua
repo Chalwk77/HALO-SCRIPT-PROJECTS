@@ -41,7 +41,7 @@ return {
     -- The minimum amount of players required to start the game:
     -- Default: (2)
     --
-    required_players = 2,
+    required_players = 1,
 
 
     --- Game start delay:
@@ -49,7 +49,7 @@ return {
     -- The start delay will not begin until the required players have joined.
     -- Default (30)
     --
-    start_delay = 10,
+    start_delay = 1,
 
 
     --- Lives:

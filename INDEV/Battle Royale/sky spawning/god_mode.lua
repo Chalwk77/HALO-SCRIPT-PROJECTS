@@ -17,7 +17,7 @@ end
 
 function sky_spawn:landing()
 
-    if (not self.pre_game_timer or not self.pre_game_timer.started) then
+    if (not self.game or not self.game.started) then
         return
     end
 

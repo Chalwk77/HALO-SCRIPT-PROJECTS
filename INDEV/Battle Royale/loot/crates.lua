@@ -71,43 +71,4 @@ function crates:openCrate()
     end
 end
 
--- Test the loot system:
-function crates:testLoot()
-
-    local iterations = 1000
-
-    local chances = {}
-    for _ = 1, iterations do
-
-        local _, spoils = getSpoils(self.looting.spoils)
-        local label = spoils.label
-
-        if (not chances[label]) then
-            chances[label] = 0
-        end
-
-        chances[label] = chances[label] + 1
-    end
-
-    print(' ')
-    for k, v in pairs(chances) do
-
-        -- k = label
-        -- v = how many times the loot was chosen out of 'iterations'
-
-        print('Label: ' .. k, 'Chosen: ' .. v .. ' times')
-    end
-
-    -- Get the one that was chosen the most:
-    print(' ')
-    local max, label = 0, nil
-    for k, v in pairs(chances) do
-        if (v > max) then
-            max = v
-            label = k
-        end
-    end
-    print('Most chosen: ' .. label .. ' (' .. max .. ' times)')
-end
-
 return crates

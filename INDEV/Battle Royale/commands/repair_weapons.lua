@@ -1,33 +1,11 @@
 local Command = {}
 
--- Executes this command.
--- @param id = player id (number)
--- @param args (table of command strings)
---
-function Command:run(id, args)
+local function repair(self)
 
-    local p = self.players[id]
-
-    if not p:commandEnabled(self.enabled, self.name) then
-        return
-    elseif not p:hasPermission(self.level) then
-        return
-    end
-
-    if (not p.weapon_parts) then
-        p:newMessage("You don't have weapon parts!", 5)
-        return
-    end
-
-    self:repairsWeapons(p)
-end
-
-function Command:repairsWeapons(player)
-
-    local id = player.id
+    local id = self.id
     local dyn = get_dynamic_player(id)
     if (dyn == 0 or not player_alive(id)) then
-        self:newMessage('You are dead! Unable to repair weapons.', 5)
+        self:newMessage('[DEAD] Unable to repair weapons.', 5)
         return
     end
 
@@ -52,12 +30,31 @@ function Command:repairsWeapons(player)
         end
     end
 
-    player.weapon_parts = nil
+    self.weapon_parts = nil
     if (repaired) then
-        player:newMessage('Weapons repaired!', 5)
+        self:newMessage('Weapons repaired!', 5)
     else
-        player:newMessage('Nothing was repaired!', 5)
+        self:newMessage('Nothing was repaired!', 5)
     end
+end
+
+-- Executes this command.
+-- @param id = player id (number)
+-- @param args (table of command strings)
+--
+function Command:run(id)
+
+    local player = self.players[id]
+    if not player:commandEnabled(self.enabled, self.name) then
+        return
+    elseif not player:hasPermission(self.level) then
+        return
+    elseif (not player.weapon_parts) then
+        player:newMessage("[COMMAND FAILED] You don't have weapon parts!", 5)
+        return
+    end
+
+    repair(player)
 end
 
 return Command

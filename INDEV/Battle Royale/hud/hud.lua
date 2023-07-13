@@ -3,11 +3,11 @@ local time = os.time
 local floor = math.floor
 local format = string.format
 
-function hud:getPrimaryHUD(distance)
+local function getPrimaryHUD(self, distance)
 
     distance = floor(distance)
-    local size = self.safe_zone_size
-    local timer = self.safe_zone_timer
+    local size = self.safe_zone.size
+    local timer = self.safe_zone.timer
 
     if (not timer.crunch_time) then
         local shrink = timer:get()
@@ -23,34 +23,30 @@ function hud:getPrimaryHUD(distance)
 end
 
 function hud:setHUD(HUD, distance)
-
-    -- Show the primary HUD
     if (HUD == 'primary') then
-        self.messages.primary = self:getPrimaryHUD(distance)
-        return
-    end
-
-    -- Show the warning HUD
-    if (HUD == "warning") then
+        self.messages.primary = getPrimaryHUD(self, distance)
+    elseif (HUD == "warning") then
         self.messages.primary = 'You are outside the safe zone!'
-        return
     end
 end
 
 function hud:newMessage(content, duration)
+
+    local id = self.id
     duration = duration or 5
+
     self.messages[#self.messages + 1] = {
         content = content,
         finish = time() + duration,
         stdout = function(message)
-            rprint(self.id, message.content)
+            rprint(id, message.content)
         end
     }
 end
 
 function hud:displaySecondaryHUD()
 
-    if (not self.pre_game_timer or not self.pre_game_timer.started) then
+    if (not self.game or not self.game.started) then
         return
     end
 

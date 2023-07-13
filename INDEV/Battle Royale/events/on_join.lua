@@ -1,5 +1,11 @@
 local event = {}
-local time = os.time
+
+function event:hide(player, dyn)
+    local x, y, z = self:getXYZ(dyn)
+    write_float(player + 0xF8, x - 1000)
+    write_float(player + 0xFC, y - 1000)
+    write_float(player + 0x100, z - 1000)
+end
 
 function event:newPlayer(o)
 
@@ -23,7 +29,7 @@ function event:onJoin(id)
         name = get_var(id, '$name')
     })
 
-    self:phaseCheck(_, id)
+    self:phaseCheck(false, id)
 end
 
 function event:resetPlayer()

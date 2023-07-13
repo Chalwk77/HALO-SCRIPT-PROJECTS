@@ -21,24 +21,24 @@ end
 
 function event:onDeath(victim)
 
-    if (not self.pre_game_timer or not self.pre_game_timer.started) then
+    if (not self.game or not self.game.started) then
         return
     end
 
     victim = tonumber(victim)
-    local player = self.players[victim]
-    player.weapon_parts = nil -- weapons parts loot
-    player.stun = nil -- stun grenades
-    player.can_stun = nil -- stun grenades
+    victim = self.players[victim]
+    victim.weapon_parts = nil -- weapons parts loot
+    victim.stun = nil -- stun grenades
+    victim.can_stun = nil -- stun grenades
 
-    if (not player.can_spectate) then
+    if (not victim.can_spectate) then
         return
     end
 
-    player.lives = player.lives - 1
-    if (player.lives <= 0) then
-        player.spectator = true
-        player:setSpectatorBits()
+    victim.lives = victim.lives - 1
+    if (victim.lives <= 0) then
+        victim.spectator = true
+        victim:setSpectatorBits()
 
         local game_over = endGame(self)
         if (game_over) then
@@ -46,14 +46,14 @@ function event:onDeath(victim)
         end
 
         for _, v in pairs(self.players) do
-            v:newMessage(player.name .. ' has been eliminated', 5)
+            v:newMessage(victim.name .. ' has been eliminated', 5)
         end
 
         return
     end
 
-    local life = (player.lives == 1 and 'life' or 'lives')
-    player:newMessage('You have ' .. player.lives .. ' ' .. life .. ' remaining', 5)
+    local life = (victim.lives == 1 and 'life' or 'lives')
+    victim:newMessage('You have ' .. victim.lives .. ' ' .. life .. ' remaining', 5)
 end
 
 register_callback(cb['EVENT_DIE'], 'OnDeath')

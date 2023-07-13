@@ -5,15 +5,12 @@ local Command = {}
 -- @param args (table of command strings)
 --
 function Command:run(id, args)
-
-    local p = self.players[id] -- admin
-
-    if not p:commandEnabled(self.enabled, self.name) then
+    local player = self.players[id] -- admin
+    if not player:commandEnabled(self.enabled, self.name) then
         return
-    elseif not p:hasPermission(self.level) then
+    elseif not player:hasPermission(self.level) then
         return
     end
-
 end
 
 return Command

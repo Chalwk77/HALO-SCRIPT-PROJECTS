@@ -1,5 +1,8 @@
 local player = {}
 
+local cos = math.cos
+local sin = math.sin
+
 function player:teleport(god, height)
 
     local dyn = get_dynamic_player(self.id)
@@ -13,7 +16,7 @@ function player:teleport(god, height)
     height = (height and self.spawn[5]) or 0
 
     write_vector3d(dyn + 0x5C, x, y, z + height)
-    write_vector3d(dyn + 0x74, math.cos(rotation), math.sin(rotation), 0)
+    write_vector3d(dyn + 0x74, cos(rotation), sin(rotation), 0)
     --print('Spawned: ' .. x .. ', ' .. y .. ', ' .. z, rotation)
 
     if (god) then

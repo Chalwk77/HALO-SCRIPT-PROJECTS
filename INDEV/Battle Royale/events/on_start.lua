@@ -1,7 +1,7 @@
 local event = {}
 local format = string.format
 
-function event:loadMapSettings()
+local function loadMapSettings(self)
 
     local map = get_var(0, '$map')
     local path = './Battle Royale/map settings/'
@@ -64,19 +64,13 @@ end
 function event:onStart()
     if (get_var(0, '$gt') ~= 'n/a') then
 
-        self:loadMapSettings()
-
-        -- Disable Full Spectrum Vision:
-        for name, _ in pairs(self.looting.crates['eqip']) do
-            execute_command('disable_object "' .. name .. '"')
-        end
+        loadMapSettings(self)
 
         self.loot = nil
         self.loot_crates = nil
 
         -- pre game timer:
-        self.pre_game_timer = nil
-        self.post_game_carnage_report = false
+        self.game = nil
 
         -- players table:
         self.players = {}
@@ -90,17 +84,16 @@ function event:onStart()
         -- Sets initial radius of the safe zone and the total game time:
         self.total_time = self:setSafeZone()
 
-        self.game_timer = self:new()
-
         local h, m, s = self:secondsToTime(self.total_time)
         timer(33, 'pluginLogo', h, m, s, self.end_after)
 
-        self.energy_weapons = self:tagsToID(self._energy_weapons_, 'weap')
-        self.random_weapons = self:tagsToID(self:getRandomWeaponTags(), 'weap')
-        self.weapon_weights = self:tagsToID(self.weight.weapons, 'weap')
-        self.decay_rates = self:tagsToID(self.weapon_degradation.decay_rate, 'weap')
-        self.clip_sizes = self:tagsToID(self:getClipSizesTable(), 'weap')
         self.stuns = self:tagsToID(self:getStunTags(), 'jpt!')
+        self.clip_sizes = self:tagsToID(self:getClipSizesTable(), 'weap')
+        self.random_weapons = self:tagsToID(self:getRandomWeaponTags(), 'weap')
+
+        self.weapon_weights = self:tagsToID(self.weight.weapons, 'weap')
+        self.energy_weapons = self:tagsToID(self._energy_weapons_, 'weap')
+        self.decay_rates = self:tagsToID(self.weapon_degradation.decay_rate, 'weap')
 
         -- For explosive bullets:
         self.rocket_projectile = self:getTag('proj', self.rocket_projectile_tag)
@@ -112,6 +105,11 @@ function event:onStart()
         self.rocket_launcher = self:getTag('weap', self.rocket_launcher_weapon)
 
         self.rocket_tag_data = getTagData(self)
+
+        -- Disable object that represents loot crates:
+        for name, _ in pairs(self.looting.crates['eqip']) do
+            execute_command('disable_object "' .. name .. '"')
+        end
     end
 end
 

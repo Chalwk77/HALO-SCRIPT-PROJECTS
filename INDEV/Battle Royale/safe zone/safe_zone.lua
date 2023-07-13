@@ -1,6 +1,5 @@
 local SafeZone = {}
 local format = string.format
-local floor = math.floor
 
 local function getWinner(self)
 
@@ -24,18 +23,44 @@ local function getWinner(self)
     return winner
 end
 
-function SafeZone:shrinkSafeZone()
+local function shrink(self)
 
-    local timer = self.safe_zone_timer
-    if (not timer) then
+    local min, max = self.safe_zone.min, self.safe_zone.max
+
+    self.safe_zone.size = self.safe_zone.size - self.shrink_amount
+    self.safe_zone.timer:restart()
+
+    if (self.safe_zone.size <= min) then
+        cprint('The Safe Zone has reached its minimum size')
+
+        self.safe_zone.size = min
+        self.safe_zone.timer.crunch_time = true
+        self.safe_zone.timer:restart()
+
+        for _,v in pairs(self.players) do
+            v.lives = 1
+        end
+
         return
     end
 
+    cprint('[ SAFE ZONE SHRUNK ] Radius now (' .. self.safe_zone.size .. '/' .. max .. ') world units')
+end
+
+function SafeZone:shrinkSafeZone()
+
+    local safe_zone = self.safe_zone
+    if (not safe_zone or not safe_zone.timer) then
+        return
+    end
+
+    local timer = safe_zone.timer
     local time = timer:get()
+
     if (not timer.crunch_time) then
         local interval = self.duration - time
-        if (interval <= 0 and self.safe_zone_size > self.safe_zone.min) then
-            self:shrink()
+        if (interval <= 0 and self.safe_zone.size > self.safe_zone.min) then
+            shrink(self)
         end
         return
     elseif (time >= self.end_after) then
@@ -43,7 +68,7 @@ function SafeZone:shrinkSafeZone()
         local winner = getWinner(self)
         if (winner) then
             local name = self.players[winner].name
-            self:say(string.format('[VICTORY] %s has won the game!', name), true)
+            self:say(format('[VICTORY] %s has won the game!', name), true)
         end
     end
 end
@@ -54,9 +79,9 @@ function SafeZone:spawnBarrier()
 
     self.barrier = {}
 
+    local height = 0.3
     local total_flags = 30
-    local height = 2
-    local radius = 3 --self.safe_zone_size
+    local radius = self.safe_zone.size
 
     local x, y, z = self.safe_zone.x, self.safe_zone.y, self.safe_zone.z
 
@@ -68,8 +93,6 @@ function SafeZone:spawnBarrier()
             local x1 = x + radius * math.cos(angle)
             local y1 = y + radius * math.sin(angle)
             local z1 = z + height
-
-            -- todo: This may not work on some 'custom' maps! Needs further testing.
             local object = spawn_object('weap', 'weapons\\flag\\flag', x1, y1, z1)
             self.barrier[object] = { x = x1, y = y1, z = z1 }
         end
@@ -78,7 +101,7 @@ end
 
 function SafeZone:outsideSafeZone()
 
-    if (not self.pre_game_timer or not self.pre_game_timer.started) then
+    if (not self.game or not self.game.started) then
         return
     end
 
@@ -86,13 +109,13 @@ function SafeZone:outsideSafeZone()
         local dyn = get_dynamic_player(i)
         if (dyn ~= 0 and player_alive(i)) then
 
-            local bX, bY, bZ = self.safe_zone.x, self.safe_zone.y, self.safe_zone.z
-            local radius = self.safe_zone_size
             local px, py, pz = self:getXYZ(dyn)
+            local radius = self.safe_zone.size
+            local bX, bY, bZ = self.safe_zone.x, self.safe_zone.y, self.safe_zone.z
 
             local distance = self:getDistance(px, py, pz, bX, bY, bZ)
             if (distance < radius) then
-                v.kill_timer = nil
+                v.hurt_cooldown = nil
                 v:setHUD('primary', distance)
             else
                 self:hurt(v)
@@ -106,35 +129,9 @@ function SafeZone:setSafeZone()
     local min_size, max_size = self.safe_zone.min, self.safe_zone.max
     local reduction_rate, reduction_amount = self.duration, self.shrink_amount
 
-    local total_time = (max_size - min_size) / reduction_amount * reduction_rate
+    self.safe_zone.size = max_size
 
-    self.safe_zone_size = max_size
-
-    return total_time
-end
-
-function SafeZone:shrink()
-
-    local min, max = self.safe_zone.min, self.safe_zone.max
-
-    self.safe_zone_size = self.safe_zone_size - self.shrink_amount
-    self.safe_zone_timer:restart()
-
-    if (self.safe_zone_size <= min) then
-        cprint('The Safe Zone has reached its minimum size')
-
-        self.safe_zone_size = min
-        self.safe_zone_timer.crunch_time = true
-        self.safe_zone_timer:restart()
-
-        for _,v in pairs(self.players) do
-            v.lives = 1
-        end
-
-        return
-    end
-
-    cprint('[ SAFE ZONE SHRUNK ] Radius now (' .. self.safe_zone_size .. '/' .. max .. ') world units')
+    return (max_size - min_size) / reduction_amount * reduction_rate
 end
 
 return SafeZone

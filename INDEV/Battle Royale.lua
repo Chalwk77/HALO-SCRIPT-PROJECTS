@@ -19,6 +19,7 @@ local BattleRoyale = {
 
     dependencies = {
         ['./Battle Royale/commands/'] = {
+            'get_loot_coords',
             'get_spawn_coords',
             'repair_weapons',
             'restart'
@@ -86,6 +87,9 @@ local BattleRoyale = {
 -- Each file inherits the parent BattleRoyale object.
 --
 function BattleRoyale:loadDependencies()
+
+    self.death_message_address = sig_scan("8B42348A8C28D500000084C9") + 3
+    self.original_death_message_address = read_dword(self.death_message_address)
 
     local s = self
 

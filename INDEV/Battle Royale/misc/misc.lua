@@ -68,7 +68,7 @@ function misc:setSpeed()
     local weight = self.weight.enabled
     local default = self.default_running_speed
 
-    local game_started = (self.pre_game_timer and self.pre_game_timer.started)
+    local game_started = (self.game and self.game.started)
     if (not game_started) then
         return
     end
@@ -158,7 +158,7 @@ end
 function misc:edgeCheck(px, py, pz, bx, by, bz)
     local x, y, z = px - bx, py - by, pz - bz
     local distance = sqrt(x ^ 2 + y ^ 2 + z ^ 2)
-    return distance - self.safe_zone_size
+    return distance - self.safe_zone.size
 end
 
 function misc:inVehicle(dynamic_player)
@@ -218,7 +218,7 @@ function misc:commandEnabled(enabled, name)
         return true
     end
 
-    self:say('Sorry, /' .. name .. ' is disabled.')
+    self:addMessage('Sorry, /' .. name .. ' is disabled.')
     return false
 end
 
@@ -233,12 +233,16 @@ function misc:hasPermission(level)
         return true
     end
 
-    self:say('Insufficient Permission')
+    self:addMessage('Insufficient Permission.')
     return false
 end
 
 function misc:pluralize(n)
     return (n > 1 and 's' or '')
+end
+
+function misc:threeDecimal(s)
+    return format('%.3f', s)
 end
 
 return misc
