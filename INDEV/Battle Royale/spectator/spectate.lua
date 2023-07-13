@@ -28,6 +28,9 @@ function spectator:spectate()
 
     -- Force the player into camoflauge mode:
     execute_command('camo ' .. self.id .. ' 1')
+
+    -- Force the player into god mode:
+    execute_command('god ' .. self.id)
 end
 
 function spectator:setSpectatorBits()

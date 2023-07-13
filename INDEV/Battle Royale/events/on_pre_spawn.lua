@@ -9,7 +9,8 @@ function event:onPreSpawn(id)
         return
     end
 
-    self.players[id]:teleport() -- sky spawning system / only works if the pre-game timer has elapsed.
+    -- @args: god, height
+    self.players[id]:teleport(true, true)
 end
 
 register_callback(cb['EVENT_PRESPAWN'], 'OnPreSpawn')

@@ -2,7 +2,9 @@ local safe_zone = {}
 
 function safe_zone:hurt(player)
 
-    if (not player.kill_timer) then
+    if (self.spectator) then
+        return
+    elseif (not player.kill_timer) then
         player.kill_timer = self:new()
         player.kill_timer:start()
     end

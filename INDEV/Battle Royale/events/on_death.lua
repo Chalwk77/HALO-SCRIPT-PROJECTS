@@ -1,5 +1,24 @@
 local event = {}
 
+local function endGame(self)
+
+    local lives = {}
+    for i,v in pairs(self.players) do
+        if (v.lives > 0) then
+            lives[#lives + 1] = v
+        end
+    end
+
+    if (#lives == 1) then
+        execute_command('sv_end_game')
+        local winner = lives[1]
+        self:say(string.format('[VICTORY] %s has won the game!', winner.name), true)
+        return true
+    end
+
+    return false
+end
+
 function event:onDeath(victim)
 
     if (not self.pre_game_timer or not self.pre_game_timer.started) then
@@ -20,9 +39,16 @@ function event:onDeath(victim)
     if (player.lives <= 0) then
         player.spectator = true
         player:setSpectatorBits()
+
+        local game_over = endGame(self)
+        if (game_over) then
+            return
+        end
+
         for _, v in pairs(self.players) do
             v:newMessage(player.name .. ' has been eliminated', 5)
         end
+
         return
     end
 

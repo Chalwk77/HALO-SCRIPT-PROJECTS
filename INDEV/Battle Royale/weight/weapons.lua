@@ -20,7 +20,7 @@ function weight:getSpeed()
 
     local speed = self.default_running_speed
     local dyn = get_dynamic_player(self.id)
-    if (dyn == 0 or not player_alive(self.id)) then
+    if (dyn == 0 or not player_alive(self.id) or self.spectator) then
         return speed
     end
 
