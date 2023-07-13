@@ -69,11 +69,11 @@ Loot crates will spawn randomly around the map, containing weapons, ammo, and ot
 # Known bugs:
 - ~~Energy weapons from loot crates don't have battery power.~~
 - ~~Receiving a weapon from a loot crate that you already have caused the server to crash.~~
-- ~Game doesn't end with the last man standing~
+- ~~Game doesn't end with the last man standing~~
 - ~~Time remaining HUD keeps resetting when the zone shrinks.~~
 - ~~Nuke is crashing the server.~~
 - ~~Players are given too many golden bullets. Needs to be limited to 3 max?~~
-- ~Players can spawn outside the safe zone.~
+- ~~Players can spawn outside the safe zone.~~
 - When receiving an overshield from a loot crate, you won't see the shield bar change until you take damage.<br/>
   Unfortunately, this is a limitation of Halo's net code.
 
