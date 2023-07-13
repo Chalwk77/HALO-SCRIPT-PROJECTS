@@ -14,9 +14,9 @@ function hud:getPrimaryHUD(distance)
         shrink = floor(self.duration - shrink)
         return format('Safe Zone: %s / %s | Shrink in: %s', distance, size, shrink)
     else
-        local time_remaining = self.end_after * 60 - timer:get()
+        local time_remaining = self.end_after - timer:get()
         local h,m,s = self:secondsToTime(time_remaining)
-        return format('Safe Zone: %s / %s | CRUNCH TIME: %s:%s:%s', distance, size, h, m, s)
+        return format('Safe Zone: %s / %s | CRUNCH TIME: %s:%s:%s | NEXT KILL WINS', distance, size, h, m, s)
     end
 
     return ''

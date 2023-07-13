@@ -10,7 +10,7 @@ local function endGame(self)
     end
 
     if (#lives == 1) then
-        execute_command('sv_end_game')
+        execute_command('sv_map_next')
         local winner = lives[1]
         self:say(string.format('[VICTORY] %s has won the game!', winner.name), true)
         return true

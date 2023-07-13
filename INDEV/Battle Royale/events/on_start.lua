@@ -66,11 +66,7 @@ function event:onStart()
 
         self:loadMapSettings()
 
-        self.death_message_address = sig_scan("8B42348A8C28D500000084C9") + 3
-        self.original_death_message_address = read_dword(self.death_message_address)
-
         -- Disable Full Spectrum Vision:
-
         for name, _ in pairs(self.looting.crates['eqip']) do
             execute_command('disable_object "' .. name .. '"')
         end
@@ -97,14 +93,7 @@ function event:onStart()
         self.game_timer = self:new()
 
         local h, m, s = self:secondsToTime(self.total_time)
-        timer(33, 'pluginLogo', h, m, s, self.end_after * 60)
-
-        -- Just in case the plugin is loaded mid-game:
-        for i = 1, 16 do
-            if player_present(i) then
-                self:onJoin(i)
-            end
-        end
+        timer(33, 'pluginLogo', h, m, s, self.end_after)
 
         self.energy_weapons = self:tagsToID(self._energy_weapons_, 'weap')
         self.random_weapons = self:tagsToID(self:getRandomWeaponTags(), 'weap')
@@ -123,8 +112,6 @@ function event:onStart()
         self.rocket_launcher = self:getTag('weap', self.rocket_launcher_weapon)
 
         self.rocket_tag_data = getTagData(self)
-
-        --self:spawnBarrier()
     end
 end
 
@@ -138,7 +125,7 @@ function pluginLogo(h, m, s, b)
     cprint(".||...|'  .|.  .||.   .||.     .||.   .||.....| .||.....|    .||.  '|'  ''|...|'    .||.   .|.  .||. .||.....| .||.....|", 12)
     cprint(" ")
     cprint(format("This game will end in %s hours, %s minutes and %s seconds", h, m, s), 15)
-    cprint(format('Crunch time: %s', b / 60 .. ' minutes'), 15)
+    cprint(format('Crunch time: %s', b .. ' seconds'), 15)
     cprint('========================================================================================================================', 10)
 end
 

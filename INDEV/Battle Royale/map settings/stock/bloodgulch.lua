@@ -19,29 +19,29 @@ return {
     -- How often the safe zone will shrink (in seconds):
     -- Default (60)
     --
-    duration = 2,
+    duration = 30,
 
 
     --- Reduction amount:
     -- How much the safe zone will shrink by (in world units):
     -- Default (5)
     --
-    shrink_amount = 45,
+    shrink_amount = 10,
 
 
     --- End after:
     -- The game will end this many minutes after
     -- the safe zone has shrunk to its minimum size:
-    -- Default (2)
+    -- Default (30)
     --
-    end_after = 2,
+    end_after = 30,
 
 
     --- Required players:
     -- The minimum amount of players required to start the game:
     -- Default: (2)
     --
-    required_players = 1,
+    required_players = 2,
 
 
     --- Game start delay:
@@ -49,7 +49,7 @@ return {
     -- The start delay will not begin until the required players have joined.
     -- Default (30)
     --
-    start_delay = 1,
+    start_delay = 10,
 
 
     --- Lives:

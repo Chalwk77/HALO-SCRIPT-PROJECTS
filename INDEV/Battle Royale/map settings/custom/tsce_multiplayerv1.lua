@@ -35,7 +35,7 @@ return {
     -- the safe zone has shrunk to its minimum size:
     -- Default (2)
     --
-    end_after = 2,
+    end_after = 30,
 
 
     --- Required players:

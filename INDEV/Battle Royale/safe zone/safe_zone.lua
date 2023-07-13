@@ -38,8 +38,8 @@ function SafeZone:shrinkSafeZone()
             self:shrink()
         end
         return
-    elseif (time >= self.end_after * 60) then
-        execute_command('sv_end_game')
+    elseif (time >= self.end_after) then
+        execute_command('sv_map_next')
         local winner = getWinner(self)
         if (winner) then
             local name = self.players[winner].name
@@ -126,6 +126,11 @@ function SafeZone:shrink()
         self.safe_zone_size = min
         self.safe_zone_timer.crunch_time = true
         self.safe_zone_timer:restart()
+
+        for _,v in pairs(self.players) do
+            v.lives = 1
+        end
+
         return
     end
 
