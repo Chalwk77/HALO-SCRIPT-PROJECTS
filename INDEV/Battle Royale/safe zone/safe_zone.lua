@@ -37,7 +37,7 @@ local function shrink(self)
         self.safe_zone.timer.crunch_time = true
         self.safe_zone.timer:restart()
 
-        for _,v in pairs(self.players) do
+        for _, v in pairs(self.players) do
             v.lives = 1
         end
 
@@ -117,7 +117,7 @@ function SafeZone:outsideSafeZone()
             if (distance < radius) then
                 v.hurt_cooldown = nil
                 v:setHUD('primary', distance)
-            else
+            elseif (not v.spectator) then
                 self:hurt(v)
             end
         end

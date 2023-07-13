@@ -59,7 +59,7 @@ local function createNuke(total, radius, projectile, cx, cy, cz)
         angle = angle + angle_step
     end
 
-     --Rockets with random spread:
+    --Rockets with random spread:
     for _ = 1, 5 do
         local rocket = spawn_projectile(projectile, 0, cx, cy, cz)
         local object = get_object_memory(rocket)

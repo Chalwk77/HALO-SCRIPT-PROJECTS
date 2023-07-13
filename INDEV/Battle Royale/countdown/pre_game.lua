@@ -55,7 +55,7 @@ function timer:phaseCheck(quit, id)
     local required_players = self.required_players
     local started = (self.game and self.game.started)
 
-    
+
     -- Enough players have joined the game, start the pre-game timer:
     if (count >= required_players and not self.game) then
         self.game = self:new()

@@ -11,29 +11,29 @@ return {
         x = 3.583,
         y = 31.963,
         z = -3.922,
-        min = 7, -- default (7 world/units)
-        max = 610 -- default (610 world/units)
+        min = 5, -- default (5 world/units)
+        max = 100 -- default (100 world/units)
     },
 
 
     --- Reduction rate:
     -- How often the safe zone will shrink (in seconds):
-    -- Default (60) = 1 minute
+    -- Default (60)
     --
-    duration = 60,
+    duration = 30,
 
 
     --- Reduction amount:
     -- How much the safe zone will shrink by (in world units):
-    -- Default (15)
+    -- Default (5)
     --
-    shrink_amount = 15,
+    shrink_amount = 5,
 
 
     --- End after:
-    -- The game will end this many minutes after
+    -- The game will end this many seconds after
     -- the safe zone has shrunk to its minimum size:
-    -- Default (2)
+    -- Default (30)
     --
     end_after = 30,
 
@@ -222,8 +222,15 @@ return {
         --
         spoils = {
 
-            --- NUKE:
+            --- BONUS LIFE:
             [1] = {
+                label = '$lives Bonus lives',
+                lives = 1,
+                _function_ = 'giveLife'
+            },
+
+            --- NUKE:
+            [2] = {
                 label = 'Nuke',
                 radius = 10, -- kills all players within this radius
                 _function_ = 'giveNuke'
@@ -376,19 +383,19 @@ return {
                     -- {0,0,0,0}
 
                     { 43.090, 41.873, 2.408, 30 },
-                    { -36.421, 30.705, 0.808, 30 },
-                    { -17.797, 35.410, -3.272, 30 },
-                    { -4.376, -13.017, 3.208, 30 },
+                    { -36.421, 30.705, 0.808, 35 },
+                    { -17.797, 35.410, -3.272, 40 },
+                    { -4.376, -13.017, 3.208, 45 },
                     { -16.528, -25.507, 0.812, 30 },
-                    { 31.656, -44.728, -3.192, 30 },
-                    { 27.739, -36.209, 1.208, 30 },
-                    { 34.094, -13.741, -1.135, 30 },
+                    { 31.656, -44.728, -3.192, 35 },
+                    { 27.739, -36.209, 1.208, 40 },
+                    { 34.094, -13.741, -1.135, 45 },
                     { 29.628, 3.224, -0.817, 30 },
-                    { 23.325, 25.422, -3.272, 30 },
-                    { -32.003, -38.146, -3.192, 30 },
-                    { -29.610, -32.114, 1.208, 30 },
+                    { 23.325, 25.422, -3.272, 35 },
+                    { -32.003, -38.146, -3.192, 40 },
+                    { -29.610, -32.114, 1.208, 45 },
                     { -33.064, -12.991, -0.278, 30 },
-                    { -25.411, 5.425, -3.271, 30 },
+                    { -25.411, 5.425, -3.271, 35 },
                 }
             }
         },

@@ -3,7 +3,7 @@ local event = {}
 local function endGame(self)
 
     local lives = {}
-    for _,v in pairs(self.players) do
+    for _, v in pairs(self.players) do
         if (v.lives > 0) then
             lives[#lives + 1] = v
         end

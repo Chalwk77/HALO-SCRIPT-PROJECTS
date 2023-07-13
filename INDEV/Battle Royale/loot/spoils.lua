@@ -13,6 +13,17 @@ function spoils:giveNuke(args)
     return true
 end
 
+function spoils:giveLife(args)
+
+    local label = args.label
+    local lives = args.lives
+    self.lives = self.lives + lives
+
+    label = label:gsub('$lives', lives)
+    self:newMessage('You unlocked ' .. label, 5)
+    return true
+end
+
 function spoils:giveStunGrenades(args)
 
     self.can_stun = true

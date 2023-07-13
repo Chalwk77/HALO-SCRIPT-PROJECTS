@@ -11,9 +11,10 @@ return {
         x = 65.749,
         y = -120.409,
         z = 0.118,
-        min = 5, -- default (6 world/units)
-        max = 100 -- default (206 world/units)
+        min = 5, -- default (5 world/units)
+        max = 100 -- default (100 world/units)
     },
+
 
     --- Reduction rate:
     -- How often the safe zone will shrink (in seconds):
@@ -26,11 +27,11 @@ return {
     -- How much the safe zone will shrink by (in world units):
     -- Default (5)
     --
-    shrink_amount = 10,
+    shrink_amount = 5,
 
 
     --- End after:
-    -- The game will end this many minutes after
+    -- The game will end this many seconds after
     -- the safe zone has shrunk to its minimum size:
     -- Default (30)
     --
@@ -49,7 +50,7 @@ return {
     -- The start delay will not begin until the required players have joined.
     -- Default (30)
     --
-    start_delay = 1,
+    start_delay = 5,
 
 
     --- Lives:
@@ -222,8 +223,15 @@ return {
         --
         spoils = {
 
-            --- NUKE:
+            --- BONUS LIFE:
             [1] = {
+                label = '$lives Bonus lives',
+                lives = 1,
+                _function_ = 'giveLife'
+            },
+
+            --- NUKE:
+            [2] = {
                 label = 'Nuke',
                 radius = 10, -- kills all players within this radius
                 _function_ = 'giveNuke'
@@ -376,21 +384,21 @@ return {
                     -- {0,0,0,0},
                     -- {0,0,0,0}
 
-                    {63.427, -177.249, 4.756, 30},
-                    {63.874, -155.632, 7.398, 35},
-                    {44.685, -151.848, 4.660, 40},
-                    {118.143, -185.154, 7.170, 45},
-                    {112.120, -138.996, 0.911, 30},
-                    {98.765, -108.723, 4.971, 35},
-                    {109.798, -110.394, 2.791, 40},
-                    {79.092, -90.719, 5.246, 45},
-                    {70.556, -84.854, 6.341, 30},
-                    {79.578, -64.590, 5.311, 35},
-                    {21.884, -108.882, 2.846, 40},
-                    {68.947, -92.482, 2.702, 45},
-                    {76.069, -132.263, 0.543, 30},
-                    {95.687, -159.449, -0.100, 35},
-                    {40.240, -79.123, -0.100, 40},
+                    { 63.427, -177.249, 4.756, 30 },
+                    { 63.874, -155.632, 7.398, 35 },
+                    { 44.685, -151.848, 4.660, 40 },
+                    { 118.143, -185.154, 7.170, 45 },
+                    { 112.120, -138.996, 0.911, 30 },
+                    { 98.765, -108.723, 4.971, 35 },
+                    { 109.798, -110.394, 2.791, 40 },
+                    { 79.092, -90.719, 5.246, 45 },
+                    { 70.556, -84.854, 6.341, 30 },
+                    { 79.578, -64.590, 5.311, 35 },
+                    { 21.884, -108.882, 2.846, 40 },
+                    { 68.947, -92.482, 2.702, 45 },
+                    { 76.069, -132.263, 0.543, 30 },
+                    { 95.687, -159.449, -0.100, 35 },
+                    { 40.240, -79.123, -0.100, 40 },
                 }
             }
         },
