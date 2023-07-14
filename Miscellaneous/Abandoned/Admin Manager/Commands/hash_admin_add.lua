@@ -1,4 +1,4 @@
-local Command = {
+local command = {
     name = 'hash_admin_add',
     description = 'Add hash admin',
     permission_level = 1,
@@ -6,47 +6,49 @@ local Command = {
 }
 
 local date = os.date
-function Command:Run(ply, args)
+function command:run(id, args)
 
-    local p = self.players[ply]
+    local player = self.players[id]
     local dir = self.directories[1]
     local admins = self.admins
 
-    if (p:HasPermission(self.permission_level)) then
+    if (not player:hasPermission(self.permission_level)) then
+        return false
+    end
 
-        local player, level = args[2], args[3]
-        if (not player or not level) then
-            p:Send(self.help)
-        elseif (player:match('%d+')) then
-            player = tonumber(player)
-            if player_present(player) then
+    local target, level = args[2], args[3]
 
-                player = self.players[player]
+    if (not target or not level) then
+        player:send(self.help)
+    elseif (target:match('%d+')) then
+        target = tonumber(target)
+        if player_present(target) then
 
-                local hash = player.hash
-                if (not admins.hash_admins[hash]) then
+            local target_player = self.players[target]
+            local name = target_player.name
+            local hash = target_player.hash
 
-                    admins.hash_admins[hash] = {
-                        level = tonumber(level),
-                        name = player.name,
-                        date = 'Added on ' .. date('%m/%d/%Y at %I:%M %p (%z) by ' .. p.name .. ' (' .. p.ip .. ')')
-                    }
-                    execute_command('adminadd ' .. player.id .. ' 4')
+            if (not admins.hash_admins[hash]) then
 
-                    self:Write(dir, admins)
-                    p:Send('Added ' .. player.name .. ' to the hash-admin list.')
-                else
-                    p:Send(player.name .. ' is already a hash-admin (level ' .. admins.hash_admins[hash].level .. ')')
-                end
+                target_player.level = tonumber(level)
+                admins.hash_admins[hash] = {
+                    level = tonumber(level),
+                    name = name,
+                    date = 'Added on ' .. date('%m/%d/%Y at %I:%M %p (%z) by ' .. player.name .. ' (' .. player.ip .. ')')
+                }
+                execute_command('adminadd ' .. target .. ' 4')
+
+                self:Write(dir, admins)
+                player:send('Added ' .. name .. ' to the hash-admin list.')
             else
-                p:Send('Player ' .. player .. ' is not present.')
+                player:send(name .. ' is already a hash-admin (level ' .. admins.hash_admins[hash].level .. ')')
             end
+        else
+            player:send('Player #' .. target .. ' is not present.')
         end
-    else
-        p:Send('Insufficient Permission')
     end
 
     return false
 end
 
-return Command
+return command

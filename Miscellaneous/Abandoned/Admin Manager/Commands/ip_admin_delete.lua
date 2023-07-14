@@ -1,22 +1,19 @@
-local Command = {
+local command = {
     name = 'ip_admin_delete',
     description = 'Delete ip admin',
     permission_level = 1,
     help = 'Syntax: /$cmd <player>'
 }
 
-function Command:Run(ply, args)
+function command:run(id, args)
 
-    local player = args[2]
-    local p = self.players[player]
+    local target = args[2]
+    local player = self.players[target]
 
-    if (p:HasPermission(self.permission_level)) then
+    if (player:hasPermission(self.permission_level)) then
 
-    else
-        p:Send('Insufficient Permission')
     end
-
     return false
 end
 
-return Command
+return command

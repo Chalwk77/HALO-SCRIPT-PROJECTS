@@ -1,4 +1,4 @@
-local Command = {
+local command = {
     name = 'pw_admin_add',
     description = 'Add password admin',
     permission_level = 1,
@@ -7,53 +7,51 @@ local Command = {
 
 local date = os.date
 
-function Command:Run(ply, args)
+function command:run(id, args)
 
-    local player = args[2]
-
-    local p = self.players[ply]
+    local target = tonumber(args[2])
+    local player = self.players[id]
     local dir = self.directories[1]
-    if (p:HasPermission(self.permission_level)) then
 
-        local level = args[3]
-        local admins = self.admins
-        local password = table.concat(args, ' ', 4)
+    if (not player:hasPermission(self.permission_level)) then
+        return false
+    end
 
-        if (not player or not level) then
-            p:Send(self.help)
-        elseif (not password or password == '') then
-            p:Send('You must specify a password.')
-        elseif (player:match('%d+')) then
-            player = tonumber(player)
-            if player_present(player) then
+    local level = args[3]
+    local admins = self.admins
+    local password = table.concat(args, ' ', 4)
 
-                player = self.players[player]
-                local username = player.name
+    if (not player or not level) then
+        player:send(self.help)
+    elseif (not password or password == '') then
+        player:send('You must specify a password.')
+    elseif (not target) then
+        player:send('Invalid Player ID.')
+    elseif player_present(target) then
 
-                if (not admins.password_admins[username]) then
-                    admins.password_admins[username] = {
-                        password = password,
-                        level = tonumber(level),
-                        name = player.name,
-                        date = 'Added on ' .. date('%m/%d/%Y at %I:%M %p (%z) by ' .. p.name .. ' (' .. p.ip .. ')')
-                    }
-                    execute_command('admin_add ' .. player.id .. ' "' .. password .. '" 4')
-                    player.level = tonumber(level)
+        local target_player = self.players[target]
+        local name = target_player.name
 
-                    self:Write(dir, admins)
-                    p:Send('Added ' .. player.name .. ' to the password-admin list.')
-                else
-                    p:Send(player.name .. ' is already a password-admin (level ' .. admins.password_admins[username].level .. ')')
-                end
-            else
-                p:Send('Player ' .. player .. ' is not present.')
-            end
+        if (not admins.password_admins[name]) then
+            target_player.level = tonumber(level)
+            admins.password_admins[name] = {
+                password = self:encryptPassword(password),
+                level = tonumber(level),
+                name = name,
+                date = 'Added on ' .. date('%m/%d/%Y at %I:%M %p (%z) by ' .. player.name .. ' (' .. player.ip .. ')')
+            }
+            execute_command('admin_add ' .. target .. ' "' .. password .. '" 4')
+
+            self:Write(dir, admins)
+            player:send('Added ' .. name .. ' to the password-admin list.')
+        else
+            player:send(name .. ' is already a password-admin (level ' .. admins.password_admins[name].level .. ')')
         end
     else
-        p:Send('Insufficient Permission')
+        player:send('Player #' .. target .. ' is not present.')
     end
 
     return false
 end
 
-return Command
+return command

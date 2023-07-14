@@ -1,6 +1,6 @@
 local Database = { }
 
-function Database:LoadAdmins()
+function Database:loadAdmins()
 
     local dir = self.directories[1]
     local admins = self:Read(dir)
@@ -13,7 +13,7 @@ function Database:LoadAdmins()
     return admins or {}
 end
 
-function Database:LoadCommands()
+function Database:loadCommands()
 
     local dir = self.directories[2]
     local commands = self:Read(dir)

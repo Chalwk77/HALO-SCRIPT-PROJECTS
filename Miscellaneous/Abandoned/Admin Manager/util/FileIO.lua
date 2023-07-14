@@ -23,9 +23,14 @@ function IO:Write(dir, content)
 end
 
 function IO:WriteDefaultAdmins()
+
     local dir = self.directories[1]
     local admins = self:Read(dir)
     admins = self.json:decode(admins)
+
+    -- Check if the file is empty first.
+    -- Check if file contains the default admins.
+
     self:Write(dir, self.default_admins)
 end
 

@@ -1,11 +1,11 @@
 {
   "1": {
-    "afk": true,
     "about": true,
     "clead": true,
     "info": true,
     "lead": true,
     "list": true,
+    "login": true,
     "report": true,
     "stats": true,
     "stfu": true,
@@ -17,6 +17,7 @@
   "2": {
     "adminadd": true,
     "admindel": true,
+    "afk": true,
     "change_password": true,
     "kdr": true,
     "mapcycle": true,
