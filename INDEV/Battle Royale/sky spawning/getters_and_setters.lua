@@ -25,10 +25,16 @@ function spawns:setSpawns()
         return
     end
 
+    local loops = 0
     for _, v in pairs(self.players) do
         local point = getRandomPoint(locations)
         while (point.used) do
+            loops = loops + 1
             point = getRandomPoint(locations)
+            if (loops == 500) then -- just in case
+                error('Unable to find spawn point!')
+                return
+            end
         end
         point.used = true
         v.spawn = point

@@ -1,5 +1,12 @@
 local spectator = {}
 
+local function hidePlayer(self, player, dyn)
+    local x, y, z = self:getXYZ(dyn)
+    write_float(player + 0xF8, x - 1000)
+    write_float(player + 0xFC, y - 1000)
+    write_float(player + 0x100, z - 1000)
+end
+
 function spectator:spectate()
 
     local id = self.id
@@ -14,7 +21,7 @@ function spectator:spectate()
         return
     end
 
-    self:hide(player, dyn)
+    hidePlayer(player, dyn)
 
     -- In case the player picks up a weapon, force them to drop it:
     execute_command('wdrop ' .. id)

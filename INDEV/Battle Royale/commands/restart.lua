@@ -5,6 +5,7 @@ local Command = {}
 -- @param args (table of command strings)
 --
 function Command:run(id, args)
+
     local player = self.players[id] -- admin
     if not player:commandEnabled(self.enabled, self.name) then
         return
@@ -12,9 +13,7 @@ function Command:run(id, args)
         return
     end
 
-    --
-    -- code will go here
-    --
+    self:reset()
 end
 
 return Command

@@ -49,6 +49,10 @@ end
 
 function SafeZone:shrinkSafeZone()
 
+    if (not self.game or not self.game.started) then
+        return
+    end
+
     local safe_zone = self.safe_zone
     if (not safe_zone or not safe_zone.timer) then
         return

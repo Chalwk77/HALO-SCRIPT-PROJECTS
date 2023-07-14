@@ -30,9 +30,8 @@ function event:onTick()
     self:landing() -- sky spawning / god mode timer
     self:outsideSafeZone() -- checks if player is outside the safe zone
     self:shrinkSafeZone() -- safe zone shrinking
-
-    self:monitorLoot(self.loot_crates) -- loot crate monitor
-    self:monitorLoot(self.loot) -- loot crate monitor
+    self:monitorLoot(self.loot.crates) -- loot crate monitor
+    self:monitorLoot(self.loot.random) -- loot crate monitor
 
     self:trackNuke() -- nuke projectile tracker
 
@@ -43,6 +42,11 @@ function event:onTick()
         --
 
         v:crateIntersect()
+
+        --[[
+        -- todo:    Move speed modifiers to a separate recursive function that is delayed by 1 second.
+        -- todo:    This is to prevent micro-stuttering when modifying a players speed.
+        ]]
 
         if (v.stun) then
             v:stunPlayer()

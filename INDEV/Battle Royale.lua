@@ -51,7 +51,8 @@ local BattleRoyale = {
             'spoils'
         },
         ['./Battle Royale/misc/'] = {
-            'misc'
+            'initialize',
+            'misc',
         },
         ['./Battle Royale/safe zone/'] = {
             'hurt_player',
@@ -131,17 +132,18 @@ function BattleRoyale:loadDependencies()
             :: next ::
         end
     end
+
+    self:onStart() -- in case the plugin loads mid-game
 end
 
 api_version = '1.12.0.0'
 
 function OnScriptLoad()
     BattleRoyale:loadDependencies()
-    OnStart()
 end
 
 function OnStart()
-    BattleRoyale:onStart(true)
+    BattleRoyale:onStart()
 end
 
 function OnEnd()

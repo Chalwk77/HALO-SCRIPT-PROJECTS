@@ -189,8 +189,6 @@ function spoils:giveOvershield(args)
     local id = self.id
 
     local label = args.label
-    label = label:gsub('$shield', level)
-
     self:newMessage('You unlocked ' .. label, 5)
 
     local shield = spawn_object('', '', 0, 0, 0, 0, self.overshield_object)

@@ -2,7 +2,7 @@ local crates = {}
 
 function crates:crateIntersect()
 
-    if (not self.looting.enabled or not self.loot_crates) then
+    if (not self.looting.enabled or not self.loot.crates) then
         return
     end
 
@@ -13,7 +13,7 @@ function crates:crateIntersect()
 
     local px, py, pz = self:getXYZ(dyn)
 
-    for meta_id, v in pairs(self.loot_crates) do
+    for meta_id, v in pairs(self.loot.crates) do
 
         local object = get_object_memory(meta_id)
         if (object == 0) then
@@ -45,14 +45,14 @@ local function getSpoils(t)
     for k, v in pairs(t) do
         index = index + k
         if (random <= index) then
-            return k, v
+            return v
         end
     end
 end
 
 function crates:openCrate()
 
-    local _, spoils = getSpoils(self.looting.spoils)
+    local spoils = getSpoils(self.looting.spoils)
 
     if (not spoils) then
         self:newMessage('Something went wrong. Unable to unlock spoils.', 5)

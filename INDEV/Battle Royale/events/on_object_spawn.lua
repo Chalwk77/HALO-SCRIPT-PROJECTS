@@ -11,7 +11,9 @@ function event:onObjectSpawn(player, map_id, parent_id, object_id, sapp_spawning
 
         -- Prevent players from using special ammo in vehicles:
         player = self.players[player]
-        if player:inVehicle(dyn) then
+        if (not player) then
+            return
+        elseif player:inVehicle(dyn) then
             return
         end
 
@@ -71,7 +73,7 @@ end
 function event:trackNuke()
 
     local nukes = self.nukes
-    if (nukes and #nukes == 0) then
+    if (not self.game or not self.game.started or (not nukes or nukes and #nukes == 0)) then
         return
     end
 

@@ -34,7 +34,7 @@ function timer:preGameTimer()
         self.safe_zone.timer = self:new()
         self.safe_zone.timer:start()
 
-        self:spawnLoot(self.looting.objects, 'loot')
+        self:spawnLoot(self.looting.random, 'random')
         self:spawnLoot(self.looting.crates, 'crates')
 
         for _, v in pairs(self.players) do

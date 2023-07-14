@@ -27,6 +27,10 @@ function event:onDeath(victim)
 
     victim = tonumber(victim)
     victim = self.players[victim]
+    if (not victim) then
+        return
+    end
+
     victim.weapon_parts = nil -- weapons parts loot
     victim.stun = nil -- stun grenades
     victim.can_stun = nil -- stun grenades

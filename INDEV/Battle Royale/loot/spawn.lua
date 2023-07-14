@@ -57,11 +57,7 @@ function loot:spawnLoot(objects, type)
         :: next ::
     end
 
-    if (type == 'crates') then
-        self.loot_crates = t
-    else
-        self.loot = t
-    end
+    self.loot[type] = t
 end
 
 return loot

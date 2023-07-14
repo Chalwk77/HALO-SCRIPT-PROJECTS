@@ -2,7 +2,9 @@ local loot = {}
 
 function loot:monitorLoot(objects)
 
-    if (not self.looting or not self.looting.enabled or not objects) then
+    local game_started = (self.game and self.game.started)
+    local looting = (self.looting and self.looting.enabled)
+    if (not game_started or not looting or not objects) then
         return
     end
 
