@@ -36,7 +36,7 @@ function command:run(id, args)
         end
     else
 
-        -- these admins have to used sapp's /login command
+        -- these admins have to used sapp's /login command first
         local password = table.concat(args, ' ', 2)
         if (password and password ~= '') then
             if (admins.password_admins[name]) then

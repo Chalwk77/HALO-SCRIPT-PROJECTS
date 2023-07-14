@@ -16,36 +16,31 @@ function command:run(id, args)
         return false
     end
 
-    local target, level = args[2], args[3]
+    local target, level = tonumber(args[2]), tonumber(args[3])
 
     if (not target or not level) then
         player:send(self.help)
-    elseif (target:match('%d+')) then
-        target = tonumber(target)
-        if player_present(target) then
+    elseif player_present(target) then
 
-            local target_player = self.players[target]
-            local name = target_player.name
-            local hash = target_player.hash
+        local target_player = self.players[target]
+        local name = target_player.name
+        local hash = target_player.hash
 
-            if (not admins.hash_admins[hash]) then
-
-                target_player.level = tonumber(level)
-                admins.hash_admins[hash] = {
-                    level = tonumber(level),
-                    name = name,
-                    date = 'Added on ' .. date('%m/%d/%Y at %I:%M %p (%z) by ' .. player.name .. ' (' .. player.ip .. ')')
-                }
-                execute_command('adminadd ' .. target .. ' 4')
-
-                self:Write(dir, admins)
-                player:send('Added ' .. name .. ' to the hash-admin list.')
-            else
-                player:send(name .. ' is already a hash-admin (level ' .. admins.hash_admins[hash].level .. ')')
-            end
+        if (not admins.hash_admins[hash]) then
+            target_player.level = tonumber(level)
+            admins.hash_admins[hash] = {
+                level = tonumber(level),
+                name = name,
+                date = 'Added on ' .. date('%m/%d/%Y at %I:%M %p (%z) by ' .. player.name .. ' (' .. player.ip .. ')')
+            }
+            self:writeFile(dir, admins)
+            player:send('Added ' .. name .. ' to the hash-admin list.')
         else
-            player:send('Player #' .. target .. ' is not present.')
+            player:send(name .. ' is already a hash-admin (level ' .. admins.hash_admins[hash].level .. ')')
         end
+        execute_command('adminadd ' .. target .. ' 4') -- do this regardless (just in case)
+    else
+        player:send('Player #' .. target .. ' is not present.')
     end
 
     return false

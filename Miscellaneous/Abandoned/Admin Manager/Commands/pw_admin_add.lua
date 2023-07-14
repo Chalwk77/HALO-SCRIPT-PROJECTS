@@ -40,13 +40,12 @@ function command:run(id, args)
                 name = name,
                 date = 'Added on ' .. date('%m/%d/%Y at %I:%M %p (%z) by ' .. player.name .. ' (' .. player.ip .. ')')
             }
-            execute_command('admin_add ' .. target .. ' "' .. password .. '" 4')
-
-            self:Write(dir, admins)
+            self:writeFile(dir, admins)
             player:send('Added ' .. name .. ' to the password-admin list.')
         else
             player:send(name .. ' is already a password-admin (level ' .. admins.password_admins[name].level .. ')')
         end
+        execute_command('admin_add ' .. target .. ' "' .. password .. '" 4') -- do this regardless (just in case)
     else
         player:send('Player #' .. target .. ' is not present.')
     end

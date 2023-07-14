@@ -7,11 +7,14 @@ return {
 
     default_admins = {
 
-        -- format:
-        -- [player hash] = {
-        --     level = 1,
-        --     name = 'Player Name'
-        -- },
+        --[[ example format:
+
+        [player hash] = {
+            level = 1,
+            name = 'Player Name'
+        }
+
+        ]]
 
         ip_admins = { },
         password_admins = {},
@@ -19,7 +22,7 @@ return {
             ['6c8f0bc306e0108b4904812110185edd'] = {
               name = 'Chalwk',
               level = 6
-            },
+            }
         }
     },
 

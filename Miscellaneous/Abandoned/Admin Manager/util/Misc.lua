@@ -68,4 +68,11 @@ function misc:decryptPassword(encrypted_password)
     return decrypted
 end
 
+function misc:sort(t)
+    table.sort(t, function(a, b)
+        return a.level > b.level
+    end)
+    return t
+end
+
 return misc

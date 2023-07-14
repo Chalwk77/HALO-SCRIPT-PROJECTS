@@ -28,20 +28,18 @@ function command:run(id, args)
             local name = target_player.name
 
             if (not admins.ip_admins[ip]) then
-
                 target_player.level = tonumber(level)
                 admins.ip_admins[ip] = {
                     level = tonumber(level),
                     name = name,
                     date = 'Added on ' .. date('%m/%d/%Y at %I:%M %p (%z) by ' .. player.name .. ' (' .. player.ip .. ')')
                 }
-                execute_command('adminadd ' .. target .. ' 4')
-
-                self:Write(dir, admins)
+                self:writeFile(dir, admins)
                 player:send('Added ' .. name .. ' to the ip-admin list.')
             else
                 player:send(name .. ' is already an ip-admin (level ' .. admins.ip_admins[ip].level .. ')')
             end
+            execute_command('adminadd ' .. target .. ' 4') -- do this regardless (just in case)
         else
             player:send('Player #' .. target .. ' is not present.')
         end
