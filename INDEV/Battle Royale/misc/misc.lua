@@ -187,8 +187,8 @@ function misc:enableDeathMessages()
     safe_write(false)
 end
 
-function misc:modifyRocket()
-    local tag = self.rocket_tag_data
+function misc:modifyNuke()
+    local tag = self.nuke_tag_data
     write_dword(tag + 0x0, 1084227584)
     write_dword(tag + 0x4, 1084227584)
     write_dword(tag + 0x1d0, 1065353216)
@@ -197,8 +197,8 @@ function misc:modifyRocket()
     write_dword(tag + 0x1f4, 1092616192)
 end
 
-function misc:rollbackRocket()
-    local tag = self.rocket_tag_data
+function misc:rollbackNuke()
+    local tag = self.nuke_tag_data
     write_dword(tag + 0x0, 1056964608)
     write_dword(tag + 0x4, 1073741824)
     write_dword(tag + 0x1d0, 1117782016)

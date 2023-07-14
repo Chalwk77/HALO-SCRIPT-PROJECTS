@@ -30,8 +30,8 @@ local function repair(self)
         end
     end
 
-    self.weapon_parts = nil
     if (repaired) then
+        self.weapon_parts = nil
         self:newMessage('Weapons repaired!', 5)
     else
         self:newMessage('Nothing was repaired!', 5)

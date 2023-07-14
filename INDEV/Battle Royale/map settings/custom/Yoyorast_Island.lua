@@ -12,13 +12,13 @@ return {
         y = -19.631,
         z = -162.233,
         min = 5, -- default (5 world/units)
-        max = 100 -- default (100 world/units)
+        max = 130 -- default (100 world/units)
     },
 
 
     --- Reduction rate:
     -- How often the safe zone will shrink (in seconds):
-    -- Default (60)
+    -- Default (30)
     --
     duration = 30,
 
@@ -360,7 +360,6 @@ return {
             -- Placeholders: $shield
             [50] = {
                 label = '$shieldX Overshield',
-                levels = { 2, 3 }, -- 2x, 3x
                 _function_ = 'giveOvershield'
             },
 
@@ -457,12 +456,30 @@ return {
     --
     -- Do not touch unless you know what you're doing:
     --
-    rocket_explosion_jpt_tag = 'weapons\\rocket launcher\\explosion',
+
+    --- Projectile tag used by Nuke and explosive bullets (proj):
+    -- This projectile will be used for explosive bullets.
+    -- This projectile is also used to determine if a player is using a rocket launcher (for the nuke).
     rocket_projectile_tag = 'weapons\\rocket launcher\\rocket',
+
+    --- Rocket launcher weapon tag (weap):
+    -- Used to assign a rocket launcher to a player (for nuke):
     rocket_launcher_weapon = 'weapons\\rocket launcher\\rocket launcher',
+
+    --- Grenade launcher projectile tag (eqip):
+    -- Used by Grenade Launcher feature.
     frag_grenade_projectile = 'weapons\\frag grenade\\frag grenade',
 
-    -- Tag addresses of covenant (energy) weapons:
+    --- Tag addresses used by Nuke feature (proj, jpt):
+    -- Nuke explosions are simulated with a tank shell projectile and explosion.
+    tank_shell_projectile = 'vehicles\\scorpion\\tank shell',
+    tank_shell_jpt_tag = 'vehicles\\scorpion\\shell explosion',
+
+    --- Overshield tag address (eqip):
+    overshield_equipment = 'powerups\\over shield',
+
+    --- Tag addresses of covenant (energy) weapons (weap):
+    -- Set to false to ignore.
     _energy_weapons_ = {
         ['weapons\\plasma rifle\\plasma rifle'] = true,
         ['weapons\\plasma_cannon\\plasma_cannon'] = true,

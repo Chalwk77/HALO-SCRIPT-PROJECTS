@@ -27,10 +27,7 @@ function event:onObjectSpawn(player, map_id, parent_id, object_id, sapp_spawning
             destroy_object(weapon.weapon)
             self.nukes[#self.nukes + 1] = {
                 meta_id = object_id,
-                weapon = weapon,
-                player = player,
-                object = object,
-                projectile = map_id
+                projectile = self.nuke_projectile
             }
         end
     end
@@ -53,16 +50,16 @@ local function createNuke(total, radius, projectile, cx, cy, cz)
         local x = cx + (math.cos(angle) * radius)
         local y = cy + (math.sin(angle) * radius)
         local z = cz
-        local rocket = spawn_projectile(projectile, 0, x, y, z)
-        local object = get_object_memory(rocket)
+        local proj = spawn_projectile(projectile, 0, x, y, z)
+        local object = get_object_memory(proj)
         translate(object, x, y, z)
         angle = angle + angle_step
     end
 
     --Rockets with random spread:
     for _ = 1, 5 do
-        local rocket = spawn_projectile(projectile, 0, cx, cy, cz)
-        local object = get_object_memory(rocket)
+        local proj = spawn_projectile(projectile, 0, cx, cy, cz)
+        local object = get_object_memory(proj)
         local x = cx + rand(-radius, radius + 1)
         local y = cy + rand(-radius, radius + 1)
         local z = cz
@@ -82,10 +79,10 @@ function event:trackNuke()
         local object = get_object_memory(v.meta_id)
         if (object == 0) then
             self.nukes[k] = nil
-            self:modifyRocket()
-            createNuke(5, 5, v.projectile, v.x, v.y, v.z)
-            createNuke(5, 10, v.projectile, v.x, v.y, v.z)
-            self:rollbackRocket()
+            self:modifyNuke()
+            createNuke(10, 1, v.projectile, v.x, v.y, v.z)
+            createNuke(10, 10, v.projectile, v.x, v.y, v.z)
+            self:rollbackNuke()
             goto next
         end
         v.x, v.y, v.z = read_vector3d(object + 0x5C)

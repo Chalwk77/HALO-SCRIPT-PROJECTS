@@ -187,17 +187,15 @@ end
 function spoils:giveOvershield(args)
 
     local id = self.id
-    local levels = args.levels
-    local level = levels[rand(1, #levels + 1)]
 
     local label = args.label
     label = label:gsub('$shield', level)
 
     self:newMessage('You unlocked ' .. label, 5)
 
-    local dyn = get_dynamic_player(id)
-    write_word(dyn + 0x104, 0) -- force shield to regenerate immediately
-    execute_command('sh ' .. id .. ' ' .. level)
+    local shield = spawn_object('', '', 0, 0, 0, 0, self.overshield_object)
+    powerup_interact(shield, id)
+
     return true
 end
 

@@ -47,7 +47,7 @@ function event:getRandomWeaponTags()
 end
 
 local function getTagData(self)
-    local jpt = self.rocket_explosion_jpt_tag
+    local jpt = self.tank_shell_jpt_tag
     local tag_address = read_dword(0x40440000)
     local tag_count = read_dword(0x4044000C)
     for i = 0, tag_count - 1 do
@@ -101,10 +101,13 @@ function event:onStart()
         -- For grenade launcher:
         self.frag_projectile = self:getTag('proj', self.frag_grenade_projectile)
 
-        -- For nuke:
+        -- For nuke (weapon):
         self.rocket_launcher = self:getTag('weap', self.rocket_launcher_weapon)
 
-        self.rocket_tag_data = getTagData(self)
+        self.nuke_projectile = self:getTag('proj', self.tank_shell_projectile)
+        self.nuke_tag_data = getTagData(self)
+
+        self.overshield_object = self:getTag('eqip', self.overshield_equipment)
 
         -- Disable object that represents loot crates:
         for name, _ in pairs(self.looting.crates['eqip']) do

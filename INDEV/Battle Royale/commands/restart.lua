@@ -11,6 +11,10 @@ function Command:run(id, args)
     elseif not player:hasPermission(self.level) then
         return
     end
+
+    --
+    -- code will go here
+    --
 end
 
 return Command

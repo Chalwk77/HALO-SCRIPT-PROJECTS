@@ -18,7 +18,7 @@ return {
 
     --- Reduction rate:
     -- How often the safe zone will shrink (in seconds):
-    -- Default (60)
+    -- Default (30)
     --
     duration = 30,
 
@@ -362,7 +362,6 @@ return {
             -- Placeholders: $shield
             [50] = {
                 label = '$shieldX Overshield',
-                levels = { 2, 3 }, -- 2x, 3x
                 _function_ = 'giveOvershield'
             },
 
@@ -396,43 +395,43 @@ return {
                     { -0.084, 35.239, 0.923, 40 },
                     { -7.125, 53.230, 0.917, 45 },
                 }
+            }
+        },
+
+        --- Random weapon/power up spawns:
+        -- Format: ['tag class'] = { ['tag name'] = { { x, y, z, respawn time (in seconds)}, ... } }
+        objects = {
+
+            ['weap'] = {
+                ['weapons\\assault rifle\\assault rifle'] = {
+                    -- example locations:
+                    -- {0,0,0,0},
+                    -- {0,0,0,0}
+                },
+                ['weapons\\flamethrower\\flamethrower'] = {},
+                ['weapons\\pistol\\pistol'] = {},
+                ['weapons\\plasma pistol\\plasma pistol'] = {},
+                ['weapons\\needler\\mp_needler'] = {},
+                ['weapons\\plasma rifle\\plasma rifle'] = {},
+                ['weapons\\shotgun\\shotgun'] = {},
+                ['weapons\\sniper rifle\\sniper rifle'] = {},
+                ['weapons\\plasma_cannon\\plasma_cannon'] = {},
+                ['weapons\\rocket launcher\\rocket launcher'] = {},
+                ['weapons\\sniper rifle\\sniper rifle'] = {},
             },
 
-            --- Random weapon/power up spawns:
-            -- Format: ['tag class'] = { ['tag name'] = { { x, y, z, respawn time (in seconds)}, ... } }
-            objects = {
-
-                ['weap'] = {
-                    ['weapons\\assault rifle\\assault rifle'] = {
-                        -- example locations:
-                        -- {0,0,0,0},
-                        -- {0,0,0,0}
-                    },
-                    ['weapons\\flamethrower\\flamethrower'] = {},
-                    ['weapons\\pistol\\pistol'] = {},
-                    ['weapons\\plasma pistol\\plasma pistol'] = {},
-                    ['weapons\\needler\\mp_needler'] = {},
-                    ['weapons\\plasma rifle\\plasma rifle'] = {},
-                    ['weapons\\shotgun\\shotgun'] = {},
-                    ['weapons\\sniper rifle\\sniper rifle'] = {},
-                    ['weapons\\plasma_cannon\\plasma_cannon'] = {},
-                    ['weapons\\rocket launcher\\rocket launcher'] = {},
-                    ['weapons\\sniper rifle\\sniper rifle'] = {},
-                },
-
-                ['eqip'] = {
-                    ['powerups\\flamethrower ammo\\flamethrower ammo'] = {},
-                    ['powerups\\shotgun ammo\\shotgun ammo'] = {},
-                    ['powerups\\sniper rifle ammo\\sniper rifle ammo'] = {},
-                    ['powerups\\active camouflage'] = {},
-                    ['powerups\\health pack'] = {},
-                    ['powerups\\over shield'] = {},
-                    ['powerups\\assault rifle ammo\\assault rifle ammo'] = {},
-                    ['powerups\\needler ammo\\needler ammo'] = {},
-                    ['powerups\\rocket launcher ammo\\rocket launcher ammo'] = {},
-                    ['weapons\\frag grenade\\frag grenade'] = {},
-                    ['weapons\\plasma grenade\\plasma grenade'] = {},
-                }
+            ['eqip'] = {
+                ['powerups\\flamethrower ammo\\flamethrower ammo'] = {},
+                ['powerups\\shotgun ammo\\shotgun ammo'] = {},
+                ['powerups\\sniper rifle ammo\\sniper rifle ammo'] = {},
+                ['powerups\\active camouflage'] = {},
+                ['powerups\\health pack'] = {},
+                ['powerups\\over shield'] = {},
+                ['powerups\\assault rifle ammo\\assault rifle ammo'] = {},
+                ['powerups\\needler ammo\\needler ammo'] = {},
+                ['powerups\\rocket launcher ammo\\rocket launcher ammo'] = {},
+                ['weapons\\frag grenade\\frag grenade'] = {},
+                ['weapons\\plasma grenade\\plasma grenade'] = {},
             }
         }
     },
@@ -440,12 +439,30 @@ return {
     --
     -- Do not touch unless you know what you're doing:
     --
-    rocket_explosion_jpt_tag = 'weapons\\rocket launcher\\explosion',
+
+    --- Projectile tag used by Nuke and explosive bullets (proj):
+    -- This projectile will be used for explosive bullets.
+    -- This projectile is also used to determine if a player is using a rocket launcher (for the nuke).
     rocket_projectile_tag = 'weapons\\rocket launcher\\rocket',
+
+    --- Rocket launcher weapon tag (weap):
+    -- Used to assign a rocket launcher to a player (for nuke):
     rocket_launcher_weapon = 'weapons\\rocket launcher\\rocket launcher',
+
+    --- Grenade launcher projectile tag (eqip):
+    -- Used by Grenade Launcher feature.
     frag_grenade_projectile = 'weapons\\frag grenade\\frag grenade',
 
-    -- Tag addresses of covenant (energy) weapons:
+    --- Tag addresses used by Nuke feature (proj, jpt):
+    -- Nuke explosions are simulated with a tank shell projectile and explosion.
+    tank_shell_projectile = 'vehicles\\scorpion\\tank shell',
+    tank_shell_jpt_tag = 'vehicles\\scorpion\\shell explosion',
+
+    --- Overshield tag address (eqip):
+    overshield_equipment = 'powerups\\over shield',
+
+    --- Tag addresses of covenant (energy) weapons (weap):
+    -- Set to false to ignore.
     _energy_weapons_ = {
         ['weapons\\plasma rifle\\plasma rifle'] = true,
         ['weapons\\plasma_cannon\\plasma_cannon'] = true,

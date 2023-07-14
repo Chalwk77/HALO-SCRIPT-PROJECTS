@@ -13,7 +13,7 @@ function Command:run(id, args)
 
     local dyn = get_dynamic_player(id)
     if (dyn == 0 or not player_alive(id)) then
-        player:addMessage('You are dead!')
+        player:newMessage('You are dead!')
         return
     end
 
@@ -28,7 +28,7 @@ function Command:run(id, args)
     r = self:threeDecimal(r)
 
     local str = format('{%s, %s, %s, %s, %s},', x, y, z, r, height)
-    player:addMessage('[POS SET]: ' .. str)
+    player:newMessage('[POS SET]: ' .. str)
     cprint(str)
 end
 

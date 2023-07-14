@@ -12,13 +12,13 @@ return {
         y = -15.757,
         z = 10.892,
         min = 5, -- default (5 world/units)
-        max = 100 -- default (100 world/units)
+        max = 150 -- default (100 world/units)
     },
 
 
     --- Reduction rate:
     -- How often the safe zone will shrink (in seconds):
-    -- Default (60)
+    -- Default (30)
     --
     duration = 30,
 
@@ -42,7 +42,7 @@ return {
     -- The minimum amount of players required to start the game:
     -- Default: (2)
     --
-    required_players = 1,
+    required_players = 2,
 
 
     --- Game start delay:
@@ -50,7 +50,7 @@ return {
     -- The start delay will not begin until the required players have joined.
     -- Default (30)
     --
-    start_delay = 1,
+    start_delay = 30,
 
 
     --- Lives:
@@ -236,7 +236,7 @@ return {
             },
 
             --- NUKE:
-            [2] = {
+            [10000000] = {
                 label = 'Nuke',
                 radius = 10, -- kills all players within this radius
                 _function_ = 'giveNuke'
@@ -375,7 +375,6 @@ return {
             -- Placeholders: $shield
             [50] = {
                 label = '$shieldX Overshield',
-                levels = { 2, 3 }, -- 2x, 3x
                 _function_ = 'giveOvershield'
             },
 
@@ -466,12 +465,29 @@ return {
     --
     -- Do not touch unless you know what you're doing:
     --
-    rocket_explosion_jpt_tag = 'cmt\\weapons\\evolved_h1-spirit\\rocket_launcher\\damage_effects\\rocket_launcher_rocket_explosion',
+
+    --- Projectile tag used by Nuke and explosive bullets (proj):
+    -- This projectile will be used for explosive bullets.
+    -- This projectile is also used to determine if a player is using a rocket launcher (for the nuke).
     rocket_projectile_tag = 'cmt\\weapons\\evolved_h1-spirit\\rocket_launcher\\projectiles\\rocket_launcher_rocket\\rocket_launcher_rocket',
+
+    --- Rocket launcher weapon tag (weap):
+    -- Used to assign a rocket launcher to a player (for nuke):
     rocket_launcher_weapon = 'cmt\\weapons\\evolved_h1-spirit\\rocket_launcher\\rocket_launcher',
+
+    --- Grenade launcher projectile tag (eqip):
     frag_grenade_projectile = 'cmt\\weapons\\evolved\\human\\frag_grenade\\_frag_grenade_mp\\frag_grenade_mp',
 
-    -- Tag addresses of covenant (energy) weapons:
+    --- Tag addresses used by Nuke feature (proj, jpt):
+    -- Nuke explosions are simulated with a tank shell projectile and explosion.
+    tank_shell_projectile = 'cmt\\vehicles\\evolved_h1-spirit\\scorpion\\weapons\\scorpion_cannon\\projectiles\\scorpion_cannon_shell',
+    tank_shell_jpt_tag = 'cmt\\vehicles\\evolved_h1-spirit\\scorpion\\weapons\\scorpion_cannon\\damage_effects\\scorpion_cannon_shell_explosion',
+
+    --- Overshield tag address (eqip):
+    overshield_equipment = 'cmt\\powerups\\covenant\\powerup_pack\\powerups\\over_shield',
+
+    --- Tag addresses of covenant (energy) weapons (weap):
+    -- Set to false to ignore.
     _energy_weapons_ = {
         ['cmt\\weapons\\evolved_h1-spirit\\plasma_rifle\\_plasma_rifle_mp\\plasma_rifle_mp'] = true
     }

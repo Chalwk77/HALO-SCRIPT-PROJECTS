@@ -114,7 +114,7 @@ function SafeZone:outsideSafeZone()
             local bX, bY, bZ = self.safe_zone.x, self.safe_zone.y, self.safe_zone.z
 
             local distance = self:getDistance(px, py, pz, bX, bY, bZ)
-            if (distance < radius) then
+            if (distance <= radius) then
                 v.hurt_cooldown = nil
                 v:setHUD('primary', distance)
             elseif (not v.spectator) then
