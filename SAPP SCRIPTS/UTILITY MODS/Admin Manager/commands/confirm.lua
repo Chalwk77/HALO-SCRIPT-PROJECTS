@@ -7,22 +7,24 @@ local command = {
 
 function command:run(id, args)
 
-    local player = self.players[id]
+    local admin = self.players[id]
 
-    if player:hasPermission(self.permission_level) then
+    if admin:hasPermission(self.permission_level) then
 
         if (args[2] == 'help') then
-            player:send(self.description)
+            admin:send(self.description)
         elseif (not player.confirm) then
-            player:send('You have nothing to confirm.')
+            admin:send('You have nothing to confirm.')
         else
 
-            local level = player.confirm.level
+            local level = admin.confirm.level
             self.commands[level] = nil
-            player.confirm = nil
+
+            admin.confirm = nil
+            admin:send('Level (' .. level .. ') has been deleted.')
 
             self:updateCommands()
-            player:send('Level (' .. level .. ') has been deleted.')
+            self:log(admin.name .. ' (' .. admin.ip .. ')  deleted level ' .. level .. ' from (' .. self.directories[2] .. ')')
         end
     end
 

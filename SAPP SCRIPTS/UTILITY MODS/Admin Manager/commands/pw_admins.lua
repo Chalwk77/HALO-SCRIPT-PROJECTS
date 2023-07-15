@@ -7,12 +7,11 @@ local command = {
 
 function command:run(id, args)
 
-    local player = self.players[id]
-    if (player:hasPermission(self.permission_level)) then
+    local admin = self.players[id]
+    if (admin:hasPermission(self.permission_level)) then
 
         if (args[2] == 'help') then
-            player:send(self.description)
-            return false
+            return false, admin:send(self.description)
         end
 
         local password_admins = self.admins.password_admins
@@ -25,15 +24,16 @@ function command:run(id, args)
         end
 
         if (#list == 0) then
-            return false, player:send('No Password Admins found.')
+            return false, admin:send('No Password Admins found.')
         end
 
         list = self:sort(list)
-        player:send('Password Admins (total ' .. #list .. ')')
+        admin:send('Password Admins (total ' .. #list .. ')')
         for i = 1, #list do
             local data = list[i]
-            player:send(data.username .. '(' .. data.level .. ')')
+            admin:send(data.username .. '(' .. data.level .. ')')
         end
+        self:log(admin.name .. ' (' .. admin.ip .. ') viewed the password-admin list.')
     end
 
     return false

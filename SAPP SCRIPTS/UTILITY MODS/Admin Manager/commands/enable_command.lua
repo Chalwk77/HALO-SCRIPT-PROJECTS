@@ -8,25 +8,26 @@ local command = {
 function command:run(id, args)
 
     local target_command = args[2]
-    local player = self.players[id]
+    local admin = self.players[id]
 
-    if player:hasPermission(self.permission_level) then
+    if admin:hasPermission(self.permission_level) then
 
         if (not target_command) then
-            player:send(self.help)
-        elseif (args[2] == 'help') then
-            player:send(self.description)
+            admin:send(self.help)
+        elseif (target_command == 'help') then
+            admin:send(self.description)
         else
 
             local level, enabled = self:findCommand(target_command)
             if (level == nil) then
-                player:send('Command (' .. target_command .. ') does not exist.')
+                admin:send('Command (' .. target_command .. ') does not exist.')
             elseif (enabled) then
-                player:send('Command (' .. target_command .. ') is already enabled.')
+                admin:send('Command (' .. target_command .. ') is already enabled.')
             else
                 self.commands[level][target_command] = true
                 self:updateCommands()
-                player:send('Command (' .. target_command .. ') has been enabled.')
+                admin:send('Command (' .. target_command .. ') has been enabled.')
+                self:log(admin.name .. '(' .. admin.ip .. ') enabled command (' .. target_command .. ')')
             end
         end
     end

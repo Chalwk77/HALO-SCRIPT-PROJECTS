@@ -11,13 +11,15 @@ end
 function event:onCommand(id, command)
 
     local args = stringSplit(command)
-    local target_command = args[1]:lower()
+    local target_command = args[1]
 
-    command = self.management[target_command] -- management commands
+    -- Management commands:
+    command = self.management[target_command]
     if (command) then
         return command:run(id, args)
     end
 
+    -- All other commands:
     local player = self.players[id]
     local current_level = player.level
 
@@ -34,9 +36,7 @@ function event:onCommand(id, command)
         return false
     end
 
-    if (self.logging) then
-        cprint('Command: (' .. target_command .. ') was executed by: ' .. player.name .. ' (' .. id .. ') ' .. '(' .. player.ip .. ')', 10)
-    end
+    self:log('Command: (' .. target_command .. ') was executed by: ' .. player.name .. ' (' .. id .. ') ' .. '(' .. player.ip .. ')')
 
     return true
 end

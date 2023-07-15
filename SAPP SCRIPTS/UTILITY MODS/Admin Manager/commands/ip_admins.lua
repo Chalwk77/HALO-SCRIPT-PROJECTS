@@ -7,12 +7,11 @@ local command = {
 
 function command:run(id, args)
 
-    local player = self.players[id]
-    if player:hasPermission(self.permission_level) then
+    local admin = self.players[id]
+    if admin:hasPermission(self.permission_level) then
 
         if (args[2] == 'help') then
-            player:send(self.description)
-            return false
+            return false, admin:send(self.description)
         end
 
         local ip_admins = self.admins.ip_admins
@@ -25,15 +24,16 @@ function command:run(id, args)
         end
 
         if (#list == 0) then
-            return false, player:send('No IP Admins found.')
+            return false, admin:send('No IP Admins found.')
         end
 
         list = self:sort(list)
-        player:send('IP Admins (total ' .. #list .. ')')
+        admin:send('IP Admins (total ' .. #list .. ')')
         for i = 1, #list do
             local data = list[i]
-            player:send(data.name .. '(' .. data.level .. ')')
+            admin:send(data.name .. '(' .. data.level .. ')')
         end
+        self:log(admin.name .. ' viewed the ip-admin list.')
     end
 
     return false

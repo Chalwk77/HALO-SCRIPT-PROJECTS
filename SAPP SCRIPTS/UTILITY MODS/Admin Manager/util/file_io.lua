@@ -83,4 +83,20 @@ function IO:updateCommands()
     writeFile(self.directories[2], commands)
 end
 
+function IO:log(entry)
+
+    if not self.logging then
+        return
+    end
+
+    local date = self:getDate(true)
+    local dir = self.directories[3]
+    local logs = loadFile(self, dir)
+
+    logs = logs or {}
+    logs[date] = entry
+
+    writeFile(dir, logs)
+end
+
 return IO

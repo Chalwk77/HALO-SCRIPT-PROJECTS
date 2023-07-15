@@ -19,24 +19,30 @@ return {
     confirmation_delay = 10,
 
 
-    --- ADMIN AND COMMAND DIRECTORIES:
+    --- DATABASE DIRECTORIES:
     --
-    -- Admin and command data are stored in JSON format in the following files:
+    -- Admin, command and logging data are stored in JSON format in the following files:
     directories = {
+
+        -- Admins database:
         [1] = './Admin Manager/admins.json',
-        [2] = './Admin Manager/commands.json'
+
+        -- Commands database:
+        [2] = './Admin Manager/commands.json',
+
+        [3] = './Admin Manager/logs.json',
     },
 
 
     --- LOGGING:
     --
-    -- When enabled, all commands are logged to the server console.
+    -- When enabled, management command logs are saved to the ./Admin Manager/logs.json file.
     logging = true,
 
 
     --- MANAGEMENT COMMANDS:
     --
-    -- Management command permissions can be changed the ./Admin Manager/commands/<command> directory.
+    -- Management command permissions can be changed in the ./Admin Manager/commands/<command> directory.
     -- Format: ['<command file name>'] = true (or false)
     -- Setting a command to false will disable it for all players.
     management_commands = {

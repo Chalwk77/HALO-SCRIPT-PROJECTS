@@ -9,19 +9,19 @@ local time = os.time
 function command:run(id, args)
 
     local level = tonumber(args[2])
-    local player = self.players[id]
+    local admin = self.players[id]
 
-    if player:hasPermission(self.permission_level) then
+    if admin:hasPermission(self.permission_level) then
         if (args[2] == 'help') then
-            player:send(self.description)
+            admin:send(self.description)
         elseif (not level) then
-            player:send(self.help)
+            admin:send(self.help)
         elseif (not self.commands[level]) then
-            player:send('Level ' .. level .. ' does not exist.')
+            admin:send('Level ' .. level .. ' does not exist.')
         else
-            player:send('Are you sure you want to delete level ' .. level .. '?')
-            player:send('Type /confirm to confirm.')
-            player.confirm = {
+            admin:send('Are you sure you want to delete level ' .. level .. '?')
+            admin:send('Type /confirm to confirm.')
+            admin.confirm = {
                 delay = time() + self.confirmation_delay,
                 level = level
             }

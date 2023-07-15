@@ -8,24 +8,24 @@ local command = {
 function command:run(id, args)
 
     local target, level = tonumber(args[2]), tonumber(args[3])
-    local player = self.players[id]
+    local admin = self.players[id]
     local admins = self.admins
 
-    if player:hasPermission(self.permission_level) then
+    if admin:hasPermission(self.permission_level) then
 
         if (args[2] == 'help') then
-            player:send(self.description)
+            admin:send(self.description)
         elseif (not target or not level) then
-            player:send(self.help)
+            admin:send(self.help)
         elseif not player_present(target) then
-            player:send('Player #' .. target .. ' is not present.')
+            admin:send('Player #' .. target .. ' is not present.')
         elseif (not self.commands[level]) then
-            player:send('Invalid level. Must be between 1 and ' .. #self.commands)
+            admin:send('Invalid level. Must be between 1 and ' .. #self.commands)
         else
 
             local password = table.concat(args, ' ', 4)
             if (not password or password == '') then
-                player:send('You must specify a password.')
+                admin:send('You must specify a password.')
             else
 
                 target = self.players[target]
@@ -38,21 +38,22 @@ function command:run(id, args)
 
                     local length = password:len()
                     if (length < min or length > max) then
-                        player:send('Password must be ' .. min .. ' to ' .. max .. ' characters')
+                        admin:send('Password must be ' .. min .. ' to ' .. max .. ' characters')
                         return false
                     end
 
                     target.level = level
+                    target.password_admin = true
                     admins.password_admins[username] = {
                         password = self:getSHA2Hash(password),
                         level = level,
-                        date = 'Added on ' .. self:getDate() .. ' by ' .. player.name .. ' (' .. player.ip .. ')'
+                        date = 'Added on ' .. self:getDate() .. ' by ' .. admin.name .. ' (' .. admin.ip .. ')'
                     }
-                    target.password_admin = true
                     self:updateAdmins(admins)
-                    player:send('Added ' .. username .. ' to the password-admin list. Level (' .. level .. ').')
+                    admin:send('Added ' .. username .. ' to the password-admin list. Level (' .. level .. ').')
+                    self:log(admin.name .. ' (' .. admin.ip .. ') added ' .. username .. ' to the password-admin list. Level (' .. level .. ')')
                 else
-                    player:send(username .. ' is already a password-admin (level ' .. admins.password_admins[username].level .. ')')
+                    admin:send(username .. ' is already a password-admin (level ' .. admins.password_admins[username].level .. ')')
                 end
             end
         end

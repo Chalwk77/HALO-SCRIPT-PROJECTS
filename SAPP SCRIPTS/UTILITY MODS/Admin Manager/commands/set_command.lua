@@ -10,18 +10,18 @@ function command:run(id, args)
     local target_command = (args[2] and args[2]:lower())
     local level = tonumber(args[3])
     local enable = args[4]
-    local player = self.players[id]
+    local admin = self.players[id]
 
-    if player:hasPermission(self.permission_level) then
+    if admin:hasPermission(self.permission_level) then
 
         if (args[2] == 'help') then
-            player:send(self.description)
+            admin:send(self.description)
         elseif (not target_command) then
-            player:send(self.help)
+            admin:send(self.help)
         elseif (not level) then
-            player:send(self.help)
+            admin:send(self.help)
         elseif (not self.commands[level]) then
-            player:send('Admin level (' .. level .. ') does not exist.')
+            admin:send('Admin level (' .. level .. ') does not exist.')
         else
 
             -- Remove existing command (if any) from its current level:
@@ -34,7 +34,8 @@ function command:run(id, args)
 
             self.commands[level][target_command] = enable
             self:updateCommands()
-            player:send('Command (' .. target_command .. ') has been set to level (' .. level .. '). Enabled: ' .. tostring(enable))
+            admin:send('Command (' .. target_command .. ') has been set to level (' .. level .. '). Enabled: ' .. tostring(enable))
+            self:log(admin.name .. ' (' .. admin.ip .. ') set command (' .. target_command .. ') to level (' .. level .. '). Enabled: ' .. tostring(enable))
         end
     end
 

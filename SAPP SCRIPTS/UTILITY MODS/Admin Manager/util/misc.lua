@@ -53,8 +53,8 @@ function misc:findCommand(command)
     return nil
 end
 
-function misc:getDate()
-    return date('%m/%d/%Y at %I:%M %p (%z)')
+function misc:getDate(log)
+    return date(log and '%d/%m/%Y %H:%M:%S' or '%d/%m/%Y at %I:%M %p (%z)')
 end
 
 return misc

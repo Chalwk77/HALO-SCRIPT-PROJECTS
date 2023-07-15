@@ -8,19 +8,20 @@ local command = {
 function command:run(id, args)
 
     local level = tonumber(args[2])
-    local player = self.players[id]
+    local admin = self.players[id]
 
-    if player:hasPermission(self.permission_level) then
+    if admin:hasPermission(self.permission_level) then
         if (args[2] == 'help') then
-            player:send(self.description)
+            admin:send(self.description)
         elseif (not level) then
-            player:send(self.help)
+            admin:send(self.help)
         elseif (self.commands[level]) then
-            player:send('Level ' .. level .. ' already exists.')
+            admin:send('Level ' .. level .. ' already exists.')
         else
             self.commands[level] = {}
             self:updateCommands()
-            player:send('Level ' .. level .. ' added.')
+            admin:send('Level ' .. level .. ' added.')
+            self:log(admin.name .. ' (' .. admin.ip .. ')  added level ' .. level .. ' to (' .. self.directories[2] .. ')')
         end
     end
 

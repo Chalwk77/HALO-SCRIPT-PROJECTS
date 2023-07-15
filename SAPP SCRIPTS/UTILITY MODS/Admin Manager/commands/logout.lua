@@ -5,15 +5,16 @@ local command = {
 }
 
 function command:run(id, args)
-    local player = self.players[id]
+    local admin = self.players[id]
     if (id == 0) then
-        player:send('Cannot execute this command from console.')
+        admin:send('Cannot execute this command from console.')
     elseif (args[2] == 'help') then
-        player:send(self.description)
+        admin:send(self.description)
     else
-        player.level = 1
-        player.password_admin = nil
-        player:send('Successfully logged out.')
+        admin.level = 1
+        admin.password_admin = nil
+        admin:send('Successfully logged out.')
+        self:log(admin.name .. ' (' .. admin.ip .. ') logged out.')
     end
     return false
 end

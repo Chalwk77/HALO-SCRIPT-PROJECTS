@@ -10,18 +10,18 @@ function command:run(id, args)
     local target = tonumber(args[2])
     local level = tonumber(args[3])
     local type = args[4]
-    local player = self.players[id]
+    local admin = self.players[id]
 
-    if player:hasPermission(self.permission_level) then
+    if admin:hasPermission(self.permission_level) then
 
         if (args[2] == 'help') then
-            player:send(self.description)
+            admin:send(self.description)
         elseif (not target or not level) then
-            player:send(self.help)
+            admin:send(self.help)
         elseif (not self.commands[level]) then
-            player:send('Admin level (' .. level .. ') does not exist.')
+            admin:send('Admin level (' .. level .. ') does not exist.')
         elseif not player_present(target) then
-            player:send('Player #' .. target .. ' is not present.')
+            admin:send('Player #' .. target .. ' is not present.')
         else
 
             target = self.players[target]
@@ -35,32 +35,33 @@ function command:run(id, args)
             local password_admins = admins.password_admins
 
             if (target.level == 1) then
-                player:send(name .. ' is either not an admin or isn\'t logged in (password admin)')
+                admin:send(name .. ' is either not an admin or isn\'t logged in.')
                 return false
             elseif (type == 'hash' and not hash_admins[hash]) then
-                player:send(name .. ' is not a hash-admin.')
+                admin:send(name .. ' is not a hash-admin.')
                 return false
             elseif (type == 'ip' and not ip_admins[target.ip]) then
-                player:send(name .. ' is not an ip-admin.')
+                admin:send(name .. ' is not an ip-admin.')
                 return false
             elseif (type == 'password' and not target.password_admin) then
-                player:send(name .. ' either not an admin or isn\'t logged in (password admin)')
+                admin:send(name .. ' either not an admin or isn\'t logged in.')
                 return false
             elseif (type == 'hash') then
                 hash_admins[hash].level = level
-                hash_admins[hash].date = 'Changed on ' .. self:getDate() .. ' by ' .. player.name .. ' (' .. player.ip .. ')'
+                hash_admins[hash].date = 'Changed on ' .. self:getDate() .. ' by ' .. admin.name .. ' (' .. admin.ip .. ')'
             elseif (type == 'ip') then
                 ip_admins[target.ip].level = level
-                ip_admins[target.ip].date = 'Changed on ' .. self:getDate() .. ' by ' .. player.name .. ' (' .. player.ip .. ')'
+                ip_admins[target.ip].date = 'Changed on ' .. self:getDate() .. ' by ' .. admin.name .. ' (' .. admin.ip .. ')'
             elseif (type == 'password') then
                 password_admins[name].level = level
             else
-                player:send('Invalid type argument. Valid types: hash, ip, password')
+                admin:send('Invalid type argument. Valid types: hash, ip, password')
             end
 
             target.level = level
             self:updateAdmins(admins)
-            player:send('Changed ' .. name .. '\'s admin level to ' .. level .. ' (' .. type .. ')')
+            admin:send('Changed ' .. name .. '\'s admin level to ' .. level .. ' (' .. type .. ')')
+            self:log(admin.name .. ' (' .. admin.ip .. ') changed ' .. name .. '\'s admin level to ' .. level .. ' (' .. type .. ')')
         end
     end
 

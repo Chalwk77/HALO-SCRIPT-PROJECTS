@@ -6,17 +6,17 @@ local command = {
 
 function command:run(id, args)
 
-    local player = self.players[id]
-    local username = player.name
+    local admin = self.players[id]
+    local username = admin.name
     local admins = self.admins
     local password = table.concat(args, ' ', 2)
 
     if (id == 0) then
-        player:send('Cannot execute this command from console.')
+        admin:send('Cannot execute this command from console.')
     elseif (args[2] == 'help') then
-        player:send(self.description)
+        admin:send(self.description)
     elseif (password and password == '') then
-        player:send(self.help)
+        admin:send(self.help)
     elseif (admins.password_admins[username]) then
 
         local hashed_password = self:getSHA2Hash(password)
@@ -24,14 +24,15 @@ function command:run(id, args)
         local success = assert(password_on_file == hashed_password)
 
         if (success) then
-            player.password_admin = true
-            player.level = admins.password_admins[username].level
-            player:send('Successfully logged in as ' .. username .. ' (level ' .. player.level .. ')')
+            admin.password_admin = true
+            admin.level = admins.password_admins[username].level
+            admin:send('Successfully logged in as ' .. username .. ' (level ' .. admin.level .. ')')
+            self:log(admin.name .. ' (' .. admin.ip .. ') logged in as ' .. username .. ' Level (' .. admin.level .. ')')
         else
-            player:send('Incorrect username or password.')
+            admin:send('Incorrect username or password.')
         end
     else
-        player:send('Incorrect username or password.')
+        admin:send('Incorrect username or password.')
     end
 
     return false
