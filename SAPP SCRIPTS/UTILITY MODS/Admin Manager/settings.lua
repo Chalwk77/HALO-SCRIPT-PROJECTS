@@ -1,46 +1,79 @@
 return {
 
+    --- CONSOLE LEVEL:
+    --
+    -- Default level for console commands:
+    console_default_level = 6,
+
+
+    --- PASSWORD LENGTH:
+    --
+    -- Minimum and maximum password length for password admins:
+    password_length_limit = { 4, 32 },
+
+
+    --- ADMIN LEVEL DELETE CONFIRMATION DELAY:
+    --
+    -- Confirmation delay (in seconds) for deleting admin levels:
+    -- If a player doesn't confirm the deletion within this time, the deletion is cancelled.
+    confirmation_delay = 10,
+
+
+    --- ADMIN AND COMMAND DIRECTORIES:
+    --
+    -- Admin and command data are stored in JSON format in the following files:
     directories = {
         [1] = './Admin Manager/admins.json',
         [2] = './Admin Manager/commands.json'
     },
 
-    default_admins = {
 
-        --[[ example format:
+    --- LOGGING:
+    --
+    -- When enabled, all commands are logged to the server console.
+    logging = true,
 
-        [player hash] = {
-            level = 1,
-            name = 'Player Name'
-        }
 
-        ]]
-
-        ip_admins = { },
-        password_admins = {},
-        hash_admins = {
-            ['6c8f0bc306e0108b4904812110185edd'] = {
-                name = 'Chalwk',
-                level = 6
-            }
-        }
-    },
-
+    --- MANAGEMENT COMMANDS:
+    --
+    -- Management command permissions can be changed the ./Admin Manager/commands/<command> directory.
+    -- Format: ['<command file name>'] = true (or false)
+    -- Setting a command to false will disable it for all players.
     management_commands = {
-        ['ip_admin_add'] = true,
-        ['ip_admin_delete'] = true,
+        ['change_level'] = true,
+        ['confirm'] = true,
+        ['disable_command'] = true,
+        ['enable_command'] = true,
         ['hash_admin_add'] = true,
         ['hash_admin_delete'] = true,
-        ['pw_admin_add'] = true,
-        ['pw_admin_delete'] = true,
-        ['ip_admins'] = true,
         ['hash_admins'] = true,
-        ['pw_admins'] = true,
+        ['ip_admin_add'] = true,
+        ['ip_admin_delete'] = true,
+        ['ip_admins'] = true,
+        ['level_add'] = true,
+        ['level_delete'] = true,
         ['login'] = true,
         ['logout'] = true,
+        ['pw_admin_add'] = true,
+        ['pw_admin_delete'] = true,
+        ['pw_admins'] = true,
+        ['set_command'] = true,
     },
 
+
+    --
+    --- DEFAULT COMMANDS:
+    --
+    -- These are the default commands that are available to players at each level:
+    -- When the plugin is first installed, these commands are copied to the `commands.json` file.
+    -- You can edit the commands in the ./commands.json file, or use the management commands to change them.
+    --
+    -- Format: ['<level>'] = { ['<command>'] = true (or false) ... }
+    -- Setting a command to false will disable it for all players.
     default_commands = {
+
+        -- [!] NOTE:
+        -- Level 1 is reserved for public commands.
 
         ['1'] = { -- public commands
             ['whatsnext'] = true,
@@ -53,7 +86,7 @@ return {
             ['info'] = true,
             ['lead'] = true,
             ['list'] = true,
-            ['login'] = true,
+            ['login'] = false,
             ['clead'] = true,
             ['about'] = true
         },
@@ -284,3 +317,46 @@ return {
         }
     }
 }
+
+
+--
+-- DEFAULT ADMIN EXAMPLES:
+--
+
+--[[
+
+
+    EXAMPLE HASH-ADMIN FORMAT:
+    hash_admins = {
+        ["xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx] = {
+            name = 'BOB',
+            level = 6
+        }
+    }
+
+    EXAMPLE IP-ADMIN FORMAT:
+        hash_admins = {
+            ["127.0.0.1"] = {
+                name = 'BOB',
+                level = 6
+            },
+            ["xxx.xxx.xxx.xxx"] = {
+                 name = 'NAME',
+                level = 1
+            }
+        }
+    }
+
+    EXAMPLE PASSWORD-ADMIN FORMAT:
+    password_admins = {
+        ["BOB"] = {
+            password = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+            level = 6
+        },
+        ["ANOTHER NAME"] = {
+            password = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+            level = 1
+        }
+    }
+
+]]

@@ -4,9 +4,9 @@ function event:onStart()
     if (get_var(0, '$gt') ~= 'n/a') then
 
         self.players = {}
-        self.players[0] = self:newPlayer({
+        self.players[0] = self.players[0] or self:newPlayer({
             id = 0,
-            level = #self.commands,
+            level = self.console_default_level,
             name = '_CONSOLE_',
             hash = 'N/A',
             ip = 'localhost'

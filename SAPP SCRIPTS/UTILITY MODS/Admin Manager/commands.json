@@ -5,7 +5,7 @@
     "info": true,
     "lead": true,
     "list": true,
-    "login": true,
+    "login": false,
     "report": true,
     "stats": true,
     "stfu": true,

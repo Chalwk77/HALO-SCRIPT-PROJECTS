@@ -1,7 +1,9 @@
 --[[
 --=====================================================================================================--
 Script Name: Admin Manager, for SAPP (PC & CE)
-Description: This plugin adds custom admin levels to SAPP.
+Description: See link below for full description.
+
+INTRO: https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/tag/AdminManager
 
 Copyright (c) 2023, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -13,17 +15,17 @@ api_version = '1.12.0.0'
 
 local AdminManager = {
     commands_dir = './Admin Manager/commands/',
-    json = loadfile('./Admin Manager/util/json.lua')(),
     dependencies = {
         ['./Admin Manager/'] = { 'settings' },
         ['./Admin Manager/events/'] = {
             'on_command',
             'on_join',
-            'on_start'
+            'on_quit',
+            'on_start',
+            'on_tick'
         },
         ['./Admin Manager/util/'] = {
             'file_io',
-            'load_database',
             'misc'
         }
     }
@@ -40,13 +42,9 @@ function AdminManager:loadDependencies()
         end
     end
 
-    self:loadManagementCMDS()
     self:setDefaultCommands()
-    self:setDefaultAdmins()
-
-    self.admins = self:loadAdmins()
-    self.commands = self:loadCommands()
-    self.management = self:loadManagementCMDS()
+    self:setManagementCMDS()
+    self:setAdmins()
     self:onStart()
 end
 
@@ -58,8 +56,16 @@ function OnStart()
     AdminManager:onStart()
 end
 
+function OnTick()
+    AdminManager:onTick()
+end
+
 function OnJoin(...)
     AdminManager:onJoin(...)
+end
+
+function OnQuit(...)
+    AdminManager:onQuit(...)
 end
 
 function OnCommand(...)

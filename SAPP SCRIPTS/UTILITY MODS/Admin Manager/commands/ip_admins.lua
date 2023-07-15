@@ -1,13 +1,19 @@
 local command = {
     name = 'ip_admins',
-    description = 'List ip admins',
-    permission_level = 1,
+    description = 'Command ($cmd) | Shows a list of ip-admins.',
+    permission_level = 6,
     help = 'Syntax: /$cmd'
 }
 
 function command:run(id, args)
+
     local player = self.players[id]
-    if (player:hasPermission(self.permission_level)) then
+    if player:hasPermission(self.permission_level) then
+
+        if (args[2] == 'help') then
+            player:send(self.description)
+            return false
+        end
 
         local ip_admins = self.admins.ip_admins
         local list = {}
@@ -24,10 +30,12 @@ function command:run(id, args)
 
         list = self:sort(list)
         player:send('IP Admins (total ' .. #list .. ')')
-        for _, data in ipairs(list) do
+        for i = 1, #list do
+            local data = list[i]
             player:send(data.name .. '(' .. data.level .. ')')
         end
     end
+
     return false
 end
 
