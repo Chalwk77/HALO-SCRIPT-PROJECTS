@@ -103,7 +103,7 @@ function OnDamage(Victim, Killer, MetaID)
     local pvp = (killer > 0 and victim ~= killer)
 
     if (pvp and stuns[MetaID]) then
-
+	
         local stun_time = stuns[MetaID][1]
         local stun_percent = stuns[MetaID][2]
 

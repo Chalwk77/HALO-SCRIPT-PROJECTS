@@ -18,15 +18,24 @@ additives.
 
 If my work has helped you in any way, show your support and buy me a coffee :coffee:<br/>
 You can further support me by clicking the 👁️ watch and ⭐ star buttons at the top of this page.<br/><br/>
-[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=X6VNRT8N4JEPS&source=url)
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/myaccount/transfer/pay)
 
 ----
 
-**Check out my:**
+### **Check out my:**
 
-* [SAPP SCRIPTS](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/SAPP%20SCRIPTS)
-* [PHASOR SCRIPTS](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/PHASOR%20SCRIPTS)
-* [CHIMERA SCRIPTS](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/CHIMERA/GLOBAL)
+* [SAPP SCRIPTS](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/SAPP%20SCRIPTS)<br/>
+  Collection of Lua scripts for the Halo PC (retail) and Halo CE (Custom Edition) SAPP dedicated server.
+  <br/><br/>
+* [PHASOR SCRIPTS](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/PHASOR%20SCRIPTS)<br/>
+  Collection of Lua scripts for the Halo PC (retail) and Halo CE (Custom Edition) Phasor dedicated server.
+  <br/><br/>
+* [RELEASES](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases)<br/>
+  Collection of much larger SAPP projects. These are much more complex than the scripts in the SAPP SCRIPTS folder.
+  <br/><br/>
+* [CHIMERA SCRIPTS](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/CHIMERA/GLOBAL)<br/>
+  Not currently public. Sorry! Check back here soon.
+  <br/><br/>
 * [HSP WIKI](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/wiki)
 
 ----

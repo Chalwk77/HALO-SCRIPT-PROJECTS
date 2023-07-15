@@ -13,72 +13,111 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
-local Weights = {
+local WeaponWeights = {
 
+    -- Combine weight:
     -- If true, your speed will be the sum of the
-    -- combined weight reduction of all the weapons in your inventory.
+    -- combined weight of all the weapons in your inventory.
     -- Otherwise the speed will be based on weight of the weapon currently held.
     --
     combined = true,
 
-    -- Weapon tags (NOTE: Normal walking speed is 1).
-    -- Speed = 1-weapon weight
-    -- Format: ['tag name' (string)] = weight reduction [number]
+    -- Format: ['tag name'] = weight reduction value
+    --
+    weapons = {
 
-    ['weapons\\flag\\flag'] = 0.025,
-    ['weapons\\ball\\ball'] = 0.025,
+        ['weapons\\flag\\flag'] = 0.028,
+        ['weapons\\ball\\ball'] = 0.028,
 
-    ['weapons\\pistol\\pistol'] = 0.035,
-    ['weapons\\plasma pistol\\plasma pistol'] = 0.035,
+        ['weapons\\pistol\\pistol'] = 0.036,
+        ['weapons\\plasma pistol\\plasma pistol'] = 0.036,
 
-    ['weapons\\needler\\mp_needler'] = 0.040,
-    ['weapons\\plasma rifle\\plasma rifle'] = 0.040,
+        ['weapons\\needler\\mp_needler'] = 0.042,
+        ['weapons\\plasma rifle\\plasma rifle'] = 0.042,
 
-    ['weapons\\shotgun\\shotgun'] = 0.045,
-    ['weapons\\assault rifle\\assault rifle'] = 0.055,
+        ['weapons\\shotgun\\shotgun'] = 0.047,
+        ['weapons\\assault rifle\\assault rifle'] = 0.061,
 
-    ['weapons\\flamethrower\\flamethrower'] = 0.070,
+        ['weapons\\flamethrower\\flamethrower'] = 0.070,
 
-    ['weapons\\sniper rifle\\sniper rifle'] = 0.073,
+        ['weapons\\sniper rifle\\sniper rifle'] = 0.073,
 
-    ['weapons\\plasma_cannon\\plasma_cannon'] = 0.075,
-    ['weapons\\rocket launcher\\rocket launcher'] = 0.075,
+        ['weapons\\plasma_cannon\\plasma_cannon'] = 0.095,
+        ['weapons\\rocket launcher\\rocket launcher'] = 0.100
+    }
 }
 
 api_version = '1.12.0.0'
 
+local weight = {}
+
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], 'OnTick')
+    register_callback(cb['EVENT_GAME_START'], 'OnStart')
 end
 
-local function GetTagPath(object)
-    return (read_string(read_dword(read_word(object) * 32 + 0x40440038)) or 0)
+local function getTag(class, name)
+    local tag = lookup_tag(class, name)
+    return (tag ~= 0 and read_dword(tag + 0xC)) or nil
 end
 
-local function GetWeight(weapon)
+local function tagsToID(t)
+	for name, speed in pairs(t) do
+		local tag = getTag('weap', name)
+		if (tag) then
+			weight[tag] = speed
+		end
+	end
+end
+
+function OnStart()
+    if (get_var(0, '$gt') ~= 'n/a') then
+        weight = {}
+		tagsToID(WeaponWeights.weapons)
+    end
+end
+
+local function getWeight(weapon)
+
     local object = get_object_memory(weapon)
-    if (weapon ~= 0xFFFFFFFFF and object ~= 0) then
-        return Weights[GetTagPath(object)]
+    if (object == 0 or weapon == 0xFFFFFFFFF) then
+        return 0
     end
-    return 0
+
+    local meta_id = read_dword(object)
+    local weight_to_add = weight[meta_id]
+    if (not weight_to_add) then
+        return 0
+    end
+
+    return weight_to_add
 end
 
-local function GetSpeed(Dyn)
+local function getSpeed(player)
+
     local speed = 1
-    if (not Weights.combined) then
-        return GetWeight(read_dword(Dyn + 0x118))
+    local dyn = get_dynamic_player(player)
+    if (dyn == 0 or not player_alive(player)) then
+        return speed
     end
-    for i = 0, 3 do
-        speed = speed - GetWeight(read_dword(Dyn + 0x2F8 + (i * 4)))
+
+    local weapon_in_hand = read_dword(dyn + 0x118)
+    if (not WeaponWeights.combined) then
+        return getWeight(weapon_in_hand)
     end
-    return speed
+
+    for i = 0,3 do
+        local weapon = read_dword(dyn + 0x2F8 + i * 4)
+        speed = speed - getWeight(weapon)
+    end
+    
+    return (speed < 0 and 0 or speed)
 end
 
 function OnTick()
     for i = 1, 16 do
-        local dyn = get_dynamic_player(i)
-        if (player_present(i) and player_alive(i) and dyn ~= 0) then
-            execute_command('s ' .. i .. ' ' .. GetSpeed(dyn))
+        if player_present(i) then
+            execute_command('s ' .. i .. ' ' .. getSpeed(i))
         end
     end
 end

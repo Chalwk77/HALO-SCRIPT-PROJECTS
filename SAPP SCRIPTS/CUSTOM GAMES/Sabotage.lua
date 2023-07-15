@@ -509,7 +509,7 @@ function Sabotage:hasBomb(dyn)
     return false
 end
 
-    function Sabotage:explode(x, y, z)
+function Sabotage:explode(x, y, z)
     local object = bomb.bomb_effect
     for _ = 1, 10 do
         local payload = spawn_projectile(object, 0, x, y, z)

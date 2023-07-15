@@ -1,7 +1,6 @@
 --[[
 --=====================================================================================================--
 Script Name: VPN Blocker, for SAPP (PC & CE)
-
 Description: VPN Blocker will detect whether an IP Address is a Proxy, Tor, or VPN Connection
              and retrieve an overall Fraud Score that provides accurate risk analysis.
 
@@ -41,11 +40,11 @@ VPN Blocker cannot differentiate between good and bad intentions
 and will, therefore, kick or ban on sight if their IP is on the VPN Blocker database.
 --
 
-Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2023, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
-]] --
+]]--
 
 local VPNBlocker = {
 
@@ -95,8 +94,14 @@ local VPNBlocker = {
     prefix = '**SAPP**',
 
 
-    -- Request Parameters (ADVANCED USERS ONLY):
+    -- Log verbose details to the console?
+    -- Includes: IP Address, Fraud Score, Bot Status, etc.
     --
+    log_verbose = true,
+
+
+    -- Request Parameters (ADVANCED USERS ONLY):
+    -- https://www.ipqualityscore.com/documentation/proxy-detection/overview
     --
     checks = {
 
@@ -132,6 +137,9 @@ local VPNBlocker = {
         bot_status = true
     },
 
+    -- Request Parameters (ADVANCED USERS ONLY):
+    -- https://www.ipqualityscore.com/documentation/proxy-detection/overview
+    --
     parameters = {
 
         -- How in depth (strict) do you want this query to be?
@@ -160,13 +168,12 @@ local VPNBlocker = {
         mobile = false
     },
 
+    -- Exclude IP Addresses from being checked:
+    -- (useful for allowing VPNs for specific players)
+    -- Set to 'true' to exclude the IP Address from being checked.
     exclusion_list = {
-
-        --"127.0.0.1",
-        --"192.168.1.1",
-        --
-        -- Repeat the structure to add more entries ip entries
-        --
+        ['127.0.0.1'] = true,
+        ['192.168.1.1'] = true
     },
 
     -----------------
@@ -176,8 +183,6 @@ local VPNBlocker = {
     -- do not touch --
     site = 'https://www.ipqualityscore.com/api/json/ip/api_key/'
 }
-
-api_version = '1.12.0.0'
 
 local async_table = {}
 
@@ -192,50 +197,34 @@ ffi.cdef [[
     bool http_response_is_null(const http_response *);
     bool http_response_received(const http_response *);
     const char *http_read_response(const http_response *);
-    uint32_t http_response_length(const http_response *);
 ]]
+
 local client = ffi.load('lua_http_client')
+
+api_version = '1.12.0.0'
 
 function OnScriptLoad()
     VPNBlocker.key = VPNBlocker.site:gsub('api_key', VPNBlocker.api_key)
     register_callback(cb['EVENT_PREJOIN'], 'PreJoin')
 end
 
-local function GenerateLink(player)
-    local i = 0
-    local link = tostring(VPNBlocker.key .. player.ip .. '?')
-    for k, v in pairs(VPNBlocker.parameters) do
-        link = (i < 1 and link .. k .. '=' .. tostring(v) or link .. '&' .. k .. '=' .. tostring(v))
-    end
-    return link
-end
-
-local function CanConnect(t)
+local function canConnect(data)
     for k, v in pairs(VPNBlocker.checks) do
-        if (type(v) == 'boolean' and v and t[k]) then
+        if (type(v) == 'boolean' and v and data[k]) then
             return false
-        elseif (type(v) == 'number' and t[k] >= v) then
+        elseif (type(v) == 'number' and data[k] >= v) then
             return false
         end
     end
     return true
 end
 
-local function Excluded(IP)
-    for _, v in pairs(VPNBlocker.exclusion_list) do
-        if (IP == v) then
-            return true
+local function logVerbose(data)
+    if (VPNBlocker.log_verbose) then
+        for k,v in pairs(data) do
+            print(k,v)
         end
     end
-    return false
-end
-
-local function GetPlayer(Ply)
-    local ip = get_var(Ply, '$ip'):match('%d+.%d+.%d+.%d+')
-    return (not Excluded(ip) and {
-        ip = ip,
-        name = get_var(Ply, '$name')
-    }) or nil
 end
 
 local help = [[HTTP RESPONSE IS NULL ->
@@ -245,9 +234,9 @@ local help = [[HTTP RESPONSE IS NULL ->
 -- Sometimes small hiccups with the internet will cause this error.
 -- Most of the time you can ignore it.]]
 
-function VPNBlocker:CheckForVPN(Ply)
+function VPNBlocker:checkAsync(id)
 
-    local response = async_table[Ply]
+    local response = async_table[id]
     if response and response[1] and client.http_response_received(response[1]) then
 
         if not client.http_response_is_null(response[1]) then
@@ -256,24 +245,26 @@ function VPNBlocker:CheckForVPN(Ply)
             local data = json:decode(results)
             if (data) then
 
-                local allowed = CanConnect(data)
+                logVerbose(data)
+
+                local allowed = canConnect(data)
                 if (not allowed) then
 
                     local player = response[2]
-                    Ply = tonumber(Ply)
+                    id = tonumber(id)
 
                     local state = (self.action == 'k' and 'kicked' or 'banned')
                     if (self.action == 'k') then
-                        execute_command('k ' .. Ply .. ' ' .. ' "' .. self.reason .. '"')
+                        execute_command('k ' .. id .. ' ' .. ' "' .. self.reason .. '"')
                     else
-                        execute_command('b ' .. Ply .. ' ' .. self.ban_time .. ' "' .. self.reason .. '"')
+                        execute_command('b ' .. id .. ' ' .. self.ban_time .. ' "' .. self.reason .. '"')
                     end
 
                     execute_command('msg_prefix ""')
                     local msg = self.feedback2:gsub('$name', player.name)
                     msg = msg:gsub('$action', state):gsub('$ip', player.ip)
 
-                    say(Ply, self.feedback1)
+                    say(id, self.feedback1)
                     say_all(msg);
                     cprint(msg, 12)
                     execute_command('msg_prefix "' .. self.prefix .. '"')
@@ -284,7 +275,7 @@ function VPNBlocker:CheckForVPN(Ply)
         end
 
         client.http_destroy_response(response[1])
-        async_table[tostring(Ply)] = nil
+        async_table[tostring(id)] = nil
 
         return false
     end
@@ -292,21 +283,44 @@ function VPNBlocker:CheckForVPN(Ply)
     return true
 end
 
-function PreJoin(Ply)
-    local player = GetPlayer(Ply)
-    if (player) then
-
-        Ply = tostring(Ply)
-
-        local link = GenerateLink(player)
-        async_table[Ply] = { client.http_get(link, true), player }
-
-        timer(1, 'CheckForVPN', Ply)
+local function generateLink(player)
+    local self = VPNBlocker
+    local i = 0
+    local link = tostring(self.key .. player.ip .. '?')
+    for k, v in pairs(self.parameters) do
+        link = (i < 1) and (link .. k .. '=' .. tostring(v)) or (link .. '&' .. k .. '=' .. tostring(v))
     end
+    return link
 end
 
-function CheckForVPN(Ply)
-    return VPNBlocker:CheckForVPN(Ply)
+local function ignorePlayer(ip)
+    return VPNBlocker.exclusion_list[ip] and true or false
+end
+
+local function getPlayer(id)
+    local ip = get_var(id, '$ip'):match('%d+.%d+.%d+.%d+')
+    return (not ignorePlayer(ip)) and {
+        ip = ip,
+        name = get_var(id, '$name')
+    } or nil
+end
+
+function PreJoin(id)
+
+    local player = getPlayer(id)
+    if (not player) then
+        return
+    end
+
+    id = tostring(id)
+    local link = generateLink(player)
+    async_table[id] = { client.http_get(link, true), player }
+
+    timer(1, 'checkAsync', id)
+end
+
+function checkAsync(id)
+    return VPNBlocker:checkAsync(id)
 end
 
 function OnScriptUnload()
