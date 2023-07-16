@@ -18,6 +18,7 @@ local AdminManager = {
     dependencies = {
         ['./Admin Manager/'] = { 'settings' },
         ['./Admin Manager/events/'] = {
+            'on_chat',
             'on_command',
             'on_join',
             'on_quit',
@@ -72,6 +73,10 @@ end
 
 function OnCommand(...)
     return AdminManager:onCommand(...)
+end
+
+function OnChat(...)
+    return AdminManager:onChat(...)
 end
 
 function OnScriptUnload()

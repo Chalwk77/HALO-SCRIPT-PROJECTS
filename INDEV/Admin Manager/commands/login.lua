@@ -1,5 +1,5 @@
 local command = {
-    name = 'l',
+    name = 'login', -- This is the only command name that you cannot change.
     description = 'Command ($cmd) | Login as an admin.',
     help = 'Syntax: /$cmd <password>'
 }

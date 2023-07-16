@@ -1,16 +1,8 @@
 local event = {}
 
-local function stringSplit(string)
-    local t = { }
-    for param in string:gmatch('([^%s]+)') do
-        t[#t + 1] = param
-    end
-    return t
-end
-
 function event:onCommand(id, command)
 
-    local args = stringSplit(command)
+    local args = self:stringSplit(command)
     local target_command = args[1]
 
     -- Management commands:

@@ -3,7 +3,7 @@ local command = {
     description = 'Command ($cmd) | Unban a player\'s hash.',
     permission_level = 6,
     help = 'Syntax: /$cmd <ban id>',
-    output = 'Hash [%s] has been unbanned.',
+    output = '(%s) (%s) unbanned.',
 }
 
 function command:run(id, args)

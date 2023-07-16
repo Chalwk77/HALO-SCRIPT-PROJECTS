@@ -1,5 +1,5 @@
 local command = {
-    name = 'lo',
+    name = 'logout',
     description = 'Command ($cmd) | Logout as an admin.',
     help = 'Syntax: /$cmd'
 }
@@ -10,6 +10,8 @@ function command:run(id, args)
         admin:send('Cannot execute this command from console.')
     elseif (args[2] == 'help') then
         admin:send(self.description)
+    elseif (admin.level == 1) then
+        admin:send('You are not logged in.')
     else
         admin.level = 1
         admin.password_admin = nil

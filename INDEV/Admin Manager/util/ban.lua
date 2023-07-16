@@ -137,6 +137,7 @@ local function noTime(y, mo, d, h, m, s)
 end
 
 local function futureTime(...)
+
     local args = { ... }
     local time = args[1]
     local time_stamp = args[2]
@@ -200,6 +201,10 @@ function util:getBanEntryByID(parent, id)
     return nil
 end
 
+function util:isMuted()
+    return self.bans['mute'][self.ip]
+end
+
 function util:hashBan(reason, time, admin)
 
     local hash = self.hash
@@ -261,13 +266,26 @@ function util:nameBan(target)
     self:updateBans()
 end
 
-function util:unban(parent, child, admin)
-    self.bans[parent][child] = nil
-    admin:send(self.output:format(child))
+function util:mute(reason, time, admin)
+
+    local name = self.name
+    local ip = self.ip
+
+    self.bans['mute'][ip] = self:newBan(admin.name, name, _, ip, reason, time, 'mute')
+
     self:updateBans()
 end
 
-function util:isBanned(type, id)
+function util:unban(parent, child, admin)
+
+    local name = self.bans[parent][child].offender
+    self.bans[parent][child] = nil
+
+    admin:send(self.output:format(name, child))
+    self:updateBans()
+end
+
+local function isBanned(self, type, id)
     if (self.bans[type][id]) then
         execute_command('k ' .. self.id)
         return true
@@ -282,15 +300,18 @@ function util:rejectPlayer()
     local ip = self.ip
     local log = self.logging.management
 
-    if (self:isBanned('hash', hash)) then
+    if (isBanned(self, 'hash', hash)) then
         self:log(format('%s tried to join, but is hash-banned.', name), log)
         return true
-    elseif (self:isBanned('ip', ip)) then
+    elseif (isBanned(self, 'ip', ip)) then
         self:log(format('%s tried to join, but is ip-banned.', name), log)
         return true
-    elseif (self:isBanned('name', name)) then
+    elseif (isBanned(self, 'name', name)) then
         self:log(format('%s tried to join, but is name-banned.', name), log)
         return true
+    elseif (self:isMuted()) then
+        self:log(format('%s tried to join, but is muted.', name), log)
+        return false -- allow muted players to join
     end
 
     return false

@@ -52,6 +52,14 @@ function misc:sort(t)
     return t
 end
 
+function misc:stringSplit(string)
+    local t = { }
+    for param in string:gmatch('([^%s]+)') do
+        t[#t + 1] = param
+    end
+    return t
+end
+
 function misc:findCommand(command)
     for level, commands in pairs(self.commands) do
         if (commands[command] ~= nil) then
