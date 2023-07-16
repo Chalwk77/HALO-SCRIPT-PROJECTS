@@ -52,11 +52,6 @@ function IO:loadBans()
     }
 end
 
-function IO:updateBans()
-    local dir = self.directories[3]
-    writeFile(dir, self.bans)
-end
-
 -- Converts the keys of a table to numbers or strings:
 local function convert(commands, f)
     local t = {}
@@ -101,6 +96,11 @@ function IO:updateCommands()
     local commands = self.commands
     commands = convert(commands, tostring)
     writeFile(self.directories[2], commands)
+end
+
+function IO:updateBans()
+    local dir = self.directories[3]
+    writeFile(dir, self.bans)
 end
 
 function IO:log(entry, write)

@@ -3,7 +3,7 @@ local event = {}
 local function stringSplit(string)
     local t = { }
     for param in string:gmatch('([^%s]+)') do
-        t[#t + 1] = param:lower()
+        t[#t + 1] = param
     end
     return t
 end

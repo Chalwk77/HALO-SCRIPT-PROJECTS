@@ -10,17 +10,15 @@ function command:run(id, args)
 
     local admin = self.players[id]
     if admin:hasPermission(self.permission_level, args[1]) then
-        local header = true
+        local header = false
         for _, ban in pairs(self.bans['hash']) do
-            if (header) then
-                header = false
+            if (not header) then
+                header = true
                 admin:send('[Hash-Bans]')
             end
-            local stdout = self:banViewFormat(ban.id, ban.offender, ban.time)
-            admin:send(stdout)
+            admin:send(self:banViewFormat(ban.id, ban.offender, ban.time))
         end
-
-        if (header) then
+        if (not header) then
             admin:send('There are no hash-bans.')
         end
         self:log(admin.name .. ' viewed the hash-ban list.', self.logging.management)

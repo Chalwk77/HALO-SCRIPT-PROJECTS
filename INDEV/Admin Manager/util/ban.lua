@@ -24,7 +24,28 @@ function util:syntaxParser(args)
         local value = args[i + 1]
 
         if (flag and value) then
+
+            -- The reason may contain spaces, so we need to parse it differently:
+            for j = i + 2, #args do
+                local next_arg = args[j]
+                if (next_arg:sub(1, 1) == '-') then
+                    break
+                end
+                value = value .. ' ' .. next_arg
+            end
+
+            if (value:sub(1, 1) == '-' or flag ~= 'reason' and tonumber(value) == nil) then
+                self:send('Invalid value for flag: ' .. flag .. ' - ' .. value)
+                return false
+            elseif (flag == 'reason') then
+                value = value:gsub('"', '')
+            end
+
             parsed_args[flag] = (type(value) == 'string' and value or tonumber(value))
+
+        elseif (flag and not value) then
+            self:send('Missing value for flag: ' .. flag)
+            return false
         end
     end
 
@@ -120,6 +141,7 @@ local function futureTime(...)
     local time = args[1]
     local time_stamp = args[2]
     local y, mo, d, h, m, s = time_stamp.y, time_stamp.mo, time_stamp.d, time_stamp.h, time_stamp.m, time_stamp.s
+
     return {
         year = tonumber(date('%Y', time)) + y,
         month = tonumber(date('%m', time)) + mo,
@@ -165,6 +187,19 @@ function util:setBanID(type)
     return id + 1
 end
 
+function util:getBanEntryByID(parent, id)
+
+    local t = self.bans[parent]
+    for child, entry in pairs(t) do
+        if (entry.id == id) then
+            return parent, child
+        end
+    end
+
+    self:send('Ban ID not found.')
+    return nil
+end
+
 function util:hashBan(reason, time, admin)
 
     local hash = self.hash
@@ -191,22 +226,70 @@ function util:ipBan(reason, time, admin)
     self:updateBans()
 end
 
+function util:nameBan(target)
+
+    local name_to_ban = target
+    local player_id
+    if (type(target) == 'number') then
+        name_to_ban = target.name
+        player_id = target.id
+    elseif (type(target) == 'string') then
+        if (name_to_ban:len() > 11) then
+            self:send('Name too long. Max 11 characters.')
+            return
+        end
+    end
+
+    if (player_id) then
+        execute_command('k ' .. player_id)
+    end
+
+    local name = self.name
+    local hash = self.hash
+    local ip = self.ip
+
+    self.bans['name'][name_to_ban] = {
+        added_by = name,
+        added_on = self:getDate(),
+        ip = ip,
+        hash = hash,
+        id = self:setBanID('name')
+    }
+
+    self:send(format('Added (%s) to the name-ban list.', name_to_ban))
+    self:log(format('%s name-banned (%s)', name, name_to_ban), self.logging.management)
+    self:updateBans()
+end
+
+function util:unban(parent, child, admin)
+    self.bans[parent][child] = nil
+    admin:send(self.output:format(child))
+    self:updateBans()
+end
+
+function util:isBanned(type, id)
+    if (self.bans[type][id]) then
+        execute_command('k ' .. self.id)
+        return true
+    end
+    return false
+end
+
 function util:rejectPlayer()
 
     local name = self.name
     local hash = self.hash
     local ip = self.ip
-    local id = self.id
+    local log = self.logging.management
 
-    -- Reject banned players:
-    local banned = self.bans['hash'][hash] or self.bans['ip'][ip]
-    if (banned) then
-        execute_command('k ' .. id)
-        self:log(format('%s tried to join, but is banned.', name), self.logging.management)
+    if (self:isBanned('hash', hash)) then
+        self:log(format('%s tried to join, but is hash-banned.', name), log)
         return true
-    elseif (self.bans['name'][name]) then
-        execute_command('k ' .. id)
-        self:log(format('%s tried to join, but their name is blacklisted.', name), self.logging.management)
+    elseif (self:isBanned('ip', ip)) then
+        self:log(format('%s tried to join, but is ip-banned.', name), log)
+        return true
+    elseif (self:isBanned('name', name)) then
+        self:log(format('%s tried to join, but is name-banned.', name), log)
         return true
     end
 
