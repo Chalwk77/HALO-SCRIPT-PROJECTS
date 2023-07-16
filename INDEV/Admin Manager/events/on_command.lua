@@ -3,7 +3,7 @@ local event = {}
 local function stringSplit(string)
     local t = { }
     for param in string:gmatch('([^%s]+)') do
-        t[#t + 1] = param:lower()
+        t[#t + 1] = param
     end
     return t
 end
@@ -40,7 +40,7 @@ function event:onCommand(id, command)
         self:log(admin.name .. ' is attempting to execute (' .. target_command
                 .. ') but is not a high enough level (current level: '
                 .. admin.level .. ') (Required level: '
-                .. required_level .. ')' , self.logging.default)
+                .. required_level .. ')', self.logging.default)
         return false
     end
 

@@ -24,7 +24,7 @@ return {
 
     --- DEFAULT BAN DURATION:
     --
-    -- Players are banned for this duration if no duration is specified (in seconds):
+    -- Players are banned for this duration if no duration is specified:
     default_ban_duration = {
         y = 1, -- years
         mo = 0, -- months

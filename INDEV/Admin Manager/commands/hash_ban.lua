@@ -1,12 +1,10 @@
 local command = {
     name = 'hash_ban',
-    description = 'Flags: -y -mo -w -d -h -m -s -r "example reason"',
+    description = 'Flags: -y -mo -d -h -m -s -r "example reason"',
     permission_level = 6,
     help = 'Syntax: /$cmd <player> <flags> | Type ($cmd help) for more information.',
     output = '$admin hash-banned $offender until [$years/$months/$days - $hours:$minutes:$seconds] for reason: $reason',
 }
-
-local time = os.time
 
 function command:run(id, args)
 
@@ -23,12 +21,12 @@ function command:run(id, args)
             admin:send('Player #' .. offender .. ' is not online.')
         else
 
-            local parsed = self:syntaxParser(args)
+            local parsed = admin:syntaxParser(args)
             if (parsed) then
 
                 offender = self.players[offender]
 
-                local reason = parsed.reason or '"No reason given."'
+                local reason = parsed.reason or 'No reason given.'
                 local name = offender.name
 
                 local expiration = self:generateExpiration(parsed)

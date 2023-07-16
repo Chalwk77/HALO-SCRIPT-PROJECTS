@@ -24,7 +24,28 @@ function util:syntaxParser(args)
         local value = args[i + 1]
 
         if (flag and value) then
+
+            -- The reason may contain spaces, so we need to parse it differently:
+            for j = i + 2, #args do
+                local next_arg = args[j]
+                if (next_arg:sub(1, 1) == '-') then
+                    break
+                end
+                value = value .. ' ' .. next_arg
+            end
+
+            if (value:sub(1, 1) == '-' or flag ~= 'reason' and tonumber(value) == nil) then
+                self:send('Invalid value for flag: ' .. flag .. ' - ' .. value)
+                return false
+            elseif (flag == 'reason') then
+                value = value:gsub('"', '')
+            end
+
             parsed_args[flag] = (type(value) == 'string' and value or tonumber(value))
+
+        elseif (flag and not value) then
+            self:send('Missing value for flag: ' .. flag)
+            return false
         end
     end
 
@@ -120,6 +141,7 @@ local function futureTime(...)
     local time = args[1]
     local time_stamp = args[2]
     local y, mo, d, h, m, s = time_stamp.y, time_stamp.mo, time_stamp.d, time_stamp.h, time_stamp.m, time_stamp.s
+
     return {
         year = tonumber(date('%Y', time)) + y,
         month = tonumber(date('%m', time)) + mo,
