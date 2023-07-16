@@ -111,24 +111,47 @@ function util:newBan(admin_name, offender_name, hash, ip, reason, time, type)
     }
 end
 
+local function noTime(y, mo, d, h, m, s)
+    return (y == 0 and mo == 0 and d == 0 and h == 0 and m == 0 and s == 0)
+end
+
+local function futureTime(...)
+    local args = { ... }
+    local time = args[1]
+    local time_stamp = args[2]
+    local y, mo, d, h, m, s = time_stamp.y, time_stamp.mo, time_stamp.d, time_stamp.h, time_stamp.m, time_stamp.s
+    return {
+        year = tonumber(date('%Y', time)) + y,
+        month = tonumber(date('%m', time)) + mo,
+        day = tonumber(date('%d', time)) + d,
+        hour = tonumber(date('%H', time)) + h,
+        min = tonumber(date('%M', time)) + m,
+        sec = tonumber(date('%S', time)) + s
+    }
+end
+
 function util:generateExpiration(parsed)
 
-    local years = (parsed.years or 0)
-    local months = (parsed.months or 0)
-    local days = (parsed.days or 0)
-    local hours = (parsed.hours or 0)
-    local minutes = (parsed.minutes or 0)
-    local seconds = (parsed.seconds or 0)
+    local y = (parsed.years or 0)
+    local mo = (parsed.months or 0)
+    local d = (parsed.days or 0)
+    local h = (parsed.hours or 0)
+    local m = (parsed.minutes or 0)
+    local s = (parsed.seconds or 0)
 
     local time_stamp = time_now()
-    return {
-        year = tonumber(date('%Y', time_stamp)) + years,
-        month = tonumber(date('%m', time_stamp)) + months,
-        day = tonumber(date('%d', time_stamp)) + days,
-        hour = tonumber(date('%H', time_stamp)) + hours,
-        min = tonumber(date('%M', time_stamp)) + minutes,
-        sec = tonumber(date('%S', time_stamp)) + seconds
-    }
+    if (noTime(y, mo, d, h, m, s)) then
+        return futureTime(time_stamp, self.default_ban_duration)
+    end
+
+    return futureTime(time_stamp, {
+        y = y,
+        mo = mo,
+        d = d,
+        h = h,
+        m = m,
+        s = s
+    })
 end
 
 function util:setBanID(type)

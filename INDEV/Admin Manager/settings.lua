@@ -25,8 +25,14 @@ return {
     --- DEFAULT BAN DURATION:
     --
     -- Players are banned for this duration if no duration is specified (in seconds):
-    -- Default: (31536000 seconds = 1 year)
-    default_ban_duration = 31536000,
+    default_ban_duration = {
+        y = 1, -- years
+        mo = 0, -- months
+        d = 0, -- days
+        h = 0, -- hours
+        m = 0, -- minutes
+        s = 0-- seconds
+    },
 
 
     --- DATABASE DIRECTORIES:
