@@ -50,8 +50,6 @@ function IO:loadBans()
         name = {},
         mute = {}
     }
-
-    self.ban_file_timer = { interval = time() + self.ban_file_update_interval }
 end
 
 function IO:updateBans()

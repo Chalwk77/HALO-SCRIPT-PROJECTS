@@ -62,7 +62,7 @@ function misc:findCommand(command)
 end
 
 function misc:getDate(log)
-    return date(log and '%d/%m/%Y %H:%M:%S' or '%d/%m/%Y at %I:%M %p (%z)')
+    return date(log and '%Y/%m/%d %H:%M:%S' or '%Y/%m/%d at %I:%M %p (%z)')
 end
 
 return misc

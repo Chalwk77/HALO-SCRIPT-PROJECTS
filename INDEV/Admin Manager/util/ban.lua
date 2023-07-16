@@ -10,7 +10,7 @@ local util = {
     }
 }
 
-local time = os.time
+local time_now = os.time
 local date = os.date
 local format = string.format
 
@@ -38,18 +38,31 @@ function util:banSTDOUT(...)
     local offender_name = args[2]
     local reason = args[3]
 
-    local years = args[4].years
-    local months = args[4].months
-    local days = args[4].days
-    local hours = args[4].hours
-    local minutes = args[4].minutes
-    local seconds = args[4].seconds
+    local expiration = args[4]
+    local years = expiration.year
+    local months = expiration.month
+    local days = expiration.day
+    local hours = expiration.hour
+    local minutes = expiration.min
+    local seconds = expiration.sec
 
-    return self.output:format(
-            admin_name,
-            offender_name,
-            reason,
-            years, months, days, hours, minutes, seconds)
+    local placeholders = {
+        ['$admin'] = admin_name,
+        ['$offender'] = offender_name,
+        ['$reason'] = reason,
+        ['$years'] = years,
+        ['$months'] = months,
+        ['$days'] = days,
+        ['$hours'] = hours,
+        ['$minutes'] = minutes,
+        ['$seconds'] = seconds
+    }
+
+    local str = self.output
+    for k, v in pairs(placeholders) do
+        str = str:gsub(k, v)
+    end
+    return str
 end
 
 function util:newBan(admin_name, offender_name, hash, ip, reason, time, type)
@@ -65,9 +78,8 @@ function util:newBan(admin_name, offender_name, hash, ip, reason, time, type)
     }
 end
 
-function util:generateExpiration(...)
+function util:generateExpiration(parsed)
 
-    local parsed = { ... }
     local years = (parsed.years or 0)
     local months = (parsed.months or 0)
     local days = (parsed.days or 0)
@@ -75,7 +87,7 @@ function util:generateExpiration(...)
     local minutes = (parsed.minutes or 0)
     local seconds = (parsed.seconds or 0)
 
-    local time_stamp = time()
+    local time_stamp = time_now()
     return {
         year = tonumber(date('%Y', time_stamp)) + years,
         month = tonumber(date('%m', time_stamp)) + months,

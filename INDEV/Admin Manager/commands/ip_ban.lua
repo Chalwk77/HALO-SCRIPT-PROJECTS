@@ -3,7 +3,7 @@ local command = {
     description = 'Flags: -y -mo -w -d -h -m -s -r "example reason"',
     permission_level = 6,
     help = 'Syntax: /$cmd <player> <flags> | Type ($cmd help) for more information.',
-    output = '%s ip-banned %s for %s for [%s Y, %s MO, %s W, %s D, %s H, %s M, %s S]'
+    output = '$admin ip-banned $offender until [$years/$months/$days - $hours:$minutes:$seconds] for reason: $reason',
 }
 
 local time = os.time
@@ -26,28 +26,15 @@ function command:run(id, args)
             local parsed = self:syntaxParser(args)
             if (parsed) then
 
-                local y = parsed.years or 0
-                local mo = parsed.months or 0
-                local w = parsed.weeks or 0
-                local d = parsed.days or 0
-                local h = parsed.hours or 0
-                local m = parsed.minutes or 0
-                local s = parsed.seconds or 0
-                local r = parsed.reason or '"No reason given."'
-
-                local now = time()
-                local duration  = now + (y * 31536000) + (mo * 2592000) + (w * 604800) + (d * 86400) + (h * 3600) + (m * 60) + s
-
-                if (duration < now) then
-                    admin:send('Ban duration cannot be in the past.')
-                    return false
-                end
-
                 offender = self.players[offender]
+
+                local reason = parsed.reason or '"No reason given."'
                 local name = offender.name
 
-                offender:ipBan(r, duration, admin)
-                local stdout = self:banSTDOUT(admin.name, name, r, y, mo, w, d, h, m, s)
+                local expiration = self:generateExpiration(parsed)
+
+                offender:ipBan(reason, expiration, admin)
+                local stdout = self:banSTDOUT(admin.name, name, reason, expiration)
 
                 admin:send(stdout)
                 self:log(stdout, self.logging.management)

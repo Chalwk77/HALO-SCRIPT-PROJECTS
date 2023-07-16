@@ -3,8 +3,19 @@ local command = {
     description = 'Command ($cmd) | List all hash-bans.',
     permission_level = 6,
     help = 'Syntax: /$cmd>',
-    output = '[%s] [%s] [Expires: %s/%s/%s %s:%s:%s]'
+    output = '[$ban_id] [$offender] [Expires: $Y/$m/$d - $H:$M:$S]'
 }
+
+local function formatOutput(t)
+
+    local str = t.str
+
+    for k,v in pairs(t) do
+        str = str:gsub('%$' .. k, v)
+    end
+
+    return str
+end
 
 function command:run(id, args)
 
@@ -17,19 +28,18 @@ function command:run(id, args)
 
         for _, ban in pairs(self.bans['hash']) do
             found = true
-
-            local ban_id = ban.id
-            local name = ban.offender
-            local expires = ban.time
-
-            local y = expires.year
-            local mo = expires.month
-            local d = expires.day
-            local h = expires.hour
-            local m = expires.min
-            local s = expires.sec
-
-            admin:send(self.output:format(ban_id, name, y, mo, d, h, m, s))
+            local str = formatOutput({
+                ban_id = ban.id,
+                offender =  ban.offender,
+                str = self.output,
+                Y = ban.time.year,
+                m = ban.time.month,
+                d = ban.time.day,
+                H = ban.time.hour,
+                M = ban.time.min,
+                S = ban.time.sec
+            })
+            admin:send(str)
         end
 
         if (not found) then

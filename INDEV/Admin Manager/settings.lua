@@ -22,12 +22,6 @@ return {
     confirmation_timeout = 10,
 
 
-    --- BAN FILE UPDATE INTERVAL:
-    --
-    -- How often (in seconds) the ban file is updated:
-    ban_file_update_interval = 60,
-
-
     --- DEFAULT BAN DURATION:
     --
     -- Players are banned for this duration if no duration is specified (in seconds):

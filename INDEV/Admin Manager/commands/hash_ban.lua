@@ -3,7 +3,7 @@ local command = {
     description = 'Flags: -y -mo -w -d -h -m -s -r "example reason"',
     permission_level = 6,
     help = 'Syntax: /$cmd <player> <flags> | Type ($cmd help) for more information.',
-    output = '%s hash-banned %s for %s for [%s Y, %s MO, %s W, %s D, %s H, %s M, %s S]'
+    output = '$admin hash-banned $offender until [$years/$months/$days - $hours:$minutes:$seconds] for reason: $reason',
 }
 
 local time = os.time
@@ -34,10 +34,10 @@ function command:run(id, args)
                 local expiration = self:generateExpiration(parsed)
 
                 offender:hashBan(reason, expiration, admin)
-                --local stdout = self:banSTDOUT(admin.name, name, reason, expires)
-                --
-                --admin:send(stdout)
-                --self:log(stdout, self.logging.management)
+                local stdout = self:banSTDOUT(admin.name, name, reason, expiration)
+
+                admin:send(stdout)
+                self:log(stdout, self.logging.management)
             else
                 admin:send(self.help)
             end
