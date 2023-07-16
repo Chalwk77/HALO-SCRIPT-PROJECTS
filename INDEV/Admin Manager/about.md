@@ -12,40 +12,54 @@ highest of the two. Furthermore, a player will inherit all commands from the adm
 
 ## Management Commands:
 
+todo: -- ADD COMMANDS ABOVE hash_ban, hash_bans, hash_unban, ip_ban, ip_bans, ip_unban, silence, silence_list, unsilence
+
 | Command                                                                                     | Description                                      | Permission Level |
 |---------------------------------------------------------------------------------------------|--------------------------------------------------|------------------|
-| **hash_admin_add** `<player id>` `<level>`                                                  | Add player as a hash-admin                       | **1**            |
-| **hash_admin_del** `<player id>`                                                            | Remove player as a hash-admin                    | **1**            |
-| **hash_admin_list**                                                                         | List all hash-admins                             | **1**            |
-| **ip_admin_add** `<player id>` `<level>`                                                    | Add player as an ip-admin                        | **1**            | 
-| **ip_admin_del** `<player id>`                                                              | Remove player as an ip-admin                     | **1**            |
-| **ip_admin_list**                                                                           | List all ip-admins                               | **1**            |
-| **pw_admin_add** `<player id>` `<level> <password>`                                         | Add player as a password-admin                   | **1**            |
-| **pw_admin_del** `<player id>`                                                              | Remove player as a password-admin                | **1**            |
-| **pw_admin_list**                                                                           | List all password-admins                         | **1**            |
-| **l** `<password>`                                                                          | Login with a password (username is your IGN)     | **1**            |
-| **lo**                                                                                      | Logout of the server                             | **1**            |
-| **change_level** `<player id>` `<type (hash/ip/password)>`                                  | Change player admin level                        | **1**            |
-| **level_add** `<level>`                                                                     | Add an admin level                               | **1**            |
-| **level_delete** `<level>`                                                                  | Delete an admin level (requires confirmation)    | **1**            |
-| **confirm**                                                                                 | Confirm level delete                             | **1**            |
-| **set_command** `<command>` `<level>` `(opt 3rd arg: "true" to enable, "false" to disable)` | Add or set a new/existing command to a new level | **1**            |
-| **disable_command** `<command>`                                                             | Disables a command                               | **1**            |
-| **enable_command** `<command>`                                                              | Enables a command                                | **1**            |
+| **hash_admin_add** `<player id>` `<level>`                                                  | Add player as a hash-admin                       | **6**            |
+| **hash_admin_del** `<player id>`                                                            | Remove player as a hash-admin                    | **6**            |
+| **hash_admin_list**                                                                         | List all hash-admins                             | **6**            |
+| **ip_admin_add** `<player id>` `<level>`                                                    | Add player as an ip-admin                        | **6**            | 
+| **ip_admin_del** `<player id>`                                                              | Remove player as an ip-admin                     | **6**            |
+| **ip_admin_list**                                                                           | List all ip-admins                               | **6**            |
+| **pw_admin_add** `<player id>` `<level> <password>`                                         | Add player as a password-admin                   | **6**            |
+| **pw_admin_del** `<player id>`                                                              | Remove player as a password-admin                | **6**            |
+| **pw_admin_list**                                                                           | List all password-admins                         | **6**            |
+| **l** `<password>`                                                                          | Login with a password (username is your IGN)     | **6**            |
+| **lo**                                                                                      | Logout of the server                             | **6**            |
+| **change_level** `<player id>` `<type (hash/ip/password)>`                                  | Change player admin level                        | **6**            |
+| **level_add** `<level>`                                                                     | Add an admin level                               | **6**            |
+| **level_delete** `<level>`                                                                  | Delete an admin level (requires confirmation)    | **6**            |
+| **confirm**                                                                                 | Confirm level delete                             | **6**            |
+| **set_command** `<command>` `<level>` `(opt 3rd arg: "true" to enable, "false" to disable)` | Add or set a new/existing command to a new level | **6**            |
+| **disable_command** `<command>`                                                             | Disables a command                               | **6**            |
+| **enable_command** `<command>`                                                              | Enables a command                                | **6**            |
+| **hash_ban** `<player id>` `<flag (-y -mo -w -d -h -m -s -r "example reason")>`             | Ban a player by hash                             | **6**            |
+| **hash_bans**                                                                               | List all hash-bans                               | **6**            |
+| **hash_unban** `<ban id>`                                                                   | Unban a player's hash                            | **6**            |
+| **ip_ban** `<player id>` `<flag (-y -mo -w -d -h -m -s -r "example reason")>`               | Ban a player by IP                               | **6**            |
+| **ip_bans**                                                                                 | List all IP-bans                                 | **6**            |
+| **ip_unban** `<ban id>`                                                                     | Unban a player's IP                              | **6**            |
+| **silence** `<player id>` `<flag (-y -mo -w -d -h -m -s -r "example reason")>`              | Silence a player                                 | **6**            |
+| **silence_list**                                                                            | List all silenced players                        | **6**            |
+| **unsilence** `<player id>`                                                                 | Unsilence a player                               | **6**            |
 
 Each management command above has a permission level.
 
 The permission level is the minimum admin level required to use the command.
 This can be edited inside the *./Admin Manager/commands/<command>* directory.
 
-Additionally, each command has a `help` argument - this will display the command's usage and description. For example: `hash_admin_add help`
+Additionally, each command has a `help` argument - this will display the command's usage and description. For
+example: `hash_admin_add help`
 
 ### Getting started:
-Before you can add members of your clan/community as admins, you must first add yourself as an admin. 
+
+Before you can add members of your clan/community as admins, you must first add yourself as an admin.
 This can be done by joining the server and executing one of the admin-add commands from the server console.
 Once you're an admin, you can add other admins in-game using the desired admin-add command.
 
 ### Password encryption:
+
 > Passwords are encrypted using the SHA256 algorithm.
 
 ### Admin database:
@@ -54,6 +68,7 @@ Once you're an admin, you can add other admins in-game using the desired admin-a
 > The file is located in the `./Admin Manager` folder.
 
 ### Logging:
+
 > Admin commands are logged in the `logs.json` file. This file is created automatically when the plugin is loaded.
 > You can optionally log management commands and/or default commands.
 

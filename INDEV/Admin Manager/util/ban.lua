@@ -65,6 +65,39 @@ function util:banSTDOUT(...)
     return str
 end
 
+function util:banViewFormat(...)
+
+    local args = { ... }
+    local id = args[1]
+    local offender = args[2]
+
+    local expiration = args[3]
+    local years = expiration.year
+    local months = expiration.month
+    local days = expiration.day
+    local hours = expiration.hour
+    local minutes = expiration.min
+    local seconds = expiration.sec
+
+    local placeholders = {
+        ['$id'] = id,
+        ['$offender'] = offender,
+        ['$years'] = years,
+        ['$months'] = months,
+        ['$days'] = days,
+        ['$hours'] = hours,
+        ['$minutes'] = minutes,
+        ['$seconds'] = seconds
+    }
+
+    local str = self.output
+    for k, v in pairs(placeholders) do
+        str = str:gsub(k, v)
+    end
+
+    return str
+end
+
 function util:newBan(admin_name, offender_name, hash, ip, reason, time, type)
     return {
         added_on = self:getDate(),
