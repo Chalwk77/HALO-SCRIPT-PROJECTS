@@ -119,4 +119,48 @@ function misc:commandSpy(command)
     end
 end
 
+local function convert(bans)
+    local t = {}
+    for _, v in _pairs(bans) do
+        t[#t + 1] = v
+    end
+    return t
+end
+
+function misc:showResults(t, page, number_to_show, header, admin)
+
+    t = convert(t)
+
+    local total_pages = math.ceil(#t / number_to_show)
+    local start_index = (page - 1) * number_to_show + 1
+    local end_index = start_index + number_to_show - 1
+
+    if (start_index > #t) then
+        return false
+    elseif (end_index > #t) then
+        end_index = #t
+    end
+
+    local results = {}
+    for i = start_index, end_index do
+        results[#results + 1] = t[i]
+    end
+
+    if (#results == 0) then
+        header = ''
+    end
+
+    admin:send(header:format(page, total_pages))
+    for _, v in pairs(results) do
+        local id = v.id
+        local offender = v.offender
+        local time = v.time
+        local pirated = v.pirated
+        local result = self:banViewFormat(id, offender, time, pirated)
+        admin:send(result)
+    end
+
+    return (#results > 0)
+end
+
 return misc

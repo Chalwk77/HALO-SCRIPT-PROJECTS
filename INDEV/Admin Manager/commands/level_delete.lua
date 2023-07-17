@@ -22,7 +22,7 @@ function command:run(id, args)
             admin:send('Are you sure you want to delete level ' .. level .. '?')
             admin:send('Type /confirm to confirm.')
             admin.confirm = {
-                delay = time() + self.confirmation_timeout,
+                timeout = time() + self.confirmation_timeout,
                 level = level
             }
         end

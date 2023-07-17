@@ -29,9 +29,10 @@ function command:run(id, args)
                 local name = offender.name
                 local reason = parsed.reason or 'No reason given.'
                 local expiration = self:generateExpiration(parsed)
+                local output = self.output
 
                 offender:mute(reason, expiration, admin)
-                local stdout = self:banSTDOUT(admin.name, name, reason, expiration)
+                local stdout = self:banSTDOUT(admin.name, name, reason, expiration, output)
 
                 admin:send(stdout)
                 self:log(stdout, self.logging.management)

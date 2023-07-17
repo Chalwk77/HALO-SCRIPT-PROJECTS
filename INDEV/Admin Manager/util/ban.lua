@@ -7,6 +7,44 @@ local util = {
         ['-m'] = 'minutes',
         ['-s'] = 'seconds',
         ['-r'] = 'reason'
+    },
+
+    -- List of known pirated hashes:
+    known_pirated_hashes = {
+        ['388e89e69b4cc08b3441f25959f74103'] = true,
+        ['81f9c914b3402c2702a12dc1405247ee'] = true,
+        ['c939c09426f69c4843ff75ae704bf426'] = true,
+        ['13dbf72b3c21c5235c47e405dd6e092d'] = true,
+        ['29a29f3659a221351ed3d6f8355b2200'] = true,
+        ['d72b3f33bfb7266a8d0f13b37c62fddb'] = true,
+        ['76b9b8db9ae6b6cacdd59770a18fc1d5'] = true,
+        ['55d368354b5021e7dd5d3d1525a4ab82'] = true,
+        ['d41d8cd98f00b204e9800998ecf8427e'] = true,
+        ['c702226e783ea7e091c0bb44c2d0ec64'] = true,
+        ['f443106bd82fd6f3c22ba2df7c5e4094'] = true,
+        ['10440b462f6cbc3160c6280c2734f184'] = true,
+        ['3d5cd27b3fa487b040043273fa00f51b'] = true,
+        ['b661a51d4ccf44f5da2869b0055563cb'] = true,
+        ['740da6bafb23c2fbdc5140b5d320edb1'] = true,
+        ['7503dad2a08026fc4b6cfb32a940cfe0'] = true,
+        ['4486253cba68da6786359e7ff2c7b467'] = true,
+        ['f1d7c0018e1648d7d48f257dc35e9660'] = true,
+        ['40da66d41e9c79172a84eef745739521'] = true,
+        ['2863ab7e0e7371f9a6b3f0440c06c560'] = true,
+        ['34146dc35d583f2b34693a83469fac2a'] = true,
+        ['b315d022891afedf2e6bc7e5aaf2d357'] = true,
+        ['63bf3d5a51b292cd0702135f6f566bd1'] = true,
+        ['6891d0a75336a75f9d03bb5e51a53095'] = true,
+        ['325a53c37324e4adb484d7a9c6741314'] = true,
+        ['0e3c41078d06f7f502e4bb5bd886772a'] = true,
+        ['fc65cda372eeb75fc1a2e7d19e91a86f'] = true,
+        ['f35309a653ae6243dab90c203fa50000'] = true,
+        ['50bbef5ebf4e0393016d129a545bd09d'] = true,
+        ['a77ee0be91bd38a0635b65991bc4b686'] = true,
+        ['3126fab3615a94119d5fe9eead1e88c1'] = true,
+        ['2f02b641060da979e2b89abcfa1af3d6'] = true,
+        ['ac73d9785215e196074d418d1cce825b'] = true,
+        ['54f4d0236653a6da6429bfc79015f526'] = true
     }
 }
 
@@ -60,8 +98,9 @@ function util:banSTDOUT(...)
     local admin_name = args[1]
     local offender_name = args[2]
     local reason = args[3]
-
     local expiration = args[4]
+    local output = args[5]
+
     local years = expiration.year
     local months = expiration.month
     local days = expiration.day
@@ -81,11 +120,10 @@ function util:banSTDOUT(...)
         ['$seconds'] = seconds
     }
 
-    local str = self.output
     for k, v in _pairs(placeholders) do
-        str = str:gsub(k, v)
+        output = output:gsub(k, v)
     end
-    return str
+    return output
 end
 
 function util:banViewFormat(...)
@@ -93,8 +131,9 @@ function util:banViewFormat(...)
     local args = { ... }
     local id = args[1]
     local offender = args[2]
-
     local expiration = args[3]
+    local pirated = args[4]
+
     local years = expiration.year
     local months = expiration.month
     local days = expiration.day
@@ -110,7 +149,8 @@ function util:banViewFormat(...)
         ['$days'] = days,
         ['$hours'] = hours,
         ['$minutes'] = minutes,
-        ['$seconds'] = seconds
+        ['$seconds'] = seconds,
+        ['$pirated'] = (pirated and 'Yes' or 'No')
     }
 
     local str = self.output
@@ -207,6 +247,12 @@ function util:isMuted()
     return self.bans['mute'][self.ip]
 end
 
+function util:setPirated(group, type, hash)
+    local pirated = self.known_pirated_hashes
+    pirated = (hash and pirated[hash] and true or false) or nil
+    self.bans[group][type].pirated = pirated
+end
+
 function util:hashBan(reason, time, admin)
 
     local hash = self.hash
@@ -214,9 +260,25 @@ function util:hashBan(reason, time, admin)
     local ip = self.ip
 
     self.bans['hash'][hash] = self:newBan(admin.name, name, _, ip, reason, time, 'hash')
+    self:setPirated('hash', hash, hash)
 
     self:kick()
     self:updateBans()
+end
+
+function util:hashBanProceed(...)
+
+    local offender, parsed, output = ...
+    local reason = parsed.reason or 'No reason given.'
+    local name = offender.name
+
+    local expiration = self:generateExpiration(parsed)
+
+    offender:hashBan(reason, expiration, self)
+    local stdout = self:banSTDOUT(self.name, name, reason, expiration, output)
+
+    self:send(stdout)
+    self:log(stdout, self.logging.management)
 end
 
 function util:ipBan(reason, time, admin)
@@ -226,6 +288,7 @@ function util:ipBan(reason, time, admin)
     local ip = self.ip
 
     self.bans['ip'][ip] = self:newBan(admin.name, name, hash, _, reason, time, 'ip')
+    self:setPirated('ip', ip, hash)
 
     self:kick()
     self:updateBans()

@@ -38,7 +38,7 @@ function event:onTick()
     for _, v in _pairs(self.players) do
         if (v.confirm and _time() > v.confirm.timeout) then
             v.confirm = nil
-            v:send('Admin level deletion timed out.')
+            v:send('Action timed out.')
         end
     end
 end

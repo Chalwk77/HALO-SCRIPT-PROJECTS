@@ -26,13 +26,14 @@ function command:run(id, args)
 
                 offender = self.players[offender]
 
+                local output = self.output
                 local reason = parsed.reason or '"No reason given."'
                 local name = offender.name
 
                 local expiration = self:generateExpiration(parsed)
 
                 offender:ipBan(reason, expiration, admin)
-                local stdout = self:banSTDOUT(admin.name, name, reason, expiration)
+                local stdout = self:banSTDOUT(admin.name, name, reason, expiration, self.output)
 
                 admin:send(stdout)
                 self:log(stdout, self.logging.management)
