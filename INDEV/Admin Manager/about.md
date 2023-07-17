@@ -122,6 +122,25 @@ The order of the flags doesn't matter, but the player id must be the first argum
 
 ## <ins>Default Command Permissions:
 
+> Default command permissions are stored in the `./Admin Manager/commands.json` file.
+> This file is created automatically when the plugin is loaded.
+
+The default command permissions are as follows:
+- 1: Public
+- 2: Moderator
+- 3: Admin
+- 4: Senior Admin
+- 5: Head Admin
+- 6: Owner
+
+Add your own *custom levels* in the `./Admin Manager/commands.json` file, or edit the existing ones.
+You can also add or remove levels using the `level_add` and `level_delete` commands. 
+There is no limit to the number of levels you can add. Just make sure there is at least one level with the `1` key.
+
+If a command's value is set to `true`, then the command is enabled for that permission level.
+
+You can define custom commands in this file, and it will manage the required permission level for those commands.
+
 ```json
 {
   "1": {
@@ -129,7 +148,7 @@ The order of the flags doesn't matter, but the player id must be the first argum
     "clead": true,
     "info": true,
     "lead": true,
-    "list": true,
+    "list": false,
     "report": true,
     "stats": true,
     "stfu": true,
@@ -139,10 +158,10 @@ The order of the flags doesn't matter, but the player id must be the first argum
     "whatsnext": true
   },
   "2": {
-    "adminadd": true,
-    "admindel": true,
+    "adminadd": false,
+    "admindel": false,
     "afk": true,
-    "change_password": true,
+    "change_password": false,
     "kdr": true,
     "mapcycle": true,
     "uptime": true
@@ -251,7 +270,7 @@ The order of the flags doesn't matter, but the player id must be the first argum
     "gamespeed": true,
     "god": true,
     "gravity": true,
-    "hide_admin": true,
+    "hide_admin": false,
     "hill_timer": true,
     "hp": true,
     "iprangeban": false,
@@ -320,7 +339,7 @@ The order of the flags doesn't matter, but the player id must be the first argum
     "scorelimit": true,
     "scrim_mode": true,
     "set_ccolor": true,
-    "setadmin": true,
+    "setadmin": false,
     "setcmd": true,
     "sh": true,
     "sj_level": true,
