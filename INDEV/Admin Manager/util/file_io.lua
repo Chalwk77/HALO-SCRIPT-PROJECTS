@@ -8,11 +8,13 @@ local IO = {
     }
 }
 
-local time = os.time
-local open = io.open
+local _open = io.open
+local _pairs = pairs
+local _tonumber = tonumber
+local _tostring = tostring
 
 local function readFile(f)
-    local file = open(f, 'r')
+    local file = _open(f, 'r')
     if (file) then
         local contents = file:read('*all')
         file:close()
@@ -22,7 +24,7 @@ local function readFile(f)
 end
 
 local function writeFile(f, contents)
-    local file = open(f, 'w')
+    local file = _open(f, 'w')
     if (file) then
         contents = IO.json:encode_pretty(contents)
         file:write(contents)
@@ -55,7 +57,7 @@ end
 -- Converts the keys of a table to numbers or strings:
 local function convert(commands, f)
     local t = {}
-    for i, v in pairs(commands) do
+    for i, v in _pairs(commands) do
         t[f(i)] = v
     end
     return t
@@ -72,7 +74,7 @@ function IO:setDefaultCommands()
         commands = default_commands
     end
 
-    self.commands = convert(commands, tonumber)
+    self.commands = convert(commands, _tonumber)
 end
 
 function IO:setAdmins()
@@ -94,7 +96,7 @@ end
 
 function IO:updateCommands()
     local commands = self.commands
-    commands = convert(commands, tostring)
+    commands = convert(commands, _tostring)
     writeFile(self.directories[2], commands)
 end
 

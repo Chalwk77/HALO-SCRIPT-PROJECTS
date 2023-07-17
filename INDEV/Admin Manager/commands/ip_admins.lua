@@ -5,6 +5,8 @@ local command = {
     help = 'Syntax: /$cmd'
 }
 
+local _pairs = pairs
+
 function command:run(id, args)
 
     local admin = self.players[id]
@@ -16,7 +18,7 @@ function command:run(id, args)
 
         local ip_admins = self.admins.ip_admins
         local list = {}
-        for _, data in pairs(ip_admins) do
+        for _, data in _pairs(ip_admins) do
             list[#list + 1] = {
                 name = data.name,
                 level = data.level

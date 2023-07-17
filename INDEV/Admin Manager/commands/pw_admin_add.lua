@@ -5,6 +5,8 @@ local command = {
     help = 'Syntax: /$cmd <player> <level> <password>'
 }
 
+local concat = table.concat
+
 function command:run(id, args)
 
     local target, level = tonumber(args[2]), tonumber(args[3])
@@ -23,7 +25,7 @@ function command:run(id, args)
             admin:send('Invalid level. Must be between 1 and ' .. #self.commands)
         else
 
-            local password = table.concat(args, ' ', 4)
+            local password = concat(args, ' ', 4)
             if (not password or password == '') then
                 admin:send('You must specify a password.')
             else

@@ -51,6 +51,7 @@ function event:onJoin(id)
         hash = get_var(id, '$hash'),
         ip = get_var(id, '$ip'):match('%d+.%d+.%d+.%d+')
     })
+    self.players[id]:vipMessages()
 end
 
 register_callback(cb['EVENT_JOIN'], 'OnJoin')

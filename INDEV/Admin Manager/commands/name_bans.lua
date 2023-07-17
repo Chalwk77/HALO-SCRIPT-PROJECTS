@@ -6,12 +6,14 @@ local command = {
     output = '[%s] [%s]'
 }
 
+local _pairs = pairs
+
 function command:run(id, args)
 
     local admin = self.players[id]
     if admin:hasPermission(self.permission_level, args[1]) then
         local header = false
-        for name, ban in pairs(self.bans['name']) do
+        for name, ban in _pairs(self.bans['name']) do
             if (not header) then
                 header = true
                 admin:send('[Name-Bans]')

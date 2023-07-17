@@ -6,12 +6,14 @@ local command = {
     output = '[$id] [$offender] [Expires: $years/$months/$days - $hours:$minutes:$seconds]'
 }
 
+local _pairs = pairs
+
 function command:run(id, args)
 
     local admin = self.players[id]
     if admin:hasPermission(self.permission_level, args[1]) then
         local header = false
-        for _, ban in pairs(self.bans['mute']) do
+        for _, ban in _pairs(self.bans['mute']) do
             if (not header) then
                 header = true
                 admin:send('[Mute-Bans]')

@@ -10,9 +10,11 @@ local util = {
     }
 }
 
-local time_now = os.time
-local date = os.date
-local format = string.format
+local _time = os.time
+local _date = os.date
+local _pairs = pairs
+local _format = string.format
+local _tonumber = tonumber
 
 function util:syntaxParser(args)
 
@@ -34,14 +36,14 @@ function util:syntaxParser(args)
                 value = value .. ' ' .. next_arg
             end
 
-            if (value:sub(1, 1) == '-' or flag ~= 'reason' and tonumber(value) == nil) then
+            if (value:sub(1, 1) == '-' or flag ~= 'reason' and _tonumber(value) == nil) then
                 self:send('Invalid value for flag: ' .. flag .. ' - ' .. value)
                 return false
             elseif (flag == 'reason') then
                 value = value:gsub('"', '')
             end
 
-            parsed_args[flag] = (type(value) == 'string' and value or tonumber(value))
+            parsed_args[flag] = (type(value) == 'string' and value or _tonumber(value))
 
         elseif (flag and not value) then
             self:send('Missing value for flag: ' .. flag)
@@ -80,7 +82,7 @@ function util:banSTDOUT(...)
     }
 
     local str = self.output
-    for k, v in pairs(placeholders) do
+    for k, v in _pairs(placeholders) do
         str = str:gsub(k, v)
     end
     return str
@@ -112,7 +114,7 @@ function util:banViewFormat(...)
     }
 
     local str = self.output
-    for k, v in pairs(placeholders) do
+    for k, v in _pairs(placeholders) do
         str = str:gsub(k, v)
     end
 
@@ -144,12 +146,12 @@ local function futureTime(...)
     local y, mo, d, h, m, s = time_stamp.y, time_stamp.mo, time_stamp.d, time_stamp.h, time_stamp.m, time_stamp.s
 
     return {
-        year = tonumber(date('%Y', time)) + y,
-        month = tonumber(date('%m', time)) + mo,
-        day = tonumber(date('%d', time)) + d,
-        hour = tonumber(date('%H', time)) + h,
-        min = tonumber(date('%M', time)) + m,
-        sec = tonumber(date('%S', time)) + s
+        year = _tonumber(_date('%Y', time)) + y,
+        month = _tonumber(_date('%m', time)) + mo,
+        day = _tonumber(_date('%d', time)) + d,
+        hour = _tonumber(_date('%H', time)) + h,
+        min = _tonumber(_date('%M', time)) + m,
+        sec = _tonumber(_date('%S', time)) + s
     }
 end
 
@@ -162,7 +164,7 @@ function util:generateExpiration(parsed)
     local m = (parsed.minutes or 0)
     local s = (parsed.seconds or 0)
 
-    local time_stamp = time_now()
+    local time_stamp = _time()
     if (noTime(y, mo, d, h, m, s)) then
         return futureTime(time_stamp, self.default_ban_duration)
     end
@@ -180,7 +182,7 @@ end
 function util:setBanID(type)
     local bans = self.bans[type]
     local id = 0
-    for _, ban in pairs(bans) do
+    for _, ban in _pairs(bans) do
         if (ban.id > id) then
             id = ban.id
         end
@@ -191,7 +193,7 @@ end
 function util:getBanEntryByID(parent, id)
 
     local t = self.bans[parent]
-    for child, entry in pairs(t) do
+    for child, entry in _pairs(t) do
         if (entry.id == id) then
             return parent, child
         end
@@ -210,11 +212,10 @@ function util:hashBan(reason, time, admin)
     local hash = self.hash
     local name = self.name
     local ip = self.ip
-    local id = self.id
 
     self.bans['hash'][hash] = self:newBan(admin.name, name, _, ip, reason, time, 'hash')
 
-    execute_command('k ' .. id)
+    self:kick()
     self:updateBans()
 end
 
@@ -223,11 +224,10 @@ function util:ipBan(reason, time, admin)
     local name = self.name
     local hash = self.hash
     local ip = self.ip
-    local id = self.id
 
     self.bans['ip'][ip] = self:newBan(admin.name, name, hash, _, reason, time, 'ip')
 
-    execute_command('k ' .. id)
+    self:kick()
     self:updateBans()
 end
 
@@ -246,7 +246,7 @@ function util:nameBan(target)
     end
 
     if (player_id) then
-        execute_command('k ' .. player_id)
+        target:kick()
     end
 
     local name = self.name
@@ -261,8 +261,8 @@ function util:nameBan(target)
         id = self:setBanID('name')
     }
 
-    self:send(format('Added (%s) to the name-ban list.', name_to_ban))
-    self:log(format('%s name-banned (%s)', name, name_to_ban), self.logging.management)
+    self:send(_format('Added (%s) to the name-ban list.', name_to_ban))
+    self:log(_format('%s name-banned (%s)', name, name_to_ban), self.logging.management)
     self:updateBans()
 end
 
@@ -287,7 +287,7 @@ end
 
 local function isBanned(self, type, id)
     if (self.bans[type][id]) then
-        execute_command('k ' .. self.id)
+        self:kick()
         return true
     end
     return false
@@ -301,16 +301,16 @@ function util:rejectPlayer()
     local log = self.logging.management
 
     if (isBanned(self, 'hash', hash)) then
-        self:log(format('%s tried to join, but is hash-banned.', name), log)
+        self:log(_format('%s tried to join, but is hash-banned.', name), log)
         return true
     elseif (isBanned(self, 'ip', ip)) then
-        self:log(format('%s tried to join, but is ip-banned.', name), log)
+        self:log(_format('%s tried to join, but is ip-banned.', name), log)
         return true
     elseif (isBanned(self, 'name', name)) then
-        self:log(format('%s tried to join, but is name-banned.', name), log)
+        self:log(_format('%s tried to join, but is name-banned.', name), log)
         return true
     elseif (self:isMuted()) then
-        self:log(format('%s tried to join, but is muted.', name), log)
+        self:log(_format('%s tried to join, but is muted.', name), log)
         return false -- allow muted players to join
     end
 

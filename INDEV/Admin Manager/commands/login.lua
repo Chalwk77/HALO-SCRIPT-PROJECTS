@@ -4,6 +4,8 @@ local command = {
     help = 'Syntax: /$cmd <password>'
 }
 
+local _assert = assert
+
 function command:run(id, args)
 
     local admin = self.players[id]
@@ -21,7 +23,7 @@ function command:run(id, args)
 
         local hashed_password = self:getSHA2Hash(password)
         local password_on_file = admins.password_admins[username].password
-        local success = assert(password_on_file == hashed_password)
+        local success = _assert(password_on_file == hashed_password)
 
         if (success) then
             admin.password_admin = true

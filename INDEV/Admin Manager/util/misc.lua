@@ -1,18 +1,21 @@
 local misc = {}
 
-local date = os.date
-local sort = table.sort
+local _date = os.date
+local _sort = table.sort
+local _require = require
+local _setmetatable = setmetatable
+local _pairs = pairs
 
 function misc:setManagementCMDS()
     local t = {}
-    for file, enabled in pairs(self.management_commands) do
+    for file, enabled in _pairs(self.management_commands) do
         if (enabled) then
-            local command = require(self.commands_dir .. file)
+            local command = _require(self.commands_dir .. file)
             local cmd = command.name
             t[cmd] = command
             t[cmd].help = command.help:gsub('$cmd', cmd)
             t[cmd].description = command.description:gsub('$cmd', cmd)
-            setmetatable(t[cmd], { __index = self })
+            _setmetatable(t[cmd], { __index = self })
         end
     end
     self.management = t
@@ -38,6 +41,9 @@ function misc:hasPermission(level, command)
 end
 
 function misc:send(msg)
+    if (msg == nil or msg == '') then
+        return
+    end
     return (self.id == 0 and cprint(msg) or rprint(self.id, msg))
 end
 
@@ -46,7 +52,7 @@ function misc:getSHA2Hash(raw_password)
 end
 
 function misc:sort(t)
-    sort(t, function(a, b)
+    _sort(t, function(a, b)
         return a.level > b.level
     end)
     return t
@@ -61,7 +67,7 @@ function misc:stringSplit(string)
 end
 
 function misc:findCommand(command)
-    for level, commands in pairs(self.commands) do
+    for level, commands in _pairs(self.commands) do
         if (commands[command] ~= nil) then
             return level, commands[command]
         end
@@ -70,7 +76,47 @@ function misc:findCommand(command)
 end
 
 function misc:getDate(log)
-    return date(log and '%Y/%m/%d %H:%M:%S' or '%Y/%m/%d at %I:%M %p (%z)')
+    return _date(log and '%Y/%m/%d %H:%M:%S' or '%Y/%m/%d at %I:%M %p (%z)')
+end
+
+function misc:kick(reason)
+    self:send(reason)
+    execute_command('k ' .. self.id)
+end
+
+function misc:vipMessages()
+
+    local vip = self.admin_join_messages
+    local message_table = vip[self.level]
+
+    if (not vip.enabled or not message_table or (message_table and not message_table[2])) then
+        return
+    end
+
+    local str = message_table[1]:format(self.name)
+    for i, v in pairs(self.players) do
+        if (i ~= 0) then
+            v:send(str)
+        end
+    end
+end
+
+function misc:commandSpy(command)
+
+    local level = self.level -- their level
+
+    local spy = self.command_spy
+    local show = spy[self.level]
+
+    if (self.id == 0 or not spy.enabled or not show) then
+        return
+    end
+
+    for i, v in _pairs(self.players) do
+        if (i ~= 0 and v.spy and level <= v.level and i ~= self.id) then
+            v:send('[SPY] ' .. self.name .. ' (' .. command .. ')')
+        end
+    end
 end
 
 return misc
