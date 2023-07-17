@@ -1,11 +1,5 @@
 {
-  "hash_admins": {
-    "6c8f0bc306e0108b4904812110185edd": {
-      "date": "Added on 2023/07/17 at 01:51 PM (+1200) by _CONSOLE_ (localhost)",
-      "level": 6,
-      "name": "Chalwk"
-    }
-  },
+  "hash_admins": [],
   "ip_admins": [],
   "password_admins": []
 }
