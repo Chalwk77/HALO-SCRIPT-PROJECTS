@@ -22,7 +22,7 @@ function command:run(id, args)
         elseif (player_id and not player_present(player_id)) then
             admin:send('Player #' .. player_id .. ' is not online.')
         elseif (player_id) then
-            target = self.players[target]
+            target = player_id
         end
 
         admin:nameBan(target)

@@ -235,9 +235,11 @@ function util:nameBan(target)
 
     local name_to_ban = target
     local player_id
+
+    local player = self.players[target]
     if (type(target) == 'number') then
-        name_to_ban = target.name
-        player_id = target.id
+        name_to_ban = player.name
+        player_id = player.id
     elseif (type(target) == 'string') then
         if (name_to_ban:len() > 11) then
             self:send('Name too long. Max 11 characters.')
@@ -246,7 +248,7 @@ function util:nameBan(target)
     end
 
     if (player_id) then
-        target:kick()
+        player:kick()
     end
 
     local name = self.name
@@ -281,6 +283,7 @@ function util:unban(parent, child, admin)
     local name = self.bans[parent][child].offender
     self.bans[parent][child] = nil
 
+    name = name or child
     admin:send(self.output:format(name, child))
     self:updateBans()
 end

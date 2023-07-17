@@ -1,5 +1,7 @@
 -- FULL DESCRIPTION CAN BE FOUND HERE: https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/tag/AdminManager
 
+-- todo: name ban pattern-matching (regex) | REQUESTED BY Buzzard.
+
 return {
 
     --- TERMINAL ADMIN LEVEL:
