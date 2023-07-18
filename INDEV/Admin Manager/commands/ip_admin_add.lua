@@ -34,7 +34,8 @@ function command:run(id, args)
                     name = name,
                     date = 'Added on ' .. self:getDate() .. ' by ' .. admin.name .. ' (' .. admin.ip .. ')'
                 }
-                self:updateAdmins(admins)
+                self:updateAdmins()
+
                 admin:send('Added ' .. name .. ' to the ip-admin list. Level (' .. level .. ').')
                 self:log(admin.name .. ' (' .. admin.ip .. ') added ' .. name .. ' (' .. ip .. ') to the ip-admin list. Level (' .. level .. ')', self.logging.management)
             else

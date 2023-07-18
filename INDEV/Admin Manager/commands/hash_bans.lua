@@ -16,7 +16,7 @@ function command:run(id, args)
         end
 
         local page = tonumber(args[2]) or 1
-        local results = self:showBanList(self.bans['hash'], page, 5, self.header, admin)
+        local results = self:showBanList('hash', page, 5, admin)
         if (not results) then
             admin:send('There are no hash-bans.')
         end

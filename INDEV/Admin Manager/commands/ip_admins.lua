@@ -16,8 +16,7 @@ function command:run(id, args)
         end
 
         local page = tonumber(args[2]) or 1
-        local table = self.admins.ip_admins
-        local results = self:showAdminList(table, page, 5, self.header, admin)
+        local results = self:showAdminList('ip_admins', page, 5, admin)
         if (not results) then
             admin:send('There are no ip-admins.')
         end

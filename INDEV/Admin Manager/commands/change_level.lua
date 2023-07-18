@@ -59,9 +59,9 @@ function command:run(id, args)
             end
 
             target.level = level
-            self:updateAdmins(admins)
-            admin:send('Changed ' .. name .. '\'s admin level to ' .. level .. ' (' .. type .. ')')
+            self:updateAdmins()
 
+            admin:send('Changed ' .. name .. '\'s admin level to ' .. level .. ' (' .. type .. ')')
             self:log(admin.name .. ' (' .. admin.ip .. ') changed ' .. name .. '\'s admin level to ' .. level .. ' (' .. type .. ')', self.logging.management)
         end
     end

@@ -26,7 +26,8 @@ function command:run(id, args)
 
             if (admins.hash_admins[hash]) then
                 admins.hash_admins[hash] = nil
-                self:updateAdmins(admins)
+                self:updateAdmins()
+
                 admin:send('Removed ' .. target.name .. ' from the hash-admin list.')
                 self:log(admin.name .. '(' .. admin.ip .. ') removed ' .. target.name .. '(' .. target.hash .. ') from the hash-admin list.', self.logging.management)
             else

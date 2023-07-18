@@ -92,14 +92,14 @@ function util:syntaxParser(args)
     return parsed_args
 end
 
-function util:banSTDOUT(...)
+function util:banSTDOUT(args)
 
-    local args = { ... }
-    local admin_name = args[1]
-    local offender_name = args[2]
-    local reason = args[3]
-    local expiration = args[4]
-    local output = args[5]
+    local id = args.id
+    local pirated = args.pirated
+    local admin_name = args.admin_name
+    local offender_name = args.offender_name
+    local reason = args.reason
+    local expiration = args.expiration
 
     local years = expiration.year
     local months = expiration.month
@@ -109,6 +109,8 @@ function util:banSTDOUT(...)
     local seconds = expiration.sec
 
     local placeholders = {
+        ['$id'] = id,
+        ['$pirated'] = (pirated and 'Yes' or 'No'),
         ['$admin'] = admin_name,
         ['$offender'] = offender_name,
         ['$reason'] = reason,
@@ -120,57 +122,24 @@ function util:banSTDOUT(...)
         ['$seconds'] = seconds
     }
 
+    local output = self.output
     for k, v in _pairs(placeholders) do
         output = output:gsub(k, v)
     end
+
     return output
 end
 
-function util:banViewFormat(...)
-
-    local args = { ... }
-    local id = args[1]
-    local offender = args[2]
-    local expiration = args[3]
-    local pirated = args[4]
-
-    local years = expiration.year
-    local months = expiration.month
-    local days = expiration.day
-    local hours = expiration.hour
-    local minutes = expiration.min
-    local seconds = expiration.sec
-
-    local placeholders = {
-        ['$id'] = id,
-        ['$offender'] = offender,
-        ['$years'] = years,
-        ['$months'] = months,
-        ['$days'] = days,
-        ['$hours'] = hours,
-        ['$minutes'] = minutes,
-        ['$seconds'] = seconds,
-        ['$pirated'] = (pirated and 'Yes' or 'No')
-    }
-
-    local str = self.output
-    for k, v in _pairs(placeholders) do
-        str = str:gsub(k, v)
-    end
-
-    return str
-end
-
-function util:newBan(admin_name, offender_name, hash, ip, reason, time, type)
+function util:newBan(args)
     return {
         added_on = self:getDate(),
-        added_by = admin_name,
-        offender = offender_name,
-        ip = ip or nil,
-        hash = hash or nil,
-        reason = reason,
-        time = time,
-        id = self:setBanID(type)
+        added_by = args.admin_name,
+        offender = args.offender_name,
+        ip = args.ip or nil,
+        hash = args.hash or nil,
+        reason = args.reason,
+        time = args.time,
+        id = self:setBanID(args.type)
     }
 end
 
@@ -178,38 +147,33 @@ local function noTime(y, mo, d, h, m, s)
     return (y == 0 and mo == 0 and d == 0 and h == 0 and m == 0 and s == 0)
 end
 
-local function futureTime(...)
-
-    local args = { ... }
-    local time = args[1]
-    local time_stamp = args[2]
-    local y, mo, d, h, m, s = time_stamp.y, time_stamp.mo, time_stamp.d, time_stamp.h, time_stamp.m, time_stamp.s
-
+local function futureTime(time)
+    local now = _time()
+    local y, mo, d, h, m, s = time.y, time.mo, time.d, time.h, time.m, time.s
     return {
-        year = _tonumber(_date('%Y', time)) + y,
-        month = _tonumber(_date('%m', time)) + mo,
-        day = _tonumber(_date('%d', time)) + d,
-        hour = _tonumber(_date('%H', time)) + h,
-        min = _tonumber(_date('%M', time)) + m,
-        sec = _tonumber(_date('%S', time)) + s
+        year = _tonumber(_date('%Y', now)) + y,
+        month = _tonumber(_date('%m', now)) + mo,
+        day = _tonumber(_date('%d', now)) + d,
+        hour = _tonumber(_date('%H', now)) + h,
+        min = _tonumber(_date('%M', now)) + m,
+        sec = _tonumber(_date('%S', now)) + s
     }
 end
 
-function util:generateExpiration(parsed)
+function util:generateExpiration(time)
 
-    local y = (parsed.years or 0)
-    local mo = (parsed.months or 0)
-    local d = (parsed.days or 0)
-    local h = (parsed.hours or 0)
-    local m = (parsed.minutes or 0)
-    local s = (parsed.seconds or 0)
+    local y = (time.years or 0)
+    local mo = (time.months or 0)
+    local d = (time.days or 0)
+    local h = (time.hours or 0)
+    local m = (time.minutes or 0)
+    local s = (time.seconds or 0)
 
-    local time_stamp = _time()
     if (noTime(y, mo, d, h, m, s)) then
-        return futureTime(time_stamp, self.default_ban_duration)
+        return futureTime(self.default_ban_duration)
     end
 
-    return futureTime(time_stamp, {
+    return futureTime({
         y = y,
         mo = mo,
         d = d,
@@ -254,42 +218,50 @@ function util:setPirated(group, type, hash)
 end
 
 function util:hashBan(reason, time, admin)
-
-    local hash = self.hash
-    local name = self.name
-    local ip = self.ip
-
-    self.bans['hash'][hash] = self:newBan(admin.name, name, _, ip, reason, time, 'hash')
+    local name, hash, ip = self.name, self.hash, self.ip
+    self.bans['hash'][hash] = self:newBan({
+        admin_name = admin.name,
+        offender_name = name,
+        ip = ip,
+        reason = reason,
+        time = time,
+        type = 'hash'
+    })
     self:setPirated('hash', hash, hash)
-
     self:kick()
     self:updateBans()
 end
 
 function util:hashBanProceed(...)
 
-    local offender, parsed, output = ...
+    local offender, parsed, admin = ...
     local reason = parsed.reason or 'No reason given.'
     local name = offender.name
 
     local expiration = self:generateExpiration(parsed)
+    offender:hashBan(reason, expiration, admin)
+    local stdout = self:banSTDOUT({
+        admin_name = admin.name,
+        offender_name = name,
+        reason = reason,
+        expiration = expiration,
+    })
 
-    offender:hashBan(reason, expiration, self)
-    local stdout = self:banSTDOUT(self.name, name, reason, expiration, output)
-
-    self:send(stdout)
+    admin:send(stdout)
     self:log(stdout, self.logging.management)
 end
 
 function util:ipBan(reason, time, admin)
-
-    local name = self.name
-    local hash = self.hash
-    local ip = self.ip
-
-    self.bans['ip'][ip] = self:newBan(admin.name, name, hash, _, reason, time, 'ip')
+    local name, hash, ip = self.name, self.hash, self.ip
+    self.bans['ip'][ip] = self:newBan({
+        admin_name = admin.name,
+        offender_name = name,
+        hash = hash,
+        reason = reason,
+        time = time,
+        type = 'ip'
+    })
     self:setPirated('ip', ip, hash)
-
     self:kick()
     self:updateBans()
 end
@@ -314,9 +286,9 @@ function util:nameBan(target)
         player:kick()
     end
 
-    local name = self.name
-    local hash = self.hash
-    local ip = self.ip
+    local ip = self.ip -- admin ip (for logging)
+    local name = self.name -- admin name (for logging)
+    local hash = self.hash -- admin hash (for logging)
 
     self.bans['name'][name_to_ban] = {
         name = name_to_ban, -- redundant but needed for the ban list
@@ -333,12 +305,9 @@ function util:nameBan(target)
 end
 
 function util:mute(reason, time, admin)
-
     local name = self.name
     local ip = self.ip
-
     self.bans['mute'][ip] = self:newBan(admin.name, name, _, ip, reason, time, 'mute')
-
     self:updateBans()
 end
 

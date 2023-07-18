@@ -17,7 +17,7 @@ function command:run(id, args)
         end
 
         local page = tonumber(args[2]) or 1
-        local results = self:showNameBans(self.bans['name'], page, 5, self.header, admin)
+        local results = self:showNameBans(page, 5, admin)
         if (not results) then
             admin:send('There are no name-bans.')
         end

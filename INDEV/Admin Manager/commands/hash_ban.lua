@@ -39,7 +39,7 @@ function command:run(id, args)
                     }
                     return false
                 end
-                admin:hashBanProceed(offender, parsed, self.output)
+                self:hashBanProceed(offender, parsed, admin)
             else
                 admin:send(self.help)
             end

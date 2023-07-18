@@ -20,6 +20,7 @@ local AdminManager = {
         ['./Admin Manager/events/'] = {
             'on_chat',
             'on_command',
+            'on_end',
             'on_join',
             'on_quit',
             'on_start',
@@ -45,6 +46,7 @@ function AdminManager:loadDependencies()
     end
 
     self:loadBans()
+    self:loadAliases()
     self:setDefaultCommands()
     self:setManagementCMDS()
     self:setAdmins()
@@ -57,6 +59,10 @@ end
 
 function OnStart()
     AdminManager:onStart()
+end
+
+function OnEnd()
+    AdminManager:onEnd()
 end
 
 function OnTick()

@@ -39,8 +39,9 @@ function event:newPlayer(o)
         return o
     elseif (o.id ~= 0) then
         setLevel(o, self.admins)
+        o:newAlias('IP_ALIASES', o.ip, o.name)
+        o:newAlias('HASH_ALIASES', o.hash, o.name)
     end
-
     return o
 end
 

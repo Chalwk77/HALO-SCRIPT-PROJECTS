@@ -26,7 +26,8 @@ function command:run(id, args)
 
             if (admins.password_admins[name]) then
                 admins.password_admins[name] = nil
-                self:updateAdmins(admins)
+                self:updateAdmins()
+
                 admin:send('Removed ' .. name .. ' from the password-admin list.')
                 self:log(admin.name .. ' (' .. admin.ip .. ') removed ' .. name .. ' from the password-admin list.', self.logging.management)
             else

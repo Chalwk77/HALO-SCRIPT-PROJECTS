@@ -52,6 +52,8 @@ highest of the two. Furthermore, a player will inherit all commands from the adm
 | **unmute** `<player id>`                                                                    | Unmute a player's IP                                                | **6**            |
 | **admin_chat** `<1/0 (on/off)>`                                                             | Toggle admin chat on or off for yourself                            | **6**            |
 | **spy** `<1/0 (on/off)>`                                                                    | Toggle command spy on or off for yourself                           | **6**            |
+| **ip_alias** `<player/ip>` `<page>`                                                         | Lookup aliases by player id or ip                                   | **6**            |
+| **hash_alias** `<player/hash>` `<page>`                                                     | Lookup aliases by player id or hash                                  | **6**            |
 
 Each management command above has a permission level.
 

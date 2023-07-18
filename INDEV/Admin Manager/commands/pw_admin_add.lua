@@ -51,7 +51,8 @@ function command:run(id, args)
                         level = level,
                         date = 'Added on ' .. self:getDate() .. ' by ' .. admin.name .. ' (' .. admin.ip .. ')'
                     }
-                    self:updateAdmins(admins)
+                    self:updateAdmins()
+
                     admin:send('Added ' .. username .. ' to the password-admin list. Level (' .. level .. ').')
                     self:log(admin.name .. ' (' .. admin.ip .. ') added ' .. username .. ' to the password-admin list. Level (' .. level .. ')', self.logging.management)
                 else

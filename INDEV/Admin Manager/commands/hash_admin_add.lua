@@ -34,7 +34,8 @@ function command:run(id, args)
                     name = name,
                     date = 'Added on ' .. self:getDate() .. ' by ' .. admin.name .. ' (' .. admin.ip .. ')'
                 }
-                self:updateAdmins(admins)
+                self:updateAdmins()
+
                 admin:send('Added ' .. name .. ' to the hash-admin list. Level (' .. level .. ').')
                 self:log(admin.name .. ' (' .. admin.ip .. ') added ' .. name .. ' (' .. hash .. ') to the hash-admin list. Level (' .. level .. ')', self.logging.management)
             else

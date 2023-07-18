@@ -26,7 +26,8 @@ function command:run(id, args)
 
             if (admins.ip_admins[ip]) then
                 admins.ip_admins[ip] = nil
-                self:updateAdmins(admins)
+                self:updateAdmins()
+
                 admin:send('Removed ' .. target.name .. ' from the ip-admin list.')
                 self:log(admin.name .. '(' .. admin.ip .. ') removed ' .. target.name .. '(' .. target.ip .. ') from the ip-admin list.', self.logging.management)
             else

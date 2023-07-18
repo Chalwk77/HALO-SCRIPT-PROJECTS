@@ -7,10 +7,11 @@ local _setmetatable = setmetatable
 local _pairs = pairs
 
 function misc:setManagementCMDS()
-    local t = {}
-    for file, enabled in _pairs(self.management_commands) do
+    local t, commands = {}, self.management_commands
+    for file, enabled in _pairs(commands) do
         if (enabled) then
-            local command = _require(self.commands_dir .. file)
+            local dir = self.commands_dir
+            local command = _require(dir .. file)
             local cmd = command.name
             t[cmd] = command
             t[cmd].help = command.help:gsub('$cmd', cmd)
@@ -22,6 +23,7 @@ function misc:setManagementCMDS()
 end
 
 function misc:hasPermission(level, command)
+    -- used by management commands
 
     local id = self.id
     local current_level = self.level
@@ -113,7 +115,8 @@ function misc:commandSpy(command)
     end
 
     for i, v in _pairs(self.players) do
-        if (i ~= 0 and v.spy and level <= v.level and i ~= self.id) then
+        local case = (i ~= 0 and i ~= self.id)
+        if (case and v.spy and v.level >= level) then
             v:send('[SPY] ' .. self.name .. ' (' .. command .. ')')
         end
     end
@@ -143,36 +146,41 @@ function misc:getPageResults(bans, page, number_to_show)
     return results, total_pages
 end
 
-function misc:showBanList(bans, page, number_to_show, header, admin)
+function misc:showBanList(type, page, number_to_show, admin)
 
-    bans = convert(bans)
+    local bans = convert(self.bans[type])
     local results, total_pages = self:getPageResults(bans, page, number_to_show)
     if (not results or #results == 0) then
         return false
     end
 
-    admin:send(header:format(page, total_pages))
+    admin:send(self.header:format(page, total_pages))
     for _, v in pairs(results) do
         local id = v.id
         local offender = v.offender
         local time = v.time
         local pirated = v.pirated
-        local result = self:banViewFormat(id, offender, time, pirated)
+        local result = self:banSTDOUT({
+            id = id,
+            offender_name = offender,
+            expiration = time,
+            pirated = pirated
+        })
         admin:send(result)
     end
 
     return true
 end
 
-function misc:showAdminList(admins, page, number_to_show, header, admin)
+function misc:showAdminList(type, page, number_to_show, admin)
 
-    admins = convert(admins)
+    local admins = convert(self.admins[type])
     local results, total_pages = self:getPageResults(admins, page, number_to_show)
     if (not results or #results == 0) then
         return false
     end
 
-    admin:send(header:format(page, total_pages))
+    admin:send(self.header:format(page, total_pages))
     for _, v in pairs(results) do
         admin:send(self.output:format(v.name, v.level))
     end
@@ -180,20 +188,82 @@ function misc:showAdminList(admins, page, number_to_show, header, admin)
     return true
 end
 
-function misc:showNameBans(names, page, number_to_show, header, admin)
-    names = convert(names)
+function misc:showNameBans(page, number_to_show, admin)
+
+    local names = convert(self.bans['name'])
 
     local results, total_pages = self:getPageResults(names, page, number_to_show)
     if (not results or #results == 0) then
         return false
     end
 
-    admin:send(header:format(page, total_pages))
+    admin:send(self.header:format(page, total_pages))
     for _, v in pairs(results) do
         admin:send(self.output:format(v.id, v.name))
     end
 
     return true
+end
+
+function misc:showAliases(args)
+
+    local page = args.page
+    local group = args.type
+    local admin = args.admin
+    local header = args.header
+    local target = args.target -- ip or hash
+    local number_to_show = args.number_to_show
+
+    local t = self.aliases[group][target]
+    if (not t) then
+        return false
+    end
+
+    local aliases = {}
+    for name, v in _pairs(t) do
+        aliases[#aliases + 1] = { [name] = v }
+    end
+
+    local results, total_pages = self:getPageResults(aliases, page, number_to_show)
+    if (not results or #results == 0) then
+        return false
+    end
+
+    admin:send(header:format(target, page, total_pages))
+
+    -- 'results' is the table entry for this ip/hash:
+    for i = 1, #results do
+
+        -- results[i] = table of aliases for this ip/hash
+        local result = results[i]
+        for name, v in _pairs(result) do
+            local level = v.level
+            local joined = v.joined
+            local last_activity = v.last_activity
+            admin:send(self.output
+                           :gsub('$name', name)
+                           :gsub('$level', level)
+                           :gsub('$date_joined', joined)
+                           :gsub('$last_activity', last_activity))
+        end
+    end
+
+    return true
+end
+
+function misc:newAlias(parent, child, name)
+
+    local records = self.aliases
+    local date = self:getDate(true)
+
+    records[parent][child] = records[parent][child] or {}
+
+    if (not records[parent][child][name]) then
+        records[parent][child][name] = { joined = date }
+    end
+
+    records[parent][child][name].level = self.level
+    records[parent][child][name].last_activity = date
 end
 
 return misc

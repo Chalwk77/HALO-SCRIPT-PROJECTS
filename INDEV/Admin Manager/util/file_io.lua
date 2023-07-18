@@ -1,6 +1,6 @@
 local IO = {
-    sha = require('./Admin Manager/util/sha256'),
-    json = loadfile('./Admin Manager/util/json.lua')(),
+    sha = require('./Admin Manager/libraries/sha256'),
+    json = loadfile('./Admin Manager/libraries/json.lua')(),
     default = {
         hash_admins = {},
         ip_admins = {},
@@ -54,6 +54,17 @@ function IO:loadBans()
     }
 end
 
+function IO:loadAliases()
+
+    local dir = self.directories[5]
+    local aliases = loadFile(self, dir)
+
+    self.aliases = aliases or {
+        IP_ALIASES = {},
+        HASH_ALIASES = {},
+    }
+end
+
 -- Converts the keys of a table to numbers or strings:
 local function convert(commands, f)
     local t = {}
@@ -90,8 +101,10 @@ function IO:setAdmins()
 end
 
 function IO:updateAdmins()
+
     local dir = self.directories[1]
     writeFile(dir, self.admins)
+
 end
 
 function IO:updateCommands()
@@ -103,6 +116,25 @@ end
 function IO:updateBans()
     local dir = self.directories[3]
     writeFile(dir, self.bans)
+end
+
+function IO:updateAliases()
+
+    for i,v in pairs(self.players) do
+        if (i ~= 0) then
+
+            local ip = v.ip
+            local name = v.name
+            local hash = v.hash
+            local level = v.level
+
+            self.aliases['IP_ALIASES'][ip][name].level = level
+            self.aliases['HASH_ALIASES'][hash][name].level = level
+        end
+    end
+
+    local dir = self.directories[5]
+    writeFile(dir, self.aliases)
 end
 
 function IO:log(entry, write)
