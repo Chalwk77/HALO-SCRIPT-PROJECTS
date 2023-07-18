@@ -7,7 +7,7 @@ local command = {
 
 function command:run(id, args)
 
-    local target = tonumber(args[2])
+    local target = args[2]
     local admin = self.players[id]
 
     if admin:hasPermission(self.permission_level, args[1]) then
@@ -20,9 +20,10 @@ function command:run(id, args)
             admin:send('Player #' .. target .. ' is not present.')
         else
 
-            target = self.players[target]
+            local player_index = tonumber(target)
+            local is_online = player_index and player_present(player_index)
+            local name = is_online and self.players[id].name or target
             local admins = self.admins
-            local name = target.name
 
             if (admins.password_admins[name]) then
                 admins.password_admins[name] = nil

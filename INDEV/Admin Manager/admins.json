@@ -1,5 +1,11 @@
 {
   "hash_admins": [],
   "ip_admins": [],
-  "password_admins": []
+  "password_admins": {
+    "Cauchy": {
+      "date": "Added on 2023/07/18 at 02:06 PM (-0500) by _CONSOLE_ (localhost)",
+      "level": 6,
+      "password": "f8b0e61cf3a61623229a3182ed019bb4c66ae82f40963f1e159c7ed8d05fa3c5"
+    }
+  }
 }

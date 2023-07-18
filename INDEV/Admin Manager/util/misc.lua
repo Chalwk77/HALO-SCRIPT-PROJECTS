@@ -266,4 +266,8 @@ function misc:newAlias(parent, child, name)
     records[parent][child][name].last_activity = date
 end
 
+function misc:initCachedPwAdmins()
+    self.cached_pw_admins = {}
+end
+
 return misc

@@ -66,6 +66,13 @@ return {
     },
 
 
+    -- SAPP VARIABLES SETTINGS
+    --
+    -- External scripts can rely on player's admin levels, we provide a way for accessing them
+    -- through SAPP's custom variables
+    custom_level_var_name = "admin_level",
+
+
     --- LOGGING:
     --
     -- When enabled, command logs are saved to the ./Admin Manager/logs.json file.

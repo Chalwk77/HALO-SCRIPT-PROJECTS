@@ -28,6 +28,10 @@ function command:run(id, args)
         if (success) then
             admin.password_admin = true
             admin.level = admins.password_admins[username].level
+            admin:setLevelVariable()
+
+            self.cached_pw_admins[admin.socket] = admin.level
+            
             admin:send('Successfully logged in as ' .. username .. ' (level ' .. admin.level .. ')')
             self:log(admin.name .. ' (' .. admin.ip .. ') logged in as ' .. username .. ' Level (' .. admin.level .. ')', self.logging.management)
         else

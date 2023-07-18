@@ -8,10 +8,12 @@ local function setLevel(self, admins)
 
     local id = self.id
     local ip = self.ip
+    local socket = self.socket
     local hash = self.hash
 
     local hash_admins = admins.hash_admins
     local ip_admins = admins.ip_admins
+    local cached_pw_admins = self.cached_pw_admins
 
     if (hash_admins[hash] and ip_admins[ip]) then
         self.level = getHighest(hash_admins[hash].level, ip_admins[ip].level)
@@ -22,9 +24,13 @@ local function setLevel(self, admins)
     elseif (ip_admins[ip]) then
         self.level = ip_admins[ip].level
         cprint('Admin Manager: ' .. self.name .. ' (' .. self.ip .. ') logged in as a level ' .. self.level .. ' ip-admin.')
+    elseif (cached_pw_admins[socket]) then
+        self.level = cached_pw_admins[socket]
     else
         self.level = 1 -- public
     end
+
+    self:setLevelVariable()
 
     execute_command('adminadd ' .. id .. ' 4')
 end
@@ -50,7 +56,8 @@ function event:onJoin(id)
         id = id,
         name = get_var(id, '$name'),
         hash = get_var(id, '$hash'),
-        ip = get_var(id, '$ip'):match('%d+.%d+.%d+.%d+')
+        ip = get_var(id, '$ip'):match('%d+.%d+.%d+.%d+'),
+        socket = get_var(id, '$ip')
     })
     self.players[id]:vipMessages()
 end

@@ -28,7 +28,10 @@ function command:run(id, args)
             local ip = target.ip
 
             if (not admins.ip_admins[ip]) then
+                
                 target.level = level
+                target:setLevelVariable()
+
                 admins.ip_admins[ip] = {
                     level = level,
                     name = name,

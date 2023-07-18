@@ -2,14 +2,14 @@ local command = {
     name = 'pw_admin_add',
     description = 'Command (pw_admin_add) | Adds a new username & password admin.',
     permission_level = 6,
-    help = 'Syntax: /$cmd <player> <level> <password>'
+    help = 'Syntax: /$cmd <player index/username> <level> <password>'
 }
 
 local concat = table.concat
 
 function command:run(id, args)
 
-    local target, level = tonumber(args[2]), tonumber(args[3])
+    local target, level = args[2], tonumber(args[3])
     local admin = self.players[id]
     local admins = self.admins
 
@@ -19,20 +19,17 @@ function command:run(id, args)
             admin:send(self.description)
         elseif (not target or not level) then
             admin:send(self.help)
-        elseif not player_present(target) then
-            admin:send('Player #' .. target .. ' is not present.')
         elseif (not self.commands[level]) then
             admin:send('Invalid level. Must be between 1 and ' .. #self.commands)
         else
+            local player_index = tonumber(target)
+            local is_online = player_index and player_present(player_index)
+            local username = is_online and self.players[id].name or target
 
             local password = concat(args, ' ', 4)
             if (not password or password == '') then
                 admin:send('You must specify a password.')
             else
-
-                target = self.players[target]
-                local username = target.name
-
                 if (not admins.password_admins[username]) then
 
                     local min = self.password_length_limit[1]
@@ -43,9 +40,14 @@ function command:run(id, args)
                         admin:send('Password must be ' .. min .. ' to ' .. max .. ' characters')
                         return false
                     end
+                    
+                    if is_online then
+                        target = self.players[target]
+                        target.level = level
+                        target:setLevelVariable()
+                        target.password_admin = true
+                    end
 
-                    target.level = level
-                    target.password_admin = true
                     admins.password_admins[username] = {
                         password = self:getSHA2Hash(password),
                         level = level,

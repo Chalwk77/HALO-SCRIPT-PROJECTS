@@ -14,7 +14,11 @@ function command:run(id, args)
         admin:send('You are not logged in.')
     else
         admin.level = 1
+        admin:setLevelVariable()
         admin.password_admin = nil
+        
+        self.cached_pw_admins[admin.socket] = nil
+
         admin:send('Successfully logged out.')
         self:log(admin.name .. ' (' .. admin.ip .. ') logged out.', self.logging.management)
     end

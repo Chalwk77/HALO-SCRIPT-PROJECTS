@@ -29,6 +29,8 @@ function command:run(id, args)
 
             if (not admins.hash_admins[hash]) then
                 target.level = level
+                target:setLevelVariable()
+                
                 admins.hash_admins[hash] = {
                     level = level,
                     name = name,
