@@ -15,12 +15,13 @@ function command:run(id, args)
 
         if (not target) then
             admin:send(self.help)
-            return false
+            return
         elseif (target == 'help') then
             admin:send(self.description)
-            return false
+            return
         elseif (player_id and not player_present(player_id)) then
             admin:send('Player #' .. player_id .. ' is not online.')
+            return
         elseif (player_id) then
             target = player_id
         end

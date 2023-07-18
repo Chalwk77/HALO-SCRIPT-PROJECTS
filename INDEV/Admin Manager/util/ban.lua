@@ -232,17 +232,15 @@ function util:hashBan(reason, time, admin)
     self:updateBans()
 end
 
-function util:hashBanProceed(...)
+function util:hashBanProceed(offender, parsed, admin)
 
-    local offender, parsed, admin = ...
     local reason = parsed.reason or 'No reason given.'
-    local name = offender.name
-
     local expiration = self:generateExpiration(parsed)
+
     offender:hashBan(reason, expiration, admin)
     local stdout = self:banSTDOUT({
         admin_name = admin.name,
-        offender_name = name,
+        offender_name = offender.name,
         reason = reason,
         expiration = expiration,
     })
@@ -269,21 +267,16 @@ end
 function util:nameBan(target)
 
     local name_to_ban = target
-    local player_id
-
     local player = self.players[target]
+
     if (type(target) == 'number') then
         name_to_ban = player.name
-        player_id = player.id
+        player:kick()
     elseif (type(target) == 'string') then
         if (name_to_ban:len() > 11) then
             self:send('Name too long. Max 11 characters.')
             return
         end
-    end
-
-    if (player_id) then
-        player:kick()
     end
 
     local ip = self.ip -- admin ip (for logging)
