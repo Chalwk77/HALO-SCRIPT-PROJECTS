@@ -2,13 +2,12 @@ local command = {
     name = 'ip_admins',
     description = 'Command ($cmd) | Shows a list of ip-admins.',
     permission_level = 6,
-    help = 'Syntax: /$cmd'
+    header = '[IP-Admins] (Page: %s/%s)', -- page (current, total)
+    output = '%s | Level: [%s]', -- name, level
+    help = 'Syntax: /$cmd <page>'
 }
 
-local _pairs = pairs
-
 function command:run(id, args)
-
     local admin = self.players[id]
     if admin:hasPermission(self.permission_level, args[1]) then
 
@@ -16,29 +15,14 @@ function command:run(id, args)
             return false, admin:send(self.description)
         end
 
-        local ip_admins = self.admins.ip_admins
-        local list = {}
-        for _, data in _pairs(ip_admins) do
-            list[#list + 1] = {
-                name = data.name,
-                level = data.level
-            }
-        end
-
-        if (#list == 0) then
-            return false, admin:send('No IP Admins found.')
-        end
-
-        list = self:sort(list)
-        admin:send('IP Admins (total ' .. #list .. ')')
-        for i = 1, #list do
-            local data = list[i]
-            admin:send(data.name .. '(' .. data.level .. ')')
+        local page = tonumber(args[2]) or 1
+        local table = self.admins.ip_admins
+        local results = self:showAdminList(table, page, 5, self.header, admin)
+        if (not results) then
+            admin:send('There are no ip-admins.')
         end
         self:log(admin.name .. ' viewed the ip-admin list.', self.logging.management)
     end
-
-    return false
 end
 
 return command

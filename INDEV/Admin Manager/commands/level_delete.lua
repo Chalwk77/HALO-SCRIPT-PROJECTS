@@ -27,8 +27,6 @@ function command:run(id, args)
             }
         end
     end
-
-    return false
 end
 
 return command

@@ -60,8 +60,6 @@ function command:run(id, args)
             end
         end
     end
-
-    return false
 end
 
 return command

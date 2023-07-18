@@ -22,13 +22,13 @@ highest of the two. Furthermore, a player will inherit all commands from the adm
 |---------------------------------------------------------------------------------------------|---------------------------------------------------------------------|------------------|
 | **hash_admin_add** `<player id>` `<level>`                                                  | Add player as a hash-admin                                          | **6**            |
 | **hash_admin_del** `<player id>`                                                            | Remove player as a hash-admin                                       | **6**            |
-| **hash_admin_list**                                                                         | List all hash-admins                                                | **6**            |
+| **hash_admins** `<page>`                                                                    | List all hash-admins                                                | **6**            |
 | **ip_admin_add** `<player id>` `<level>`                                                    | Add player as an ip-admin                                           | **6**            | 
 | **ip_admin_del** `<player id>`                                                              | Remove player as an ip-admin                                        | **6**            |
-| **ip_admin_list**                                                                           | List all ip-admins                                                  | **6**            |
+| **ip_admins** `<page>`                                                                      | List all ip-admins                                                  | **6**            |
 | **pw_admin_add** `<player id>` `<level> <password>`                                         | Add player as a password-admin                                      | **6**            |
 | **pw_admin_del** `<player id>`                                                              | Remove player as a password-admin                                   | **6**            |
-| **pw_admin_list**                                                                           | List all password-admins                                            | **6**            |
+| **pw_admins** `<page>`                                                                      | List all password-admins                                            | **6**            |
 | **login** `<password>`                                                                      | Login with a password (username is your IGN)                        | **6**            |
 | **logout**                                                                                  | Logout of the server                                                | **6**            |
 | **change_level** `<player id>` `<type (hash/ip/password)>`                                  | Change player admin level                                           | **6**            |
@@ -45,10 +45,10 @@ highest of the two. Furthermore, a player will inherit all commands from the adm
 | **ip_bans** `<page>`                                                                        | List all IP-bans                                                    | **6**            |
 | **ip_unban** `<ban id>`                                                                     | Unban a player's IP                                                 | **6**            |
 | **name_ban** `<player id or name>`                                                          | Ban a players name by ID or name                                    | **6**            |
-| **name_bans**                                                                               | List all name bans                                                  | **6**            |
+| **name_bans** `<page>`                                                                      | List all name bans                                                  | **6**            |
 | **name_unban** `<ban id>`                                                                   | Unban a name                                                        | **6**            |
 | **mute** `<player id>` `<flag (-y -mo -d -h -m -s -r "example reason")>`                    | Mute a player by IP                                                 | **6**            |
-| **mute_list** `<page>`                                                                      | List all muted players                                              | **6**            |
+| **mutes** `<page>`                                                                          | List all muted players                                              | **6**            |
 | **unmute** `<player id>`                                                                    | Unmute a player's IP                                                | **6**            |
 | **admin_chat** `<1/0 (on/off)>`                                                             | Toggle admin chat on or off for yourself                            | **6**            |
 | **spy** `<1/0 (on/off)>`                                                                    | Toggle command spy on or off for yourself                           | **6**            |

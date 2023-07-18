@@ -38,8 +38,6 @@ function command:run(id, args)
             self:log(admin.name .. ' (' .. admin.ip .. ') set command (' .. target_command .. ') to level (' .. level .. '). Enabled: ' .. tostring(enable), self.logging.management)
         end
     end
-
-    return false
 end
 
 return command

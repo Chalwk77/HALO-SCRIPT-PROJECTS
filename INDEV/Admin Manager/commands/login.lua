@@ -36,8 +36,6 @@ function command:run(id, args)
     else
         admin:send('Incorrect username or password.')
     end
-
-    return false
 end
 
 return command

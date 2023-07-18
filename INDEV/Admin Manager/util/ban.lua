@@ -319,6 +319,7 @@ function util:nameBan(target)
     local ip = self.ip
 
     self.bans['name'][name_to_ban] = {
+        name = name_to_ban, -- redundant but needed for the ban list
         added_by = name,
         added_on = self:getDate(),
         ip = ip,

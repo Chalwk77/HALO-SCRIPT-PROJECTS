@@ -8,7 +8,6 @@ local command = {
 function command:run(id, args)
 
     local admin = self.players[id]
-
     if admin:hasPermission(self.permission_level, args[1]) then
 
         if (args[2] == 'help') then
@@ -34,8 +33,6 @@ function command:run(id, args)
             admin.confirm = nil
         end
     end
-
-    return false
 end
 
 return command

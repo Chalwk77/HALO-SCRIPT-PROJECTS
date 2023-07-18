@@ -119,35 +119,36 @@ function misc:commandSpy(command)
     end
 end
 
-local function convert(bans)
+local function convert(table)
     local t = {}
-    for _, v in _pairs(bans) do
+    for _, v in _pairs(table) do
         t[#t + 1] = v
     end
     return t
 end
 
-function misc:showResults(t, page, number_to_show, header, admin)
-
-    t = convert(t)
-
-    local total_pages = math.ceil(#t / number_to_show)
+function misc:getPageResults(bans, page, number_to_show)
+    local total_pages = math.ceil(#bans / number_to_show)
     local start_index = (page - 1) * number_to_show + 1
     local end_index = start_index + number_to_show - 1
-
-    if (start_index > #t) then
+    if (start_index > #bans) then
         return false
-    elseif (end_index > #t) then
-        end_index = #t
+    elseif (end_index > #bans) then
+        end_index = #bans
     end
-
     local results = {}
     for i = start_index, end_index do
-        results[#results + 1] = t[i]
+        results[#results + 1] = bans[i]
     end
+    return results, total_pages
+end
 
-    if (#results == 0) then
-        header = ''
+function misc:showBanList(bans, page, number_to_show, header, admin)
+
+    bans = convert(bans)
+    local results, total_pages = self:getPageResults(bans, page, number_to_show)
+    if (not results or #results == 0) then
+        return false
     end
 
     admin:send(header:format(page, total_pages))
@@ -160,7 +161,39 @@ function misc:showResults(t, page, number_to_show, header, admin)
         admin:send(result)
     end
 
-    return (#results > 0)
+    return true
+end
+
+function misc:showAdminList(admins, page, number_to_show, header, admin)
+
+    admins = convert(admins)
+    local results, total_pages = self:getPageResults(admins, page, number_to_show)
+    if (not results or #results == 0) then
+        return false
+    end
+
+    admin:send(header:format(page, total_pages))
+    for _, v in pairs(results) do
+        admin:send(self.output:format(v.name, v.level))
+    end
+
+    return true
+end
+
+function misc:showNameBans(names, page, number_to_show, header, admin)
+    names = convert(names)
+
+    local results, total_pages = self:getPageResults(names, page, number_to_show)
+    if (not results or #results == 0) then
+        return false
+    end
+
+    admin:send(header:format(page, total_pages))
+    for _, v in pairs(results) do
+        admin:send(self.output:format(v.id, v.name))
+    end
+
+    return true
 end
 
 return misc

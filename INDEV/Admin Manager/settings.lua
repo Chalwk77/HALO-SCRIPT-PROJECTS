@@ -145,7 +145,7 @@ return {
         ['name_unban'] = true,
         ['name_bans'] = true,
         ['mute'] = true,
-        ['mute_list'] = true,
+        ['mutes'] = true,
         ['unmute'] = true,
 
         -- MISC:

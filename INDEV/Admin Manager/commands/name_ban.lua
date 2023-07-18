@@ -27,8 +27,6 @@ function command:run(id, args)
 
         admin:nameBan(target)
     end
-
-    return false
 end
 
 return command

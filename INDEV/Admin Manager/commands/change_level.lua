@@ -65,8 +65,6 @@ function command:run(id, args)
             self:log(admin.name .. ' (' .. admin.ip .. ') changed ' .. name .. '\'s admin level to ' .. level .. ' (' .. type .. ')', self.logging.management)
         end
     end
-
-    return false
 end
 
 return command
