@@ -5,6 +5,7 @@ return {
     --- TERMINAL ADMIN LEVEL:
     --
     -- Default level for the server console:
+    -- This should always be the max level.
     -- Default: (6)
     console_default_level = 6,
 
@@ -111,47 +112,62 @@ return {
 
     --- CUSTOM MANAGEMENT COMMANDS:
     --
-    -- Format: ['<command file name>'] = { enabled/disabled (true/false), <permission level>}
+    -- These are the custom Admin Manager commands that are available to players at each level:
+    -- For default commands, see the next section (default_commands).
+    -- These commands are not (and shouldn't) be added to the commands database JSON file.
+    -- Format: ['<level>'] = { ['<command>'] = true (or false) ... }
     -- Setting a command to false will disable it for all players (except console)
     -- Default: (all true)
     management_commands = {
-        ['admin_chat'] = { true, 4 },
-        ['alias_hash'] = { true, 4 },
-        ['alias_ip'] = { true, 4 },
-        ['change_level'] = { true, 6 },
-        ['command_spy'] = { true, 4 },
-        ['confirm'] = { true, 5 },
-        ['disable_command'] = { true, 6 },
-        ['enable_command'] = { true, 6 },
-        ['hash_admin_add'] = { true, 5 },
-        ['hash_admin_delete'] = { true, 5 },
-        ['hash_admins'] = { true, 5 },
-        ['hash_ban'] = { true, 5 },
-        ['hash_bans'] = { true, 5 },
-        ['hash_mute'] = { true, 3 },
-        ['hash_mutes'] = { true, 3 },
-        ['hash_unban'] = { true, 5 },
-        ['hash_unmute'] = { true, 3 },
-        ['ip_admin_add'] = { true, 5 },
-        ['ip_admin_delete'] = { true, 5 },
-        ['ip_admins'] = { true, 5 },
-        ['ip_ban'] = { true, 4 },
-        ['ip_bans'] = { true, 4 },
-        ['ip_mute'] = { true, 3 },
-        ['ip_mutes'] = { true, 3 },
-        ['ip_unban'] = { true, 4 },
-        ['ip_unmute'] = { true, 3 },
-        ['level_add'] = { true, 6 },
-        ['level_delete'] = { true, 6 },
-        ['login'] = { true, 1 },
-        ['logout'] = { true, 1 },
-        ['name_ban'] = { true, 5 },
-        ['name_bans'] = { true, 5 },
-        ['name_unban'] = { true, 5 },
-        ['pw_admin_add'] = { true, 5 },
-        ['pw_admin_delete'] = { true, 5 },
-        ['pw_admins'] = { true, 5 },
-        ['set_command'] = { true, 6 },
+        ['1'] = { -- level 1
+            ['login'] = true,
+            ['logout'] = true,
+        },
+        ['2'] = { -- level 2
+            ['admin_chat'] = true,
+            ['command_spy'] = true,
+        },
+        ['3'] = { -- level 3
+            ['ip_mute'] = true,
+            ['ip_mutes'] = true,
+            ['ip_unmute'] = true,
+            ['hash_mute'] = true,
+            ['hash_mutes'] = true,
+            ['hash_unmute'] = true,
+        },
+        ['4'] = { -- level 4
+            ['alias_ip'] = true,
+            ['alias_hash'] = true,
+            ['ip_ban'] = true,
+            ['ip_bans'] = true,
+            ['ip_unban'] = true,
+        },
+        ['5'] = { -- level 5
+            ['confirm'] = true, -- for hash_ban and level delete
+            ['hash_admin_add'] = true,
+            ['hash_admin_delete'] = true,
+            ['hash_admins'] = true,
+            ['hash_ban'] = true,
+            ['hash_bans'] = true,
+            ['hash_unban'] = true,
+            ['ip_admin_add'] = true,
+            ['ip_admin_delete'] = true,
+            ['ip_admins'] = true,
+            ['name_ban'] = true,
+            ['name_bans'] = true,
+            ['name_unban'] = true,
+            ['pw_admin_add'] = true,
+            ['pw_admins'] = true,
+            ['pw_admin_delete'] = true,
+        },
+        ['6'] = { -- level 6
+            ['level_add'] = true,
+            ['level_delete'] = true,
+            ['change_level'] = true,
+            ['set_command'] = true,
+            ['disable_command'] = true,
+            ['enable_command'] = true,
+        },
     },
 
 
@@ -163,7 +179,7 @@ return {
     -- You can edit the commands in the ./commands.json file, or use the management commands to change them.
     --
     -- Format: ['<level>'] = { ['<command>'] = true (or false) ... }
-    -- Setting a command to false will disable it for all players.
+    -- Setting a command to false will disable it for all players (except console)
     -- Default: (all true)
     default_commands = {
 

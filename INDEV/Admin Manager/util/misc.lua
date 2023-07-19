@@ -8,16 +8,18 @@ local _pairs = pairs
 
 function misc:setManagementCMDS()
     local t, commands = {}, self.management_commands
-    for file, args in _pairs(commands) do
-        local dir = self.commands_dir
-        local command = _require(dir .. file)
-        local cmd = command.name
-        t[cmd] = command
-        t[cmd].enabled = args[1]
-        t[cmd].permission_level = args[2]
-        t[cmd].help = command.help:gsub('$cmd', cmd)
-        t[cmd].description = command.description:gsub('$cmd', cmd)
-        _setmetatable(t[cmd], { __index = self })
+    for level,v in pairs(commands) do
+        for file_name, enabled in _pairs(v) do
+            local dir = self.commands_dir
+            local command_table = _require(dir .. file_name)
+            local cmd = command_table.name
+            t[cmd] = command_table
+            t[cmd].enabled = enabled
+            t[cmd].permission_level = tonumber(level)
+            t[cmd].help = command_table.help:gsub('$cmd', cmd)
+            t[cmd].description = command_table.description:gsub('$cmd', cmd)
+            _setmetatable(t[cmd], { __index = self })
+        end
     end
     self.management = t
 end

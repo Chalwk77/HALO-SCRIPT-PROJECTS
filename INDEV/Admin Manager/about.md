@@ -397,6 +397,8 @@ You can define custom commands in this file, and it will manage the required per
 }
 ```
 
+---
+
 ### ⚠️ WARNING ⚠️
 
 > For this system to work, all players are given SAPP level 4.<br>
