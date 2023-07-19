@@ -399,8 +399,9 @@ You can define custom commands in this file, and it will manage the required per
 
 ### ⚠️ WARNING ⚠️
 
-> For this system to work, all players are given SAPP level 4.
-> In the rare event that this plugin crashes, all players will have unrestricted access to SAPP's commands.
+> For this system to work, all players are given SAPP level 4.<br>
+> In the rare event that this plugin crashes, all players will have unrestricted access to SAPP's commands.<br>
+> **There are currently no known bugs or crashes with this plugin. Just something to note.**
 
 # INSTALLATION:
 
