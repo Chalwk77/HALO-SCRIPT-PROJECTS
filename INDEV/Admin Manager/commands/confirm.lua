@@ -22,7 +22,7 @@ function command:run(id, args)
                 self.commands[level] = nil
                 admin:send('Level (' .. level .. ') has been deleted.')
                 self:updateCommands()
-                self:log(admin.name .. ' (' .. admin.ip .. ')  deleted level ' .. level .. ' from (' .. self.directories[2] .. ')', self.logging.management)
+                self:log(admin.name .. ' (' .. admin.ip .. ')  deleted level ' .. level .. ' from (' .. self.files[2] .. ')', self.logging.management)
             elseif (confirmation.hash_ban) then
                 local offender = confirmation.hash_ban[1]
                 local parsed = confirmation.hash_ban[2]

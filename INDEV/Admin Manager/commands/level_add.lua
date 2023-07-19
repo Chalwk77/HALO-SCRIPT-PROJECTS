@@ -21,7 +21,7 @@ function command:run(id, args)
             self.commands[level] = {}
             self:updateCommands()
             admin:send('Level ' .. level .. ' added.')
-            self:log(admin.name .. ' (' .. admin.ip .. ')  added level ' .. level .. ' to (' .. self.directories[2] .. ')', self.logging.management)
+            self:log(admin.name .. ' (' .. admin.ip .. ')  added level ' .. level .. ' to (' .. self.files[2] .. ')', self.logging.management)
         end
     end
 end

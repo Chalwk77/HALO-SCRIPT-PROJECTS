@@ -54,6 +54,17 @@ local _pairs = pairs
 local _format = string.format
 local _tonumber = tonumber
 
+local function parseReason(args, value, i)
+    for j = i + 2, #args do
+        local next_arg = args[j]
+        if (next_arg:sub(1, 1) == '-') then
+            break
+        end
+        value = value .. ' ' .. next_arg
+    end
+    return value
+end
+
 function util:syntaxParser(args)
 
     local parsed_args = {}
@@ -65,14 +76,7 @@ function util:syntaxParser(args)
 
         if (flag and value) then
 
-            -- The reason may contain spaces, so we need to parse it differently:
-            for j = i + 2, #args do
-                local next_arg = args[j]
-                if (next_arg:sub(1, 1) == '-') then
-                    break
-                end
-                value = value .. ' ' .. next_arg
-            end
+            value = parseReason(args, value, i)
 
             if (value:sub(1, 1) == '-' or flag ~= 'reason' and _tonumber(value) == nil) then
                 self:send('Invalid value for flag: ' .. flag .. ' - ' .. value)
@@ -168,47 +172,45 @@ function util:generateExpiration(time)
     local h = (time.hours or 0)
     local m = (time.minutes or 0)
     local s = (time.seconds or 0)
+    local default = self.default_ban_duration
 
-    if (noTime(y, mo, d, h, m, s)) then
-        return futureTime(self.default_ban_duration)
-    end
-
-    return futureTime({
+    local no_time = noTime(y, mo, d, h, m, s)
+    return (no_time and futureTime(default) or futureTime({
         y = y,
         mo = mo,
         d = d,
         h = h,
         m = m,
         s = s
-    })
+    }))
 end
 
-function util:setBanID(type)
-    local bans = self.bans[type]
+function util:setBanID(ban_table)
     local id = 0
-    for _, ban in _pairs(bans) do
-        if (ban.id > id) then
-            id = ban.id
+    for _, entry in _pairs(ban_table) do
+        if (entry.id > id) then
+            id = entry.id
         end
     end
     return id + 1
 end
 
-function util:getBanEntryByID(parent, id)
-
-    local t = self.bans[parent]
-    for child, entry in _pairs(t) do
-        if (entry.id == id) then
-            return parent, child
+function util:getBanEntryByID(ban_table, id)
+    for entry, v in _pairs(ban_table) do
+        if (v.id == id) then
+            return entry
         end
     end
-
     self:send('Ban ID not found.')
     return nil
 end
 
 function util:isMuted()
-    return self.bans['mute'][self.ip]
+    local ip = self.ip
+    local hash = self.hash
+    local ip_muted = self.bans['mute']['ip'][ip]
+    local hash_muted = self.bans['mute']['hash'][hash]
+    return ip_muted or hash_muted
 end
 
 function util:setPirated(group, type, hash)
@@ -218,14 +220,16 @@ function util:setPirated(group, type, hash)
 end
 
 function util:hashBan(reason, time, admin)
+
+    local hash_bans = self.bans['hash']
     local name, hash, ip = self.name, self.hash, self.ip
-    self.bans['hash'][hash] = self:newBan({
+    hash_bans[hash] = self:newBan({
         admin_name = admin.name,
         offender_name = name,
         ip = ip,
         reason = reason,
         time = time,
-        type = 'hash'
+        type = hash_bans
     })
     self:setPirated('hash', hash, hash)
     self:kick()
@@ -251,13 +255,14 @@ end
 
 function util:ipBan(reason, time, admin)
     local name, hash, ip = self.name, self.hash, self.ip
-    self.bans['ip'][ip] = self:newBan({
+    local ip_bans = self.bans['ip']
+    ip_bans[ip] = self:newBan({
         admin_name = admin.name,
         offender_name = name,
         hash = hash,
         reason = reason,
         time = time,
-        type = 'ip'
+        type = ip_bans
     })
     self:setPirated('ip', ip, hash)
     self:kick()
@@ -272,24 +277,24 @@ function util:nameBan(target)
     if (type(target) == 'number') then
         name_to_ban = player.name
         player:kick()
-    elseif (type(target) == 'string') then
-        if (name_to_ban:len() > 11) then
-            self:send('Name too long. Max 11 characters.')
-            return
-        end
+    elseif (type(target) == 'string' and name_to_ban:len() > 11) then
+        self:send('Name too long. Max 11 characters.')
+        return
     end
 
     local ip = self.ip -- admin ip (for logging)
     local name = self.name -- admin name (for logging)
     local hash = self.hash -- admin hash (for logging)
 
-    self.bans['name'][name_to_ban] = {
+    local name_bans = self.bans['name']
+
+    name_bans[name_to_ban] = {
         name = name_to_ban, -- redundant but needed for the ban list
         added_by = name,
         added_on = self:getDate(),
         ip = ip,
         hash = hash,
-        id = self:setBanID('name')
+        id = self:setBanID(name_bans)
     }
 
     self:send(_format('Added (%s) to the name-ban list.', name_to_ban))
@@ -297,25 +302,42 @@ function util:nameBan(target)
     self:updateBans()
 end
 
-function util:mute(reason, time, admin)
-    local name = self.name
-    local ip = self.ip
-    self.bans['mute'][ip] = self:newBan(admin.name, name, _, ip, reason, time, 'mute')
+function util:mute(parent, child, reason, time, admin)
+    local text_bans = self.bans['mute'][parent]
+    text_bans[child] = self:newBan({
+        admin_name = admin.name,
+        offender_name = self.name,
+        reason = reason,
+        time = time,
+        type = text_bans
+    })
     self:updateBans()
 end
 
-function util:unban(parent, child, admin)
+function util:unban(args)
 
-    local name = self.bans[parent][child].offender
-    self.bans[parent][child] = nil
+    local admin = args.admin
+    local parent = args.parent
+    local child = args.child
+    local sub = args.sub
 
-    name = name or child
-    admin:send(self.output:format(name, child))
+    local message = ''
+    local entry = self.bans[parent][child]
+
+    if (entry[sub]) then
+        message = self.output:format(entry[sub].offender, sub)
+        entry[sub] = nil
+    else
+        message = self.output:format(entry.offender, child)
+        self.bans[parent][child] = nil
+    end
+
+    admin:send(message)
     self:updateBans()
 end
 
-local function isBanned(self, type, id)
-    if (self.bans[type][id]) then
+local function isBanned(self, parent, child)
+    if (self.bans[parent][child]) then
         self:kick()
         return true
     end
@@ -323,6 +345,10 @@ local function isBanned(self, type, id)
 end
 
 function util:rejectPlayer()
+
+    if (self.id == 0) then
+        return
+    end
 
     local name = self.name
     local hash = self.hash
@@ -339,7 +365,7 @@ function util:rejectPlayer()
         self:log(_format('%s tried to join, but is name-banned.', name), log)
         return true
     elseif (self:isMuted()) then
-        self:log(_format('%s tried to join, but is muted.', name), log)
+        self:log(_format('%s joined and is muted.', name), log)
         return false -- allow muted players to join
     end
 

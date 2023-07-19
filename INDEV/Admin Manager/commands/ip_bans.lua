@@ -16,7 +16,9 @@ function command:run(id, args)
         end
 
         local page = tonumber(args[2]) or 1
-        local results = self:showBanList('ip', page, 5, admin)
+        local ip_bans = self.bans['ip']
+        local results = self:showBanList(ip_bans, page, 5, admin)
+
         if (not results) then
             admin:send('There are no ip-bans.')
         end

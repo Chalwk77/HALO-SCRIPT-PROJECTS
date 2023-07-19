@@ -146,10 +146,10 @@ function misc:getPageResults(bans, page, number_to_show)
     return results, total_pages
 end
 
-function misc:showBanList(type, page, number_to_show, admin)
+function misc:showBanList(bans, page, number_to_show, admin)
 
-    local bans = convert(self.bans[type])
-    local results, total_pages = self:getPageResults(bans, page, number_to_show)
+    local ban_table = convert(bans)
+    local results, total_pages = self:getPageResults(ban_table, page, number_to_show)
     if (not results or #results == 0) then
         return false
     end

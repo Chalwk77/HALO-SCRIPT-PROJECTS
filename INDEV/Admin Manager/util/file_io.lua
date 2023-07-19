@@ -13,8 +13,9 @@ local _pairs = pairs
 local _tonumber = tonumber
 local _tostring = tostring
 
-local function readFile(f)
-    local file = _open(f, 'r')
+local function readFile(f, self)
+    local root = self.root_directory
+    local file = _open(root .. f, 'r')
     if (file) then
         local contents = file:read('*all')
         file:close()
@@ -23,8 +24,9 @@ local function readFile(f)
     return ''
 end
 
-local function writeFile(f, contents)
-    local file = _open(f, 'w')
+local function writeFile(f, contents, self)
+    local root = self.root_directory
+    local file = _open(root .. f, 'w')
     if (file) then
         contents = IO.json:encode_pretty(contents)
         file:write(contents)
@@ -32,8 +34,8 @@ local function writeFile(f, contents)
     end
 end
 
-local function loadFile(self, f)
-    local contents = readFile(f)
+local function loadFile(f, self)
+    local contents = readFile(f, self)
 
     contents = (contents and (contents == '') and nil
             or self.json:decode(contents)) or nil
@@ -43,21 +45,24 @@ end
 
 function IO:loadBans()
 
-    local dir = self.directories[3]
-    local bans = loadFile(self, dir)
+    local dir = self.files[3]
+    local bans = loadFile(dir, self)
 
     self.bans = bans or {
         ip = {},
         hash = {},
         name = {},
-        mute = {}
+        mute = {
+            ip = {},
+            hash = {}
+        }
     }
 end
 
 function IO:loadAliases()
 
-    local dir = self.directories[5]
-    local aliases = loadFile(self, dir)
+    local dir = self.files[5]
+    local aliases = loadFile(dir, self)
 
     self.aliases = aliases or {
         IP_ALIASES = {},
@@ -76,12 +81,12 @@ end
 
 function IO:setDefaultCommands()
 
-    local dir = self.directories[2]
-    local commands = loadFile(self, dir)
+    local dir = self.files[2]
+    local commands = loadFile(dir, self)
     local default_commands = self.default_commands
 
     if (not commands) then
-        writeFile(dir, default_commands)
+        writeFile(dir, default_commands, self)
         commands = default_commands
     end
 
@@ -90,11 +95,11 @@ end
 
 function IO:setAdmins()
 
-    local dir = self.directories[1]
-    local admins = loadFile(self, dir)
+    local dir = self.files[1]
+    local admins = loadFile(dir, self)
 
     if (not admins) then
-        writeFile(dir, self.default)
+        writeFile(dir, self.default, self)
     end
 
     self.admins = admins or self.default
@@ -102,20 +107,20 @@ end
 
 function IO:updateAdmins()
 
-    local dir = self.directories[1]
-    writeFile(dir, self.admins)
+    local dir = self.files[1]
+    writeFile(dir, self.admins, self)
 
 end
 
 function IO:updateCommands()
     local commands = self.commands
     commands = convert(commands, _tostring)
-    writeFile(self.directories[2], commands)
+    writeFile(self.files[2], commands, self)
 end
 
 function IO:updateBans()
-    local dir = self.directories[3]
-    writeFile(dir, self.bans)
+    local dir = self.files[3]
+    writeFile(dir, self.bans, self)
 end
 
 function IO:updateAliases()
@@ -133,8 +138,8 @@ function IO:updateAliases()
         end
     end
 
-    local dir = self.directories[5]
-    writeFile(dir, self.aliases)
+    local dir = self.files[5]
+    writeFile(dir, self.aliases, self)
 end
 
 function IO:log(entry, write)
@@ -144,13 +149,13 @@ function IO:log(entry, write)
     end
 
     local date = self:getDate(true)
-    local dir = self.directories[4]
-    local logs = loadFile(self, dir)
+    local dir = self.files[4]
+    local logs = loadFile(dir, self)
 
     logs = logs or {}
     logs[date] = entry
 
-    writeFile(dir, logs)
+    writeFile(dir, logs, self)
 end
 
 return IO
