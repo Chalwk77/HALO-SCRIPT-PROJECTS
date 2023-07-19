@@ -1,7 +1,6 @@
 local command = {
     name = 'pw_admin_add',
     description = 'Command (pw_admin_add) | Adds a new username & password admin.',
-    permission_level = 6,
     help = 'Syntax: /$cmd <player> <level> <password>'
 }
 

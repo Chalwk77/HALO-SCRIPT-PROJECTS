@@ -1,7 +1,6 @@
 local command = {
     name = 'level_add',
     description = 'Command ($cmd) | Adds a new admin level.',
-    permission_level = 6,
     help = 'Syntax: /$cmd <level>'
 }
 

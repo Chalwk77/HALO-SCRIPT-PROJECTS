@@ -1,7 +1,6 @@
 local command = {
     name = 'level_delete',
     description = 'Command ($cmd) | Deletes an admin level (requires confirmation).',
-    permission_level = 6,
     help = 'Syntax: /$cmd <level>'
 }
 

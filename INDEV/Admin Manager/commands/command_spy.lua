@@ -1,7 +1,6 @@
 local command = {
     name = 'spy',
     description = 'Command ($cmd) | Spy on player commands.',
-    permission_level = 6,
     help = 'Syntax: /$cmd <1/0 (on/off)>'
 }
 

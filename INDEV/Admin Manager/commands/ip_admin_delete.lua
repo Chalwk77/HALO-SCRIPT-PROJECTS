@@ -1,7 +1,6 @@
 local command = {
     name = 'ip_admin_delete',
     description = 'Command ($cmd) | Deletes an ip-admin.',
-    permission_level = 6,
     help = 'Syntax: /$cmd <player>'
 }
 

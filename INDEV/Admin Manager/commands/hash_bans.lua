@@ -1,7 +1,6 @@
 local command = {
     name = 'hash_bans',
     description = 'Command ($cmd) | List all hash-bans.',
-    permission_level = 6,
     help = 'Syntax: /$cmd> <page>',
     header = '[Hash-Bans] (Page: %s/%s)', -- page (current, total)
     output = '[$id] $offender [$years/$months/$days-$hours:$minutes:$seconds] [Pirated: $pirated]'

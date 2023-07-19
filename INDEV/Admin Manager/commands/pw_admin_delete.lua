@@ -1,7 +1,6 @@
 local command = {
     name = 'pw_admin_delete',
     description = 'Command (pw_admin_delete) | Deletes a username & password admin.',
-    permission_level = 6,
     help = 'Syntax: /$cmd <player>'
 }
 

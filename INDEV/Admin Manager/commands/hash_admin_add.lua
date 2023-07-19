@@ -1,7 +1,6 @@
 local command = {
     name = 'hash_admin_add',
     description = 'Command ($cmd) | Adds a new hash-admin.',
-    permission_level = 6,
     help = 'Syntax: /$cmd <player> <level (1-6)>'
 }
 

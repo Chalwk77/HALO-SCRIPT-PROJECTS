@@ -1,7 +1,5 @@
 -- FULL DESCRIPTION CAN BE FOUND HERE: https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/tag/AdminManager
 
--- todo: name ban pattern-matching (regex) | REQUESTED BY Buzzard.
-
 return {
 
     --- TERMINAL ADMIN LEVEL:
@@ -86,12 +84,12 @@ return {
     -- Format: [admin level] = {'custom join message', enabled/disabled (true/false)}}
     admin_join_messages = {
         enabled = false,
-        [1] = {'[PUBLIC] %s joined the server.', false},
-        [2] = {'[ADMIN] %s just showed up. Hold my beer!', true},
-        [3] = {'[MOD] %s just joined. Hide your bananas!', true},
-        [4] = {'[VIP] %s joined the server. Sexy is as sexy does.', true},
-        [5] = {'[PRO] %s joined the server. Pro noob.', true},
-        [6] = {'[OWNER] %s joined the server. Everybody hide!', true},
+        [1] = { '[PUBLIC] %s joined the server.', false },
+        [2] = { '[ADMIN] %s just showed up. Hold my beer!', true },
+        [3] = { '[MOD] %s just joined. Hide your bananas!', true },
+        [4] = { '[VIP] %s joined the server. Sexy is as sexy does.', true },
+        [5] = { '[PRO] %s joined the server. Pro noob.', true },
+        [6] = { '[OWNER] %s joined the server. Everybody hide!', true },
     },
 
 
@@ -103,8 +101,8 @@ return {
     command_spy = {
         enabled = true,
         [1] = false,
-        [2] = true,
-        [3] = true,
+        [2] = false,
+        [3] = false,
         [4] = true,
         [5] = true,
         [6] = true
@@ -113,57 +111,47 @@ return {
 
     --- CUSTOM MANAGEMENT COMMANDS:
     --
-    -- Management command permissions can be changed in the ./Admin Manager/commands/<command> directory.
-    -- Format: ['<command file name>'] = true (or false)
-    -- Setting a command to false will disable it for all players.
+    -- Format: ['<command file name>'] = { enabled/disabled (true/false), <permission level>}
+    -- Setting a command to false will disable it for all players (except console)
     -- Default: (all true)
     management_commands = {
-
-        ['change_level'] = true,
-        ['confirm'] = true,
-        ['disable_command'] = true,
-        ['enable_command'] = true,
-        ['hash_admin_add'] = true,
-        ['hash_admin_delete'] = true,
-        ['hash_admins'] = true,
-        ['ip_admin_add'] = true,
-        ['ip_admin_delete'] = true,
-        ['ip_admins'] = true,
-        ['level_add'] = true,
-        ['level_delete'] = true,
-        ['login'] = true, -- override (do not change)
-        ['logout'] = true,
-        ['pw_admin_add'] = true,
-        ['pw_admin_delete'] = true,
-        ['pw_admins'] = true,
-        ['set_command'] = true,
-
-        -- BAN / MUTE COMMANDS:
-        ['hash_ban'] = true,
-        ['hash_unban'] = true,
-        ['hash_bans'] = true,
-        ['ip_ban'] = true,
-        ['ip_unban'] = true,
-        ['ip_bans'] = true,
-        ['name_ban'] = true,
-        ['name_unban'] = true,
-        ['name_bans'] = true,
-
-        -- WIP:
-        ['ip_mute'] = true,
-        ['ip_mutes'] = true,
-        ['ip_unmute'] = true,
-        ['hash_mute'] = true,
-        ['hash_mutes'] = true,
-        ['hash_unmute'] = true,
-
-        -- MISC:
-        ['admin_chat'] = true,
-        ['command_spy'] = true,
-
-        -- ALIAS COMMANDS:
-        ['alias_hash'] = true,
-        ['alias_ip'] = true
+        ['admin_chat'] = { true, 4 },
+        ['alias_hash'] = { true, 4 },
+        ['alias_ip'] = { true, 4 },
+        ['change_level'] = { true, 6 },
+        ['command_spy'] = { true, 4 },
+        ['confirm'] = { true, 5 },
+        ['disable_command'] = { true, 6 },
+        ['enable_command'] = { true, 6 },
+        ['hash_admin_add'] = { true, 5 },
+        ['hash_admin_delete'] = { true, 5 },
+        ['hash_admins'] = { true, 5 },
+        ['hash_ban'] = { true, 5 },
+        ['hash_bans'] = { true, 5 },
+        ['hash_mute'] = { true, 3 },
+        ['hash_mutes'] = { true, 3 },
+        ['hash_unban'] = { true, 5 },
+        ['hash_unmute'] = { true, 3 },
+        ['ip_admin_add'] = { true, 5 },
+        ['ip_admin_delete'] = { true, 5 },
+        ['ip_admins'] = { true, 5 },
+        ['ip_ban'] = { true, 4 },
+        ['ip_bans'] = { true, 4 },
+        ['ip_mute'] = { true, 3 },
+        ['ip_mutes'] = { true, 3 },
+        ['ip_unban'] = { true, 4 },
+        ['ip_unmute'] = { true, 3 },
+        ['level_add'] = { true, 6 },
+        ['level_delete'] = { true, 6 },
+        ['login'] = { true, 1 },
+        ['logout'] = { true, 1 },
+        ['name_ban'] = { true, 5 },
+        ['name_bans'] = { true, 5 },
+        ['name_unban'] = { true, 5 },
+        ['pw_admin_add'] = { true, 5 },
+        ['pw_admin_delete'] = { true, 5 },
+        ['pw_admins'] = { true, 5 },
+        ['set_command'] = { true, 6 },
     },
 
 
@@ -179,86 +167,56 @@ return {
     -- Default: (all true)
     default_commands = {
 
-        -- [!] NOTE:
-        -- Level 1 is reserved for public commands.
-
         ['1'] = { -- public commands
+            ['login'] = true,
+            ['logout'] = true,
             ['whatsnext'] = true,
-            ['usage'] = true,
             ['unstfu'] = true,
             ['stats'] = true,
             ['stfu'] = true,
             ['sv_stats'] = true,
-            ['report'] = true,
             ['info'] = true,
             ['lead'] = true,
-            ['list'] = false,
             ['clead'] = true,
-            ['about'] = true
         },
 
         ['2'] = { -- level 2
-            ['uptime'] = true,
             ['kdr'] = true,
             ['mapcycle'] = true,
-            ['change_password'] = false,
-            ['admindel'] = false,
-            ['adminadd'] = false,
-            ['afk'] = true
+            ['pl'] = true,
+            ['say'] = true,
         },
 
         ['3'] = { -- level 3
+            ['afk'] = true,
+            ['afks'] = true,
             ['skips'] = true,
-            ['aimbot_scores'] = true
+            ['aimbot_scores'] = true,
+            ['k'] = true,
         },
 
         ['4'] = { -- level 4
-            ['say'] = true,
+            ['ip'] = true,
             ['tell'] = true,
-            ['mute'] = false,
-            ['mutes'] = false,
-            ['k'] = true,
-            ['afks'] = true,
+            ['uptime'] = true,
             ['balance_teams'] = true,
-            ['pl'] = true,
             ['st'] = true,
-            ['teamup'] = true,
-            ['textban'] = false,
-            ['textbans'] = false,
-            ['textunban'] = false,
-            ['unmute'] = false,
+            ['inf'] = true,
         },
 
         ['5'] = { -- level 5
-            ['ub'] = false,
-            ['inf'] = true,
-            ['ip'] = true,
-            ['ipban'] = false,
-            ['ipbans'] = false,
-            ['ipunban'] = false,
             ['map'] = true,
-            ['refresh_ipbans'] = false,
             ['maplist'] = true,
-            ['b'] = false,
-            ['bans'] = false,
         },
 
         ['6'] = { -- level 6
-            ['admin_add'] = false,
-            ['admin_add_manually'] = false,
-            ['admin_change_level'] = false,
-            ['admin_change_pw'] = false,
-            ['admin_del'] = false,
-            ['admin_list'] = false,
+            ['teamup'] = true,
+            ['report'] = true,
             ['admin_prefix'] = true,
-            ['adminadd_samelevel'] = false,
-            ['adminban'] = false,
-            ['admindel_samelevel'] = false,
-            ['adminlevel'] = false,
-            ['admins'] = false,
+            ['usage'] = true,
             ['afk_kick'] = true,
+            ['about'] = true,
             ['aimbot_ban'] = true,
-            ['alias'] = false,
             ['ammo'] = true,
             ['anticamp'] = true,
             ['anticaps'] = true,
@@ -290,7 +248,6 @@ return {
             ['cmd_del'] = true,
             ['cmdstart1'] = true,
             ['cmdstart2'] = true,
-            ['collect_aliases'] = false,
             ['color'] = true,
             ['console_input'] = true,
             ['coord'] = true,
@@ -310,14 +267,11 @@ return {
             ['eventdel'] = true,
             ['events'] = true,
             ['files'] = true,
-            ['full_ipban'] = false,
             ['gamespeed'] = true,
             ['god'] = true,
             ['gravity'] = true,
-            ['hide_admin'] = false,
             ['hill_timer'] = true,
             ['hp'] = true,
-            ['iprangeban'] = false,
             ['kill'] = true,
             ['kills'] = true,
             ['lag'] = true,
@@ -383,7 +337,6 @@ return {
             ['scorelimit'] = true,
             ['scrim_mode'] = true,
             ['set_ccolor'] = true,
-            ['setadmin'] = false,
             ['setcmd'] = true,
             ['sh'] = true,
             ['sj_level'] = true,
@@ -412,7 +365,7 @@ return {
             ['wdel'] = true,
             ['wdrop'] = true,
             ['yeye'] = true,
-            ['zombies'] = true
+            ['zombies'] = true,
         }
     }
 }

@@ -1,7 +1,6 @@
 local command = {
     name = 'hash_unban',
     description = 'Command ($cmd) | Unban a player\'s hash.',
-    permission_level = 6,
     help = 'Syntax: /$cmd <ban id>',
     output = '(%s) (%s) unbanned.',
 }

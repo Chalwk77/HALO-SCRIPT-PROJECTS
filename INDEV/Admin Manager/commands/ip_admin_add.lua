@@ -1,7 +1,6 @@
 local command = {
     name = 'ip_admin_add',
     description = 'Command ($cmd) | Adds a new ip-admin.',
-    permission_level = 6,
     help = 'Syntax: /$cmd <player> <level>'
 }
 

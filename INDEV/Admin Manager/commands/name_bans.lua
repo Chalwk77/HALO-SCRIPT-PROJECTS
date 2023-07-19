@@ -1,7 +1,6 @@
 local command = {
     name = 'name_bans',
     description = 'Command ($cmd) | List all name-bans.',
-    permission_level = 6,
     help = 'Syntax: /$cmd> <page>',
     header = '[Name-Bans] (Page: %s/%s)', -- page (current, total)
     output = '[%s] %s' -- ban id, name

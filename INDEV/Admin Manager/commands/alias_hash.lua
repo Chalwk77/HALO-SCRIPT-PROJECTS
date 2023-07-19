@@ -1,7 +1,6 @@
 local command = {
     name = 'hash_alias',
     description = 'Command ($cmd) | View a player\'s aliases by hash.',
-    permission_level = 6,
     help = 'Syntax: /$cmd <player/ip> <page>',
     header = 'Aliases for [%s]: Page %d/%d', -- type ip, page, total pages
     output = '$name [$level]'
@@ -20,8 +19,10 @@ function command:run(id, args)
 
         if (target == 'help') then
             admin:send(self.description)
+            return
         elseif (target == nil) then
             admin:send(self.help)
+            return
         elseif (tonumber(target)) then
             target = tonumber(target)
             if (not player_present(target)) then

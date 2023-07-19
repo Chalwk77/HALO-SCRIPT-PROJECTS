@@ -1,7 +1,6 @@
 local command = {
     name = 'ip_unmute',
     description = 'Command ($cmd) | Unmute a player by hash',
-    permission_level = 6,
     help = 'Syntax: /$cmd <ban id>',
     output = '(%s) (%s) unmuted.',
 }

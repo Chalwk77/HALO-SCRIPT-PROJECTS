@@ -1,7 +1,6 @@
 local command = {
     name = 'pw_admins',
     description = 'Command (pw_admins) | Shows a list of username & password admins.',
-    permission_level = 6,
     header = '[IP-Admins] (Page: %s/%s)', -- page (current, total)
     output = '%s | Level: [%s]', -- name, level
     help = 'Syntax: /$cmd <page>'

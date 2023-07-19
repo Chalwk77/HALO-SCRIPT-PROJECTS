@@ -7,11 +7,29 @@ function event:onCommand(id, command)
 
     local admin = self.players[id]
     command = self.management[target_command]
+
+    local server_management = (command ~= nil) and id == 0
+    local player_management = (command ~= nil) and (command.enabled)
+    local player_management_disabled = (id > 0 and command ~= nil and not command.enabled)
+
     if (not target_command) then
         return
-    elseif (command) then
+
+        -- Make sure terminal always has access to management commands:
+    elseif (server_management) then
+        return false, command:run(id, args)
+
+        -- Player executed enabled management command:
+    elseif (player_management) then
         admin:commandSpy(target_command)
         return false, command:run(id, args)
+
+        -- Player executed disabled management command:
+    elseif (player_management_disabled) then
+        admin:send('Command (' .. target_command .. ') is disabled.')
+        self:log(admin.name .. ' is attempting to execute (' .. target_command
+                .. ') but it is disabled.', self.logging.default)
+        return false
     end
 
     -- All other commands:

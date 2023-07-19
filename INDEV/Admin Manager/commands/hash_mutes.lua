@@ -1,7 +1,6 @@
 local command = {
     name = 'hash_mutes',
     description = 'Command ($cmd) | List all text-ban mutes by hash.',
-    permission_level = 6,
     help = 'Syntax: /$cmd> <page>',
     header = '[Text-Bans (hash)] (Page: %s/%s)', -- page (current, total)
     output = '[$id] $offender [$years/$months/$days-$hours:$minutes:$seconds] [Pirated: $pirated]'

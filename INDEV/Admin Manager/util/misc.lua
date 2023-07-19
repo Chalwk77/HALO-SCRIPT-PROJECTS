@@ -8,22 +8,21 @@ local _pairs = pairs
 
 function misc:setManagementCMDS()
     local t, commands = {}, self.management_commands
-    for file, enabled in _pairs(commands) do
-        if (enabled) then
-            local dir = self.commands_dir
-            local command = _require(dir .. file)
-            local cmd = command.name
-            t[cmd] = command
-            t[cmd].help = command.help:gsub('$cmd', cmd)
-            t[cmd].description = command.description:gsub('$cmd', cmd)
-            _setmetatable(t[cmd], { __index = self })
-        end
+    for file, args in _pairs(commands) do
+        local dir = self.commands_dir
+        local command = _require(dir .. file)
+        local cmd = command.name
+        t[cmd] = command
+        t[cmd].enabled = args[1]
+        t[cmd].permission_level = args[2]
+        t[cmd].help = command.help:gsub('$cmd', cmd)
+        t[cmd].description = command.description:gsub('$cmd', cmd)
+        _setmetatable(t[cmd], { __index = self })
     end
     self.management = t
 end
 
 function misc:hasPermission(level, command)
-    -- used by management commands
 
     local id = self.id
     local current_level = self.level
@@ -83,7 +82,7 @@ end
 
 function misc:kick(reason)
     self:send(reason)
-    execute_command('k ' .. self.id)
+    execute_command('sv_kick ' .. self.id)
 end
 
 function misc:vipMessages()

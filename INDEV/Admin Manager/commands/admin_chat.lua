@@ -1,7 +1,6 @@
 local command = {
     name = 'admin_chat',
     description = 'Command ($cmd) | Chat privately with other admins.',
-    permission_level = 6,
     help = 'Syntax: /$cmd <1/0 (on/off)>'
 }
 

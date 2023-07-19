@@ -1,7 +1,6 @@
 local command = {
     name = 'change_level',
     description = 'Command ($cmd) | Changes a player\'s admin level.',
-    permission_level = 6,
     help = 'Syntax: /$cmd <player> <level> <type (hash/ip/password)>'
 }
 
@@ -36,16 +35,16 @@ function command:run(id, args)
 
             if (target.level == 1) then
                 admin:send(name .. ' is either not an admin or isn\'t logged in.')
-                return false
+                return
             elseif (type == 'hash' and not hash_admins[hash]) then
                 admin:send(name .. ' is not a hash-admin.')
-                return false
+                return
             elseif (type == 'ip' and not ip_admins[target.ip]) then
                 admin:send(name .. ' is not an ip-admin.')
-                return false
+                return
             elseif (type == 'password' and not target.password_admin) then
                 admin:send(name .. ' either not an admin or isn\'t logged in.')
-                return false
+                return
             elseif (type == 'hash') then
                 hash_admins[hash].level = level
                 hash_admins[hash].date = 'Changed on ' .. self:getDate() .. ' by ' .. admin.name .. ' (' .. admin.ip .. ')'
@@ -56,6 +55,7 @@ function command:run(id, args)
                 password_admins[name].level = level
             else
                 admin:send('Invalid type argument. Valid types: hash, ip, password')
+                return
             end
 
             target.level = level

@@ -1,7 +1,6 @@
 local command = {
     name = 'name_ban',
     description = 'Command ($cmd) | Block explicit names.',
-    permission_level = 6,
     help = 'Syntax: /$cmd <id> or /$cmd <name> | Type /$cmd help for more information.'
 }
 
