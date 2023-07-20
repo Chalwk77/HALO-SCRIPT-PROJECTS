@@ -1,4 +1,4 @@
-This plugin is a drop-in replacement for SAPP's built-in admin system and adds a new features:
+This plugin is a drop-in replacement for SAPP's built-in admin system and adds new features:
 
 > <ins>**Custom admins levels:**
 
