@@ -1,16 +1,18 @@
 local event = {}
-local time = os.time
+local _time = os.time
+local _pairs = pairs
+local _difftime = os.difftime
 
 function event:onTick()
 
     local update
-    for group, v in pairs(self.bans) do
+    for group, v in _pairs(self.bans) do
 
-        for ID, entry in pairs(v) do
+        for ID, entry in _pairs(v) do
             local expiration = entry.time
             if (expiration) then
 
-                local expired = os.difftime(time(), time {
+                local expired = _difftime(_time(), _time {
                     year = expiration.year,
                     month = expiration.month,
                     day = expiration.day,
@@ -33,10 +35,10 @@ function event:onTick()
     end
 
     -- Level delete confirmation timeout:
-    for _, v in pairs(self.players) do
-        if (v.confirm and time() > v.confirm.timeout) then
+    for _, v in _pairs(self.players) do
+        if (v.confirm and _time() > v.confirm.timeout) then
             v.confirm = nil
-            v:send('Admin level deletion timed out.')
+            v:send('Action timed out.')
         end
     end
 end

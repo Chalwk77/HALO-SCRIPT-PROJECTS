@@ -1,8 +1,8 @@
 local command = {
-    name = 'ip_ban',
+    name = 'ip_mute',
     description = 'Flags: -y -mo -d -h -m -s -r "example reason"',
     help = 'Syntax: /$cmd <player> <flags> | Type ($cmd help) for more information.',
-    output = '$admin ip-banned $offender until [$years/$months/$days - $hours:$minutes:$seconds] for reason: $reason',
+    output = '$admin IP-muted $offender until [$years/$months/$days - $hours:$minutes:$seconds] for reason: $reason',
 }
 
 function command:run(id, args)
@@ -25,12 +25,12 @@ function command:run(id, args)
 
                 offender = self.players[offender]
 
-                local reason = parsed.reason or '"No reason given."'
                 local name = offender.name
-
+                local child = offender.ip
+                local reason = parsed.reason or 'No reason given.'
                 local expiration = self:generateExpiration(parsed)
 
-                offender:ipBan(reason, expiration, admin)
+                offender:mute('ip', child, reason, expiration, admin)
                 local stdout = self:banSTDOUT({
                     admin_name = admin.name,
                     offender_name = name,

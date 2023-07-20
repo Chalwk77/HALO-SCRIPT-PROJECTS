@@ -1,7 +1,6 @@
 local command = {
     name = 'hash_admin_delete',
     description = 'Command ($cmd) | Deletes a hash-admin.',
-    permission_level = 6,
     help = 'Syntax: /$cmd <player>'
 }
 
@@ -26,7 +25,8 @@ function command:run(id, args)
 
             if (admins.hash_admins[hash]) then
                 admins.hash_admins[hash] = nil
-                self:updateAdmins(admins)
+                self:updateAdmins()
+
                 admin:send('Removed ' .. target.name .. ' from the hash-admin list.')
                 self:log(admin.name .. '(' .. admin.ip .. ') removed ' .. target.name .. '(' .. target.hash .. ') from the hash-admin list.', self.logging.management)
             else
@@ -34,8 +34,6 @@ function command:run(id, args)
             end
         end
     end
-
-    return false
 end
 
 return command

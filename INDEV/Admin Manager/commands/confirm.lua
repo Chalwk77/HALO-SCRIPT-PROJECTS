@@ -1,14 +1,12 @@
 local command = {
     name = 'confirm',
-    description = 'Command ($cmd) | Confirms the deletion of a level.',
-    permission_level = 6,
+    description = 'Command ($cmd) | Confirms the deletion of a level or hash ban.',
     help = 'Syntax: /$cmd'
 }
 
 function command:run(id, args)
 
     local admin = self.players[id]
-
     if admin:hasPermission(self.permission_level, args[1]) then
 
         if (args[2] == 'help') then
@@ -17,18 +15,23 @@ function command:run(id, args)
             admin:send('You have nothing to confirm.')
         else
 
-            local level = admin.confirm.level
-            self.commands[level] = nil
+            local confirmation = admin.confirm
+            if (confirmation.level) then
+                local level = confirmation.level
+                self.commands[level] = nil
+                admin:send('Level (' .. level .. ') has been deleted.')
+                self:updateCommands()
+                self:log(admin.name .. ' (' .. admin.ip .. ')  deleted level ' .. level .. ' from (' .. self.files[2] .. ')', self.logging.management)
+            elseif (confirmation.hash_ban) then
+                local offender = confirmation.hash_ban[1]
+                local parsed = confirmation.hash_ban[2]
+                local output = confirmation.output
+                admin:hashBanProceed(offender, parsed, output)
+            end
 
             admin.confirm = nil
-            admin:send('Level (' .. level .. ') has been deleted.')
-
-            self:updateCommands()
-            self:log(admin.name .. ' (' .. admin.ip .. ')  deleted level ' .. level .. ' from (' .. self.directories[2] .. ')', self.logging.management)
         end
     end
-
-    return false
 end
 
 return command

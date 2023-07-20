@@ -1,176 +1,248 @@
-This plugin replaces SAPP's built-in admin system and adds a few new features:
+This plugin is a drop-in replacement for SAPP's built-in admin system and adds new features:
 
-- Add as many admin levels as you want.
-- Configure each admin level to have access to any command you want.
-- Add admins by IP, Hash or Username & Password.
+> <ins>**Custom admins levels:**
+
+- You can add as many admin levels as you want (currently configured to have 6 levels).
+- Configure each level to have access to any command you want.
+- Admin levels follow a hierarchy system. If you add an admin by IP and Hash, the admin level will be the highest of the
+  two.
+- Players will inherit commands from the admin levels below their own.
+
+---
+> <ins>**Authentication:**
+
+- Add admins by <ins>IP</ins>, <ins>Hash</ins> or <ins>Username & Password</ins>.
 - Passwords and usernames are case-sensitive but may contain spaces.
-- You can add/remove admins and commands manually by editing the relevant files (commands.json/admins.json) or with
-  handy commands.
-- Custom ban commands, including the ability to ban by IP, Hash or both.
-- Mute commands, including the ability to mute by IP, Hash or both.
-- Name ban command (ban desirable usernames).
+- Passwords are hashed with SHA-256.
 
-Admin levels follow a hierarchy system. For example, if you add an admin by IP and Hash, the admin level will be the
-highest of the two. Furthermore, a player will inherit all commands from the admin levels below their own.
+---
+> <ins>**Custom Ban Commands:**
 
-## <ins>Management Commands:
+- IP-ban, hash-ban, text-ban and name-ban.
+- You can text-ban by IP or Hash.
+- You can name-ban by ID or name.
 
-| Command                                                                                                               | Description                                      | Permission Level |
-|-----------------------------------------------------------------------------------------------------------------------|--------------------------------------------------|------------------|
-| **hash_admin_add** `<player id>` `<level>`                                                                            | Add player as a hash-admin                       | **6**            |
-| **hash_admin_del** `<player id>`                                                                                      | Remove player as a hash-admin                    | **6**            |
-| **hash_admin_list**                                                                                                   | List all hash-admins                             | **6**            |
-| **ip_admin_add** `<player id>` `<level>`                                                                              | Add player as an ip-admin                        | **6**            | 
-| **ip_admin_del** `<player id>`                                                                                        | Remove player as an ip-admin                     | **6**            |
-| **ip_admin_list**                                                                                                     | List all ip-admins                               | **6**            |
-| **pw_admin_add** `<player id>` `<level> <password>`                                                                   | Add player as a password-admin                   | **6**            |
-| **pw_admin_del** `<player id>`                                                                                        | Remove player as a password-admin                | **6**            |
-| **pw_admin_list**                                                                                                     | List all password-admins                         | **6**            |
-| **l** `<password>`                                                                                                    | Login with a password (username is your IGN)     | **6**            |
-| **lo**                                                                                                                | Logout of the server                             | **6**            |
-| **change_level** `<player id>` `<type (hash/ip/password)>`                                                            | Change player admin level                        | **6**            |
-| **level_add** `<level>`                                                                                               | Add an admin level                               | **6**            |
-| **level_delete** `<level>`                                                                                            | Delete an admin level (requires confirmation)    | **6**            |
-| **confirm**                                                                                                           | Confirm level delete                             | **6**            |
-| **set_command** `<command>` `<level>` `(opt 3rd arg: "true" to enable, "false" to disable)`                           | Add or set a new/existing command to a new level | **6**            |
-| **disable_command** `<command>`                                                                                       | Disables a command                               | **6**            |
-| **enable_command** `<command>`                                                                                        | Enables a command                                | **6**            |
-| **<ins>WORK IN PROGRESS<ins/>**<br/><br/>**hash_ban** `<player id>` `<flag (-y -mo -d -h -m -s -r "example reason")>` | Ban a player by hash                             | **6**            |
-| **<ins>WORK IN PROGRESS<ins/>**<br/><br/>**hash_bans**                                                                | List all hash-bans                               | **6**            |
-| **<ins>WORK IN PROGRESS<ins/>**<br/><br/>**hash_unban** `<ban id>`                                                    | Unban a player's hash                            | **6**            |
-| **<ins>WORK IN PROGRESS<ins/>**<br/><br/>**ip_ban** `<player id>` `<flag (-y -mo -d -h -m -s -r "example reason")>`   | Ban a player by IP                               | **6**            |
-| **<ins>WORK IN PROGRESS<ins/>**<br/><br/>**ip_bans**                                                                  | List all IP-bans                                 | **6**            |
-| **<ins>WORK IN PROGRESS<ins/>**<br/><br/>**ip_unban** `<ban id>`                                                      | Unban a player's IP                              | **6**            |
-| **<ins>WORK IN PROGRESS<ins/>**<br/><br/>**silence** `<player id>` `<flag (-y -mo -d -h -m -s -r "example reason")>`  | Silence a player                                 | **6**            |
-| **<ins>WORK IN PROGRESS<ins/>**<br/><br/>**silence_list**                                                             | List all silenced players                        | **6**            |
-| **<ins>WORK IN PROGRESS<ins/>**<br/><br/>**unsilence** `<player id>`                                                  | Unsilence a player                               | **6**            |
+---
+> <ins>**Command Spy:**
 
-Each management command above has a permission level.
+- Those with permission will see commands executed by other players.
+- You can only see commands executed by players with a lower or equal admin level than your own.
 
-The permission level is the minimum admin level required to use the command.
-This can be edited inside the *./Admin Manager/commands/<command>* directory.
+---
+> <ins>**VIP messages:**
 
-Additionally, each command has a `help` argument - this will display the command's usage and description. For
-example: `hash_admin_add help`
+- Customizable join messages for each admin level.
+
+---
+> <ins>**Admin Chat:**
+
+- Chat with other admins in a private text channel.
+- You can only see messages from admins with a lower or equal admin level than your own.
+
+---
+> <ins>**Alias System:**
+
+- Lookup aliases by IP or Hash.
+
+---
+
+## <ins>Admin Manager Commands:
+
+| Command                                                                                     | Description                                                         | Permission Level |
+|---------------------------------------------------------------------------------------------|---------------------------------------------------------------------|------------------|
+| **login** `<password>`                                                                      | Login with a password (username is your IGN)                        | **1**            |
+| **logout**                                                                                  | Logout of the server                                                | **1**            |
+| **admin_chat** `<1/0 (on/off)>`                                                             | Toggle admin chat on or off for yourself                            | **2**            |
+| **change_password** `<old password>` `<"new password">`                                     | Change your own password                                            | **2**            |
+| **ip_mute** `<player id>` `<flag (-y -mo -d -h -m -s -r "example reason")>`                 | Mute a player by IP                                                 | **3**            |
+| **ip_mutes** `<page>`                                                                       | List all muted players by IP                                        | **3**            |
+| **ip_unmute** `<ban id>`                                                                    | Unmute a player's IP                                                | **3**            |
+| **hash_mute** `<player id>` `<flag (-y -mo -d -h -m -s -r "example reason")>`               | Mute a player by hash                                               | **3**            |
+| **hash_mutes** `<page>`                                                                     | List all muted players by hash                                      | **3**            |
+| **hash_unmute** `<ban id>`                                                                  | Unmute a player's hash                                              | **3**            |
+| **spy** `<1/0 (on/off)>`                                                                    | Toggle command spy on or off for yourself                           | **3**            |
+| **ip_alias** `<player/ip>` `<page>`                                                         | Lookup aliases by player id or ip                                   | **4**            |
+| **hash_alias** `<player/hash>` `<page>`                                                     | Lookup aliases by player id or hash                                 | **4**            |
+| **ip_ban** `<player id>` `<flag (-y -mo -d -h -m -s -r "example reason")>`                  | Ban a player by IP                                                  | **4**            |
+| **ip_bans** `<page>`                                                                        | List all IP-bans                                                    | **4**            |
+| **ip_unban** `<ban id>`                                                                     | Unban a player's IP                                                 | **4**            |
+| **hash_admin_add** `<player id>` `<level>`                                                  | Add player as a hash-admin                                          | **5**            |
+| **hash_admin_delete** `<player id>`                                                         | Remove player as a hash-admin                                       | **5**            |
+| **hash_admins** `<page>`                                                                    | List all hash-admins                                                | **5**            |
+| **ip_admin_add** `<player id>` `<level>`                                                    | Add player as an ip-admin                                           | **5**            | 
+| **ip_admin_delete** `<player id>`                                                           | Remove player as an ip-admin                                        | **5**            |
+| **ip_admins** `<page>`                                                                      | List all ip-admins                                                  | **5**            |
+| **hash_ban** `<player id>` `<flag (-y -mo -d -h -m -s -r "example reason")>`                | Ban a player by hash (requires confirmation if the hash is pirated) | **5**            |
+| **hash_bans** `<page>`                                                                      | List all hash-bans                                                  | **5**            |
+| **hash_unban** `<ban id>`                                                                   | Unban a player's hash                                               | **5**            |
+| **name_ban** `<player id or name>`                                                          | Ban a players name by ID or name                                    | **5**            |
+| **name_bans** `<page>`                                                                      | List all name bans                                                  | **5**            |
+| **name_unban** `<ban id>`                                                                   | Unban a name                                                        | **5**            |
+| **pw_admin_add** `<player id>` `<level> <"password">`                                       | Add player as a password-admin                                      | **5**            |
+| **pw_admin_delete** `<player id>`                                                           | Remove player as a password-admin                                   | **5**            |
+| **confirm**                                                                                 | Confirm level delete                                                | **5**            |
+| **pw_admins** `<page>`                                                                      | List all password-admins                                            | **5**            |
+| **change_level** `<player id>` `<type (hash/ip/password)>`                                  | Change player admin level                                           | **6**            |
+| **change_admin_password** `<player id>` `<"new password">`                                  | Change another player's password                                    | **6**            |
+| **level_add** `<level>`                                                                     | Add an admin level                                                  | **6**            |
+| **level_delete** `<level>`                                                                  | Delete an admin level (requires confirmation)                       | **6**            |
+| **set_command** `<command>` `<level>` `(opt 3rd arg: "true" to enable, "false" to disable)` | Add or set a new/existing command to a new level                    | **6**            |
+| **disable_command** `<command>`                                                             | Disables a command                                                  | **6**            |
+| **enable_command** `<command>`                                                              | Enables a command                                                   | **6**            |
 
 ### <ins>Getting started:
 
-Before you can add members of your clan/community as admins, you must first add yourself as an admin.
-This can be done by joining the server and executing one of the admin-add commands from the server console.
-Once you're an admin, you can add other admins in-game using the desired admin-add command.
+Before you can add members of your clan/community as admins, you must first add yourself as an admin.<br>
+Access to the server terminal is required to do this (one-time only).<br>
+This can be done by following this procedure:
 
-### <ins>Password encryption:
+- Join the server.
+- Execute one of the admin-add commands (*hash_admin_add*, *ip_admin_add*, *pw_admin_add*) from the server console.<br>
 
-> Passwords are encrypted using the SHA256 algorithm.
+Examples:
 
-### <ins>Admin database:
+- `/hash_admin_add` `1` `6`
+    - This will add player 1 as a hash-admin with admin level 6.<br><br>
 
-> The admin database is stored in the `admins.json` file. This file is created automatically when the plugin is loaded.
-> The file is located in the `./Admin Manager` folder.
+- `/ip_admin_add` `1` `6`
+    - This will add player 1 as an ip-admin with admin level 6.<br><br>
+
+- `/pw_admin_add` `1` `6` `my_password`
+    - This will add player 1 as a password-admin with admin level 6 and the password "my_password".
+
+---
+
+### <ins>Databases:
+
+Admin Manager automatically creates a few files when the plugin is loaded.<br>
+The files are used to store the admin database, bans, commands and aliases (all in JSON format).<br>
+These files will be located in the *sapp* folder (the same directory as the Lua folder):
+
+- **admins.json**
+    - Can be edited manually, but it's recommended to use the plugin commands to manage admins.
+- **commands.json**
+    - Intended to be edited manually, but you can use the plugin commands to manage this.
+- **bans.json**
+    - Do not edit this file. Use the plugin commands to manage bans.
+- **aliases.json**
+    - Do not edit this file. Use the plugin commands to manage aliases.
+- **logs.json**
+    - Do not edit this file. This is used to store verbose logs about admin activity.
+
+---
 
 ### <ins>Banning:
 
-> Bans are stored in the `bans.json` file. This file is created automatically when the plugin is loaded.
+- Ban by: IP, Hash or Text.<br>
+    - You can ban for a specific amount of time or permanently.
+    - To ban for a specific amount of time, use the following flags:
+        - `-y` `<number>` - Years
+        - `-mo` `<number>` - Months
+        - `-d` `<number>` - Days
+        - `-h` `<number>` - Hours
+        - `-m` `<number>` - Minutes
+        - `-s` `<number>` - Seconds
 
-You can optionally ban by:
+Ban command examples:
 
-- IP, Hash or both.
-- Time (years, months, days, hours, minutes, seconds).
+- `/hash_ban` `1` `-y 1` `-mo 6` `-r "caught cheating"`
+    - This will ban player 1 by hash for 1 year, 6 months with the reason "caught cheating".<br><br>
 
-<ins>Ban command examples:
+- `/hash_ban` `1`
+    - This will ban player 1 by hash permanently.<br><br>
+
+- `/ip_ban` `1` `-h 1` `-m 30` `-r "caught cheating"`
+    - This will ban player 1 by IP for 1 hour, 30 minutes with the reason "caught cheating".<br><br>
+
+- `/ip_ban` `1`
+    - This will ban player 1 by IP permanently.<br><br>
+
+- `/name_ban` `1` `-r "explicit name"`
+    - This will blacklist player 1's name with the reason "explicit name".<br><br>
+
+- `/name_ban` `penis`
+    - This will blacklist the name "penis".<br><br>
+
+- `/ip_mute` `1` `-m 10` `-r "spamming"`
+    - This will text-ban player 1 by IP for 10 minutes with reason "spamming".<br><br>
+
+- `/hash_mute` `1` `-d 5` `-r "constant swearing"`
+    - This will text-ban player 1 by hash for 5 days with reason "spamming".
+
+**TIP:**<br>
+The order of the flags <ins>doesn't matter</ins>, but the player id <ins>must</ins> be the first argument.<br>
+
+**Pirated Hashes:**<br>
+> Shared CD Key hashes are detected automatically.<br>
+> If a player has a shared CD Key hash, the admin will be informed<br>
+> and will have to confirm the ban by typing */confirm*.<br>
+> Otherwise, the action will time out after 10 seconds.
+
 ---
-/hash_ban `1` `-y 1` `-mo 6` `-d 5` `-h 2` `-m 25` `-s 10` `-r "example reason"`
-> Bans a player by hash for 1 year, 6 months, 5 days, 2 hours, 25 minutes and 10 seconds.
----
-
-- /ip_ban `1` `-h 1`
-
-> Bans a player by IP for 1 hour.
-
-The order of the flags doesn't matter, but the player id must be the first argument.
-
-### <ins>Logging:
-
-> Admin commands are logged in the `logs.json` file. This file is created automatically when the plugin is loaded.
-> You can optionally log management commands and/or default commands.
 
 ## <ins>Default Command Permissions:
+
+The default command permission levels are as follows:
+
+- 1: Public
+- 2: Moderator
+- 3: Admin
+- 4: Senior Admin
+- 5: Head Admin
+- 6: Owner
+
+Add your own custom levels in the `commands.json` file, or edit the existing ones.<br>
+You can also add or remove levels using the `level_add` and `level_delete` commands.<br>
+There is no limit to the number of levels you can add. Just make sure there is at least one level with the `1` key.<br>
+
+If a command's value is set to `true`, then the command is enabled for that permission level.<br>
+
+You can define custom commands in this file, and it will manage the required permission level for those commands.<br>
 
 ```json
 {
   "1": {
-    "about": true,
     "clead": true,
     "info": true,
     "lead": true,
-    "list": true,
     "login": true,
-    "report": true,
+    "logout": true,
     "stats": true,
     "stfu": true,
     "sv_stats": true,
     "unstfu": true,
-    "usage": true,
     "whatsnext": true
   },
   "2": {
-    "adminadd": true,
-    "admindel": true,
-    "afk": true,
-    "change_password": true,
     "kdr": true,
     "mapcycle": true,
-    "uptime": true
+    "pl": true,
+    "say": true
   },
   "3": {
+    "afk": true,
+    "afks": true,
     "aimbot_scores": true,
+    "k": true,
     "skips": true
   },
   "4": {
-    "afks": true,
     "balance_teams": true,
-    "k": true,
-    "mute": true,
-    "mutes": true,
-    "pl": true,
-    "say": true,
-    "st": true,
-    "teamup": true,
-    "tell": true,
-    "textban": true,
-    "textbans": true,
-    "textunban": true,
-    "unmute": true
-  },
-  "5": {
-    "b": true,
-    "bans": true,
     "inf": true,
     "ip": true,
-    "ipban": true,
-    "ipbans": true,
-    "ipunban": true,
+    "st": true,
+    "tell": true,
+    "uptime": true
+  },
+  "5": {
     "map": true,
-    "maplist": true,
-    "refresh_ipbans": true,
-    "ub": true
+    "maplist": true
   },
   "6": {
-    "admin_add": true,
-    "admin_add_manually": true,
-    "admin_change_level": true,
-    "admin_change_pw": true,
-    "admin_del": true,
-    "admin_list": true,
+    "about": true,
     "admin_prefix": true,
-    "adminadd_samelevel": true,
-    "adminban": true,
-    "admindel_samelevel": true,
-    "adminlevel": true,
-    "admins": true,
     "afk_kick": true,
     "aimbot_ban": true,
-    "alias": true,
     "ammo": true,
     "anticamp": true,
     "anticaps": true,
@@ -202,7 +274,6 @@ The order of the flags doesn't matter, but the player id must be the first argum
     "cmd_del": true,
     "cmdstart1": true,
     "cmdstart2": true,
-    "collect_aliases": true,
     "color": true,
     "console_input": true,
     "coord": true,
@@ -222,14 +293,11 @@ The order of the flags doesn't matter, but the player id must be the first argum
     "eventdel": true,
     "events": true,
     "files": true,
-    "full_ipban": true,
     "gamespeed": true,
     "god": true,
     "gravity": true,
-    "hide_admin": true,
     "hill_timer": true,
     "hp": true,
-    "iprangeban": true,
     "kill": true,
     "kills": true,
     "lag": true,
@@ -283,6 +351,7 @@ The order of the flags doesn't matter, but the player id must be the first argum
     "remote_console": true,
     "remote_console_list": true,
     "remote_console_port": true,
+    "report": true,
     "rprint": true,
     "s": true,
     "sapp_console": true,
@@ -295,7 +364,6 @@ The order of the flags doesn't matter, but the player id must be the first argum
     "scorelimit": true,
     "scrim_mode": true,
     "set_ccolor": true,
-    "setadmin": true,
     "setcmd": true,
     "sh": true,
     "sj_level": true,
@@ -303,6 +371,7 @@ The order of the flags doesn't matter, but the player id must be the first argum
     "spawn_protection": true,
     "t": true,
     "team_score": true,
+    "teamup": true,
     "text": true,
     "timelimit": true,
     "tp": true,
@@ -310,6 +379,7 @@ The order of the flags doesn't matter, but the player id must be the first argum
     "ungod": true,
     "unlag": true,
     "unlock_console_log": true,
+    "usage": true,
     "v": true,
     "var_add": true,
     "var_conv": true,
@@ -329,10 +399,13 @@ The order of the flags doesn't matter, but the player id must be the first argum
 }
 ```
 
+---
+
 ### ⚠️ WARNING ⚠️
 
-> For this system to work, all players are given SAPP level 4.
-> In the rare event that this plugin crashes, all players will have unrestricted access to SAPP's commands.
+> For this system to work, all players are given SAPP level 4.<br>
+> In the rare event that this plugin crashes, all players will have unrestricted access to SAPP's commands.<br>
+> **There are currently no known bugs or crashes with this plugin. Just something to note.**
 
 # INSTALLATION:
 
@@ -344,7 +417,7 @@ The release zip contains:
 Note: You will need a file decompression tool like [WinRAR](https://www.win-rar.com/start.html?&L=0)
 or [7-zip](https://www.7-zip.org/download.html) to extract the **Admin.Manager.zip** file (download at bottom of page).
 
-Place the **Admin Manager.lua** script in the servers *Lua folder*.
+Place the **Admin Manager.lua** script in the server *Lua folder*.
 The **Admin Manager** folder MUST go in the server's root directory (the same location as *sapp.dll* & *strings.dll*).
 
 ### CONFIGURATION:

@@ -1,8 +1,8 @@
 local command = {
-    name = 'ip_bans',
-    description = 'Command ($cmd) | List all IP-bans.',
+    name = 'hash_mutes',
+    description = 'Command ($cmd) | List all text-ban mutes by hash.',
     help = 'Syntax: /$cmd> <page>',
-    header = '[IP-Bans] (Page: %s/%s)', -- page (current, total)
+    header = '[Text-Bans (hash)] (Page: %s/%s)', -- page (current, total)
     output = '[$id] $offender [$years/$months/$days-$hours:$minutes:$seconds] [Pirated: $pirated]'
 }
 
@@ -15,13 +15,13 @@ function command:run(id, args)
         end
 
         local page = tonumber(args[2]) or 1
-        local ip_bans = self.bans['ip']
-        local results = self:showBanList(ip_bans, page, 5, admin)
+        local hash_mutes = self.bans['mute']['hash']
+        local results = self:showBanList(hash_mutes, page, 5, admin)
 
         if (not results) then
-            admin:send('There are no ip-bans.')
+            admin:send('There are no text-bans by Hash.')
         end
-        self:log(admin.name .. ' viewed the ip-ban list.', self.logging.management)
+        self:log(admin.name .. ' viewed the text-ban list by hash.', self.logging.management)
     end
 end
 

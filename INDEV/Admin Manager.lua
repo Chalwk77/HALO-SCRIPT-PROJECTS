@@ -18,7 +18,9 @@ local AdminManager = {
     dependencies = {
         ['./Admin Manager/'] = { 'settings' },
         ['./Admin Manager/events/'] = {
+            'on_chat',
             'on_command',
+            'on_end',
             'on_join',
             'on_quit',
             'on_start',
@@ -34,16 +36,28 @@ local AdminManager = {
 
 function AdminManager:loadDependencies()
 
+    local dir = read_string(read_dword(sig_scan('68??????008D54245468') + 0x1))
+    self.root_directory = dir .. '\\sapp\\'
+
     local s = self
     for path, t in pairs(self.dependencies) do
         for _, file in pairs(t) do
-            local f = loadfile(path .. file .. '.lua')()
-            setmetatable(s, { __index = f })
-            s = f
+
+            local success, error = pcall(function()
+                local f = loadfile(path .. file .. '.lua')()
+                setmetatable(s, { __index = f })
+                s = f
+            end)
+
+            if (not success) then
+                print('Error loading ' .. path .. file .. '.lua')
+                print(error)
+            end
         end
     end
 
     self:loadBans()
+    self:loadAliases()
     self:setDefaultCommands()
     self:setManagementCMDS()
     self:setAdmins()
@@ -56,6 +70,10 @@ end
 
 function OnStart()
     AdminManager:onStart()
+end
+
+function OnEnd()
+    AdminManager:onEnd()
 end
 
 function OnTick()
@@ -72,6 +90,10 @@ end
 
 function OnCommand(...)
     return AdminManager:onCommand(...)
+end
+
+function OnChat(...)
+    return AdminManager:onChat(...)
 end
 
 function OnScriptUnload()

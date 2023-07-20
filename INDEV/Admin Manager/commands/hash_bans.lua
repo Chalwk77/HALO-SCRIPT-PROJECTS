@@ -1,32 +1,28 @@
 local command = {
     name = 'hash_bans',
     description = 'Command ($cmd) | List all hash-bans.',
-    permission_level = 6,
-    help = 'Syntax: /$cmd>',
-    output = '[$id] [$offender] [Expires: $years/$months/$days - $hours:$minutes:$seconds]'
+    help = 'Syntax: /$cmd> <page>',
+    header = '[Hash-Bans] (Page: %s/%s)', -- page (current, total)
+    output = '[$id] $offender [$years/$months/$days-$hours:$minutes:$seconds] [Pirated: $pirated]'
 }
 
 function command:run(id, args)
-
     local admin = self.players[id]
     if admin:hasPermission(self.permission_level, args[1]) then
-        local header = true
-        for _, ban in pairs(self.bans['hash']) do
-            if (header) then
-                header = false
-                admin:send('[Hash-Bans]')
-            end
-            local stdout = self:banViewFormat(ban.id, ban.offender, ban.time)
-            admin:send(stdout)
+
+        if (args[2] == 'help') then
+            return false, admin:send(self.description)
         end
 
-        if (header) then
+        local page = tonumber(args[2]) or 1
+        local hash_bans = self.bans['hash']
+        local results = self:showBanList(hash_bans, page, 5, admin)
+
+        if (not results) then
             admin:send('There are no hash-bans.')
         end
         self:log(admin.name .. ' viewed the hash-ban list.', self.logging.management)
     end
-
-    return false
 end
 
 return command

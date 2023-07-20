@@ -1,7 +1,6 @@
 local command = {
     name = 'level_delete',
     description = 'Command ($cmd) | Deletes an admin level (requires confirmation).',
-    permission_level = 6,
     help = 'Syntax: /$cmd <level>'
 }
 
@@ -22,13 +21,11 @@ function command:run(id, args)
             admin:send('Are you sure you want to delete level ' .. level .. '?')
             admin:send('Type /confirm to confirm.')
             admin.confirm = {
-                delay = time() + self.confirmation_timeout,
+                timeout = time() + self.confirmation_timeout,
                 level = level
             }
         end
     end
-
-    return false
 end
 
 return command

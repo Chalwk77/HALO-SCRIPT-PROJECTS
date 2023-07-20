@@ -1,10 +1,11 @@
 local command = {
     name = 'hash_ban',
     description = 'Flags: -y -mo -d -h -m -s -r "example reason"',
-    permission_level = 6,
     help = 'Syntax: /$cmd <player> <flags> | Type ($cmd help) for more information.',
-    output = '$admin hash-banned $offender until [$years/$months/$days - $hours:$minutes:$seconds] for reason: $reason',
+    output = '$admin hash-banned $offender until [$years/$months/$days - $hours:$minutes:$seconds] for reason: $reason'
 }
+
+local time = os.time
 
 function command:run(id, args)
 
@@ -25,24 +26,24 @@ function command:run(id, args)
             if (parsed) then
 
                 offender = self.players[offender]
-
-                local reason = parsed.reason or 'No reason given.'
-                local name = offender.name
-
-                local expiration = self:generateExpiration(parsed)
-
-                offender:hashBan(reason, expiration, admin)
-                local stdout = self:banSTDOUT(admin.name, name, reason, expiration)
-
-                admin:send(stdout)
-                self:log(stdout, self.logging.management)
+                local hash = offender.hash
+                if (self.known_pirated_hashes[hash]) then
+                    admin:send('[WARNING] ' .. offender.name .. ' is using a pirated copy of Halo.')
+                    admin:send('Banning this hash will ban all other players using the same pirated copy.')
+                    admin:send('Type /confirm to confirm.')
+                    admin.confirm = {
+                        output = self.output,
+                        hash_ban = {offender, parsed},
+                        timeout = time() + self.confirmation_timeout,
+                    }
+                    return false
+                end
+                self:hashBanProceed(offender, parsed, admin)
             else
                 admin:send(self.help)
             end
         end
     end
-
-    return false
 end
 
 return command

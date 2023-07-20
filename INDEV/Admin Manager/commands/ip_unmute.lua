@@ -1,8 +1,8 @@
 local command = {
-    name = 'ip_unban',
-    description = 'Command ($cmd) | Unban a player\'s IP.',
+    name = 'ip_unmute',
+    description = 'Command ($cmd) | Unmute a player by IP',
     help = 'Syntax: /$cmd <ban id>',
-    output = '(%s) (%s) unbanned.',
+    output = '(%s) (%s) unmuted.',
 }
 
 function command:run(id, args)
@@ -17,13 +17,14 @@ function command:run(id, args)
             admin:send(self.help)
         else
 
-            local ip_bans = self.bans['ip']
-            local entry = admin:getBanEntryByID(ip_bans, ban_id)
+            local ip_mutes = self.bans['mute']['ip']
+            local entry = admin:getBanEntryByID(ip_mutes, ban_id)
             if (entry) then
                 self:unban({
                     admin = admin,
-                    parent = 'ip',
-                    child = entry
+                    parent = 'mute',
+                    child = 'ip',
+                    sub = entry,
                 })
             end
         end

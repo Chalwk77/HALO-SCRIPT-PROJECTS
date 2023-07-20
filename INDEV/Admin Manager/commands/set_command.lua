@@ -1,8 +1,7 @@
 local command = {
     name = 'set_command',
     description = 'Command (set_command) | Add or set a new/existing command to a new level.',
-    permission_level = 6,
-    help = 'Syntax: /$cmd <command> <level> (opt 3rd arg: "true" to enable, "false" to disable)'
+    help = 'Syntax: /$cmd <command> <level> (opt 3rd arg: "true" to enable, "false" to disable)',
 }
 
 function command:run(id, args)
@@ -38,8 +37,6 @@ function command:run(id, args)
             self:log(admin.name .. ' (' .. admin.ip .. ') set command (' .. target_command .. ') to level (' .. level .. '). Enabled: ' .. tostring(enable), self.logging.management)
         end
     end
-
-    return false
 end
 
 return command
