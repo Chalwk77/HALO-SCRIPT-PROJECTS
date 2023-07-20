@@ -55,17 +55,17 @@ This plugin is a drop-in replacement for SAPP's built-in admin system and adds n
 | **admin_chat** `<1/0 (on/off)>`                                                             | Toggle admin chat on or off for yourself                            | **2**            |
 | **change_password** `<old password>` `<"new password">`                                     | Change your own password                                            | **2**            |
 | **ip_mute** `<player id>` `<flag (-y -mo -d -h -m -s -r "example reason")>`                 | Mute a player by IP                                                 | **3**            |
-| **ip_mutes** `<page>`                                                                       | List all muted players by IP                                        | **3**            |
 | **ip_unmute** `<ban id>`                                                                    | Unmute a player's IP                                                | **3**            |
+| **ip_mutes** `<page>`                                                                       | List all muted players by IP                                        | **3**            |
 | **hash_mute** `<player id>` `<flag (-y -mo -d -h -m -s -r "example reason")>`               | Mute a player by hash                                               | **3**            |
-| **hash_mutes** `<page>`                                                                     | List all muted players by hash                                      | **3**            |
 | **hash_unmute** `<ban id>`                                                                  | Unmute a player's hash                                              | **3**            |
+| **hash_mutes** `<page>`                                                                     | List all muted players by hash                                      | **3**            |
 | **spy** `<1/0 (on/off)>`                                                                    | Toggle command spy on or off for yourself                           | **3**            |
 | **ip_alias** `<player/ip>` `<page>`                                                         | Lookup aliases by player id or ip                                   | **4**            |
 | **hash_alias** `<player/hash>` `<page>`                                                     | Lookup aliases by player id or hash                                 | **4**            |
 | **ip_ban** `<player id>` `<flag (-y -mo -d -h -m -s -r "example reason")>`                  | Ban a player by IP                                                  | **4**            |
-| **ip_bans** `<page>`                                                                        | List all IP-bans                                                    | **4**            |
 | **ip_unban** `<ban id>`                                                                     | Unban a player's IP                                                 | **4**            |
+| **ip_bans** `<page>`                                                                        | List all IP-bans                                                    | **4**            |
 | **hash_admin_add** `<player id>` `<level>`                                                  | Add player as a hash-admin                                          | **5**            |
 | **hash_admin_delete** `<player id>`                                                         | Remove player as a hash-admin                                       | **5**            |
 | **hash_admins** `<page>`                                                                    | List all hash-admins                                                | **5**            |
@@ -73,22 +73,22 @@ This plugin is a drop-in replacement for SAPP's built-in admin system and adds n
 | **ip_admin_delete** `<player id>`                                                           | Remove player as an ip-admin                                        | **5**            |
 | **ip_admins** `<page>`                                                                      | List all ip-admins                                                  | **5**            |
 | **hash_ban** `<player id>` `<flag (-y -mo -d -h -m -s -r "example reason")>`                | Ban a player by hash (requires confirmation if the hash is pirated) | **5**            |
-| **hash_bans** `<page>`                                                                      | List all hash-bans                                                  | **5**            |
 | **hash_unban** `<ban id>`                                                                   | Unban a player's hash                                               | **5**            |
+| **hash_bans** `<page>`                                                                      | List all hash-bans                                                  | **5**            |
 | **name_ban** `<player id or name>`                                                          | Ban a players name by ID or name                                    | **5**            |
-| **name_bans** `<page>`                                                                      | List all name bans                                                  | **5**            |
 | **name_unban** `<ban id>`                                                                   | Unban a name                                                        | **5**            |
+| **name_bans** `<page>`                                                                      | List all name bans                                                  | **5**            |
 | **pw_admin_add** `<player id>` `<level> <"password">`                                       | Add player as a password-admin                                      | **5**            |
 | **pw_admin_delete** `<player id>`                                                           | Remove player as a password-admin                                   | **5**            |
-| **confirm**                                                                                 | Confirm level delete                                                | **5**            |
 | **pw_admins** `<page>`                                                                      | List all password-admins                                            | **5**            |
+| **confirm**                                                                                 | Confirm level delete                                                | **5**            |
 | **change_level** `<player id>` `<type (hash/ip/password)>`                                  | Change player admin level                                           | **6**            |
 | **change_admin_password** `<player id>` `<"new password">`                                  | Change another player's password                                    | **6**            |
 | **level_add** `<level>`                                                                     | Add an admin level                                                  | **6**            |
 | **level_delete** `<level>`                                                                  | Delete an admin level (requires confirmation)                       | **6**            |
-| **set_command** `<command>` `<level>` `(opt 3rd arg: "true" to enable, "false" to disable)` | Add or set a new/existing command to a new level                    | **6**            |
 | **disable_command** `<command>`                                                             | Disables a command                                                  | **6**            |
 | **enable_command** `<command>`                                                              | Enables a command                                                   | **6**            |
+| **set_command** `<command>` `<level>` `(opt 3rd arg: "true" to enable, "false" to disable)` | Add or set a new/existing command to a new level                    | **6**            |
 
 ### <ins>Getting started:
 
