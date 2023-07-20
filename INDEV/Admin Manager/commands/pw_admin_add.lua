@@ -32,7 +32,8 @@ function command:run(id, args)
                 target = self.players[target]
                 local username = target.name
 
-                if (not admins.password_admins[username]) then
+                local admin_table = admins.password_admins[username]
+                if (not admin_table) then
 
                     local min = self.password_length_limit[1]
                     local max = self.password_length_limit[2]
@@ -55,7 +56,7 @@ function command:run(id, args)
                     admin:send('Added ' .. username .. ' to the password-admin list. Level (' .. level .. ').')
                     self:log(admin.name .. ' (' .. admin.ip .. ') added ' .. username .. ' to the password-admin list. Level (' .. level .. ')', self.logging.management)
                 else
-                    admin:send(username .. ' is already a password-admin (level ' .. admins.password_admins[username].level .. ')')
+                    admin:send(username .. ' is already a password-admin (level ' .. admin_table.level .. ')')
                 end
             end
         end

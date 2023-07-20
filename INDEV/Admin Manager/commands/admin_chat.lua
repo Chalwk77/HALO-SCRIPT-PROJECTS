@@ -1,6 +1,7 @@
 local command = {
     name = 'admin_chat',
     description = 'Command ($cmd) | Chat privately with other admins.',
+    output = '[A-CHAT] $name: $message',
     help = 'Syntax: /$cmd <1/0 (on/off)>'
 }
 
@@ -9,6 +10,8 @@ function command:run(id, args)
     local admin = self.players[id]
     local toggle = tonumber(args[2])
     local enabled = (toggle) and (toggle == 1 and true or false)
+
+    local allow, str = admin:checkLevel()
 
     if (id == 0) then
         admin:send('You cannot execute this command from console.')
@@ -19,10 +22,14 @@ function command:run(id, args)
         elseif (toggle == nil) or (toggle ~= 0 and toggle ~= 1) then
             admin:send(self.help)
             return
+        elseif (not allow) then
+            admin:send('Insufficient Permission.')
+            admin:send(str)
+            return
         else
             admin:send('Admin Chat: ' .. (enabled and 'Enabled' or 'Disabled'))
         end
-        admin.admin_chat = enabled
+        admin.a_chat = enabled
     end
 end
 

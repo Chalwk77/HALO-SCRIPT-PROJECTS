@@ -3,7 +3,7 @@ local command = {
     description = 'Command ($cmd) | View a player\'s aliases by hash.',
     help = 'Syntax: /$cmd <player/ip> <page>',
     header = 'Aliases for [%s]: Page %d/%d', -- type ip, page, total pages
-    output = '$name [$level]'
+    output = '$name  |  Level: [$level]'
 
     -- Valid placeholders for output: $name, $level, $date_joined, $last_activity
 }

@@ -21,6 +21,10 @@ function command:run(id, args)
             admin:send('Admin level (' .. level .. ') does not exist.')
         elseif not player_present(target) then
             admin:send('Player #' .. target .. ' is not present.')
+        elseif (level == 1) then
+            admin:send('You cannot change a player\'s admin level to 1.')
+        elseif (target == id) then
+            admin:send('You cannot change your own admin level.')
         else
 
             target = self.players[target]

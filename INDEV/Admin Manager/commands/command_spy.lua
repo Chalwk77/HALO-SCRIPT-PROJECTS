@@ -1,6 +1,7 @@
 local command = {
     name = 'spy',
     description = 'Command ($cmd) | Spy on player commands.',
+    output = '[SPY] $name: $message',
     help = 'Syntax: /$cmd <1/0 (on/off)>'
 }
 
@@ -10,6 +11,8 @@ function command:run(id, args)
     local toggle = tonumber(args[2])
     local enabled = (toggle) and (toggle == 1 and true or false)
 
+    local allow, str = admin:checkLevel()
+
     if (id == 0) then
         admin:send('You cannot execute this command from console.')
     elseif admin:hasPermission(self.permission_level, args[1]) then
@@ -18,6 +21,10 @@ function command:run(id, args)
             return
         elseif (toggle == nil) or (toggle ~= 0 and toggle ~= 1) then
             admin:send(self.help)
+            return
+        elseif (not allow) then
+            admin:send('Insufficient Permission.')
+            admin:send(str)
             return
         else
             admin:send('Command Spy: ' .. (enabled and 'Enabled' or 'Disabled'))

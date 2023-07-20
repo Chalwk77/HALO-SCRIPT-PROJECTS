@@ -100,10 +100,24 @@ return {
     -- You will only see commands from players with a lower or equal level to you.
     -- Format: [admin level] = true (or false)
     command_spy = {
-        enabled = true,
         [1] = false,
         [2] = false,
-        [3] = false,
+        [3] = true,
+        [4] = true,
+        [5] = true,
+        [6] = true
+    },
+
+
+    --- ADMIN CHAT:
+    --
+    -- When enabled, admins will be able to see admin-chat messages.
+    -- You will only see messages from players with a lower or equal level to you.
+    -- Format: [admin level] = true (or false)
+    admin_chat = {
+        [1] = false,
+        [2] = true,
+        [3] = true,
         [4] = true,
         [5] = true,
         [6] = true
@@ -125,9 +139,9 @@ return {
         },
         ['2'] = { -- level 2
             ['admin_chat'] = true,
-            ['command_spy'] = true,
         },
         ['3'] = { -- level 3
+            ['command_spy'] = true,
             ['ip_mute'] = true,
             ['ip_mutes'] = true,
             ['ip_unmute'] = true,
@@ -167,7 +181,7 @@ return {
             ['set_command'] = true,
             ['disable_command'] = true,
             ['enable_command'] = true,
-        },
+        }
     },
 
 

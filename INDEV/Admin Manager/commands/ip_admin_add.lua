@@ -26,7 +26,8 @@ function command:run(id, args)
             local name = target.name
             local ip = target.ip
 
-            if (not admins.ip_admins[ip]) then
+            local admin_table = admins.ip_admins[ip]
+            if (not admin_table) then
                 target.level = level
                 admins.ip_admins[ip] = {
                     level = level,
@@ -38,7 +39,7 @@ function command:run(id, args)
                 admin:send('Added ' .. name .. ' to the ip-admin list. Level (' .. level .. ').')
                 self:log(admin.name .. ' (' .. admin.ip .. ') added ' .. name .. ' (' .. ip .. ') to the ip-admin list. Level (' .. level .. ')', self.logging.management)
             else
-                admin:send(name .. ' is already an ip-admin (level ' .. admins.ip_admins[ip].level .. ')')
+                admin:send(name .. ' is already an ip-admin (level ' .. admin_table.level .. ')')
             end
         end
     end

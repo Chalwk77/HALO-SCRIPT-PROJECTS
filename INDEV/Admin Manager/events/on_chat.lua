@@ -1,16 +1,7 @@
 local event = {}
-local _pairs = pairs
 
 local function isChatCommand(s)
     return s:sub(1, 1) == '/' or s:sub(1, 1) == '\\'
-end
-
-local function adminChat(self, message)
-    for i, v in _pairs(self.players) do
-        if (i ~= 0 and v.level >= self.level) then
-            v:send('[A-CHAT] ' .. self.name .. ': ' .. message)
-        end
-    end
 end
 
 function event:onChat(id, message)
@@ -37,8 +28,8 @@ function event:onChat(id, message)
         end
 
         --- ADMIN CHAT:
-    elseif (player.admin_chat) then
-        adminChat(player, message)
+    elseif (player.a_chat) then
+        player:adminChat(message)
         return false
     end
 
