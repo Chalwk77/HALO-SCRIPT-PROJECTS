@@ -24,10 +24,6 @@ function command:run(id, args)
         elseif (not password or password == '') then
             admin:send('You must specify a password.')
         else
-            local target_index = tonumber(target)
-            local is_online = target_index and player_present(target_index)
-            local username = is_online and self.players[target_index].name or target
-
             local min = self.password_length_limit[1]
             local max = self.password_length_limit[2]
 
@@ -35,6 +31,10 @@ function command:run(id, args)
                 admin:send('Password must be ' .. min .. ' to ' .. max .. ' characters')
                 return
             end
+
+            local target_index = tonumber(target)
+            local is_online = target_index and player_present(target_index)
+            local username = is_online and self.players[target_index].name or target
 
             local admin_table = admins.password_admins[username]
             if (not admin_table) then
