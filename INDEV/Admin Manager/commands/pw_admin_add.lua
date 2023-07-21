@@ -22,9 +22,9 @@ function command:run(id, args)
         elseif (not self.commands[level]) then
             admin:send('Invalid level. Must be between 1 and ' .. #self.commands)
         else
-            local player_index = tonumber(target)
-            local is_online = player_index and player_present(player_index)
-            local username = is_online and self.players[id].name or target
+            local target_index = tonumber(target)
+            local is_online = target_index and player_present(target_index)
+            local username = is_online and self.players[target_index].name or target
 
             local password = concat(args, ' ', 4)
             if (not password or password == '') then
@@ -42,7 +42,7 @@ function command:run(id, args)
                     end
                     
                     if is_online then
-                        target = self.players[target]
+                        target = self.players[target_index]
                         target.level = level
                         target:setLevelVariable()
                         target.password_admin = true

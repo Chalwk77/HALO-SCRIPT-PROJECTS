@@ -228,7 +228,7 @@ return {
             ['textban'] = false,
             ['textbans'] = false,
             ['textunban'] = false,
-            ['unmute'] = false,
+            ['unmute'] = false
         },
 
         ['5'] = { -- level 5

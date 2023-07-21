@@ -20,9 +20,9 @@ function command:run(id, args)
             admin:send('Player #' .. target .. ' is not present.')
         else
 
-            local player_index = tonumber(target)
-            local is_online = player_index and player_present(player_index)
-            local name = is_online and self.players[id].name or target
+            local target_index = tonumber(target)
+            local is_online = target_index and player_present(target_index)
+            local name = is_online and self.players[target_index].name or target
             local admins = self.admins
 
             if (admins.password_admins[name]) then

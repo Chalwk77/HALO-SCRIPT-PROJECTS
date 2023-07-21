@@ -124,8 +124,9 @@ end
 
 local function convert(table)
     local t = {}
-    for _, v in _pairs(table) do
+    for k, v in _pairs(table) do
         t[#t + 1] = v
+        t[#t].id = k
     end
     return t
 end
@@ -182,7 +183,9 @@ function misc:showAdminList(type, page, number_to_show, admin)
 
     admin:send(self.header:format(page, total_pages))
     for _, v in pairs(results) do
-        admin:send(self.output:format(v.name, v.level))
+        admin:send(self.output:format(
+            type == "password_admins" and v.id or v.name, v.level
+        ))
     end
 
     return true
