@@ -8,14 +8,16 @@ local _pairs = pairs
 
 function misc:setManagementCMDS()
     local t, commands = {}, self.management_commands
-    for file, enabled in _pairs(commands) do
-        if (enabled) then
+    for level, v in pairs(commands) do
+        for file_name, enabled in _pairs(v) do
             local dir = self.commands_dir
-            local command = _require(dir .. file)
-            local cmd = command.name
-            t[cmd] = command
-            t[cmd].help = command.help:gsub('$cmd', cmd)
-            t[cmd].description = command.description:gsub('$cmd', cmd)
+            local command_table = _require(dir .. file_name)
+            local cmd = command_table.name
+            t[cmd] = command_table
+            t[cmd].enabled = enabled
+            t[cmd].permission_level = tonumber(level)
+            t[cmd].help = command_table.help:gsub('$cmd', cmd)
+            t[cmd].description = command_table.description:gsub('$cmd', cmd)
             _setmetatable(t[cmd], { __index = self })
         end
     end
@@ -23,7 +25,6 @@ function misc:setManagementCMDS()
 end
 
 function misc:hasPermission(level, command)
-    -- used by management commands
 
     local id = self.id
     local current_level = self.level
@@ -68,6 +69,68 @@ function misc:stringSplit(string)
     return t
 end
 
+function misc:adminChat(message)
+
+    local name = self.name
+    local their_level = self.level
+    local players = self.players
+    local levels = self.admin_chat
+
+    for i, v in pairs(players) do
+        local level = v.level
+        local console = (i == 0)
+        local enabled = v.a_chat
+        local show = (their_level >= level and levels[level])
+        if (enabled and not console and show) then
+            local output = self.management['admin_chat'].output
+            v:send(output:gsub('$name', name):gsub('$message', message))
+        end
+    end
+end
+
+function misc:commandSpy(msg)
+
+    local name = self.name
+    local their_level = self.level
+    local players = self.players
+    local levels = self.command_spy
+
+    for i, v in pairs(players) do
+        local level = v.level
+        local console = (i == 0)
+        local enabled = v.spy
+        local show = (their_level >= level and levels[level])
+        if (enabled and not console and show) then
+            local output = self.management['command_spy'].output
+            v:send(output:gsub('$name', name):gsub('$message', msg))
+        end
+    end
+end
+
+-- Used by admin chat and command spy:
+function misc:checkLevel()
+
+    local level = self.level
+    local levels = self.admin_chat
+
+    if (levels[level]) then
+        return true
+    end
+
+    local str = 'Required levels:'
+    for i = 1, #levels do
+        if (levels[i]) then
+            if (i == #levels) then
+                str = str .. ' and ' .. i .. '.'
+            else
+                str = str .. ' ' .. i .. ','
+            end
+        end
+    end
+
+    return false, str
+end
+
 function misc:findCommand(command)
     for level, commands in _pairs(self.commands) do
         if (commands[command] ~= nil) then
@@ -83,7 +146,7 @@ end
 
 function misc:kick(reason)
     self:send(reason)
-    execute_command('k ' .. self.id)
+    execute_command('sv_kick ' .. self.id)
 end
 
 function misc:vipMessages()
@@ -99,25 +162,6 @@ function misc:vipMessages()
     for i, v in pairs(self.players) do
         if (i ~= 0) then
             v:send(str)
-        end
-    end
-end
-
-function misc:commandSpy(command)
-
-    local level = self.level -- their level
-
-    local spy = self.command_spy
-    local show = spy[self.level]
-
-    if (self.id == 0 or not spy.enabled or not show) then
-        return
-    end
-
-    for i, v in _pairs(self.players) do
-        local case = (i ~= 0 and i ~= self.id)
-        if (case and v.spy and v.level >= level) then
-            v:send('[SPY] ' .. self.name .. ' (' .. command .. ')')
         end
     end
 end
@@ -147,10 +191,10 @@ function misc:getPageResults(bans, page, number_to_show)
     return results, total_pages
 end
 
-function misc:showBanList(type, page, number_to_show, admin)
+function misc:showBanList(bans, page, number_to_show, admin)
 
-    local bans = convert(self.bans[type])
-    local results, total_pages = self:getPageResults(bans, page, number_to_show)
+    local ban_table = convert(bans)
+    local results, total_pages = self:getPageResults(ban_table, page, number_to_show)
     if (not results or #results == 0) then
         return false
     end

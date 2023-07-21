@@ -1,44 +1,35 @@
-local event = {}
-local _pairs = pairs
+local event = {
+    overrides = {
+        'login',
+        'change_password'
+    }
+}
 
 local function isChatCommand(s)
     return s:sub(1, 1) == '/' or s:sub(1, 1) == '\\'
 end
 
-local function adminChat(self, message)
-    for i, v in _pairs(self.players) do
-        if (i ~= 0 and v.level >= self.level) then
-            v:send('[A-CHAT] ' .. self.name .. ': ' .. message)
-        end
-    end
-end
-
 function event:onChat(id, message)
 
     local player = self.players[id]
-    if (not player) then
-        return
+    if not player or player:isMuted() then
+        return false
     end
 
+    -- SAPP command overrides:
     local chat_command = isChatCommand(message)
-    local muted = player:isMuted()
-
-    --- PLAYER IS MUTED:
-    if (muted) then
-        return false
-
-        --- LOGIN COMMAND OVERRIDE:
-    elseif (chat_command) then
-
+    if (chat_command) then
         local args = self:stringSplit(message)
-        local login = self.management['login']
-        if (login and args[1]:sub(2) == 'login') then
-            return false, login:run(id, args)
+        for i = 1, #self.overrides do
+            local command = self.management[self.overrides[i]]
+            if (args[1]:sub(2) == self.overrides[i]) then
+                return false, command:run(id, args)
+            end
         end
 
         --- ADMIN CHAT:
-    elseif (player.admin_chat) then
-        adminChat(player, message)
+    elseif (player.a_chat) then
+        player:adminChat(message)
         return false
     end
 

@@ -1,7 +1,6 @@
 local command = {
     name = 'disable_command',
     description = 'Command ($cmd) | Disables a command.',
-    permission_level = 6,
     help = 'Syntax: /$cmd <command>'
 }
 

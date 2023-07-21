@@ -1,7 +1,6 @@
 local command = {
     name = 'ip_ban',
     description = 'Flags: -y -mo -d -h -m -s -r "example reason"',
-    permission_level = 6,
     help = 'Syntax: /$cmd <player> <flags> | Type ($cmd help) for more information.',
     output = '$admin ip-banned $offender until [$years/$months/$days - $hours:$minutes:$seconds] for reason: $reason',
 }

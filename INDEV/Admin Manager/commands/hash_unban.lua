@@ -1,7 +1,6 @@
 local command = {
     name = 'hash_unban',
     description = 'Command ($cmd) | Unban a player\'s hash.',
-    permission_level = 6,
     help = 'Syntax: /$cmd <ban id>',
     output = '(%s) (%s) unbanned.',
 }
@@ -17,9 +16,15 @@ function command:run(id, args)
         elseif (not ban_id) then
             admin:send(self.help)
         else
-            local parent, child = admin:getBanEntryByID('hash', ban_id)
-            if (parent) then
-                self:unban(parent, child, admin)
+
+            local hash_bans = self.bans['hash']
+            local entry = admin:getBanEntryByID(hash_bans, ban_id)
+            if (entry) then
+                self:unban({
+                    admin = admin,
+                    parent = 'hash',
+                    child = entry,
+                })
             end
         end
     end

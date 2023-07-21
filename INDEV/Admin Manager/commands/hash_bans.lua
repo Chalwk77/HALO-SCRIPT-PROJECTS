@@ -1,7 +1,6 @@
 local command = {
     name = 'hash_bans',
     description = 'Command ($cmd) | List all hash-bans.',
-    permission_level = 6,
     help = 'Syntax: /$cmd> <page>',
     header = '[Hash-Bans] (Page: %s/%s)', -- page (current, total)
     output = '[$id] $offender [$years/$months/$days-$hours:$minutes:$seconds] [Pirated: $pirated]'
@@ -16,7 +15,9 @@ function command:run(id, args)
         end
 
         local page = tonumber(args[2]) or 1
-        local results = self:showBanList('hash', page, 5, admin)
+        local hash_bans = self.bans['hash']
+        local results = self:showBanList(hash_bans, page, 5, admin)
+
         if (not results) then
             admin:send('There are no hash-bans.')
         end

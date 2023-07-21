@@ -1,7 +1,6 @@
 local command = {
     name = 'hash_admin_delete',
     description = 'Command ($cmd) | Deletes a hash-admin.',
-    permission_level = 6,
     help = 'Syntax: /$cmd <player>'
 }
 

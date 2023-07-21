@@ -1,7 +1,6 @@
 local command = {
     name = 'hash_admin_add',
     description = 'Command ($cmd) | Adds a new hash-admin.',
-    permission_level = 6,
     help = 'Syntax: /$cmd <player> <level (1-6)>'
 }
 
@@ -27,7 +26,8 @@ function command:run(id, args)
             local name = target.name
             local hash = target.hash
 
-            if (not admins.hash_admins[hash]) then
+            local admin_table = admins.hash_admins[hash]
+            if (not admin_table) then
                 target.level = level
                 target:setLevelVariable()
                 
@@ -41,7 +41,7 @@ function command:run(id, args)
                 admin:send('Added ' .. name .. ' to the hash-admin list. Level (' .. level .. ').')
                 self:log(admin.name .. ' (' .. admin.ip .. ') added ' .. name .. ' (' .. hash .. ') to the hash-admin list. Level (' .. level .. ')', self.logging.management)
             else
-                admin:send(name .. ' is already a hash-admin (level ' .. admins.hash_admins[hash].level .. ')')
+                admin:send(name .. ' is already a hash-admin (level ' .. admin_table.level .. ')')
             end
         end
     end
