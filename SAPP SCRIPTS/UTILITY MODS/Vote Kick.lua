@@ -228,23 +228,23 @@ function OnCommand(Ply, CMD)
             return false
         
         elseif (args[1] == "usage" and #args > 1) then
-	    if( args[2] == VoteKick.vote_command ) then
-	       players[GetIP(Ply)]:Send( 
-		   "Usage: " .. VoteKick.vote_command .. " <ID> (Retrieve ID from /" .. VoteKick.vote_list_command .. ")" 
-		)
-	       players[GetIP(Ply)]:Send(
-		   "Description: Vote for kick a player from the server (Do it responsibly)"
-		)
-	       return false
-	    elseif ( args[2] == VoteKick.vote_list_command ) then
-	      players[GetIP(Ply)]:Send(
-		   "Usage: " .. VoteKick.vote_list_command
-	      )
-	      players[GetIP(Ply)]:Send(
-		   "Description: Get a list of players who can be kicked from the server"
-	      )
-	      return false
-	    end
+            if( args[2] == VoteKick.vote_command ) then
+                players[GetIP(Ply)]:Send( 
+                    "Usage: " .. VoteKick.vote_command .. " <ID> (Retrieve ID from /" .. VoteKick.vote_list_command .. ")" 
+                )
+                players[GetIP(Ply)]:Send(
+                    "Description: Vote for kick a player from the server (Do it responsibly)"
+                )   
+                return false
+            elseif ( args[2] == VoteKick.vote_list_command ) then
+                players[GetIP(Ply)]:Send(
+                    "Usage: " .. VoteKick.vote_list_command
+                )
+                players[GetIP(Ply)]:Send(
+                    "Description: Get a list of players that can be kicked from the server"
+                )
+                return false
+	        end
         end
     end
 end
@@ -263,14 +263,14 @@ end
 function InitAnnouncements()
    function announce_usage ()
        message = "Vote kick is enabled, type /usage " .. VoteKick.vote_list_command .. 
-	" and /usage " .. VoteKick.vote_command  
+	        " and /usage " .. VoteKick.vote_command  
        
-       for ip, v in pairs(players) do
-          if ( not v.quit ) then
-	      v:Send( message )
-	  end
-       end
-       return true
+        for ip, v in pairs(players) do
+            if ( not v.quit ) then
+	            v:Send( message )
+	        end
+        end
+        return true
    end
 
    if ( VoteKick.announce_usage ) then
