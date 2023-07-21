@@ -42,9 +42,17 @@ function AdminManager:loadDependencies()
     local s = self
     for path, t in pairs(self.dependencies) do
         for _, file in pairs(t) do
-            local f = loadfile(path .. file .. '.lua')()
-            setmetatable(s, { __index = f })
-            s = f
+
+            local success, error = pcall(function()
+                local f = loadfile(path .. file .. '.lua')()
+                setmetatable(s, { __index = f })
+                s = f
+            end)
+
+            if (not success) then
+                print('Error loading ' .. path .. file .. '.lua')
+                print(error)
+            end
         end
     end
 

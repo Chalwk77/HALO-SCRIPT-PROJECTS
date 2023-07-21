@@ -9,6 +9,7 @@ local concat = table.concat
 function command:run(id, args)
 
     local target, level = tonumber(args[2]), tonumber(args[3])
+    local password = concat(args, ' ', 4)
     local admin = self.players[id]
     local admins = self.admins
 
@@ -22,42 +23,37 @@ function command:run(id, args)
             admin:send('Player #' .. target .. ' is not present.')
         elseif (not self.commands[level]) then
             admin:send('Invalid level. Must be between 1 and ' .. #self.commands)
+        elseif (not password or password == '') then
+            admin:send('You must specify a password.')
         else
 
-            local password = concat(args, ' ', 4)
-            if (not password or password == '') then
-                admin:send('You must specify a password.')
+            local min = self.password_length_limit[1]
+            local max = self.password_length_limit[2]
+
+            if (password:len() < min or password:len() > max) then
+                admin:send('Password must be ' .. min .. ' to ' .. max .. ' characters')
+                return
+            end
+
+            target = self.players[target]
+            local username = target.name
+
+            local admin_table = admins.password_admins[username]
+            if (not admin_table) then
+
+                target.level = level
+                target.password_admin = true
+                admins.password_admins[username] = {
+                    password = self:getSHA2Hash(password),
+                    level = level,
+                    date = 'Added on ' .. self:getDate() .. ' by ' .. admin.name .. ' (' .. admin.ip .. ')'
+                }
+                self:updateAdmins()
+
+                admin:send('Added ' .. username .. ' to the password-admin list. Level (' .. level .. ').')
+                self:log(admin.name .. ' (' .. admin.ip .. ') added (' .. username .. ') to the password-admin list. Level (' .. level .. ')', self.logging.management)
             else
-
-                target = self.players[target]
-                local username = target.name
-
-                local admin_table = admins.password_admins[username]
-                if (not admin_table) then
-
-                    local min = self.password_length_limit[1]
-                    local max = self.password_length_limit[2]
-
-                    local length = password:len()
-                    if (length < min or length > max) then
-                        admin:send('Password must be ' .. min .. ' to ' .. max .. ' characters')
-                        return false
-                    end
-
-                    target.level = level
-                    target.password_admin = true
-                    admins.password_admins[username] = {
-                        password = self:getSHA2Hash(password),
-                        level = level,
-                        date = 'Added on ' .. self:getDate() .. ' by ' .. admin.name .. ' (' .. admin.ip .. ')'
-                    }
-                    self:updateAdmins()
-
-                    admin:send('Added ' .. username .. ' to the password-admin list. Level (' .. level .. ').')
-                    self:log(admin.name .. ' (' .. admin.ip .. ') added ' .. username .. ' to the password-admin list. Level (' .. level .. ')', self.logging.management)
-                else
-                    admin:send(username .. ' is already a password-admin (level ' .. admin_table.level .. ')')
-                end
+                admin:send(username .. ' is already a password-admin (level ' .. admin_table.level .. ')')
             end
         end
     end

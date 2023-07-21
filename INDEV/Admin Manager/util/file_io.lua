@@ -13,9 +13,8 @@ local _pairs = pairs
 local _tonumber = tonumber
 local _tostring = tostring
 
-local function readFile(f, self)
-    local root = self.root_directory
-    local file = _open(root .. f, 'r')
+local function readFile(file)
+    file = _open(file, 'r')
     if (file) then
         local contents = file:read('*all')
         file:close()
@@ -24,9 +23,8 @@ local function readFile(f, self)
     return ''
 end
 
-local function writeFile(f, contents, self)
-    local root = self.root_directory
-    local file = _open(root .. f, 'w')
+local function writeFile(file, contents)
+    file = _open(file, 'w')
     if (file) then
         contents = IO.json:encode_pretty(contents)
         file:write(contents)
@@ -34,8 +32,8 @@ local function writeFile(f, contents, self)
     end
 end
 
-local function loadFile(f, self)
-    local contents = readFile(f, self)
+local function loadFile(file, self)
+    local contents = readFile(file)
 
     contents = (contents and (contents == '') and nil
             or self.json:decode(contents)) or nil
@@ -45,8 +43,9 @@ end
 
 function IO:loadBans()
 
-    local dir = self.files[3]
-    local bans = loadFile(dir, self)
+    local file = self.files[3]
+    file = self.root_directory .. file
+    local bans = loadFile(file, self)
 
     self.bans = bans or {
         ip = {},
@@ -61,8 +60,9 @@ end
 
 function IO:loadAliases()
 
-    local dir = self.files[5]
-    local aliases = loadFile(dir, self)
+    local file = self.files[5]
+    file = self.root_directory .. file
+    local aliases = loadFile(file, self)
 
     self.aliases = aliases or {
         IP_ALIASES = {},
@@ -81,12 +81,14 @@ end
 
 function IO:setDefaultCommands()
 
-    local dir = self.files[2]
-    local commands = loadFile(dir, self)
+    local file = self.files[2]
+    file = self.root_directory .. file
+
+    local commands = loadFile(file, self)
     local default_commands = self.default_commands
 
     if (not commands) then
-        writeFile(dir, default_commands, self)
+        writeFile(file, default_commands)
         commands = default_commands
     end
 
@@ -95,11 +97,13 @@ end
 
 function IO:setAdmins()
 
-    local dir = self.files[1]
-    local admins = loadFile(dir, self)
+    local file = self.files[1]
+    file = self.root_directory .. file
+
+    local admins = loadFile(file, self)
 
     if (not admins) then
-        writeFile(dir, self.default, self)
+        writeFile(file, self.default)
     end
 
     self.admins = admins or self.default
@@ -107,25 +111,34 @@ end
 
 function IO:updateAdmins()
 
-    local dir = self.files[1]
-    writeFile(dir, self.admins, self)
+    local file = self.files[1]
+    file = self.root_directory .. file
 
+    writeFile(file, self.admins)
 end
 
 function IO:updateCommands()
+
     local commands = self.commands
     commands = convert(commands, _tostring)
-    writeFile(self.files[2], commands, self)
+
+    local file = self.files[2]
+    file = self.root_directory .. file
+
+    writeFile(file, commands)
 end
 
 function IO:updateBans()
-    local dir = self.files[3]
-    writeFile(dir, self.bans, self)
+
+    local file = self.files[3]
+    file = self.root_directory .. file
+
+    writeFile(file, self.bans)
 end
 
 function IO:updateAliases()
 
-    for i,v in pairs(self.players) do
+    for i, v in pairs(self.players) do
         if (i ~= 0) then
 
             local ip = v.ip
@@ -138,24 +151,25 @@ function IO:updateAliases()
         end
     end
 
-    local dir = self.files[5]
-    writeFile(dir, self.aliases, self)
+    local file = self.files[5]
+    file = self.root_directory .. file
+
+    writeFile(file, self.aliases)
 end
 
-function IO:log(entry, write)
-
-    if not write then
-        return
-    end
+function IO:log(entry)
 
     local date = self:getDate(true)
-    local dir = self.files[4]
-    local logs = loadFile(dir, self)
+
+    local file = self.files[4]
+    file = self.root_directory .. file
+
+    local logs = loadFile(file, self)
 
     logs = logs or {}
     logs[date] = entry
 
-    writeFile(dir, logs, self)
+    writeFile(file, logs)
 end
 
 return IO

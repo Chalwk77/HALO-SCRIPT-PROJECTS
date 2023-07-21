@@ -2,7 +2,7 @@ This plugin is a drop-in replacement for SAPP's built-in admin system and adds n
 
 > <ins>**Custom admins levels:**
 
-- You can add as many admin levels as you want (currently configured to have 6 levels).
+- You can add as many admin levels as you want (currently configured with 6).
 - Configure each level to have access to any command you want.
 - Admin levels follow a hierarchy system. If you add an admin by IP and Hash, the admin level will be the highest of the
   two.
@@ -50,43 +50,45 @@ This plugin is a drop-in replacement for SAPP's built-in admin system and adds n
 
 | Command                                                                                     | Description                                                         | Permission Level |
 |---------------------------------------------------------------------------------------------|---------------------------------------------------------------------|------------------|
-| **hash_admin_add** `<player id>` `<level>`                                                  | Add player as a hash-admin                                          | **6**            |
-| **hash_admin_del** `<player id>`                                                            | Remove player as a hash-admin                                       | **6**            |
-| **hash_admins** `<page>`                                                                    | List all hash-admins                                                | **6**            |
-| **ip_admin_add** `<player id>` `<level>`                                                    | Add player as an ip-admin                                           | **6**            | 
-| **ip_admin_del** `<player id>`                                                              | Remove player as an ip-admin                                        | **6**            |
-| **ip_admins** `<page>`                                                                      | List all ip-admins                                                  | **6**            |
-| **pw_admin_add** `<player id>` `<level> <password>`                                         | Add player as a password-admin                                      | **6**            |
-| **pw_admin_del** `<player id>`                                                              | Remove player as a password-admin                                   | **6**            |
-| **pw_admins** `<page>`                                                                      | List all password-admins                                            | **6**            |
-| **login** `<password>`                                                                      | Login with a password (username is your IGN)                        | **6**            |
-| **logout**                                                                                  | Logout of the server                                                | **6**            |
+| **login** `<password>`                                                                      | Login with a password (username is your IGN)                        | **1**            |
+| **logout**                                                                                  | Logout of the server                                                | **1**            |
+| **admin_chat** `<1/0 (on/off)>`                                                             | Toggle admin chat on or off for yourself                            | **2**            |
+| **change_password** `<old password>` `<"new password">`                                     | Change your own password                                            | **2**            |
+| **ip_mute** `<player id>` `<flag (-y -mo -d -h -m -s -r "example reason")>`                 | Mute a player by IP                                                 | **3**            |
+| **ip_unmute** `<ban id>`                                                                    | Unmute a player's IP                                                | **3**            |
+| **ip_mutes** `<page>`                                                                       | List all muted players by IP                                        | **3**            |
+| **hash_mute** `<player id>` `<flag (-y -mo -d -h -m -s -r "example reason")>`               | Mute a player by hash                                               | **3**            |
+| **hash_unmute** `<ban id>`                                                                  | Unmute a player's hash                                              | **3**            |
+| **hash_mutes** `<page>`                                                                     | List all muted players by hash                                      | **3**            |
+| **spy** `<1/0 (on/off)>`                                                                    | Toggle command spy on or off for yourself                           | **3**            |
+| **ip_alias** `<player/ip>` `<page>`                                                         | Lookup aliases by player id or ip                                   | **4**            |
+| **hash_alias** `<player/hash>` `<page>`                                                     | Lookup aliases by player id or hash                                 | **4**            |
+| **ip_ban** `<player id>` `<flag (-y -mo -d -h -m -s -r "example reason")>`                  | Ban a player by IP                                                  | **4**            |
+| **ip_unban** `<ban id>`                                                                     | Unban a player's IP                                                 | **4**            |
+| **ip_bans** `<page>`                                                                        | List all IP-bans                                                    | **4**            |
+| **hash_admin_add** `<player id>` `<level>`                                                  | Add player as a hash-admin                                          | **5**            |
+| **hash_admin_delete** `<player id>`                                                         | Remove player as a hash-admin                                       | **5**            |
+| **hash_admins** `<page>`                                                                    | List all hash-admins                                                | **5**            |
+| **ip_admin_add** `<player id>` `<level>`                                                    | Add player as an ip-admin                                           | **5**            | 
+| **ip_admin_delete** `<player id>`                                                           | Remove player as an ip-admin                                        | **5**            |
+| **ip_admins** `<page>`                                                                      | List all ip-admins                                                  | **5**            |
+| **hash_ban** `<player id>` `<flag (-y -mo -d -h -m -s -r "example reason")>`                | Ban a player by hash (requires confirmation if the hash is pirated) | **5**            |
+| **hash_unban** `<ban id>`                                                                   | Unban a player's hash                                               | **5**            |
+| **hash_bans** `<page>`                                                                      | List all hash-bans                                                  | **5**            |
+| **name_ban** `<player id or name>`                                                          | Ban a players name by ID or name                                    | **5**            |
+| **name_unban** `<ban id>`                                                                   | Unban a name                                                        | **5**            |
+| **name_bans** `<page>`                                                                      | List all name bans                                                  | **5**            |
+| **pw_admin_add** `<player id>` `<level> <"password">`                                       | Add player as a password-admin                                      | **5**            |
+| **pw_admin_delete** `<player id>`                                                           | Remove player as a password-admin                                   | **5**            |
+| **pw_admins** `<page>`                                                                      | List all password-admins                                            | **5**            |
+| **confirm**                                                                                 | Confirm level delete                                                | **5**            |
 | **change_level** `<player id>` `<type (hash/ip/password)>`                                  | Change player admin level                                           | **6**            |
+| **change_admin_password** `<player id>` `<"new password">`                                  | Change another player's password                                    | **6**            |
 | **level_add** `<level>`                                                                     | Add an admin level                                                  | **6**            |
 | **level_delete** `<level>`                                                                  | Delete an admin level (requires confirmation)                       | **6**            |
-| **confirm**                                                                                 | Confirm level delete                                                | **6**            |
-| **set_command** `<command>` `<level>` `(opt 3rd arg: "true" to enable, "false" to disable)` | Add or set a new/existing command to a new level                    | **6**            |
 | **disable_command** `<command>`                                                             | Disables a command                                                  | **6**            |
 | **enable_command** `<command>`                                                              | Enables a command                                                   | **6**            |
-| **hash_ban** `<player id>` `<flag (-y -mo -d -h -m -s -r "example reason")>`                | Ban a player by hash (requires confirmation if the hash is pirated) | **6**            |
-| **hash_bans** `<page>`                                                                      | List all hash-bans                                                  | **6**            |
-| **hash_unban** `<ban id>`                                                                   | Unban a player's hash                                               | **6**            |
-| **ip_ban** `<player id>` `<flag (-y -mo -d -h -m -s -r "example reason")>`                  | Ban a player by IP                                                  | **6**            |
-| **ip_bans** `<page>`                                                                        | List all IP-bans                                                    | **6**            |
-| **ip_unban** `<ban id>`                                                                     | Unban a player's IP                                                 | **6**            |
-| **name_ban** `<player id or name>`                                                          | Ban a players name by ID or name                                    | **6**            |
-| **name_bans** `<page>`                                                                      | List all name bans                                                  | **6**            |
-| **name_unban** `<ban id>`                                                                   | Unban a name                                                        | **6**            |
-| **ip_mute** `<player id>` `<flag (-y -mo -d -h -m -s -r "example reason")>`                 | Mute a player by IP                                                 | **6**            |
-| **ip_mutes** `<page>`                                                                       | List all muted players by IP                                        | **6**            |
-| **ip_unmute** `<ban id>`                                                                    | Unmute a player's IP                                                | **6**            |
-| **hash_mute** `<player id>` `<flag (-y -mo -d -h -m -s -r "example reason")>`               | Mute a player by hash                                               | **6**            |
-| **hash_mutes** `<page>`                                                                     | List all muted players by hash                                      | **6**            |
-| **hash_unmute** `<ban id>`                                                                  | Unmute a player's hash                                              | **6**            |
-| **admin_chat** `<1/0 (on/off)>`                                                             | Toggle admin chat on or off for yourself                            | **6**            |
-| **spy** `<1/0 (on/off)>`                                                                    | Toggle command spy on or off for yourself                           | **6**            |
-| **ip_alias** `<player/ip>` `<page>`                                                         | Lookup aliases by player id or ip                                   | **6**            |
-| **hash_alias** `<player/hash>` `<page>`                                                     | Lookup aliases by player id or hash                                 | **6**            |
+| **set_command** `<command>` `<level>` `(opt 3rd arg: "true" to enable, "false" to disable)` | Add or set a new/existing command to a new level                    | **6**            |
 
 ### <ins>Getting started:
 

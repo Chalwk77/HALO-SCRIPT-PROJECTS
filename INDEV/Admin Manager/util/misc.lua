@@ -107,7 +107,7 @@ function misc:commandSpy(msg)
     end
 end
 
--- used by admin chat and command spy:
+-- Used by admin chat and command spy:
 function misc:checkLevel()
 
     local level = self.level
