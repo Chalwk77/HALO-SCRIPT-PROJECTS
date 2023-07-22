@@ -1,6 +1,6 @@
 local command = {
     name = 'disable_command',
-    description = 'Command ($cmd) | Disables a command.',
+    description = 'Disable a command.',
     help = 'Syntax: /$cmd <command>'
 }
 

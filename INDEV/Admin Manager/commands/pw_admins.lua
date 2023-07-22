@@ -1,8 +1,8 @@
 local command = {
     name = 'pw_admins',
-    description = 'Command (pw_admins) | Shows a list of username & password admins.',
+    description = 'List all username & password admins.',
     header = '[IP-Admins] (Page: %s/%s)', -- page (current, total)
-    output = '%s | Level: [%s]', -- name, level
+    output = '[%s] %s | Level: [%s]', -- admin id, name, level
     help = 'Syntax: /$cmd <page>'
 }
 

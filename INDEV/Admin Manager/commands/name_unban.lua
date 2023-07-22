@@ -1,6 +1,6 @@
 local command = {
     name = 'name_unban',
-    description = 'Command ($cmd) | Unban a name.',
+    description = 'Unban a name. Use /name_bans to view all name-bans.',
     help = 'Syntax: /$cmd <ban id>',
     output = 'Name (%s) has been unbanned.',
 }

@@ -67,10 +67,10 @@ This plugin is a drop-in replacement for SAPP's built-in admin system and adds n
 | **ip_unban** `<ban id>`                                                                     | Unban a player's IP                                                 | **4**            |
 | **ip_bans** `<page>`                                                                        | List all IP-bans                                                    | **4**            |
 | **hash_admin_add** `<player id>` `<level>`                                                  | Add player as a hash-admin                                          | **5**            |
-| **hash_admin_delete** `<player id>`                                                         | Remove player as a hash-admin                                       | **5**            |
+| **hash_admin_delete** `<admin id>`                                                          | Remove player as a hash-admin                                       | **5**            |
 | **hash_admins** `<page>`                                                                    | List all hash-admins                                                | **5**            |
 | **ip_admin_add** `<player id>` `<level>`                                                    | Add player as an ip-admin                                           | **5**            | 
-| **ip_admin_delete** `<player id>`                                                           | Remove player as an ip-admin                                        | **5**            |
+| **ip_admin_delete** `<admin id>`                                                            | Remove player as an ip-admin                                        | **5**            |
 | **ip_admins** `<page>`                                                                      | List all ip-admins                                                  | **5**            |
 | **hash_ban** `<player id>` `<flag (-y -mo -d -h -m -s -r "example reason")>`                | Ban a player by hash (requires confirmation if the hash is pirated) | **5**            |
 | **hash_unban** `<ban id>`                                                                   | Unban a player's hash                                               | **5**            |
@@ -79,7 +79,7 @@ This plugin is a drop-in replacement for SAPP's built-in admin system and adds n
 | **name_unban** `<ban id>`                                                                   | Unban a name                                                        | **5**            |
 | **name_bans** `<page>`                                                                      | List all name bans                                                  | **5**            |
 | **pw_admin_add** `<player id>` `<level> <"password">`                                       | Add player as a password-admin                                      | **5**            |
-| **pw_admin_delete** `<player id>`                                                           | Remove player as a password-admin                                   | **5**            |
+| **pw_admin_delete** `<admin id>`                                                            | Remove player as a password-admin                                   | **5**            |
 | **pw_admins** `<page>`                                                                      | List all password-admins                                            | **5**            |
 | **confirm**                                                                                 | Confirm level delete                                                | **5**            |
 | **change_level** `<player id>` `<type (hash/ip/password)>`                                  | Change player admin level                                           | **6**            |

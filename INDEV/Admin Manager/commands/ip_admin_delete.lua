@@ -1,36 +1,30 @@
 local command = {
     name = 'ip_admin_delete',
-    description = 'Command ($cmd) | Deletes an ip-admin.',
-    help = 'Syntax: /$cmd <player>'
+    description = 'Delete an IP-admin. Use /ip_admins to get the admin ID.',
+    help = 'Syntax: /$cmd <admin id>'
 }
 
 function command:run(id, args)
 
-    local target = tonumber(args[2])
+    local admin_id = tonumber(args[2])
     local admin = self.players[id]
 
     if admin:hasPermission(self.permission_level, args[1]) then
 
         if (args[2] == 'help') then
             admin:send(self.description)
-        elseif (not target) then
+        elseif (not admin_id) then
             admin:send(self.help)
-        elseif not player_present(target) then
-            admin:send('Player #' .. target .. ' is not present.')
         else
 
-            target = self.players[target]
-            local admins = self.admins
-            local ip = target.ip
+            local admins = self.admins['ip_admins']
+            local entry = admin:getAdminByID(admins, admin_id)
+            if (entry) then
 
-            if (admins.ip_admins[ip]) then
-                admins.ip_admins[ip] = nil
-                self:updateAdmins()
+                self:deleteAdmin(admins, entry.type)
 
-                admin:send('Removed ' .. target.name .. ' from the ip-admin list.')
-                self:log(admin.name .. '(' .. admin.ip .. ') removed ' .. target.name .. '(' .. target.ip .. ') from the ip-admin list.', self.logging.management)
-            else
-                admin:send(target.name .. ' is not an ip-admin.')
+                admin:send('Removed (' .. entry.type .. ') (' .. entry.name .. ') from the IP-admin list.')
+                self:log(admin.name .. ' (' .. admin.ip .. ') removed (' .. entry.type .. ') (' .. entry.name .. ') from the IP-admin list.', self.logging.management)
             end
         end
     end

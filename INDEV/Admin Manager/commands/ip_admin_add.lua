@@ -1,6 +1,6 @@
 local command = {
     name = 'ip_admin_add',
-    description = 'Command ($cmd) | Adds a new ip-admin.',
+    description = 'Add a new IP-admin.',
     help = 'Syntax: /$cmd <player> <level>'
 }
 
@@ -29,12 +29,7 @@ function command:run(id, args)
             local admin_table = admins.ip_admins[ip]
             if (not admin_table) then
                 target.level = level
-                admins.ip_admins[ip] = {
-                    level = level,
-                    name = name,
-                    date = 'Added on ' .. self:getDate() .. ' by ' .. admin.name .. ' (' .. admin.ip .. ')'
-                }
-                self:updateAdmins()
+                target:newAdmin('ip_admins', ip, admin)
 
                 admin:send('Added ' .. name .. ' to the ip-admin list. Level (' .. level .. ').')
                 self:log(admin.name .. ' (' .. admin.ip .. ') added ' .. name .. ' (' .. ip .. ') to the ip-admin list. Level (' .. level .. ')', self.logging.management)

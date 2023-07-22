@@ -1,6 +1,6 @@
 local command = {
     name = 'ip_mutes',
-    description = 'Command ($cmd) | List all text-ban mutes by IP.',
+    description = 'List all text-ban mutes by IP.',
     help = 'Syntax: /$cmd> <page>',
     header = '[Text-Bans (IP)] (Page: %s/%s)', -- page (current, total)
     output = '[$id] $offender [$years/$months/$days-$hours:$minutes:$seconds] [Pirated: $pirated]'

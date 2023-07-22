@@ -1,36 +1,30 @@
 local command = {
     name = 'pw_admin_delete',
-    description = 'Command (pw_admin_delete) | Deletes a username & password admin.',
-    help = 'Syntax: /$cmd <player>'
+    description = 'Delete a password-admin. Use /pw_admins to get the admin ID.',
+    help = 'Syntax: /$cmd <admin id>'
 }
 
 function command:run(id, args)
 
-    local target = tonumber(args[2])
+    local admin_id = tonumber(args[2])
     local admin = self.players[id]
 
     if admin:hasPermission(self.permission_level, args[1]) then
 
         if (args[2] == 'help') then
             admin:send(self.description)
-        elseif (not target) then
+        elseif (not admin_id) then
             admin:send(self.help)
-        elseif not player_present(target) then
-            admin:send('Player #' .. target .. ' is not present.')
         else
 
-            target = self.players[target]
-            local admins = self.admins
-            local username = target.name
+            local admins = self.admins['password_admins']
+            local entry = admin:getAdminByID(admins, admin_id)
+            if (entry) then
 
-            if (admins.password_admins[username]) then
-                admins.password_admins[username] = nil
-                self:updateAdmins()
+                self:deleteAdmin(admins, entry.type)
 
-                admin:send('Removed (' .. username .. ') from the password-admin list.')
-                self:log(admin.name .. ' (' .. admin.ip .. ') removed (' .. username .. ') from the password-admin list.', self.logging.management)
-            else
-                admin:send('Username (' .. username .. ') is not a registered admin name.')
+                admin:send('Removed username (' .. entry.type .. ') from the password-admin list.')
+                self:log(admin.name .. ' (' .. admin.ip .. ') removed username (' .. entry.type .. ') from the password-admin list.', self.logging.management)
             end
         end
     end

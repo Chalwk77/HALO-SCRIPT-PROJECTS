@@ -1,6 +1,6 @@
 local command = {
     name = 'pw_admin_add',
-    description = 'Command (pw_admin_add) | Adds a new username & password admin.',
+    description = 'Add a new username & password admin.',
     help = 'Syntax: /$cmd <player> <level> <password>'
 }
 
@@ -40,15 +40,9 @@ function command:run(id, args)
 
             local admin_table = admins.password_admins[username]
             if (not admin_table) then
-
                 target.level = level
-                target.password_admin = true
-                admins.password_admins[username] = {
-                    password = self:getSHA2Hash(password),
-                    level = level,
-                    date = 'Added on ' .. self:getDate() .. ' by ' .. admin.name .. ' (' .. admin.ip .. ')'
-                }
-                self:updateAdmins()
+                target:newAdmin('password_admins', username, admin, password)
+                self.login_session_cache[target.ip] = self:setLoginTimeout()
 
                 admin:send('Added ' .. username .. ' to the password-admin list. Level (' .. level .. ').')
                 self:log(admin.name .. ' (' .. admin.ip .. ') added (' .. username .. ') to the password-admin list. Level (' .. level .. ')', self.logging.management)

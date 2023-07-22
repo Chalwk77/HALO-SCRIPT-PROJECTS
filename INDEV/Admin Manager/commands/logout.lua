@@ -1,6 +1,6 @@
 local command = {
     name = 'logout',
-    description = 'Command ($cmd) | Logout as an admin.',
+    description = 'Logout as a password-admin.',
     help = 'Syntax: /$cmd'
 }
 

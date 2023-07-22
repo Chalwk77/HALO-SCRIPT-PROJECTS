@@ -1,6 +1,6 @@
 local command = {
     name = 'login', -- do not change the name of this command
-    description = 'Command ($cmd) | Login as an admin.',
+    description = 'Login as a password-admin.',
     help = 'Syntax: /$cmd <password>'
 }
 
@@ -29,6 +29,8 @@ function command:run(id, args)
         if (password_on_file == hashed_password) then
             admin.password_admin = true
             admin.level = admins.password_admins[username].level
+            self.login_session_cache[admin.ip] = self:setLoginTimeout()
+
             admin:send('Successfully logged in as ' .. username .. ' (level ' .. admin.level .. ')')
             self:log(admin.name .. ' (' .. admin.ip .. ') logged in as ' .. username .. ' Level (' .. admin.level .. ')', self.logging.management)
         else

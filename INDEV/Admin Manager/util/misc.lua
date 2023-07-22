@@ -1,5 +1,6 @@
 local misc = {}
 
+local _time = os.time
 local _date = os.date
 local _sort = table.sort
 local _require = require
@@ -22,6 +23,16 @@ function misc:setManagementCMDS()
         end
     end
     self.management = t
+end
+
+function misc:setAdminID(admin_table)
+    local id = 0
+    for _, entry in _pairs(admin_table) do
+        if (entry.id > id) then
+            id = entry.id
+        end
+    end
+    return id + 1
 end
 
 function misc:hasPermission(level, command)
@@ -226,10 +237,26 @@ function misc:showAdminList(type, page, number_to_show, admin)
 
     admin:send(self.header:format(page, total_pages))
     for _, v in pairs(results) do
-        admin:send(self.output:format(v.name, v.level))
+        admin:send(self.output:format(v.id, v.name, v.level))
     end
 
     return true
+end
+
+function misc:getAdminByID(admin_table, id)
+    for type, v in _pairs(admin_table) do
+        if (v.id == id) then
+            return {
+                type = type,
+                id = v.id,
+                ip = v.ip,
+                hash = v.hash,
+                name = v.name
+            }
+        end
+    end
+    self:send('Admin ID not found.')
+    return nil
 end
 
 function misc:showNameBans(page, number_to_show, admin)
@@ -308,6 +335,43 @@ function misc:newAlias(parent, child, name)
 
     records[parent][child][name].level = self.level
     records[parent][child][name].last_activity = date
+end
+
+function misc:newAdmin(parent, child, admin, password)
+
+    local name = self.name
+    local level = self.level
+    local date = self:getDate()
+    password = (password) and self:getSHA2Hash(password) or nil
+
+    local admin_table = self.admins[parent]
+    admin_table[child] = {
+        password = password,
+        name = name, -- for username & password admins, this is redundant but necessary.
+        level = level,
+        added_on = 'Added on ' .. date .. ' by ' .. admin.name .. ' (' .. admin.ip .. ')',
+        id = self:setAdminID(admin_table)
+    }
+
+    self:updateAdmins()
+end
+
+function misc:deleteAdmin(admin_table, child)
+    admin_table[child] = nil
+    self:updateAdmins()
+end
+
+function misc:getIPFormat(IP)
+    local index = self.cache_session_index
+    if (index == 1) then
+        return IP -- IP:port
+    elseif (index == 2) then
+        return IP:match('%d+.%d+.%d+.%d+')
+    end
+end
+
+function misc:setLoginTimeout()
+    return _time() + (self.login_timeout * 60) * 60
 end
 
 return misc

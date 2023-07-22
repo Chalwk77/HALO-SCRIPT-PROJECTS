@@ -1,6 +1,6 @@
 local command = {
     name = 'admin_chat',
-    description = 'Command ($cmd) | Chat privately with other admins.',
+    description = 'Chat privately with other admins.',
     output = '[A-CHAT] $name: $message',
     help = 'Syntax: /$cmd <1/0 (on/off)>'
 }

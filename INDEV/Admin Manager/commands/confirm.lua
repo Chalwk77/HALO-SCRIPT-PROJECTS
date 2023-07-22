@@ -1,6 +1,6 @@
 local command = {
     name = 'confirm',
-    description = 'Command ($cmd) | Confirms the deletion of a level or hash ban.',
+    description = 'Confirm the deletion of an admin level or hash ban.',
     help = 'Syntax: /$cmd'
 }
 

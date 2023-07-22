@@ -1,6 +1,6 @@
 local command = {
     name = 'change_password',
-    description = 'Command ($cmd) | Change your own password.',
+    description = 'Change your own password.',
     help = 'Syntax: /$cmd <"old password"> <"new password">'
 }
 

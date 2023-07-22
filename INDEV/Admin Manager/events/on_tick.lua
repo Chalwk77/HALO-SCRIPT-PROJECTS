@@ -41,6 +41,19 @@ function event:onTick()
             v:send('Action timed out.')
         end
     end
+
+    for IP,expiration in pairs(self.login_session_cache) do
+        if (_time() > expiration) then
+            self.login_session_cache[IP] = nil
+            for _, v in _pairs(self.players) do
+                if (v.id ~= 0 and v.ip == IP) then
+                    v.level = 1
+                    v.password_admin = false
+                    v:send('Your login session has expired.')
+                end
+            end
+        end
+    end
 end
 
 register_callback(cb['EVENT_TICK'], 'OnTick')

@@ -1,6 +1,6 @@
 local command = {
     name = 'change_admin_password',
-    description = 'Command ($cmd) | Change another player\'s password.',
+    description = 'Change another player\'s password.',
     help = 'Syntax: /$cmd <id> <"new password">'
 }
 

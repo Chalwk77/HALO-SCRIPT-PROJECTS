@@ -1,6 +1,6 @@
 local command = {
     name = 'change_level',
-    description = 'Command ($cmd) | Changes a player\'s admin level.',
+    description = 'Changes a player\'s admin level.',
     help = 'Syntax: /$cmd <player> <level> <type (hash/ip/password)>'
 }
 

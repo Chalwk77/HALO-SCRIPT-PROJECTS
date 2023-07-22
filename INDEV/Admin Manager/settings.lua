@@ -406,5 +406,42 @@ return {
             ['yeye'] = true,
             ['zombies'] = true,
         }
-    }
+    },
+
+    [[
+
+        -------------------
+        Advanced users only:
+        -------------------
+
+        Client login sessions for Username & Password based admins are temporarily cached.
+
+        You will not have to log into your account again when you quit and rejoin unless:
+        1). The server is restarted.
+        2). Your IP address changes.
+        3). Your client port changes (depending on config, see more on that below).
+
+        The below setting (cache_session_index) will keep login sessions by IP or IP:PORT for 24 hours (default)
+        The default setting is IP:PORT (index 1).
+
+        IP:PORT caching is recommended.
+        This does, however, require that players always have the same port, otherwise they will have to login every time they join.
+
+        Furthermore, if there are multiple admins on the same network (same IP), theoretically, one of them
+        could hijack the other's session by changing their username (IGN) to match the other's.
+
+        No two players can have the same IP:PORT, so this is not an issue unless the other admin joins by themselves
+        on the same network with your username.
+
+        Technical notes:
+        * Setting your in-game client port to 0 will force your client to use a random port.
+        * Some chimera users have the 'client_port' set to 0. This is not recommended.
+    ]],
+
+    cache_session_index = 1,
+
+    --
+    -- Login sessions will expire after this amount of time (in hours):
+    --
+    login_timeout = 24 -- hours
 }

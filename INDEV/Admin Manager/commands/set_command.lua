@@ -1,6 +1,6 @@
 local command = {
     name = 'set_command',
-    description = 'Command (set_command) | Add or set a new/existing command to a new level.',
+    description = 'Add or set a new/existing command to a new level.',
     help = 'Syntax: /$cmd <command> <level> (opt 3rd arg: "true" to enable, "false" to disable)',
 }
 

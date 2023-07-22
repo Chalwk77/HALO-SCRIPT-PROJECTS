@@ -1,6 +1,6 @@
 local command = {
     name = 'spy',
-    description = 'Command ($cmd) | Spy on player commands.',
+    description = 'Toggle command spy on or off (spy on player commands).',
     output = '[SPY] $name: $message',
     help = 'Syntax: /$cmd <1/0 (on/off)>'
 }

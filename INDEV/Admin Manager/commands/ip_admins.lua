@@ -1,8 +1,8 @@
 local command = {
     name = 'ip_admins',
-    description = 'Command ($cmd) | Shows a list of ip-admins.',
+    description = 'List all IP-admins.',
     header = '[IP-Admins] (Page: %s/%s)', -- page (current, total)
-    output = '%s | Level: [%s]', -- name, level
+    output = '[%s] %s | Level: [%s]', -- admin id, name, level
     help = 'Syntax: /$cmd <page>'
 }
 

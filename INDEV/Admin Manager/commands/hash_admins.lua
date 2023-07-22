@@ -1,8 +1,8 @@
 local command = {
     name = 'hash_admins',
-    description = 'Command ($cmd) | Show a list of hash-admins.',
+    description = 'List all hash-admins.',
     header = '[Hash-Admins] (Page: %s/%s)', -- page (current, total)
-    output = '%s | Level: [%s]', -- name, level
+    output = '[%s] %s | Level: [%s]', -- admin id, name, level
     help = 'Syntax: /$cmd <page>'
 }
 
