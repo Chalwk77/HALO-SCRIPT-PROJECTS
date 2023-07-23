@@ -337,10 +337,10 @@ function misc:newAlias(parent, child, name)
     records[parent][child][name].last_activity = date
 end
 
-function misc:newAdmin(parent, child, admin, password)
+function misc:newAdmin(parent, child, admin, password, args)
 
-    local name = self.name
-    local level = self.level
+    local name = (args and args.name) or self.name
+    local level = (args and args.level) or self.level
     local date = self:getDate()
     password = (password) and self:getSHA2Hash(password) or nil
 

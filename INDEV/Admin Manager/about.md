@@ -1,4 +1,10 @@
+## Last Updated: 22/07/23 @ 17:07 (NZST)
+More updates coming in the following days, including the ability to add offline IP, Hash and Password admins and more.
+
+---
+
 This plugin is a drop-in replacement for SAPP's built-in admin system and adds new features:
+
 
 > <ins>**Custom admins levels:**
 
@@ -78,7 +84,7 @@ This plugin is a drop-in replacement for SAPP's built-in admin system and adds n
 | **name_ban** `<player id or name>`                                                          | Ban a players name by ID or name                                    | **5**            |
 | **name_unban** `<ban id>`                                                                   | Unban a name                                                        | **5**            |
 | **name_bans** `<page>`                                                                      | List all name bans                                                  | **5**            |
-| **pw_admin_add** `<player id>` `<level> <"password">`                                       | Add player as a password-admin                                      | **5**            |
+| **pw_admin_add** `<player id>` `<level>` `<"password">`                                     | Add player as a password-admin                                      | **5**            |
 | **pw_admin_delete** `<admin id>`                                                            | Remove player as a password-admin                                   | **5**            |
 | **pw_admins** `<page>`                                                                      | List all password-admins                                            | **5**            |
 | **confirm**                                                                                 | Confirm level delete                                                | **5**            |
