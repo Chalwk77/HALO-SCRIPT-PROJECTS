@@ -7,6 +7,7 @@ Description: An example script that detects when a player has teleported.
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
+d
 --=====================================================================================================--
 ]]--
 
