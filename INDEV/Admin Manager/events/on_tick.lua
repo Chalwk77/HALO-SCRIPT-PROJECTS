@@ -46,7 +46,7 @@ function event:onTick()
         if (_time() > expiration) then
             self.login_session_cache[IP] = nil
             for _, v in _pairs(self.players) do
-                if (v.id ~= 0 and v.ip == IP) then
+                if (v.id ~= 0 and v.socket == IP) then
                     v.level = 1
                     v.password_admin = false
                     v:send('Your login session has expired.')

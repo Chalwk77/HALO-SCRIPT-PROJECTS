@@ -66,7 +66,7 @@ local function parseReason(args, value, i)
     return value
 end
 
-function util:syntaxParser(args)
+function util:banSyntaxParser(args)
 
     local parsed_args = {}
     for i = 1, #args do

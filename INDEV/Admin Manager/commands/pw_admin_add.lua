@@ -1,62 +1,8 @@
 local command = {
     name = 'pw_admin_add',
     description = 'Add a new username & password admin.',
-    help = 'Syntax: /$cmd <player id/ -u "username"> <-l level> <-p password>'
+    help = 'Syntax: /$cmd <ID / -u "username"> <-l level> <-p "password">'
 }
-
---
--- THIS IS HERE TEMPORARILY:
---
-local function getString(args, i)
-    local index = i + 1
-    local string = args[index]
-    local num = tonumber(string)
-    if (num) then
-        return num
-    end
-    local j = i + 2
-    local end_quote = string:sub(-1)
-    while (args[j] and end_quote ~= '"') do
-        string = string .. ' ' .. args[j]
-        end_quote = args[j]:sub(-1)
-        j = j + 1
-    end
-    index = j - 1
-    return string:gsub('"', '')
-end
-
---
--- THIS IS HERE TEMPORARILY:
---
-local flags = {
-    ['-u'] = 'username',
-    ['-p'] = 'password',
-    ['-l'] = 'level',
-    ['-ip'] = 'ip',
-    ['-h'] = 'hash'
-}
-
---
--- THIS IS HERE TEMPORARILY:
---
-local function parse(args)
-    local parsed = {}
-    for i = 1, #args do
-        local arg = args[i]
-        local flag = flags[arg]
-        if (i == 2 and tonumber(arg)) then
-            -- This does not need to be quoted.
-            parsed['id'] = tonumber(arg)
-        elseif (flag == 'hash' or flag == 'ip') then
-            -- This does not need to be quoted.
-            parsed[flag] = args[i + 1]
-        elseif (flag) then
-            parsed[flag] = getString(args, i)
-            i = i + 1
-        end
-    end
-    return parsed
-end
 
 function command:run(id, args)
 
@@ -71,7 +17,7 @@ function command:run(id, args)
             admin:send(self.description)
         else
 
-            local parsed = parse(args)
+            local parsed = self:adminSyntaxParser(args)
 
             local target
             local player_id = parsed.id
@@ -108,14 +54,13 @@ function command:run(id, args)
                 if (target) then
                     target.level = level
                     target:newAdmin('password_admins', username, admin, password)
-                    self.login_session_cache[target.ip] = self:setLoginTimeout()
+                    self.login_session_cache[target.socket] = self:setLoginTimeout()
                 else
                     self:newAdmin('password_admins', username, admin, password, {
                         level = level,
                         name = username
                     })
                 end
-
                 admin:send('Added ' .. username .. ' to the password-admin list. Level (' .. level .. ').')
                 self:log(admin.name .. ' (' .. admin.ip .. ') added (' .. username .. ') to the password-admin list. Level (' .. level .. ')', self.logging.management)
             else

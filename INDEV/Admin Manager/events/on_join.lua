@@ -8,6 +8,7 @@ function event:setLevel()
 
     local id = self.id
     local ip = self.ip
+    local socket = self.socket
     local hash = self.hash
     local username = self.name
 
@@ -26,7 +27,7 @@ function event:setLevel()
     elseif (ip_admins[ip]) then
         self.level = ip_admins[ip].level
         --cprint('Admin Manager: ' .. self.name .. ' (' .. self.ip .. ') logged in as a level ' .. self.level .. ' ip-admin.')
-    elseif (password_admins[username] and cache[ip]) then
+    elseif (password_admins[username] and cache[socket]) then
         self.level = password_admins[username].level
         --cprint('Admin Manager: ' .. self.name .. ' (' .. self.ip .. ') logged in as a level ' .. self.level .. ' password-admin.')
     else
@@ -55,8 +56,9 @@ end
 function event:onJoin(id)
     local ip = get_var(id, '$ip')
     self.players[id] = self:newPlayer({
+        socket = self:getIPFormat(ip),
+        ip = ip:match('%d+.%d+.%d+.%d+'),
         id = id,
-        ip = self:getIPFormat(ip),
         name = get_var(id, '$name'),
         hash = get_var(id, '$hash')
     })

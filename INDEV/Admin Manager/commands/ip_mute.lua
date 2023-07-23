@@ -20,7 +20,7 @@ function command:run(id, args)
             admin:send('Player #' .. offender .. ' is not online.')
         else
 
-            local parsed = admin:syntaxParser(args)
+            local parsed = admin:banSyntaxParser(args)
             if (parsed) then
 
                 offender = self.players[offender]

@@ -1,9 +1,18 @@
-local misc = {}
+local misc = {
+    flags = { -- used when adding admins
+        ['-u'] = 'username',
+        ['-p'] = 'password',
+        ['-l'] = 'level',
+        ['-ip'] = 'ip',
+        ['-h'] = 'hash'
+    }
+}
 
 local _time = os.time
 local _date = os.date
 local _sort = table.sort
 local _require = require
+local _tonumber = tonumber
 local _setmetatable = setmetatable
 local _pairs = pairs
 
@@ -372,6 +381,41 @@ end
 
 function misc:setLoginTimeout()
     return _time() + (self.login_timeout * 60) * 60
+end
+
+local function getString(args, i)
+    local index = i + 1
+    local string = args[index]
+    local num = tonumber(string)
+    if (num) then
+        return num
+    end
+    local j = i + 2
+    local end_quote = string:sub(-1)
+    while (args[j] and end_quote ~= '"') do
+        string = string .. ' ' .. args[j]
+        end_quote = args[j]:sub(-1)
+        j = j + 1
+    end
+    index = j - 1
+    return string:gsub('"', '')
+end
+
+function misc:adminSyntaxParser(args)
+    local parsed = {}
+    for i = 1, #args do
+        local arg = args[i]
+        local flag = self.flags[arg]
+        if (i == 2 and _tonumber(arg)) then
+            parsed['id'] = _tonumber(arg)
+        elseif (flag == 'hash' or flag == 'ip') then
+            parsed[flag] = args[i + 1]
+        elseif (flag) then
+            parsed[flag] = getString(args, i)
+            i = i + 1
+        end
+    end
+    return parsed
 end
 
 return misc

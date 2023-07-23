@@ -1,5 +1,4 @@
-## Last Updated: 22/07/23 @ 17:07 (NZST)
-More updates coming in the following days, including the ability to add offline IP, Hash and Password admins and more.
+## Last Updated: 23/07/23 @ 20:25 (NZST)
 
 ---
 
@@ -72,10 +71,10 @@ This plugin is a drop-in replacement for SAPP's built-in admin system and adds n
 | **ip_ban** `<player id>` `<flag (-y -mo -d -h -m -s -r "example reason")>`                  | Ban a player by IP                                                  | **4**            |
 | **ip_unban** `<ban id>`                                                                     | Unban a player's IP                                                 | **4**            |
 | **ip_bans** `<page>`                                                                        | List all IP-bans                                                    | **4**            |
-| **hash_admin_add** `<player id>` `<level>`                                                  | Add player as a hash-admin                                          | **5**            |
+| **hash_admin_add** `<player id / -u "name">` `<-l level>` `<-h hash>`                       | Add player as a hash-admin                                          | **5**            |
 | **hash_admin_delete** `<admin id>`                                                          | Remove player as a hash-admin                                       | **5**            |
 | **hash_admins** `<page>`                                                                    | List all hash-admins                                                | **5**            |
-| **ip_admin_add** `<player id>` `<level>`                                                    | Add player as an ip-admin                                           | **5**            | 
+| **ip_admin_add** `<player id / -u "name">` `<-l level>` `<-ip IP>`                          | Add player as an ip-admin                                           | **5**            | 
 | **ip_admin_delete** `<admin id>`                                                            | Remove player as an ip-admin                                        | **5**            |
 | **ip_admins** `<page>`                                                                      | List all ip-admins                                                  | **5**            |
 | **hash_ban** `<player id>` `<flag (-y -mo -d -h -m -s -r "example reason")>`                | Ban a player by hash (requires confirmation if the hash is pirated) | **5**            |
@@ -84,7 +83,7 @@ This plugin is a drop-in replacement for SAPP's built-in admin system and adds n
 | **name_ban** `<player id or name>`                                                          | Ban a players name by ID or name                                    | **5**            |
 | **name_unban** `<ban id>`                                                                   | Unban a name                                                        | **5**            |
 | **name_bans** `<page>`                                                                      | List all name bans                                                  | **5**            |
-| **pw_admin_add** `<player id>` `<level>` `<"password">`                                     | Add player as a password-admin                                      | **5**            |
+| **pw_admin_add** `<player id / -u "name">` `<-l level>` `<-p "password">`                   | Add player as a password-admin                                      | **5**            |
 | **pw_admin_delete** `<admin id>`                                                            | Remove player as a password-admin                                   | **5**            |
 | **pw_admins** `<page>`                                                                      | List all password-admins                                            | **5**            |
 | **confirm**                                                                                 | Confirm level delete                                                | **5**            |
@@ -107,15 +106,33 @@ This can be done by following this procedure:
 
 Examples:
 
-- `/hash_admin_add` `1` `6`
+- `/hash_admin_add` `1` `-l 6`
     - This will add player 1 as a hash-admin with admin level 6.<br><br>
 
-- `/ip_admin_add` `1` `6`
+- `/hash_admin_add` `-u "the Juan"` `-l 5` `-h 073949b8eb4c822cc71dbd3965009a2d`
+    - This will add an offline player by the name `the Juan` as a hash-admin with admin level 5.<br>
+      **Technical notes:**<br>
+      The username must be encapsulated in quotes.<br>
+      Do not encapsulate the hash.<br><br>
+
+- `/ip_admin_add` `1` `-l 6`
     - This will add player 1 as an ip-admin with admin level 6.<br><br>
 
-- `/pw_admin_add` `1` `6` `my_password`
-    - This will add player 1 as a password-admin with admin level 6 and the password "my_password".
+- `/ip_admin_add` `-u "daisy101"` `-l 2` `-ip 127.0.0.5`
+    - This will add an offline player by the name `daisy101` as an ip-admin with admin level 2.<br>
+      **Technical notes:**<br>
+      The username must be encapsulated in quotes.<br>
+      Do not encapsulate the IP.<br><br>
 
+- `/pw_admin_add` `1` `-l 3` `-p "my password"`
+    - This will add player 1 as a password-admin with admin level 3 and the password `my password`.<br>
+      **Technical note:**<br>
+      The password must be encapsulated in quotes.<br><br>
+
+- `/pw_admin_add` `-u "thyme 2 die"` `-l 3` `-p "cheap as chips"`
+    - This will add an offline player by the name `thyme 2 die` as a password-admin with admin level 3 and the password `cheap as chips`.<br>
+      **Technical note:**<br>
+      The username and password must be encapsulated in quotes.<br>
 ---
 
 ### <ins>Databases:
