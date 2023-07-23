@@ -16,7 +16,7 @@ function command:run(id, args)
 
         else
 
-            local pattern = '(%d+).(%d+).(%d+).(%d+)'
+            local pattern = '(%d+%.%d+%.%d+%.%d+)'
             local parsed = self:adminSyntaxParser(args)
             local target
             local player_id = parsed.id
