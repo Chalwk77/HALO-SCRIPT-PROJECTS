@@ -15,6 +15,7 @@ function command:run(id, args)
     else
         admin.level = 1
         admin.password_admin = nil
+        admin:setLevelVariable()
         admin:send('Successfully logged out.')
         self:log(admin.name .. ' (' .. admin.ip .. ') logged out.', self.logging.management)
     end

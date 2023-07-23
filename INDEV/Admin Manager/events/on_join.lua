@@ -34,6 +34,8 @@ function event:setLevel()
         self.level = 1 -- public
     end
 
+    self:setLevelVariable()
+
     execute_command('adminadd ' .. id .. ' 4')
 end
 

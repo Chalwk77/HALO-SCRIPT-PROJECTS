@@ -29,6 +29,7 @@ function command:run(id, args)
         if (password_on_file == hashed_password) then
             admin.password_admin = true
             admin.level = admins.password_admins[username].level
+            admin:setLevelVariable()
             self.login_session_cache[admin.socket] = self:setLoginTimeout()
 
             admin:send('Successfully logged in as ' .. username .. ' (level ' .. admin.level .. ')')

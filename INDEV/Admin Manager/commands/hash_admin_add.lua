@@ -55,6 +55,7 @@ function command:run(id, args)
             if (not admin_table) then
                 if (target) then
                     target.level = level
+                    target:setLevelVariable()
                     target:newAdmin('hash_admins', hash, admin)
                 else
                     self:newAdmin('hash_admins', hash, admin, _, {

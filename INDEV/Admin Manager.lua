@@ -28,6 +28,7 @@ local AdminManager = {
         },
         ['./Admin Manager/util/'] = {
             'ban',
+            'custom_variables',
             'file_io',
             'misc'
         }
@@ -56,6 +57,7 @@ function AdminManager:loadDependencies()
         end
     end
 
+    self:registerLevelVariable()
     self:loadBans()
     self:loadAliases()
     self:setDefaultCommands()
@@ -97,5 +99,5 @@ function OnChat(...)
 end
 
 function OnScriptUnload()
-    -- N/A
+    AdminManager:unregisterLevelVariable()
 end

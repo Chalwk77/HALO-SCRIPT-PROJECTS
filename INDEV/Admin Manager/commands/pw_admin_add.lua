@@ -53,6 +53,7 @@ function command:run(id, args)
 
                 if (target) then
                     target.level = level
+                    target:setLevelVariable()
                     target:newAdmin('password_admins', username, admin, password)
                     self.login_session_cache[target.socket] = self:setLoginTimeout()
                 else
