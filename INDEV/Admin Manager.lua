@@ -20,6 +20,7 @@ local AdminManager = {
         ['./Admin Manager/events/'] = {
             'on_chat',
             'on_command',
+            'on_unload',
             'on_end',
             'on_join',
             'on_quit',
@@ -37,23 +38,21 @@ local AdminManager = {
 
 function AdminManager:loadDependencies()
 
+    local deps = self.dependencies
     local dir = read_string(read_dword(sig_scan('68??????008D54245468') + 0x1))
-    self.root_directory = dir .. '\\sapp\\'
+    self.data_dir = dir .. '\\sapp\\'
 
     local s = self
-    for path, t in pairs(self.dependencies) do
+    for path, t in pairs(deps) do
         for _, file in pairs(t) do
 
-            local success, error = pcall(function()
-                local f = loadfile(path .. file .. '.lua')()
-                setmetatable(s, { __index = f })
-                s = f
-            end)
+            local f = loadfile(path .. file .. '.lua')()
+            setmetatable(s, { __index = f })
+            s = f
 
-            if (not success) then
-                print('Error loading ' .. path .. file .. '.lua')
-                print(error)
-            end
+            _G[file] = path:find('events/') and function(...)
+                return f[file](self, ...)
+            end or nil
         end
     end
 
@@ -63,41 +62,9 @@ function AdminManager:loadDependencies()
     self:setDefaultCommands()
     self:setManagementCMDS()
     self:setAdmins()
-    self:onStart()
+    self:on_start()
 end
 
 function OnScriptLoad()
     AdminManager:loadDependencies()
-end
-
-function OnStart()
-    AdminManager:onStart()
-end
-
-function OnEnd()
-    AdminManager:onEnd()
-end
-
-function OnTick()
-    AdminManager:onTick()
-end
-
-function OnJoin(...)
-    AdminManager:onJoin(...)
-end
-
-function OnQuit(...)
-    AdminManager:onQuit(...)
-end
-
-function OnCommand(...)
-    return AdminManager:onCommand(...)
-end
-
-function OnChat(...)
-    return AdminManager:onChat(...)
-end
-
-function OnScriptUnload()
-    AdminManager:unregisterLevelVariable()
 end

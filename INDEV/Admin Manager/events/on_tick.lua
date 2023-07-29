@@ -3,7 +3,7 @@ local _time = os.time
 local _pairs = pairs
 local _difftime = os.difftime
 
-function event:onTick()
+function event:on_tick()
 
     local update
     for group, v in _pairs(self.bans) do
@@ -56,6 +56,6 @@ function event:onTick()
     end
 end
 
-register_callback(cb['EVENT_TICK'], 'OnTick')
+register_callback(cb['EVENT_TICK'], 'on_tick')
 
 return event

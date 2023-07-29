@@ -55,7 +55,7 @@ function event:newPlayer(o)
     return o
 end
 
-function event:onJoin(id)
+function event:on_join(id)
     local ip = get_var(id, '$ip')
     self.players[id] = self:newPlayer({
         socket = self:getIPFormat(ip),
@@ -67,6 +67,6 @@ function event:onJoin(id)
     self.players[id]:vipMessages()
 end
 
-register_callback(cb['EVENT_JOIN'], 'OnJoin')
+register_callback(cb['EVENT_JOIN'], 'on_join')
 
 return event

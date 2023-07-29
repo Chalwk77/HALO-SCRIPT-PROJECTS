@@ -1,6 +1,6 @@
 local event = {}
 
-function event:onCommand(id, command)
+function event:on_command(id, command)
 
     local args = self:stringSplit(command)
     local target_command = args[1]
@@ -80,6 +80,6 @@ function event:onCommand(id, command)
     return true
 end
 
-register_callback(cb['EVENT_COMMAND'], 'OnCommand')
+register_callback(cb['EVENT_COMMAND'], 'on_command')
 
 return event

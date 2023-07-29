@@ -44,7 +44,7 @@ end
 function IO:loadBans()
 
     local file = self.files[3]
-    file = self.root_directory .. file
+    file = self.data_dir .. file
     local bans = loadFile(file, self)
 
     self.bans = bans or {
@@ -61,7 +61,7 @@ end
 function IO:loadAliases()
 
     local file = self.files[5]
-    file = self.root_directory .. file
+    file = self.data_dir .. file
     local aliases = loadFile(file, self)
 
     self.aliases = aliases or {
@@ -82,7 +82,7 @@ end
 function IO:setDefaultCommands()
 
     local file = self.files[2]
-    file = self.root_directory .. file
+    file = self.data_dir .. file
 
     local commands = loadFile(file, self)
     local default_commands = self.default_commands
@@ -98,7 +98,7 @@ end
 function IO:setAdmins()
 
     local file = self.files[1]
-    file = self.root_directory .. file
+    file = self.data_dir .. file
 
     local admins = loadFile(file, self)
 
@@ -112,7 +112,7 @@ end
 function IO:updateAdmins()
 
     local file = self.files[1]
-    file = self.root_directory .. file
+    file = self.data_dir .. file
 
     writeFile(file, self.admins)
 end
@@ -123,7 +123,7 @@ function IO:updateCommands()
     commands = convert(commands, _tostring)
 
     local file = self.files[2]
-    file = self.root_directory .. file
+    file = self.data_dir .. file
 
     writeFile(file, commands)
 end
@@ -131,7 +131,7 @@ end
 function IO:updateBans()
 
     local file = self.files[3]
-    file = self.root_directory .. file
+    file = self.data_dir .. file
 
     writeFile(file, self.bans)
 end
@@ -152,7 +152,7 @@ function IO:updateAliases()
     end
 
     local file = self.files[5]
-    file = self.root_directory .. file
+    file = self.data_dir .. file
 
     writeFile(file, self.aliases)
 end
@@ -162,7 +162,7 @@ function IO:log(entry)
     local date = self:getDate(true)
 
     local file = self.files[4]
-    file = self.root_directory .. file
+    file = self.data_dir .. file
 
     local logs = loadFile(file, self)
 

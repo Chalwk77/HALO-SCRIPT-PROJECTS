@@ -9,7 +9,7 @@ local function isChatCommand(s)
     return s:sub(1, 1) == '/' or s:sub(1, 1) == '\\'
 end
 
-function event:onChat(id, message)
+function event:on_chat(id, message)
 
     local player = self.players[id]
     if not player or player:isMuted() then
@@ -36,6 +36,6 @@ function event:onChat(id, message)
     return true
 end
 
-register_callback(cb['EVENT_CHAT'], 'OnChat')
+register_callback(cb['EVENT_CHAT'], 'on_chat')
 
 return event

@@ -1,9 +1,9 @@
 local event = {}
 
-function event:onEnd()
+function event:on_end()
     self:updateAliases()
 end
 
-register_callback(cb['EVENT_GAME_END'], 'OnEnd')
+register_callback(cb['EVENT_GAME_END'], 'on_end')
 
 return event
