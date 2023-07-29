@@ -13,7 +13,7 @@ end
 -- @param id (player id)
 -- @param command (command string)
 -- @return false (to prevent sapp from spamming 'unknown command' error.)
-function event:onCommand(id, command)
+function event:on_command(id, command)
 
     local args = stringSplit(command)
     local cmd = self.cmds[args[1]]
@@ -31,6 +31,6 @@ function event:onCommand(id, command)
     return true
 end
 
-register_callback(cb['EVENT_COMMAND'], 'OnCommand')
+register_callback(cb['EVENT_COMMAND'], 'on_command')
 
 return event

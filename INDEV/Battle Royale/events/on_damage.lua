@@ -1,7 +1,7 @@
 local event = {}
 
 -- Prevent spectators from damaging (or being damaged) by other players:
-function event:onDamage(victim, killer, meta_id, damage)
+function event:on_damage(victim, killer, meta_id, damage)
 
     local v = tonumber(victim)
     local k = tonumber(killer)
@@ -44,6 +44,6 @@ function event:onDamage(victim, killer, meta_id, damage)
     return true, damage
 end
 
-register_callback(cb['EVENT_DAMAGE_APPLICATION'], 'OnDamage')
+register_callback(cb['EVENT_DAMAGE_APPLICATION'], 'on_damage')
 
 return event

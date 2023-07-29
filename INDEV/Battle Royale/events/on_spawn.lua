@@ -1,6 +1,6 @@
 local event = {}
 
-function event:onSpawn(id)
+function event:on_spawn(id)
 
     local player = self.players[id]
     if (not player) then
@@ -54,6 +54,6 @@ function event:onSpawn(id)
     end
 end
 
-register_callback(cb['EVENT_SPAWN'], 'OnSpawn')
+register_callback(cb['EVENT_SPAWN'], 'on_spawn')
 
 return event

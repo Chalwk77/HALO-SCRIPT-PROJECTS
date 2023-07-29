@@ -1,6 +1,6 @@
 local event = {}
 
-function event:onObjectSpawn(player, map_id, parent_id, object_id, sapp_spawning)
+function event:on_object_spawn(player, map_id, parent_id, object_id, sapp_spawning)
 
     if (not sapp_spawning) then
         -- not currently used
@@ -92,6 +92,6 @@ function event:trackNuke()
     end
 end
 
-register_callback(cb['EVENT_OBJECT_SPAWN'], 'OnObjectSpawn')
+register_callback(cb['EVENT_OBJECT_SPAWN'], 'on_object_spawn')
 
 return event

@@ -1,6 +1,6 @@
 local event = {}
 
-function event:onPreSpawn(id)
+function event:on_pre_spawn(id)
 
     local player = self.players[id]
     if (not player) then
@@ -13,6 +13,6 @@ function event:onPreSpawn(id)
     self.players[id]:teleport(true, true)
 end
 
-register_callback(cb['EVENT_PRESPAWN'], 'OnPreSpawn')
+register_callback(cb['EVENT_PRESPAWN'], 'on_pre_spawn')
 
 return event

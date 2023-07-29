@@ -24,7 +24,7 @@ local function UpdateVectors(object, x, y, z)
     write_float(object + 0x94, 0) -- roll
 end
 
-function event:onTick()
+function event:on_tick()
 
     self:preGameTimer() -- pre-game timer
     self:landing() -- sky spawning / god mode timer
@@ -66,6 +66,6 @@ function event:onTick()
     --end
 end
 
-register_callback(cb['EVENT_TICK'], 'OnTick')
+register_callback(cb['EVENT_TICK'], 'on_tick')
 
 return event

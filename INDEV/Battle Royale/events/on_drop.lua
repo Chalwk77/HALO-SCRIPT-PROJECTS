@@ -1,9 +1,9 @@
 local event = {}
 
-function event:onDrop(id)
+function event:on_drop(id)
 
 end
 
-register_callback(cb['EVENT_WEAPON_DROP'], 'OnDrop')
+register_callback(cb['EVENT_WEAPON_DROP'], 'on_drop')
 
 return event

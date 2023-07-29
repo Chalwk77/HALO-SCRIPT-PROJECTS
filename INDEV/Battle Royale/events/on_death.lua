@@ -19,7 +19,7 @@ local function endGame(self)
     return false
 end
 
-function event:onDeath(victim)
+function event:on_death(victim)
 
     if (not self.game or not self.game.started) then
         return
@@ -60,6 +60,6 @@ function event:onDeath(victim)
     victim:newMessage('You have ' .. victim.lives .. ' ' .. life .. ' remaining', 5)
 end
 
-register_callback(cb['EVENT_DIE'], 'OnDeath')
+register_callback(cb['EVENT_DIE'], 'on_death')
 
 return event

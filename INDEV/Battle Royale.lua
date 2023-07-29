@@ -110,7 +110,7 @@ function BattleRoyale:loadDependencies()
             end)
 
             if (not success) then
-                cprint('[TRUCE] FILE DEPENDENCY NOT FOUND: ' .. path .. file .. '.lua', 12)
+                cprint('[BATTLE ROYALE] FILE DEPENDENCY NOT FOUND: ' .. path .. file .. '.lua', 12)
                 goto next
             end
 
@@ -129,11 +129,15 @@ function BattleRoyale:loadDependencies()
             setmetatable(s, { __index = f })
             s = f
 
+            _G[file] = path:find('events/') and function(...)
+                return f[file](self, ...)
+            end or nil
+
             :: next ::
         end
     end
 
-    self:onStart() -- in case the plugin loads mid-game
+    self:on_start() -- in case the plugin loads mid-game
 end
 
 api_version = '1.12.0.0'
@@ -142,62 +146,10 @@ function OnScriptLoad()
     BattleRoyale:loadDependencies()
 end
 
-function OnStart()
-    BattleRoyale:onStart()
-end
-
-function OnEnd()
-    BattleRoyale:onEnd()
-end
-
-function OnJoin(...)
-    BattleRoyale:onJoin(...)
-end
-
-function OnQuit(...)
-    BattleRoyale:onQuit(...)
-end
-
-function OnPreSpawn(...)
-    BattleRoyale:onPreSpawn(...)
-end
-
-function OnSpawn(...)
-    BattleRoyale:onSpawn(...)
-end
-
-function OnTick()
-    BattleRoyale:onTick()
-end
-
-function OnDeath(...)
-    BattleRoyale:onDeath(...)
-end
-
-function OnPickup(...)
-    return BattleRoyale:onPickup(...)
-end
-
-function OnDrop(...)
-    return BattleRoyale:onDrop(...)
-end
-
-function OnCommand(...)
-    return BattleRoyale:onCommand(...)
-end
-
-function OnObjectSpawn(...)
-    return BattleRoyale:onObjectSpawn(...)
-end
-
-function OnDamage(...)
-    return BattleRoyale:onDamage(...)
+function OnScriptUnload()
+    -- N/A
 end
 
 function OnError()
     print(debug.traceback())
-end
-
-function OnScriptUnload()
-    -- N/A
 end

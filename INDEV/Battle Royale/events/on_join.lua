@@ -14,7 +14,7 @@ function event:newPlayer(o)
     return o
 end
 
-function event:onJoin(id)
+function event:on_join(id)
 
     self.players[id] = self:newPlayer({
         id = id,
@@ -24,6 +24,6 @@ function event:onJoin(id)
     self:phaseCheck(false, id)
 end
 
-register_callback(cb['EVENT_JOIN'], 'OnJoin')
+register_callback(cb['EVENT_JOIN'], 'on_join')
 
 return event
