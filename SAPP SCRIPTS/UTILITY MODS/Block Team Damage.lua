@@ -34,8 +34,8 @@ function BlockDamage(victim, killer)
 
     local k_team = get_var(k, '$team')
     local v_team = get_var(v, '$team')
+    
     local same_team = (k_team == v_team)
-
     local suicide = (k == v)
 
     if (k > 0 and (not suicide) and same_team) then
