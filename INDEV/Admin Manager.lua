@@ -20,12 +20,12 @@ local AdminManager = {
         ['./Admin Manager/events/'] = {
             'on_chat',
             'on_command',
-            'on_unload',
             'on_end',
             'on_join',
             'on_quit',
             'on_start',
-            'on_tick'
+            'on_tick',
+            'on_unload'
         },
         ['./Admin Manager/util/'] = {
             'ban',
@@ -50,7 +50,7 @@ function AdminManager:loadDependencies()
             setmetatable(s, { __index = f })
             s = f
 
-            _G[file] = path:find('events/') and function(...)
+            _G[file] = path:find('/events/') and function(...)
                 return f[file](self, ...)
             end or nil
         end
@@ -67,4 +67,8 @@ end
 
 function OnScriptLoad()
     AdminManager:loadDependencies()
+end
+
+function OnScriptUnload()
+    AdminManager:on_unload()
 end

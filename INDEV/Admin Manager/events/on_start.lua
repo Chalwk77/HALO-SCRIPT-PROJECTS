@@ -17,7 +17,7 @@ function event:on_start()
         -- Just in case the plugin is loaded mid-game:
         for i = 1, 16 do
             if player_present(i) then
-                self:onJoin(i)
+                self:on_join(i)
             end
         end
     end
