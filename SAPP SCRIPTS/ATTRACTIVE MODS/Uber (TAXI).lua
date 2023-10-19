@@ -3,6 +3,9 @@
 Script Name: Uber, for SAPP (PC & CE)
 Description: Inject yourself into a teammates vehicle by saying "uber" in chat.
 
+Player regions are limited to 1 Million blocks by volume.
+That's 1000 x 1000 x 1000 blocks.
+
 ------------ [ FEATURES ] ------------
 - Players are limited to 20 uber calls per game.
 - Crouch to call an uber (or say "uber" in chat).
