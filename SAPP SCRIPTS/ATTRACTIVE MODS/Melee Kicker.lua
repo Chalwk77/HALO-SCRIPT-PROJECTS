@@ -5,7 +5,7 @@ Description: Killing a player with any melee attack will result in the victim be
              * A fun and humorous mod for shits and giggles.
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
-* Notice: You can use this document subject to the following conditions:
+Notice: You can use this script subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--

@@ -4,7 +4,7 @@ Script Name: Kill Zones, for SAPP (PC & CE)
 Description: When a player enters a kill zone, they have X seconds to exit otherwise they are killed.
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
-* Notice: You can use this document subject to the following conditions:
+Notice: You can use this script subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--

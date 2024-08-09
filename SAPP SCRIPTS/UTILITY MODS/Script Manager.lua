@@ -4,7 +4,7 @@ Script Name: Script Manager, for SAPP (PC & CE)
 Description: This script automatically loads scripts on a per map, per mode basis.
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
-* Notice: You can use this document subject to the following conditions:
+Notice: You can use this script subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--

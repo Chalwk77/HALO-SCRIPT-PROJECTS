@@ -8,7 +8,7 @@ Description: This script overrides SAPP's built-in wdel command.
              Request Link: https://opencarnage.net/index.php?/topic/7091-block-wdel-n-with-the-flag/
 
 Copyright (c) 2021-2022, Jericho Crosby <jericho.crosby227@gmail.com>
-* Notice: You can use this document subject to the following conditions:
+Notice: You can use this script subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--

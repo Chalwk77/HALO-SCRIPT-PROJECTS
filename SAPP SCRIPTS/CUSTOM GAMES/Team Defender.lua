@@ -10,7 +10,7 @@ Description: This is Team Defender from Call of Duty: Modern Warfare 3.
             * The flag respawns after 15 seconds if not held.
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
-* Notice: You can use this document subject to the following conditions:
+Notice: You can use this script subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--

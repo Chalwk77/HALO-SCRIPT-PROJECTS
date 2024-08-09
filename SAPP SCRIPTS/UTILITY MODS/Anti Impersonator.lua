@@ -4,7 +4,7 @@ Script Name: AntiImpersonator, for SAPP (PC & CE)
 Description: Prevent other players from impersonating your community members.
 
 Copyright (c) 2016-2022, Jericho Crosby <jericho.crosby227@gmail.com>
-* Notice: You can use this document subject to the following conditions:
+Notice: You can use this script subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--

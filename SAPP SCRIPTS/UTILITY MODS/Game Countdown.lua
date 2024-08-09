@@ -4,7 +4,7 @@ Script Name: Game Countdown, for SAPP (PC & CE)
 Description: Shows the game time remaining in the following format: 00:00:00
 
 Copyright (c) 2020-2022, Jericho Crosby <jericho.crosby227@gmail.com>
-* Notice: You can use this document subject to the following conditions:
+Notice: You can use this script subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --======================================================================================================--
 ]]--

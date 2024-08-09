@@ -8,7 +8,7 @@ Description: Each player is given a pistol - and only a pistol - with one bullet
              Success requires a combination of precision and reflexes. Know when to go for the shot or close in for the kill.
 
 Copyright (c) 2023, Jericho Crosby <jericho.crosby227@gmail.com>
-* Notice: You can use this document subject to the following conditions:
+Notice: You can use this script subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--

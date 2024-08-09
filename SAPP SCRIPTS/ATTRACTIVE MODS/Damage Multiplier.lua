@@ -6,7 +6,7 @@ Description: Set the damage multiplier of any player.
              * Use '-1' for the range definition to reset someone's multiplier.
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
-* Notice: You can use this document subject to the following conditions:
+Notice: You can use this script subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--

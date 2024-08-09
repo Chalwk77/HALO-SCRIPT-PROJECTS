@@ -30,7 +30,7 @@ I M P O R T A N T
     Copy your unique "Private Key" from that page and paste it into the API_KEY field (line 54) in this script (see config below).
 
 Copyright (c) 2020-2021, Jericho Crosby <jericho.crosby227@gmail.com>
-* Notice: You can use this document subject to the following conditions:
+Notice: You can use this script subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--

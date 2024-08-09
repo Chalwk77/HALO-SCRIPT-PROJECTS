@@ -11,7 +11,7 @@ Description: Bots (AFK Clients) that talk!
 2): Place "json.lua" and the contents of "sapp-http-client" in your servers root directory.
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
-* Notice: You can use this document subject to the following conditions:
+Notice: You can use this script subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--

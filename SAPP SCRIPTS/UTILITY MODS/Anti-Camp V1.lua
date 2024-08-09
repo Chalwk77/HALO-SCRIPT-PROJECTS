@@ -11,7 +11,7 @@ The x,y,z coordinates for each anti-camp zone and teleport locations can be conf
 The countdown duration can be customized on a per-location basis as well as the radius (in world units) in which it is triggered.
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
-* Notice: You can use this document subject to the following conditions:
+Notice: You can use this script subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--

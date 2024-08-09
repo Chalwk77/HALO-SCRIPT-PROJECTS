@@ -6,7 +6,7 @@ This mod requires that you install all of the following database files to your s
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/Miscellaneous/VPN%20Blocker%20Database
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
-* Notice: You can use this document subject to the following conditions:
+Notice: You can use this script subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]] --

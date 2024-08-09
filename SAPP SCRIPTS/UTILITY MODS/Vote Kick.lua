@@ -7,7 +7,7 @@ Description: Vote to kick disruptive players from the server.
              Vote list command syntax: /votelist
 
 Copyright (c) 2020-2022, Jericho Crosby <jericho.crosby227@gmail.com>
-* Notice: You can use this document subject to the following conditions:
+Notice: You can use this script subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--

@@ -9,7 +9,7 @@ of any portal. They will be warned to move away after 5 seconds and killed after
 * Made specifically for AG Clan (http://agclan1.proboards.com/)
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
-* Notice: You can use this document subject to the following conditions:
+Notice: You can use this script subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --======================================================================================================--
 ]]--

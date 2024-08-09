@@ -6,7 +6,7 @@ Description: A simple progression based game inspired by Call of Duty's Gun Game
              The first player to reach the last weapon with 10 kills wins.
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
-* Notice: You can use this document subject to the following conditions:
+Notice: You can use this script subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--

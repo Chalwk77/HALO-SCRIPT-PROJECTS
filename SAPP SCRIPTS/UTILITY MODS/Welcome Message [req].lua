@@ -7,7 +7,7 @@ Description: This script was requested by "mdc81" on opencarnage.net for use on 
             event_join 'say $n "Welcome friend, $name"'
 
 Copyright (c) 2016-2022, Jericho Crosby <jericho.crosby227@gmail.com>
-Notice: You can use this document subject to the following conditions:
+Notice: You can use this script subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]

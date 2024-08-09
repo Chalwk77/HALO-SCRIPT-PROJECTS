@@ -12,7 +12,7 @@ Some fonts will NOT work due to something called character escaping.
 I recommend using the font "KBAN"
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
-* Notice: You can use this document subject to the following conditions:
+Notice: You can use this script subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--

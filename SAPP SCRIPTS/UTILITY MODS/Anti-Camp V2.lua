@@ -8,7 +8,7 @@ Kills the player if they haven't moved beyond (max_distance) before (max_camp_ti
 Broadcasts two custom messages afterwards.
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
-* Notice: You can use this document subject to the following conditions:
+Notice: You can use this script subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--

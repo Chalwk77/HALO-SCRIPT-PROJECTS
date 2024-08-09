@@ -10,7 +10,7 @@ Description: Force a player to say something.
              Note: For players using Chimera, fake chat messages will appear as server messages, thus will be obvious they're fake.
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
-* Notice: You can use this document subject to the following conditions:
+Notice: You can use this script subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--

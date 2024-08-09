@@ -5,7 +5,7 @@ Description: This script brings CTF-like mechanics to any Slayer (FFA/Team) game
              A single flag will spawn somewhere on the map. Return it to any base to score.
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
-* Notice: You can use this document subject to the following conditions:
+Notice: You can use this script subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--

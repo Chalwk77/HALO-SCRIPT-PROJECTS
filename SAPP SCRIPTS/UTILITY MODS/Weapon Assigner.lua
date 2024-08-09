@@ -12,7 +12,7 @@ Description: Custom weapon assigner script.
                 * If the current map has no game mode layout configured, the script will use the default weapon loadout for that map.
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
-* Notice: You can use this document subject to the following conditions:
+Notice: You can use this script subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--

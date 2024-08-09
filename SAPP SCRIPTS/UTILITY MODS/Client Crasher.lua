@@ -21,7 +21,7 @@ This script works by exploiting a halo bug:
 4). Once loop has finished executing we destroy the vehicle object and this will cause the client to crash.
 
 Copyright (c) 2020-2021, Jericho Crosby <jericho.crosby227@gmail.com>
-* Notice: You can use this document subject to the following conditions:
+Notice: You can use this script subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]] --

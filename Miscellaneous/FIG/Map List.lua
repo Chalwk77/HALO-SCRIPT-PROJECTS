@@ -10,7 +10,7 @@ If there are duplicate map:mode configurations in mapcycle.txt,
 you may get an incorrect map list readout when you type /map_list_command.
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
-* Notice: You can use this document subject to the following conditions:
+Notice: You can use this script subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
