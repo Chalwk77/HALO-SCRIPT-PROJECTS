@@ -29,8 +29,8 @@ local permission = 1
 api_version = '1.12.0.0'
 
 local count = 3
-local death_message_address
-local original_death_message_address
+local DeathMessageAddress
+local OriginalMessageAddress
 
 -- Called when the script is loaded:
 --
@@ -41,8 +41,8 @@ function OnScriptLoad()
     register_callback(cb['EVENT_GAME_START'], 'OnStart')
 
     -- Death message address:
-    death_message_address = sig_scan('8B42348A8C28D500000084C9') + 3
-    original_death_message_address = read_dword(death_message_address)
+    DeathMessageAddress = sig_scan('8B42348A8C28D500000084C9') + 3
+    OriginalMessageAddress = read_dword(DeathMessageAddress)
 
     OnStart()
 end
@@ -75,7 +75,7 @@ function resetMap()
 
     -- enable default death messages:
     if (count <= 0) then
-        patchDeathMessages(death_message_address, original_death_message_address)
+        patchDeathMessages(DeathMessageAddress, OriginalMessageAddress)
     end
 
     return (count > 0)
@@ -100,7 +100,7 @@ function OnCommand(id, cmd)
             return false
         end
 
-        patchDeathMessages(death_message_address, 0x03EB01B1)
+        patchDeathMessages(DeathMessageAddress, 0x03EB01B1)
 
         count = 3
         timer(1000, 'resetMap')
