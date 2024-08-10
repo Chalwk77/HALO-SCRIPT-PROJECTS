@@ -14,55 +14,49 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
--- Script settings
-local max_afk_time = 10 -- default 5 minutes
-local kick_reason = 'AFK for too long!'
-local threshold = 0.001 -- Adjust this value as needed
-api_version = '1.12.0.0'
-
--- Player list
+-- Configuration settings:
+local max_afk_time = 300                    -- Maximum allowed AFK time in seconds
+local kick_reason = 'AFK for too long!'     -- Reason displayed when kicking an AFK player
+local threshold = 0.001                     -- Threshold for checking aim differences (only change if necessary)
+api_version = '1.12.0.0'                    -- API version used by the script
+-- Configuration ends here.
+--
+--
+--
+-- Empty table for storing AFK status of players
 local players = {}
 
-local abs = math.abs
-local clock = os.clock
-local pairs = pairs
-local ipairs = ipairs
+-- Importing necessary functions and variables from external libraries
+local abs, clock, pairs, ipairs = math.abs, os.clock, pairs, ipairs
 
--- Events
-local events = {
-    ['EVENT_TICK'] = 'OnTick',
-    ['EVENT_JOIN'] = 'OnJoin',
-    ['EVENT_LEAVE'] = 'OnQuit',
-    ['EVENT_CHAT'] = 'ChatCommand',
-    ['EVENT_COMMAND'] = 'ChatCommand',
-    ['EVENT_GAME_START'] = 'OnStart'
-}
-
--- Create a new player object
+-- Function called when a new player joins the server
+-- Initializes a new entry in the players table for the given player.
 local function newPlayer(id)
     players[id] = {
         last_active = clock(),
         camera_old = { 0, 0, 0 },
         inputs = {
-            -- shooting:
-            { read_float, 0x490, state = 0 },
-            -- forward, backward, left, right, grenade throw:
-            { read_byte, 0x2A3, state = 0 },
-            -- weapon switch:
-            { read_byte, 0x47C, state = 0 },
-            -- grenade switch:
-            { read_byte, 0x47E, state = 0 },
-            -- weapon reload:
-            { read_byte, 0x2A4, state = 0 },
-            -- zoom:
-            { read_word, 0x480, state = 0 },
-            -- melee, flashlight, action, crouch, jump:
-            { read_word, 0x208, state = 0 }
+            { read_float, 0x490, state = 0 }, -- shooting
+            { read_byte, 0x2A3, state = 0 }, -- forward, backward, left, right, grenade throw
+            { read_byte, 0x47C, state = 0 }, -- weapon switch
+            { read_byte, 0x47E, state = 0 }, -- grenade switch
+            { read_byte, 0x2A4, state = 0 }, -- weapon reload
+            { read_word, 0x480, state = 0 }, -- zoom
+            { read_word, 0x208, state = 0 }  -- melee, flashlight, action, crouch, jump
         }
     }
 end
 
--- Check if a player is AFK
+-- Function to get the current x,y,z camera position of a player at the given memory address
+local function getCameraCurrent(dyn)
+    return {
+        read_float(dyn + 0x230),
+        read_float(dyn + 0x234),
+        read_float(dyn + 0x238)
+    }
+end
+
+-- Function to check if a player is AFK:
 local function isPlayerAfk(player)
     return clock() - player.last_active >= max_afk_time
 end
@@ -75,52 +69,52 @@ local function checkAim(x1, y1, z1, x2, y2, z2)
     return delta_x <= threshold and delta_y <= threshold and delta_z <= threshold
 end
 
--- Get the current camera position
-local function getCameraCurrent(dyn)
-    return {
-        read_float(dyn + 0x230),
-        read_float(dyn + 0x234),
-        read_float(dyn + 0x238)
-    }
-end
-
--- Check player inputs and update last_active timestamp
-local function checkInputs(dyn, player)
-    for _, input in ipairs(player.inputs) do
-        local func, address = input[1], input[2]
-        if func(dyn + address) ~= input.state then
-            player.last_active = clock()
-            input.state = func(dyn + address)
-        end
-    end
-end
-
--- Update player's last_active timestamp and camera_old values
+-- Update player's last_active timestamp and camera_old values:
 local function updatePlayerData(player, camera_current)
     player.last_active = clock()
     player.camera_old = { camera_current[1], camera_current[2], camera_current[3] }
 end
 
--- Checks if a player is present, alive, and has a valid dyn value
-local function isValidPlayer(id, dyn)
-    return player_present(id) and dyn ~= 0 and player_alive(id)
-end
-
--- Check and update player's aim:
+-- Function to check and update aim for a player:
 local function checkAndUpdateAim(player, dyn)
     local current_aim = getCameraCurrent(dyn)
     local old_aim = player.camera_old
-
     if not checkAim(old_aim[1], old_aim[2], old_aim[3], current_aim[1], current_aim[2], current_aim[3]) then
         updatePlayerData(player, current_aim)
     end
 end
 
--- Callbacks
-function OnScriptLoad()
-    for event, callback in pairs(events) do
-        register_callback(cb[event], callback)
+-- Function to check player inputs and update their last_active timestamp
+local function checkInputs(dyn, player)
+    for _, input in ipairs(player.inputs) do
+        local func, address = input[1], input[2]
+        if func(dyn + address) ~= input.state then
+            player.last_active = clock()  -- Update the player's last_active timestamp
+            input.state = func(dyn + address)  -- Update the input state
+        end
     end
+end
+
+-- Function to check if a player is valid:
+local function isValidPlayer(id, dyn)
+    return player_present(id) and dyn ~= 0 and player_alive(id)
+end
+
+-- Kick the player with the given ID and display the kick reason:
+local function kickPlayer(id, reason)
+    execute_command('k ' .. id .. ' "' .. reason .. '"')
+    players[id] = nil
+end
+
+--================--
+-- SAPP functions:
+--================--
+
+function OnScriptLoad()
+    register_callback(cb['EVENT_TICK'], 'OnTick')
+    register_callback(cb['EVENT_JOIN'], 'OnJoin')
+    register_callback(cb['EVENT_LEAVE'], 'OnQuit')
+    register_callback(cb['EVENT_GAME_START'], 'OnStart')
 end
 
 -- Initialize the players' data when a game starts
@@ -143,8 +137,7 @@ function OnTick()
         if not isValidPlayer(id, dyn) then
             goto continue -- Skips the rest of the loop if the player is not present, alive, or has invalid dyn
         elseif isPlayerAfk(player) then
-            execute_command('k ' .. id .. ' "' .. kick_reason .. '"')
-            players[id] = nil
+            kickPlayer(id, kick_reason)
             goto continue -- Skips the rest of the loop if the player is AFK
         end
 
@@ -153,24 +146,23 @@ function OnTick()
 
         -- Check and update player's aim:
         checkAndUpdateAim(player, dyn)
-
         :: continue ::
     end
 end
 
--- Create a new player object when a player joins the game
+-- Create a new player object when a player joins the game:
 function OnJoin(id)
     newPlayer(id)
 end
 
--- Remove a player object when a player leaves the game
+-- Remove a player object when a player leaves the game:
 function OnQuit(id)
     players[id] = nil
 end
 
--- Update last_active timestamp on chat messages (includes chat commands)
+-- Update the player's last_active timestamp when they send a chat message/command:
 function ChatCommand(id)
-    if (id > 0) then -- Ensures the player is not the server
+    if (id > 0) then
         players[id].last_active = clock()
     end
 end
