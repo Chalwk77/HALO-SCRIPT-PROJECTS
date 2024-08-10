@@ -3,90 +3,77 @@
 Script Name: Flip a Coin, for SAPP (PC & CE)
 Description: A simple addon that lets you flip a text-based virtual coin!
 
-Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2020-2024, Jericho Crosby <jericho.crosby227@gmail.com>
 Notice: You can use this script subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
--- Config Starts
-
-local command = "flip"
-local permission_level = -1
-local output = {
-    "Flipping $flips times...",
-    "Heads: $head_count/$flips - $percent",
-    "Tails: $tail_count/$flips - $percent",
-    "This took $time seconds"
+-- Config starts here:
+local COMMAND = 'flip'
+local PERMISSION_LEVEL = -1
+local OUTPUT = {
+    "Flipping %d times...",
+    "Heads: %d/%d - %.2f%%",
+    "Tails: %d/%d - %.2f%%",
+    "This took %.2f seconds"
 }
 
-local flips = 100000000
-
--- Config Ends
-
-local heads = 1
-local head_count, tail_count = 0, 0
-
+local FLIPS = 10000
 api_version = '1.12.0.0'
 
+-- Config ends here.
+
+local function hasPermission(player)
+    local player_level = tonumber(get_var(player, '$lvl'))
+    return player_level >= PERMISSION_LEVEL
+end
+
+local function send(player, str, ...)
+    return (player == 0 and cprint(str:format(...), 10) or rprint(player, str:format(...)))
+end
+
+local function flipCoins(flips, player)
+    local start_time = os.time()
+    local head_count, tail_count = 0, 0
+    local results = {}
+
+    math.randomseed(os.time())
+
+    for _ = 1, flips do
+        local result = (math.random(2) == 1) and 'Heads' or 'Tails'
+        results[#results + 1] = result
+        if result == 'Heads' then
+            head_count = head_count + 1
+        else
+            tail_count = tail_count + 1
+        end
+    end
+    local end_time = os.time()
+
+    local total_percent = (head_count / flips * 100)
+
+    send(player, OUTPUT[1], flips)
+    send(player, OUTPUT[2], head_count, flips, total_percent)
+    send(player, OUTPUT[3], tail_count, flips, 100 - total_percent)
+    send(player, OUTPUT[4], end_time - start_time)
+
+    return results
+end
+
 function OnScriptLoad()
-    register_callback(cb["EVENT_COMMAND"], "OnCommand")
+    register_callback(cb['EVENT_COMMAND'], 'OnCommand')
 end
 
-local function HasPermission(Ply)
-    local lvl = tonumber(get_var(Ply, '$lvl'))
-    return (lvl >= permission_level)
-end
-
-local function Send(Ply, Str)
-    return (Ply == 0 and cprint(Str, 10) or rprint(Ply, Str))
-end
-
-function OnCommand(Ply, CMD)
-
-    if (CMD:sub(1, command:len()):lower() == command) then
-
-        if HasPermission(Ply) then
-
-            local start_time = os.time()
-
-            local Flipping = output[1]:gsub("$flips", flips)
-            Send(Ply, Flipping)
-
-            math.randomseed(os.time())
-            local x
-            for _ = 1, flips do
-                x = math.random(2)
-                if (x == heads) then
-                    head_count = head_count + 1
-                else
-                    tail_count = tail_count + 1
-                end
-            end
-
-            local end_time = os.time()
-
-            local Heads = output[2]      :
-            gsub("$head_count", head_count):
-            gsub('$flips', flips)        :
-            gsub('$percent', head_count / flips * 100)
-
-            Send(Ply, Heads)
-
-            local Tails = output[3]      :
-            gsub("$tail_count", head_count):
-            gsub('$flips', flips)        :
-            gsub('$percent', tail_count / flips * 100)
-
-            Send(Ply, Tails)
-
-            local TimeLapsed = output[4]:gsub('$time', end_time - start_time)
-            Send(Ply, TimeLapsed)
-
+function OnCommand(player, cmd)
+    if cmd:lower():sub(1, COMMAND:len()) == COMMAND then
+        if hasPermission(player) then
+            flipCoins(FLIPS, player)
+            return true
+        else
+            send(player, 'Insufficient Permission')
             return false
         end
-    else
-        Send(Ply, 'Insufficient Permission')
     end
 end
 

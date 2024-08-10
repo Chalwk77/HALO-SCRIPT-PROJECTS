@@ -1,19 +1,14 @@
---[[
 --========================================================================--
-Script Name: Expressions (v2.1), for SAPP (PC & CE)
-Description: Want to express your rage, taunt your opponents or
-             cuss in a family-friendly-ish way? Look no further!
-
-Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
-Notice: You can use this script subject to the following conditions:
-https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
+-- Expressions (v2.1), for SAPP (PC & CE)
+-- Description: Want to express your rage, taunt your opponents or
+--              cuss in a family-friendly-ish way? Look no further!
+-- Copyright (c) 2022-2024, Jericho Crosby <jericho.crosby227@gmail.com>
+-- License: See https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --========================================================================--
-]]--
 
 api_version = "1.12.0.0"
 
-local Expressions = {
-
+local expressions = {
     phrases = {
         ["!cuss"] = { -- type this in chat to cuss
             "Shnookerdookies!",
@@ -83,21 +78,11 @@ local Expressions = {
         }
     },
 
-    -- Taunt message output format:
     output = {
-
-        -- Global chat:
         [0] = '$name: $msg',
-
-        -- Team chat:
         [1] = '[$name]: $msg',
-
-        -- Vehicle chat:
         [2] = '[$name]: $msg'
     },
-
-    -- A message relay function temporarily removes the server prefix
-    -- and will restore it to this when the relay is finished
     server_prefix = '**SAPP**'
 }
 
@@ -105,21 +90,29 @@ function OnScriptLoad()
     register_callback(cb['EVENT_CHAT'], 'OnChat')
 end
 
-function OnChat(Ply, Msg, Type)
+local function formatMessage(chat_type, name, random_phrase)
+    local output_format = expressions.output[chat_type]
+    return output_format:gsub('$name', name):gsub('$msg', random_phrase)
+end
 
-    Msg = Msg:lower()
-    Msg = Expressions.phrases[Msg]
+local function getRandomPhrase(phrases)
+    local random_index = rand(1, #phrases + 1)
+    return phrases[random_index]
+end
 
-    if (Msg) then
+function OnChat(id, message, chat_type)
+    local lower_message = message:lower()
+    local phrases = expressions.phrases[lower_message]
 
-        Msg = Msg[rand(1, #Msg + 1)]
-        local name = get_var(Ply, '$name')
-        local output = Expressions.output[Type]
-        local msg = output:gsub('$name', name):gsub('$msg', Msg)
+    if phrases then
+        local random_phrase = getRandomPhrase(phrases)
+        local player_name = get_var(id, '$name')
+        local formatted_message = formatMessage(chat_type, player_name, random_phrase)
 
         execute_command('msg_prefix ""')
-        say_all(msg)
-        execute_command('msg_prefix "' .. Expressions.server_prefix .. '"')
+        say_all(formatted_message)
+        execute_command('msg_prefix "' .. expressions.server_prefix .. '"')
+
         return false
     end
 end
