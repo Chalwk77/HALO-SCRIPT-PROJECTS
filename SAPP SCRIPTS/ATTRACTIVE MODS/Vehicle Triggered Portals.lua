@@ -134,9 +134,8 @@ local function GetXYZ(dyn)
     return x, y, z, (object + 0x5C)
 end
 
-local sqrt = math.sqrt
 local function GetDist(x1, y1, z1, x2, y2, z2)
-    return sqrt((x1 - x2) ^ 2 + (y1 - y2) ^ 2 + (z1 - z2) ^ 2)
+    return math.sqrt((x1 - x2) ^ 2 + (y1 - y2) ^ 2 + (z1 - z2) ^ 2)
 end
 
 local function Teleport(vehicle, x, y, z)
