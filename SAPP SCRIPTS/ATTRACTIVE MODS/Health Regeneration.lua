@@ -2,14 +2,14 @@
 --=====================================================================================================--
 Script Name: Health Regeneration, for SAPP (PC & CE)
 Description: Continuously regenerate your health.
-    
-Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
+
+Copyright (c) 2022-2024, Jericho Crosby <jericho.crosby227@gmail.com>
 Notice: You can use this script subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
-local increment = 0.1116
+local HEALTH_INCREMENT = 0.2
 
 api_version = '1.12.0.0'
 
@@ -18,19 +18,22 @@ function OnScriptLoad()
 end
 
 function OnJoin(id)
-    timer(1000, 'Regen', id)
+    timer(1000, 'regenerateHealth', id)
 end
 
-function Regen(id)
-
+function regenerateHealth(id)
     local dyn = get_dynamic_player(id)
     if (dyn ~= 0 and player_alive(id)) then
         local health = read_float(dyn + 0xE0)
         if (health < 1) then
-            write_float(dyn + 0xE0, health + increment)
+
+            -- Dynamic regeneration rate
+            local increment = HEALTH_INCREMENT * (1 - health)
+            local new_health = math.min(health + increment, 1)
+
+            write_float(dyn + 0xE0, new_health)
         end
     end
-
     return true
 end
 
