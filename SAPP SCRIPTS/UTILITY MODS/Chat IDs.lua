@@ -9,8 +9,7 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
-local Chat = {
-
+local chat = {
     -- global:
     [0] = "$name [$id]: $msg",
 
@@ -20,46 +19,59 @@ local Chat = {
     -- vehicle:
     [2] = "[$name] [$id]: $msg",
 
-
     -- The server prefix is temporarily removed
-    -- and will restored to this after formatting the chat message:
+    -- and will be restored after formatting the chat message:
     server_prefix = "**SAPP**"
 }
 
 api_version = "1.12.0.0"
 
+-- Register the callback when the script is loaded
 function OnScriptLoad()
     register_callback(cb['EVENT_CHAT'], 'ShowChatIDs')
 end
 
-local function IsChatCMD(msg)
-    return (msg:sub(1, 1) == '/' or msg:sub(1, 1) == '\\') or false
+-- Check if a message is a chat command
+local function isCommand(msg)
+    return (msg:sub(1, 1) == '/' or msg:sub(1, 1) == '\\')
 end
 
-function ShowChatIDs(Ply, Msg, Type)
-    if (not IsChatCMD(Msg)) then
+-- Display chat messages with IDs
+function ShowChatIDs(playerId, msg, type)
 
-        local name = get_var(Ply, '$name')
-        local team = get_var(Ply, '$team')
+    -- Check if the message is not a chat command
+    if not isCommand(msg) then
 
-        local msg = Chat[Type]
-        msg = msg:gsub('$name', name):gsub('$msg', Msg):gsub('$id', Ply)
+        -- Get player variables
+        local name = get_var(playerId, '$name')
+        local team = get_var(playerId, '$team')
 
+        -- Get the chat message template and replace placeholders
+        local formattedMsg = chat[type]
+        formattedMsg = formattedMsg:gsub('$name', name):gsub('$msg', msg):gsub('$id', playerId)
+
+        -- Temporarily remove the server prefix
         execute_command('msg_prefix ""')
-        if (Type == 0) then
-            say_all(msg)
-        elseif (Type == 1 or Type == 2) then
+
+        -- Send the message to the appropriate recipients
+        if type == 0 then
+            say_all(formattedMsg)
+        elseif type == 1 or type == 2 then
             for i = 1, 16 do
                 if player_present(i) and get_var(i, '$team') == team then
-                    say(i, msg)
+                    say(i, formattedMsg)
                 end
             end
         end
-        execute_command('msg_prefix "' .. Chat.server_prefix .. ' "')
+
+        -- Restore the server prefix
+        execute_command('msg_prefix "' .. chat.server_prefix .. ' "')
         return false
     end
 end
 
+-- No additional actions required when the script is unloaded
 function OnScriptUnload()
     -- N/A
 end
+

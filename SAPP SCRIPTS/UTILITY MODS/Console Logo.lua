@@ -60,12 +60,12 @@ function OnScriptLoad()
     timer(50, "PrintLogo")
 end
 
-local function read_widestring(a, l)
+local function read_widestring(address, length)
     local count = 0
     local byte_table = {}
-    for i = 1, l do
-        if (read_byte(a + count) ~= 0) then
-            byte_table[i] = string.char(read_byte(a + count))
+    for i = 1, length do
+        if (read_byte(address + count) ~= 0) then
+            byte_table[i] = string.char(read_byte(address + count))
         end
         count = count + 2
     end
@@ -73,7 +73,9 @@ local function read_widestring(a, l)
 end
 
 function PrintLogo()
-    if (get_var(0, "$gt") ~= "n/a") then
+    local game_type = get_var(0, "$gt")
+    if game_type ~= "n/a" then
+
         local time_stamp = os.date(time_stamp_format)
         local server_name = read_widestring(network_struct + 0x8, 0x42)
         for _, v in pairs(logo) do

@@ -1,25 +1,22 @@
 --[[
 --=====================================================================================================--
 Script Name: Custom Teleports, for SAPP (PC & CE)
-Description: With this script, you input two sets of map coordinates and players can teleport between them.
+Description: This script allows you to create custom teleporter-pairs on a per-map basis.
 
-Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2019-2024, Jericho Crosby <jericho.crosby227@gmail.com>
 Notice: You can use this script subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
 api_version = "1.12.0.0"
-
 -----------------
 -- CONFIG STARTS
 -----------------
-
 -- If true, players must crouch to activate a teleport:
 -- Default: false
 --
-local crouch_activated = false
-
+local crouchActivated = false
 -- Teleport configuration table:
 --
 local Teleports = {
@@ -35,7 +32,6 @@ local Teleports = {
         dZ =     destination z coord
         zOff =   Extra height above ground at dZ
     ]]
-
     ["bloodgulch"] = {
 
         -- RED BASE (health pack to rocket launcher)
@@ -47,153 +43,119 @@ local Teleports = {
         --
         -- Repeat the structure to add more portal sets.
         --
-    },
-
-    ["deathisland"] = {
-
-    },
-
-    ["icefields"] = {
-
-    },
-
-    ["infinity"] = {
-
-    },
-
-    ["sidewinder"] = {
-
-    },
-
-    ["timberland"] = {
-
-    },
-
-    ["dangercanyon"] = {
-
-    },
-
-    ["beavercreek"] = {
-
-    },
-
-    ["boardingaction"] = {
-
-    },
-
-    ["carousel"] = {
-
-    },
-
-    ["chillout"] = {
-
-    },
-
-    ["damnation"] = {
-
-    },
-
-    ["gephyrophobia"] = {
-
-    },
-
-    ["hangemhigh"] = {
-
-    },
-
-    ["longest"] = {
-
-    },
-
-    ["prisoner"] = {
-
-    },
-
-    ["putput"] = {
-
-    },
-
-    ["ratrace"] = {
-
-    },
-
-    ["wizard"] = {
-
-    },
+    }
 }
-
 ---------------
 -- CONFIG ENDS
 ---------------
 
 local map
+local last_teleport = {}
+local teleport_cooldown = 0
+
+local function isCrouching(dyn)
+    return read_float(dyn + 0x50C) == 1
+end
+
+local function inVehicle(dyn)
+    return read_dword(dyn + 0x11C) == 0xFFFFFFF
+end
 
 function OnScriptLoad()
-    register_callback(cb["EVENT_GAME_START"], "OnStart")
+    register_callback(cb['EVENT_LEAVE'], 'OnQuit')
+    register_callback(cb['EVENT_GAME_START'], 'OnStart')
     OnStart()
 end
 
-function OnStart()
-    if (get_var(0, "$gt") ~= "n/a") then
-
-        map = get_var(0, "$map")
-        if (Teleports[map] and #Teleports[map] > 0) then
-            register_callback(cb["EVENT_TICK"], "onTick")
-            goto done
-        end
-
-        unregister_callback(cb["EVENT_TICK"])
-        cprint("[Custom Teleports] " .. map .. " is not configured in Teleports array", 12)
-
-        :: done ::
+local function PrintTeleportStatus(numTeleports)
+    if numTeleports > 0 then
+        cprint(string.format('[Custom Teleports] Loaded %d teleports for map %s', numTeleports, map), 12)
+    else
+        cprint(string.format('[Custom Teleports] No teleports configured for map %s', map), 12)
     end
 end
 
-local sqrt = math.sqrt
-local function getDistance(x1, y1, z1, x2, y2, z2)
-    return sqrt((x1 - x2) ^ 2 + (y1 - y2) ^ 2 + (z1 - z2) ^ 2)
+function OnStart()
+    if get_var(0,' $gt') ~= 'n/a' then
+        map = get_var(0, '$map')
+        local config = Teleports[map]
+        if config and #config > 0 then
+            PrintTeleportStatus(#config, map)
+            register_callback(cb['EVENT_TICK'], 'OnTick')
+        else
+            unregister_callback(cb['EVENT_TICK'])
+            PrintTeleportStatus(0, map)
+        end
+    end
 end
 
 local function getXYZ(dyn)
-
-    local crouch = read_float(dyn + 0x50C)
     local x, y, z = read_vector3d(dyn + 0x5C)
-
-    if (crouch_activated) then
-        z = (crouch == 0 and z + 0.65)  or (z + 0.35 * crouch)
+    if (crouchActivated) then
+        z = (read_float(dyn + 0x50C) == 0 and z + 0.65)  or (z + 0.35 * read_float(dyn + 0x50C))
     end
 
     return x, y, z
 end
 
-function onTick()
+local function teleportPlayer(player, dyn, config)
+    local zOff = isCrouching(dyn) and 0 or config[8]
+    write_vector3d(dyn + 0x5C, config[5], config[6], config[7] + zOff)
+    rprint(player, 'WOOSH!')
+    last_teleport[player] = os.time()
+end
+
+local function getDistance(x1, y1, z1, x2, y2, z2)
+
+    -- Return a large distance if x1, y1, or z1 are nil to handle edge cases
+    if not x1 or not y1 or not z1 then
+        return math.huge
+    end
+
+    local dx = x1 - x2
+    local dy = y1 - y2
+    local dz = z1 - z2
+
+    return math.sqrt(math.pow(dx, 2) + math.pow(dy, 2) + math.pow(dz, 2))
+end
+
+function OnTick()
     for i = 1, 16 do
+
+        if not player_present(i) or not player_alive(i) then
+            goto continue
+        end
+
         local dyn = get_dynamic_player(i)
-        if (player_present(i) and player_alive(i) and dyn ~= 0) then
-            local vehicle = read_dword(dyn + 0x11C)
-            if (vehicle == 0xFFFFFFFF) then
 
-                local x, y, z = getXYZ(dyn)
-                for j = 1, #Teleports[map] do
-                    local v = Teleports[map][j]
-                    local z_off = v[8] -- extra height above ground at destination z-coord
-                    local x2, y2, z2 = v[1], v[2], v[3] -- destination x,y,z
-                    local trigger_distance = v[4] -- origin x,y,z trigger radius
+        if inVehicle(dyn) then
+            goto continue
+        end
 
-                    local distance = getDistance(x, y, z, x2, y2, z2)
-                    if (distance <= trigger_distance) then
-                        write_vector3d(dyn + 0x5C, v[5], v[6], v[7] + z_off)
-                        rprint(i, 'WOOSH!')
-                        goto next
-                    end
-                end
+        local x, y, z = getXYZ(dyn)
+
+        if crouchActivated and not isCrouching(dyn) then
+            goto continue
+        elseif teleport_cooldown > 0 and os.time() < last_teleport[i] + teleport_cooldown then
+            goto continue
+        end
+
+        for _, config in ipairs(Teleports[map]) do
+            local dist = getDistance(x, y, z, config[1], config[2], config[3])
+            if dist <= config[4] then
+                teleportPlayer(i, dyn, config)
+                break
             end
         end
 
-        :: next ::
+        :: continue ::
     end
 end
 
+function OnQuit(id)
+    last_teleport[id] = nil
+end
+
 function OnScriptUnload()
-    -- N/A
+    unregister_callback(cb['EVENT_TICK'])
 end

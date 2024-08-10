@@ -2,34 +2,50 @@
 --=====================================================================================================--
 Script Name: Airstrike, for SAPP (PC & CE)
 
-Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2024, Jericho Crosby <jericho.crosby227@gmail.com>
 Notice: You can use this script subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
+-- Configuration starts here:
 api_version = "1.12.0.0"
 
+-- Minimum number of projectiles to spawn
 local min_proj = 1
+-- Maximum number of projectiles to spawn
 local max_proj = 2
 
+-- Minimum time interval between airstrikes
 local min_interval = 1
+-- Maximum time interval between airstrikes
 local max_interval = 60
 
+-- Minimum height at which projectiles spawn
 local min_height = 5
+-- Maximum height at which projectiles spawn
 local max_height = 20
 
+-- Minimum X-axis velocity for projectiles
 local min_x_vel = -5
+-- Maximum X-axis velocity for projectiles
 local max_x_vel = 5
 
+-- Minimum Y-axis velocity for projectiles
 local min_y_vel = -10
+-- Maximum Y-axis velocity for projectiles
 local max_y_vel = 5
 
+-- Minimum Z-axis velocity for projectiles
 local min_z_vel = -10
+-- Maximum Z-axis velocity for projectiles
 local max_z_vel = -0.5
 
+-- Dictionary containing strike locations for different maps
 local strike_locations = {
+    -- Strike locations for the "bloodgulch" map
     ["bloodgulch"] = {
+        -- Coordinates of strike locations
         { 64, -112.09, 2.21 },
         { 52.96, -93.79, 0.47 },
         { 38.64, -91.71, 0.37 },
@@ -51,61 +67,54 @@ local strike_locations = {
     }
 }
 
+-- Configuration ends here
+
 local rocket
 local locations
 local start, finish
 local time = os.time
 
 function OnScriptLoad()
-    register_callback(cb['EVENT_GAME_START'], 'OnStart')
+    register_callback(cb["EVENT_GAME_START"], "OnStart")
 end
 
+-- Generate random time interval
 local function NewTimes()
     start = time
+    -- The '+1' is to make the max_interval inclusive in the range
     finish = time() + rand(min_interval, max_interval + 1)
 end
 
+-- Get a tag with a specific name and type
 local function GetTag(Type, Name)
     local Tag = lookup_tag(Type, Name)
     return Tag ~= 0 and read_dword(Tag + 0xC) or nil
 end
 
 function OnStart()
-    if (get_var(0, '$gt') ~= 'n/a') then
+    if get_var(0, "$gt") ~= "n/a" then
+        rocket = GetTag("proj", "weapons\\rocket launcher\\rocket")
 
-        rocket = GetTag('proj', "weapons\\rocket launcher\\rocket")
-
-        local map = get_var(0, '$map')
+        local map = get_var(0, "$map")
         locations = strike_locations[map]
 
-        if (locations and rocket) then
+        if locations and rocket then
             NewTimes()
-            register_callback(cb['EVENT_TICK'], 'OnTick')
+            register_callback(cb["EVENT_TICK"], "OnTick")
         end
-        return
     end
-    unregister_callback(cb['EVENT_TICK'])
 end
 
-function OnScriptUnload()
-    -- N/A
-end
-
+-- Main airstrike logic
 function OnTick()
-    if (start() >= finish) then
-
+    if start() >= finish then
         local n = rand(1, #locations + 1)
-        local x = locations[n][1]
-        local y = locations[n][2]
-        local z = locations[n][3]
-
+        local x, y, z = locations[n][1], locations[n][2], locations[n][3]
         for _ = min_proj, max_proj do
-
             local h = rand(min_height, max_height + 1)
-            local payload = spawn_object('', '', x, y, z + h, 0, rocket)
+            local payload = spawn_object("", "", x, y, z + h, 0, rocket)
             local object = get_object_memory(payload)
-
-            if (object ~= 0) then
+            if object ~= 0 then
                 local x_vel = rand(min_x_vel, max_x_vel + 1)
                 local y_vel = rand(min_y_vel, max_y_vel + 1)
                 local z_vel = rand(min_z_vel, max_z_vel + 1)
@@ -114,7 +123,10 @@ function OnTick()
                 write_float(object + 0x70, z_vel)
             end
         end
-
         NewTimes()
     end
+end
+
+function OnScriptUnload()
+    -- N/A
 end

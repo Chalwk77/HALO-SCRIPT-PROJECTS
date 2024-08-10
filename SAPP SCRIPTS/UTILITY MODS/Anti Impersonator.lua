@@ -1,47 +1,32 @@
 --[[
 --=====================================================================================================--
-Script Name: AntiImpersonator, for SAPP (PC & CE)
+Script Name: AntiImpersonator for SAPP (PC & CE)
 Description: Prevent other players from impersonating your community members.
 
-Copyright (c) 2016-2022, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2019-2024, Jericho Crosby <jericho.crosby227@gmail.com>
 Notice: You can use this script subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
+-- Configuration -----------------------------------------------------------------
 api_version = "1.12.0.0"
+local config = {
 
-local settings = {
-
-    -------------------
-    -- config starts --
-    -------------------
-
-    -- Default action to take against people who are caught impersonating:
-    -- Valid actions are 'kick' & 'ban'
-    --
+    -- Default action against people caught impersonating
+    -- Valid actions: 'kick' or 'ban'
     action = 'kick',
 
-    -- Default ban time against impersonators:
-    --
-    ban_time = 10, -- (In Minutes) -- Set to zero to ban permanently
+    -- Default ban time for impersonators (in minutes)
+    -- Set to zero to ban permanently
+    banTime = 10,
 
-    -- Punish reason:
-    --
-    reason = 'Impersonating',
+    -- Reason for punishment
+    punishmentReason = 'Impersonating',
 
-    --
-    -- Add your community members here:
-    --
-
-    users = {
-
+    -- List your community members below:
+    members = {
         -- Example:
-        -- If a player joins the server with the name "ExampleGamerTag" and they are not on this list,
-        -- they will be kicked or banned (depending on the action you set above).
-        -- They must also join with the same IP address or hash as the one you have listed here.
-        -- Each entry can have multiple IP addresses or hashes.
-
         ['ExampleGamerTag'] = {
             ['127.0.0.1'] = true,
             ['127.0.0.2'] = true,
@@ -49,53 +34,57 @@ local settings = {
             ['xxxxxxxxxxxxxxxxxxxxxxxxxxxx02'] = true,
         },
 
-        -- repeat the structure to add more entries
+        -- Add more entries with the same structure:
         ['name_here'] = {
-            ['ip 1'] = true,
-            ['ip 2'] = true,
+            ['ip1'] = true,
+            ['ip2'] = true,
             ['hash1'] = true,
             ['hash2'] = true,
             ['hash3'] = true,
             ['etc...'] = true,
         }
     }
-
-    -----------------
-    -- config ends --
-    -----------------
 }
+-- End of configuration ------------------------------------------------------------
 
 function OnScriptLoad()
+    -- Register event callback:
     register_callback(cb['EVENT_JOIN'], 'OnJoin')
 end
 
-function OnJoin(Ply)
+-- Handle player join event:
+function OnJoin(id)
+    
+    local name = get_var(id, '$name')
+    local hash = get_var(id, '$hash')
+    local IP = get_var(id, "$ip"):match('%d+.%d+.%d+.%d+')
 
-    local name = get_var(Ply, '$name')
-    local hash = get_var(Ply, '$hash')
-    local ip = get_var(Ply, "$ip"):match('%d+.%d+.%d+.%d+')
+    local memberData = config.members[name]
+    if (memberData) then
 
-    local data = settings.users[name]
-    if (data) then
-
-        if (data[hash] or data[ip]) then
+        if (memberData[hash] or memberData[IP]) then
+            -- Player's identity matches, no further action required
             return
         end
 
-        local action = settings.action
-        local reason = settings.reason
-        local ban_time = settings.ban_time
+        local action = config.action
+        local reason = config.punishmentReason
+        local banTime = config.banTime
 
         if (action == 'kick') then
-            execute_command('k ' .. Ply .. ' "' .. reason .. '"')
+            -- Kick the impersonator:
+            execute_command('k ' .. id .. ' "' .. reason .. '"')
+            -- Print a message in the console
             cprint(name .. ' was kicked for ' .. reason, 12)
         elseif (action == 'ban') then
-            execute_command('b ' .. Ply .. ' ' .. ban_time .. ' "' .. reason .. '"')
-            cprint(name .. ' was banned for ' .. ban_time .. ' minutes for ' .. reason, 12)
+            -- Ban the impersonator:
+            execute_command('b ' .. id .. ' ' .. banTime .. ' "' .. reason .. '"')
+            -- Print a message in the console
+            cprint(name .. ' was banned for ' .. banTime .. ' minutes for ' .. reason, 12)
         end
     end
 end
 
 function OnScriptUnload()
-    -- N/A
+    -- Nothing to do here
 end
