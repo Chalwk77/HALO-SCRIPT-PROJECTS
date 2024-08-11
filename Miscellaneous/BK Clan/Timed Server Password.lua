@@ -39,29 +39,27 @@ function OnTick()
     end
 end
 
-local function CommandArgs(CMD)
+local function stringSplit(str)
     local args = { }
-    for arg in CMD:gmatch('([^%s]+)') do
+    for arg in str:gmatch('([^%s]+)') do
         args[#args + 1] = arg:lower()
     end
     return args
 end
 
-local function Allowed(Ply)
-    return (Ply == 0 or tonumber(get_var(Ply, '$lvl')) >= 4)
+local function allowed(player)
+    return (player == 0 or tonumber(get_var(player, '$lvl')) >= 4)
 end
 
-local function Respond(Ply, Msg)
-    return (Ply == 0 and cprint(Msg) or rprint(Ply, Msg))
+local function send(player, message)
+    return (player == 0 and cprint(message) or rprint(player, message))
 end
 
-function OnCommand(Ply, CMD, _)
-    local args = CommandArgs(CMD)
-    if (#args > 0 and args[1] == 'sv_password') then
-        if (Allowed(Ply) and args[2]) then
-            StartTimer()
-            Respond(Ply, 'Server password will be removed in ' .. duration .. ' seconds')
-        end
+function OnCommand(player, command, _)
+    local args = stringSplit(command)
+    if (#args > 0 and args[1] == 'sv_password' and allowed(player) and args[2]) then
+        StartTimer()
+        send(player, 'Server password will be removed in ' .. duration .. ' seconds')
     end
 end
 

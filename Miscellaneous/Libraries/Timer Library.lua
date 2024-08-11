@@ -61,14 +61,8 @@ end
 
 -- This function returns the elapsed time in seconds.
 function timer:get()
-    if (self.start_time) then
-        if (self.paused) then
-            return self.paused_time - self.start_time
-        else
-            return clock() - self.start_time
-        end
-    end
-    return 0
+    return self.start_time and (self.paused and self.paused_time - self.start_time or clock() - self.start_time) or 0
 end
+
 
 return timer

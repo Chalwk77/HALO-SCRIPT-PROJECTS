@@ -28,25 +28,26 @@ end
 function OnStart()
     if (get_var(0, '$gt') ~= 'n/a') then
         players = {}
-        for i = 1, 16 do
-            if player_present(i) then
-                OnJoin(i)
+        for playerId = 1, 16 do
+            if player_present(playerId) then
+                OnJoin(playerId)
             end
         end
     end
 end
 
 function OnTick()
-    for i, t in pairs(players) do
-        if (i and #t.suspects > 0 and t.clear(i)) then
-            for s = 1, #t.suspects do
-                rprint(i, t.suspects[s].name .. ': ' .. t.suspects[s]:score())
+    for playerId, data in pairs(players) do
+        if playerId and #data.suspects > 0 then
+            data:clear(playerId)
+            for _, suspect in ipairs(data.suspects) do
+                rprint(playerId, suspect.name .. ': ' .. suspect:score())
             end
         end
     end
 end
 
-local function StrSplit(str)
+local function stringSplit(str)
     local args = { }
     for arg in str:gmatch('([^%s]+)') do
         args[#args + 1] = arg:lower()
@@ -54,71 +55,78 @@ local function StrSplit(str)
     return args
 end
 
-local function HasPermission(Ply)
-    local lvl = tonumber(get_var(Ply, '$lvl'))
-    return (lvl >= 1 or rprint(Ply, 'Insufficient Permission') and false)
+local function hasPermission(playerId)
+    local lvl = tonumber(get_var(playerId, '$lvl'))
+    return (lvl >= 1 or rprint(playerId, 'Insufficient Permission') and false)
 end
 
-local function Getplayers(Ply, Arg)
+local function getPlayers(playerId, args)
+    local t = {}
+    local suspect = args[2]
 
-    local pl = { }
-    local suspect = Arg[2]
-
-    if (suspect == 'me') then
-        if (Ply ~= 0) then
-            pl[#pl + 1] = Ply
+    if suspect == 'me' then
+        if playerId ~= 0 then
+            table.insert(t, playerId)
         else
-            rprint(Ply, 'Please enter a number between 1-16.')
+            rprint(playerId, 'Please enter a number between 1-16.')
         end
-    elseif (suspect ~= nil and suspect:match('%d+')) then
-        if player_present(suspect) then
-            pl[#pl + 1] = suspect
+    elseif tonumber(suspect) then
+        if player_present(tonumber(suspect)) then
+            table.insert(t, tonumber(suspect))
         else
-            rprint(Ply, 'Player #' .. suspect .. ' is not online')
+            rprint(playerId, 'Player #' .. suspect .. ' is not online')
         end
-    elseif (suspect == 'all' or suspect == '*') then
+    elseif suspect == 'all' or suspect == '*' then
         for i = 1, 16 do
             if player_present(i) then
-                pl[#pl + 1] = i
+                table.insert(t, i)
             end
         end
     else
-        rprint(Ply, 'Invalid Player ID. Usage: /' .. command .. ' [1-16 / me / all / *] [0/1]')
+        rprint(playerId, 'Invalid Player ID. Usage: /' .. command .. ' [1-16 / me / all / *] [0/1]')
     end
-    return pl
+    return t
 end
 
-function OnCommand(Ply, CMD)
-    local args = StrSplit(CMD)
-    if (#args > 0 and args[1] == command and HasPermission(Ply)) then
+-- Helper function to process showScores argument
+local function getShowScores(showScoresArg)
+    return showScoresArg == '1' or (showScoresArg == nil and true)
+end
 
-        if (not args[3]:match('[10]')) then
-            rprint(Ply, 'Invalid syntax. Use 1 for ON and 0 for OFF')
-            return false
-        elseif (args[3]:match('0')) then
-            rprint(Ply, 'Hiding bot scores')
-            players[Ply].suspects = {}
+-- Function to add a suspect to a player's suspect list
+local function addSuspect(playerId, suspect)
+    local suspectTable = {
+        name = get_var(suspect, '$name'),
+        score = function()
+            local suffix = player_alive(suspect) and '' or ' [respawning]'
+            return get_var(suspect, '$botscore') .. suffix
+        end
+    }
+    table.insert(players[playerId].suspects, suspectTable)
+end
+
+function onCommand(playerId, cmd)
+    local args = stringSplit(cmd)
+    if #args > 0 and args[1] == command and hasPermission(playerId) then
+        local showScores = getShowScores(args[3])
+
+        if not showScores then
+            rprint(playerId, 'Hiding bot scores')
+            players[playerId].suspects = {}
             return false
         end
 
-        local pl = Getplayers(Ply, args)
-        if (#pl > 0) then
+        local pl = getPlayers(playerId, args)
+        if #pl > 0 then
             for i = 1, #pl do
-                table.insert(players[Ply].suspects, {
-                    name = get_var(pl[i], '$name'),
-                    score = function()
-                        local suffix = (not player_alive(pl[i]) and ' [respawning]' or '')
-                        return get_var(pl[i], '$botscore') .. suffix
-                    end
-                })
+                addSuspect(playerId, pl[i])
             end
         end
-        return false
     end
 end
 
-function OnJoin(Ply)
-    players[Ply] = {
+function OnJoin(playerId)
+    players[playerId] = {
         suspects = {},
         clear = function(i)
             for _ = 1, 25 do
@@ -129,8 +137,8 @@ function OnJoin(Ply)
     }
 end
 
-function OnQuit(Ply)
-    players[Ply] = nil
+function OnQuit(playerId)
+    players[playerId] = nil
 end
 
 function OnScriptUnload()
