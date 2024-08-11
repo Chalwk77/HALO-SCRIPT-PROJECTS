@@ -19,8 +19,10 @@ Description: This script will beautify the server terminal during certain events
             - event_map_reset
             - event_team_switch
 
-Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
-Notice: You can use this script subject to the following conditions:
+            * This script is highly customizable. You can enable/disable certain notifications and change the color of the text.
+
+Copyright (c) 2024, Jericho Crosby <jericho.crosby227@gmail.com>
+* Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
@@ -56,251 +58,218 @@ function OnScriptLoad()
     register_callback(cb['EVENT_TEAM_SWITCH'], 'OnSwitch')
 
     OnStart()
-    timer(50, "Logo")
+    timer(50, "printLogo")
 end
 
-local function Notify(msg)
-    for i = 1, #msg do
-        cprint(msg[i][1], msg[i][2])
+-- Notification configuration
+local notificationConfig = {
+
+    -- General settings:
+    prefix = "", -- default empty
+    defaultColor = 12,
+    timeStampFormat = "%A %d %B %Y - %X",
+
+    -- Console logo:
+    logo = {
+        enabled = true,
+        text = {
+            { "================================================================================", 10 },
+            { "$timeStamp", 6 },
+            { "", 0 },
+            { "     '||'  '||'     |     '||'       ..|''||           ..|'''.| '||''''|  ", 12 },
+            { "      ||    ||     |||     ||       .|'    ||        .|'     '   ||  .    ", 12 },
+            { "      ||''''||    |  ||    ||       ||      ||       ||          ||''|    ", 12 },
+            { "      ||    ||   .''''|.   ||       '|.     ||       '|.      .  ||       ", 12 },
+            { "     .||.  .||. .|.  .||. .||.....|  ''|...|'         ''|....'  .||.....| ", 12 },
+            { "               ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-", 7 },
+            { "                             $serverName", 10 },
+            { "               ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-", 7 },
+            { "", 0 },
+            { "================================================================================", 10 }
+        }
+    },
+
+    -- Event-specific settings
+    events = {
+        ["OnStart"] = {
+            enabled = true,
+            message = "A new game has started on $map - $mode",
+            color = 10
+        },
+        ["OnEnd"] = {
+            enabled = true,
+            message = "The game has ended.",
+            color = 4
+        },
+        ["OnPreJoin"] = {
+            enabled = true,
+            message = "________________________________________________________________________________\nPlayer attempting to connect to the server...\nPlayer: $playerName\nCD Hash: $cdHash\nIP Address: $ipAddress\nIndex ID: $indexID\nPrivilege Level: $privilegeLevel",
+            color = 10 -- Green
+        },
+        ["OnJoin"] = {
+            enabled = true,
+            message = "Status: $playerName connected successfully.\nJoin Time: $joinTime\n________________________________________________________________________________",
+            color = 10 -- Green
+        },
+        -- OnQuit:
+        ["OnQuit"] = {
+            enabled = true,
+            message = "________________________________________________________________________________\nPlayer: $playerName\nCD Hash: $cdHash\nIP Address: $ipAddress\nIndex ID: $indexID\nPrivilege Level: $privilegeLevel\nPing: $ping\n________________________________________________________________________________",
+            color = 12
+        },
+        ["OnSpawn"] = {
+            enabled = true,
+            message = "$playerName spawned",
+            color = 14
+        },
+        -- OnSwitch:
+        ["OnSwitch"] = {
+            enabled = true,
+            message = "$playerName switched teams. New team: [$team]",
+            color = 14
+        },
+        -- OnWarp:
+        ["OnWarp"] = {
+            enabled = true,
+            message = "$playerName is warping",
+            color = 14
+        },
+        ["OnReset"] = {
+            enabled = true,
+            message = "The map has been reset.",
+            color = 14
+        },
+        ["OnLogin"] = {
+            enabled = true,
+            message = "$playerName logged in",
+            color = 14
+        },
+        ["OnSnap"] = {
+            enabled = true,
+            message = "$playerName snapped",
+            color = 14
+        },
+        ["OnCommand"] = {
+            enabled = true,
+            message = "[$type] $name ($id): $cmd",
+            color = 14
+        },
+        ["OnChat"] = {
+            enabled = true,
+            message = "[$type] $name ($id): $msg",
+            color = 14
+        },
+        ["OnDeath"] = {
+            [1] = { -- first blood
+                enabled = true,
+                message = "$killerName drew first blood",
+                color = 10
+            },
+            [2] = { -- killed from the grave
+                enabled = true,
+                message = "$victimName was killed from the grave by $killerName",
+                color = 10
+            },
+            [3] = { -- vehicle kill
+                enabled = true,
+                message = "$victimName was run over by $killerName",
+                color = 10
+            },
+            [4] = { -- pvp
+                enabled = true,
+                message = "$victimName was killed by $killerName",
+                color = 10
+            },
+            [5] = { -- guardians
+                enabled = true,
+                message = "$victimName was killed by the guardians",
+                color = 10
+            },
+            [6] = { -- suicide
+                enabled = true,
+                message = "$victimName committed suicide",
+                color = 10
+            },
+            [7] = { -- betrayal
+                enabled = true,
+                message = "$victimName was betrayed by $killerName",
+                color = 10
+            },
+            [8] = { -- squashed by a vehicle
+                enabled = true,
+                message = "$victimName was squashed by a vehicle",
+                color = 10
+            },
+            [9] = { -- fall damage
+                enabled = true,
+                message = "$victimName fell and broke their leg",
+                color = 10
+            },
+            [10] = { -- killed by the server
+                enabled = true,
+                message = "$victimName was killed by the server",
+                color = 10
+            },
+            [11] = { -- unknown
+                enabled = true,
+                message = "$victimName died",
+                color = 10
+            },
+        }
+    }
+}
+
+local function parseMessageTemplate(messageTemplate, args)
+    local message = messageTemplate
+
+    for placeholder, value in pairs(args) do
+        message = message:gsub(placeholder, value)
+    end
+
+    return message
+end
+
+local function notify(eventName, args)
+
+    if notificationConfig.events[eventName] then
+
+        local eventConfig = notificationConfig.events[eventName]
+        local messageTemplate
+
+        if eventName == "OnDeath" then
+            local deathEvent = notificationConfig.events["OnDeath"][args.eventType]
+            if deathEvent and deathEvent.enabled then
+                eventConfig = deathEvent
+                messageTemplate = eventConfig.message
+                goto next
+            end
+        end
+
+        messageTemplate = eventConfig.message
+
+        :: next ::
+
+        if type(messageTemplate) == "string" and #messageTemplate > 0 then
+            local message
+            if args then
+                message = parseMessageTemplate(messageTemplate, args)
+            else
+                message = messageTemplate
+            end
+
+            local notification = notificationConfig.prefix .. message
+            local color = eventConfig.color or notificationConfig.defaultColor
+            cprint(notification, color)
+        end
     end
 end
 
-local function GetTag(Type, Name)
+local function getTag(Type, Name)
     local Tag = lookup_tag(Type, Name)
     return Tag ~= 0 and read_dword(Tag + 0xC) or nil
 end
 
-function OnStart()
-
-    if (get_var(0, "$gt") ~= "n/a") then
-
-        players = { }
-        first_blood = true
-
-        ffa = (get_var(0, '$ffa') == '1')
-
-        falling = GetTag('jpt!', 'globals\\falling')
-        distance = GetTag('jpt!', 'globals\\distance')
-
-        local map = get_var(0, "$map")
-        local mode = get_var(0, "$mode")
-
-        Notify({ { "A new game has started on " .. map .. " - " .. mode, 5 } })
-
-        for i = 1, 16 do
-            if player_present(i) then
-                OnJoin(i)
-            end
-        end
-    end
-end
-
-function OnEnd()
-    Notify({ { "Game Ended - Showing Post Game Carnage report", 5 } })
-end
-
-function OnPreJoin(Ply)
-
-    players[Ply] = {
-        id = Ply,
-        meta = 0,
-        switched = false,
-        ip = get_var(Ply, '$ip'),
-        name = get_var(Ply, '$name'),
-        team = get_var(Ply, '$team'),
-        hash = get_var(Ply, '$hash')
-    }
-
-    local player = players[Ply]
-    Notify({
-        { "________________________________________________________________________________", 10 },
-        { "Player attempting to connect to the server...", 13 },
-        { "Player: " .. player.name, 10 },
-        { "CD Hash: " .. player.hash, 10 },
-        { "IP Address: " .. player.ip, 10 },
-        { "Index ID: " .. player.id, 10 },
-        { "Privilege Level: " .. get_var(Ply, '$lvl'), 10 }
-    })
-end
-
-function OnJoin(Ply)
-    local player = players[Ply]
-    if (player) then
-        Notify({
-            { "Join Time: " .. os.date("%A %d %B %Y - %X"), 10 },
-            { "Status: " .. player.name .. " connected successfully.", 13 },
-            { "________________________________________________________________________________", 10 }
-        })
-    end
-end
-
-function OnSpawn(Ply)
-    players[Ply].meta = 0
-    players[Ply].switched = nil
-    Notify({ { players[Ply].name .. " spawned", 14 } })
-end
-
-function OnQuit(Ply)
-    local player = players[Ply]
-    if (player) then
-        Notify({
-            { "________________________________________________________________________________", 12 },
-            { "Player: " .. player.name, 12 },
-            { "CD Hash: " .. player.hash, 12 },
-            { "IP Address: " .. player.ip, 12 },
-            { "Index ID: " .. player.id, 12 },
-            { "Privilege Level: " .. get_var(Ply, '$lvl'), 12 },
-            { "Ping: " .. get_var(Ply, '$ping'), 12 },
-            { "________________________________________________________________________________", 12 }
-        })
-    end
-    players[Ply] = nil
-end
-
-function OnSwitch(Ply)
-    local t = players[Ply]
-    t.team = get_var(Ply, '$team')
-    t.switched = true
-    Notify({ { t.name .. " switched teams. New team: [" .. t.team .. "]", 13 } })
-end
-
-function OnWarp(Ply)
-    Notify({ { players[Ply].name .. " is warping", 13 } })
-end
-
-function OnReset()
-    Notify({ { "The map was reset!", 3 } })
-end
-
-function OnLogin(Ply)
-    local player = players[Ply]
-    if (player) then
-        Notify({ { player.name .. " logged in", 7 } })
-    end
-end
-
-function OnSnap(Ply)
-    local player = players[Ply]
-    if (player) then
-        Notify({ { player.name .. " snapped", 12 } })
-    end
-end
-
-local on_command = {
-    [1] = { "[RCON CMD] $name ID: [$id]: $cmd", 2 },
-    [2] = { "[CHAT CMD] $name ID: [$id]: /$cmd", 2 }
-}
-
-local function FormatStr(Str, Ply, CMD, MSG)
-    local player = players[Ply]
-    local words = {
-        ['$cmd'] = CMD,
-        ['$msg'] = MSG,
-        ['$id'] = player.id,
-        ['$ip'] = player.ip,
-        ['$name'] = player.name
-    }
-    for k, v in pairs(words) do
-        Str = Str:gsub(k, v)
-    end
-    return Str
-end
-
-function OnCommand(Ply, CMD, ENV)
-    if (Ply > 0) then
-        local msg = on_command[ENV]
-        local str = FormatStr(msg[1], Ply, CMD)
-        Notify({ { str, msg[2] } })
-    end
-end
-
-local on_chat = {
-    [0] = { "[GLOBAL] $name ID: [$id]: $msg", 3 },
-    [1] = { "[TEAM] $name ID: [$id]: $msg", 3 },
-    [2] = { "[VEHICLE] $name ID: [$id]: $msg", 3 },
-    [3] = { "[UNKNOWN] $name ID: [$id]: $msg", 3 },
-}
-
-local function IsCommand(msg)
-    return (msg:sub(1, 1) == "/" or msg:sub(1, 1) == "\\")
-end
-
-function OnChat(Ply, Msg, Type)
-    if (Ply > 0 and not IsCommand(Msg)) then
-        local msg = on_chat[Type]
-        local str = FormatStr(msg[1], Ply, nil, Msg)
-        Notify({ { str, msg[2] } })
-    end
-end
-
-function OnDeath(Victim, Killer, MetaID)
-
-    local victim = tonumber(Victim)
-    local killer = tonumber(Killer)
-
-    local v = players[victim]
-    local k = players[killer]
-
-    if (v) then
-
-        -- event_damage_application:
-        if (MetaID) then
-            v.meta = MetaID
-            return true
-        end
-
-        -- event_die:
-        local squashed = (killer == 0)
-        local guardians = (killer == nil)
-        local suicide = (killer == victim)
-        local pvp = (killer > 0 and killer ~= victim)
-        local server = (killer == -1 and not v.switched)
-        local fell = (v.meta == falling or v.meta == distance)
-        local betrayal = ((k and not ffa) and (v.team == k.team and killer ~= victim))
-
-        if (pvp and not betrayal) then
-
-            if (first_blood) then
-                first_blood = false
-                Notify({ { k.name .. " got first blood on " .. v.name, 8 } })
-                goto done
-            end
-
-            if (not player_alive(killer)) then
-                Notify({ { v.name .. " was killed from grave by " .. k.name, 8 } })
-                goto done
-            end
-
-            local DyN = get_dynamic_player(killer)
-            if (DyN ~= 0) then
-                local vehicle = read_dword(DyN + 0x11C)
-                if (vehicle ~= 0xFFFFFFFF) then
-                    Notify({ { v.name .. " was run over by " .. k.name, 8 } })
-                    goto done
-                end
-            end
-            Notify({ { v.name .. " was killed by " .. k.name, 8 } })
-
-        elseif (guardians) then
-            Notify({ { v.name .. " and " .. k.name .. " were killed by the guardians", 8 } })
-        elseif (suicide) then
-            Notify({ { v.name .. " committed suicide", 8 } })
-        elseif (betrayal) then
-            Notify({ { v.name .. " was betrayed by " .. k.name, 8 } })
-        elseif (squashed) then
-            Notify({ { v.name .. " was squashed by a vehicle", 8 } })
-        elseif (fell) then
-            Notify({ { v.name .. " fell and broke their leg", 8 } })
-        elseif (server) then
-            Notify({ { v.name .. " was killed by the server", 8 } })
-        elseif (not v.switched) then
-            Notify({ { v.name .. " died/unknown", 8 } })
-        end
-        :: done ::
-    end
-end
-
-local function ReadWideString(Address, Length)
+local function readWideString(Address, Length)
     local count = 0
     local byte_table = {}
     for i = 1, Length do
@@ -312,26 +281,284 @@ local function ReadWideString(Address, Length)
     return concat(byte_table)
 end
 
-function Logo()
-
+local function getServerName()
     local network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
-    local server_name = ReadWideString(network_struct + 0x8, 0x42)
+    return readWideString(network_struct + 0x8, 0x42)
+end
 
-    Notify({
-        { "================================================================================", 10 },
-        { date("%A, %d %B %Y - %X"), 6 },
-        { "", 0 },
-        { "     '||'  '||'     |     '||'       ..|''||           ..|'''.| '||''''|  ", 12 },
-        { "      ||    ||     |||     ||       .|'    ||        .|'     '   ||  .    ", 12 },
-        { "      ||''''||    |  ||    ||       ||      ||       ||          ||''|    ", 12 },
-        { "      ||    ||   .''''|.   ||       '|.     ||       '|.      .  ||       ", 12 },
-        { "     .||.  .||. .|.  .||. .||.....|  ''|...|'         ''|....'  .||.....| ", 12 },
-        { "               ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-", 7 },
-        { "                             " .. server_name, 10 },
-        { "               ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-", 7 },
-        { "", 0 },
-        { "================================================================================", 10 }
+function printLogo()
+    local logo = notificationConfig.logo
+    if logo.enabled then
+        local logoLines = logo.text
+        for _, line in ipairs(logoLines) do
+            local message = line[1]
+            if message then
+                message = message:gsub("$timeStamp", date(notificationConfig.timeStampFormat))
+                message = message:gsub("$serverName", getServerName())
+                cprint(message, line[2])
+            end
+        end
+    end
+end
+
+function OnStart()
+
+    if (get_var(0, "$gt") ~= "n/a") then
+
+        players = { }
+        first_blood = true
+
+        ffa = (get_var(0, '$ffa') == '1')
+
+        falling = getTag('jpt!', 'globals\\falling')
+        distance = getTag('jpt!', 'globals\\distance')
+
+        local map = get_var(0, "$map")
+        local mode = get_var(0, "$mode")
+
+        notify("OnStart", {
+            ["$map"] = map,
+            ["$mode"] = mode
+        })
+
+        for i = 1, 16 do
+            if player_present(i) then
+                OnJoin(i)
+            end
+        end
+    end
+end
+
+function OnEnd()
+    notify("OnEnd")
+end
+
+function OnPreJoin(id)
+
+    local level = tonumber(get_var(id, '$lvl'))
+    players[id] = {
+        level = level,
+        id = id,
+        meta = 0,
+        switched = false,
+        ip = get_var(id, '$ip'),
+        name = get_var(id, '$name'),
+        team = get_var(id, '$team'),
+        hash = get_var(id, '$hash')
+    }
+
+    local player = players[id]
+    notify("OnPreJoin", {
+        ["$playerName"] = player.name,
+        ["$ipAddress"] = player.ip,
+        ["$cdHash"] = player.hash,
+        ["$indexID"] = player.id,
+        ["$privilegeLevel"] = level,
+        ["$joinTime"] = date(notificationConfig.timeStampFormat)
     })
+end
+
+function OnJoin(id)
+    local player = players[id]
+    if player then
+        local timestamp = date(notificationConfig.timeStampFormat)
+        notify("OnJoin", {
+            ["$playerName"] = player.name,
+            ["$joinTime"] = timestamp
+        })
+    end
+end
+
+function OnSpawn(id)
+    local player = players[id]
+    if player then
+        players[id].meta = 0
+        players[id].switched = nil
+        notify("OnSpawn", {
+            ["$playerName"] = players[id].name
+        })
+    end
+end
+
+function OnQuit(id)
+    local player = players[id]
+    if (player) then
+        notify("OnQuit", {
+            ["$playerName"] = player.name,
+            ["$ipAddress"] = player.ip,
+            ["$cdHash"] = player.hash,
+            ["$indexID"] = player.id,
+            ["$privilegeLevel"] = player.level,
+            ["$ping"] = get_var(id, "$ping")
+        })
+    end
+    players[id] = nil
+end
+
+function OnSwitch(id)
+    local player = players[id]
+    if player then
+        player.team = get_var(id, '$team')
+        player.switched = true
+        notify("OnSwitch", {
+            ["$playerName"] = player.name,
+            ["$team"] = player.team
+        })
+    end
+end
+
+function OnWarp(id)
+    local player = players[id]
+    if player then
+        notify("OnWarp", {
+            ["$playerName"] = players[id].name
+        })
+    end
+end
+
+function OnReset()
+    notify("OnReset")
+end
+
+function OnLogin(id)
+    local player = players[id]
+    if (player) then
+        notify("OnLogin", {
+            ["$playerName"] = player.name
+        })
+    end
+end
+
+function OnSnap(id)
+    local player = players[id]
+    if (player) then
+        notify("OnSnap", {
+            ["$playerName"] = player.name
+        })
+    end
+end
+
+local command_type = {
+    [0] = "rcon command",
+    [1] = "console command",
+    [2] = "chat command",
+    [3] = "unknown command type"
+}
+
+function OnCommand(id, command, environment)
+    local player = players[id]
+    if (player and id > 0) then
+        local cmd = command:match("^(%S+)")
+        notify("OnCommand", {
+            ["$type"] = command_type[environment],
+            ["$name"] = player.name,
+            ["$id"] = id,
+            ["$cmd"] = cmd
+        })
+    end
+end
+
+local chat_type = {
+    [0] = "GLOBAL",
+    [1] = "TEAM",
+    [2] = "VEHICLE",
+    [3] = "UNKNOWN"
+}
+
+local function isCommand(str)
+    return (str:sub(1, 1) == "/" or str:sub(1, 1) == "\\")
+end
+
+function OnChat(id, message, environment)
+    local player = players[id]
+    if (player and id > 0) then
+        local msg = message:match("^(%S+)")
+        if (not isCommand(msg)) then
+            notify("OnChat", {
+                ["$type"] = chat_type[environment],
+                ["$name"] = player.name,
+                ["$id"] = id,
+                ["$msg"] = message
+            })
+        end
+    end
+end
+
+function OnDeath(victimIndex, killerIndex, metaID)
+
+    victimIndex = tonumber(victimIndex)
+    killerIndex = tonumber(killerIndex)
+
+    local victimPlayer = players[victimIndex]
+    local killerPlayer = players[killerIndex]
+
+    if victimPlayer then
+
+        if metaID then
+            victimPlayer.meta = metaID
+            return true
+        end
+
+        local squashed = (killerIndex == 0)
+        local guardians = (killerIndex == nil)
+        local suicide = (killerIndex == victimIndex)
+        local pvp = (killerIndex > 0 and killerIndex ~= victimIndex)
+        local server = (killerIndex == -1 and not victimPlayer.switched)
+        local fell = (victimPlayer.meta == falling or victimPlayer.meta == distance)
+        local betrayal = (killerPlayer and not ffa and victimPlayer.team == killerPlayer.team and killerIndex ~= victimIndex)
+
+        local eventType
+        if pvp and not betrayal then
+
+            if first_blood then
+                first_blood = false
+                eventType = 1
+                goto done
+            end
+
+            -- killed from the grave
+            if not player_alive(killerIndex) then
+                eventType = 2
+                goto done
+            end
+
+            -- vehicle kill
+            local dyn = get_dynamic_player(killerIndex)
+            if dyn ~= 0 then
+                local vehicle = read_dword(dyn + 0x11C)
+                if vehicle ~= 0xFFFFFFFF then
+                    eventType = 3
+                    goto done
+                end
+            end
+
+            -- pvp
+            eventType = 4
+
+        elseif guardians then
+            eventType = 5
+        elseif suicide then
+            eventType = 6
+        elseif betrayal then
+            eventType = 7
+        elseif squashed then
+            eventType = 8
+        elseif fell then
+            eventType = 9
+        elseif server then
+            eventType = 10
+        else
+            eventType = 11
+        end
+
+        :: done ::
+
+        notify("OnDeath", {
+            ["eventType"] = eventType,
+            ["$killerName"] = killerPlayer and killerPlayer.name or "",
+            ["$victimName"] = victimPlayer.name
+        })
+    end
 end
 
 function OnScriptUnload()
