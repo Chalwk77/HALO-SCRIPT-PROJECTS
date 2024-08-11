@@ -79,19 +79,22 @@ function OnScriptLoad()
     OnStart()
 end
 
-local function GetTag(type, name)
+local function getTag(type, name)
     local tag = lookup_tag(type, name)
     return tag ~= 0 and read_dword(tag + 0xC) or nil
 end
 
+-- Function to initialize the meta_ids table with multipliers
 function OnStart()
-    if (get_var(0, '$gt') ~= 'n/a') then
-
+    if get_var(0, '$gt') ~= 'n/a' then
         meta_ids = {}
 
-        for name, multiplier in pairs(multipliers) do
-            local meta_id = GetTag('jpt!', name)
-            meta_ids[meta_id or ''] = (meta_id and multiplier)
+        for tagName, multiplier in pairs(multipliers) do
+            -- Get the tag ID
+            local metaId = getTag('jpt!', tagName)
+
+            -- Add the tag ID and its associated multiplier to the meta_ids table
+            meta_ids[metaId or ''] = metaId and multiplier
         end
     end
 end
@@ -103,6 +106,6 @@ function OnDamage(Victim, Killer, MetaID, Damage)
 
     if (killer > 0 and victim ~= killer) then
         local mult = meta_ids[MetaID]
-        return true, (mult and Damage * mult)
+        return true, (mult and Damage ^ mult) -- Apply the damage multiplier exponentially
     end
 end

@@ -375,7 +375,7 @@ function OnSpawn(id)
         players[id].meta = 0
         players[id].switched = nil
         notify("OnSpawn", {
-            ["$playerName"] = players[id].name
+            ["$playerName"] = player.name
         })
     end
 end
@@ -411,7 +411,7 @@ function OnWarp(id)
     local player = players[id]
     if player then
         notify("OnWarp", {
-            ["$playerName"] = players[id].name
+            ["$playerName"] = player.name
         })
     end
 end

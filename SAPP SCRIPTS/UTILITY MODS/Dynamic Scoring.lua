@@ -157,41 +157,32 @@ local function SetScoreTable(m, gt)
     end
 end
 
-local function getChar(n)
+local function get_char(n)
     return (n > 1 and 's') or ''
 end
 
-local function Modify(QUIT)
+local function GenerateMessage(limit)
+    local message = score_table[#score_table]
+    message = message:gsub('$limit', limit):gsub('$s', get_char(limit))
+    return message
+end
 
-    if (score_table) then
+local function Modify(isQuit)
+    if score_table then
+        for _, v in ipairs(score_table) do
 
-        for _, v in pairs(score_table) do
             local min, max, limit = v[1], v[2], v[3]
-            if (min) then
+            local players = tonumber(get_var(0, '$pn'))
 
-                local n = tonumber(get_var(0, '$pn'))
+            if min and ((isQuit and players - 1 >= min) or players >= min) and players <= max and limit ~= current_limit then
 
-                -- Technical note:
-                -- When a player quits, the $pn variable does not update immediately.
-                -- So we have to manually deduct one from the player count.
+                current_limit = limit
 
-                -- @Param QUIT is true when a player disconnects from the server.
-                -- We use this to determine when to deduct one from n.
-                --
-                n = (QUIT and n - 1) or n
+                execute_command('scorelimit ' .. limit)
 
-                if (n >= min and n <= max and limit ~= current_limit) then
-
-                    current_limit = limit
-                    execute_command('scorelimit ' .. limit)
-
-                    local txt = score_table[#score_table]
-                    txt = txt:gsub('$limit', limit):gsub('$s', getChar(limit))
-                    say_all(txt)
-                    cprint(txt, 10)
-
-                    break
-                end
+                local txt = GenerateMessage(limit)
+                say_all(txt)
+                cprint(txt, 10)
             end
         end
     end
