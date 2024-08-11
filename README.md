@@ -11,7 +11,7 @@ Phasor.
 **What is SAPP & Phasor?**
 > Powerful server extensions for the Halo: PC (retail) and Halo: CE (Custom Edition) dedicated server.
 
-I have been writing Lua scripts for 13 years; Making everything from custom games, utilities, libraries and other server
+I have been writing Lua scripts for Halo since circa 2009; Making everything from custom games, utilities, libraries and other server
 additives.
 
 ## ❤️ SUPPORT ME️ ❤️
@@ -90,6 +90,6 @@ You can further support me by clicking the 👁️ watch and ⭐ star buttons at
 ### Contact Me:
 
 Email: **jericho.crosby227@gmail.com**<br/>
-Discord: **Chalwk** (formally Chalwk#9284)
+Discord: **Chalwk**
 
 ----
