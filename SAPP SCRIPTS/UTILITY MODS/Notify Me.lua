@@ -27,39 +27,8 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
-
-api_version = '1.12.0.0'
-
-local players = {}
-local date = os.date
-local char = string.char
-local concat = table.concat
-local ffa, falling, distance, first_blood
-
-function OnScriptLoad()
-
-    register_callback(cb['EVENT_CHAT'], 'OnChat')
-    register_callback(cb['EVENT_COMMAND'], 'OnCommand')
-
-    register_callback(cb['EVENT_DIE'], 'OnDeath')
-    register_callback(cb['EVENT_DAMAGE_APPLICATION'], 'OnDeath')
-
-    register_callback(cb['EVENT_JOIN'], 'OnJoin')
-    register_callback(cb['EVENT_LEAVE'], 'OnQuit')
-    register_callback(cb['EVENT_PREJOIN'], 'OnPreJoin')
-
-    register_callback(cb['EVENT_GAME_END'], 'OnEnd')
-    register_callback(cb['EVENT_GAME_START'], 'OnStart')
-
-    register_callback(cb['EVENT_SNAP'], 'OnSnap')
-    register_callback(cb['EVENT_SPAWN'], 'OnSpawn')
-    register_callback(cb['EVENT_LOGIN'], 'OnLogin')
-    register_callback(cb['EVENT_MAP_RESET'], "OnReset")
-    register_callback(cb['EVENT_TEAM_SWITCH'], 'OnSwitch')
-
-    OnStart()
-    timer(50, "printLogo")
-end
+--
+-- Configuration starts here -----------------------------------------------------------------------
 
 -- Notification configuration
 local notificationConfig = {
@@ -218,6 +187,43 @@ local notificationConfig = {
         }
     }
 }
+
+
+api_version = '1.12.0.0'
+
+-- Configuration ends here -----------------------------------------------------------------------
+--
+
+local players = {}
+local date = os.date
+local char = string.char
+local concat = table.concat
+local ffa, falling, distance, first_blood
+
+function OnScriptLoad()
+
+    register_callback(cb['EVENT_CHAT'], 'OnChat')
+    register_callback(cb['EVENT_COMMAND'], 'OnCommand')
+
+    register_callback(cb['EVENT_DIE'], 'OnDeath')
+    register_callback(cb['EVENT_DAMAGE_APPLICATION'], 'OnDeath')
+
+    register_callback(cb['EVENT_JOIN'], 'OnJoin')
+    register_callback(cb['EVENT_LEAVE'], 'OnQuit')
+    register_callback(cb['EVENT_PREJOIN'], 'OnPreJoin')
+
+    register_callback(cb['EVENT_GAME_END'], 'OnEnd')
+    register_callback(cb['EVENT_GAME_START'], 'OnStart')
+
+    register_callback(cb['EVENT_SNAP'], 'OnSnap')
+    register_callback(cb['EVENT_SPAWN'], 'OnSpawn')
+    register_callback(cb['EVENT_LOGIN'], 'OnLogin')
+    register_callback(cb['EVENT_MAP_RESET'], "OnReset")
+    register_callback(cb['EVENT_TEAM_SWITCH'], 'OnSwitch')
+
+    OnStart()
+    timer(50, "printLogo")
+end
 
 local function parseMessageTemplate(messageTemplate, args)
     local message = messageTemplate

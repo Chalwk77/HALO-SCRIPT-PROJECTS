@@ -16,23 +16,60 @@ local _tonumber = tonumber
 local _setmetatable = setmetatable
 local _pairs = pairs
 
+local function loadCommandTable(file_path)
+    local command_table = _require(file_path)
+    return command_table
+end
+
+local function setCommandString(original_string, cmd)
+    return original_string:gsub('$cmd', cmd)
+end
+
+local function setCommandAttributes(cmd, command_table, enabled, level, self)
+    local new_command_table = {}
+
+    new_command_table.enabled = enabled
+    new_command_table.permission_level = _tonumber(level)
+    new_command_table.help = setCommandString(command_table.help, cmd)
+    new_command_table.description = setCommandString(command_table.description, cmd)
+
+    _setmetatable(new_command_table, { __index = self })
+
+    return new_command_table
+end
+
+
 function misc:setManagementCMDS()
     local t, commands = {}, self.management_commands
+
     for level, v in pairs(commands) do
         for file_name, enabled in _pairs(v) do
-            local dir = self.commands_dir
-            local command_table = _require(dir .. file_name)
+            local command_table = loadCommandTable(self.commands_dir .. file_name)
             local cmd = command_table.name
-            t[cmd] = command_table
-            t[cmd].enabled = enabled
-            t[cmd].permission_level = tonumber(level)
-            t[cmd].help = command_table.help:gsub('$cmd', cmd)
-            t[cmd].description = command_table.description:gsub('$cmd', cmd)
-            _setmetatable(t[cmd], { __index = self })
+
+            t[cmd] = setCommandAttributes(cmd, command_table, enabled, level, self)
         end
     end
+
     self.management = t
 end
+--function misc:setManagementCMDS()
+--    local t, commands = {}, self.management_commands
+--    for level, v in pairs(commands) do
+--        for file_name, enabled in _pairs(v) do
+--            local dir = self.commands_dir
+--            local command_table = _require(dir .. file_name)
+--            local cmd = command_table.name
+--            t[cmd] = command_table
+--            t[cmd].enabled = enabled
+--            t[cmd].permission_level = tonumber(level)
+--            t[cmd].help = command_table.help:gsub('$cmd', cmd)
+--            t[cmd].description = command_table.description:gsub('$cmd', cmd)
+--            _setmetatable(t[cmd], { __index = self })
+--        end
+--    end
+--    self.management = t
+--end
 
 function misc:setAdminID(admin_table)
     local id = 0
