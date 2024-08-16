@@ -1,13 +1,11 @@
 {
   "127.0.0.1:25464": {
     "name": "Chalwk",
-    "times": {
-      "EV_JUMP": {
-        "bestTime": 123.45,
-        "checkpoints": {
-          "checkpoint1": 111.11,
-          "checkpoint2": 222.22
-        }
+    "EV_jump": {
+      "bestTime": 123.45,
+      "checkpoints": {
+        "checkpoint1": 111.11,
+        "checkpoint2": 222.22
       }
     }
   }

@@ -5,7 +5,15 @@ function player:newPlayer(playerTable)
     setmetatable(playerTable, { __index = self })
     self.__index = self
 
+    playerTable.stats = playerTable:loadStats()
+
     return playerTable
+end
+
+function player:isValidPlayer()
+    local id = self.id
+    local dyn = get_dynamic_player(id)
+    return player_present(id) and dyn ~= 0 and player_alive(id)
 end
 
 function player:getPlayerPosition(dyn)

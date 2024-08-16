@@ -1,38 +1,37 @@
 local intersect = {}
 
-local sqrt, pow = math.sqrt, math.pow
-
 function intersect:hasCrossedStartLine(dyn)
     local start = self.start_line
-    local pointA = { start[1], start[2], start[3] }
-    local pointB = { start[4], start[5], start[6] }
+    local pointA = { x = start[1].x, y = start[1].y, z = start[1].z }
+    local pointB = { x = start[2].x, y = start[2].y, z = start[2].z }
     return intersect:hasIntersected(pointA, pointB, dyn)
 end
 
 function intersect:hasCrossedFinishLine(dyn)
     local finish = self.finish_line
-    local pointA = { finish[1], finish[2], finish[3] }
-    local pointB = { finish[4], finish[5], finish[6] }
+    local pointA = { x = finish[1].x, y = finish[1].y, z = finish[1].z }
+    local pointB = { x = finish[2].x, y = finish[2].y, z = finish[2].z }
     return intersect:hasIntersected(pointA, pointB, dyn)
 end
 
 function intersect:hasIntersected(pointA, pointB, dyn)
 
-    local distanceThreshold = 0
-
+    local distanceThreshold = 1
     local playerPosition = self:getPlayerPosition(dyn)
-    local x1, y1, z1 = pointA[1], pointA[2], pointA[3]
-    local x2, y2, z2 = pointB[1], pointB[2], pointB[3]
+    local x1, y1, z1 = pointA.x, pointA.y, pointA.z
+    local x2, y2, z2 = pointB.x, pointB.y, pointB.z
     local px, py, pz = playerPosition.x, playerPosition.y, playerPosition.z
 
-    local dx = x2 - x1
-    local dy = y2 - y1
-    local dz = z2 - z1
+    local vectorA = { x = x2 - x1, y = y2 - y1, z = z2 - z1 }
+    local vectorB = { x = px - x1, y = py - y1, z = pz - z1 }
 
-    local distanceAlongLine = (px - x1) * dx + (py - y1) * dy + (pz - z1) * dz
-    local lineLength = sqrt(pow(dx, 2) + pow(dy, 2) + pow(dz, 2))
+    local crossProduct = {
+        x = vectorA.y * vectorB.z - vectorA.z * vectorB.y,
+        y = vectorA.z * vectorB.x - vectorA.x * vectorB.z,
+        z = vectorA.x * vectorB.y - vectorA.y * vectorB.x
+    }
 
-    return distanceThreshold <= distanceAlongLine <= lineLength
+    return crossProduct.x * crossProduct.x + crossProduct.y * crossProduct.y + crossProduct.z * crossProduct.z <= distanceThreshold
 end
 
 return intersect

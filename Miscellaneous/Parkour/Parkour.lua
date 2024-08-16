@@ -11,12 +11,14 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 local config = {
     json = loadfile('./Parkour/util/json.lua')(),
+    timer = loadfile('./Parkour/util/timer.lua')(),
     dependencies = {
         ['./Parkour/checkpoints/'] = {
             'anchor',
             'check',
             'init'
         },
+        ['./Parkour/entities/'] = { 'player' },
         ['./Parkour/events/'] = {
             'on_death',
             'on_join',
@@ -27,7 +29,7 @@ local config = {
             'on_tick'
         },
         ['./Parkour/start_finish_setup/'] = { 'line_intersect', 'race_lines' },
-        ['./Parkour/util/'] = { 'fileIO', 'player', 'utils' },
+        ['./Parkour/util/'] = { 'fileIO', 'utils' },
         ['./Parkour/'] = { 'settings' }
     }
 }

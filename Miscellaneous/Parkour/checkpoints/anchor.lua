@@ -1,8 +1,6 @@
--- Vector class to handle positions and velocities
 local Vector = {}
 Vector.__index = Vector
 
--- Constructor function to create a new Vector object
 function Vector:new(x, y, z)
     local self = setmetatable({}, Vector)
     self.x = x
@@ -11,26 +9,19 @@ function Vector:new(x, y, z)
     return self
 end
 
--- Function to spawn oddballs with proper anchoring behavior
 function Vector:createAnchor()
 
-    -- Iterate over the oddballs table
     for object, v in pairs(self.oddballs) do
         local memory = get_object_memory(object)
         if memory ~= 0 then
 
-            -- Create a new Vector object for the checkpoint position
             local target = Vector:new(v.x, v.y, v.z) -- checkpoint position
-
-            -- Retrieve current position and velocity from memory
             local position, velocity = self:getCurrentPositionAndVelocity(memory)
 
-            -- Calculate desired velocity to move towards the checkpoint
             local desired_velocity_x = target.x - position.x
             local desired_velocity_y = target.y - position.y
             local desired_velocity_z = target.z - position.z
 
-            -- Apply smoothing factor for smoother movement
             local smoothing_factor = 0.1
             local new_velocity = Vector:new(
                     (desired_velocity_x - velocity.x) * smoothing_factor + velocity.x,
@@ -38,13 +29,11 @@ function Vector:createAnchor()
                     (desired_velocity_z - velocity.z) * smoothing_factor + velocity.z
             )
 
-            -- Update position, velocity, and rotation in memory
             self:updatePositionAndRotation(memory, target, new_velocity)
         end
     end
 end
 
--- Function to update position, velocity, and rotation in memory
 function Vector:updatePositionAndRotation(memory, target, new_velocity)
     -- Update position in memory
     write_float(memory + 0x5C, target.x)
@@ -74,7 +63,6 @@ end
 function Vector:getVelocity(memory)
     local x = read_float(memory + 0x68)
     local y = read_float(memory + 0x6C)
-
     local z = read_float(memory + 0x70)
     return Vector:new(x, y, z)
 end
