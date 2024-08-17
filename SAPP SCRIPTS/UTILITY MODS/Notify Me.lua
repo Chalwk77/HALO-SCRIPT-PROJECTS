@@ -31,7 +31,7 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 -- Configuration starts here -----------------------------------------------------------------------
 
 -- Notification configuration
-local notificationConfig = {
+local config = {
 
     -- General settings:
     prefix = "", -- default empty
@@ -105,7 +105,7 @@ local notificationConfig = {
         },
         ["OnReset"] = {
             enabled = true,
-            message = "The map has been reset.",
+            message = "The map [$map / $mode] has been reset.",
             color = 14
         },
         ["OnLogin"] = {
@@ -183,11 +183,10 @@ local notificationConfig = {
                 enabled = true,
                 message = "$victimName died",
                 color = 10
-            },
+            }
         }
     }
 }
-
 
 api_version = '1.12.0.0'
 
@@ -237,36 +236,27 @@ end
 
 local function notify(eventName, args)
 
-    if notificationConfig.events[eventName] then
+    if config.events[eventName] then
 
-        local eventConfig = notificationConfig.events[eventName]
+        local eventConfig = config.events[eventName]
         local messageTemplate
 
         if eventName == "OnDeath" then
-            local deathEvent = notificationConfig.events["OnDeath"][args.eventType]
+            local deathEvent = config.events["OnDeath"][args.eventType]
             if deathEvent and deathEvent.enabled then
                 eventConfig = deathEvent
                 messageTemplate = eventConfig.message
                 goto next
             end
         end
-
         messageTemplate = eventConfig.message
 
         :: next ::
 
-        if type(messageTemplate) == "string" and #messageTemplate > 0 then
-            local message
-            if args then
-                message = parseMessageTemplate(messageTemplate, args)
-            else
-                message = messageTemplate
-            end
-
-            local notification = notificationConfig.prefix .. message
-            local color = eventConfig.color or notificationConfig.defaultColor
-            cprint(notification, color)
-        end
+        local message = parseMessageTemplate(messageTemplate, args)
+        local notification = config.prefix .. message
+        local color = eventConfig.color or config.defaultColor
+        cprint(notification, color)
     end
 end
 
@@ -293,13 +283,13 @@ local function getServerName()
 end
 
 function printLogo()
-    local logo = notificationConfig.logo
+    local logo = config.logo
     if logo.enabled then
         local logoLines = logo.text
         for _, line in ipairs(logoLines) do
             local message = line[1]
             if message then
-                message = message:gsub("$timeStamp", date(notificationConfig.timeStampFormat))
+                message = message:gsub("$timeStamp", date(config.timeStampFormat))
                 message = message:gsub("$serverName", getServerName())
                 cprint(message, line[2])
             end
@@ -336,7 +326,10 @@ function OnStart()
 end
 
 function OnEnd()
-    notify("OnEnd")
+    notify("OnEnd", {
+        ["$map"] = get_var(0, "$map"),
+        ["$mode"] = get_var(0, "$mode")
+    })
 end
 
 function OnPreJoin(id)
@@ -360,14 +353,14 @@ function OnPreJoin(id)
         ["$cdHash"] = player.hash,
         ["$indexID"] = player.id,
         ["$privilegeLevel"] = level,
-        ["$joinTime"] = date(notificationConfig.timeStampFormat)
+        ["$joinTime"] = date(config.timeStampFormat)
     })
 end
 
 function OnJoin(id)
     local player = players[id]
     if player then
-        local timestamp = date(notificationConfig.timeStampFormat)
+        local timestamp = date(config.timeStampFormat)
         notify("OnJoin", {
             ["$playerName"] = player.name,
             ["$joinTime"] = timestamp
@@ -423,7 +416,10 @@ function OnWarp(id)
 end
 
 function OnReset()
-    notify("OnReset")
+    notify("OnReset", {
+        ["$map"] = get_var(0, "$map"),
+        ["$mode"] = get_var(0, "$mode")
+    })
 end
 
 function OnLogin(id)
