@@ -107,7 +107,7 @@ end
 
 -- Utility function to calculate the distance between two points
 local function GetDist(x1, y1, z1, x2, y2, z2)
-    return math.sqrt((x1 - x2)^2 + (y1 - y2)^2 + (z1 - z2)^2)
+    return math.sqrt((x1 - x2) ^ 2 + (y1 - y2) ^ 2 + (z1 - z2) ^ 2)
 end
 
 -- Utility function to send a message to a player or all players
@@ -342,6 +342,11 @@ function OnEnd()
         return a.total_time > b.total_time
     end)
 
+    if #winners == 0 then
+        Say(nil, 'The game ended in a tie.')
+        goto next
+    end
+
     -- Announce the top three players.
     for i = 1, 3 do
         local player = winners[i]
@@ -352,6 +357,8 @@ function OnEnd()
             Say(nil, place .. ' place: ' .. name .. ' | ' .. time .. ' seconds.')
         end
     end
+
+    :: next ::
 
     -- Reset the players table.
     players = {}
