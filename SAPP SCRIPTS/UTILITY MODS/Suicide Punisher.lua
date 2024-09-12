@@ -6,8 +6,9 @@
 -- Notice: You can use this script subject to the following conditions:
 --         https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
--- Configure the script behavior
-local Suicide = {
+
+-- Configuration
+local config = {
     threshold = 5, -- Number of suicides within the grace period to trigger the action
     grace = 30, -- Grace period in seconds
     action = 'kick', -- Valid actions are 'kick' and 'ban'
@@ -16,27 +17,33 @@ local Suicide = {
 }
 
 api_version = "1.12.0.0"
--- Local variables and functions
-local players
-local os = _G.os
-local time = os.time
-local Suicide_mt = {
-    __index = Suicide,
-    newPlayer = function(self, o)
-        setmetatable(o, self)
-        o.suicides = 0
-        return o
-    end,
-    takeAction = function(self)
-        if self.action == 'kick' then
-            execute_command('k ' .. self.id .. ' "' .. self.reason .. '"')
-            cprint(self.name .. ' was kicked for ' .. self.reason, 12)
-        elseif self.action == 'ban' then
-            execute_command('b ' .. self.id .. ' ' .. self.ban_time .. ' "' .. self.reason .. '"')
-            cprint(self.name .. ' was banned for ' .. self.reason, 12)
-        end
+
+-- Player class
+local Player = {}
+Player.__index = Player
+
+function Player:new(id, name)
+    local self = setmetatable({}, Player)
+    self.id = id
+    self.name = name
+    self.suicides = 0
+    self.start = nil
+    self.finish = nil
+    return self
+end
+
+function Player:takeAction()
+    if config.action == 'kick' then
+        execute_command('k ' .. self.id .. ' "' .. config.reason .. '"')
+        cprint(self.name .. ' was kicked for ' .. config.reason, 12)
+    elseif config.action == 'ban' then
+        execute_command('b ' .. self.id .. ' ' .. config.ban_time .. ' "' .. config.reason .. '"')
+        cprint(self.name .. ' was banned for ' .. config.reason, 12)
     end
-}
+end
+
+-- Global variables
+local players = {}
 
 -- Event handlers
 function OnScriptLoad()
@@ -60,7 +67,7 @@ function OnStart()
 end
 
 function OnJoin(playerIndex)
-    players[playerIndex] = Suicide_mt.newPlayer({ id = playerIndex, name = get_var(playerIndex, "$name") })
+    players[playerIndex] = Player:new(playerIndex, get_var(playerIndex, "$name"))
 end
 
 function OnQuit(playerIndex)
@@ -75,24 +82,23 @@ function OnDeath(victimIndex, killerIndex)
     if victimPlayer and killer == victim then
         victimPlayer.suicides = victimPlayer.suicides + 1
 
-        if victimPlayer.suicides >= victimPlayer.threshold then
+        if victimPlayer.suicides >= config.threshold then
             victimPlayer:takeAction()
         else
-            victimPlayer.start = time()
-            victimPlayer.finish = time() + victimPlayer.grace
+            victimPlayer.start = os.time()
+            victimPlayer.finish = os.time() + config.grace
         end
     end
 end
 
 function OnTick()
-    for playerIndex, playerData in pairs(players) do
-        if player_present(playerIndex) and playerData.start and time() >= playerData.finish then
+    for victimIndex, playerData in pairs(players) do
+        if player_present(victimIndex) and playerData.start and os.time() >= playerData.finish then
             playerData.start, playerData.finish, playerData.suicides = nil, nil, 0
         end
     end
 end
 
--- No action is required when the script is unloaded
 function OnScriptUnload()
     -- N/A
 end

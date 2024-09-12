@@ -82,6 +82,10 @@ local Logger = {
     }
 }
 
+-- Formats a string by replacing placeholders with actual values.
+-- @param template The string template with placeholders.
+-- @param variables A table containing the placeholder values.
+-- @return The formatted string.
 local function format_string(template, variables)
     for key, value in pairs(variables) do
         template = template:gsub(key, value)
@@ -89,6 +93,9 @@ local function format_string(template, variables)
     return template
 end
 
+-- Writes content to a file.
+-- @param file_path The path to the file.
+-- @param content The content to write to the file.
 local function write_to_file(file_path, content)
     local file = io.open(file_path, 'a+')
     if file then
@@ -97,6 +104,9 @@ local function write_to_file(file_path, content)
     end
 end
 
+-- Logs an event to the server log file.
+-- @param event The event name.
+-- @param variables A table containing the placeholder values for the event message.
 function Logger:log_event(event, variables)
     local event_data = self.events[event]
     if event_data and event_data[2] then
@@ -107,6 +117,13 @@ function Logger:log_event(event, variables)
     end
 end
 
+-- Creates a new player object.
+-- @param playerId The player's ID.
+-- @param ipAddress The player's IP address.
+-- @param name The player's name.
+-- @param hash The player's hash.
+-- @param team The player's team.
+-- @return The new player object.
 function Logger:new_player(playerId, ipAddress, name, hash, team)
     local player = {
         id = playerId,
@@ -122,6 +139,7 @@ function Logger:new_player(playerId, ipAddress, name, hash, team)
     return player
 end
 
+-- Called when the script is loaded.
 function OnScriptLoad()
 
     local directory = read_string(read_dword(sig_scan('68??????008D54245468') + 0x1))
@@ -150,11 +168,18 @@ function OnScriptLoad()
     OnGameStart(true)
 end
 
+-- Retrieves the tag address for a given tag type and name.
+-- @param tag_type The type of the tag.
+-- @param tag_name The name of the tag.
+-- @return The tag address or nil if not found.
 local function get_tag(tag_type, tag_name)
     local tag = lookup_tag(tag_type, tag_name)
     return tag ~= 0 and read_dword(tag + 0xC) or nil
 end
 
+-- Checks if a command is sensitive.
+-- @param command The command to check.
+-- @return True if the command is sensitive, false otherwise.
 local function is_sensitive_command(command)
     for _, keyword in ipairs(Logger.sensitive_commands) do
         if command:find(keyword) then
@@ -164,15 +189,23 @@ local function is_sensitive_command(command)
     return false
 end
 
+-- Checks if a message is a command.
+-- @param message The message to check.
+-- @return True if the message is a command, false otherwise.
 local function is_command(message)
     return message:sub(1, 1) == '/' or message:sub(1, 1) == '\\'
 end
 
+-- Checks if a player is in a vehicle.
+-- @param playerId The player's ID.
+-- @return True if the player is in a vehicle, false otherwise.
 local function is_in_vehicle(playerId)
     local dynamic_player = get_dynamic_player(playerId)
     return dynamic_player ~= 0 and read_dword(dynamic_player + 0x11C) ~= 0xFFFFFFFF
 end
 
+-- Called when a new game starts.
+-- @param is_script_load True if the script is being loaded, false otherwise.
 function OnGameStart(is_script_load)
     if get_var(0, '$gt') ~= 'n/a' then
 
@@ -196,10 +229,13 @@ function OnGameStart(is_script_load)
     end
 end
 
+-- Called when a game ends.
 function OnGameEnd()
     Logger:log_event('End', {})
 end
 
+-- Called when a player joins the game.
+-- @param playerId The player's ID.
 function OnPlayerJoin(playerId)
     local player = Logger:new_player(
             playerId,
@@ -219,6 +255,8 @@ function OnPlayerJoin(playerId)
     })
 end
 
+-- Called when a player quits the game.
+-- @param playerId The player's ID.
 function OnPlayerQuit(playerId)
     local player = Logger.players[playerId]
     if player then
@@ -234,6 +272,8 @@ function OnPlayerQuit(playerId)
     end
 end
 
+-- Called when a player spawns.
+-- @param playerId The player's ID.
 function OnPlayerSpawn(playerId)
     local player = Logger.players[playerId]
     if player then
@@ -241,6 +281,8 @@ function OnPlayerSpawn(playerId)
     end
 end
 
+-- Called when a player switches teams.
+-- @param playerId The player's ID.
 function OnPlayerSwitch(playerId)
     local player = Logger.players[playerId]
     if player then
@@ -249,6 +291,8 @@ function OnPlayerSwitch(playerId)
     end
 end
 
+-- Called when a player warps.
+-- @param playerId The player's ID.
 function OnPlayerWarp(playerId)
     local player = Logger.players[playerId]
     if player then
@@ -256,10 +300,13 @@ function OnPlayerWarp(playerId)
     end
 end
 
+-- Called when the map is reset.
 function OnMapReset()
     Logger:log_event('Reset', {})
 end
 
+-- Called when a player logs in.
+-- @param playerId The player's ID.
 function OnPlayerLogin(playerId)
     local player = Logger.players[playerId]
     if player then
@@ -268,6 +315,10 @@ function OnPlayerLogin(playerId)
     end
 end
 
+-- Called when a player executes a command.
+-- @param playerId The player's ID.
+-- @param command The command executed.
+-- @param command_type The type of command (0: CONSOLE, 1: RCON, 2: CHAT).
 function OnPlayerCommand(playerId, command, command_type)
     if not is_sensitive_command(command) then
         local player = Logger.players[playerId]
@@ -286,6 +337,10 @@ function OnPlayerCommand(playerId, command, command_type)
     end
 end
 
+-- Called when a player sends a chat message.
+-- @param playerId The player's ID.
+-- @param message The chat message.
+-- @param message_type The type of message (0: GLOBAL, 1: TEAM, 2: VEHICLE).
 function OnPlayerChat(playerId, message, message_type)
     if not is_command(message) and not is_sensitive_command(message) then
         local player = Logger.players[playerId]
@@ -299,6 +354,10 @@ function OnPlayerChat(playerId, message, message_type)
     end
 end
 
+-- Called when a player dies.
+-- @param victim_id The ID of the victim.
+-- @param killer_id The ID of the killer.
+-- @param meta_id The meta ID of the damage tag.
 function OnPlayerDeath(victim_id, killer_id, meta_id)
     local victim = Logger.players[tonumber(victim_id)]
     local killer = Logger.players[tonumber(killer_id)]

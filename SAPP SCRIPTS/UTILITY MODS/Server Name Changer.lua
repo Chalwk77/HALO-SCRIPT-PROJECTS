@@ -39,8 +39,6 @@ function ChangeServerName()
     return true
 end
 
-----------------------------------------------
--- Credits to Devieth for these two functions:
 function write_widestring(address, str, len)
     local Count = 0
     for _ = 1, len do
