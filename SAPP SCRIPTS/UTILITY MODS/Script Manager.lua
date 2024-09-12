@@ -3,7 +3,7 @@
 Script Name: Script Manager, for SAPP (PC & CE)
 Description: This script automatically loads scripts on a per map, per mode basis.
 
-Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2024, Jericho Crosby <jericho.crosby227@gmail.com>
 Notice: You can use this script subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
@@ -11,158 +11,79 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 api_version = '1.12.0.0'
 
--------------------
--- config starts --
--------------------
-
---
--- Script names must be comma separated in double/single quotes.
--- However, they are not case-sensitive.
---
-
-local maps = {
-
-    --
-    -- Example Usage:
-    --
-    ['map_name'] = {
-        ['FFA Swat'] = { 'No Grenades', 'No Fall Damage', 'Another Script' },
-        ['another game mode'] = { 'some script', 'another script' },
+local ScriptManager = {
+    maps = {
+        -- Example Usage:
+        -- ['map_name'] = {
+        --     ['FFA Swat'] = { 'No Grenades', 'No Fall Damage', 'Another Script' },
+        --     ['another game mode'] = { 'some script', 'another script' },
+        -- },
+        ['bloodgulch'] = { ['Race'] = {"Notify Me"} },
+        ['chillout'] = { ['game_mode_here'] = {} },
+        ['sidewinder'] = { ['game_mode_here'] = {} },
+        ['ratrace'] = { ['game_mode_here'] = {} },
+        ['beavercreek'] = { ['game_mode_here'] = {} },
+        ['boardingaction'] = { ['game_mode_here'] = {} },
+        ['carousel'] = { ['game_mode_here'] = {} },
+        ['dangercanyon'] = { ['game_mode_here'] = {} },
+        ['deathisland'] = { ['game_mode_here'] = {} },
+        ['gephyrophobia'] = { ['game_mode_here'] = {} },
+        ['icefields'] = { ['game_mode_here'] = {} },
+        ['infinity'] = { ['game_mode_here'] = {} },
+        ['timberland'] = { ['game_mode_here'] = {} },
+        ['hangemhigh'] = { ['game_mode_here'] = {} },
+        ['damnation'] = { ['game_mode_here'] = {} },
+        ['putput'] = { ['game_mode_here'] = {} },
+        ['prisoner'] = { ['game_mode_here'] = {} },
+        ['wizard'] = { ['game_mode_here'] = {} },
+        ['longest'] = { ['game_mode_here'] = {} },
     },
 
-    ['bloodgulch'] = {
-        ['game_mode_here'] = {}
-    },
-
-    ['chillout'] = {
-        ['game_mode_here'] = { },
-    },
-
-    ['sidewinder'] = {
-        ['game_mode_here'] = { }
-    },
-
-    ['ratrace'] = {
-        ['game_mode_here'] = {}
-    },
-
-    ['beavercreek'] = {
-        ['game_mode_here'] = {}
-    },
-
-    ['boardingaction'] = {
-        ['game_mode_here'] = {}
-    },
-
-    ['carousel'] = {
-        ['game_mode_here'] = {}
-    },
-
-    ['dangercanyon'] = {
-        ['game_mode_here'] = {}
-    },
-
-    ['deathisland'] = {
-        ['game_mode_here'] = {}
-    },
-
-    ['gephyrophobia'] = {
-        ['game_mode_here'] = {}
-    },
-
-    ['icefields'] = {
-        ['game_mode_here'] = {}
-    },
-
-    ['infinity'] = {
-        ['game_mode_here'] = {}
-    },
-
-    ['timberland'] = {
-        ['game_mode_here'] = {}
-    },
-
-    ['hangemhigh'] = {
-        ['game_mode_here'] = {}
-    },
-
-    ['damnation'] = {
-        ['game_mode_here'] = {}
-    },
-
-    ['putput'] = {
-        ['game_mode_here'] = {}
-    },
-
-    ['prisoner'] = {
-        ['game_mode_here'] = {}
-    },
-
-    ['wizard'] = {
-        ['game_mode_here'] = {}
-    },
-
-    ['longest'] = {
-        ['game_mode_here'] = {}
-    },
-
-    --
-    -- repeat the structure to add more entries.
-    --
+    -- Do not touch the following:
+    loaded = {},
+    scripts = {}
 }
-
------------------
--- config ends --
------------------
-
-local loaded, scripts = {}, {}
 
 function OnScriptLoad()
     register_callback(cb['EVENT_GAME_START'], 'OnStart')
-    OnStart()
-end
-
-local function Load(script)
-    loaded[script], scripts[script] = true, true
-    cprint('[Script Manager] Loading Script: ' .. script)
-    execute_command('lua_load "' .. script .. '"')
-end
-
-local function Unload(script)
-    loaded[script] = nil
-    cprint('[Script Manager] Unloading Script: ' .. script)
-    execute_command('lua_unload "' .. script .. '"')
 end
 
 function OnStart()
-    if (get_var(0, '$gt') ~= 'n/a') then
+    if get_var(0, '$gt') ~= 'n/a' then
 
-        scripts = { }
+        local SM = ScriptManager
+        SM.scripts = {}
 
         local map = get_var(0, '$map')
         local mode = get_var(0, '$mode')
+        local game_scripts = SM.maps[map] and SM.maps[map][mode]
 
-        -- Get scripts for the current map & mode:
-        local settings = maps[map]
-        local game_scripts = (settings and settings[mode])
-
-        -- Load scripts:
-        if (game_scripts) then
-            for i = 1, #game_scripts do
-                local script = game_scripts[i]
-                if (not loaded[script]) then
-                    Load(script)
+        if game_scripts then
+            for _, script in ipairs(game_scripts) do
+                if not SM.loaded[script] then
+                    SM:LoadScript(script)
                 end
             end
         end
 
-        -- Unload scripts that are no longer needed:
-        for Script, _ in pairs(loaded) do
-            if (not scripts[Script]) then
-                Unload(Script)
+        for script, _ in pairs(SM.loaded) do
+            if not SM.scripts[script] then
+                SM:UnloadScript(script)
             end
         end
     end
+end
+
+function ScriptManager:LoadScript(script)
+    self.loaded[script], self.scripts[script] = true, true
+    cprint('[Script Manager] Loading Script: ' .. script)
+    execute_command('lua_load "' .. script .. '"')
+end
+
+function ScriptManager:UnloadScript(script)
+    self.loaded[script] = nil
+    cprint('[Script Manager] Unloading Script: ' .. script)
+    execute_command('lua_unload "' .. script .. '"')
 end
 
 function OnScriptUnload()
