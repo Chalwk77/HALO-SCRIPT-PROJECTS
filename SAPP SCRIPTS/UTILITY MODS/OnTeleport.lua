@@ -7,36 +7,25 @@ Description: An example script that detects when a player has teleported.
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 Notice: You can use this script subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
-d
 --=====================================================================================================--
 ]]--
 
--- Distance (in world/units) a player must have moved
--- to have been considered teleporting...
---
 local max_distance = 10
-
---
--- do not touch below this point --
---
+local players = {}
 
 api_version = '1.12.0.0'
 
-local players = {}
-
 function OnScriptLoad()
-
     register_callback(cb['EVENT_TICK'], 'OnTick')
     register_callback(cb['EVENT_JOIN'], 'OnJoin')
     register_callback(cb['EVENT_LEAVE'], 'OnQuit')
     register_callback(cb['EVENT_SPAWN'], 'OnSpawn')
     register_callback(cb['EVENT_GAME_START'], 'OnStart')
-
     OnStart()
 end
 
 function OnStart()
-    if (get_var(0, '$gt') ~= 'n/a') then
+    if get_var(0, '$gt') ~= 'n/a' then
         for i = 1, 16 do
             if player_present(i) then
                 OnJoin(i)
@@ -45,100 +34,69 @@ function OnStart()
     end
 end
 
-function OnJoin(Ply)
-    players[Ply] = {
-        name = get_var(Ply, '$name'),
-        pos = {
-            { -- old pos
-                0,
-                0,
-                0
-            },
-            { -- new pos
-                0,
-                0,
-                0
-            }
-        }
+function OnJoin(playerId)
+    players[playerId] = {
+        name = get_var(playerId, '$name'),
+        old_pos = {0, 0, 0},
+        new_pos = {0, 0, 0},
+        get_old = true
     }
 end
 
-function OnQuit(Ply)
-    players[Ply] = nil
+function OnQuit(playerId)
+    players[playerId] = nil
 end
 
-function OnSpawn(Ply)
-    players[Ply].get_old = true
+function OnSpawn(playerId)
+    if players[playerId] then
+        players[playerId].get_old = true
+    end
 end
 
-local function GetXYZ(dyn)
+local function GetPlayerPosition(dynamicPlayer)
     local x, y, z
-
-    local vehicle = read_dword(dyn + 0x11C)
+    local vehicle = read_dword(dynamicPlayer + 0x11C)
     local object = get_object_memory(vehicle)
 
-    -- not in a vehicle:
-    if (vehicle == 0xFFFFFFFF) then
-        x, y, z = read_vector3d(dyn + 0x5C)
-
-        -- in a vehicle:
-    elseif (object ~= 0) then
+    if vehicle == 0xFFFFFFFF then
+        x, y, z = read_vector3d(dynamicPlayer + 0x5C)
+    elseif object ~= 0 then
         x, y, z = read_vector3d(object + 0x5C)
     end
 
     return x, y, z
 end
 
-local sqrt = math.sqrt
-local function GetDist(old, new)
+local function CalculateDistance(old_pos, new_pos)
+    local dx = old_pos[1] - new_pos[1]
+    local dy = old_pos[2] - new_pos[2]
+    local dz = old_pos[3] - new_pos[3]
+    return math.sqrt(dx * dx + dy * dy + dz * dz)
+end
 
-    local x1, y1, z1 = old[1], old[2], old[3]
-    local x2, y2, z2 = new[1], new[2], new[3]
-
-    return sqrt((x1 - x2) ^ 2 + (y1 - y2) ^ 2 + (z1 - z2) ^ 2)
+local function OnTeleport(player)
+    print(player.name .. ' teleported')
+    -- Add additional logic here
 end
 
 function OnTick()
-    for i, v in pairs(players) do
-
-        local dyn = get_dynamic_player(i)
-        if (dyn ~= 0 and player_alive(i)) then
-
-            -- update old player coordinates first tick:
-            if (v.get_old) then
-                v.get_old = false
-
-                local oldX, oldY, oldZ = GetXYZ(dyn)
-
-                v.pos[1][1] = oldX
-                v.pos[1][2] = oldY
-                v.pos[1][3] = oldZ
-
-                -- update current player coordinates next tick:
-            elseif (not v.get_old) then
-
-                local newX, newY, newZ = GetXYZ(dyn)
-
-                v.pos[2][1] = newX
-                v.pos[2][2] = newY
-                v.pos[2][3] = newZ
-
-                local distance = GetDist(v.pos[1], v.pos[2])
-                if (distance > max_distance) then
-                    OnTeleport(v)
+    for i, player in pairs(players) do
+        local dynamicPlayer = get_dynamic_player(i)
+        if dynamicPlayer ~= 0 and player_alive(i) then
+            if player.get_old then
+                player.old_pos = {GetPlayerPosition(dynamicPlayer)}
+                player.get_old = false
+            else
+                player.new_pos = {GetPlayerPosition(dynamicPlayer)}
+                local distance = CalculateDistance(player.old_pos, player.new_pos)
+                if distance > max_distance then
+                    OnTeleport(player)
                 end
-
-                v.get_old = true
+                player.old_pos = player.new_pos
+                player.get_old = true
             end
         end
     end
-end
-
-function OnTeleport(player)
-    print(player.name .. ' teleported')
-    --
-    -- do something here ...
-    --
 end
 
 function OnScriptUnload()

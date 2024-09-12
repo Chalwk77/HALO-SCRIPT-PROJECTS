@@ -12,63 +12,22 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 api_version = '1.12.0.0'
 
--- config starts --
+-- Configuration section:
 local PingKicker = {
-
-    -- How often to check player pings (in seconds):
-    -- Default: 5s
-    --
-    check_interval = 5,
-
-    -- Players will be warned this many times before being kicked:
-    -- Default: 5
-    --
-    warnings = 5,
-
-    -- Reset a player's warnings if their ping has been below the current limit for this many seconds:
-    -- Default: 20s
-    --
-    grace_period = 20,
-
-    -- Default ping limit:
-    -- Default: 1000
-    --
-    default_limit = 1000,
-
-    -- Exclude admins from ping kicking?
-    -- Default: true
-    --
-    admin_immunity = true,
-
-    -- Admins with a level >= this level will be excluded from ping kicking.
-    -- Default: 1
-    --
-    admin_level = 1,
-
-    -- Dynamic ping limit based on player count:
-    -- Min Players, Max Players, Ping Limit:
-    --
-    limits = {
-        { 1, 4, 750 }, -- 1 to 4 players (if 750+ ping)
-
-        { 5, 8, 450 }, -- 5 to 8 players (if 450+ ping)
-
-        { 9, 12, 375 }, -- 9 to 12 players (if 375+ ping)
-
-        { 13, 16, 200 }     -- 13 to 16 players (if 200+ ping)
+    check_interval = 5, -- How often to check player pings (in seconds)
+    warnings = 5, -- Number of warnings before kicking
+    grace_period = 20, -- Grace period to reset warnings (in seconds)
+    default_limit = 1000, -- Default ping limit
+    admin_immunity = true, -- Exclude admins from ping kicking
+    admin_level = 1, -- Admin level for immunity
+    limits = { -- Dynamic ping limits based on player count
+        { 1, 4, 750 },
+        { 5, 8, 450 },
+        { 9, 12, 375 },
+        { 13, 16, 200 }
     },
-
-    -- This message will be sent to the player when kicked:
-    --
     kick_message = 'Ping is too high! Limit: $limit (ms), Your Ping: $ping (ms).',
-
-    -- This message will be sent to the player if their ping has been
-    -- below the current limit for the grace period:
-    --
     grace_period_expired = 'Grace period expired. Ping warnings reset.',
-
-    -- Send this multi-line message to the player when they're warned:
-    --
     warning_message = {
         '--- [ HIGH PING WARNING ] ---',
         'Ping is too high! Limit: $limit (ms), Your Ping: $ping (ms).',
@@ -76,13 +35,13 @@ local PingKicker = {
         'Warnings Left: $strikes/$max_warnings'
     }
 }
--- config ends --
 
 local limit
 local game_running
-local players = { }
+local players = {}
 local clock = os.clock
 
+-- Register script events
 function OnScriptLoad()
     register_callback(cb['EVENT_JOIN'], 'OnJoin')
     register_callback(cb['EVENT_LEAVE'], 'OnQuit')
@@ -92,136 +51,123 @@ function OnScriptLoad()
     OnStart()
 end
 
+-- Initialize a new player
 function PingKicker:NewPlayer(o)
-
     setmetatable(o, { __index = self })
     self.__index = self
-
     o.strikes = self.warnings
     o.check = clock() + self.check_interval
-
     return o
 end
 
+-- Get the current ping limit based on player count
 function PingKicker:GetLimit()
-
-    for i = 1, #self.limits do
-
-        local min = self.limits[i][1]
-        local max = self.limits[i][2]
-        local this_limit = self.limits[i][3]
-
-        if (#players >= min and #players <= max) then
+    for _, limit_data in ipairs(self.limits) do
+        local min, max, this_limit = table.unpack(limit_data)
+        if #players >= min and #players <= max then
             return this_limit
         end
     end
-
-    -- default ping limit:
     return self.default_limit
 end
 
+-- Get the player's ping
 function PingKicker:GetPing()
     return tonumber(get_var(self.id, '$ping'))
 end
 
+-- Check if the player is immune to ping kicking
 function PingKicker:Immune()
     local lvl = tonumber(get_var(self.id, '$lvl'))
-    return (self.admin_immunity and lvl >= self.admin_level) or false
+    return self.admin_immunity and lvl >= self.admin_level
 end
 
+-- Handle game start event
 function OnStart()
     game_running = false
-    if (get_var(0, '$gt') ~= 'n/a') then
-
-        game_running, players = true, {}
-
+    if get_var(0, '$gt') ~= 'n/a' then
+        game_running = true
+        players = {}
         for i = 1, 16 do
             if player_present(i) then
                 OnJoin(i)
             end
         end
-
         timer(1000 * PingKicker.check_interval, 'CheckPings')
     end
 end
 
+-- Handle game end event
 function OnEnd()
     game_running = false
 end
 
+-- Send a warning message to the player
 function PingKicker:SendWarning(ping)
-
-    -- Warning message: [table of strings]
-    local msg = self.warning_message
-
-    for i = 1, #msg do
-
-        local str = msg[i]            :
-
-        gsub('$ping', ping)           :
-        gsub('$limit', limit)         :
-        gsub('$strikes', self.strikes):
-        gsub('$max_warnings', self.warnings)
-
-        rprint(self.id, str)
+    for _, msg in ipairs(self.warning_message) do
+        local formatted_msg = msg:gsub('$ping', ping)
+                                 :gsub('$limit', limit)
+                                 :gsub('$strikes', self.strikes)
+                                 :gsub('$max_warnings', self.warnings)
+        rprint(self.id, formatted_msg)
     end
 end
 
+-- Kick the player for high ping
 function PingKicker:Kick(ping)
     local msg = self.kick_message:gsub('$ping', ping):gsub('$limit', limit)
     execute_command('k ' .. self.id .. ' "' .. msg .. '"')
 end
 
-function PingKicker:Say(str)
-    rprint(self.id, str)
+-- Notify the player that the grace period has expired
+function PingKicker:NotifyGracePeriodExpired()
+    rprint(self.id, self.grace_period_expired)
 end
 
+-- Check player pings and take appropriate actions
 function CheckPings()
-    if (game_running) then
-        for _, v in pairs(players) do
-            if (not v:Immune()) then
-                if (clock() >= v.check) then
-                    v.check = clock() + v.check_interval
-                    local ping = v:GetPing()
-                    if (ping > limit) then
-                        if (v.strikes == 0) then
-                            v:Kick(ping)
+    if game_running then
+        for _, player in pairs(players) do
+            if not player:Immune() then
+                if clock() >= player.check then
+                    player.check = clock() + player.check_interval
+                    local ping = player:GetPing()
+                    if ping > limit then
+                        if player.strikes == 0 then
+                            player:Kick(ping)
                         else
-                            v.grace = clock() + v.grace_period
-                            v.strikes = v.strikes - 1
-                            v:SendWarning(ping)
+                            player.grace = clock() + player.grace_period
+                            player.strikes = player.strikes - 1
+                            player:SendWarning(ping)
                         end
                     end
-                elseif (v.grace and clock() >= v.grace) then
-                    v.strikes = v.warnings
-                    v.grace = nil
-                    v:Say(v.grace_period_expired)
+                elseif player.grace and clock() >= player.grace then
+                    player.strikes = player.warnings
+                    player.grace = nil
+                    player:NotifyGracePeriodExpired()
                 end
             end
         end
     end
 end
 
-function OnJoin(Ply)
-
-    players[Ply] = PingKicker:NewPlayer({
-        id = Ply,
-        name = get_var(Ply, '$name'),
+-- Handle player join event
+function OnJoin(playerIndex)
+    players[playerIndex] = PingKicker:NewPlayer({
+        id = playerIndex,
+        name = get_var(playerIndex, '$name'),
         grace = clock() + PingKicker.grace_period
     })
-
-    -- update limit:
     limit = PingKicker:GetLimit()
 end
 
-function OnQuit(Ply)
-
-    players[Ply] = nil
-
-    -- update limit:
+-- Handle player leave event
+function OnQuit(playerIndex)
+    players[playerIndex] = nil
     limit = PingKicker:GetLimit()
 end
 
+-- Placeholder function for script unload event
 function OnScriptUnload()
     -- N/A
 end

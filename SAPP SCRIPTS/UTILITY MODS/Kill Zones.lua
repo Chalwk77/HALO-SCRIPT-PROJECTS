@@ -19,35 +19,19 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 api_version = '1.12.0.0'
 
 local config = {
-
     -- MESSAGES:
     warningMessage = "Warning: Forbidden zone [%]",
     serverPrefix = "SERVER",
 
-
-    --[[
-
-        MAP SETTINGS:
-        team                 =       Player Team: 'red', 'blue', 'FFA'
-                                     Only players on the defined team will trigger the Zone.
-        x,y,z radius         =       Zone coordinates.
-        seconds until death  =       A player has this many seconds to leave a kill zone otherwise they are killed.
-    ]]
-
+    -- KILL ZONE SETTINGS:
+    -- team                 = Player Team: 'red', 'blue', 'FFA'
+    -- x, y, z, radius      = Zone coordinates.
+    -- seconds until death  = A player has this many seconds to leave a kill zone otherwise they are killed.
     ['bloodgulch'] = {
-
-        -- team, x,y,z, radius, kill delay
         { 'FFA', 82.68, -114.61, 0.67, 5, 15 },
-
-
-        --{...}
-        -- repeat the structure to add more zones for this map
+        -- Add more zones as needed
     },
-
-    -- repeat the above structure to add more maps:
-    ["map name here"] = {
-        --{...}
-    }
+    -- Add more maps as needed
 }
 
 local ffa
@@ -66,23 +50,20 @@ end
 
 function OnStart()
     if get_var(0, '$gt') ~= 'n/a' then
-
         players = {}
         ffa = (get_var(0, '$ffa') == '1')
 
-        local killZones = loadZones()
-        if killZones then
+        if loadZones() then
             register_callback(cb['EVENT_TICK'], "OnTick")
             register_callback(cb['EVENT_JOIN'], "OnJoin")
             register_callback(cb['EVENT_LEAVE'], "OnQuit")
             register_callback(cb['EVENT_TEAM_SWITCH'], "OnTeamSwitch")
-            return
+        else
+            unregister_callback(cb['EVENT_TICK'])
+            unregister_callback(cb['EVENT_JOIN'])
+            unregister_callback(cb['EVENT_LEAVE'])
+            unregister_callback(cb['EVENT_TEAM_SWITCH'])
         end
-
-        unregister_callback(cb['EVENT_TICK'])
-        unregister_callback(cb['EVENT_JOIN'])
-        unregister_callback(cb['EVENT_LEAVE'])
-        unregister_callback(cb['EVENT_TEAM_SWITCH'])
     end
 end
 
@@ -93,7 +74,6 @@ end
 
 local function warn(player)
     execute_command('msg_prefix ""')
-
     local elapsed = os.clock() - player.timer.start
     local remaining = math.floor(player.timer.remaining - elapsed)
     local message = config.warningMessage:gsub('%%', remaining)
@@ -109,7 +89,7 @@ end
 local function startTimer(player, killDelay)
     if not player.timer then
         player.timer = {
-            start = os.clock();
+            start = os.clock(),
             remaining = killDelay,
         }
     end
@@ -147,7 +127,6 @@ function OnTeamSwitch(id)
 end
 
 local function getPlayerPosition(dyn)
-
     local x, y, z
     local crouch = read_float(dyn + 0x50C)
     local vehicle = read_dword(dyn + 0x11C)
@@ -165,31 +144,26 @@ local function getPlayerPosition(dyn)
 end
 
 local function isPlayerOutsideZone(playerPosition, zonePosition)
-
     local maxDistance = zonePosition.radius
-
     local dx = math.abs(playerPosition.x - zonePosition.x)
     local dy = math.abs(playerPosition.y - zonePosition.y)
     local dz = math.abs(playerPosition.z - zonePosition.z)
-
     return dx > maxDistance or dy > maxDistance or dz > maxDistance
 end
 
 local function checkPlayerZoneAndTimer(player)
-
     local dyn = get_dynamic_player(player.id)
-    for zoneIndex = 1, #zones do
+    for _, zone in ipairs(zones) do
         local zonePosition = {
-            x = zones[zoneIndex][2],
-            y = zones[zoneIndex][3],
-            z = zones[zoneIndex][4],
-            radius = zones[zoneIndex][5]
+            x = zone[2],
+            y = zone[3],
+            z = zone[4],
+            radius = zone[5]
         }
         local playerPosition = getPlayerPosition(dyn)
-
-        if (not isPlayerOutsideZone(playerPosition, zonePosition)) then
-            startTimer(player, zones[zoneIndex][6])
-        elseif (player.timer) then
+        if not isPlayerOutsideZone(playerPosition, zonePosition) then
+            startTimer(player, zone[6])
+        elseif player.timer then
             player.timer = nil
         end
     end
@@ -206,5 +180,5 @@ function OnTick()
 end
 
 function OnScriptUnload()
-    -- N/A
+    -- No actions needed on script unload
 end

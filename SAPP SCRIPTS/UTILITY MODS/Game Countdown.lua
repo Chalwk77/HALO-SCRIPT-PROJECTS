@@ -64,19 +64,19 @@ local function Say(p, m)
 end
 
 local floor, format = math.floor, string.format
-local function SecondsToTime(s)
-    local hr = floor(s / 3600)
-    local min = floor((s - (hr * 3600)) / 60)
-    local sec = floor(s - (hr * 3600) - (min * 60))
+local function SecondsToTime(seconds)
+    local hr = floor(seconds / 3600)
+    local min = floor((seconds - (hr * 3600)) / 60)
+    local sec = floor(seconds - (hr * 3600) - (min * 60))
     return format(output, hr, min, sec)
 end
 
 function OnTick()
-    if (game_in_progress) then
-        local a = read_dword(timelimit_address)
-        local b = read_dword(tick_counter_address)
-        local c = read_dword(sv_map_reset_tick_address)
-        local time_remaining = SecondsToTime(floor((a - (b - c)) / 30))
+    if game_in_progress then
+        local timelimit = read_dword(timelimit_address)
+        local tick_counter = read_dword(tick_counter_address)
+        local sv_map_reset_tick = read_dword(sv_map_reset_tick_address)
+        local time_remaining = SecondsToTime(floor((timelimit - (tick_counter - sv_map_reset_tick)) / 30))
         for i = 1, 16 do
             if player_present(i) then
                 Say(i, time_remaining)

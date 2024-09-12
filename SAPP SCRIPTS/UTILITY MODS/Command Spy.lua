@@ -14,119 +14,49 @@ Command(s) containing these words will not be seen:
 * 	admin_change_pw
 * 	admin_add_manually
 
-Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2022-2024, Jericho Crosby <jericho.crosby227@gmail.com>
 Notice: You can use this script subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
--- config starts --
+-- Configuration
 local CSpy = {
-
-    -- This is the custom command used to toggle command spy on or off:
-    -- Command syntax: /command
-    --
-    command = "spy",
-
-    -- Minimum permission required to execute /command:
-    --
-    permission = 1,
-
-    -- If true, command spy will be enabled for admins by default:
-    --
-    enabled_by_default = true,
-
-    -- If true, you will not see admin commands:
-    --
-    ignore_admins = false,
-
-    -- Command Spy message format:
-    --
+    command = "spy", -- Command to toggle command spy
+    permission = 1, -- Minimum permission level to use the command
+    enabled_by_default = true, -- Enable command spy by default for admins
+    ignore_admins = false, -- Ignore admin commands
     output = {
-        -- RCON:
-        [1] = "[R-SPY] $name: $cmd",
-        -- CHAT:
-        [2] = "[C-SPY] $name: /$cmd"
+        [1] = "[R-SPY] $name: $cmd", -- RCON command format
+        [2] = "[C-SPY] $name: /$cmd" -- Chat command format
     },
-
-    -- Command(s) containing these words will not be seen:
-    --
-    blacklist = {
+    blacklist = { -- Commands to ignore
         "login",
         "admin_add",
         "sv_password",
         "change_password",
         "admin_change_pw",
-        "admin_add_manually",
-        -- Repeat the structure to add more commands.
+        "admin_add_manually"
     }
 }
--- config ends --
 
 local players = {}
 
 api_version = "1.12.0.0"
 
+-- Register event callbacks
 function OnScriptLoad()
-
     register_callback(cb["EVENT_JOIN"], "OnJoin")
     register_callback(cb["EVENT_LEAVE"], "OnQuit")
     register_callback(cb["EVENT_COMMAND"], "OnCommand")
     register_callback(cb["EVENT_GAME_START"], "OnStart")
-
     OnStart()
 end
 
-local function Respond(Ply, Msg)
-    return (Ply == 0 and cprint(Msg)) or rprint(Ply, Msg)
-end
-
-function CSpy:NewPlayer(o)
-
-    setmetatable(o, self)
-    self.__index = self
-
-    o.lvl = function()
-        return tonumber(get_var(o.pid, "$lvl"))
-    end
-
-    local state = (o.lvl() >= self.permission and self.enabled_by_default)
-    o.state = (state or false)
-
-    return o
-end
-
-function CSpy:Toggle()
-    if (self.lvl() >= self.permission) then
-        self.state = (not self.state and true or false)
-        Respond(self.pid, "Command Spy " .. (self.state and "on" or not self.state and "off"))
-    else
-        Respond(self.pid, "Insufficient Permission")
-    end
-    return true
-end
-
-function CSpy:ShowCommand(ENV, CMD)
-
-    if (self.lvl() >= 1 and self.ignore_admins) then
-        goto done
-    end
-
-    for i, spy in pairs(players) do
-        if (i ~= self.pid and spy.state and spy.lvl() >= self.permission) then
-            local msg = self.output[ENV]
-            local name = get_var(self.pid, '$name')
-            msg = msg:gsub('$name', name):gsub('$cmd', CMD)
-            Respond(i, msg)
-        end
-    end
-
-    :: done ::
-end
-
+-- Initialize players on game start
 function OnStart()
-    if (get_var(0, "$gt") ~= "n/a") then
-        players = { }
+    if get_var(0, "$gt") ~= "n/a" then
+        players = {}
         for i = 1, 16 do
             if player_present(i) then
                 OnJoin(i)
@@ -135,38 +65,78 @@ function OnStart()
     end
 end
 
-local function blackListed(CMD)
-    for _, word in pairs(CSpy.blacklist) do
-        if CMD:lower():find(word) then
+-- Handle player joining
+function OnJoin(id)
+    players[id] = {
+        id = id,
+        name = get_var(id, "$name"),
+        level = tonumber(get_var(id, "$lvl")),
+        state = CSpy.enabled_by_default
+    }
+end
+
+-- Handle player quitting
+function OnQuit(id)
+    players[id] = nil
+end
+
+-- Check if a command is blacklisted
+local function isBlacklisted(cmd)
+    for _, word in ipairs(CSpy.blacklist) do
+        if cmd:lower():find(word) then
             return true
         end
     end
     return false
 end
 
-function OnCommand(Ply, CMD, ENV, _)
-    local t = players[Ply]
-    if (t) then
-        local cmd = CMD:sub(1, CMD:len()):lower()
-        if (cmd == t.command and t:Toggle()) then
-            return false
-        elseif (Ply > 0 and not blackListed(cmd)) then
-            t:ShowCommand(ENV, CMD)
+-- Respond to player or server
+local function respond(id, msg)
+    if id == 0 then
+        cprint(msg)
+    else
+        rprint(id, msg)
+    end
+end
+
+-- Toggle command spy for a player
+local function toggleSpy(player)
+    if player.level >= CSpy.permission then
+        player.state = not player.state
+        respond(player.id, "Command Spy " .. (player.state and "on" or "off"))
+    else
+        respond(player.id, "Insufficient Permission")
+    end
+end
+
+-- Notify admins of a command
+local function notifyAdmins(env, cmd, player)
+    if player.level >= 1 and CSpy.ignore_admins then
+        return
+    end
+
+    for _, admin in pairs(players) do
+        if admin.id ~= player.id and admin.state and admin.level >= CSpy.permission then
+            local msg = CSpy.output[env]:gsub("$name", player.name):gsub("$cmd", cmd)
+            respond(admin.id, msg)
         end
     end
 end
 
-function OnJoin(Ply)
-    players[Ply] = CSpy:NewPlayer({
-        pid = Ply,
-        name = get_var(Ply, '$name')
-    })
-end
-
-function OnQuit(Ply)
-    players[Ply] = nil
+-- Handle command execution
+function OnCommand(id, cmd, env)
+    local player = players[id]
+    if player then
+        local command = cmd:lower()
+        if command == CSpy.command then
+            toggleSpy(player)
+            return false
+        elseif id > 0 and not isBlacklisted(command) then
+            notifyAdmins(env, cmd, player)
+        end
+    end
 end
 
 function OnScriptUnload()
-    -- N/A
+    -- No actions needed on script unload
 end

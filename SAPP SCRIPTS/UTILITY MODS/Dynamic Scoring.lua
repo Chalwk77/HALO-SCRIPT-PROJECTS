@@ -16,14 +16,11 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 api_version = "1.12.0.0"
 
 local score_limits = {
-
     -- config starts --
 
-    --
     -- The following variables can be used in custom messages:
     -- $limit   = the new score limit
     -- $s       = word pluralization character (s) (applies to minutes and laps)
-    --
 
     -- Format:
     -- { min players, max players, score limit }
@@ -48,9 +45,7 @@ local score_limits = {
         'Score limit changed to: $limit'
     },
 
-    --
     -- repeat the above structure to add more game mode entries.
-    --
 
     -------------------------------------------------------------
     -- DEFAULT GAME TYPE TABLES:
@@ -107,7 +102,6 @@ local score_limits = {
             { 9, 12, 4 }, -- 9-12 players
             { 13, 16, 5 }, -- 13-16 players
             'Score limit changed to: $limit minute$s'
-
         },
         {   -- TEAM:
             { 1, 4, 3 }, -- 1-4 players
@@ -139,47 +133,45 @@ local score_limits = {
 
 local score_table, current_limit
 
+-- Register script events
 function OnScriptLoad()
-
     register_callback(cb['EVENT_JOIN'], 'OnJoin')
     register_callback(cb['EVENT_LEAVE'], 'OnQuit')
     register_callback(cb['EVENT_GAME_END'], 'OnEnd')
     register_callback(cb['EVENT_GAME_START'], 'OnStart')
-
     OnStart()
 end
 
-local function SetScoreTable(m, gt)
-    score_table = score_limits[m]
-    if (not score_table) then
+-- Set the score table based on the game mode or game type
+local function SetScoreTable(mode, game_type)
+    score_table = score_limits[mode]
+    if not score_table then
         local ffa = (get_var(0, '$ffa') == '1')
-        score_table = (ffa and score_limits[gt][1]) or score_limits[gt][2]
+        score_table = (ffa and score_limits[game_type][1]) or score_limits[game_type][2]
     end
 end
 
+-- Get the pluralization character
 local function get_char(n)
     return (n > 1 and 's') or ''
 end
 
+-- Generate the message to be displayed
 local function GenerateMessage(limit)
     local message = score_table[#score_table]
-    message = message:gsub('$limit', limit):gsub('$s', get_char(limit))
-    return message
+    return message:gsub('$limit', limit):gsub('$s', get_char(limit))
 end
 
+-- Modify the score limit based on the number of players
 local function Modify(isQuit)
     if score_table then
         for _, v in ipairs(score_table) do
-
             local min, max, limit = v[1], v[2], v[3]
             local players = tonumber(get_var(0, '$pn'))
 
             if min and ((isQuit and players - 1 >= min) or players >= min) and players <= max and limit ~= current_limit then
-
                 current_limit = limit
-
                 execute_command('scorelimit ' .. limit)
-
                 local txt = GenerateMessage(limit)
                 say_all(txt)
                 cprint(txt, 10)
@@ -188,31 +180,34 @@ local function Modify(isQuit)
     end
 end
 
+-- Handle game start event
 function OnStart()
-
     score_table, current_limit = nil, nil
-
-    local gt = get_var(0, '$gt')
+    local game_type = get_var(0, '$gt')
     local mode = get_var(0, '$mode')
 
-    if (gt ~= 'n/a') then
-        SetScoreTable(mode, gt)
+    if game_type ~= 'n/a' then
+        SetScoreTable(mode, game_type)
         Modify()
     end
 end
 
+-- Handle game end event
 function OnEnd()
     score_table = nil
 end
 
+-- Handle player join event
 function OnJoin()
     Modify()
 end
 
+-- Handle player leave event
 function OnQuit()
     Modify(true)
 end
 
+-- Placeholder function for script unload event
 function OnScriptUnload()
     -- N/A
 end
