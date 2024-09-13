@@ -51,17 +51,12 @@ end
 
 function OnVehicleEntry(Ply)
     local dyn = get_dynamic_player(Ply)
-    if (dyn ~= 0) then
-
+    if dyn ~= 0 then
         local vehicle = read_dword(dyn + 0x11C)
         local object = get_object_memory(vehicle)
-
-        if (object ~= 0) then
-
+        if object ~= 0 then
             local weapon = GetWeapon(object)
-            local passenger_seat = (read_word(dyn + 0x2F0) == 1)
-
-            if (weapon and passenger_seat) then
+            if weapon and read_word(dyn + 0x2F0) == 1 then
                 assign_weapon(spawn_object('weap', weapon, 0, 0, 0), Ply)
             end
         end

@@ -38,12 +38,10 @@ function OnScriptLoad()
 end
 
 function OnGameStart()
-    if (get_var(0, "$gt") ~= "n/a") then
-        local map = get_var(0, "$map")
-        if (objects[map]) then
-            for _, v in pairs(objects[map]) do
-                spawn_object(v[1], v[2], v[3], v[4], v[5], v[6])
-            end
+    local map = get_var(0, "$map")
+    if get_var(0, "$gt") ~= "n/a" and objects[map] then
+        for _, v in pairs(objects[map]) do
+            spawn_object(v[1], v[2], v[3], v[4], v[5], v[6])
         end
     end
 end

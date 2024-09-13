@@ -12,7 +12,7 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 ]]--
 
 -- config starts:
-local jpt_tags = { -- damage tag ids that will be blocked
+local jpt_tags = {
     'weapons\\rocket launcher\\explosion',
     'weapons\\frag grenade\\explosion',
     'weapons\\plasma grenade\\attached',
@@ -34,44 +34,29 @@ local function GetTag(Type, Name)
     return Tag ~= 0 and read_dword(Tag + 0xC) or nil
 end
 
--- Store meta id of each jpt! tag in a table (meta_ids) to avoid continuous calls to GetTag() (for performance reasons):
 local function GetJPTTags()
-
-    meta_ids = nil
-    local t = {}
-
-    for i = 1, #jpt_tags do
-        local tag = GetTag('jpt!', jpt_tags[i])
-        if (tag) then
-            t[tag] = true
+    meta_ids = {}
+    for _, tag in ipairs(jpt_tags) do
+        local id = GetTag('jpt!', tag)
+        if id then
+            meta_ids[id] = true
         end
     end
-
-    meta_ids = t
 end
 
 function OnStart()
-    if (get_var(0, '$gt') ~= 'n/a' and get_var(0, '$ffa') == '0') then
+    if get_var(0, '$gt') ~= 'n/a' and get_var(0, '$ffa') == '0' then
         register_callback(cb['EVENT_DAMAGE_APPLICATION'], 'BlockDamage')
         GetJPTTags()
-        return
+    else
+        unregister_callback(cb['EVENT_DAMAGE_APPLICATION'])
     end
-    unregister_callback(cb['EVENT_DAMAGE_APPLICATION'])
 end
 
 function BlockDamage(Victim, Killer, MapID)
-
-    local killer = tonumber(Killer)
-    local victim = tonumber(Victim)
-
-    local v_team = get_var(victim, '$team')
-    local k_team = get_var(killer, '$team')
-
-    if (killer ~= victim and k_team == v_team and meta_ids[MapID]) then
-        return false
-    end
-
-    return true
+    local v_team = get_var(Victim, '$team')
+    local k_team = get_var(Killer, '$team')
+    return not (Killer ~= Victim and k_team == v_team and meta_ids[MapID])
 end
 
 function OnScriptUnload()

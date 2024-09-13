@@ -9,12 +9,9 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
--- config starts
-local command = 'damage'
--- config ends
-
 api_version = '1.12.0.0'
 
+local command = 'damage'
 local players = {}
 
 function OnScriptLoad()
@@ -27,22 +24,13 @@ function OnScriptLoad()
 end
 
 local function getOriginalBits(id)
-
     local dyn = get_dynamic_player(id)
-    if (dyn ~= 0) then
-
-        local noCollision = dyn + 0x10
-        local noDamage = dyn + 0x106
-
-        local no_collision_bit = read_bit(noCollision, 0)
-        local no_damage_bit = read_bit(noDamage, 11)
-
+    if dyn ~= 0 then
         return {
-            [noCollision] = { 0, no_collision_bit },
-            [noDamage] = { 11, no_damage_bit },
+            [dyn + 0x10] = { 0, read_bit(dyn + 0x10, 0) },
+            [dyn + 0x106] = { 11, read_bit(dyn + 0x106, 11) },
         }
     end
-
     return nil
 end
 
@@ -54,7 +42,7 @@ local function restore(id)
 end
 
 function OnStart()
-    if (get_var(0, '$gt') ~= 'n/a') then
+    if get_var(0, '$gt') ~= 'n/a' then
         for i = 1, 16 do
             if player_present(i) then
                 restore(i)
@@ -64,8 +52,8 @@ function OnStart()
 end
 
 function OnCommand(id, cmd)
-    if (cmd:sub(1, command:len()):lower() == command) then
-        if (players[id] ~= nil) then
+    if cmd:sub(1, #command):lower() == command then
+        if players[id] then
             restore(id)
             rprint(id, "You will now take damage from other players.")
         else
@@ -78,11 +66,7 @@ function OnCommand(id, cmd)
 end
 
 function OnDamage(victim, killer)
-
-    local v = tonumber(victim)
-    local k = tonumber(killer)
-
-    if (v ~= k and players[v] ~= nil) then
+    if tonumber(victim) ~= tonumber(killer) and players[tonumber(victim)] then
         return false
     end
 end
@@ -93,9 +77,9 @@ end
 
 function modifyBits(id)
     local dyn = get_dynamic_player(id)
-    if (dyn ~= 0 and players[id] ~= nil) then
-        write_bit(dyn + 0x10, 0, 1)     -- uncollidable/invulnerable
-        write_bit(dyn + 0x106, 11, 1)   -- undamageable except for shields w explosions
+    if dyn ~= 0 and players[id] then
+        write_bit(dyn + 0x10, 0, 1)
+        write_bit(dyn + 0x106, 11, 1)
     end
 end
 
