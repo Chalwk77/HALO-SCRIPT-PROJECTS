@@ -1,7 +1,6 @@
 --[[
 ------------------------------------
 Description: HPC Auto Message Board, Phasor V2+
-Copyright (c) 2016-2018
 * Author: Jericho Crosby
 * IGN: Chalwk
 * Written and Created by Jericho Crosby
@@ -9,265 +8,154 @@ Script Version: 2.5
 -----------------------------------
 ]]--
 
-function OnScriptUnload()
-end
+-- Constants
+local MESSAGE_INTERVAL = 1000
+local MESSAGE_COUNT = 11
+local GAME_TYPES = {
+    RW_CTF = "RW_CTF_Messages",
+    RW_TSlayer = "RW_TSlayer_Messages",
+    RW_Slayer = "RW_Slayer_Messages",
+    RW_KOTH = "RW_KOTH_Messages",
+    RW_Elimination = "RW_Elimination_Messages"
+}
 
+-- Function to get the required version
 function GetRequiredVersion()
-    return
-    200
+    return 200
 end
 
+-- Function called when the script is loaded
 function OnScriptLoad(processId, game, persistent)
-
+    -- No actions needed on load
 end
 
+-- Function called when the script is unloaded
+function OnScriptUnload()
+    -- No actions needed on unload
+end
+
+-- Function called when a new game starts
 function OnNewGame(map)
-    if readstring(gametype_base, 0x2C) == "RW_CTF" then
-        FirstTimer = registertimer(1000, "RW_CTF_Messages")
-    end
-    if readstring(gametype_base, 0x2C) == "RW_TSlayer" then
-        SecondTimer = registertimer(1000, "RW_TSlayer_Messages")
-    end
-    if readstring(gametype_base, 0x2C) == "RW_Slayer" then
-        ThirdTimer = registertimer(1000, "RW_Slayer_Messages")
-    end
-    if readstring(gametype_base, 0x2C) == "RW_KOTH" then
-        ForthTimer = registertimer(1000, "RW_KOTH_Messages")
-    end
-    if readstring(gametype_base, 0x2C) == "RW_Elimination" then
-        FifthTimer = registertimer(1000, "RW_Elimination_Messages")
+    local gameType = readstring(gametype_base, 0x2C)
+    local timerFunction = GAME_TYPES[gameType]
+    if timerFunction then
+        _G[gameType .. "Timer"] = registertimer(MESSAGE_INTERVAL, timerFunction)
     end
 end
 
+-- Function called when the game ends
 function OnGameEnd(mode)
     if mode == 1 then
-        if FirstTimer then
-            FirstTimer = nil
-        end
-        if SecondTimer then
-            SecondTimer = nil
-        end
-        if ThirdTimer then
-            ThirdTimer = nil
-        end
-        if ForthTimer then
-            ForthTimer = nil
-        end
-        if FifthTimer then
-            FifthTimer = nil
+        for gameType, _ in pairs(GAME_TYPES) do
+            _G[gameType .. "Timer"] = nil
         end
     end
 end
 
-function RW_CTF_Messages(id, count)
-    if (count % 11) == 1 then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (2) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (3) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (4) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (5) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (6) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (7) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (8) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (9) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (10) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (0) then
-        say("Your messages will go here", false)
-    end
+-- Function to handle messages for a specific game type
+local function HandleMessages(id, count, messages)
+    local index = (count % MESSAGE_COUNT) + 1
+    say(messages[index], false)
     return true
+end
+
+-- Message functions for each game type
+function RW_CTF_Messages(id, count)
+    return HandleMessages(id, count, {
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here"
+    })
 end
 
 function RW_TSlayer_Messages(id, count)
-    if (count % 11) == 1 then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (2) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (3) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (4) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (5) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (6) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (7) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (8) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (9) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (10) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (0) then
-        say("Your messages will go here", false)
-    end
-    return true
+    return HandleMessages(id, count, {
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here"
+    })
 end
 
 function RW_Slayer_Messages(id, count)
-    if (count % 11) == 1 then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (2) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (3) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (4) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (5) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (6) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (7) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (8) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (9) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (10) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (0) then
-        say("Your messages will go here", false)
-    end
-    return true
+    return HandleMessages(id, count, {
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here"
+    })
 end
 
 function RW_KOTH_Messages(id, count)
-    if (count % 11) == 1 then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (2) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (3) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (4) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (5) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (6) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (7) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (8) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (9) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (10) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (0) then
-        say("Your messages will go here", false)
-    end
-    return true
+    return HandleMessages(id, count, {
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here"
+    })
 end
 
 function RW_Elimination_Messages(id, count)
-    if (count % 11) == 1 then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (2) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (3) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (4) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (5) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (6) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (7) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (8) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (9) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (10) then
-        say("Your messages will go here", false)
-
-    elseif (count % 11) == (0) then
-        say("Your messages will go here", false)
-    end
-    return true
+    return HandleMessages(id, count, {
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here",
+        "Your messages will go here"
+    })
 end
 
+-- Function to read a string from memory
 function readstring(address, length, endian)
-    local char_table = { }
-    local string = ""
+    local char_table = {}
+    local str = ""
     local offset = offset or 0x0
-    if length == nil then
-        if readbyte(address + offset + 1) == 0 and readbyte(address + offset) ~= 0 then
-            length = 51000
-        else
-            length = 256
-        end
-    end
+    length = length or (readbyte(address + offset + 1) == 0 and readbyte(address + offset) ~= 0 and 51000 or 256)
     for i = 0, length do
-        if readbyte(address + (offset + i)) ~= 0 then
-            table.insert(char_table, string.char(readbyte(address + (offset + i))))
-        elseif i % 2 == 0 and readbyte(address + offset + i) == 0 then
+        local byte = readbyte(address + (offset + i))
+        if byte ~= 0 then
+            table.insert(char_table, string.char(byte))
+        elseif i % 2 == 0 and byte == 0 then
             break
         end
     end
-    for k, v in pairs(char_table) do
-        if endian == 1 then
-            string = v .. string
-        else
-            string = string .. v
-        end
+    for _, v in pairs(char_table) do
+        str = endian == 1 and v .. str or str .. v
     end
-    return string
+    return str
 end

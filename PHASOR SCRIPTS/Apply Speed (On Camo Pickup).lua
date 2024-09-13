@@ -9,52 +9,55 @@ Copyright (c) 2016-2018
 ]]--
 
 -- Settings
-EQUIPMENT = { }
-EQUIPMENT_TAGS = { }
-EQUIPMENT[1] = { "powerups\\active camouflage" }
-SPEED_POWERUP = (2) -- Scale
-SPEED_POWERUP_DURATION = (10) -- Seconds
+local EQUIPMENT = { "powerups\\active camouflage" }
+local EQUIPMENT_TAGS = {}
+local SPEED_POWERUP = 2 -- Scale
+local SPEED_POWERUP_DURATION = 10 -- Seconds
+local Camouflage_Tag_ID
 
+-- Function to get the required version
 function GetRequiredVersion()
-    return
-    200
+    return 200
 end
 
+-- Function called when the script is loaded
 function OnScriptLoad(processid, game, persistent)
-
+    -- No actions needed on load
 end
 
+-- Function called when the script is unloaded
 function OnScriptUnload()
-
+    -- No actions needed on unload
 end
 
+-- Function called when a new game starts
 function OnNewGame(map)
-    for k, v in pairs(EQUIPMENT) do
-        local TAG_ID = gettagid("eqip", v[1])
+    for _, tag in ipairs(EQUIPMENT) do
+        local TAG_ID = gettagid("eqip", tag)
         table.insert(EQUIPMENT_TAGS, TAG_ID)
     end
-    Camouflage_Tab_ID = gettagid("eqip", "powerups\\active camouflage")
+    Camouflage_Tag_ID = gettagid("eqip", "powerups\\active camouflage")
 end
 
-function ApplySpeed(player)
+-- Function to apply speed to a player
+local function ApplySpeed(player)
     if player then
-        setspeed(player, tonumber(SPEED_POWERUP))
-        set = registertimer(SPEED_POWERUP_DURATION * (1000), "ResetSpeed", player)
+        setspeed(player, SPEED_POWERUP)
+        registertimer(SPEED_POWERUP_DURATION * 1000, "ResetSpeed", player)
     end
 end
 
+-- Function to reset the player's speed
 function ResetSpeed(id, count, player)
     setspeed(player, 1.08)
-    set = nil
     return false
 end
 
+-- Function called when a player interacts with an object
 function OnObjectInteraction(player, objId, MapID)
-    for i = (0), #EQUIPMENT_TAGS do
-        if MapID == EQUIPMENT_TAGS[i] then
-            if MapID == Camouflage_Tab_ID then
-                ApplySpeed(player)
-            end
+    for _, tag in ipairs(EQUIPMENT_TAGS) do
+        if MapID == tag and MapID == Camouflage_Tag_ID then
+            ApplySpeed(player)
         end
     end
 end
