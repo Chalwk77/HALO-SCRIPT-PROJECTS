@@ -252,17 +252,17 @@ function OnTick()
     end
 end
 
-function OnJoin(Ply)
-    players[Ply] = Mines:NewPlayer({
-        pid = Ply,
-        name = get_var(Ply, '$name'),
-        team = get_var(Ply, '$team')
+function OnJoin(playerId)
+    players[playerId] = Mines:NewPlayer({
+        pid = playerId,
+        name = get_var(playerId, '$name'),
+        team = get_var(playerId, '$team')
     })
 end
 
-function OnQuit(Ply)
+function OnQuit(playerId)
     for mine, t in pairs(Mines.objects) do
-        if (t.owner == Ply) then
+        if (t.owner == playerId) then
             t.destroy(mine)
         end
     end
@@ -279,47 +279,48 @@ function CheckDamage(Victim, Killer, MetaID, _, _)
             -- event_damage_application:
             if (MetaID) then
                 v.meta = MetaID
-            else
-
-                -- event_die:
-                local k = players[killer]
-                local mine_k = players[v.killer]
-
-                local squashed = (killer == 0)
-                local guardians = (killer == nil)
-                local suicide = (killer == victim)
-                local pvp = (killer > 0 and killer ~= victim)
-                local fell = (v.meta_id == falling or v.meta_id == distance)
-                local betrayal = (k and not ffa and (v.team == k.team and killer ~= victim))
-
-                execute_command("msg_prefix \"\"")
-                if (v.meta == Mines.explosion and mine_k) then
-                    say_all(v.name .. " was blown up by " .. mine_k.name .. "'s mine!")
-                elseif (guardians) then
-                    say_all(v.name .. ' killed by guardians')
-                elseif (suicide) then
-                    say_all(v.name .. ' committed suicide')
-                elseif (fell or squashed) then
-                    say_all(v.name .. ' died')
-                elseif (betrayal) then
-                    say_all(v.name .. ' was betrayed by ' .. k.name)
-                elseif (pvp) then
-                    say_all(v.name .. ' was killed by ' .. k.name)
-                end
-                execute_command("msg_prefix \" **" .. Mines.server_prefix .. "**\"")
+                return
             end
+
+            -- event_die:
+            local k = players[killer]
+            local mine_k = players[v.killer]
+
+            local squashed = (killer == 0)
+            local guardians = (killer == nil)
+            local suicide = (killer == victim)
+            local pvp = (killer > 0 and killer ~= victim)
+            local fell = (v.meta_id == falling or v.meta_id == distance)
+            local betrayal = (k and not ffa and (v.team == k.team and killer ~= victim))
+
+            execute_command("msg_prefix \"\"")
+            if (v.meta == Mines.explosion and mine_k) then
+                say_all(v.name .. " was blown up by " .. mine_k.name .. "'s mine!")
+            elseif (guardians) then
+                say_all(v.name .. ' killed by guardians')
+            elseif (suicide) then
+                say_all(v.name .. ' committed suicide')
+            elseif (fell or squashed) then
+                say_all(v.name .. ' died')
+            elseif (betrayal) then
+                say_all(v.name .. ' was betrayed by ' .. k.name)
+            elseif (pvp) then
+                say_all(v.name .. ' was killed by ' .. k.name)
+            end
+            execute_command("msg_prefix \" **" .. Mines.server_prefix .. "**\"")
         end
+
     end
 end
 
-function OnSpawn(Ply)
-    players[Ply].meta = 0
-    players[Ply].killer = 0
-    players[Ply].mines = Mines.mines_per_life
+function OnSpawn(playerId)
+    players[playerId].meta = 0
+    players[playerId].killer = 0
+    players[playerId].mines = Mines.mines_per_life
 end
 
-function OnSwitch(Ply)
-    players[Ply].team = get_var(Ply, '$team')
+function OnSwitch(playerId)
+    players[playerId].team = get_var(playerId, '$team')
 end
 
 local function GetTag(Type, Name)

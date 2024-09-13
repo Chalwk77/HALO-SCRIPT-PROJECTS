@@ -104,8 +104,6 @@ local GunGame = {
 
 api_version = "1.12.0.0"
 
-local script_version = 1.9
-
 local game_over
 local players = {}
 
