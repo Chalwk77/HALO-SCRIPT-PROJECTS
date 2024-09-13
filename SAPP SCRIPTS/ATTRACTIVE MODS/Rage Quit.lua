@@ -20,12 +20,6 @@ local SERVER_PREFIX = '**SAPP**'
 
 api_version = '1.12.0.0'
 
-function OnScriptLoad()
-    register_callback(cb['EVENT_JOIN'], 'onJoin')
-    register_callback(cb['EVENT_LEAVE'], 'onQuit')
-    register_callback(cb['EVENT_DIE'], 'onDeath')
-end
-
 local players = {}
 
 local function send(message, ...)
@@ -35,46 +29,43 @@ local function send(message, ...)
 end
 
 function onJoin(id)
-    local name = get_var(id, '$name')
     players[id] = {
-        name = name,
+        name = get_var(id, '$name'),
         joined = os.time(),
     }
 end
 
 function onQuit(id)
-    local t = players[id]
-    if t then
-        if t.killer and t.finish - t.joined > 0 then
-            send(KILL_RAGE_QUIT_MESSAGE, t.name, t.killer.name)
-        elseif t.joined + GENERAL_RAGE_QUIT_PERIOD > os.time() then
-            send(GENERAL_RAGE_QUIT_MESSAGE, t.name)
+    local player = players[id]
+    if player then
+        local currentTime = os.time()
+        if player.killer and player.finish - player.joined > 0 then
+            send(KILL_RAGE_QUIT_MESSAGE, player.name, player.killer.name)
+        elseif player.joined + GENERAL_RAGE_QUIT_PERIOD > currentTime then
+            send(GENERAL_RAGE_QUIT_MESSAGE, player.name)
         end
         players[id] = nil
     end
 end
 
-function onDeath(Victim, Killer)
-    local victim, killer = tonumber(Victim), tonumber(Killer)
+function onDeath(victimId, killerId)
+    local victim = tonumber(victimId)
+    local killer = tonumber(killerId)
 
-    if not (killer > 0 and killer ~= victim) then
-        return
+    if killer > 0 and killer ~= victim then
+        local victimData = players[victim]
+        local killerData = players[killer]
+
+        if victimData and killerData then
+            victimData.killer = killerData
+            victimData.joined = os.time()
+            victimData.finish = os.time() + GRACE_PERIOD_AFTER_KILL
+        end
     end
-
-    local v = players[victim]
-    local k = players[killer]
-
-    if not (v and k) then
-        return
-    end
-
-    v.killer = k
-    v.joined = os.time()
-    v.finish = os.time() + GRACE_PERIOD_AFTER_KILL
 end
 
-function OnStart()
-    if (get_var(0, '$gt') ~= 'n/a') then
+function onStart()
+    if get_var(0, '$gt') ~= 'n/a' then
         players = {}
         for i = 1, 16 do
             if player_present(i) then
@@ -82,6 +73,14 @@ function OnStart()
             end
         end
     end
+end
+
+function OnScriptLoad()
+    register_callback(cb['EVENT_JOIN'], 'onJoin')
+    register_callback(cb['EVENT_LEAVE'], 'onQuit')
+    register_callback(cb['EVENT_DIE'], 'onDeath')
+    register_callback(cb['EVENT_GAME_START'], 'onStart')
+    onStart()
 end
 
 function OnScriptUnload()

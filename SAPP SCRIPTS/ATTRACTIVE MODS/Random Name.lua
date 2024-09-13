@@ -11,151 +11,111 @@ Description: This script will force someone to use a random name.
              This script should be persistent and initialised via init.txt
              ---------------------------------------------------------------
 
-Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2021-2024, Jericho Crosby <jericho.crosby227@gmail.com>
 Notice: You can use this script subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --======================================================================================================--
 ]]--
 
+-- Configuration
 local names = {
-
-    -- If someone joins with the name "Tumbaculos",
-    -- the script force them to use 1 of 20 random names:
-
-    ["Tumbaculos"] = {
-
-        -- Max 11 Characters only!
-
-        { "Tumba Ass" },
-        { "iLoveAG" },
-        { "iLoveV3" },
-        { "loser4Eva" },
-        { "iLoveChalwk" },
-        { "iLoveSe7en" },
-        { "iLoveAussie" },
-        { "benDover" },
-        { "clitEruss" },
-        { "tinyDick" },
-        { "cumShot" },
-        { "PonyGirl" },
-        { "iAmGroot" },
-        { "twi$t3d" },
-        { "maiBahd" },
-        { "frown" },
-        { "Laugh@me" },
-        { "imaDick" },
-        { "facePuncher" },
-        { "TEN" },
-        { "whatElse" },
+    ["ADuck"] = {
+        { "Halo" }, { "Cortana" }, { "MasterChief" }, { "Covenant" }, { "Flood" },
+        { "Grunt" }, { "Elite" }, { "Brute" }, { "Jackal" }, { "Hunter" },
+        { "Prophet" }, { "Monitor" }, { "Sentinel" }, { "Spartan" }, { "ODST" },
+        { "Marine" }, { "Pilot" }, { "Engineer" }
     },
-
-    -- Example:
-    ["AssHole"] = {
-        { "NewName1" },
-        { "NewName2" },
-        -- ect ...
+    ["AGuy"] = {
+        { "NewName1" }, { "NewName2" }
     }
-
-    -- Repeat the structure to add more names.
-    --
 }
 
+-- API version required by SAPP
 api_version = "1.12.0.0"
 
-local players = { }
+-- State variables
+local players = {}
 local network_struct
 
+-- Function to initialize the script
 function OnScriptLoad()
     network_struct = read_dword(sig_scan("F3ABA1????????BA????????C740??????????E8????????668B0D") + 3)
-
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     register_callback(cb["EVENT_LEAVE"], "OnPlayerQuit")
     register_callback(cb["EVENT_PREJOIN"], "OnPlayerPreJoin")
     OnGameStart()
 end
 
+-- Function to handle script unload event
 function OnScriptUnload()
-    -- N/A
+    -- No cleanup required
 end
 
+-- Function to handle game start event
 function OnGameStart()
-    if (get_var(0, "gt") ~= "n/a") then
-        for n, _ in pairs(names) do
-            for k, _ in pairs(names[n]) do
-                if (not names[n][k].taken) then
-                    names[n][k].taken = false
-                end
+    if get_var(0, "gt") ~= "n/a" then
+        for name, _ in pairs(names) do
+            for index, _ in pairs(names[name]) do
+                names[name][index].taken = false
             end
         end
     end
 end
 
-local function GetRandomName(Ply)
+-- Function to get a random name for a player
+local function GetRandomName(player_id)
+    local available_names = {}
+    local player_name = get_var(player_id, "$name")
 
-    local tmp = { }
-    local name = get_var(Ply, "$name")
-    if (names[name]) then
-        for k, _ in pairs(names[name]) do
-            if (not names[name][k].taken) then
-                table.insert(tmp, { names[name][k][1], k })
+    if names[player_name] then
+        for index, name_entry in pairs(names[player_name]) do
+            if not name_entry.taken then
+                table.insert(available_names, { name_entry[1], index })
             end
         end
 
-        if (#tmp > 0) then
-
+        if #available_names > 0 then
             math.randomseed(os.clock())
-            math.random();
-            math.random();
-            math.random();
+            local random_entry = available_names[math.random(1, #available_names)]
+            local new_name = random_entry[1]
+            local name_index = random_entry[2]
 
-            -- Pick random name table from names[name]:
-            local t = tmp[math.random(1, #tmp)]
+            names[player_name][name_index].taken = true
+            players[player_id] = { player_name, name_index }
 
-            local n = t[1] -- new name
-            local i = t[2] -- names[name] table index
-
-            names[name][i].taken = true
-
-            players[Ply] = { name, i }
-
-            return n, i
+            return new_name
         end
     end
 
     return false
 end
 
-function OnPlayerPreJoin(Ply)
-    local new_name = GetRandomName(Ply)
-    if (new_name) then
-        local cstruct = network_struct + 0x1AA + 0x40 + to_real_index(Ply) * 0x20
+-- Function to handle player pre-join event
+function OnPlayerPreJoin(player_id)
+    local new_name = GetRandomName(player_id)
+    if new_name then
+        local cstruct = network_struct + 0x1AA + 0x40 + to_real_index(player_id) * 0x20
         WriteWideString(cstruct, string.sub(new_name, 1, 11), 12)
     end
 end
 
-function OnPlayerQuit(Ply)
-    if (players[Ply]) then
+-- Function to handle player quit event
+function OnPlayerQuit(player_id)
+    if players[player_id] then
+        local original_name = players[player_id][1]
+        local name_index = players[player_id][2]
 
-        local n = players[Ply][1]
-        local i = players[Ply][2]
-
-        names[n][i].taken = false
-
-        players[Ply] = nil
+        names[original_name][name_index].taken = false
+        players[player_id] = nil
     end
 end
 
-function WriteWideString(A, S, L)
-    local Count = 0
-    for _ = 1, L do
-        write_byte(A + Count, 0)
-        Count = Count + 2
+-- Function to write a wide string to memory
+function WriteWideString(address, str, length)
+    for i = 0, length - 1 do
+        write_byte(address + i * 2, 0)
     end
-    local count = 0
-    local length = string.len(S)
-    for i = 1, length do
-        local newbyte = string.byte(string.sub(S, i, i))
-        write_byte(A + count, newbyte)
-        count = count + 2
+    for i = 1, #str do
+        write_byte(address + (i - 1) * 2, string.byte(str, i))
     end
 end

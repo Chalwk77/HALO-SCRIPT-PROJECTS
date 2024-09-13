@@ -1,43 +1,32 @@
 --[[
 --=====================================================================================================--
 Script Name: Random Facts Generator, for SAPP (PC & CE)
-Description: This script will periodically say a random fact from the Chuck Norris Joke API.
+Description: This script will periodically announce a random fact from the Chuck Norris Joke API.
 
-1): This mod requires that the following plugins are installed to your server:
-    https://opencarnage.net/index.php?/topic/5998-sapp-http-client/
-    http://regex.info/blog/lua/json
+Requirements:
+1. Install the following plugins on your server:
+    - https://opencarnage.net/index.php?/topic/5998-sapp-http-client/
+    - http://regex.info/blog/lua/json
 
-2): Place "json.lua" and the contents of "sapp-http-client" in your servers root directory.
+2. Place "json.lua" and the contents of "sapp-http-client" in your server's root directory.
 
-Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
-Notice: You can use this script subject to the following conditions:
-https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
+Author: Jericho Crosby <jericho.crosby227@gmail.com>
+License: https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
+-- API version required by SAPP
 api_version = "1.12.0.0"
--- config starts --
 
--- How often (in seconds) should we announce a random message:
--- Do not set lower than 3 seconds.
-local interval = 120
+-- Configuration
+local config = {
+    interval = 120, -- How often (in seconds) to announce a random message. Do not set lower than 3 seconds.
+    end_point = "https://api.chucknorris.io/jokes/random", -- URL to Chuck Norris Joke API
+    replace_name = true, -- If true, Chuck Norris's name will be replaced with a random player's name
+    server_prefix = "**SAPP**" -- Server prefix for messages
+}
 
--- URL to Chuck Norris Joke API:
-local end_point = "https://api.chucknorris.io/jokes/random"
-
--- If true, Chuck Norris's name will be replaced
--- with the name of a random player on the server:
-local replace_name = true
---
-
--- A message relay function will temporarily remove the server prefix
--- and restore it to this when done:
-local server_prefix = "**SAPP**"
--- config ends --
-
-local async_data
-local game_stated
-local players = { }
+-- Dependencies
 local json = (loadfile "json.lua")()
 local ffi = require("ffi")
 
@@ -53,30 +42,73 @@ ffi.cdef [[
 ]]
 local client = ffi.load("lua_http_client")
 
+-- State variables
+local async_data
+local game_started
+local players = {}
+
+-- Function to handle script load event
 function OnScriptLoad()
-
-    register_callback(cb["EVENT_JOIN"], "Join")
-    register_callback(cb["EVENT_LEAVE"], "Quit")
-    register_callback(cb["EVENT_GAME_END"], "OnEnd")
-    register_callback(cb["EVENT_GAME_START"], "OnStart")
-
-    OnStart()
+    register_callback(cb["EVENT_JOIN"], "OnPlayerJoin")
+    register_callback(cb["EVENT_LEAVE"], "OnPlayerLeave")
+    register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
+    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
+    OnGameStart()
 end
 
-function ShowJoke()
-    local response = client.http_response_received(async_data)
-    if (response) then
-        if (not client.http_response_is_null(async_data)) then
-            local results = ffi.string(client.http_read_response(async_data))
-            local jokes = json:decode(results)
-            local joke = jokes.value
-            if (replace_name and #players > 0) then
-                local name = players[rand(1, #players + 1)]
-                jokes.value = joke:gsub("Chuck Norris", name)
+-- Function to handle script unload event
+function OnScriptUnload()
+    -- No cleanup required
+end
+
+-- Function to handle player join event
+function OnPlayerJoin(player_id)
+    players[player_id] = get_var(player_id, "$name")
+end
+
+-- Function to handle player leave event
+function OnPlayerLeave(player_id)
+    players[player_id] = nil
+end
+
+-- Function to handle game start event
+function OnGameStart()
+    game_started = false
+    if get_var(0, "$gt") ~= "n/a" then
+        game_started = true
+        config.interval = math.max(config.interval, 3)
+        timer(1000 * config.interval, "FetchAndAnnounceJoke")
+    end
+end
+
+-- Function to handle game end event
+function OnGameEnd()
+    game_started = false
+end
+
+-- Function to fetch and announce a joke
+function FetchAndAnnounceJoke()
+    async_data = client.http_get(config.end_point, true)
+    timer(1, "ProcessJokeResponse")
+    return game_started
+end
+
+-- Function to process the joke response
+function ProcessJokeResponse()
+    if client.http_response_received(async_data) then
+        if not client.http_response_is_null(async_data) then
+            local response = ffi.string(client.http_read_response(async_data))
+            local joke_data = json:decode(response)
+            local joke = joke_data.value
+
+            if config.replace_name and #players > 0 then
+                local random_player = players[math.random(1, #players)]
+                joke = joke:gsub("Chuck Norris", random_player)
             end
-            execute_command('msg_prefix \"\"')
+
+            execute_command('msg_prefix ""')
             say_all(joke)
-            execute_command('msg_prefix ' .. server_prefix)
+            execute_command('msg_prefix "' .. config.server_prefix .. '"')
             cprint(joke)
         end
         client.http_destroy_response(async_data)
@@ -84,35 +116,4 @@ function ShowJoke()
         return false
     end
     return true
-end
-
-function LoopJokes()
-    async_data = client.http_get(end_point, true)
-    timer(1, "ShowJoke")
-    return game_stated
-end
-
-function OnStart()
-    game_stated = false
-    if (get_var(0, "$gt") ~= "n/a") then
-        game_stated = true
-        interval = (interval < 3 and 3) or interval
-        timer(1000 * interval, "LoopJokes")
-    end
-end
-
-function OnEnd()
-    game_stated = false
-end
-
-function Join(Ply)
-    players[Ply] = get_var(Ply, "$name")
-end
-
-function Quit(Ply)
-    players[Ply] = nil
-end
-
-function OnScriptUnload()
-    -- N/A
 end
