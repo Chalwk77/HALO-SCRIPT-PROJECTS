@@ -27,27 +27,14 @@ function OnGameStart()
 end
 
 function OnPreSpawn(Ply)
-    if (map_table) then
+    if map_table then
         local DyN = get_dynamic_player(Ply)
-        if (DyN ~= 0) then
-
+        if DyN ~= 0 then
             math.randomseed(os.clock())
-
-            -- Use this to access the relevant team tables for this map;
-            --local team = get_var(Ply, "$team")
-            --local pos = map_table[team]
-
-            -- Use ffa table for this map:
             local pos = map_table.red
-
-            -- Pick random coordinate from ffa table:
-            local n = math.random(1, #pos)
-            local x, y, z, r = pos[n][1], pos[n][2], pos[n][3], pos[n][4]
-
-            -- Update player x,y,z coordinate
+            local n = math.random(#pos)
+            local x, y, z, r = unpack(pos[n])
             write_vector3d(DyN + 0x5C, x, y, z)
-
-            -- Update player rotation:
             write_vector3d(DyN + 0x74, math.cos(r), math.sin(r), 0)
         end
     end

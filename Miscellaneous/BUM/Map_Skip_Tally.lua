@@ -17,88 +17,49 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
--- config starts --
-
--- Name of the database file:
--- Default: skip_tally.json
---
-local file_name = 'skip_tally.json'
-
--- Command used to check historical skips:
--- Default: tally
---
-local query_cmd = 'tally'
-
--- Minimum permission level required to execute /query_cmd:
--- Default: 1
---
-local permission_level = 1
-
--- If a player votes to skip and they quit before the game ends,
--- this option determines whether to include their vote to skip.
--- Default: true
---
-local deduct_on_quit = true
-
--- config ends --
-
 api_version = "1.12.0.0"
 
-local dir, map, mode
-local skipped, records = { }, { }
-local json = (loadfile "json.lua")()
+local file_name = 'skip_tally.json'
+local query_cmd = 'tally'
+local permission_level = 1
+local deduct_on_quit = true
 
+local dir, map, mode
+local skipped, records = {}
+local json = (loadfile "json.lua")()
 local open = io.open
 
 function OnScriptLoad()
-
-    local path = read_string(read_dword(sig_scan('68??????008D54245468') + 0x1))
-    dir = path .. '\\sapp\\' .. file_name
-
+    dir = read_string(read_dword(sig_scan('68??????008D54245468') + 0x1)) .. '\\sapp\\' .. file_name
     register_callback(cb['EVENT_CHAT'], 'OnChat')
     register_callback(cb['EVENT_JOIN'], 'OnJoin')
     register_callback(cb['EVENT_LEAVE'], 'OnQuit')
     register_callback(cb['EVENT_GAME_END'], 'OnEnd')
     register_callback(cb['EVENT_COMMAND'], 'QuerySkips')
     register_callback(cb['EVENT_GAME_START'], 'OnStart')
-
     OnStart()
 end
 
 local function Write(Content)
     local file = assert(open(dir, "w"))
-    if (file) then
-        file:write(json:encode_pretty(Content))
-        file:close()
-    end
+    file:write(json:encode_pretty(Content))
+    file:close()
 end
 
 function OnStart()
-    if (get_var(0, "$gt") ~= "n/a") then
-
-        records = { }
+    if get_var(0, "$gt") ~= "n/a" then
+        records = {}
         map = get_var(0, "$map")
         mode = get_var(0, "$mode")
 
-        local content = ""
         local file = open(dir, "r")
-        if (file) then
-            content = file:read("*all")
-            file:close()
-        end
+        local content = file and file:read("*all") or ""
+        if file then file:close() end
 
-        local data = json:decode(content)
-        if (not data) then
-            data = { [map] = { [mode] = 0 } }
-            Write(data)
-        elseif (not data[map]) then
-            data[map] = { [mode] = 0 }
-            Write(data)
-        elseif (not data[map][mode]) then
-            data[map][mode] = 0
-            Write(data)
-        end
-
+        local data = json:decode(content) or {}
+        data[map] = data[map] or {}
+        data[map][mode] = data[map][mode] or 0
+        Write(data)
         records = data
     end
 end
@@ -108,15 +69,15 @@ function OnJoin(Ply)
 end
 
 function OnQuit(Ply)
-    if (deduct_on_quit and skipped[Ply]) then
+    if deduct_on_quit and skipped[Ply] then
         records[map][mode] = records[map][mode] - 1
     end
     skipped[Ply] = nil
 end
 
 function OnEnd()
-    for i = 1, #skipped do
-        if (skipped[i]) then
+    for _, skip in pairs(skipped) do
+        if skip then
             Write(records)
             break
         end
@@ -124,25 +85,22 @@ function OnEnd()
 end
 
 function OnChat(Ply, Msg)
-    if (Msg:lower():match("skip") and not skipped[Ply]) then
+    if Msg:lower():match("skip") and not skipped[Ply] then
         skipped[Ply] = true
         records[map][mode] = records[map][mode] + 1
     end
 end
 
 local function Respond(Ply, Msg)
-    return (Ply == 0 and cprint(Msg) or rprint(Ply, Msg))
+    if Ply == 0 then cprint(Msg) else rprint(Ply, Msg) end
 end
 
 local function HasPermission(Ply)
-    local lvl = tonumber(get_var(Ply, '$lvl'))
-    local case = (lvl >= permission_level)
-    return (Ply == 0 or case or Respond(Ply, 'Insufficient Permission'))
+    return Ply == 0 or tonumber(get_var(Ply, '$lvl')) >= permission_level or Respond(Ply, 'Insufficient Permission')
 end
 
-function QuerySkips(Ply, CMD, _, _)
-    local cmd = CMD:sub(1, query_cmd:len()):lower()
-    if (cmd == query_cmd and HasPermission(Ply)) then
+function QuerySkips(Ply, CMD)
+    if CMD:sub(1, #query_cmd):lower() == query_cmd and HasPermission(Ply) then
         Respond(Ply, map .. "/" .. mode .. ": " .. records[map][mode])
         return false
     end

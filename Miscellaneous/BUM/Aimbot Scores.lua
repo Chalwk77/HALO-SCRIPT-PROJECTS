@@ -10,10 +10,9 @@
 --
 -- This is my version of it.
 
-local command = 'botscore'
-
 api_version = '1.12.0.0'
 
+local command = 'botscore'
 local players = {}
 
 function OnScriptLoad()
@@ -26,7 +25,7 @@ function OnScriptLoad()
 end
 
 function OnStart()
-    if (get_var(0, '$gt') ~= 'n/a') then
+    if get_var(0, '$gt') ~= 'n/a' then
         players = {}
         for playerId = 1, 16 do
             if player_present(playerId) then
@@ -38,7 +37,7 @@ end
 
 function OnTick()
     for playerId, data in pairs(players) do
-        if playerId and #data.suspects > 0 then
+        if #data.suspects > 0 then
             data:clear(playerId)
             for _, suspect in ipairs(data.suspects) do
                 rprint(playerId, suspect.name .. ': ' .. suspect:score())
@@ -48,34 +47,24 @@ function OnTick()
 end
 
 local function stringSplit(str)
-    local args = { }
-    for arg in str:gmatch('([^%s]+)') do
+    local args = {}
+    for arg in str:gmatch('%S+') do
         args[#args + 1] = arg:lower()
     end
     return args
 end
 
 local function hasPermission(playerId)
-    local lvl = tonumber(get_var(playerId, '$lvl'))
-    return (lvl >= 1 or rprint(playerId, 'Insufficient Permission') and false)
+    return tonumber(get_var(playerId, '$lvl')) >= 1 or (rprint(playerId, 'Insufficient Permission') and false)
 end
 
 local function getPlayers(playerId, args)
     local t = {}
     local suspect = args[2]
-
-    if suspect == 'me' then
-        if playerId ~= 0 then
-            table.insert(t, playerId)
-        else
-            rprint(playerId, 'Please enter a number between 1-16.')
-        end
-    elseif tonumber(suspect) then
-        if player_present(tonumber(suspect)) then
-            table.insert(t, tonumber(suspect))
-        else
-            rprint(playerId, 'Player #' .. suspect .. ' is not online')
-        end
+    if suspect == 'me' and playerId ~= 0 then
+        table.insert(t, playerId)
+    elseif tonumber(suspect) and player_present(tonumber(suspect)) then
+        table.insert(t, tonumber(suspect))
     elseif suspect == 'all' or suspect == '*' then
         for i = 1, 16 do
             if player_present(i) then
@@ -88,53 +77,36 @@ local function getPlayers(playerId, args)
     return t
 end
 
--- Helper function to process showScores argument
 local function getShowScores(showScoresArg)
-    return showScoresArg == '1' or (showScoresArg == nil and true)
+    return showScoresArg == '1' or showScoresArg == nil
 end
 
--- Function to add a suspect to a player's suspect list
 local function addSuspect(playerId, suspect)
-    local suspectTable = {
+    table.insert(players[playerId].suspects, {
         name = get_var(suspect, '$name'),
         score = function()
-            local suffix = player_alive(suspect) and '' or ' [respawning]'
-            return get_var(suspect, '$botscore') .. suffix
+            return get_var(suspect, '$botscore') .. (player_alive(suspect) and '' or ' [respawning]')
         end
-    }
-    table.insert(players[playerId].suspects, suspectTable)
+    })
 end
 
-function onCommand(playerId, cmd)
+function OnCommand(playerId, cmd)
     local args = stringSplit(cmd)
-    if #args > 0 and args[1] == command and hasPermission(playerId) then
+    if args[1] == command and hasPermission(playerId) then
         local showScores = getShowScores(args[3])
-
         if not showScores then
             rprint(playerId, 'Hiding bot scores')
             players[playerId].suspects = {}
             return false
         end
-
-        local pl = getPlayers(playerId, args)
-        if #pl > 0 then
-            for i = 1, #pl do
-                addSuspect(playerId, pl[i])
-            end
+        for _, pl in ipairs(getPlayers(playerId, args)) do
+            addSuspect(playerId, pl)
         end
     end
 end
 
 function OnJoin(playerId)
-    players[playerId] = {
-        suspects = {},
-        clear = function(i)
-            for _ = 1, 25 do
-                rprint(i, ' ')
-            end
-            return true
-        end
-    }
+    players[playerId] = { suspects = {}, clear = function(i) for _ = 1, 25 do rprint(i, ' ') end end }
 end
 
 function OnQuit(playerId)
