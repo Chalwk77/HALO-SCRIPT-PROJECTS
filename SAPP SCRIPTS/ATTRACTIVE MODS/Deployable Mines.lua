@@ -1,85 +1,36 @@
 --[[
 --=====================================================================================================--
 Script Name: Deployable Mines, for SAPP (PC & CE)
-Description: Deploy super-explosive mines (disguised as health packs) while driving.
+Description: This Lua script allows players to deploy mines that explode
+             when enemies come within a certain radius.
 
-            - To Deploy a mine, press your flashlight key.
-            - When an enemy walks/drives over them they explode.
-            - You cannot die by your own mines.
-            - Mines despawn after 60 seconds (by default).
-            - Players spawn with 20 mines per life.
-            - Great for race servers.
-            - Compatible with all game modes.
-
-            [!] NOTE [!]:
-            This script is designed to work on maps with stock tags.
-
-Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2019-2024, Jericho Crosby <jericho.crosby227@gmail.com>
 Notice: You can use this script subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
--- config starts --
-
-local Mines = {
-
-    -- The number of mines players will spawn with (per life):
-    --
+-- Configuration table for the deployable mines script
+local config = {
+    -- Number of mines a player can deploy per life
     mines_per_life = 20,
 
-
-    -- Time (in seconds) until a mine despawns:
-    --
+    -- Time in seconds before a deployed mine despawns
     despawn_rate = 60,
 
-
-    -- Trigger an explosion when a player is <= this many w/units from a mine:
-    --
+    -- Radius within which a mine will explode when an enemy is detected
     radius = 0.7,
 
-
-    -- Death message override:
-    -- Explosions are simulated with rocket projectiles that spawn at ground zero.
-    -- By default, it's the rocket explosion that kills the player.
-    -- Since the rocket is not spawned by a player, the death message will be "PlayerX died".
-    --
-    -- When this feature is enabled, the script will output custom death messages instead.
-    -- Note: Custom death messages are server messages (and may look strange for people with Chimera).
-    --
+    -- Toggle for displaying death messages
     death_messages = false,
 
-
-    -- If true, your mines will kill team mates:
-    --
+    -- Toggle for allowing mines to kill teammates
     mines_kill_teammates = false,
 
-    --[[
-
-    Available object tags that can represent mines:
-    Default: 'powerups\\health pack'
-
-    'powerups\\active camouflage'
-    'powerups\\health pack'
-    'powerups\\over shield'
-    'powerups\\double speed'
-    'powerups\\full-spectrum vision'
-    'weapons\\frag grenade\\frag grenade'
-    'weapons\\plasma grenade\\plasma grenade'
-    'powerups\\needler ammo\\needler ammo'
-    'powerups\\assault rifle ammo\\assault rifle ammo'
-    'powerups\\pistol ammo\\pistol ammo'
-    'powerups\\rocket launcher ammo\\rocket launcher ammo'
-    'powerups\\shotgun ammo\\shotgun ammo'
-    'powerups\\sniper rifle ammo\\sniper rifle ammo'
-    'powerups\\flamethrower ammo\\flamethrower ammo'
-
-    ]]
+    -- Object type and path for the mine
     mine_object = { 'eqip', 'powerups\\health pack' },
 
-
-    -- Vehicles | Set to false to disable vehicle dispensing:
-    --
+    -- Table defining which vehicles can deploy mines
     vehicles = {
         ['vehicles\\ghost\\ghost_mp'] = true,
         ['vehicles\\rwarthog\\rwarthog'] = true,
@@ -89,24 +40,23 @@ local Mines = {
         ['vehicles\\c gun turret\\c gun turret_mp'] = false
     },
 
-    -- A message relay function temporarily removes the server prefix
-    -- and will restore it to this when the relay is finished:
+    -- Prefix for server messages
     server_prefix = "**SAPP**"
-    --
 }
 
--- config ends --
+-- SAPP Lua API Version
+api_version = '1.12.0.0'
 
-local players = { }
+-- State variables
+local players = {}
 local time = os.time
 local sqrt = math.sqrt
 local dma_original, dma
 local ffa, falling, distance
 
-api_version = '1.12.0.0'
-
+-- Function to disable default death messages
 local function DisableDeathMessages()
-    if (Mines.death_messages) then
+    if config.death_messages then
         dma = sig_scan("8B42348A8C28D500000084C9") + 3
         dma_original = read_dword(dma)
         safe_write(true)
@@ -115,51 +65,57 @@ local function DisableDeathMessages()
     end
 end
 
+-- Function to enable default death messages
 local function EnableDeathMessages()
     safe_write(true)
     write_dword(dma, dma_original)
     safe_write(false)
 end
 
-function OnScriptLoad()
-    register_callback(cb['EVENT_GAME_START'], 'OnStart')
-    OnStart()
+-- Function to get the position of a player or vehicle
+local function GetPos(DyN)
+    local pos = {}
+    local VehicleID = read_dword(DyN + 0x11C)
+    local vehicle = get_object_memory(VehicleID)
+
+    if VehicleID == 0xFFFFFFFF then
+        pos.x, pos.y, pos.z = read_vector3d(DyN + 0x5c)
+    elseif vehicle ~= 0 then
+        pos.vehicle = vehicle
+        pos.seat = read_word(DyN + 0x2F0)
+        pos.x, pos.y, pos.z = read_vector3d(vehicle + 0x5c)
+    end
+
+    return pos
 end
 
-function EditRocket(rollback)
-    for address, v in pairs(Mines.jpt) do
-        if (not rollback) then
-            write_dword(address, v[1])
-        else
-            write_dword(address, v[2])
-        end
-    end
+-- Function to calculate the distance between two points
+local function Dist(x1, y1, z1, x2, y2, z2)
+    return sqrt((x1 - x2) ^ 2 + (y1 - y2) ^ 2 + (z1 - z2) ^ 2)
 end
+
+-- Class for managing mines
+local Mines = {}
+Mines.__index = Mines
 
 function Mines:NewPlayer(o)
-
     setmetatable(o, self)
-    self.__index = self
-
     o.meta = 0
     o.killer = 0
     o.flashlight = 0
-    o.mines = self.mines_per_life
-
+    o.mines = config.mines_per_life
     return o
 end
 
 function Mines:NewMine(pos)
-
-    if (self.mines == 0) then
+    if self.mines == 0 then
         rprint(self.pid, "No more mines for this life!")
         return
-    elseif (pos.seat) then
-
-        if (pos.seat ~= 0) then
-            rprint(self.pid, 'You must be in the drivers seat')
+    elseif pos.seat then
+        if pos.seat ~= 0 then
+            rprint(self.pid, 'You must be in the driver\'s seat')
             return
-        elseif (not self.vehicles[read_string(read_dword(read_word(pos.vehicle) * 32 + 0x40440038))]) then
+        elseif not config.vehicles[read_string(read_dword(read_word(pos.vehicle) * 32 + 0x40440038))] then
             rprint(self.pid, 'This vehicle cannot deploy mines')
             return
         end
@@ -167,16 +123,12 @@ function Mines:NewMine(pos)
         local x, y, z = pos.x, pos.y, pos.z
         local mine = spawn_object('', '', x, y, z, 0, self.mine)
         self.objects[mine] = {
-
             owner = self.pid,
-            expiration = time() + self.despawn_rate,
-
+            expiration = time() + config.despawn_rate,
             destroy = function(m, mx, my, mz)
-
                 destroy_object(m)
                 Mines.objects[m] = nil
-
-                if (mx) then
+                if mx then
                     EditRocket()
                     local proj = spawn_projectile(self.projectile, 0, mx, my, mz)
                     local object = get_object_memory(proj)
@@ -189,160 +141,32 @@ function Mines:NewMine(pos)
         }
 
         self.mines = self.mines - 1
-        rprint(self.pid, 'Mine Deployed! ' .. self.mines .. '/' .. self.mines_per_life)
+        rprint(self.pid, 'Mine Deployed! ' .. self.mines .. '/' .. config.mines_per_life)
     end
 end
 
-local function GetPos(DyN)
-    local pos = { }
-
-    local VehicleID = read_dword(DyN + 0x11C)
-    local vehicle = get_object_memory(VehicleID)
-
-    if (VehicleID == 0xFFFFFFFF) then
-        pos.x, pos.y, pos.z = read_vector3d(DyN + 0x5c)
-    elseif (vehicle ~= 0) then
-        pos.vehicle = vehicle
-        pos.seat = read_word(DyN + 0x2F0)
-        pos.x, pos.y, pos.z = read_vector3d(vehicle + 0x5c)
-    end
-
-    return pos
+-- Event handler for script load
+function OnScriptLoad()
+    register_callback(cb['EVENT_GAME_START'], 'OnStart')
+    OnStart()
 end
 
-local function Dist(x1, y1, z1, x2, y2, z2)
-    return sqrt((x1 - x2) ^ 2 + (y1 - y2) ^ 2 + (z1 - z2) ^ 2)
-end
-
-function OnTick()
-    for i, v in pairs(players) do
-        if (v) then
-
-            local DyN = get_dynamic_player(i)
-            if (player_alive(i) and DyN ~= 0) then
-                local flashlight = read_bit(DyN + 0x208, 4)
-                if (v.flashlight ~= flashlight and flashlight == 1) then
-                    v:NewMine(GetPos(DyN))
-                end
-                v.flashlight = flashlight
-            end
-
-            for mine, t in pairs(v.objects) do
-                if (time() >= t.expiration) then
-                    t.destroy(mine)
-                elseif (t.owner ~= i and player_alive(i) and DyN ~= 0) then
-                    local object = get_object_memory(mine)
-                    if (object ~= 0) then
-
-                        if (not v.ffa and not v.mines_kill_teammates and v.team == get_var(t.owner, '$team')) then
-                            goto next
-                        end
-
-                        local pos = GetPos(DyN)
-                        local mx, my, mz = read_vector3d(object + 0x5C)
-                        if Dist(pos.x, pos.y, pos.z, mx, my, mz) <= v.radius then
-                            v.killer = t.owner
-                            t.destroy(mine, mx, my, mz)
-                        end
-                    end
-                    :: next ::
-                end
-            end
-        end
-    end
-end
-
-function OnJoin(playerId)
-    players[playerId] = Mines:NewPlayer({
-        pid = playerId,
-        name = get_var(playerId, '$name'),
-        team = get_var(playerId, '$team')
-    })
-end
-
-function OnQuit(playerId)
-    for mine, t in pairs(Mines.objects) do
-        if (t.owner == playerId) then
-            t.destroy(mine)
-        end
-    end
-end
-
-function CheckDamage(Victim, Killer, MetaID, _, _)
-
-    if (Mines.death_messages) then
-        local killer, victim = tonumber(Killer), tonumber(Victim)
-
-        local v = players[victim]
-        if (v) then
-
-            -- event_damage_application:
-            if (MetaID) then
-                v.meta = MetaID
-                return
-            end
-
-            -- event_die:
-            local k = players[killer]
-            local mine_k = players[v.killer]
-
-            local squashed = (killer == 0)
-            local guardians = (killer == nil)
-            local suicide = (killer == victim)
-            local pvp = (killer > 0 and killer ~= victim)
-            local fell = (v.meta_id == falling or v.meta_id == distance)
-            local betrayal = (k and not ffa and (v.team == k.team and killer ~= victim))
-
-            execute_command("msg_prefix \"\"")
-            if (v.meta == Mines.explosion and mine_k) then
-                say_all(v.name .. " was blown up by " .. mine_k.name .. "'s mine!")
-            elseif (guardians) then
-                say_all(v.name .. ' killed by guardians')
-            elseif (suicide) then
-                say_all(v.name .. ' committed suicide')
-            elseif (fell or squashed) then
-                say_all(v.name .. ' died')
-            elseif (betrayal) then
-                say_all(v.name .. ' was betrayed by ' .. k.name)
-            elseif (pvp) then
-                say_all(v.name .. ' was killed by ' .. k.name)
-            end
-            execute_command("msg_prefix \" **" .. Mines.server_prefix .. "**\"")
-        end
-
-    end
-end
-
-function OnSpawn(playerId)
-    players[playerId].meta = 0
-    players[playerId].killer = 0
-    players[playerId].mines = Mines.mines_per_life
-end
-
-function OnSwitch(playerId)
-    players[playerId].team = get_var(playerId, '$team')
-end
-
+-- Function to get tag ID
 local function GetTag(Type, Name)
     local Tag = lookup_tag(Type, Name)
     return (Tag ~= 0 and read_dword(Tag + 0xC)) or nil
 end
 
+-- Event handler for game start
 function OnStart()
-    if (get_var(0, '$gt') ~= 'n/a') then
-
-        Mines.mine = GetTag(Mines.mine_object[1], Mines.mine_object[2])
+    if get_var(0, '$gt') ~= 'n/a' then
+        Mines.mine = GetTag(config.mine_object[1], config.mine_object[2])
         Mines.explosion = GetTag('jpt!', 'weapons\\rocket launcher\\explosion')
         Mines.projectile = GetTag('proj', 'weapons\\rocket launcher\\rocket')
 
-        if (Mines.mine and Mines.explosion and Mines.projectile) then
-
-            -- May not work on all maps:
-            --
+        if Mines.mine and Mines.explosion and Mines.projectile then
             falling = GetTag('jpt!', 'globals\\falling')
             distance = GetTag('jpt!', 'globals\\distance')
-            --
-
             ffa = (get_var(0, '$ffa') == '1')
 
             Mines.jpt = {}
@@ -355,7 +179,7 @@ function OnStart()
                 local tag = tag_address + 0x20 * i
                 local tag_name = read_string(read_dword(tag + 0x10))
                 local tag_class = read_dword(tag)
-                if (tag_class == 1785754657 and tag_name == 'weapons\\rocket launcher\\explosion') then
+                if tag_class == 1785754657 and tag_name == 'weapons\\rocket launcher\\explosion' then
                     local tag_data = read_dword(tag + 0x14)
                     Mines.jpt = {
                         [tag_data + 0x1d0] = { 1148846080, 1117782016 },
@@ -396,6 +220,137 @@ function OnStart()
     end
 end
 
+-- Event handler for script unload
 function OnScriptUnload()
     EnableDeathMessages()
+end
+
+-- Event handler for player join
+function OnJoin(playerId)
+    players[playerId] = Mines:NewPlayer({
+        pid = playerId,
+        name = get_var(playerId, '$name'),
+        team = get_var(playerId, '$team')
+    })
+end
+
+-- Event handler for player quit
+function OnQuit(playerId)
+    for mine, t in pairs(Mines.objects) do
+        if t.owner == playerId then
+            t.destroy(mine)
+        end
+    end
+end
+
+-- Event handler for player spawn
+function OnSpawn(playerId)
+    players[playerId].meta = 0
+    players[playerId].killer = 0
+    players[playerId].mines = config.mines_per_life
+end
+
+-- Event handler for team switch
+function OnSwitch(playerId)
+    players[playerId].team = get_var(playerId, '$team')
+end
+
+-- Function to check and handle damage
+function CheckDamage(Victim, Killer, MetaID)
+    if config.death_messages then
+        local killer, victim = tonumber(Killer), tonumber(Victim)
+        local v = players[victim]
+        if v then
+            if MetaID then
+                v.meta = MetaID
+                return
+            end
+
+            local k = players[killer]
+            local mine_k = players[v.killer]
+
+            local squashed = (killer == 0)
+            local guardians = (killer == nil)
+            local suicide = (killer == victim)
+            local pvp = (killer > 0 and killer ~= victim)
+            local fell = (v.meta_id == falling or v.meta_id == distance)
+            local betrayal = (k and not ffa and (v.team == k.team and killer ~= victim))
+
+            execute_command("msg_prefix \"\"")
+            if v.meta == Mines.explosion and mine_k then
+                say_all(v.name .. " was blown up by " .. mine_k.name .. "'s mine!")
+            elseif guardians then
+                say_all(v.name .. ' killed by guardians')
+            elseif suicide then
+                say_all(v.name .. ' committed suicide')
+            elseif fell or squashed then
+                say_all(v.name .. ' died')
+            elseif betrayal then
+                say_all(v.name .. ' was betrayed by ' .. k.name)
+            elseif pvp then
+                say_all(v.name .. ' was killed by ' .. k.name)
+            end
+            execute_command("msg_prefix \" **" .. config.server_prefix .. "**\"")
+        end
+    end
+end
+
+-- Function to edit rocket properties
+function EditRocket(rollback)
+    for address, v in pairs(Mines.jpt) do
+        if not rollback then
+            write_dword(address, v[1])
+        else
+            write_dword(address, v[2])
+        end
+    end
+end
+
+-- Event handler for game tick
+local function handlePlayerMines(v, DyN)
+    local flashlight = read_bit(DyN + 0x208, 4)
+    if v.flashlight ~= flashlight and flashlight == 1 then
+        v:NewMine(GetPos(DyN))
+    end
+    v.flashlight = flashlight
+end
+
+--- Handles the expiration and detonation of mines.
+-- This function iterates through the player's deployed mines and checks if they have expired.
+-- If a mine has expired, it is destroyed. If a mine is still active, it checks for proximity to other players.
+-- If an enemy player is within the explosion radius, the mine is detonated.
+-- @param v The player object containing the mine data.
+-- @param i The player's ID.
+local function handleMineExpiration(v, i)
+    for mine, t in pairs(v.objects) do
+        if time() >= t.expiration then
+            t.destroy(mine)
+        elseif t.owner ~= i and player_alive(i) and get_dynamic_player(i) ~= 0 then
+            local object = get_object_memory(mine)
+            if object ~= 0 then
+                if not v.ffa and not config.mines_kill_teammates and v.team == get_var(t.owner, '$team') then
+                    goto next
+                end
+                local pos = GetPos(get_dynamic_player(i))
+                local mx, my, mz = read_vector3d(object + 0x5C)
+                if Dist(pos.x, pos.y, pos.z, mx, my, mz) <= config.radius then
+                    v.killer = t.owner
+                    t.destroy(mine, mx, my, mz)
+                end
+            end
+            ::next::
+        end
+    end
+end
+
+function OnTick()
+    for i, v in pairs(players) do
+        if v then
+            local DyN = get_dynamic_player(i)
+            if player_alive(i) and DyN ~= 0 then
+                handlePlayerMines(v, DyN)
+            end
+            handleMineExpiration(v, i)
+        end
+    end
 end

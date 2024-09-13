@@ -5,11 +5,7 @@ Description: This script will allow you to swap weapon projectiles for substitut
 
 NOTE: The replacement projectile will still appear as the original projectile (but function properly).
 
-Changes in v1.1:
-- Added grenades and damage multipliers to the projectile table.
-- Updated Tag lookup function.
-
-Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2019-2024, Jericho Crosby <jericho.crosby227@gmail.com>
 Notice: You can use this script subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
@@ -68,7 +64,7 @@ local function getTag(a, b)
     return tag ~= 0 and read_dword(tag + 0xC) or nil
 end
 
-function OnObjectSpawn(PlayerIndex, MapID, ParentID, ObjectID)
+function OnObjectSpawn(PlayerIndex, MapID)
     if (PlayerIndex) then
         for i = 1, #projectiles do
 
@@ -82,7 +78,7 @@ function OnObjectSpawn(PlayerIndex, MapID, ParentID, ObjectID)
     end
 end
 
-function OnDamageApplication(ReceiverIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
+function OnDamageApplication(_, CauserIndex, MetaID, Damage)
     if tonumber(CauserIndex) > 0 then
         for i = 1, #projectiles do
             local repl, mul = projectiles[i][2], projectiles[i][3]

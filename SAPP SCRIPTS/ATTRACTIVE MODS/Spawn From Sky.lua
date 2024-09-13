@@ -120,7 +120,7 @@ function OnStart()
 end
 
 function OnTick()
-    for i,enabled in pairs(players) do
+    for i, enabled in pairs(players) do
         local dyn = get_dynamic_player(i)
         if (enabled and player_alive(i) and dyn ~= 0) then
             local state = read_byte(dyn + 0x2A3) -- un-god player when they hit the ground
@@ -133,28 +133,27 @@ function OnTick()
     end
 end
 
-function OnJoin(p)
-    players[p] = true
+function OnJoin(playerId)
+    players[playerId] = true
 end
 
-function OnSpawn(p)
-    if (players[p]) then
-        execute_command('god ' .. p)
+function OnSpawn(playerId)
+    if (players[playerId]) then
+        execute_command('god ' .. playerId)
     end
 end
 
-function OnPreSpawn(p)
-    if (players[p]) then
-        local dyn = get_dynamic_player(p)
-        if (dyn ~= 0) then
-            local x, y, z, h
-            local team = get_var(p, '$team')
-            if (team == 'red') then
-                x, y, z, h = coords[1][1], coords[1][2], coords[1][3], coords[1][4]
-            else
-                x, y, z, h = coords[2][1], coords[2][2], coords[2][3], coords[2][4]
-            end
-            write_vector3d(dyn + 0x5C, x, y, z + h)
-        end
+function OnPreSpawn(playerId)
+    if (not players[playerId]) then
+        return
     end
+
+    local dyn = get_dynamic_player(playerId)
+    if (dyn == 0) then
+        return
+    end
+
+    local team = get_var(playerId, '$team')
+    local x, y, z, h = unpack(coords[team == 'red' and 1 or 2])
+    write_vector3d(dyn + 0x5C, x, y, z + h)
 end

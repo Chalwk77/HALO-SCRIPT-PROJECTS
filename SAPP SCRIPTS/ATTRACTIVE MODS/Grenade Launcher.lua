@@ -122,7 +122,6 @@ local GLauncher = {
 api_version = "1.12.0.0"
 
 local time_scale = 1 / 30
-local script_version = 1.2
 
 function OnScriptLoad()
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
@@ -131,6 +130,11 @@ end
 
 function OnScriptUnload()
     -- N/A
+end
+
+function GetTag(Type, Name)
+    local Tag = lookup_tag(Type, Name)
+    return (Tag ~= 0 and read_dword(Tag + 0xC)) or nil
 end
 
 function GLauncher:OnGameStart()
@@ -453,40 +457,4 @@ function OnGameStart()
 end
 function OnTick()
     return GLauncher:OnTick()
-end
-
-function GetTag(Type, Name)
-    local Tag = lookup_tag(Type, Name)
-    return (Tag ~= 0 and read_dword(Tag + 0xC)) or nil
-end
-
-local function WriteLog(str)
-    local file = io.open("Grenade Launcher (errors).log", "a+")
-    if (file) then
-        file:write(str .. "\n")
-        file:close()
-    end
-end
-
-function OnError(Error)
-
-    local log = {
-        { os.date("[%H:%M:%S - %d/%m/%Y]"), true, 12 },
-        { Error, false, 12 },
-        { debug.traceback(), true, 12 },
-        { "--------------------------------------------------------", true, 5 },
-        { "Please report this error on github:", true, 7 },
-        { "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", true, 7 },
-        { "Script Version: " .. script_version, true, 7 },
-        { "--------------------------------------------------------", true, 5 }
-    }
-
-    for _, v in pairs(log) do
-        WriteLog(v[1])
-        if (v[2]) then
-            cprint(v[1], v[3])
-        end
-    end
-
-    WriteLog("\n")
 end
