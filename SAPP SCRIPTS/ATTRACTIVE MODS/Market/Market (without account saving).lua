@@ -2,12 +2,11 @@
 --=====================================================================================================--
 Script Name: Market (without account saving), for SAPP (PC & CE)
 Description: Earn money for killing and scoring.
-Version: 1.16
 
 Use your money to buy the following perks:
 
-Type			Command        Price        Catalogue Message
-----			-------	       -----        -----------------
+Type            Command        Price        Catalogue Message
+----            -------        -----        -----------------
 Camouflage      m1             $60          Duration: 30 seconds
 God Mode        m2             $200         Duration: 30 seconds
 Grenades        m3             $30          2x of each
@@ -32,135 +31,71 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
--- config starts --
-
+-- Configuration
 local Account = {
 
-    -- Starting balance:
-    --
+    -- Initial balance for each account
     balance = 5000,
 
-    -- Command used to view available items for purchase:
-    --
+    -- Command to view available perks for purchase
     catalogue_command = 'market',
 
-
-    -- Command used to view current balance:
-    --
+    -- Command to view current balance
     get_balance_command = 'money',
 
-
-    -- Command used to add funds:
-    --
-    -- Syntax: /deposit <pid> <amount>
+    -- Command to add funds to an account
     add_funds_command = 'deposit',
+
+    -- Message displayed when funds are added
     on_add = "Deposited $$amount into $name's account",
 
-
-    -- Command used to remove funds:
-    --
-    -- Syntax: /withdraw <pid> <amount>
+    -- Command to remove funds from an account
     remove_funds_command = 'withdraw',
+
+    -- Message displayed when funds are removed
     on_remove = "Withdrew $$amount from $name's account",
 
-
-    -- Players must be this level (or higher) to add/remove funds from an account:
+    -- Required admin level to use add/remove funds commands
     required_level = 1,
-    --
 
-    -- Money deposited/withdrawn during these events:
-    --
-    -- Set the money value to 0 to disable event.
-    --
-    -- deposit:
-    ['pvp'] = { 8, "+$8 (pvp)" },
-    ['on_score'] = { 10, "+$10 (score)" },
-    ['run_over'] = { 5, "+$5 (run over)" },
-    ['guardians'] = { 6, "+$6 (guardians)" },
-    ['first_blood'] = { 10, "+$10 (first blood)" },
-    ['killed_from_grave'] = { 25, "+$25 (killed from grave)" },
-    --
-    -- withdraw:
-    ['suicide'] = { -4, "-$4 (suicide)" },
-    ['squashed'] = { -2, "-$2 (squashed)" },
-    ['betrayal'] = { -7, "-$7 (betrayal)" },
-    ['fall_damage'] = { -5, "-$5 (fall damage)" }, -- doesn't work on protected maps, but wont break the script
-    ['died/unknown'] = { -5, "-$5 (died/unknown)" },
-    ['distance_damage'] = { -5, "-$5 (distance damage" }, -- doesn't work on protected maps, but wont break the script
+    -- Events and their corresponding rewards/penalties
+    events = {
+        pvp = { 8, "+$8 (pvp)" }, -- Reward for player vs player kill
+        on_score = { 10, "+$10 (score)" }, -- Reward for scoring
+        run_over = { 5, "+$5 (run over)" }, -- Reward for running over an enemy
+        guardians = { 6, "+$6 (guardians)" }, -- Reward for killing guardians
+        first_blood = { 10, "+$10 (first blood)" }, -- Reward for first blood
+        killed_from_grave = { 25, "+$25 (killed from grave)" }, -- Reward for killing from the grave
+        suicide = { -4, "-$4 (suicide)" }, -- Penalty for suicide
+        squashed = { -2, "-$2 (squashed)" }, -- Penalty for being squashed
+        betrayal = { -7, "-$7 (betrayal)" }, -- Penalty for betrayal
+        fall_damage = { -5, "-$5 (fall damage)" }, -- Penalty for fall damage
+        died_unknown = { -5, "-$5 (died/unknown)" }, -- Penalty for unknown death
+        distance_damage = { -5, "-$5 (distance damage)" } -- Penalty for distance damage
+    },
 
-
-    ----------------------------------------------------
-    -- COMMAND SETTINGS --------------------------------
-    ----------------------------------------------------
+    -- Commands to buy perks and their details
     buy_commands = {
-
-        --
-        -- SET THE PRICE TO 0 to disable.
-        --
-
-        --
-        -- DO NOT CHANGE THE SAPP COMMAND OR LABEL
-        -- DO NOT CHANGE THE SAPP COMMAND OR LABEL
-        -- DO NOT CHANGE THE SAPP COMMAND OR LABEL
-        --
-
-        -- Camouflage:
-        -- ["LABEL"] = {sapp command, trigger command, price, duration, cooldown period, catalogue message}
-        ['CAMO'] = { 'camo', 'm1', 60, 30, 60, "-$60 -> (camo | 30s)" },
-
-        --
-        -- God Mode:
-        -- ["LABEL"] = {sapp command, trigger command, price, duration, cooldown period, catalogue message}
-        ['GOD'] = { 'god', 'm2', 200, 30, 60, "-$200 -> (god | 30s)" },
-
-        --
-        -- Grenades:
-        -- ["LABEL"] = {sapp command, trigger command, price, amount, cooldown period, catalogue message}
-        ['GRENADES'] = { 'nades', 'm3', 30, 2, 60, "-$30 -> (grenades | 2x each)" },
-
-        --
-        -- Speed Boost (normal speed = 1):
-        -- ["LABEL"] = {sapp command, trigger command, price, speed%, cooldown period, catalogue message}
-        ['SPEED'] = { 's', 'm4', 60, 1.3, 60, "-$60 -> (speed boost | 1.3x)" },
-
-        --
-        -- Overshield (full shield = 1):
-        -- ["LABEL"] = {sapp command, trigger command, price, shield%, cooldown period, catalogue message}
-        ['OVERSHIELD'] = { 'sh', 'm5', 100, 1, 60, "-$100 -> (full shield)" },
-
-        --
-        -- Health (full health = 1):
-        -- ["LABEL"] = {sapp command, trigger command, price, health%, cooldown period, catalogue message}
-        ['HEALTH'] = { 'hp', 'm6', 100, 1, 60, "-$100 -> (full health)" },
-
-        -----------------------------------
-        -- special commands:
-        -----------------------------------
-
-        --
-        -- Teleport:
-        -- ["LABEL"] = {sapp command, trigger command, price, N/A, cooldown period, catalogue message}
-        ['TELEPORT'] = { 'boost', 'm7', 350, 'N/A', 60, "-$350 -> (teleport where aiming)" },
-
-        --
-        -- Damage Boost:
-        -- ["LABEL"] = {N/A, trigger command, price, multiplier, duration, cooldown period, catalogue message}
-        ['DAMAGE'] = { 'N/A', 'm9', 500, 1.3, 120, 60, "-$500 -> (1.3x damage)" }
+        CAMO = { 'camo', 'm1', 60, 30, 60, "-$60 -> (camo | 30s)" }, -- Camouflage perk
+        GOD = { 'god', 'm2', 200, 30, 60, "-$200 -> (god | 30s)" }, -- God mode perk
+        GRENADES = { 'nades', 'm3', 30, 2, 60, "-$30 -> (grenades | 2x each)" }, -- Grenades perk
+        SPEED = { 's', 'm4', 60, 1.3, 60, "-$60 -> (speed boost | 1.3x)" }, -- Speed boost perk
+        OVERSHIELD = { 'sh', 'm5', 100, 1, 60, "-$100 -> (full shield)" }, -- Overshield perk
+        HEALTH = { 'hp', 'm6', 100, 1, 60, "-$100 -> (full health)" }, -- Health perk
+        TELEPORT = { 'boost', 'm7', 350, 'N/A', 60, "-$350 -> (teleport where aiming)" }, -- Teleport perk
+        DAMAGE = { 'N/A', 'm9', 500, 1.3, 120, 60, "-$500 -> (1.3x damage)" } -- Damage boost perk
     }
 }
--- config ends --
 
-local players = { }
+local players = {}
 local ffa, falling, distance, first_blood
-
 local time = os.time
 local gmatch = string.gmatch
-local match, gsub = string.match, string.gsub
 
 api_version = '1.12.0.0'
 
+-- Event Callbacks
 function OnScriptLoad()
-
     register_callback(cb['EVENT_TICK'], 'OnTick')
     register_callback(cb['EVENT_DIE'], 'OnDeath')
     register_callback(cb['EVENT_JOIN'], 'OnJoin')
@@ -173,87 +108,168 @@ function OnScriptLoad()
     OnStart()
 end
 
-function Account:new(t)
+function OnScriptUnload()
+    -- N/A
+end
 
+--[[
+    Initializes a new account with default values.
+
+    @param t {table} - A table containing:
+        t.meta_id {number} - The meta ID of the account, initialized to 0.
+        t.god {boolean} - A flag indicating if the account has god mode, initialized to false.
+        t.damage_multiplier {number} - The damage multiplier for the account, initialized to 1.
+
+    @return {table} - The initialized account table.
+]]
+function Account:new(t)
     setmetatable(t, self)
     self.__index = self
-
     t.meta_id = 0
     t.god = false
     t.damage_multiplier = 1
-
     return t
 end
 
+--[[
+    Deposits a specified amount into the account balance.
+
+    @param t {table} - A table containing:
+        t[1] {number} - The amount to deposit. If 0, the function returns immediately.
+        t[2] {string} - An optional message to respond with after the deposit.
+
+    The function adds the specified amount to the balance.
+    If a message is provided, it responds with that message.
+]]
 function Account:deposit(t)
-    if (t[1] == 0) then
+    if t[1] == 0 then
         return
     end
     self.balance = self.balance + t[1]
     self:respond(t[2])
 end
 
+--[[
+    Withdraws a specified amount from the account balance.
+
+    @param t {table} - A table containing:
+        t[1] {number} - The amount to withdraw. If 0, the function returns immediately.
+        t[2] {string} - An optional message to respond with after the withdrawal.
+
+    The function ensures the balance does not go below zero.
+    If a message is provided, it responds with that message.
+]]
 function Account:withdraw(t)
-    if (t[1] == 0) then
+    if t[1] == 0 then
         return
     end
-
-    if (t[1] < 0) then
-        self.balance = self.balance + t[1]
-    else
-        self.balance = self.balance - t[1]
+    self.balance = self.balance + (t[1] < 0 and t[1] or -t[1])
+    self.balance = math.max(self.balance, 0)
+    if t[2] then
+        self:respond(t[2])
     end
-
-    self.balance = (self.balance < 0 and 0 or self.balance)
-    if (not t[2]) then
-        return
-    end
-    self:respond(t[2])
 end
 
+--[[
+    Sends a message to the player.
+
+    @param msg {string} - The message to be sent to the player.
+
+    The function uses the player's ID to send the specified message.
+]]
 function Account:respond(msg)
     rprint(self.pid, msg)
 end
 
+--[[
+    Retrieves the memory address of a tag.
+
+    @param Type {string} - The type of the tag (e.g., 'jpt!', 'bipd').
+    @param Name {string} - The name of the tag (e.g., 'globals\\falling').
+
+    @return {number|nil} - The memory address of the tag if found, otherwise nil.
+]]
 local function GetTag(Type, Name)
     local Tag = lookup_tag(Type, Name)
     return Tag ~= 0 and read_dword(Tag + 0xC) or nil
 end
 
+--[[
+    Handles the event when a player joins the game.
+
+    @param Ply {number} - The player ID of the joining player.
+
+    The function retrieves the player's name and team, then initializes a new account for the player.
+]]
 function OnJoin(Ply)
     local name = get_var(Ply, '$name')
     local team = get_var(Ply, '$team')
     players[Ply] = Account:new({ pid = Ply, team = team, name = name })
 end
 
+--[[
+    Handles the event when a player scores in the game.
+
+    @param Ply {number} - The player ID of the scoring player.
+
+    The function deposits the score reward into the player's account.
+]]
 function OnScore(Ply)
     local t = players[Ply]
-    t:deposit(t['on_score'])
+    t:deposit(t.events.on_score)
 end
 
+--[[
+    Handles the event when a player spawns in the game.
+
+    @param Ply {number} - The player ID of the spawning player.
+
+    The function checks if the player has god mode enabled and executes the god mode command if true.
+]]
 function OnSpawn(Ply)
     local t = players[Ply]
-    if (t.god) then
+    if t.god then
         execute_command("w8 1;god " .. Ply)
     end
 end
 
+--[[
+    Returns the plural form of a word based on the given number.
+
+    @param n {number} - The number to determine the plural form.
+
+    @return {string} - Returns "s" if the number is greater than 1, otherwise an empty string.
+]]
 local function Plural(n)
-    return (n > 1 and "s" or "")
+    return n > 1 and "s" or ""
 end
 
+--[[
+    Handles the periodic update of player perks and their cooldowns.
+
+    Iterates through all players and their purchased perks to check if any cooldowns have expired.
+    If a perk's cooldown has expired, it resets the perk's state and notifies the player.
+
+    The function specifically handles the 'DAMAGE' and 'GOD' perks, resetting their states when their durations end.
+
+    The function is called on every tick of the game.
+
+    No parameters.
+    No return value.
+]]
 function OnTick()
     for _, t in pairs(players) do
         for cmd, perk in pairs(t.buy_commands) do
-            if (cmd == 'DAMAGE' and t.damage_multiplier > 1 and t.damage_time() >= t.damage_finish) then
+            local now = time()
+            if cmd == 'DAMAGE' and t.damage_multiplier > 1 and now >= t.damage_finish then
                 t.damage_multiplier = 1
                 t:respond(cmd .. " cooldown has expired.")
-            elseif (cmd == 'GOD' and t.god and t.god_time() >= t.god_finish) then
+            elseif cmd == 'GOD' and t.god and now >= t.god_finish then
                 t.god = false
                 t:respond(cmd .. " cooldown has expired.")
                 execute_command('ungod ' .. t.pid)
             end
-            if (perk.cooldown_start and perk.cooldown_time() >= perk.cooldown_finish) then
+            if perk.cooldown_start and now >= perk.cooldown_finish then
                 perk.cooldown_start = false
                 t:respond(cmd .. " cooldown has expired.")
             end
@@ -265,142 +281,179 @@ function OnSwitch(Ply)
     players[Ply].team = get_var(Ply, '$team')
 end
 
+--[[
+    Initializes the game state when the script starts.
+
+    This function is called when the script is loaded. It performs the following tasks:
+    - Checks if the game type is valid.
+    - Resets the players table.
+    - Sets the first blood flag to true.
+    - Determines if the game is free-for-all (FFA).
+    - Retrieves the memory addresses for the 'falling' and 'distance' tags.
+    - Initializes accounts for all currently present players.
+
+    No parameters.
+    No return value.
+]]
 function OnStart()
-    if (get_var(0, '$gt') ~= 'n/a') then
 
-        players = {}
-        first_blood = true
+    if get_var(0, '$gt') == 'n/a' then
+        return
+    end
 
-        ffa = (get_var(0, '$ffa') == '1')
+    players = {}
+    first_blood = true
+    ffa = get_var(0, '$ffa') == '1'
+    falling = GetTag('jpt!', 'globals\\falling')
+    distance = GetTag('jpt!', 'globals\\distance')
 
-        -- these will not work on protected maps:
-        falling = GetTag('jpt!', 'globals\\falling')
-        distance = GetTag('jpt!', 'globals\\distance')
-        --
-
-        for i = 1, 16 do
-            if player_present(i) then
-                OnJoin(i)
-            end
+    for i = 1, 16 do
+        if player_present(i) then
+            OnJoin(i)
         end
     end
 end
 
+--[[
+    Checks if a player has the required permission level.
+
+    @param t {table} - A table containing:
+        t.pid {number} - The player ID.
+        t.required_level {number} - The required permission level.
+
+    @return {boolean} - Returns true if the player has the required permission level, otherwise false.
+    If the player does not have the required permission level, a message is sent to the player.
+]]
 local function HasPermission(t)
-    local l = tonumber(get_var(t.pid, '$lvl'))
-    return (l >= t.required_level or t:respond("Insufficient Permission") and false)
+    local level = tonumber(get_var(t.pid, '$lvl'))
+    if level >= t.required_level then
+        return true
+    else
+        t:respond("Insufficient Permission")
+        return false
+    end
 end
 
 local function CMDSplit(s)
-    local args = { }
+    local args = {}
     for word in gmatch(s, '([^%s]+)') do
         args[#args + 1] = word:lower()
     end
     return args
 end
 
+--[[
+    Handles player commands and executes the appropriate actions.
+
+    @param Ply {number} - The player ID who issued the command.
+    @param CMD {string} - The command string issued by the player.
+
+    The function processes various commands such as checking balance, adding/removing funds, and purchasing perks.
+    It ensures the player has the required permissions and sufficient balance before executing commands.
+    It also handles cooldowns for perk commands.
+
+    @return {boolean} - Returns false to indicate the command was handled.
+]]
 function OnCommand(Ply, CMD)
-
     local args = CMDSplit(CMD)
-    if (Ply > 0 and args) then
+    if Ply <= 0 or not args then
+        return
+    end
 
-        local t = players[Ply]
-        if (args[1] == t.get_balance_command) then
-            t:respond("You have $" .. t.balance)
-            return false
-        elseif (args[1] == t.add_funds_command or args[1] == t.remove_funds_command) then
-            if HasPermission(t) then
-                local p = players[tonumber(args[2])]
-                if not player_present(args[2]) then
-                    t:respond("Player #" .. args[2] .. " is not online.")
-                elseif (not args[2] or not match(args[2], '%d+')) then
-                    t:respond("Invalid Command syntax. Usage: /" .. args[1] .. " <pid> <amount>")
-                elseif (not args[3] or not match(args[3], '%d+')) then
-                    t:respond("Invalid amount")
-                elseif (args[1] == t.add_funds_command) then
-                    p.balance = p.balance + args[3]
-                    t:respond(gsub(gsub(t.on_add, '$amount', args[3]), '$name', p.name))
-                elseif (args[1] == t.remove_funds_command) then
-                    p.balance = p.balance - args[3]
-                    t:respond(gsub(gsub(t.on_remove, '$amount', args[3]), '$name', p.name))
-                end
+    local t = players[Ply]
+    local cmd = args[1]
+
+    if cmd == t.get_balance_command then
+        t:respond("You have $" .. t.balance)
+        return false
+    elseif cmd == t.add_funds_command or cmd == t.remove_funds_command then
+        if HasPermission(t) then
+
+            local pid = tonumber(args[2])
+            local amount = tonumber(args[3])
+            local p = players[pid]
+
+            if not player_present(pid) then
+                t:respond("Player #" .. args[2] .. " is not online.")
+            elseif not pid or not amount then
+                t:respond("Invalid Command syntax. Usage: /" .. cmd .. " <pid> <amount>")
+            elseif cmd == t.add_funds_command then
+                p.balance = p.balance + amount
+                t:respond(t.on_add:gsub('$amount', args[3]):gsub('$name', p.name))
+            elseif cmd == t.remove_funds_command then
+                p.balance = p.balance - amount
+                t:respond(t.on_remove:gsub('$amount', args[3]):gsub('$name', p.name))
             end
-            return false
         end
+        return false
+    end
 
-        local response = true
-        for cmd, perk in pairs(t.buy_commands) do
+    for _, perk in pairs(t.buy_commands) do
+        local sapp_command, command, cost, duration, cooldown, catalogue_message = unpack(perk)
 
-            local sapp_command = perk[1]
-            local cost = perk[3]
-            local command = perk[2]
-            local duration = perk[4] -- or extra data (like damage multiplier number)
-            local cooldown = perk[#perk - 1]
-            local catalogue_message = perk[#perk]
-
-            if (args[1] == t.catalogue_command) then
-                t:respond('/' .. command .. " " .. catalogue_message)
-                response = false
-            elseif (args[1] == command) then
-                if player_alive(Ply) then
-                    if (cost == 0) then
-                        t:respond("Command disabled")
-                    elseif (perk.cooldown_start) then
-                        local time_remaining = perk.cooldown_finish - perk.cooldown_time()
-                        t:respond("Command on cooldown")
-                        t:respond("Please wait " .. time_remaining .. " second" .. Plural(time_remaining))
-                    elseif (t.balance >= cost) then
-                        t:respond(catalogue_message)
-                        t:withdraw({ cost })
-                        if (cmd == "DAMAGE") then
-                            t.damage_time = time
-                            t.damage_multiplier = perk[4]
-                            t.damage_finish = time() + perk[5]
-                        elseif (cmd == 'GOD') then
-                            t.god = true
-                            t.god_time = time
-                            t.god_finish = time() + duration
-                            execute_command(sapp_command .. ' ' .. t.pid)
-                        elseif (cmd == 'TELEPORT') then
-                            execute_command(sapp_command .. ' ' .. t.pid)
-                        else
-                            execute_command(sapp_command .. ' ' .. t.pid .. ' ' .. duration)
-                        end
-                        perk.cooldown_time = time
-                        perk.cooldown_start = true
-                        perk.cooldown_finish = time() + cooldown
-                    else
-                        t:respond("You do not have enough money!")
-                        t:respond("You need $" .. cost - t.balance)
-                    end
-                else
-                    t:respond("Please wait until you respawn")
-                end
+        if cmd == t.catalogue_command then
+            t:respond('/' .. command .. " " .. catalogue_message)
+            return false
+        elseif cmd == command then
+            if not player_alive(Ply) then
+                t:respond("Please wait until you respawn")
                 return false
+            elseif cost == 0 then
+                t:respond("Command disabled")
+            elseif perk.cooldown_start then
+                local time_remaining = perk.cooldown_finish - time()
+                t:respond("Command on cooldown. Please wait " .. time_remaining .. " second" .. Plural(time_remaining))
+            elseif t.balance >= cost then
+                t:respond(catalogue_message)
+                t:withdraw({ cost })
+                if cmd == "DAMAGE" then
+                    t.damage_multiplier = perk[4]
+                    t.damage_finish = time() + perk[5]
+                elseif cmd == 'GOD' then
+                    t.god = true
+                    t.god_finish = time() + duration
+                    execute_command(sapp_command .. ' ' .. t.pid)
+                elseif cmd == 'TELEPORT' then
+                    execute_command(sapp_command .. ' ' .. t.pid)
+                else
+                    execute_command(sapp_command .. ' ' .. t.pid .. ' ' .. duration)
+                end
+                perk.cooldown_start = true
+                perk.cooldown_finish = time() + cooldown
+            else
+                t:respond("You do not have enough money! You need $" .. (cost - t.balance))
             end
+            return false
         end
-
-        return response
     end
 end
 
-function OnDeath(Victim, Killer, MetaID, Damage)
+--[[
+    Handles the event when a player dies in the game.
 
+    @param Victim {number} - The player ID of the victim.
+    @param Killer {number} - The player ID of the killer.
+    @param MetaID {number} - The meta ID of the damage type.
+    @param Damage {number} - The amount of damage inflicted.
+
+    The function processes various scenarios such as player vs player kills, suicides, betrayals, and environmental deaths.
+    It updates the players' accounts with rewards or penalties based on the type of death.
+    It also handles special cases like first blood, killing from the grave, and running over enemies.
+
+    @return {boolean, number} - Returns true and the modified damage if MetaID is provided, otherwise no return value.
+]]
+function OnDeath(Victim, Killer, MetaID, Damage)
     local victim = tonumber(Victim)
     local killer = tonumber(Killer)
-
     local v = players[victim]
     local k = players[killer]
 
-    if (v) then
-
-        -- event_damage_application:
-        if (MetaID) then
+    if v then
+        if MetaID then
             v.meta_id = MetaID
             return true, (k and Damage * k.damage_multiplier or 1)
         end
 
-        -- event_die:
         local squashed = (killer == 0)
         local guardians = (killer == nil)
         local suicide = (killer == victim)
@@ -408,47 +461,38 @@ function OnDeath(Victim, Killer, MetaID, Damage)
         local fell = (v.meta_id == falling or distance)
         local betrayal = ((k and not ffa) and (v.team == k.team and killer ~= victim))
 
-        if (pvp and not betrayal) then
-
-            if (first_blood) then
+        if pvp and not betrayal then
+            if first_blood then
                 first_blood = false
-                k:deposit(k['first_blood'])
+                k:deposit(k.events.first_blood)
             end
-
-            if (not player_alive(killer)) then
-                k:deposit(k['killed_from_grave'])
+            if not player_alive(killer) then
+                k:deposit(k.events.killed_from_grave)
                 goto done
             end
-
             local DyN = get_dynamic_player(killer)
-            if (DyN ~= 0) then
+            if DyN ~= 0 then
                 local vehicle = read_dword(DyN + 0x11C)
-                if (vehicle ~= 0xFFFFFFFF) then
-                    k:deposit(k['run_over'])
+                if vehicle ~= 0xFFFFFFFF then
+                    k:deposit(k.events.run_over)
                     goto done
                 end
             end
-            k:deposit(k['pvp'])
-
-        elseif (guardians) then
-            k:deposit(k['guardians'])
-            v:deposit(v['guardians'])
-        elseif (suicide) then
-            v:withdraw(v['suicide'])
-        elseif (betrayal) then
-            k:withdraw(k['betrayal'])
-        elseif (squashed) then
-            v:withdraw(v['squashed'])
-        elseif (fell ~= nil) then
-            v:withdraw(v['fall_damage'])
+            k:deposit(k.events.pvp)
+        elseif guardians then
+            k:deposit(k.events.guardians)
+            v:deposit(v.events.guardians)
+        elseif suicide then
+            v:withdraw(v.events.suicide)
+        elseif betrayal then
+            k:withdraw(k.events.betrayal)
+        elseif squashed then
+            v:withdraw(v.events.squashed)
+        elseif fell ~= nil then
+            v:withdraw(v.events.fall_damage)
         else
-            v:withdraw(v['died/unknown'])
+            v:withdraw(v.events.died_unknown)
         end
-
         :: done ::
     end
-end
-
-function OnScriptUnload()
-    -- N/A
 end
