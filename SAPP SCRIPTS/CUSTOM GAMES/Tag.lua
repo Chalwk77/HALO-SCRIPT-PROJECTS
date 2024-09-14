@@ -33,26 +33,52 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 -- Configuration table for the Tag game mode
 local Tag = {
+    -- The score limit to win the game
     score_limit = 10000,
-    points_on_tag = 500,
+
+    -- Points awarded to the tagger for tagging a runner
+    points_on_tag = 100,
+
+    -- Points awarded to runners every points_interval seconds
     runner_points = 5,
+
+    -- Interval in seconds for awarding points to runners
     points_interval = 10,
+
+    -- Duration in seconds for each tagger's turn
     turn_time = 60,
+
+    -- Minimum number of players required to start the game
     players_required = 2,
-    speed = { tagger = 1.5, runner = 1 },
-    on_tag = {
-        "Tag, you're it! ($name got you)",
-        '$name was tagged by $tagger'
+
+    -- Speed settings for taggers and runners
+    speed = {
+        tagger = 1.5,  -- Speed multiplier for taggers
+        runner = 1    -- Speed multiplier for runners
     },
+
+    -- Messages displayed when a player is tagged
+    on_tag = {
+        "Tag, you're it! ($name got you)",  -- Message for the new tagger
+        '$name was tagged by $tagger'       -- Message for the runner who was tagged
+    },
+
+    -- Message displayed when a random player is chosen as the new tagger
     random_tagger = '$name is now the tagger!',
+
+    -- Whether a new tagger should be chosen when the current tagger quits
     new_tagger_on_quit = true,
+
+    -- Whether a new tagger should be chosen when the current tagger dies
     new_tagger_on_death = false,
+
+    -- Prefix for server messages
     server_prefix = '**SAPP**'
 }
 
 local players = {}
 local game_over = false
-local tagger = nil
+local tagger
 local tagger_weapon_meta_id
 local runner_weapon_meta_id
 local tagger_weapon
@@ -126,7 +152,7 @@ local function pickRandomPlayer(quit)
 
     if #candidates > 0 then
         local new_tagger = candidates[math.random(#candidates)]
-        players[new_tagger]:setTagger()
+        players[new_tagger]:setTagger(quit)
     end
 end
 
@@ -157,7 +183,7 @@ function Player:setSpeed()
     end
 end
 
-function Player:setTagger()
+function Player:setTagger(quit)
 
     tagger = self.id
     self.assign = true
@@ -170,7 +196,14 @@ function Player:setTagger()
     local runner_message = Tag.on_tag[2]:gsub('$name', self.name):gsub('$tagger', self.name)
 
     for i, player in pairs(players) do
-        player:broadcast(i == tagger and tag_message or runner_message, true)
+
+        if quit then
+            player:broadcast(Tag.random_tagger:gsub('$name', self.name), true)
+        elseif i == self.id then
+            player:broadcast(tag_message, true)
+        else
+            player:broadcast(runner_message, true)
+        end
     end
 end
 
@@ -247,8 +280,8 @@ function OnEnd()
 end
 
 function OnTick()
-
     for i, player in pairs(players) do
+
         if game_over or not player_present(i) or not player_alive(i) then
             goto continue
         end
@@ -258,10 +291,16 @@ function OnTick()
 
         if player:isTagger() and os.time() >= player.turn_finish then
             pickRandomPlayer()
-        elseif player.periodic_scoring and os.time() >= player.runner_finish then
-            player.runner_start = os.time()
-            player.runner_finish = player.runner_start + Tag.points_interval
-            player:updateScore(false, true)
+        elseif not player:isTagger() then
+            if not player.periodic_scoring then
+                player.periodic_scoring = true
+                player.runner_start = os.time()
+                player.runner_finish = player.runner_start + Tag.points_interval
+            elseif os.time() >= player.runner_finish then
+                player.runner_start = os.time()
+                player.runner_finish = player.runner_start + Tag.points_interval
+                player:updateScore(false, true)
+            end
         end
 
         :: continue ::
