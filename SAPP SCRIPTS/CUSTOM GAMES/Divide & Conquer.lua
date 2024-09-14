@@ -16,7 +16,7 @@ api_version = '1.12.0.0'
 --- Configuration ---
 local config = {
     delay = 5,
-    required_players = 1,
+    required_players = 3,
     prefix = '**SAPP**'
 }
 
