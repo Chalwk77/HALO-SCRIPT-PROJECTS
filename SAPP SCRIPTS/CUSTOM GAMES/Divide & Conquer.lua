@@ -5,7 +5,7 @@ Description: When you kill someone on the opposing team, the victim is switched 
              The main objective is to dominate the opposing team.
              When the opposing team has no players left the game is over.
 
-Copyright (c) 2023, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2023-2024, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
@@ -16,7 +16,7 @@ api_version = '1.12.0.0'
 --- Configuration ---
 local config = {
     delay = 5,
-    required_players = 3,
+    required_players = 1,
     prefix = '**SAPP**'
 }
 
@@ -99,6 +99,13 @@ function Game:checkStartCondition(quit)
     end
 end
 
+function Game:resetTimer()
+    if self.timer then
+        self.timer:stop()
+        self.timer = nil
+    end
+end
+
 function Game:start()
     if get_var(0, '$gt') ~= 'n/a' then
 
@@ -115,10 +122,7 @@ function Game:start()
             end
         end
 
-        if self.timer then
-            self.timer:stop()
-            self.timer = nil
-        end
+        self:resetTimer()
     end
 end
 
@@ -127,10 +131,7 @@ function Game:endGame()
     if reds == 0 or blues == 0 then
         self.winner = (reds == 0) and 'Blue' or 'Red'
         execute_command('sv_map_next')
-        if self.timer then
-            self.timer:stop()
-            self.timer = nil
-        end
+        self:resetTimer()
     end
 end
 
@@ -216,8 +217,6 @@ function Game:onTick()
 
         self:say('Game Start!', true)
     else
-
-
         self:say('Game will start in ' .. math.floor(config.delay - self.timer:get()) .. ' seconds!', true)
     end
 end
