@@ -17,40 +17,34 @@ local shuffle_chance = 3
 local msg_prefix = '**SAPP**'
 api_version = '1.12.0.0'
 
+-- Event handler for script load
 function OnScriptLoad()
     register_callback(cb['EVENT_CHAT'], 'OnChat')
 end
 
+-- Function to get a random seed
 local function get_random_seed()
     return math.random(os.time())
 end
 
+-- Function to shuffle a string
 local function shuffle_string(s)
-    -- Initialize an empty table to store letters
     local shuffled_letters = {}
-
-    -- Iterate over the letters in the string
     for letter in s:gmatch '.[\128-\191]*' do
-        -- Insert a new letter into the table with a random seed
         table.insert(shuffled_letters, { letter = letter, rnd = get_random_seed() })
     end
-    -- Sort the table based on the random seed value
     table.sort(shuffled_letters, function(a, b)
         return a.rnd < b.rnd
     end)
-
-    -- Replace the seed with the letter
     for i = 1, #shuffled_letters do
         shuffled_letters[i] = shuffled_letters[i].letter
     end
-
-    -- Return the shuffled string
     return table.concat(shuffled_letters)
 end
 
+-- Event handler for chat messages
 function OnChat(playerId, message, messageType)
-    -- Check if the message should be shuffled.
-    if (math.random() <= (1 / shuffle_chance)) then
+    if math.random() <= (1 / shuffle_chance) then
         local new_message = shuffle_string(message)
         local player_name = get_var(playerId, '$name')
 
@@ -58,9 +52,9 @@ function OnChat(playerId, message, messageType)
         execute_command('msg_prefix ""')
 
         -- Handle different message types.
-        if (messageType == 0) then
+        if messageType == 0 then
             say_all(player_name .. ': ' .. new_message)
-        elseif (messageType == 1 or messageType == 2) then
+        elseif messageType == 1 or messageType == 2 then
             say_all('[' .. player_name .. ']: ' .. new_message)
         end
 
@@ -69,8 +63,10 @@ function OnChat(playerId, message, messageType)
 
         return false -- Indicate that the message has been handled.
     end
+    return true
 end
 
+-- Event handler for script unload
 function OnScriptUnload()
     -- N/A
 end

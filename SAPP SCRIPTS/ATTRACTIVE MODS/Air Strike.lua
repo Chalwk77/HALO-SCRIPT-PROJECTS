@@ -1,20 +1,10 @@
---[[
---=====================================================================================================--
-Script Name: Airstrike, for SAPP (PC & CE)
-
-Copyright (c) 2024, Jericho Crosby <jericho.crosby227@gmail.com>
-Notice: You can use this script subject to the following conditions:
-https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
---=====================================================================================================--
-]]--
-
 -- Configuration starts here:
 api_version = "1.12.0.0"
 
 -- Minimum number of projectiles to spawn
 local min_proj = 1
 -- Maximum number of projectiles to spawn
-local max_proj = 2
+local max_proj = 5
 
 -- Minimum time interval between airstrikes
 local min_interval = 1
@@ -34,18 +24,16 @@ local max_x_vel = 5
 -- Minimum Y-axis velocity for projectiles
 local min_y_vel = -10
 -- Maximum Y-axis velocity for projectiles
-local max_y_vel = 5
+local max_y_vel = 10
 
 -- Minimum Z-axis velocity for projectiles
 local min_z_vel = -10
 -- Maximum Z-axis velocity for projectiles
-local max_z_vel = -0.5
+local max_z_vel = 5
 
 -- Dictionary containing strike locations for different maps
 local strike_locations = {
-    -- Strike locations for the "bloodgulch" map
     ["bloodgulch"] = {
-        -- Coordinates of strike locations
         { 64, -112.09, 2.21 },
         { 52.96, -93.79, 0.47 },
         { 38.64, -91.71, 0.37 },
@@ -78,14 +66,11 @@ function OnScriptLoad()
     register_callback(cb["EVENT_GAME_START"], "OnStart")
 end
 
--- Generate random time interval
 local function NewTimes()
     start = time
-    -- The '+1' is to make the max_interval inclusive in the range
     finish = time() + rand(min_interval, max_interval + 1)
 end
 
--- Get a tag with a specific name and type
 local function GetTag(Type, Name)
     local Tag = lookup_tag(Type, Name)
     return Tag ~= 0 and read_dword(Tag + 0xC) or nil
@@ -105,12 +90,12 @@ function OnStart()
     end
 end
 
--- Main airstrike logic
 function OnTick()
     if start() >= finish then
         local n = rand(1, #locations + 1)
         local x, y, z = locations[n][1], locations[n][2], locations[n][3]
-        for _ = min_proj, max_proj do
+        local num_proj = rand(min_proj, max_proj + 1)
+        for _ = 1, num_proj do
             local h = rand(min_height, max_height + 1)
             local payload = spawn_object("", "", x, y, z + h, 0, rocket)
             local object = get_object_memory(payload)

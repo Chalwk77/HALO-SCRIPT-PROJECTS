@@ -19,26 +19,9 @@ local trigger_words = { "that", "que" }
 local permission_level = 1
 -- Config [ends]----------------------------------
 
-local modify_chat
+local modify_chat = false
 
-function OnScriptLoad()
-    register_callback(cb["EVENT_CHAT"], "OnChat")
-    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
-    if (get_var(0, "$gt") ~= nil) then
-        modify_chat = false
-    end
-end
-
-function OnGameStart()
-    if (get_var(0, "$gt") ~= nil) then
-        modify_chat = false
-    end
-end
-
-function OnScriptUnload()
-    -- N/A
-end
-
+-- Function to split a string by spaces
 local function stringSplit(str)
     local t = {}
     for arg in str:gmatch('([^%s]+)') do
@@ -47,10 +30,12 @@ local function stringSplit(str)
     return t
 end
 
+-- Function to check if a message is a chat command
 local function chatCommand(message)
     return message:sub(1, 1) == "/" or message:sub(1, 1) == "\\"
 end
 
+-- Function to get a random player ID excluding the given player ID
 local function getPlayers(excludeId)
     local players = {}
     for i = 1, 16 do
@@ -61,12 +46,14 @@ local function getPlayers(excludeId)
     return players[rand(1, #players + 1)]
 end
 
+-- Function to check if a player has the required permission level
 local function checkChatPermissions(level)
     local hasPermission = level and level >= permission_level
     modify_chat = hasPermission and not modify_chat
     return modify_chat
 end
 
+-- Function to modify the chat message
 local function modifyChatMessage(playerId, message)
     local newPlayerId = getPlayers(playerId)
     if newPlayerId then
@@ -79,6 +66,7 @@ local function modifyChatMessage(playerId, message)
     return true
 end
 
+-- Event handler for chat messages
 function OnChat(playerId, message, type)
     if type == 6 or chatCommand(message) then
         return true
@@ -96,4 +84,25 @@ function OnChat(playerId, message, type)
         end
     end
     return true
+end
+
+-- Event handler for script load
+function OnScriptLoad()
+    register_callback(cb["EVENT_CHAT"], "OnChat")
+    register_callback(cb["EVENT_GAME_START"], "OnGameStart")
+    if (get_var(0, "$gt") ~= nil) then
+        modify_chat = false
+    end
+end
+
+-- Event handler for game start
+function OnGameStart()
+    if (get_var(0, "$gt") ~= nil) then
+        modify_chat = false
+    end
+end
+
+-- Event handler for script unload
+function OnScriptUnload()
+    -- N/A
 end
