@@ -2,8 +2,7 @@
 -- Script Name: Hunter-Prey, for SAPP (PC & CE)
 -- Description: The flag is placed in the middle of the map.
 --              Survive for as long as possible with the flag.
---              When the time is up or when the kill limit is reached, the player that had the flag for the longest time wins.
---              If both time and kill limit are set to infinity, the winner is the player that had the flag for the longest time upon ending the game.
+--              The player that had the flag for the longest time wins.
 --
 -- Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 -- Notice: You can use this script subject to the following conditions:
@@ -12,6 +11,7 @@
 
 -- Configuration table for the Hunter-Prey script
 local HunterPrey = {
+
     -- Score limit for the game
     scorelimit = 300,
 
@@ -158,10 +158,10 @@ end
 -- This function initializes a new player object with the given properties and sets its metatable to the HunterPrey class.
 -- @param o The table containing the player's properties.
 -- @return The new player object with the HunterPrey metatable.
-function HunterPrey:NewPlayer(o)
-    setmetatable(o, { __index = self })
+function HunterPrey:NewPlayer(player)
+    setmetatable(player, { __index = self })
     self.__index = self
-    return o
+    return player
 end
 
 --- Spawns the flag at the predefined coordinates.

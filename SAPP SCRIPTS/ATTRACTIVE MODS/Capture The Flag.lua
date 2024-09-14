@@ -5,83 +5,27 @@ Description: This script brings CTF-like mechanics to any Slayer (FFA/Team) game
              A single flag will spawn somewhere on the map. Return it to any base to score.
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
-Notice: You can use this script subject to the following conditions:
+* Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
--- config starts --
+-- Configuration settings for the Capture the Flag script
 local CTF = {
-
-    -- Time (in seconds) until a dropped flag will respawn:
-    -- Default: 15 seconds.
-    --
-    respawn_delay = 15,
-
-    -- Radius (in world units) a player must be to capture:
-    --
-    trigger_radius = 1.1,
-
-    -- Message sent when a flag was dropped (appears at respawn_delay/2 seconds)
-    -- $S will be replaced with the time remaining.
-    -- $s will be replaced with a lowercase "s" if $S>1.
-    -- Leave blank ("") to disable.
-    --
-    respawn_warning = "The flag was dropped and will respawn in $S second$s",
-
-    -- Message broadcast when the flag respawns:
-    -- Leave blank ("") to disable.
-    --
-    message_on_respawn = "The flag has respawned",
-
-    -- Message broadcast when someone captures the flag:
-    -- $name will be replaced with the players name.
-    -- Leave blank ("") to disable.
-    --
-    message_on_capture = "$name captured a flag",
-
-    -- Message broadcast when someone picks up the flag:
-    -- Leave blank ("") to disable.
-    --
+    respawn_delay = 15, -- Time (in seconds) until a dropped flag will respawn
+    trigger_radius = 1.1, -- Radius (in world units) a player must be to capture
+    respawn_warning = "The flag was dropped and will respawn in $S second$s", -- Warning message for flag respawn
+    message_on_respawn = "The flag has respawned", -- Message broadcast when the flag respawns
+    message_on_capture = "$name captured a flag", -- Message broadcast when someone captures the flag
     on_pickup = {
-
-        -- The following variables can be used in the first 2 messages ([1] & [2]):
-        -- $team will be replaced with the players team name (red/blue).
-        -- $name will be replaced with the players name.
-
-        -- Team slayer message:
-        [1] = "[$team team] $name has the flag!",
-
-        -- FFA message:
-        [2] = "$name has the flag!",
-
-        -- Message to the flag carrier:
-        -- $bonus will be replaced with the "points_on_capture" (see below).
-        [3] = "Return the flag to ANY base for $bonus points.",
+        [1] = "[$team team] $name has the flag!", -- Team slayer message
+        [2] = "$name has the flag!", -- FFA message
+        [3] = "Return the flag to ANY base for $bonus points.", -- Message to the flag carrier
     },
-
-    -- Points received for capturing a flag:
-    -- Default: 5.
-    --
-    points_on_capture = 5,
-
-    -- Set to nil to disable score limit:
-    -- Default: nil.
-    --
-    score_limit = nil,
-
-    -- When enabled, flag carriers occupying a vehicle will be able to capture the flag:
-    --
-    vehicle_capture = false,
-
-    -----------------------------
-    -- individual map settings --
-    -----------------------------
-
-    -- To get location coordinates, use SAPP's /coord command:
-    -- Syntax: coord <player id>
-    -- Alternatively, use a tools like Spark Edit, HMT, Lethargy or HEK.
-
+    points_on_capture = 5, -- Points received for capturing a flag
+    score_limit = nil, -- Score limit (set to nil to disable)
+    vehicle_capture = false, -- Allow flag capture while in a vehicle
+    server_prefix = "**SAPP**", -- Server message prefix
     ["bloodgulch"] = {
         spawn_location = { 65.749, -120.409, 0.118 },
         capture_points = {
@@ -214,125 +158,89 @@ local CTF = {
             { -9.2459697723389, 9.3335800170898, -2.5999999046326 },
             { 9.1828498840332, -9.1805400848389, -2.5999999046326 }
         }
-    },
-
-    -- A message relay function temporarily removes the server message prefix
-    -- and will restore it to this when the relay is finished:
-    server_prefix = "**SAPP**",
-
-    -- Script errors (if any) will be logged to this file:
-    --
-    error_file = "CTF (errors).log",
-
-    -- DO NOT TOUCH BELOW THIS POINT --
-    script_version = 1.3
-    --
+    }
 }
--- config ends --
-
--- todo: rewrite this
 
 api_version = "1.12.0.0"
 
--- This function is called when the script is loaded into SAPP:
---
+-- Function to initialize the script
 function OnScriptLoad()
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     OnGameStart()
 end
 
--- Sets up pre-game parameters:
---
+-- Function to set up pre-game parameters
 function CTF:Init()
 
     local mode = get_var(0, "$gt")
-    if (mode ~= "n/a") then
+    if mode == "n/a" then
+        return
+    end
 
-        self.flag = { }
-        self.game_started = false
+    self.flag = {}
+    self.game_started = false
 
-        local map = self:Proceed(mode)
-        if (map) then
-
-            local tag_address = read_dword(0x40440000)
-            local tag_count = read_dword(0x4044000C)
-
-            for i = 0, tag_count - 1 do
-                local tag = (tag_address + 0x20 * i)
-                local tag_class = read_dword(tag)
-                local globals_tag = read_dword(tag + 0x14)
-                if (tag_class == 0x6D617467) then
-
-                    self.flag.id = read_dword(read_dword(globals_tag + 0x164 + 4) + 0xC)
-
-                    self.z_off = 0.2
-                    self.x = self[map].spawn_location[1]
-                    self.y = self[map].spawn_location[2]
-                    self.z = self[map].spawn_location[3] + self.z_off
-
-                    self.capture_points = self[map].capture_points
-
-                    self:SpawnFlag()
-
-                    -- Set the score limit:
-                    execute_command("scorelimit " .. (self.score_limit or ""))
-
-                    self.game_started = true
-                    self.announce_pickup = false
-                    self.team_play = (get_var(0, "$ffa") == "0")
-
-                    register_callback(cb["EVENT_TICK"], "OnTick")
-                    register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
-                    goto done
-                end
-            end
-        end
-
+    local map = self:Proceed(mode)
+    if not map then
         unregister_callback(cb["EVENT_GAME_END"])
         unregister_callback(cb["EVENT_TICK"])
-
-        :: done ::
+        return
     end
-end
 
--- This function broadcasts a custom server message:
--- Temporarily removes the server message prefix and restores it.
--- @param Ply (player index) [number]
--- @param Msg (message) [string]
---
-function CTF:Broadcast(Ply, Msg)
-    if (Msg ~= "") then
-        execute_command("msg_prefix \"\"")
-        if (Ply) then
-            say(Ply, Msg)
-        else
-            say_all(Msg)
+    local tag_address = read_dword(0x40440000)
+    local tag_count = read_dword(0x4044000C)
+
+    for i = 0, tag_count - 1 do
+        local tag = tag_address + 0x20 * i
+        if read_dword(tag) == 0x6D617467 then
+            local globals_tag = read_dword(tag + 0x14)
+            self.flag.id = read_dword(read_dword(globals_tag + 0x164 + 4) + 0xC)
+
+            self.z_off = 0.2
+            self.x, self.y, self.z = unpack(self[map].spawn_location)
+            self.z = self.z + self.z_off
+            self.capture_points = self[map].capture_points
+            self:SpawnFlag()
+            execute_command("scorelimit " .. (self.score_limit or ""))
+
+            self.game_started = true
+            self.announce_pickup = false
+            self.team_play = get_var(0, "$ffa") == "0"
+
+            register_callback(cb["EVENT_TICK"], "OnTick")
+            register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
+            return
         end
-        execute_command("msg_prefix \" " .. self.server_prefix .. "\"")
+    end
+
+    unregister_callback(cb["EVENT_GAME_END"])
+    unregister_callback(cb["EVENT_TICK"])
+end
+
+-- Function to broadcast a custom server message
+function CTF:Broadcast(playerId, message)
+    if message ~= "" then
+        execute_command('msg_prefix ""')
+        if playerId then
+            say(playerId, message)
+        else
+            say_all(message)
+        end
+        execute_command('msg_prefix "' .. self.server_prefix .. '"')
     end
 end
 
--- Teleports the flag back to its starting location:
---
-function CTF:SpawnFlag(Ply)
-
+-- Function to teleport the flag back to its starting location
+function CTF:SpawnFlag(playerId)
     self:DestroyFlag()
     self.flag.timer = 0
     self.flag.object = spawn_object("", "", self.x, self.y, self.z, 0, self.flag.id)
 
-    if (Ply) then
-        local msg = self.message_on_capture
-        msg = msg:gsub("$name", get_var(Ply, "$name"))
-        self:Broadcast(nil, msg)
-        return
-    end
-
-    self:Broadcast(nil, self.message_on_respawn)
+    local msg = playerId and self.message_on_capture:gsub("$name", get_var(playerId, "$name")) or self.message_on_respawn
+    self:Broadcast(nil, msg)
 end
 
--- Checks if a player is holding the flag:
--- @return true if holding flag, false if not [bool]
---
+-- Function to check if a player is holding the flag
 function CTF:GetFlagCarrier()
     for i = 1, 16 do
         if player_present(i) and player_alive(i) and self:HasFlag(i) then
@@ -343,26 +251,21 @@ function CTF:GetFlagCarrier()
     return false
 end
 
--- Distance function using pythagoras theorem:
---
-local sqrt = math.sqrt
+-- Function to calculate distance using Pythagoras theorem
 local function GetDistance(x, y, z, x2, y2, z2, r)
-    return sqrt((x - x2) ^ 2 + (y - y2) ^ 2 + (z - z2) ^ 2) <= r
+    return math.sqrt((x - x2) ^ 2 + (y - y2) ^ 2 + (z - z2) ^ 2) <= r
 end
 
--- Returns a players map coordinates:
--- @param Ply (player index) [number]
--- @return (three 32-bit floating point numbers (player coordinates)) [float]
---
-local function GetXYZ(Ply)
-    local DyN = get_dynamic_player(Ply)
-    if (DyN ~= 0) then
-        local VehicleID = read_dword(DyN + 0x11C)
+-- Function to get a player's map coordinates
+local function GetXYZ(playerId)
+    local dynamic_player = get_dynamic_player(playerId)
+    if dynamic_player ~= 0 then
+        local VehicleID = read_dword(dynamic_player + 0x11C)
         local VehicleObj = get_object_memory(VehicleID)
-        local x, y, z = read_vector3d(DyN + 0x5C)
-        if (VehicleID == 0xFFFFFFFF) then
+        local x, y, z = read_vector3d(dynamic_player + 0x5C)
+        if VehicleID == 0xFFFFFFFF then
             return x, y, z, false
-        elseif (VehicleObj ~= 0) then
+        elseif VehicleObj ~= 0 then
             x, y, z = read_vector3d(VehicleObj + 0x5C)
             return x, y, z, true
         end
@@ -370,160 +273,124 @@ local function GetXYZ(Ply)
     return nil
 end
 
--- Returns the flag object coordinates:
--- @return (three 32-bit floating point numbers [float]
---
+-- Function to get the flag object coordinates
 function CTF:GetFlagPos()
     local flag = self.flag.object
-    if (flag) then
+    if flag then
         local object = get_object_memory(flag)
-        if (object ~= 0) then
+        if object ~= 0 then
             return read_vector3d(object + 0x5C)
         end
     end
     return nil
 end
 
+-- Function to handle pluralization
 local function Plural(n)
-    return (n > 1 and "s") or ""
+    return n > 1 and "s" or ""
 end
 
--- This function is called once every 1/30th second (1 tick):
---
-local format = string.format
+-- Function to handle game tick events
 function CTF:GameTick()
 
-    if (self.game_started) then
-
-        -- logic responsible for respawning the flag:
+    if self.game_started then
         local flag_carrier = self:GetFlagCarrier()
-        if (not flag_carrier) then
-
+        if not flag_carrier then
             local fx, fy, fz = self:GetFlagPos()
-            if (fx and not GetDistance(fx, fy, fz, self.x, self.y, self.z - self.z_off, self.trigger_radius)) then
-
+            if fx and not GetDistance(fx, fy, fz, self.x, self.y, self.z - self.z_off, self.trigger_radius) then
                 self.flag.timer = self.flag.timer + 1 / 30
                 local time = self.respawn_delay - self.flag.timer % 60
-                time = tonumber(format("%.2" .. "f", time))
+                time = tonumber(string.format("%.2f", time))
 
-                if (time == self.respawn_delay / 2) then
-                    local msg = self.respawn_warning
-                    msg = msg:gsub("$S", time):gsub("$s", Plural(time))
+                if time == self.respawn_delay / 2 then
+                    local msg = self.respawn_warning:gsub("$S", time):gsub("$s", Plural(time))
                     self:Broadcast(nil, msg)
-
-                elseif (self.flag.timer >= self.respawn_delay) then
+                elseif self.flag.timer >= self.respawn_delay then
                     self:SpawnFlag()
                 end
             end
-            goto done
+            return
         end
 
-        -- check for flag capture:
         for i = 1, 16 do
-            if player_present(i) and player_alive(i) and (i == flag_carrier) then
-
+            if player_present(i) and player_alive(i) and i == flag_carrier then
                 local px, py, pz, in_vehicle = GetXYZ(i)
-
-                -- Prevent flag carriers from capturing the flag if (self.vehicle_capture is false):
-                if (in_vehicle and not self.vehicle_capture) then
-                    goto done
+                if in_vehicle and not self.vehicle_capture then
+                    return
                 end
 
-                if (px) then
+                if px then
                     for _, v in pairs(self.capture_points) do
                         if GetDistance(px, py, pz, v[1], v[2], v[3] - self.z_off, self.trigger_radius) then
-
-                            -- spawn a new flag:
                             self:SpawnFlag(i)
-
-                            -- update score:
-                            if (self.team_play) then
+                            if self.team_play then
                                 self:UpdateScore(i, true)
                             else
                                 self:UpdateScore(i)
                             end
-
-                            goto done
+                            return
                         end
                     end
                 end
             end
         end
-
-        :: done ::
     end
 end
 
-function CTF:UpdateScore(Ply, TeamScore)
-
+-- Function to update the score
+function CTF:UpdateScore(playerId, TeamScore)
     local Amount = self.points_on_capture
 
-    -- Update team score:
-    if (TeamScore) then
-        local team_score
-        local team = get_var(Ply, "$team")
-        if (team == "red") then
-            team = 0
-            team_score = get_var(0, "$redscore")
-        else
-            team = 1
-            team_score = get_var(0, "$bluescore")
-        end
-        team_score = (team_score - 1) + Amount
-        execute_command("team_score " .. team .. " " .. team_score)
+    if TeamScore then
+        local team = get_var(playerId, "$team") == "red" and 0 or 1
+        local team_score = get_var(0, team == 0 and "$redscore" or "$bluescore")
+        execute_command("team_score " .. team .. " " .. (team_score - 1 + Amount))
     end
 
-    -- Update player score:
-    local score = tonumber(get_var(Ply, "$score"))
-    score = (score - 1) + Amount
-    execute_command("score " .. Ply .. " " .. score)
+    local score = tonumber(get_var(playerId, "$score"))
+    execute_command("score " .. playerId .. " " .. (score - 1 + Amount))
 end
 
-local upper = string.upper
-function CTF:AnnouncePickup(Ply)
+-- Function to announce flag pickup
+function CTF:AnnouncePickup(playerId)
+
     self.flag.timer = 0
-    if (self.announce_pickup) then
-        self.announce_pickup = false
-
-        local team_msg = self.on_pickup[1]
-        local sffa_msg = self.on_pickup[2]
-        local msg = (self.team_play and team_msg) or sffa_msg
-
-        local team = get_var(Ply, "$team")
-        local name = get_var(Ply, "$name")
-
-        -- Convert first char in team name to upper.
-        local char = team:sub(1, 1)
-        team = team:gsub(char, upper(char))
-
-        -- Message to all players:
-        msg = msg:gsub("$team", team):gsub("$name", name)
-        self:Broadcast(nil, msg)
-
-        -- Message to the flag carrier:
-        msg = self.on_pickup[3]
-        msg = msg:gsub("$bonus", self.points_on_capture)
-        self:Broadcast(Ply, msg)
+    if not self.announce_pickup then
+        return
     end
+
+    self.announce_pickup = false
+    local msg = self.team_play and self.on_pickup[1] or self.on_pickup[2]
+
+    local team = get_var(playerId, "$team")
+    local name = get_var(playerId, "$name")
+    team = team:gsub("^%l", string.upper)
+
+    msg = msg:gsub("$team", team):gsub("$name", name)
+    self:Broadcast(nil, msg)
+
+    msg = self.on_pickup[3]:gsub("$bonus", self.points_on_capture)
+    self:Broadcast(playerId, msg)
 end
 
--- Checks if a player is holding the flag:
--- @param Ply (player index) [number]
---
-function CTF:HasFlag(Ply)
-    local DyN = get_dynamic_player(Ply)
-    if (DyN ~= 0) then
-        for i = 0, 3 do
-            local WeaponID = read_dword(DyN + 0x2F8 + (i * 4))
-            if (WeaponID ~= 0xFFFFFFFF) then
-                local Weapon = get_object_memory(WeaponID)
-                if (Weapon ~= 0) then
-                    local tag_address = read_word(Weapon)
-                    local tag_data = read_dword(read_dword(0x40440000) + tag_address * 0x20 + 0x14)
-                    if (read_bit(tag_data + 0x308, 3) == 1) then
-                        self:AnnouncePickup(Ply)
-                        return true
-                    end
+-- Function to check if a player is holding the flag
+function CTF:HasFlag(playerId)
+
+    local DyN = get_dynamic_player(playerId)
+    if DyN == 0 then
+        return false
+    end
+
+    for i = 0, 3 do
+        local WeaponID = read_dword(DyN + 0x2F8 + i * 4)
+        if WeaponID ~= 0xFFFFFFFF then
+            local Weapon = get_object_memory(WeaponID)
+            if Weapon ~= 0 then
+                local tag_address = read_word(Weapon)
+                local tag_data = read_dword(read_dword(0x40440000) + tag_address * 0x20 + 0x14)
+                if read_bit(tag_data + 0x308, 3) == 1 then
+                    self:AnnouncePickup(playerId)
+                    return true
                 end
             end
         end
@@ -531,78 +398,41 @@ function CTF:HasFlag(Ply)
     return false
 end
 
+-- Function to proceed with the game mode
 function CTF:Proceed(mode)
     local map = get_var(0, "$map")
-    local slayer = (mode == "slayer")
-    if (not slayer) then
+    if mode ~= "slayer" then
         cprint("Capture The Flag - [Only ffa/team slayer is supported]", 10)
+        return false
     end
-    if (not self[map]) then
+    if not self[map] then
         cprint("Capture The Flag - [" .. map .. " is not configured]", 10)
+        return false
     end
-    return ((self[map] and slayer) and map) or false
+    return map
 end
 
--- Destroys the flag:
---
+-- Function to destroy the flag
 function CTF:DestroyFlag()
     destroy_object(self.flag and self.flag.object or 0)
 end
 
+-- Event callback for game tick
 function OnTick()
-    return CTF:GameTick()
+    CTF:GameTick()
 end
 
+-- Event callback for game start
 function OnGameStart()
     CTF:Init()
 end
 
+-- Event callback for game end
 function OnGameEnd()
     CTF.game_started = false
 end
 
+-- Event callback for script unload
 function OnScriptUnload()
     CTF:DestroyFlag()
 end
-
--- Error handler:
---
-local function WriteError(err)
-    local file = io.open(CTF.error_file, "a+")
-    if (file) then
-        file:write(err .. "\n")
-        file:close()
-    end
-end
-
--- This function is called every time an error is raised:
---
-function OnError(Error)
-
-    local log = {
-
-        -- log format: {msg, console out [true/false], console color}
-        -- If console out = false, the message will not be logged to console.
-
-        { os.date("[%H:%M:%S - %d/%m/%Y]"), true, 12 },
-        { Error, false, 12 },
-        { debug.traceback(), true, 12 },
-        { "--------------------------------------------------------", true, 5 },
-        { "Please report this error on github:", true, 7 },
-        { "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", true, 7 },
-        { "Script Version: " .. CTF.script_version, true, 7 },
-        { "--------------------------------------------------------", true, 5 }
-    }
-
-    for _, v in pairs(log) do
-        WriteError(v[1])
-        if (v[2]) then
-            cprint(v[1], v[3])
-        end
-    end
-
-    WriteError("\n")
-end
-
--- For a future update:
-return CTF

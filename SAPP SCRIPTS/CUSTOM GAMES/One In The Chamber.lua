@@ -7,7 +7,7 @@ Description: Each player is given a pistol - and only a pistol - with one bullet
              Every time you kill a player, you get a bullet.
              Success requires a combination of precision and reflexes. Know when to go for the shot or close in for the kill.
 
-Copyright (c) 2023, Jericho Crosby <jericho.crosby227@gmail.com>
+Copyright (c) 2023-2024, Jericho Crosby <jericho.crosby227@gmail.com>
 Notice: You can use this script subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
@@ -15,41 +15,38 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 
 api_version = '1.12.0.0'
 
---====================================== --
--- Configuration [STARTS]
---====================================== --
+-- Configuration table for the "One In The Chamber" game mode
+local config = {
 
-local OITC = {
-
-    -- Loaded Ammo (clip):
+    -- Starting ammo for the primary weapon (pistol)
     starting_primary_ammo = 1,
 
-    -- Unloaded Ammo: (Mag):
+    -- Starting ammo for the secondary weapon (none)
     starting_secondary_ammo = 0,
 
-    -- Bullets given per kill:
+    -- Ammo awarded per kill
     ammo_per_kill = 1,
 
-    -- Starting Grenades:
+    -- Starting number of frag grenades
     starting_frags = 0,
+
+    -- Starting number of plasma grenades
     starting_plasmas = 0,
 
-    -- Primary Weapon:
+    -- Weapon assigned to players (pistol)
     weapon = 'weapons\\pistol\\pistol',
 
-    -- Miscellaneous Settings:
+    -- Flag to disable vehicles in the game
     disable_vehicles = true,
+
+    -- Flag to disable weapon pickups in the game
     disable_weapon_pickups = true,
+
+    -- Flag to disable grenade pickups in the game
     disable_grenade_pickups = true,
-    --===========================================--
 
-    -- DAMAGE MULTIPLIERS | STOCK TAGS --
-    -- {tag name, multiplier }
-    -- 1 = normal damage
-
+    -- Damage multipliers for various weapons and actions
     multipliers = {
-
-        -- melee damage:
         ['weapons\\assault rifle\\melee'] = 1.50,
         ['weapons\\ball\\melee'] = 1.50,
         ['weapons\\flag\\melee'] = 1.50,
@@ -62,13 +59,9 @@ local OITC = {
         ['weapons\\shotgun\\melee'] = 1.50,
         ['weapons\\sniper rifle\\melee'] = 1.50,
         ['weapons\\plasma_cannon\\effects\\plasma_cannon_melee'] = 1.50,
-
-        -- grenade damage:
         ['weapons\\frag grenade\\explosion'] = 1.00,
         ['weapons\\plasma grenade\\explosion'] = 1.50,
         ['weapons\\plasma grenade\\attached'] = 10.0,
-
-        -- vehicle damage:
         ['vehicles\\ghost\\ghost bolt'] = 1.015,
         ['vehicles\\scorpion\\bullet'] = 1.020,
         ['vehicles\\warthog\\bullet'] = 1.025,
@@ -76,8 +69,6 @@ local OITC = {
         ['vehicles\\banshee\\banshee bolt'] = 1.035,
         ['vehicles\\scorpion\\shell explosion'] = 1.00,
         ['vehicles\\banshee\\mp_fuel rod explosion'] = 1.00,
-
-        -- projectile damage:
         ['weapons\\pistol\\bullet'] = 10.0,
         ['weapons\\plasma rifle\\bolt'] = 10.0,
         ['weapons\\shotgun\\pellet'] = 10.0,
@@ -92,156 +83,151 @@ local OITC = {
         ['weapons\\plasma rifle\\charged bolt'] = 10.0,
         ['weapons\\plasma_cannon\\effects\\plasma_cannon_melee'] = 10.0,
         ['weapons\\plasma_cannon\\effects\\plasma_cannon_explosion'] = 10.0,
-
-        -- vehicle collision damage:
         ['globals\\vehicle_collision'] = 1.00,
-
-        -- fall damage:
         ['globals\\falling'] = 1.00,
         ['globals\\distance'] = 1.00,
     }
 }
---====================================== --
--- Configuration [ENDS]
---====================================== --
 
 local multipliers = {}
 
+-- Utility Functions
+local function GetTag(Type, Name)
+    local tag = lookup_tag(Type, Name)
+    return (tag ~= 0 and read_dword(tag + 0xC)) or nil
+end
+
+local function TagsToID()
+    multipliers = {}
+    for tag, multiplier in pairs(config.multipliers) do
+        local tag_id = GetTag('jpt!', tag)
+        if tag_id then
+            multipliers[tag_id] = multiplier
+        end
+    end
+end
+
+local function setAmmo(player, ammoType, amount)
+    local command = (ammoType == 'unloaded') and 'ammo' or 'mag'
+    for i = 1, 4 do
+        execute_command(command .. ' ' .. player .. ' ' .. amount .. ' ' .. i)
+    end
+end
+
+-- Event Handlers
 function OnScriptLoad()
     register_callback(cb['EVENT_GAME_START'], 'OnStart')
     OnStart()
 end
 
-local function GetTag(Type, Name)
-    local Tag = lookup_tag(Type, Name)
-    return (Tag ~= 0 and read_dword(Tag + 0xC)) or nil
-end
-
-local function TagsToID()
-
-    local t = {}
-    for tag, multiplier in pairs(OITC.multipliers) do
-        t[GetTag('jpt!', tag)] = multiplier
+function OnStart()
+    if get_var(0, "$gt") == "n/a" then
+        return
     end
 
-    multipliers = t
-end
+    TagsToID()
+    config.players = {}
+    config.game_over = false
+    config.weap = GetTag('weap', config.weapon)
 
-function OnStart()
-    if (get_var(0, "$gt") ~= "n/a") then
-
-        TagsToID()
-        OITC.players = { }
-        OITC.game_over = false
-        OITC.weap = GetTag('weap', OITC.weapon)
-
-        if (OITC.weap) then
-
-            for i = 1, 16 do
-                if player_present(i) then
-                    OITC.players[i] = false
-                end
-            end
-
-            -- Disable all vehicles
-            if (OITC.disable_vehicles) then
-                execute_command("disable_all_vehicles 0 1")
-            end
-
-            -- Disable weapon pick ups:
-            if (OITC.disable_weapon_pickups) then
-                execute_command("disable_object 'weapons\\assault rifle\\assault rifle'")
-                execute_command("disable_object 'weapons\\flamethrower\\flamethrower'")
-                execute_command("disable_object 'weapons\\needler\\mp_needler'")
-                execute_command("disable_object 'weapons\\pistol\\pistol'")
-                execute_command("disable_object 'weapons\\plasma pistol\\plasma pistol'")
-                execute_command("disable_object 'weapons\\plasma rifle\\plasma rifle'")
-                execute_command("disable_object 'weapons\\plasma_cannon\\plasma_cannon'")
-                execute_command("disable_object 'weapons\\rocket launcher\\rocket launcher'")
-                execute_command("disable_object 'weapons\\shotgun\\shotgun'")
-                execute_command("disable_object 'weapons\\sniper rifle\\sniper rifle'")
-            end
-
-            -- Disable grenade pick ups:
-            if (OITC.disable_grenade_pickups) then
-                execute_command("disable_object 'weapons\\frag grenade\\frag grenade'")
-                execute_command("disable_object 'weapons\\plasma grenade\\plasma grenade'")
-            end
-
-            register_callback(cb['EVENT_DIE'], "OnKill")
-            register_callback(cb["EVENT_TICK"], "OnTick")
-            register_callback(cb["EVENT_LEAVE"], "OnQuit")
-            register_callback(cb["EVENT_SPAWN"], "OnSpawn")
-            register_callback(cb["EVENT_GAME_END"], "OnEnd")
-            register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamage")
-            return
-        end
-
+    if not config.weap then
         unregister_callback(cb['EVENT_DIE'])
         unregister_callback(cb["EVENT_TICK"])
         unregister_callback(cb["EVENT_SPAWN"])
         unregister_callback(cb["EVENT_LEAVE"])
         unregister_callback(cb["EVENT_GAME_END"])
         unregister_callback(cb['EVENT_DAMAGE_APPLICATION'])
+        return
     end
+
+    for i = 1, 16 do
+        if player_present(i) then
+            config.players[i] = false
+        end
+    end
+
+    if config.disable_vehicles then
+        execute_command("disable_all_vehicles 0 1")
+    end
+
+    if config.disable_weapon_pickups then
+        for _, weapon in ipairs({
+            'weapons\\assault rifle\\assault rifle',
+            'weapons\\flamethrower\\flamethrower',
+            'weapons\\needler\\mp_needler',
+            'weapons\\pistol\\pistol',
+            'weapons\\plasma pistol\\plasma pistol',
+            'weapons\\plasma rifle\\plasma rifle',
+            'weapons\\plasma_cannon\\plasma_cannon',
+            'weapons\\rocket launcher\\rocket launcher',
+            'weapons\\shotgun\\shotgun',
+            'weapons\\sniper rifle\\sniper rifle'
+        }) do
+            execute_command("disable_object '" .. weapon .. "'")
+        end
+    end
+
+    if config.disable_grenade_pickups then
+        for _, grenade in ipairs({
+            'weapons\\frag grenade\\frag grenade',
+            'weapons\\plasma grenade\\plasma grenade'
+        }) do
+            execute_command("disable_object '" .. grenade .. "'")
+        end
+    end
+
+    register_callback(cb['EVENT_DIE'], "OnKill")
+    register_callback(cb["EVENT_TICK"], "OnTick")
+    register_callback(cb["EVENT_LEAVE"], "OnQuit")
+    register_callback(cb["EVENT_SPAWN"], "OnSpawn")
+    register_callback(cb["EVENT_GAME_END"], "OnEnd")
+    register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamage")
 end
 
 function OnEnd()
-    OITC.game_over = true
-end
-
-local function setAmmo(Ply, Type, Amount)
-    for i = 1, 4 do
-        if (Type == 'unloaded') then
-            execute_command('ammo ' .. Ply .. ' ' .. Amount .. ' ' .. i)
-        elseif (Type == "loaded") then
-            execute_command('mag ' .. Ply .. ' ' .. Amount .. ' ' .. i)
-        end
-    end
+    config.game_over = true
 end
 
 function OnTick()
-    if (not OITC.game_over) then
-        for i, assign in pairs(OITC.players) do
-            if player_alive(i) and (assign) then
-
-                OITC.players[i] = false
+    if not config.game_over then
+        for i, assign in pairs(config.players) do
+            if player_alive(i) and assign then
+                config.players[i] = false
                 execute_command('wdel ' .. i)
-                assign_weapon(spawn_object('', '', 0, 0, 0, 0, OITC.weap), i)
-
-                setAmmo(i, 'loaded', OITC.starting_primary_ammo)
-                setAmmo(i, 'unloaded', OITC.starting_secondary_ammo)
+                assign_weapon(spawn_object('', '', 0, 0, 0, 0, config.weap), i)
+                setAmmo(i, 'loaded', config.starting_primary_ammo)
+                setAmmo(i, 'unloaded', config.starting_secondary_ammo)
             end
         end
     end
 end
 
 function OnKill(Victim, Killer)
-    if (not OITC.game_over) then
+    if not config.game_over then
         local k, v = tonumber(Killer), tonumber(Victim)
-        if (k > 0 and k ~= v) then
-            setAmmo(k, 'loaded', OITC.ammo_per_kill)
+        if k > 0 and k ~= v then
+            setAmmo(k, 'loaded', config.ammo_per_kill)
         end
     end
 end
 
-function OnSpawn(Ply)
-    local DyN = get_dynamic_player(Ply)
-    if (DyN ~= 0) then
-        OITC.players[Ply] = true
-        execute_command('nades ' .. Ply .. ' ' .. OITC.starting_frags .. ' 1')
-        execute_command('nades ' .. Ply .. ' ' .. OITC.starting_plasmas .. ' 2')
+function OnSpawn(playerId)
+    local dynamic_player = get_dynamic_player(playerId)
+    if dynamic_player ~= 0 and player_alive(playerId) then -- just in case
+        config.players[playerId] = true
+        execute_command('nades ' .. playerId .. ' ' .. config.starting_frags .. ' 1')
+        execute_command('nades ' .. playerId .. ' ' .. config.starting_plasmas .. ' 2')
     end
 end
 
-function OnDamage(V, C, MetaID, Damage, _, _)
-    if (C > 0 and V ~= C and multipliers[MetaID]) then
+function OnDamage(victimIndex, causerIndex, MetaID, Damage)
+    if causerIndex > 0 and victimIndex ~= causerIndex and multipliers[MetaID] then
         return true, Damage * multipliers[MetaID]
     end
 end
 
-function OnQuit(Ply)
-    OITC.players[Ply] = nil
+function OnQuit(playerId)
+    config.players[playerId] = nil
 end
 
 function OnScriptUnload()
