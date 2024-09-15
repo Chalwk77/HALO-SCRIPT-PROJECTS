@@ -2,11 +2,9 @@
 --=====================================================================================================--
 Script Name: Gun Game (v1.9), for SAPP (PC & CE)
 Description: A simple progression based game inspired by Call of Duty's Gun Game mode.
-             Every kill rewards the player with a new weapon.
-             The first player to reach the last weapon with 10 kills wins.
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
-Notice: You can use this script subject to the following conditions:
+* Notice: You can use this document subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
@@ -24,8 +22,10 @@ local GunGame = {
         -- Announced to the whole server when player reaches max level:
         [2] = '$name is now max level',
 
+        [3] = '$name was demoted to level $lvl',
+
         -- When someone wins:
-        [3] = '$name won the game!'
+        [4] = '$name won the game!'
     },
 
 
@@ -108,7 +108,8 @@ local game_over
 local players = {}
 
 function OnScriptLoad()
-    register_callback(cb['EVENT_DIE'], 'OnDeath')
+    register_callback(cb['EVENT_DAMAGE_APPLICATION'], 'DeathHandler')
+    register_callback(cb['EVENT_DIE'], 'DeathHandler')
     register_callback(cb['EVENT_JOIN'], 'OnJoin')
     register_callback(cb['EVENT_TICK'], 'OnTick')
     register_callback(cb['EVENT_LEAVE'], 'OnQuit')
@@ -118,7 +119,7 @@ function OnScriptLoad()
     OnStart()
 end
 
-function GunGame:newPlayer(o)
+function GunGame:NewPlayer(o)
 
     setmetatable(o, self)
     self.__index = self
@@ -127,37 +128,50 @@ function GunGame:newPlayer(o)
     return o
 end
 
-function GunGame:levelUp()
-    if (not game_over) then
-
+function GunGame:LevelUP()
+    if not game_over then
         self.level = self.level + 1
 
-        execute_command("msg_prefix \"\"")
-        if (self.level == #self.levels) then
+        execute_command('msg_prefix ""')
+        if self.level == #self.levels then
             say_all(self.messages[2]:gsub('$name', self.name))
-        elseif (self.level > #self.levels) then
+        elseif self.level > #self.levels then
             execute_command('sv_map_next')
-            say_all(self.messages[3]:gsub('$name', self.name))
+            say_all(self.messages[4]:gsub('$name', self.name))
             goto done
         end
         self.assign = true
 
         :: done ::
-        execute_command("msg_prefix \" " .. self.server_prefix .. "\"")
+        execute_command('msg_prefix "' .. self.server_prefix .. '"')
     end
 end
 
-local function getTag(class, name)
-    local tag = lookup_tag(class, name)
+function GunGame:LevelDOWN()
+    if not game_over then
+        self.level = self.level - 1
+        execute_command('msg_prefix ""')
+        if self.level < 1 then
+            self.level = 1
+        else
+            say_all(self.messages[3]:gsub('$name', self.name):gsub('$lvl', self.level))
+        end
+        execute_command('msg_prefix "' .. self.server_prefix .. '"')
+        self.assign = true
+    end
+end
+
+local function GetTag(Class, Name)
+    local tag = lookup_tag(Class, Name)
     return tag ~= 0 and read_dword(tag + 0xC) or nil
 end
 
-function GunGame:tagsToID()
+function GunGame:TagsToID()
     cprint('------------------ [GUN GAME] ------------------', 10)
     local t = {}
     for i, w in ipairs(self.levels) do
         for k, v in pairs(w) do
-            local tag = getTag('weap', v[1])
+            local tag = GetTag('weap', v[1])
             if (tag) then
                 t[#t + 1] = { [k] = v }
                 cprint('Level: [' .. #t .. '] [' .. k .. '] Frags: ' .. v[2] .. ' Plasmas: ' .. v[3], 10)
@@ -170,7 +184,7 @@ function GunGame:tagsToID()
     self.weapons = t
 end
 
-function GunGame:setWeapons(state)
+function GunGame:EnableDisableWeapons(state)
     state = (state and 'enable_object') or 'disable_object'
     for _, v in pairs(self.objects) do
         execute_command(state .. " '" .. v .. "'")
@@ -180,12 +194,11 @@ end
 function OnStart()
     if (get_var(0, '$gt') ~= 'n/a') then
 
-        GunGame:tagsToID()
+        GunGame:TagsToID()
 
-        -- override scorelimit:
+        -- # override scorelimit:
         execute_command("scorelimit 99999")
-
-        GunGame:setWeapons()
+        GunGame:EnableDisableWeapons()
 
         players = {}
         game_over = false
@@ -204,77 +217,77 @@ end
 
 function OnTick()
     for i, v in pairs(players) do
-
         local dyn = get_dynamic_player(i)
-        if (i and dyn ~= 0 and player_alive(i) and not game_over) then
-            if (v.assign) then
-
+        if i and dyn ~= 0 and player_alive(i) and not game_over then
+            if v.assign then
                 v.assign = false
-
                 execute_command('wdel ' .. i)
                 execute_command('nades ' .. i .. ' 0')
-
                 local weapons = v.weapons[v.level]
-                for Label, t in pairs(weapons) do
-
-                    -- frags:
-                    if (t[2] > 0) then
+                for label, t in pairs(weapons) do
+                    if t[2] > 0 then
                         execute_command('nades ' .. i .. ' ' .. t[2] .. ' 1')
                     end
-
-                    -- plasmas:
-                    if (t[3] > 0) then
+                    if t[3] > 0 then
                         execute_command('nades ' .. i .. ' ' .. t[3] .. ' 2')
                     end
-
                     assign_weapon(spawn_object('weap', t[1], 0, 0, 0), i)
-
-                    local msg = v.messages[1]
-                    msg = msg:gsub('$lvl', v.level):gsub('$label', Label)
-
+                    local msg = v.messages[1]:gsub('$lvl', v.level):gsub('$label', label)
                     execute_command('msg_prefix " "')
                     say(i, msg)
                     execute_command('msg_prefix "' .. v.server_prefix .. '"')
                 end
-
-                if (v.infinite_ammo) then
-                    execute_command_sequence('w8 1; ammo ' .. i .. ' 999; battery ' .. i .. ' 100')
-                end
+            elseif v.infinite_ammo then
+                execute_command_sequence('ammo ' .. i .. ' 999; battery ' .. i .. ' 100')
             end
         end
     end
 end
 
-function OnJoin(id)
-    players[id] = GunGame:newPlayer({
-        id = id,
-        name = get_var(id, "$name")
+-- Called when a player joins the game:
+-- @param Ply (memory address index of this player)
+function OnJoin(Ply)
+    players[Ply] = GunGame:NewPlayer({
+        id = Ply,
+        name = get_var(Ply, "$name")
     })
 end
 
-function OnQuit(id)
-    players[id] = nil
+-- Called when a player quits the game:
+-- @param Ply (memory address index of this player)
+function OnQuit(Ply)
+    players[Ply] = nil
 end
 
-function OnSpawn(id)
-    if (players[id]) then
-        players[id].assign = true
+-- Called when a player has finished spawning:
+-- @param Ply (memory address index of this player)
+function OnSpawn(Ply)
+    if (players[Ply]) then
+        players[Ply].assign = true
     end
 end
 
-function OnDeath(victim ,killer)
-    if (not game_over) then
+-- Called when a player dies:
+-- @param Victim (memory address index of the victim)
+-- @param Killer (memory address index of the killer)
+function DeathHandler(Victim, Killer, MetaID, _, _, BackTap)
+    if not game_over then
 
-        victim = tonumber(victim)
-        killer = tonumber(killer)
-
+        local victim = tonumber(Victim)
+        local killer = tonumber(Killer)
         local k = players[killer]
-        if (k and killer > 0 and killer ~= victim) then
-            k:levelUp()
+        local v = players[victim]
+
+        if BackTap == 1 then
+            v:LevelDOWN()
+            k:LevelUP()
+            return true
+        elseif not MetaID and k and killer > 0 and killer ~= victim then
+            k:LevelUP()
         end
     end
 end
 
 function OnScriptUnload()
-    GunGame:setWeapons(true)
+    GunGame:EnableDisableWeapons(true)
 end
