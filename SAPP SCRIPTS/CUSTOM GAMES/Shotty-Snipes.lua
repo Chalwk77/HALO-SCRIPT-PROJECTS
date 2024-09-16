@@ -17,6 +17,7 @@ api_version = '1.12.0.0'
 
 -- Configuration table for the Shotty-Snipes script
 local config = {
+
     -- Enable or disable infinite ammo
     infinite_ammo = true,
 

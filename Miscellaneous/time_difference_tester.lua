@@ -8,7 +8,6 @@ local now_pattern = '%Y-%m-%dT%H:%M:%S'
 local pattern = '(%d+)-(%d+)-(%d+)T(%d+):(%d+):(%d+)'
 
 local function ShowDifference()
-
     local time_stamp = '2022-03-13T10:09:50'
     local cy, cm, cd, chr, cmin, csec = time_stamp:match(pattern)
     local creation_reference = time { year = cy, month = cm, day = cd, hour = chr, min = cmin, sec = csec }
@@ -19,8 +18,7 @@ local function ShowDifference()
     local seconds_since_creation = diff(now_reference, creation_reference)
 
     print(seconds_since_creation)
-
-    timer.setTimeout(1000, function()
-        ShowDifference()
-    end)
 end
+
+-- Set a repeating timer to call ShowDifference every second
+timer.setInterval(1000, ShowDifference)
