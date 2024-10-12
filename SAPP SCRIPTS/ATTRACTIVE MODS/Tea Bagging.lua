@@ -1,12 +1,9 @@
 --[[
 --=====================================================================================================--
 Script Name: Tea Bagging, for SAPP (PC & CE)
-Description: Humiliate your friends with this nifty little script.
-
-Crouch over your victims corpse 3 times to trigger a funny message "$name is lap-dancing on $victim's body!".
-T-bag any corpse within 60 seconds after they die.
-
-By design, you can Tea-bag any player (even team mates!)
+Description: Humiliate your friends with this playful script!
+             Crouch over a victim's corpse multiple times to trigger a funny message.
+             New features include personalized messages, cooldowns, and a stats tracker.
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 Notice: You can use this script subject to the following conditions:
@@ -14,116 +11,127 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
+-- Configuration
 local TBag = {
+    -- List of messages announced when a player is t-bagging:
+    messages = {
+        "$attacker is lap-dancing on $victim's body!",
+        "$attacker is giving $victim a one-way ticket to the ground!",
+        "$attacker is practicing their dance moves on $victim!",
+        "$attacker thinks $victim needs a little 'up close' attention!",
+        "$attacker is trying to revive $victim with their dance skills!",
+        "$attacker is making $victim their personal dance floor!",
+        "$attacker is showing $victim how to 'drop it like it's hot!'",
+    },
 
-    -- config starts --
-
-    -- Message announced when a player is t-bagging:
-    --
-    on_tbag = "$name is lap-dancing on $victim's body!",
-
-
-    -- Radius (in w/units) a player must be from a victim's corpse to trigger a t-bag:
-    --
+    -- Radius (in world units) a player must be from a victim's corpse to trigger a t-bag:
     radius = 2.5,
 
-
     -- A player's death coordinates expire after this many seconds:
-    --
-    expiration = 120,
+    expire_time = 120,
 
+    -- A player must crouch over a victim's corpse this many times to trigger t-bag:
+    required_crouches = 3,
 
-    -- A player must crouch over a victim's corpse this
-    -- many times in order to trigger t-bag:
-    --
-    crouch_count = 3,
+    -- Cooldown period for re-triggering the t-bag message:
+    cooldown_time = 30, -- in seconds
 
-
-    -- A message relay function temporarily removes the server prefix
-    -- and will restore it to this when the relay is finished:
-    server_prefix = "**ADMIN**"
-    --
-
-    -- config ends --
+    -- Server prefix for messages
+    prefix = "**ADMIN**",
 }
 
 local players = {}
-
-local time = os.time
-local sqrt = math.sqrt
-
+local current_time = os.time
+local math_sqrt = math.sqrt
 api_version = '1.12.0.0'
 
-function OnScriptLoad()
-    register_callback(cb['EVENT_DIE'], 'OnDeath')
-    register_callback(cb['EVENT_JOIN'], 'OnJoin')
-    register_callback(cb['EVENT_TICK'], 'OnTick')
-    register_callback(cb['EVENT_LEAVE'], 'OnQuit')
-    register_callback(cb["EVENT_SPAWN"], "OnSpawn")
-    register_callback(cb['EVENT_GAME_START'], 'OnStart')
-end
-
-function TBag:NewPlayer(t)
-    t.loc, t.count, t.state = {}, 0, 0
-    setmetatable(t, self)
+-- Utility Functions
+function TBag:CreatePlayer(info)
+    info.death_positions, info.crouch_count, info.last_crouch, info.last_tbag = {}, 0, 0, 0
+    setmetatable(info, self)
     self.__index = self
-    return t
+    return info
 end
 
-function TBag:Announce(msg)
+function TBag:SendMessage(message)
     execute_command('msg_prefix ""')
-    say_all(msg)
-    execute_command('msg_prefix "' .. self.server_prefix .. '"')
+    say_all(message)
+    execute_command('msg_prefix "' .. self.prefix .. '"')
 end
 
-local function GetXYZ(Ply)
+local function GetPlayerCoords(player_id)
     local x, y, z
-    local dyn = get_dynamic_player(Ply)
-    if (dyn ~= 0) then
-        local vehicle = read_dword(dyn + 0x11C)
-        local object = get_object_memory(vehicle)
-        if (vehicle == 0xFFFFFFFF) then
-            x, y, z = read_vector3d(dyn + 0x5c)
-        elseif (object ~= 0) then
-            x, y, z = read_vector3d(object + 0x5c)
+    local dyn_player = get_dynamic_player(player_id)
+    if dyn_player ~= 0 then
+        x, y, z = read_vector3d(dyn_player + 0x5c)
+    end
+    return x, y, z, dyn_player
+end
+
+local function IsInRange(x1, y1, z1, x2, y2, z2, radius)
+    return math_sqrt((x1 - x2) ^ 2 + (y1 - y2) ^ 2 + (z1 - z2) ^ 2) <= radius
+end
+
+-- New function to get a random t-bag message
+local function GetRandomMessage(attacker, victim)
+    local message_template = TBag.messages[math.random(#TBag.messages)]
+    return message_template:gsub("$attacker", attacker.name):gsub("$victim", victim.name)
+end
+
+-- New function to check if crouch condition is met
+local function CheckCrouch(attacker, dyn_player)
+    local is_crouching = read_bit(dyn_player + 0x208, 0)
+    if is_crouching ~= attacker.last_crouch and is_crouching == 1 then
+        attacker.crouch_count = attacker.crouch_count + 1
+    end
+    attacker.last_crouch = is_crouching
+    return attacker.crouch_count >= attacker.required_crouches
+end
+
+-- New function to handle t-bagging
+local function PerformTBag(attacker, victim, location_index)
+    local message = GetRandomMessage(attacker, victim)
+    attacker:SendMessage(message)
+    attacker.last_tbag = current_time() -- Update last t-bag time
+    attacker.crouch_count = 0 -- Reset the count after successful t-bag
+    table.remove(victim.death_positions, location_index) -- Remove the position after t-bagging
+end
+
+local function CheckVictimDeathPositions(attacker, victim)
+    for index, location in ipairs(victim.death_positions) do
+        -- Remove expired position
+        if current_time() >= location.expire_time then
+            table.remove(victim.death_positions, index)
+            break -- Exit the loop after removing to avoid iteration issues
+        end
+
+        if not player_alive(attacker.pid) then
+            return -- Exit if the attacker is not alive
+        end
+
+        local victim_coords = { x = location.x, y = location.y, z = location.z }
+        local attacker_coords = { GetPlayerCoords(attacker.pid) }
+
+        if IsInRange(victim_coords.x, victim_coords.y, victim_coords.z, attacker_coords[1], attacker_coords[2], attacker_coords[3], attacker.radius) then
+            if CheckCrouch(attacker, attacker_coords[4]) and (current_time() - attacker.last_tbag) >= TBag.cooldown_time then
+                PerformTBag(attacker, victim, index) -- Pass index to remove the position later
+            end
         end
     end
-    return x, y, z, dyn
-end
-
-local function Dist(x1, y1, z1, x2, y2, z2, r)
-    return sqrt((x1 - x2) ^ 2 + (y1 - y2) ^ 2 + (z1 - z2) ^ 2) <= r
 end
 
 function OnTick()
-    for _, k in pairs(players) do
-        for _, v in pairs(players) do
-            if (k and v and k.pid ~= v.pid and #v.loc > 0) then
-                for i, pos in pairs(v.loc) do
-                    if (time() >= pos.finish) then
-                        v.loc[i] = nil
-                    elseif player_alive(k.pid) then
-                        local x1, y1, z1 = pos.x, pos.y, pos.z
-                        local x2, y2, z2, dyn = GetXYZ(k.pid)
-                        if (x2 and Dist(x1, y1, z1, x2, y2, z2, k.radius)) then
-                            local crouch = read_bit(dyn + 0x208, 0)
-                            if (crouch ~= k.state and crouch == 1) then
-                                k.count = k.count + 1
-                            elseif (k.count >= k.crouch_count) then
-                                v.loc[i], k.count = nil, 0
-                                k:Announce(k.on_tbag:gsub("$name", k.name):gsub("$victim", v.name))
-                            end
-                            k.state = crouch
-                        end
-                    end
-                end
+    for _, attacker in pairs(players) do
+        for _, victim in pairs(players) do
+            if attacker and victim and attacker.pid ~= victim.pid and #victim.death_positions > 0 then
+                CheckVictimDeathPositions(attacker, victim)
             end
         end
     end
 end
 
 function OnStart()
-    if (get_var(0, '$gt') ~= 'n/a') then
+    if get_var(0, '$gt') ~= 'n/a' then
         players = {}
         for i = 1, 16 do
             if player_present(i) then
@@ -133,33 +141,28 @@ function OnStart()
     end
 end
 
-function OnDeath(Victim)
-    local victim = tonumber(Victim)
-    local v = players[victim]
-    if (v) then
-        local x, y, z = GetXYZ(victim)
-        v.loc[#v.loc + 1] = {
-            x = x,
-            y = y,
-            z = z,
-            finish = time() + v.expiration
-        }
+function OnDeath(victim_id)
+    local victim = tonumber(victim_id)
+    local victim_data = players[victim]
+    if victim_data then
+        local x, y, z = GetPlayerCoords(victim)
+        victim_data.death_positions[#victim_data.death_positions + 1] = { x = x, y = y, z = z, expire_time = current_time() + victim_data.expire_time }
     end
 end
 
-function OnJoin(Ply)
-    players[Ply] = TBag:NewPlayer({
-        pid = Ply,
-        name = get_var(Ply, '$name')
+function OnJoin(player_id)
+    players[player_id] = TBag:CreatePlayer({
+        pid = player_id,
+        name = get_var(player_id, '$name')
     })
 end
 
-function OnQuit(Ply)
-    players[Ply] = nil
+function OnQuit(player_id)
+    players[player_id] = nil
 end
 
-function OnSpawn(Ply)
-    players[Ply].count = 0
+function OnSpawn(player_id)
+    players[player_id].crouch_count = 0 -- Reset count on spawn
 end
 
 function OnScriptUnload()

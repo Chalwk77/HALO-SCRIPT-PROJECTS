@@ -9,46 +9,60 @@ local bots = {
     "Whisp", "Wilshire"
 }
 
+-- Script load event handler
 function OnScriptLoad()
     register_callback(cb["EVENT_DIE"], "OnPlayerDeath")
 end
 
+-- Script unload event handler
 function OnScriptUnload()
     -- N/A
 end
 
+-- Check if the victim is a bot
 local function isBot(victim)
-    local vpsIP = get_var(victim, "$ip"):match("%d+.%d+.%d+.%d+")
-    for _, botName in pairs(bots) do
-        if get_var(victim, "$name") == botName and vpsIP == "127.0.0.1" then
-            return true
-        end
-    end
-    return false
+    local victimIP = get_var(victim, "$ip"):match("%d+%.%d+%.%d+%.%d+")
+    local victimName = get_var(victim, "$name")
+
+    return victimIP == "127.0.0.1" and table.contains(bots, victimName)
 end
 
+-- Adjusts score values to prevent negatives based on configuration
 local function adjust(value)
     return preventNegatives and math.max(0, value) or value
 end
 
+-- Prevents scoring adjustments for specific players
 local function preventScoring(killer, victim)
-
     local newScore = adjust(tonumber(get_var(killer, "$score")) - 1)
     local newKills = adjust(tonumber(get_var(killer, "$kills")) - 1)
     local newAssists = adjust(tonumber(get_var(killer, "$assists")) - 1)
     local newDeaths = adjust(tonumber(get_var(victim, "$deaths")) - 1)
 
+    -- Update player stats
     execute_command("score " .. killer .. " " .. newScore)
     execute_command("kills " .. killer .. " " .. newKills)
     execute_command("deaths " .. victim .. " " .. newDeaths)
     execute_command("assists " .. killer .. " " .. newAssists)
 end
 
+-- Player death event handler
 function OnPlayerDeath(victim, killer)
     local victimIndex = tonumber(victim)
     local killerIndex = tonumber(killer)
 
+    -- Check if the killer is valid and if the victim is a bot
     if killerIndex > 0 and killerIndex ~= victimIndex and isBot(victimIndex) then
         preventScoring(killerIndex, victimIndex)
     end
+end
+
+-- Helper function to check if a value exists in a table
+function table.contains(table, element)
+    for _, value in pairs(table) do
+        if value == element then
+            return true
+        end
+    end
+    return false
 end

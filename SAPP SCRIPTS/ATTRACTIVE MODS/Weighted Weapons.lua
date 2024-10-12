@@ -1,7 +1,8 @@
 --[[
 --=====================================================================================================--
-Script Name: Weighted Weapons, for SAPP (PC & CE)
+Script Name: Weighted Weapons with Stamina System, for SAPP (PC & CE)
 Description: Your speed will be reduced based on the weight of your inventory.
+An optional stamina system affects speed based on weight as well. Players will see a stamina bar showing their current stamina.
 
 Copyright (c) 2022-2024, Jericho Crosby <jericho.crosby227@gmail.com>
 Notice: You can use this script subject to the following conditions:
@@ -13,15 +14,13 @@ api_version = '1.12.0.0'
 
 -- Table to store weapon weights and configuration
 local WeaponWeights = {
-
-    -- Default player speed
     default_speed = 1.0,
-
-    -- Flag to determine if weights of all weapons in inventory should be combined
     combined = false,
-
-    -- Table mapping weapon tags to their respective weights
-    -- To simulate weapon weight in-game, the speed of the player is reduced by the weight of the weapon
+    stamina_enabled = true,
+    max_stamina = 100,
+    stamina_depletion_rate = 0.5, -- Decrease in stamina per tick
+    stamina_regen_rate = 0.5, -- Stamina recovery per tick (adjusted)
+    current_stamina = 100, -- Current stamina
     weapons = {
         ['weapons\\flag\\flag'] = 0.056,
         ['weapons\\ball\\ball'] = 0.056,
@@ -48,16 +47,12 @@ function OnScriptLoad()
 end
 
 -- Function to get the tag ID of a weapon
--- @param class The class of the tag
--- @param name The name of the tag
--- @return The tag ID or nil if not found
 local function getTag(class, name)
     local tag = lookup_tag(class, name)
     return (tag ~= 0 and read_dword(tag + 0xC)) or nil
 end
 
 -- Function to map weapon tags to their respective weights
--- @param t Table containing weapon tags and their weights
 local function tagsToID(t)
     for name, speed in pairs(t) do
         local tag = getTag('weap', name)
@@ -69,17 +64,13 @@ end
 
 -- Function called when the game starts
 function OnStart()
-    -- Check if the game type is not 'n/a'
     if get_var(0, '$gt') ~= 'n/a' then
         weight = {}
-        -- Map weapon tags to their weights
         tagsToID(WeaponWeights.weapons)
     end
 end
 
 -- Function to get the weight of a weapon
--- @param weapon The weapon object ID
--- @return The weight of the weapon or 0 if not found
 local function getWeight(weapon)
     local object = get_object_memory(weapon)
     if object == 0 or weapon == 0xFFFFFFFFF then
@@ -89,26 +80,45 @@ local function getWeight(weapon)
 end
 
 -- Function to get the speed of a player
--- @param player The player ID
--- @return The speed of the player
 local function getSpeed(player)
     local dyn = get_dynamic_player(player)
     if dyn == 0 or not player_alive(player) then
         return WeaponWeights.default_speed
     end
 
-    -- If combined is false, then we will only use the weapon in the player's hand
+    local speed = WeaponWeights.default_speed
+    -- If combined is false, only use the weapon in the player's hand
     if not WeaponWeights.combined then
-        return WeaponWeights.default_speed - getWeight(read_dword(dyn + 0x118))
+        speed = speed - getWeight(read_dword(dyn + 0x118))
+    else
+        -- Use all weapons in the player's inventory
+        for i = 0, 3 do
+            speed = speed - getWeight(read_dword(dyn + 0x2F8 + i * 4))
+        end
     end
 
-    -- Otherwise, we will use all weapons in the player's inventory
-    local speed = WeaponWeights.default_speed
-    for i = 0, 3 do
-        speed = speed - getWeight(read_dword(dyn + 0x2F8 + i * 4))
+    -- Apply stamina effects if enabled
+    if WeaponWeights.stamina_enabled and WeaponWeights.current_stamina <= 0 then
+        return math.max(speed - 0.2, 0) -- Reduced speed when out of stamina
     end
 
     return math.max(speed, 0)
+end
+
+-- Function to display stamina bar
+local function displayStaminaBar(player)
+    local stamina_percentage = (WeaponWeights.current_stamina / WeaponWeights.max_stamina) * 100
+    local bar_length = 20 -- Length of the stamina bar
+    local filled_length = math.floor(bar_length * (stamina_percentage / 100))
+    local empty_length = bar_length - filled_length
+
+    for _ = 1, 25 do
+        rprint(player, " ")
+    end
+
+    -- Create the stamina bar display
+    local stamina_bar = "|" .. string.rep("=", filled_length) .. string.rep(" ", empty_length) .. "| " .. math.floor(stamina_percentage) .. "%"
+    rprint(player, "Stamina: " .. stamina_bar) -- Print the stamina bar for the player
 end
 
 -- Function called on each tick event
@@ -117,9 +127,19 @@ function OnTick()
         local dyn = get_dynamic_player(i)
         if player_present(i) and player_alive(i) and dyn ~= 0 then
             local speed = getSpeed(i)
-            print("New Speed: " .. speed)
             execute_command('s ' .. i .. ' ' .. speed)
+
+            -- Update stamina
+            if WeaponWeights.stamina_enabled then
+                WeaponWeights.current_stamina = math.max(0, WeaponWeights.current_stamina - WeaponWeights.stamina_depletion_rate)
+                displayStaminaBar(i) -- Display stamina bar for the player
+            end
         end
+    end
+
+    -- Regenerate stamina
+    if WeaponWeights.stamina_enabled then
+        WeaponWeights.current_stamina = math.min(WeaponWeights.max_stamina, WeaponWeights.current_stamina + WeaponWeights.stamina_regen_rate)
     end
 end
 
