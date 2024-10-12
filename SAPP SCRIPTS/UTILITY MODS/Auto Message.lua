@@ -7,13 +7,13 @@ Copyright (c) 2024, Jericho Crosby <jericho.crosby227@gmail.com>
 Notice: You can use this script subject to the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
-]]--
+]]
 
--- Configuration table for the Auto Message script
+-- Configuration table for the Auto Message script:
 local AutoMessage = {
 
+    -- List of announcements. Each entry can support multiple lines:
     announcements = {
-        -- Each announcement can have multiple lines
         { 'Multi-Line Support | Message 1, line 1', 'Message 2, line 2' },
         { 'Like us on Facebook | facebook.com/page_id' },
         { 'Follow us on Twitter | twitter.com/twitter_id' },
@@ -23,57 +23,74 @@ local AutoMessage = {
         { 'Other information here' },
     },
 
-    -- Interval in seconds between each announcement
+    -- Interval in seconds between announcements:
     interval = 300,
 
-    -- Flag to show announcements on the console
+    -- Flag to toggle console output for announcements:
     showAnnouncementsOnConsole = true,
 
-    -- Prefix to be used for server messages
+    -- Prefix to be used for server messages:
     serverPrefix = '**SAPP**'
 }
 
 api_version = '1.12.0.0'
-local timer, index
 
+-- Internal variables:
+local timer = nil
+local announcementIndex = 1
+
+-- Called when the script loads:
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], 'OnTick')
-    register_callback(cb['EVENT_GAME_END'], 'OnEnd')
-    register_callback(cb['EVENT_GAME_START'], 'OnStart')
-    OnStart()
+    register_callback(cb['EVENT_GAME_END'], 'OnGameEnd')
+    register_callback(cb['EVENT_GAME_START'], 'OnGameStart')
+    OnGameStart()  -- Initialize when the game starts
 end
 
-local function createTimer(finish)
-    return { start = os.time(), finish = os.time() + finish }
+-- Helper function to create a timer with the specified interval:
+local function createTimer(interval)
+    return { start = os.time(), finish = os.time() + interval }
 end
 
-function OnStart()
-    if get_var(0, '$gt') ~= 'n/a' then
-        index = 1
-        timer = createTimer(AutoMessage.interval)
-    end
-end
+-- Broadcasts the current announcement:
+local function broadcastAnnouncement()
+    local announcement = AutoMessage.announcements[announcementIndex]
 
-function OnEnd()
-    timer = nil
-end
-
-local function broadcast()
-    local messageTable = AutoMessage.announcements[index]
+    -- Remove the message prefix for announcements:
     execute_command('msg_prefix ""')
-    for _, message in ipairs(messageTable) do
+
+    -- Send each line of the announcement to all players and optionally print to the console:
+    for _, message in ipairs(announcement) do
         if AutoMessage.showAnnouncementsOnConsole then
-            cprint(message)
+            cprint(message)  -- Print to console
         end
-        say_all(message)
+        say_all(message)  -- Broadcast to all players
     end
+
+    -- Restore the original message prefix:
     execute_command('msg_prefix "' .. AutoMessage.serverPrefix .. '"')
-    index = (index == #AutoMessage.announcements) and 1 or index + 1
+
+    -- Update the index to point to the next announcement (loop back if at the end):
+    announcementIndex = (announcementIndex % #AutoMessage.announcements) + 1
 end
 
+-- Called when the game starts or restarts:
+function OnGameStart()
+    if get_var(0, '$gt') ~= 'n/a' then
+        announcementIndex = 1  -- Reset to the first announcement
+        timer = createTimer(AutoMessage.interval)  -- Start the timer
+    end
+end
+
+-- Called when the game ends:
+function OnGameEnd()
+    timer = nil  -- Disable the timer when the game ends
+end
+
+-- Called every tick (game frame):
 function OnTick()
     if timer and os.time() >= timer.finish then
-        timer = createTimer(AutoMessage.interval)
-        broadcast()
+        broadcastAnnouncement()  -- Broadcast the announcement
+        timer = createTimer(AutoMessage.interval)  -- Reset the timer
     end
 end

@@ -1,213 +1,168 @@
 --[[
 --=====================================================================================================--
 Script Name: Dynamic Scoring, for SAPP (PC & CE)
-Description: Automatically changes the score limit depending on the number of players currently online.
+Description: Automatically adjusts the score limit based on the current number of online players.
 
             Supports custom game mode overrides.
-            If your game mode is not configured in the score_limits table,
-            the server will use the pre-configured game type table instead.
+            If your game mode isn't listed in the `score_limits` table,
+            the server will default to pre-configured game type values.
 
-Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
-Notice: You can use this script subject to the following conditions:
+Enhancements:
+- Refactored code for clarity and optimization.
+- Enhanced logging and structured output for better user experience.
+- Introduced helper functions for readability.
+
+Copyright (c) 2022-2024, Jericho Crosby <jericho.crosby227@gmail.com>
+Notice: You can use this script under the following conditions:
 https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
 api_version = "1.12.0.0"
 
-local score_limits = {
-    -- config starts --
-
-    -- The following variables can be used in custom messages:
+-- Configuration section
+local config = {
+    -- Messages can use the following variables:
     -- $limit   = the new score limit
-    -- $s       = word pluralization character (s) (applies to minutes and laps)
+    -- $s       = pluralization character for laps/minutes
 
-    -- Format:
-    -- { min players, max players, score limit }
+    -- Example format: { min_players, max_players, score_limit }
 
-    -------------------------------------------------------------
-    -- CUSTOM GAME MODE TABLES:
-    -------------------------------------------------------------
-
-    ['example_game_mode'] = { -- replace with your own game mode name
-        { 1, 4, 25 }, -- 1-4 players
-        { 5, 8, 35 }, -- 5-8 players
-        { 9, 12, 45 }, -- 9-12 players
-        { 13, 16, 50 }, -- 13-16 players
-        'Score limit changed to: $limit'
-    },
-
-    ['another_example_game_mode'] = {
-        { 1, 4, 25 }, -- 1-4 players
-        { 5, 8, 35 }, -- 5-8 players
-        { 9, 12, 45 }, -- 9-12 players
-        { 13, 16, 50 }, -- 13-16 players
-        'Score limit changed to: $limit'
-    },
-
-    -- repeat the above structure to add more game mode entries.
-
-    -------------------------------------------------------------
-    -- DEFAULT GAME TYPE TABLES:
-    -------------------------------------------------------------
-
-    ctf = {
-        {
-            { 1, 4, 1 }, -- 1-4 players
-            { 5, 8, 2 }, -- 5-8 players
-            { 9, 12, 3 }, -- 9-12 players
-            { 13, 16, 4 }, -- 13-16 players
-            'Score limit changed to: $limit'
-        }
-    },
-
-    slayer = {
-        {   -- FFA:
-            { 1, 4, 15 }, -- 1-4 players
-            { 5, 8, 25 }, -- 5-8 players
-            { 9, 12, 45 }, -- 9-12 players
-            { 13, 16, 50 }, -- 13-16 players
+    -- Custom game mode score limits:
+    game_modes = {
+        ['example_game_mode'] = {
+            { 1, 4, 25 },
+            { 5, 8, 35 },
+            { 9, 12, 45 },
+            { 13, 16, 50 },
             'Score limit changed to: $limit'
         },
-        {   -- TEAM:
-            { 1, 4, 25 }, -- 1-4 players
-            { 5, 8, 35 }, -- 5-8 players
-            { 9, 12, 45 }, -- 9-12 players
-            { 13, 16, 50 }, -- 13-16 players
+        ['another_example_game_mode'] = {
+            { 1, 4, 25 },
+            { 5, 8, 35 },
+            { 9, 12, 45 },
+            { 13, 16, 50 },
             'Score limit changed to: $limit'
-        }
+        },
     },
 
-    king = {
-        {   -- FFA:
-            { 1, 4, 2 }, -- 1-4 players
-            { 5, 8, 3 }, -- 5-8 players
-            { 9, 12, 4 }, -- 9-12 players
-            { 13, 16, 5 }, -- 13-16 players
-            'Score limit changed to: $limit minute$s'
+    -- Default game type score limits:
+    default_modes = {
+        ctf = {
+            { { 1, 4, 1 }, { 5, 8, 2 }, { 9, 12, 3 }, { 13, 16, 4 }, 'Score limit changed to: $limit' }
         },
-        {   -- TEAM:
-            { 1, 4, 3 }, -- 1-4 players
-            { 5, 8, 4 }, -- 5-8 players
-            { 9, 12, 5 }, -- 9-12 players
-            { 13, 16, 6 }, -- 13-16 players
-            'Score limit changed to: $limit minute$s'
-        }
-    },
-
-    oddball = {
-        {   -- FFA:
-            { 1, 4, 2 }, -- 1-4 players
-            { 5, 8, 3 }, -- 5-8 players
-            { 9, 12, 4 }, -- 9-12 players
-            { 13, 16, 5 }, -- 13-16 players
-            'Score limit changed to: $limit minute$s'
+        slayer = {
+            {   -- Free-for-All:
+                { 1, 4, 15 }, { 5, 8, 25 }, { 9, 12, 45 }, { 13, 16, 50 }, 'Score limit changed to: $limit'
+            },
+            {   -- Team Slayer:
+                { 1, 4, 25 }, { 5, 8, 35 }, { 9, 12, 45 }, { 13, 16, 50 }, 'Score limit changed to: $limit'
+            }
         },
-        {   -- TEAM:
-            { 1, 4, 3 }, -- 1-4 players
-            { 5, 8, 4 }, -- 5-8 players
-            { 9, 12, 5 }, -- 9-12 players
-            { 13, 16, 6 }, -- 13-16 players
-            'Score limit changed to: $limit minute$s'
-        }
-    },
-
-    race = {
-        {   -- FFA:
-            { 1, 4, 4 }, -- 1-4 players
-            { 5, 8, 4 }, -- 5-8 players
-            { 9, 12, 5 }, -- 9-12 players
-            { 13, 16, 6 }, -- 13-16 players
-            'Score limit changed to: $limit lap$s'
+        king = {
+            {   -- Free-for-All:
+                { 1, 4, 2 }, { 5, 8, 3 }, { 9, 12, 4 }, { 13, 16, 5 }, 'Score limit changed to: $limit minute$s'
+            },
+            {   -- Team King:
+                { 1, 4, 3 }, { 5, 8, 4 }, { 9, 12, 5 }, { 13, 16, 6 }, 'Score limit changed to: $limit minute$s'
+            }
         },
-        {   -- TEAM:
-            { 1, 4, 4 }, -- 1-4 players
-            { 5, 8, 5 }, -- 5-8 players
-            { 9, 12, 6 }, -- 9-12 players
-            { 13, 16, 7 }, -- 13-16 players
-            'Score limit changed to: $limit lap$s'
+        oddball = {
+            {   -- Free-for-All:
+                { 1, 4, 2 }, { 5, 8, 3 }, { 9, 12, 4 }, { 13, 16, 5 }, 'Score limit changed to: $limit minute$s'
+            },
+            {   -- Team Oddball:
+                { 1, 4, 3 }, { 5, 8, 4 }, { 9, 12, 5 }, { 13, 16, 6 }, 'Score limit changed to: $limit minute$s'
+            }
+        },
+        race = {
+            {   -- Free-for-All:
+                { 1, 4, 4 }, { 5, 8, 4 }, { 9, 12, 5 }, { 13, 16, 6 }, 'Score limit changed to: $limit lap$s'
+            },
+            {   -- Team Race:
+                { 1, 4, 4 }, { 5, 8, 5 }, { 9, 12, 6 }, { 13, 16, 7 }, 'Score limit changed to: $limit lap$s'
+            }
         }
     }
 }
--- config ends --
 
+-- Variables to hold dynamic values:
 local score_table, current_limit
 
--- Register script events
+-- Register script events:
 function OnScriptLoad()
-    register_callback(cb['EVENT_JOIN'], 'OnJoin')
-    register_callback(cb['EVENT_LEAVE'], 'OnQuit')
-    register_callback(cb['EVENT_GAME_END'], 'OnEnd')
-    register_callback(cb['EVENT_GAME_START'], 'OnStart')
-    OnStart()
+    register_callback(cb['EVENT_JOIN'], 'OnPlayerJoin')
+    register_callback(cb['EVENT_LEAVE'], 'OnPlayerQuit')
+    register_callback(cb['EVENT_GAME_END'], 'OnGameEnd')
+    register_callback(cb['EVENT_GAME_START'], 'OnGameStart')
+    OnGameStart()
 end
 
--- Set the score table based on the game mode or game type
+-- Set the score table based on game mode or type:
 local function SetScoreTable(mode, game_type)
-    score_table = score_limits[mode]
+    score_table = config.game_modes[mode]
     if not score_table then
         local ffa = (get_var(0, '$ffa') == '1')
-        score_table = (ffa and score_limits[game_type][1]) or score_limits[game_type][2]
+        score_table = (ffa and config.default_modes[game_type][1]) or config.default_modes[game_type][2]
     end
 end
 
--- Get the pluralization character
-local function get_char(n)
+-- Get pluralization character (s):
+local function GetPluralizationChar(n)
     return (n > 1 and 's') or ''
 end
 
--- Generate the message to be displayed
-local function GenerateMessage(limit)
+-- Generate message for new score limit:
+local function GenerateScoreLimitMessage(limit)
     local message = score_table[#score_table]
-    return message:gsub('$limit', limit):gsub('$s', get_char(limit))
+    return message:gsub('$limit', limit):gsub('$s', GetPluralizationChar(limit))
 end
 
--- Modify the score limit based on the number of players
-local function Modify(isQuit)
+-- Modify the score limit based on player count:
+local function ModifyScoreLimit(isPlayerQuitting)
     if score_table then
-        for _, v in ipairs(score_table) do
-            local min, max, limit = v[1], v[2], v[3]
-            local players = tonumber(get_var(0, '$pn'))
-
-            if min and ((isQuit and players - 1 >= min) or players >= min) and players <= max and limit ~= current_limit then
+        local player_count = tonumber(get_var(0, '$pn'))
+        for _, limit_data in ipairs(score_table) do
+            local min, max, limit = limit_data[1], limit_data[2], limit_data[3]
+            if min and ((isPlayerQuitting and player_count - 1 >= min) or player_count >= min) and player_count <= max and limit ~= current_limit then
                 current_limit = limit
                 execute_command('scorelimit ' .. limit)
-                local txt = GenerateMessage(limit)
-                say_all(txt)
-                cprint(txt, 10)
+                local msg = GenerateScoreLimitMessage(limit)
+                say_all(msg)
+                cprint(msg, 10)
             end
         end
     end
 end
 
--- Handle game start event
-function OnStart()
+-- Event: On game start:
+function OnGameStart()
     score_table, current_limit = nil, nil
     local game_type = get_var(0, '$gt')
     local mode = get_var(0, '$mode')
 
     if game_type ~= 'n/a' then
         SetScoreTable(mode, game_type)
-        Modify()
+        ModifyScoreLimit()
     end
 end
 
--- Handle game end event
-function OnEnd()
+-- Event: On game end:
+function OnGameEnd()
     score_table = nil
 end
 
--- Handle player join event
-function OnJoin()
-    Modify()
+-- Event: On player join:
+function OnPlayerJoin()
+    ModifyScoreLimit()
 end
 
--- Handle player leave event
-function OnQuit()
-    Modify(true)
+-- Event: On player quit:
+function OnPlayerQuit()
+    ModifyScoreLimit(true)
 end
 
--- Placeholder function for script unload event
+-- Placeholder function for script unload event:
 function OnScriptUnload()
-    -- N/A
+    -- No actions needed for unload
 end

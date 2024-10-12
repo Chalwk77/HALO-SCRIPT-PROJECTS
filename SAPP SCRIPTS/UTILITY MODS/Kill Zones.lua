@@ -1,14 +1,18 @@
 --[[
 --=====================================================================================================--
 Script Name: Kill Zones, for SAPP (PC & CE)
-Description: This script creates and manages 'kill zones' in the game, which are configurable areas that
-             players must leave within a specified time or face death.
+Description: This script creates and manages 'kill zones' in the game. These are configurable areas where
+             players receive a warning message with a countdown timer, forcing them to leave the zone or
+             face instant death after the timer expires.
 
-             When a player enters a kill zone, they receive a warning message displaying a countdown timer
-             showing how long they have before being killed.
+             Administrators can configure the kill zones per map, including the delay before a player is killed,
+             customize warning messages, and manage player team-specific zones.
 
-             The script allows customization of the warning message, server prefix, kill delay, and zone positions,
-             giving server administrators flexibility in setting up these danger zones.
+Features:
+  * Configurable kill zones (location, radius, and kill delay).
+  * Per-player countdown timer with custom messages.
+  * Supports FFA and team-based zones.
+  * Custom kill and warning messages.
 
 Copyright (c) 2024, Jericho Crosby <jericho.crosby227@gmail.com>
 Notice: You can use this script subject to the following conditions:
@@ -20,34 +24,38 @@ api_version = '1.12.0.0'
 
 local config = {
     -- MESSAGES:
-    warningMessage = "Warning: Forbidden zone [%]",
+    warningMessage = "Warning: Forbidden zone [%]!",
+    killMessage = "Player $name was killed for staying too long in zone $zone.",
     serverPrefix = "SERVER",
 
     -- KILL ZONE SETTINGS:
     -- team                 = Player Team: 'red', 'blue', 'FFA'
     -- x, y, z, radius      = Zone coordinates.
-    -- seconds until death  = A player has this many seconds to leave a kill zone otherwise they are killed.
+    -- seconds until death  = A player has this many seconds to leave a kill zone or they are killed.
     ['bloodgulch'] = {
-        { 'FFA', 82.68, -114.61, 0.67, 5, 15 },
-        -- Add more zones as needed
+        { 'FFA', 82.68, -114.61, 0.67, 5, 15, "Base Camp" },
+        -- Add more zones for bloodgulch or other maps.
     },
-    -- Add more maps as needed
+    -- Add more maps and zones as needed.
 }
 
 local ffa
 local zones = {}
 local players = {}
 
-function OnScriptLoad()
-    register_callback(cb['EVENT_GAME_START'], "OnStart")
-end
-
+-- Load the kill zones for the current map.
 local function loadZones()
     local map = get_var(0, '$map')
     zones = config[map]
     return zones and #zones > 0 or nil
 end
 
+-- Register callbacks and set up the game state when the script is loaded.
+function OnScriptLoad()
+    register_callback(cb['EVENT_GAME_START'], "OnStart")
+end
+
+-- Initialize the script on game start.
 function OnStart()
     if get_var(0, '$gt') ~= 'n/a' then
         players = {}
@@ -67,25 +75,52 @@ function OnStart()
     end
 end
 
-local function killPlayer(player)
-    execute_command("kill " .. player.id)
-    say_all(player.name .. " was killed for entering a forbidden zone.")
+-- Handle a player joining the game.
+function OnJoin(id)
+    players[id] = {
+        id = id,
+        team = ffa and 'FFA' or get_var(id, '$team'),
+        name = get_var(id, '$name')
+    }
 end
 
-local function warn(player)
+-- Remove player data when they leave the game.
+function OnQuit(id)
+    players[id] = nil
+end
+
+-- Update the player's team when they switch.
+function OnTeamSwitch(id)
+    local player = players[id]
+    if player then
+        player.team = get_var(id, '$team')
+    end
+end
+
+-- Kill the player and broadcast a message when they fail to leave a kill zone.
+local function killPlayer(player, zoneName)
+    execute_command("kill " .. player.id)
+    local message = config.killMessage:gsub("$name", player.name):gsub("$zone", zoneName)
+    say_all(message)
+    cprint(message, 10)
+end
+
+-- Warn the player with a countdown message when they enter a kill zone.
+local function warn(player, remaining)
     execute_command('msg_prefix ""')
-    local elapsed = os.clock() - player.timer.start
-    local remaining = math.floor(player.timer.remaining - elapsed)
     local message = config.warningMessage:gsub('%%', remaining)
 
+    -- Clear existing HUD lines to avoid message overlap.
     for _ = 1, 25 do
         rprint(player.id, " ")
     end
 
+    -- Show the warning message.
     rprint(player.id, message)
-    execute_command('msg_prefix ' .. config.serverPrefix .. '"')
+    execute_command('msg_prefix "' .. config.serverPrefix .. '"')
 end
 
+-- Start the timer for a player in a kill zone.
 local function startTimer(player, killDelay)
     if not player.timer then
         player.timer = {
@@ -95,37 +130,20 @@ local function startTimer(player, killDelay)
     end
 end
 
-local function updateTimer(player)
+-- Update the player's kill timer, issuing warnings and killing them when necessary.
+local function updateTimer(player, zoneName)
     if player.timer then
         local elapsed = os.clock() - player.timer.start
         if elapsed < player.timer.remaining then
-            warn(player)
+            warn(player, math.floor(player.timer.remaining - elapsed))
         else
             player.timer = nil
-            killPlayer(player)
+            killPlayer(player, zoneName)
         end
     end
 end
 
-function OnJoin(id)
-    players[id] = {
-        id = id,
-        team = ffa and 'FFA' or get_var(id, '$team'),
-        name = get_var(id, '$name')
-    }
-end
-
-function OnQuit(id)
-    players[id] = nil
-end
-
-function OnTeamSwitch(id)
-    local player = players[id]
-    if player then
-        player.team = get_var(id, '$team')
-    end
-end
-
+-- Get the player's current position (supports crouching and vehicles).
 local function getPlayerPosition(dyn)
     local x, y, z
     local crouch = read_float(dyn + 0x50C)
@@ -143,22 +161,24 @@ local function getPlayerPosition(dyn)
     return { x = x, y = y, z = z }
 end
 
-local function isPlayerOutsideZone(playerPosition, zonePosition)
-    local maxDistance = zonePosition.radius
-    local dx = math.abs(playerPosition.x - zonePosition.x)
-    local dy = math.abs(playerPosition.y - zonePosition.y)
-    local dz = math.abs(playerPosition.z - zonePosition.z)
+-- Check if the player is outside the kill zone.
+local function isPlayerOutsideZone(playerPosition, zone)
+    local maxDistance = zone.radius
+    local dx = math.abs(playerPosition.x - zone.x)
+    local dy = math.abs(playerPosition.y - zone.y)
+    local dz = math.abs(playerPosition.z - zone.z)
     return dx > maxDistance or dy > maxDistance or dz > maxDistance
 end
 
+-- Check if a player is in a kill zone and start or update the timer accordingly.
 local function checkPlayerZoneAndTimer(player)
     local dyn = get_dynamic_player(player.id)
+    if dyn == 0 then
+        return
+    end
     for _, zone in ipairs(zones) do
         local zonePosition = {
-            x = zone[2],
-            y = zone[3],
-            z = zone[4],
-            radius = zone[5]
+            x = zone[2], y = zone[3], z = zone[4], radius = zone[5]
         }
         local playerPosition = getPlayerPosition(dyn)
         if not isPlayerOutsideZone(playerPosition, zonePosition) then
@@ -169,16 +189,17 @@ local function checkPlayerZoneAndTimer(player)
     end
 end
 
+-- Periodically check all players to see if they are in a kill zone.
 function OnTick()
     for i = 1, 16 do
         local player = players[i]
         if player and player_present(i) and player_alive(i) then
             checkPlayerZoneAndTimer(player)
-            updateTimer(player)
+            updateTimer(player, zones[1][7]) -- Update with zone name
         end
     end
 end
 
 function OnScriptUnload()
-    -- No actions needed on script unload
+    -- No actions needed on unload.
 end

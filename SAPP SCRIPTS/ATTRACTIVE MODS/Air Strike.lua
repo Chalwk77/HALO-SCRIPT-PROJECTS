@@ -16,20 +16,16 @@ local min_height = 5
 -- Maximum height at which projectiles spawn
 local max_height = 20
 
--- Minimum X-axis velocity for projectiles
-local min_x_vel = -5
--- Maximum X-axis velocity for projectiles
-local max_x_vel = 5
+-- Projectile velocity limits
+local velocity_limits = {
+    x = { min = -5, max = 5 },
+    y = { min = -10, max = 5 },
+    z = { min = -10, max = 5 },
+}
 
--- Minimum Y-axis velocity for projectiles
-local min_y_vel = -10
--- Maximum Y-axis velocity for projectiles
-local max_y_vel = 10
-
--- Minimum Z-axis velocity for projectiles
-local min_z_vel = -10
--- Maximum Z-axis velocity for projectiles
-local max_z_vel = 5
+-- Explosion settings
+local explosion_damage = 50 -- Damage dealt by the explosion
+local explosion_radius = 5 -- Radius of the explosion effect
 
 -- Dictionary containing strike locations for different maps
 local strike_locations = {
@@ -86,6 +82,43 @@ function OnStart()
         if locations and rocket then
             NewTimes()
             register_callback(cb["EVENT_TICK"], "OnTick")
+            return
+        end
+    end
+    unregister_callback(cb["EVENT_TICK"])
+end
+
+-- Function to calculate projectile trajectory with a downward angle
+local function CalculateProjectileVelocity(x, y, z)
+    local x_vel = rand(velocity_limits.x.min, velocity_limits.x.max + 1)
+    local y_vel = rand(velocity_limits.y.min, 0) -- Adjusted for a downward angle
+    local z_vel = math.max(0, -(-y_vel * 0.2 + (z * 0.1))) -- Ensures z velocity is not negative
+    return x_vel, y_vel, z_vel
+end
+
+-- Function to apply explosive damage to nearby players
+local function ApplyExplosionDamage(x, y, z)
+    for i = 1, 16 do
+        if player_present(i) and player_alive(i) then
+            local px, py, pz = GetXYZ(i)
+            local distance = math.sqrt((px - x) ^ 2 + (py - y) ^ 2 + (pz - z) ^ 2)
+            if distance <= explosion_radius then
+                local damage = explosion_damage * (1 - (distance / explosion_radius)) -- Damage decreases with distance
+                --
+                -- do something here
+                --
+                --
+            end
+        end
+    end
+end
+
+-- Function to broadcast an incoming airstrike message
+local function BroadcastAirstrikeMessage(x, y, z)
+    local message = "Incoming airstrike at coordinates (" .. x .. ", " .. y .. ", " .. z .. ")! Take cover!"
+    for i = 1, 16 do
+        if player_present(i) then
+            say(i, message)
         end
     end
 end
@@ -95,19 +128,25 @@ function OnTick()
         local n = rand(1, #locations + 1)
         local x, y, z = locations[n][1], locations[n][2], locations[n][3]
         local num_proj = rand(min_proj, max_proj + 1)
+
+        -- Broadcast airstrike message before spawning projectiles
+        BroadcastAirstrikeMessage(x, y, z)
+
         for _ = 1, num_proj do
             local h = rand(min_height, max_height + 1)
             local payload = spawn_object("", "", x, y, z + h, 0, rocket)
             local object = get_object_memory(payload)
             if object ~= 0 then
-                local x_vel = rand(min_x_vel, max_x_vel + 1)
-                local y_vel = rand(min_y_vel, max_y_vel + 1)
-                local z_vel = rand(min_z_vel, max_z_vel + 1)
+                local x_vel, y_vel, z_vel = CalculateProjectileVelocity(x, y, z)
                 write_float(object + 0x68, x_vel)
                 write_float(object + 0x6C, y_vel)
                 write_float(object + 0x70, z_vel)
             end
         end
+
+        -- Apply explosion damage when all projectiles have been spawned
+        --ApplyExplosionDamage(x, y, z)
+
         NewTimes()
     end
 end

@@ -45,6 +45,7 @@ local HunterPrey = {
     }
 }
 
+local FLAG_BIT_INDEX = 3
 local timer = {}
 local players = {}
 local announce_respawn
@@ -219,7 +220,7 @@ function HunterPrey:CheckForFlag(dyn)
         if weapon ~= 0xFFFFFFFF and object ~= 0 then
             local tag_address = read_word(object)
             local tag_data = read_dword(read_dword(0x40440000) + tag_address * 0x20 + 0x14)
-            if read_bit(tag_data + 0x308, 3) == 1 then
+            if read_bit(tag_data + 0x308, FLAG_BIT_INDEX) == 1 then
                 if not self.timer.start_time then
                     self.timer:start()
                 elseif self.timer.paused then
