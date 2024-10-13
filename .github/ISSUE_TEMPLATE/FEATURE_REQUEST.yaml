@@ -42,11 +42,22 @@ body:
         - label: PHASOR (Unsure)
 
   - type: checkboxes
-    id: custom-map
+    id: server-extension2
     attributes:
-      label: 🗺️ Custom Map Usage
+      label: 🛠️ Server Extension
+      description: "Indicate the server extension you are utilizing."
       options:
-        - label: Yes
+        - label: SAPP (9.8.1)
+        - label: SAPP (10.0)
+        - label: SAPP (10.1)
+        - label: SAPP (10.2.1 - LATEST)
+        - label: SAPP (Earlier version)
+        - label: SAPP (Unsure)
+        - label: PHASOR (2.0 - LATEST)
+        - label: PHASOR (10059)
+        - label: PHASOR (10058)
+        - label: PHASOR (10057)
+        - label: PHASOR (Unsure)
 #
 #  - type: checkboxes
 #    id: gametype-specific
