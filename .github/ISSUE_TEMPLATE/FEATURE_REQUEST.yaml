@@ -1,7 +1,7 @@
 name: ✨ Feature Request
 description: 💡 Suggest enhancements for Halo PC (SAPP/Phasor).
-title: "[FEATURE] <title>"
-labels: [ "Feature", "Needs Review" ]
+title: '[FEATURE] <title>'
+labels: [ 'Feature', 'Needs Review' ]
 assignees: 'Chalwk77'
 body:
   - type: markdown
