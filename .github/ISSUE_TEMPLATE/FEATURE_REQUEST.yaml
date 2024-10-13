@@ -46,19 +46,19 @@ body:
 #        - label: Yes
 #        - label: No
 #        - label: Unsure
-  - type: checkboxes
-    id: gametype-specific
-    attributes:
-      label: 🎯 Gametype Specificity
-      description: "Does your feature request require map or gametype specificity?"
-      options:
-        - label: Yes
-        - label: No
-        - label: Unsure
-  - type: textarea
-    id: feature-description
-    attributes:
-      label: 📝 Feature Details
-      description: "Provide a comprehensive description of your feature request. Include any relevant use cases or examples."
-    validations:
-      required: true
+#  - type: checkboxes
+#    id: gametype-specific
+#    attributes:
+#      label: 🎯 Gametype Specificity
+#      description: "Does your feature request require map or gametype specificity?"
+#      options:
+#        - label: Yes
+#        - label: No
+#        - label: Unsure
+#  - type: textarea
+#    id: feature-description
+#    attributes:
+#      label: 📝 Feature Details
+#      description: "Provide a comprehensive description of your feature request. Include any relevant use cases or examples."
+#    validations:
+#      required: true
