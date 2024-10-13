@@ -42,7 +42,7 @@ body:
         - label: PHASOR (Unsure)
 
   - type: checkboxes
-    id: custom-map
+    id: map-type
     attributes:
       label: 🗺️ Custom Map Usage
       description: "Will the script be executed on a custom (non-stock) map?"
