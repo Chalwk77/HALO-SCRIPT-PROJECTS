@@ -7,40 +7,42 @@ body:
   - type: markdown
     attributes:
       value: |
-        **📌 Describe the bug**
-        > Provide a clear and concise description in the following sections.
-        > Use headers (`#`) or lists (`-`) to organize your thoughts.
+        **📌 Bug Overview**
+        > Please provide a clear and concise description of the bug you encountered, including steps to reproduce it and any relevant details. Use headers (`#`) or lists (`-`) to organize your thoughts effectively.
+
   - type: textarea
     id: description-the-bug
     attributes:
-      label: 🔄 Describe the bug
-      description: A clear and concise description of the bug.
-      placeholder: "1. Step 1, 2. Step 2, etc."
+      label: 🔄 Bug Description
+      description: A detailed description of the bug.
+      placeholder: "Describe the bug in detail, including the steps to reproduce it."
     validations:
       required: true
+
   - type: textarea
     id: expected-behavior
     attributes:
       label: 🎯 Expected Behavior
       description: Describe what should have happened if the bug hadn't occurred.
-      placeholder: "Explain the expected behaviour"
+      placeholder: "Explain the expected behavior clearly."
     validations:
       required: true
+
   - type: textarea
     id: additional-context
     attributes:
       label: 📝 Additional Context
-      description: Write any other context or information about the bug here.
-      placeholder: "Further context or information here"
+      description: Provide any other context or information about the bug here.
+      placeholder: "Include further context or relevant information."
     validations:
       required: true
+
   - type: markdown
     attributes:
       value: |
         **📷 Screenshots**
-        > Include any relevant screenshots to help illustrate the bug.
+        > If applicable, please include any relevant screenshots to help illustrate the bug. 
         >
+        > 🙌 Thank you for your contribution!
         >
-        > 🙌 Thank you
-        >
-        > **We appreciate your effort in reporting bugs on the JeriCraft server. Your input is invaluable!**
+        > **Your effort in reporting bugs is invaluable to improving the quality of our scripts!**
