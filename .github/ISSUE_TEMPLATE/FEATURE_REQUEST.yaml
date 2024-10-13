@@ -15,7 +15,7 @@ body:
     id: game-type
     attributes:
       label: 🎮 Target Game
-      description: Select the applicable game(s) for your feature request.
+      description: "Select the applicable game(s) for your feature request."
       options:
         - label: Halo PC (retail)
         - label: Halo Custom Edition (CE)
@@ -24,14 +24,15 @@ body:
     id: server-extension
     attributes:
       label: 🛠️ Server Extension
-      description: Indicate the server extension you are utilizing.
+      description: "Indicate the server extension you are utilizing."
       options:
         - label: SAPP (9.8.1)
         - label: SAPP (10.0)
         - label: SAPP (10.1)
+        - label: SAPP (10.2.1 - LATEST)
         - label: SAPP (Earlier version)
         - label: SAPP (Unsure)
-        - label: PHASOR (2.0+)
+        - label: PHASOR (2.0 - LATEST)
         - label: PHASOR (10059)
         - label: PHASOR (10058)
         - label: PHASOR (10057)
@@ -40,7 +41,7 @@ body:
     id: custom-map
     attributes:
       label: 🗺️ Custom Map Usage
-      description: Will the script be executed on a custom (non-stock) map?
+      description: "Will the script be executed on a custom (non-stock) map?"
       options:
         - label: Yes
         - label: No
@@ -49,7 +50,7 @@ body:
     id: gametype-specific
     attributes:
       label: 🎯 Gametype Specificity
-      description: Does your feature request require map or gametype specificity?
+      description: "Does your feature request require map or gametype specificity?"
       options:
         - label: Yes
         - label: No
@@ -58,7 +59,6 @@ body:
     id: feature-description
     attributes:
       label: 📝 Feature Details
-      description: Provide a comprehensive description of your feature request. Include any relevant use cases or examples.
-      placeholder: "Write your feature description here..."
+      description: "Provide a comprehensive description of your feature request. Include any relevant use cases or examples."
     validations:
       required: true
