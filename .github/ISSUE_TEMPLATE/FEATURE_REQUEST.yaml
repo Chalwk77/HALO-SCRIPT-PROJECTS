@@ -40,7 +40,7 @@ body:
   - type: checkboxes
     id: gametype-specific
     attributes:
-      label: 🎯 Gametype Specificity
+      label: Gametype Specificity
       description: "Does your feature request require map or gametype specificity?"
       options:
         - label: Yes
