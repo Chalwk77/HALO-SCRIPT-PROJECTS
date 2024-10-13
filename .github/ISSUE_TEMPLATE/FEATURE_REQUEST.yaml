@@ -41,15 +41,15 @@ body:
         - label: PHASOR (10057)
         - label: PHASOR (Unsure)
 
-#  - type: checkboxes
-#    id: custom-map
-#    attributes:
-#      label: 🗺️ Custom Map Usage
-#      description: "Will the script be executed on a custom (non-stock) map?"
-#      options:
-#        - label: Yes
-#        - label: No
-#        - label: Unsure
+  - type: checkboxes
+    id: custom-map
+    attributes:
+      label: 🗺️ Custom Map Usage
+      description: "Will the script be executed on a custom (non-stock) map?"
+      options:
+        - label: Yes
+        - label: No
+        - label: Unsure
 #
 #  - type: checkboxes
 #    id: gametype-specific
