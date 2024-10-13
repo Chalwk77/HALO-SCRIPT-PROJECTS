@@ -37,6 +37,15 @@ body:
         - label: PHASOR (10058)
         - label: PHASOR (10057)
         - label: PHASOR (Unsure)
+  - type: checkboxes
+    id: gametype-specific
+    attributes:
+      label: 🎯 Gametype Specificity
+      description: "Does your feature request require map or gametype specificity?"
+      options:
+        - label: Yes
+        - label: No
+        - label: Unsure
 #  - type: checkboxes
 #    id: custom-map
 #    attributes:
