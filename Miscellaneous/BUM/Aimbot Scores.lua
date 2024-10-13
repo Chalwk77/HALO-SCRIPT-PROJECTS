@@ -1,20 +1,16 @@
--- Aim Bot scores, by Chalwk.
-
--- Shows a players Aim Bot scores.
+-- Aim Bot Scores Script by Chalwk
+-- Shows a player's Aim Bot scores.
 -- Command to show bot scores:
 -- Syntax: /command [1-16/me/all/*] [0/1]
 
---
--- Script concept credit goes to mouseboyx.
--- He made an original version of this and released it on Open Carange.
---
--- This is my version of it.
+-- Concept credit: mouseboyx (original version released on Open Carange).
 
 api_version = '1.12.0.0'
 
 local command = 'botscore'
 local players = {}
 
+-- Registering callbacks
 function OnScriptLoad()
     register_callback(cb['EVENT_TICK'], 'OnTick')
     register_callback(cb['EVENT_JOIN'], 'OnJoin')
@@ -24,6 +20,7 @@ function OnScriptLoad()
     OnStart()
 end
 
+-- Initialize players on game start
 function OnStart()
     if get_var(0, '$gt') ~= 'n/a' then
         players = {}
@@ -35,17 +32,19 @@ function OnStart()
     end
 end
 
+-- Handle player ticks
 function OnTick()
     for playerId, data in pairs(players) do
         if #data.suspects > 0 then
             data:clear(playerId)
             for _, suspect in ipairs(data.suspects) do
-                rprint(playerId, suspect.name .. ': ' .. suspect:score())
+                rprint(playerId, string.format("%s: %s", suspect.name, suspect:score()))
             end
         end
     end
 end
 
+-- Split a string into a table of arguments
 local function stringSplit(str)
     local args = {}
     for arg in str:gmatch('%S+') do
@@ -54,65 +53,88 @@ local function stringSplit(str)
     return args
 end
 
+-- Check player permission
 local function hasPermission(playerId)
-    return tonumber(get_var(playerId, '$lvl')) >= 1 or (rprint(playerId, 'Insufficient Permission') and false)
+    local level = tonumber(get_var(playerId, '$lvl'))
+    if level < 1 then
+        rprint(playerId, 'Insufficient Permission')
+        return false
+    end
+    return true
 end
 
+-- Get target players based on command arguments
 local function getPlayers(playerId, args)
-    local t = {}
+    local targets = {}
     local suspect = args[2]
+
     if suspect == 'me' and playerId ~= 0 then
-        table.insert(t, playerId)
+        table.insert(targets, playerId)
     elseif tonumber(suspect) and player_present(tonumber(suspect)) then
-        table.insert(t, tonumber(suspect))
+        table.insert(targets, tonumber(suspect))
     elseif suspect == 'all' or suspect == '*' then
         for i = 1, 16 do
             if player_present(i) then
-                table.insert(t, i)
+                table.insert(targets, i)
             end
         end
     else
-        rprint(playerId, 'Invalid Player ID. Usage: /' .. command .. ' [1-16 / me / all / *] [0/1]')
+        rprint(playerId, string.format("Invalid Player ID. Usage: /%s [1-16/me/all/*] [0/1]", command))
     end
-    return t
+    return targets
 end
 
+-- Determine whether to show scores
 local function getShowScores(showScoresArg)
     return showScoresArg == '1' or showScoresArg == nil
 end
 
+-- Add a suspect to the player's list
 local function addSuspect(playerId, suspect)
     table.insert(players[playerId].suspects, {
         name = get_var(suspect, '$name'),
         score = function()
-            return get_var(suspect, '$botscore') .. (player_alive(suspect) and '' or ' [respawning]')
+            local botScore = get_var(suspect, '$botscore')
+            return botScore .. (player_alive(suspect) and '' or ' [respawning]')
         end
     })
 end
 
+-- Handle commands from players
 function OnCommand(playerId, cmd)
     local args = stringSplit(cmd)
+
     if args[1] == command and hasPermission(playerId) then
         local showScores = getShowScores(args[3])
+
         if not showScores then
             rprint(playerId, 'Hiding bot scores')
             players[playerId].suspects = {}
             return false
         end
+
         for _, pl in ipairs(getPlayers(playerId, args)) do
             addSuspect(playerId, pl)
         end
     end
 end
 
+-- Handle player joining
 function OnJoin(playerId)
-    players[playerId] = { suspects = {}, clear = function(i) for _ = 1, 25 do rprint(i, ' ') end end }
+    players[playerId] = {
+        suspects = {},
+        clear = function(i)
+            for _ = 1, 25 do rprint(i, ' ') end
+        end
+    }
 end
 
+-- Handle player quitting
 function OnQuit(playerId)
     players[playerId] = nil
 end
 
+-- Handle script unloading
 function OnScriptUnload()
-    -- N/A
+    -- No specific actions needed on unload
 end
