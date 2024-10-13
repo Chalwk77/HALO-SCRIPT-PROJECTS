@@ -44,8 +44,8 @@ body:
   - type: checkboxes
     id: custom-map
     attributes:
-      label: 🛠️ Server Extension
-      description: "Indicate the server extension you are utilizing."
+      label: 🗺️ Custom Map Usage
+      description: "Will the script be executed on a custom (non-stock) map?"
       options:
         - label: SAPP (9.8.1)
         - label: SAPP (10.0)
