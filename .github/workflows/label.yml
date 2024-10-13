@@ -2,18 +2,20 @@
 # paths that are modified in the pull request.
 #
 # To use this workflow, you will need to set up a .github/labeler.yml
-# file with configuration.  For more information, see:
+# file with configuration. For more information, see:
 # https://github.com/actions/labeler
 
 name: Labeler
-on: [pull_request]
+
+on:
+  pull_request:  # Trigger this workflow on pull request events
 
 jobs:
   label:
-
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Specify the type of virtual machine to run the job
 
     steps:
-    - uses: actions/labeler@v2
-      with:
-        repo-token: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Apply Labels  # Added step name for clarity
+        uses: actions/labeler@v2  # Use the labeler action
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"  # GitHub token for authentication
