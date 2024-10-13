@@ -48,8 +48,6 @@ body:
       description: "Will the script be executed on a custom (non-stock) map?"
       options:
         - label: YES
-        - label: NO
-        - label: Unsure
 
 #  - type: checkboxes
 #    id: custom-map
