@@ -3,7 +3,7 @@ description: 💡 Suggest enhancements for Halo PC (SAPP/Phasor).
 title: '[FEATURE] <title>'
 labels: [ 'Feature', 'Needs Review' ]
 assignees:
-  - Chalwk77  # Changed to a list for consistency
+  - Chalwk77
 body:
   - type: markdown
     attributes:
@@ -29,17 +29,8 @@ body:
       label: 🛠️ Server Extension
       description: "Indicate the server extension you are utilizing."
       options:
-        - label: SAPP (9.8.1)
-        - label: SAPP (10.0)
-        - label: SAPP (10.1)
-        - label: SAPP (10.2.1 - LATEST)
-        - label: SAPP (Earlier version)
-        - label: SAPP (Unsure)
-        - label: PHASOR (2.0 - LATEST)
-        - label: PHASOR (10059)
-        - label: PHASOR (10058)
-        - label: PHASOR (10057)
-        - label: PHASOR (Unsure)
+        - label: SAPP
+        - label: PHASOR
 
   - type: checkboxes
     id: custom-map
