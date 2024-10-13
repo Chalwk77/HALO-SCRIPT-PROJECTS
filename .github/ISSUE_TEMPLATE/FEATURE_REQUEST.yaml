@@ -20,9 +20,6 @@ body:
         - label: Halo PC (retail)
         - label: Halo Custom Edition (CE)
         - label: Both (cross-compatibility)
-    validations:
-      required: true
-
   - type: checkboxes
     id: server-extension
     attributes:
@@ -39,7 +36,6 @@ body:
         - label: PHASOR (10058)
         - label: PHASOR (10057)
         - label: PHASOR (Unsure)
-
   - type: checkboxes
     id: custom-map
     attributes:
@@ -49,7 +45,6 @@ body:
         - label: Yes
         - label: No
         - label: Unsure
-
   - type: checkboxes
     id: gametype-specific
     attributes:
@@ -59,7 +54,6 @@ body:
         - label: Yes
         - label: No
         - label: Unsure
-
   - type: textarea
     id: feature-description
     attributes:
