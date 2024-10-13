@@ -1,7 +1,7 @@
 --[[
 --=====================================================================================================--
 Script Name: Rules Command, for SAPP (PC & CE)
-Description: Custom command to show server rules.
+Description: This script provides a custom command to display server rules to players.
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 Notice: You can use this script subject to the following conditions:
@@ -10,91 +10,74 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 ]]--
 
 --------------------------
--- configuration starts --
+-- Configuration Starts --
 --------------------------
 
--- This is the custom command used to view the rules (See Rules table):
---
-local command = "rules"
+local command = "rules"  -- Custom command to view the rules
+local announcement = "Type /" .. command .. " to view the game rules."  -- Announcement message
+local interval = 180  -- Interval (in seconds) between each announcement
+local show_time = 10  -- Duration (in seconds) to display messages
 
-
--- This announcement will be broadcast every "interval" seconds:
---
-local announcement = "Type /" .. command .. " to view the game rules."
-
-
--- Time (in seconds) between each announcement (see above):
---
-local interval = 180
-
-
--- How long (in seconds) do the messages appear for?
---
-local show_time = 10
-
-
--- Rules Table:
---
+-- Rules Table
 local Rules = {
     "1. Do not betray your teammates.",
-    "2. Do not be toxic, be a good sport!",
+    "2. Do not be toxic; be a good sport!",
     "3. Do not camp in any forbidden places.",
     "4. Do not block any entrances or teleports.",
     "5. If you're a zombie, press the melee key to infect them.",
 }
 
-
--- A message relay function temporarily removes the server prefix
--- and will restore it to this when the relay is finished:
---
-local server_prefix = "**BK**"
+local server_prefix = "**BK**"  -- Server prefix for messages
 
 ------------------------
--- configuration ends --
+-- Configuration Ends --
 ------------------------
 
 api_version = "1.12.0.0"
 
 local ConsoleText = (loadfile "Console Text Library.lua")()
+local game_started = false  -- Flag to track if the game has started
 
-local game_started
-
+-- Load script and register callbacks
 function OnScriptLoad()
-
-    register_callback(cb["EVENT_COMMAND"], "ShowRules")
+    register_callback(cb["EVENT_COMMAND"], "HandleCommand")
     register_callback(cb["EVENT_GAME_END"], "OnGameEnd")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
     register_callback(cb["EVENT_TICK"], "OnTick")
 
-    OnGameStart()
+    OnGameStart()  -- Initialize game state
 end
 
-function ShowRules(Ply, CMD, _, _)
-    if (CMD:sub(1, command:len()):lower() == command) then
-        ConsoleText:NewMessage(Ply, Rules, show_time, nil, true)
+-- Handle custom command for displaying rules
+function HandleCommand(playerId, commandInput, _, _)
+    if commandInput:sub(1, command:len()):lower() == command then
+        ConsoleText:NewMessage(playerId, Rules, show_time, nil, true)
         return false
     end
 end
 
+-- Show announcement to all players
 function ShowAnnouncement()
-    execute_command("msg_prefix \"\"")
-    say_all(announcement)
-    execute_command("msg_prefix \"" .. server_prefix .. "\"")
+    execute_command('msg_prefix ""')  -- Temporarily remove server prefix
+    say_all(announcement)  -- Broadcast the announcement
+    execute_command('msg_prefix "' .. server_prefix .. '"')  -- Temporarily remove server prefix
     return game_started
 end
 
+-- Initialize game state when the game starts
 function OnGameStart()
-    game_started = false
-    if (get_var(0, "$gt") ~= "n/a") then
-        game_started = true
-        timer(1000 * interval, "ShowAnnouncement")
+    game_started = true
+    if get_var(0, "$gt") ~= "n/a" then
+        timer(1000 * interval, "ShowAnnouncement")  -- Schedule announcements
     end
 end
 
+-- Reset game state when the game ends
 function OnGameEnd()
     game_started = false
 end
 
+-- Handle game tick events
 function OnTick()
-    ConsoleText:GameTick()
+    ConsoleText:GameTick()  -- Update console text on tick
 end
