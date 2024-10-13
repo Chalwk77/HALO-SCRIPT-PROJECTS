@@ -1,7 +1,7 @@
 --[[
 --=====================================================================================================--
 Script Name: No Damage, for SAPP (PC & CE)
-Description: Stops you from taking damage.
+Description: Prevents players from taking damage.
 
 Copyright (c) 2023, Jericho Crosby <jericho.crosby227@gmail.com>
 Notice: You can use this script subject to the following conditions:
@@ -12,77 +12,97 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 api_version = '1.12.0.0'
 
 local command = 'damage'
-local players = {}
+local protectedPlayers = {}
 
+-- This function is called when the script is loaded.
 function OnScriptLoad()
-    register_callback(cb['EVENT_LEAVE'], 'OnQuit')
-    register_callback(cb['EVENT_SPAWN'], 'modifyBits')
-    register_callback(cb['EVENT_COMMAND'], 'OnCommand')
-    register_callback(cb['EVENT_GAME_START'], 'OnStart')
-    register_callback(cb['EVENT_DAMAGE_APPLICATION'], 'OnDamage')
-    OnStart()
+    register_callback(cb['EVENT_LEAVE'], 'OnPlayerLeave')
+    register_callback(cb['EVENT_SPAWN'], 'OnSpawn')
+    register_callback(cb['EVENT_COMMAND'], 'OnPlayerCommand')
+    register_callback(cb['EVENT_GAME_START'], 'OnGameStart')
+    register_callback(cb['EVENT_DAMAGE_APPLICATION'], 'OnDamageApplication')
+    OnGameStart() -- Initialize player states at game start
 end
 
-local function getOriginalBits(id)
-    local dyn = get_dynamic_player(id)
-    if dyn ~= 0 then
+-- Retrieves original bit values for a player
+-- @param playerId (number) | The player's index.
+-- @return (table | nil) | A table containing original bit values or nil if not found.
+local function getOriginalBits(playerId)
+    local playerDynamic = get_dynamic_player(playerId)
+    if playerDynamic ~= 0 then
         return {
-            [dyn + 0x10] = { 0, read_bit(dyn + 0x10, 0) },
-            [dyn + 0x106] = { 11, read_bit(dyn + 0x106, 11) },
+            [playerDynamic + 0x10] = { 0, read_bit(playerDynamic + 0x10, 0) },
+            [playerDynamic + 0x106] = { 11, read_bit(playerDynamic + 0x106, 11) },
         }
     end
     return nil
 end
 
-local function restore(id)
-    for address, v in pairs(players[id]) do
-        write_bit(address, v[1], v[2])
+-- Restores the original bit values for a player
+-- @param playerId (number) | The player's index.
+local function restoreOriginalBits(playerId)
+    for address, values in pairs(protectedPlayers[playerId]) do
+        write_bit(address, values[1], values[2])
     end
-    players[id] = nil
+    protectedPlayers[playerId] = nil -- Remove player from the protection table
 end
 
-function OnStart()
+-- Modifies damage-related bits to prevent damage
+-- @param playerId (number) | The player's index.
+local function modifyDamageBits(playerId)
+    local playerDynamic = get_dynamic_player(playerId)
+    if playerDynamic ~= 0 and protectedPlayers[playerId] then
+        write_bit(playerDynamic + 0x10, 0, 1)  -- Set the "no damage" bit
+        write_bit(playerDynamic + 0x106, 11, 1) -- Set the "no damage" bit for the second value
+    end
+end
+
+-- Initializes player states when the game starts
+function OnGameStart()
     if get_var(0, '$gt') ~= 'n/a' then
-        for i = 1, 16 do
-            if player_present(i) then
-                restore(i)
+        for playerId = 1, 16 do
+            if player_present(playerId) then
+                restoreOriginalBits(playerId) -- Restore original bits for all players
             end
         end
     end
 end
 
-function OnCommand(id, cmd)
-    if cmd:sub(1, #command):lower() == command then
-        if players[id] then
-            restore(id)
-            rprint(id, "You will now take damage from other players.")
+-- Handles player commands
+-- @param playerId (number) | The player's index.
+-- @param commandInput (string) | The command entered by the player.
+-- @return (boolean) | Indicates whether to prevent further command processing.
+function OnPlayerCommand(playerId, commandInput)
+    if commandInput:sub(1, #command):lower() == command then
+        if protectedPlayers[playerId] then
+            restoreOriginalBits(playerId) -- Restore original damage behavior
+            rprint(playerId, "You will now take damage from other players.")
         else
-            players[id] = getOriginalBits(id)
-            modifyBits(id)
-            rprint(id, "You will no longer take damage from other players.")
+            protectedPlayers[playerId] = getOriginalBits(playerId) -- Store original bits
+            modifyDamageBits(playerId) -- Apply no damage effects
+            rprint(playerId, "You will no longer take damage from other players.")
         end
-        return false
+        return false -- Prevent further processing of the command
     end
 end
 
-function OnDamage(victim, killer)
-    if tonumber(victim) ~= tonumber(killer) and players[tonumber(victim)] then
-        return false
+-- Handles damage application events
+-- @param victimId (number) | The player's index of the victim.
+-- @param killerId (number) | The player's index of the killer.
+-- @return (boolean) | Indicates whether to prevent the damage event.
+function OnDamageApplication(victimId, killerId)
+    if tonumber(victimId) ~= tonumber(killerId) and protectedPlayers[tonumber(victimId)] then
+        return false -- Prevent damage if the victim is in the protected list
     end
 end
 
-function OnQuit(id)
-    players[id] = nil
+-- Handles player leaving events
+-- @param playerId (number) | The player's index who is leaving.
+function OnPlayerLeave(playerId)
+    protectedPlayers[playerId] = nil -- Remove player from the protection list
 end
 
-function modifyBits(id)
-    local dyn = get_dynamic_player(id)
-    if dyn ~= 0 and players[id] then
-        write_bit(dyn + 0x10, 0, 1)
-        write_bit(dyn + 0x106, 11, 1)
-    end
-end
-
+-- This function is called when the script is unloaded. Currently not in use.
 function OnScriptUnload()
     -- N/A
 end

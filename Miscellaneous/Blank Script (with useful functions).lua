@@ -1,283 +1,267 @@
---[[
---=====================================================================================================--
-Script Name: Blank Script, for SAPP (PC & CE)
---=====================================================================================================--
-]]--
+api_version = '1.12.0.0'
 
-api_version = "1.12.0.0"
-
+-- This function is called when the script is loaded. It registers various callbacks
+-- for different game events, allowing the script to respond to those events.
 function OnScriptLoad()
-    register_callback(cb['EVENT_ECHO'], "OnEcho")
-    register_callback(cb['EVENT_SNAP'], "OnSnap")
-    register_callback(cb['EVENT_CAMP'], "OnCamp")
-    register_callback(cb['EVENT_WARP'], "OnWarp")
-    register_callback(cb['EVENT_TICK'], "OnTick")
-    register_callback(cb['EVENT_LOGIN'], "OnLogin")
-    register_callback(cb['EVENT_SCORE'], "OnScore")
-    register_callback(cb['EVENT_BETRAY'], "OnBetray")
-    register_callback(cb['EVENT_SUICIDE'], "OnSuicide")
-    register_callback(cb['EVENT_GAME_END'], "OnGameEnd")
-    register_callback(cb['EVENT_GAME_START'], "OnNewGame")
-    register_callback(cb['EVENT_MAP_RESET'], "OnMapReset")
-    register_callback(cb['EVENT_AREA_EXIT'], "OnAreaExit")
-    register_callback(cb['EVENT_AREA_ENTER'], "OnAreaEnter")
-    register_callback(cb['EVENT_TEAM_SWITCH'], "OnTeamSwitch")
-    register_callback(cb['EVENT_WEAPON_DROP'], "OnWeaponDrop")
-    register_callback(cb['EVENT_JOIN'], "OnPlayerJoin")
-    register_callback(cb['EVENT_CHAT'], "OnPlayerChat")
-    register_callback(cb['EVENT_KILL'], "OnPlayerKill")
-    register_callback(cb['EVENT_ALIVE'], "OnCheckAlive")
-    register_callback(cb['EVENT_DIE'], "OnPlayerDeath")
-    register_callback(cb['EVENT_SPAWN'], "OnPlayerSpawn")
-    register_callback(cb['EVENT_LEAVE'], "OnPlayerLeave")
-    register_callback(cb['EVENT_OBJECT_SPAWN'], "OnObjectSpawn")
-    register_callback(cb['EVENT_VEHICLE_EXIT'], "OnVehicleExit")
-    register_callback(cb['EVENT_WEAPON_PICKUP'], "OnWeaponPickup")
-    register_callback(cb['EVENT_VEHICLE_ENTER'], "OnVehicleEntry")
-    register_callback(cb['EVENT_COMMAND'], "OnServerCommand")
-    register_callback(cb['EVENT_PREJOIN'], "OnPlayerPrejoin")
-    register_callback(cb['EVENT_PRESPAWN'], "OnPlayerPrespawn")
-    register_callback(cb['EVENT_DAMAGE_APPLICATION'], "OnDamageApplication")
+    register_callback(cb['EVENT_ECHO'], 'OnEcho') -- Triggered when an event is echoed.
+    register_callback(cb['EVENT_SNAP'], 'OnSnap') -- Triggered when a player's snap score is updated.
+    register_callback(cb['EVENT_CAMP'], 'OnCamp') -- Triggered when a player achieves camp kills.
+    register_callback(cb['EVENT_WARP'], 'OnWarp') -- Triggered when a player warps.
+    register_callback(cb['EVENT_TICK'], 'OnTick') -- Triggered every tick of the game.
+    register_callback(cb['EVENT_LOGIN'], 'OnLogin') -- Triggered when a player logs into the server.
+    register_callback(cb['EVENT_SCORE'], 'OnScore') -- Triggered when a player's score is updated.
+    register_callback(cb['EVENT_BETRAY'], 'OnBetray') -- Triggered when a player betrays another.
+    register_callback(cb['EVENT_SUICIDE'], 'OnSuicide') -- Triggered when a player commits suicide.
+    register_callback(cb['EVENT_GAME_END'], 'OnGameEnd') -- Triggered when the game ends.
+    register_callback(cb['EVENT_GAME_START'], 'OnNewGame') -- Triggered when a new game starts.
+    register_callback(cb['EVENT_MAP_RESET'], 'OnMapReset') -- Triggered when the map is reset.
+    register_callback(cb['EVENT_AREA_EXIT'], 'OnAreaExit') -- Triggered when a player exits an area.
+    register_callback(cb['EVENT_AREA_ENTER'], 'OnAreaEnter') -- Triggered when a player enters an area.
+    register_callback(cb['EVENT_TEAM_SWITCH'], 'OnTeamSwitch') -- Triggered when a player switches teams.
+    register_callback(cb['EVENT_WEAPON_DROP'], 'OnWeaponDrop') -- Triggered when a player drops a weapon.
+    register_callback(cb['EVENT_JOIN'], 'OnPlayerJoin') -- Triggered when a player joins the game.
+    register_callback(cb['EVENT_CHAT'], 'OnPlayerChat') -- Triggered when a player sends a chat message.
+    register_callback(cb['EVENT_KILL'], 'OnPlayerKill') -- Triggered when a player kills another player.
+    register_callback(cb['EVENT_ALIVE'], 'OnCheckAlive') -- Triggered to check if a player is alive.
+    register_callback(cb['EVENT_DIE'], 'OnPlayerDeath') -- Triggered when a player dies.
+    register_callback(cb['EVENT_SPAWN'], 'OnPlayerSpawn') -- Triggered when a player spawns.
+    register_callback(cb['EVENT_LEAVE'], 'OnPlayerLeave') -- Triggered when a player leaves the game.
+    register_callback(cb['EVENT_OBJECT_SPAWN'], 'OnObjectSpawn') -- Triggered when an object spawns in the game.
+    register_callback(cb['EVENT_VEHICLE_EXIT'], 'OnVehicleExit') -- Triggered when a player exits a vehicle.
+    register_callback(cb['EVENT_WEAPON_PICKUP'], 'OnWeaponPickup') -- Triggered when a player picks up a weapon.
+    register_callback(cb['EVENT_VEHICLE_ENTER'], 'OnVehicleEntry') -- Triggered when a player enters a vehicle.
+    register_callback(cb['EVENT_COMMAND'], 'OnServerCommand') -- Triggered when a command is executed on the server.
+    register_callback(cb['EVENT_PREJOIN'], 'OnPlayerPrejoin') -- Triggered before a player joins the game.
+    register_callback(cb['EVENT_PRESPAWN'], 'OnPlayerPrespawn') -- Triggered before a player spawns.
+    register_callback(cb['EVENT_DAMAGE_APPLICATION'], 'OnDamageApplication') -- Triggered when damage is applied to a player.
 end
 
+-- This function is called when the script is unloaded. It can be used to clean up resources.
 function OnScriptUnload()
 
 end
 
+-- This function is triggered when an event is echoed.
 function OnEcho()
 
 end
 
+-- This function is triggered when a player's snap score is updated.
+-- It can be used to perform actions based on the player's score.
+-- @param PlayerIndex (number) | The player's index.
+-- @param SnapScore (number) | The player's snap score.
 function OnSnap(PlayerIndex, SnapScore)
 
 end
 
+-- This function is triggered when a player achieves camp kills.
+-- It can be used to reward or track camping players.
+-- @param PlayerIndex (number) | The player's index.
+-- @param CampKills (number) | The number of camp kills achieved by the player.
 function OnCamp(PlayerIndex, CampKills)
 
 end
 
+-- This function is triggered when a player warps in the game.
+-- It can be used for logging or notifications about player movement.
+-- @param PlayerIndex (number) | The player's index.
 function OnWarp(PlayerIndex)
 
 end
 
+-- This function is triggered when a player logs into the server.
+-- It can be used to welcome the player or perform initial setup.
+-- @param PlayerIndex (number) | The player's index.
 function OnLogin(PlayerIndex)
 
 end
 
+-- This function is triggered when a player's score is updated.
+-- It can be used to display score notifications or updates.
+-- @param PlayerIndex (number) | The player's index.
 function OnScore(PlayerIndex)
 
 end
 
+-- This function is triggered every tick of the game.
+-- It can be used for continuous checks or updates.
 function OnTick()
 
 end
 
+-- This function is triggered when a player betrays another player.
+-- It can be used for logging betrayals or punishing players.
+-- @param PlayerIndex (number) | The index of the player who betrayed.
+-- @param VictimIndex (number) | The index of the victim player.
 function OnBetray(PlayerIndex, VictimIndex)
 
 end
 
+-- This function is triggered when a player commits suicide.
+-- It can be used for tracking player deaths or for statistics.
+-- @param PlayerIndex (number) | The player's index.
 function OnSuicide(PlayerIndex)
 
 end
 
+-- This function is triggered when the game ends.
+-- It can be used for logging end-of-game statistics or cleanup.
 function OnGameEnd()
 
 end
 
+-- This function is triggered when a new game starts.
+-- It can be used to initialize game settings or notify players.
 function OnNewGame()
 
 end
 
+-- This function is triggered when the map is reset.
+-- It can be used for resetting game state or notifying players.
 function OnMapReset()
 
 end
 
+-- This function is triggered when a player exits an area.
+-- It can be used for tracking player movements or notifying players.
+-- @param PlayerIndex (number) | The player's index.
+-- @param AreaName (string) | The name of the area exited.
 function OnAreaExit(PlayerIndex, AreaName)
 
 end
 
+-- This function is triggered when a player enters an area.
+-- It can be used for tracking player movements or notifying players.
+-- @param PlayerIndex (number) | The player's index.
+-- @param AreaName (string) | The name of the area entered.
 function OnAreaEnter(PlayerIndex, AreaName)
 
 end
 
+-- This function is triggered when a player switches teams.
+-- It can be used for tracking team changes or notifying players.
+-- @param PlayerIndex (number) | The player's index.
 function OnTeamSwitch(PlayerIndex)
 
 end
 
+-- This function is triggered when a player joins the game.
+-- It can be used to welcome the player or perform initial setup.
+-- @param PlayerIndex (number) | The player's index.
 function OnPlayerJoin(PlayerIndex)
 
 end
 
+-- This function is triggered when a player sends a chat message.
+-- It can be used to log chat messages or enforce chat rules.
+-- @param PlayerIndex (number) | The player's index.
+-- @param Message (string) | The chat message sent by the player.
+-- @param Type (string) | The type of chat (e.g., public, private).
 function OnPlayerChat(PlayerIndex, Message, Type)
 
 end
 
+-- This function is triggered when a player drops a weapon.
+-- It can be used to track weapon drops or notify players.
+-- @param PlayerIndex (number) | The player's index.
+-- @param Slot (number) | The slot from which the weapon was dropped.
 function OnWeaponDrop(PlayerIndex, Slot)
 
 end
 
+-- This function is triggered when a player kills another player.
+-- It can be used to track kills or notify players about the kill.
+-- @param PlayerIndex (number) | The index of the player who killed.
+-- @param VictimIndex (number) | The index of the victim player.
 function OnPlayerKill(PlayerIndex, VictimIndex)
 
 end
 
+-- This function is triggered to check if a player is alive.
+-- It can be used for health checks or to prevent actions if the player is dead.
 function OnCheckAlive()
 
 end
 
+-- This function is triggered when a player dies.
+-- It can be used for tracking deaths or notifying players about the death.
+-- @param PlayerIndex (number) | The index of the player who died.
+-- @param KillerIndex (number) | The index of the player who killed.
 function OnPlayerDeath(PlayerIndex, KillerIndex)
 
 end
 
+-- This function is triggered when a player spawns in the game.
+-- It can be used for notifications or setting up the player's state.
+-- @param PlayerIndex (number) | The player's index.
 function OnPlayerSpawn(PlayerIndex)
 
 end
 
+-- This function is triggered when a player leaves the game.
+-- It can be used for logging player exits or updating player counts.
+-- @param PlayerIndex (number) | The player's index.
 function OnPlayerLeave(PlayerIndex)
 
 end
 
-function OnObjectSpawn(PlayerIndex, MapID, ParentID, ObjectID)
+-- This function is triggered when an object spawns in the game.
+-- It can be used to track objects or notify players.
+-- @param ObjectId (number) | The ID of the spawned object.
+function OnObjectSpawn(ObjectId)
 
 end
 
-function OnVehicleExit(PlayerIndex)
+-- This function is triggered when a player exits a vehicle.
+-- It can be used for tracking vehicle exits or notifying players.
+-- @param PlayerIndex (number) | The player's index.
+-- @param VehicleId (number) | The ID of the vehicle exited.
+function OnVehicleExit(PlayerIndex, VehicleId)
 
 end
 
-function OnWeaponPickup(PlayerIndex, WeaponIndex, Type)
+-- This function is triggered when a player picks up a weapon.
+-- It can be used for tracking weapon pickups or notifying players.
+-- @param PlayerIndex (number) | The player's index.
+-- @param WeaponId (number) | The ID of the weapon picked up.
+function OnWeaponPickup(PlayerIndex, WeaponId)
 
 end
 
-function OnVehicleEntry(PlayerIndex, Seat)
+-- This function is triggered when a player enters a vehicle.
+-- It can be used for tracking vehicle entries or notifying players.
+-- @param PlayerIndex (number) | The player's index.
+-- @param VehicleId (number) | The ID of the vehicle entered.
+function OnVehicleEntry(PlayerIndex, VehicleId)
 
 end
 
-function OnServerCommand(PlayerIndex, Command, Environment)
+-- This function is triggered when a command is executed on the server.
+-- It can be used for logging commands or enforcing command rules.
+-- @param PlayerIndex (number) | The player's index.
+-- @param Command (string) | The command executed.
+function OnServerCommand(PlayerIndex, Command)
 
 end
 
+-- This function is triggered before a player joins the game.
+-- It can be used to perform checks or notifications.
+-- @param PlayerIndex (number) | The player's index.
 function OnPlayerPrejoin(PlayerIndex)
 
 end
 
+-- This function is triggered before a player spawns in the game.
+-- It can be used for setting up the player's state before they spawn.
+-- @param PlayerIndex (number) | The player's index.
 function OnPlayerPrespawn(PlayerIndex)
 
 end
 
-function OnDamageApplication(PlayerIndex, CauserIndex, MetaID, Damage, HitString, Backtap)
+-- This function is triggered when damage is applied to a player.
+-- It can be used for tracking damage or implementing damage rules.
+-- @param PlayerIndex (number) | The player's index.
+-- @param Damage (number) | The amount of damage applied.
+function OnDamageApplication(PlayerIndex, Damage)
 
-end
-
---- USEFUL MISC FUNCTIONS ------------------------------------------------------------------------------
-function OnError(Message)
-    print(debug.traceback())
-end
-
-function TagInfo(obj_type, obj_name)
-    local tag_id = lookup_tag(obj_type, obj_name)
-    return tag_id ~= 0 and read_dword(tag_id + 0xC) or nil
-end
-
-function moveobject(ObjectID, x, y, z)
-    local object = get_object_memory(ObjectID)
-    if get_object_memory(ObjectID) ~= 0 then
-        local veh_obj = get_object_memory(read_dword(object + 0x11C))
-        write_vector3d((veh_obj ~= 0 and veh_obj or object) + 0x5C, x, y, z)
-    end
-end
-
-function GetObjectCoords(ObjectID)
-    local function round(pos, places)
-        local mult = 10 ^ (places or 0)
-        return math.floor(pos * mult + 0.5) / mult
-    end
-    local player = get_dynamic_player(PlayerIndex)
-    if (player ~= 0) then
-        local posX, posY, posZ = read_vector3d(player + 0x5C)
-        local vehicle = get_object_memory(read_dword(player + 0x11C))
-        if (vehicle ~= 0 and vehicle ~= nil) then
-            local vehiPosX, vehiPosY, vehiPosZ = read_vector3d(vehicle + 0x5C)
-            posX = posX + vehiPosX
-            posY = posY + vehiPosY
-            posZ = posZ + vehiPosZ
-        end
-        return round(posX, 2), round(posY, 2), round(posZ, 2)
-    end
-    return nil
-end
-
-function secondsToTime(seconds, places)
-    local minutes = math.floor(seconds / 60)
-    seconds = seconds % 60
-    if places == 2 then
-        return minutes, seconds
-    end
-end
-
-function table.match(table, value)
-    for k, v in pairs(table) do
-        if v == value then
-            return k
-        end
-    end
-end
-
-function clear_console(PlayerIndex)
-    for i = 1, 30 do
-        rprint(PlayerIndex, " ")
-    end
-end
-
-function PrintExclude(ExcludeIndex, Message)
-    for i = 1, 16 do
-        if player_present(i) then
-            if i ~= ExcludeIndex then
-                execute_command("msg_prefix \"\"")
-                say(i, " " .. Message)
-                execute_command("msg_prefix \" *  * SERVER *  * \"")
-            end
-        end
-    end
-end
-
-function SetNavMarker(Target)
-    for i = 1, 16 do
-        if player_present(i) then
-            local m_player = get_player(i)
-            local player = to_real_index(i)
-            if m_player ~= 0 then
-                if (Target ~= nil) then
-                    write_word(m_player + 0x88, to_real_index(Target))
-                else
-                    write_word(m_player + 0x88, player)
-                end
-            end
-        end
-    end
-end
-
-function GetVehicleObjectMemory(PlayerIndex)
-    local player = get_dynamic_player(PlayerIndex)
-    if (player ~= 0) then
-        local current_vehicle = get_object_memory(read_dword(player + 0x11C))
-        if (current_vehicle == nil) then
-            return nil
-        end
-        if (current_vehicle ~= 0 and current_vehicle ~= nil) then
-        end
-    end
-    return current_vehicle
-end
-
-function tokenizestring(inputString, separator)
-    if (separator == nil) then
-        separator = "%s"
-    end
-    local table = { };
-    index = 1
-    for string in string.gmatch(inputString, "([^" .. separator .. "]+)") do
-        table[index] = string
-        index = index + 1
-    end
-    return table
 end
