@@ -37,28 +37,28 @@ body:
         - label: PHASOR (10058)
         - label: PHASOR (10057)
         - label: PHASOR (Unsure)
-  - type: checkboxes
-    id: custom-map
-    attributes:
-      label: 🗺️ Custom Map Usage
-      description: "Will the script be executed on a custom (non-stock) map?"
-      options:
-        - label: Yes
-        - label: No
-        - label: Unsure
 #  - type: checkboxes
-#    id: gametype-specific
+#    id: custom-map
 #    attributes:
-#      label: 🎯 Gametype Specificity
-#      description: "Does your feature request require map or gametype specificity?"
+#      label: 🗺️ Custom Map Usage
+#      description: "Will the script be executed on a custom (non-stock) map?"
 #      options:
 #        - label: Yes
 #        - label: No
 #        - label: Unsure
-#  - type: textarea
-#    id: feature-description
-#    attributes:
-#      label: 📝 Feature Details
-#      description: "Provide a comprehensive description of your feature request. Include any relevant use cases or examples."
-#    validations:
-#      required: true
+  - type: checkboxes
+    id: gametype-specific
+    attributes:
+      label: 🎯 Gametype Specificity
+      description: "Does your feature request require map or gametype specificity?"
+      options:
+        - label: Yes
+        - label: No
+        - label: Unsure
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: 📝 Feature Details
+      description: "Provide a comprehensive description of your feature request. Include any relevant use cases or examples."
+    validations:
+      required: true
