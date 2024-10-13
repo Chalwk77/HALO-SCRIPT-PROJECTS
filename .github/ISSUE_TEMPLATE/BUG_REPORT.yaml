@@ -1,0 +1,46 @@
+name: 🐞 Bug Report
+description: ⚠️ Report bugs, glitches, or issues encountered in my scripts.
+title: "[BUG] <title>"
+labels: [ "Bug", "Needs Triage" ]
+assignees: Chalwk77
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **📌 Describe the bug**
+        > Provide a clear and concise description in the following sections.
+        > Use headers (`#`) or lists (`-`) to organize your thoughts.
+  - type: textarea
+    id: description-the-bug
+    attributes:
+      label: 🔄 Describe the bug
+      description: A clear and concise description of the bug.
+      placeholder: "1. Step 1, 2. Step 2, etc."
+    validations:
+      required: true
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: 🎯 Expected Behavior
+      description: Describe what should have happened if the bug hadn't occurred.
+      placeholder: "Explain the expected behaviour"
+    validations:
+      required: true
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: 📝 Additional Context
+      description: Write any other context or information about the bug here.
+      placeholder: "Further context or information here"
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: |
+        **📷 Screenshots**
+        > Include any relevant screenshots to help illustrate the bug.
+        >
+        >
+        > 🙌 Thank you
+        >
+        > **We appreciate your effort in reporting bugs on the JeriCraft server. Your input is invaluable!**

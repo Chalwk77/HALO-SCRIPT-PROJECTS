@@ -2,8 +2,7 @@ name: ✨ Feature Request
 description: 💡 Suggest an idea for enhancing Halo PC (SAPP/Phasor).
 title: "[FEATURE] <title>"
 labels: [ "Feature", "Needs Review" ]
-assignees: ''
-
+assignees: 'Chalwk77'
 body:
   - type: markdown
     attributes:
