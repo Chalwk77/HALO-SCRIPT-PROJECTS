@@ -1,5 +1,5 @@
 name: ✨ Feature Request
-description: 💡 Suggest an idea for enhancing Halo PC (SAPP/Phasor).
+description: 💡 Suggest enhancements for Halo PC (SAPP/Phasor).
 title: "[FEATURE] <title>"
 labels: [ "Feature", "Needs Review" ]
 assignees: 'Chalwk77'
@@ -7,44 +7,69 @@ body:
   - type: markdown
     attributes:
       value: |
-        ## 📋 Selection Checklist
-        - [ ] To mark your selection, put an 'x' between the brackets: [x]
+        **📋 Feature Request Submission**
+        > Thank you for your interest in enhancing Halo PC (SAPP/Phasor). Please provide a clear and detailed description of your feature request. Your input is invaluable to improving the experience for all players.
 
-        ### 🎮 Will the script be for Halo PC, CE, or BOTH?
-        * [ ] Halo PC
-        * [ ] Halo Custom Edition
-        * [ ] Both (cross compatibility)
+  - type: checkboxes
+    id: game-type
+    attributes:
+      label: 🎮 Target Game
+      description: Select the applicable game(s) for your feature request.
+      options:
+        - Halo PC (retail)
+        - Halo Custom Edition (CE)
+        - Both (cross-compatibility)
+    validations:
+      required: true
 
-        ### 🛠️ What server extension are you using?
-        * [ ] SAPP
-          * #### What version of SAPP are you using?
-            * [ ] 10.1
-            * [ ] 10.0
-            * [ ] 9.8.1
-            * [ ] Earlier version?
-            * [ ] Unsure
+  - type: checkboxes
+    id: server-extension
+    attributes:
+      label: 🛠️ Server Extension
+      description: Indicate the server extension you are utilizing.
+      options:
+        - SAPP (9.8.1)
+        - SAPP (10.0)
+        - SAPP (10.1)
+        - SAPP (Earlier version)
+        - SAPP (Unsure)
+        - PHASOR (2.0+)
+        - PHASOR (10059)
+        - PHASOR (10058)
+        - PHASOR (10057)
+        - PHASOR (Unsure)
+    validations:
+      required: true
 
-            <sub>You can find this information in your `sapp.log` file. When SAPP loads, it creates an entry in this file with a line that looks like this: `2017-05-25 12:30:0 LOAD SAPP was loaded, Version 10.0 CE`.</sub>
+  - type: checkboxes
+    id: custom-map
+    attributes:
+      label: 🗺️ Custom Map Usage
+      description: Will the script be executed on a custom (non-stock) map?
+      options:
+        - Yes
+        - No
+        - Unsure
+    validations:
+      required: true
 
-        * [ ] PHASOR
-          * #### What version of PHASOR are you using?
-            * [ ] 2.0+ (latest)
-            * [ ] 10059
-            * [ ] 10058
-            * [ ] 10057
-            * [ ] Unsure
+  - type: checkboxes
+    id: gametype-specific
+    attributes:
+      label: 🎯 Gametype Specificity
+      description: Does your feature request require map or gametype specificity?
+      options:
+        - Yes
+        - No
+        - Unsure
+    validations:
+      required: true
 
-        ### 🗺️ Will the script be run on a custom map? (non-stock)
-        * [ ] Yes
-        * [ ] No
-        * [ ] Unsure
-
-        ### 🎯 Will the script need to be map and/or gametype specific?
-        * [ ] Yes
-        * [ ] No
-        * [ ] Unsure
-
-        ## 📝 Script Details:
-        Please provide a detailed description of your feature request so I can assist you effectively.
-
-        _write your description here..._
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: 📝 Feature Details
+      description: Provide a comprehensive description of your feature request. Include any relevant use cases or examples.
+      placeholder: "Write your feature description here..."
+    validations:
+      required: true
