@@ -47,8 +47,8 @@ body:
       label: 🗺️ Custom Map Usage
       description: "Will the script be executed on a custom (non-stock) map?"
       options:
-        - label: YES
-        - label: NO
+        - label: YES234234
+        - label: NO 234234
 
 #  - type: checkboxes
 #    id: custom-map
