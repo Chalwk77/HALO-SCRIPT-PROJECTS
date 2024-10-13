@@ -1,15 +1,16 @@
 --[[
 --=====================================================================================================--
 Script Name: Timer Library, for SAPP (PC & CE)
-Description: This script provides a simple timer library for use in other scripts.
+Description: This library provides a simple timer utility for use in other scripts.
 
-Simply require this script in your script to use the following functions:
-timer:new()
-timer:start()
-timer:stop()
-timer:pause()
-timer:resume()
-timer:get()
+Usage:
+1. Require this script in your main script to use the following functions:
+   - timer:new()
+   - timer:start()
+   - timer:stop()
+   - timer:pause()
+   - timer:resume()
+   - timer:get()
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 Notice: You can use this script subject to the following conditions:
@@ -17,52 +18,53 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
-local timer = {}
+local Timer = {}
 local clock = os.clock
 
--- This is the constructor for the timer object.
-function timer:new()
-    local o = {}
-    setmetatable(o, self)
+-- Constructor for the Timer object
+function Timer:new()
+    local instance = setmetatable({}, self)
     self.__index = self
-    return o
+    return instance
 end
 
--- This function starts the timer.
-function timer:start()
+-- Starts the timer
+function Timer:start()
     self.start_time = clock()
     self.paused_time = 0
     self.paused = false
 end
 
--- This function stops the timer.
-function timer:stop()
+-- Stops the timer
+function Timer:stop()
     self.start_time = nil
     self.paused_time = 0
     self.paused = false
 end
 
--- This function pauses the timer.
-function timer:pause()
-    if (not self.paused) then
+-- Pauses the timer
+function Timer:pause()
+    if not self.paused then
         self.paused_time = clock()
         self.paused = true
     end
 end
 
--- This function resumes the timer.
-function timer:resume()
-    if (self.paused) then
+-- Resumes the timer
+function Timer:resume()
+    if self.paused then
         self.start_time = self.start_time + (clock() - self.paused_time)
         self.paused_time = 0
         self.paused = false
     end
 end
 
--- This function returns the elapsed time in seconds.
-function timer:get()
-    return self.start_time and (self.paused and self.paused_time - self.start_time or clock() - self.start_time) or 0
+-- Returns the elapsed time in seconds
+function Timer:get()
+    if self.start_time then
+        return self.paused and (self.paused_time - self.start_time) or (clock() - self.start_time)
+    end
+    return 0
 end
 
-
-return timer
+return Timer
