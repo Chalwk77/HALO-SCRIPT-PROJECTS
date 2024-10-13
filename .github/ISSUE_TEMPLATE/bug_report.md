@@ -1,38 +1,77 @@
----
-name: 🐛 Bug Report
-about: Click to create a bug report.
-title: ''
-labels: ''
-assignees: ''
-
----
-
-## 🐛 Describe the Bug
-
-A clear and concise description of what the bug is.
-
-## 🔄 To Reproduce
-
-**Steps to reproduce the behavior:**
-1. Do this: `...`
-2. Then do that: `...`
-3. Next, perform this: `...`
-4. See error
-
-## 📜 Expected Behavior
-
-A clear and concise description of what you expected to happen.
-
-## 🖼️ Screenshots
-
-If applicable, add screenshots to help explain your problem.
-
-## ✅ Please Complete the Following Information
-
-- **EXTENSION:** [e.g. SAPP, PHASOR]
-- **SAPP VERSION:** [e.g. 10.2.1]
-- **SCRIPT VERSION:** [e.g. 1.0.0, 1.0.1]
-
-## 📝 Additional Context
-
-Add any other context about the problem here. This may include logs, error messages, or any other relevant information.
+name: 🐞 Bug Report
+description: ⚠️ Report bugs, glitches, or issues encountered on the JeriCraft server.
+title: "[BUG] <title>"
+labels: [ "Bug", "Needs Triage" ]
+assignees: Chalwk77
+body:
+- type: markdown
+  attributes:
+  value: |
+  **📌 Describe the bug**
+  > Provide a clear and concise descriptions in the following sections.
+  > Use headers (`#`) or lists (`-`) to organize your thoughts.
+- type: textarea
+  id: minecraft-username
+  attributes:
+  label: 🎮 Minecraft Username
+  description: Provide your Minecraft username.
+  placeholder: "Your Minecraft Username"
+  validations:
+  required: true
+- type: textarea
+  id: date-time
+  attributes:
+  label: 🕒 Date and Time of the Incident (if known)
+  description: Provide the date and time of the incident.
+  validations:
+  required: false
+- type: textarea
+  id: describe-bug
+  attributes:
+  label: 🐛 Describe the bug
+  description: Describe the bug encountered on the JeriCraft server.
+  placeholder: "Describe the bug here"
+  validations:
+  required: true
+- type: textarea
+  id: location
+  attributes:
+  label: 📍 Location
+  description: Describe the location in the JeriCraft server where you experienced the bug.
+  placeholder: "Provide location details (coordinates, biome, or nearby structures)"
+  validations:
+  required: true
+- type: textarea
+  id: steps-to-reproduce
+  attributes:
+  label: 🔄 Steps to Reproduce
+  description: List the steps required to reproduce the bug.
+  placeholder: "1. Step 1, 2. Step 2, etc."
+  validations:
+  required: true
+- type: textarea
+  id: expected-behavior
+  attributes:
+  label: 🎯 Expected Behavior
+  description: Describe what should have happened if the bug hadn't occurred.
+  placeholder: "Explain the expected behavior"
+  validations:
+  required: true
+- type: textarea
+  id: additional-context
+  attributes:
+  label: 📝 Additional Context
+  description: Write any other context or information about the bug here.
+  placeholder: "Further context or information here"
+  validations:
+  required: true
+- type: markdown
+  attributes:
+  value: |
+  **📷 Screenshots**
+  > Include any relevant screenshots to help illustrate the bug.
+  >
+  >
+  > 🙌 Thank you
+  >
+  > **We appreciate your effort in reporting bugs on the JeriCraft server. Your input is invaluable!**
