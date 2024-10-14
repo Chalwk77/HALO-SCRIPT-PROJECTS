@@ -41,8 +41,8 @@ You can also support me by clicking the 👁️ **Watch** and ⭐ **Star** butto
 ### 🔥 What's Hot Right Now?
 
 1. [VPS Setup Instructions](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/Miscellaneous/VPS%20Setup%20Instructions.md)
-2. [Multi-Server (for PC & CE)](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/tag/multi-server)
-3. [Server Templates for PC & CE](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/tag/ReadyToGo)
+2. [Multi-Server (for PC & CE)](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/tag/multi-server) _Last Update: 15 October 2024_
+3. [Server Templates for PC & CE](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/tag/ReadyToGo) _Last Update: 15 October 2024_
 
 ---
 
