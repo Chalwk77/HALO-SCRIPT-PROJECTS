@@ -32,10 +32,15 @@ Description:
     flexibility for administrators to manually set the map cycle if desired. Permissions can be set to restrict
     who can add or remove maps from the cycles.
 
-    Prerequisites:
-    1. Disable SAPP's built-in map cycle feature for this script to function correctly.
-    2. Remove any commands that load maps from SAPP to avoid conflicts; this script is a drop-in replacement
-       for SAPP's built-in map cycle feature.
+    Automatic Map Cycle Adjustments:
+    The script includes an optional feature that allows for automatic adjustments of the map cycle based on the current player count.
+    When enabled, the script will dynamically change the map cycle to small, medium, or large maps based on the number of players in the game.
+    This feature can be toggled on or off by the server administrator.
+
+Prerequisites:
+1. Disable SAPP's built-in map cycle feature for this script to function correctly.
+2. Remove any commands that load maps from SAPP to avoid conflicts; this script is a drop-in replacement
+   for SAPP's built-in map cycle feature.
 
 Copyright (c) 2024, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -62,16 +67,16 @@ local config = {
     --    1-4 Admin access (only accessible to admins)
 
     commands = {
-        custom = { level = 1, aliases = { 'set_custom', 'use_custom', 'sv_set_custom' } },
-        classic = { level = 1, aliases = { 'set_classic', 'use_classic', 'sv_set_classic' } },
-        small = { level = 1, aliases = { 'set_small', 'use_small', 'sv_set_small' } },
-        medium = { level = 1, aliases = { 'set_medium', 'use_medium', 'sv_set_medium' } },
-        large = { level = 1, aliases = { 'set_large', 'use_large', 'sv_set_large' } },
+        custom = { level = 4, aliases = { 'set_custom', 'use_custom', 'sv_set_custom' } },
+        classic = { level = 4, aliases = { 'set_classic', 'use_classic', 'sv_set_classic' } },
+        small = { level = 4, aliases = { 'set_small', 'use_small', 'sv_set_small' } },
+        medium = { level = 4, aliases = { 'set_medium', 'use_medium', 'sv_set_medium' } },
+        large = { level = 4, aliases = { 'set_large', 'use_large', 'sv_set_large' } },
         whatis = { level = -1, aliases = { 'next_map_info', 'sv_next_map_info' } },
-        next = { level = 1, aliases = { 'next_map', 'nextmap', 'sv_next_map' } },
-        prev = { level = 1, aliases = { 'prevmap', 'prev_map', 'sv_prev_map' } },
-        restart = { level = 3, aliases = { 'restart_map_cycle', 'sv_restart_map_cycle' } },
-        loadmap = { level = 3, aliases = { 'load_map', 'sv_load_map' } }
+        next = { level = 4, aliases = { 'next_map', 'nextmap', 'sv_next_map' } },
+        prev = { level = 4, aliases = { 'prevmap', 'prev_map', 'sv_prev_map' } },
+        restart = { level = 4, aliases = { 'restart_map_cycle', 'sv_restart_map_cycle' } },
+        loadmap = { level = 4, aliases = { 'load_map', 'sv_load_map' } }
     },
 
 
@@ -164,6 +169,16 @@ local config = {
             { 'gephyrophobia', 'race' },
             { 'timberland', 'slayer' },
         }
+    },
+
+    ------------------------------------
+    -- Automatic Map Cycle Configuration
+    ------------------------------------
+    automatic_map_adjustments = {
+        enabled = true,
+        small = { min = 0, max = 4 }, -- Adjust the values as needed
+        medium = { min = 5, max = 12 }, -- Adjust the values as needed
+        large = { min = 13, max = 16 }, -- Adjust the values as needed
     }
 }
 
@@ -227,7 +242,6 @@ local function initializeMapCycle()
     -- Execute the command to load the selected map and gametype
     execute_command('map ' .. map .. ' ' .. gametype)
 end
-
 
 function OnScriptLoad()
     initializeMapCycle()
@@ -297,10 +311,39 @@ local function loadPrevMap()
     loadMap('prev')
 end
 
+local function adjustMapCycleBasedOnPlayerCount()
+    if not config.automatic_map_adjustments.enabled then
+        return false
+    end
+
+    local playerCount = tonumber(get_var(0, '$pn'))
+    local t = config.automatic_map_adjustments
+
+    local cycles = {
+        { type = 'SMALL', min = t.small.min, max = t.small.max },
+        { type = 'MEDIUM', min = t.medium.min, max = t.medium.max },
+        { type = 'LARGE', min = t.large.min, max = t.large.max },
+    }
+
+    for _, cycle in ipairs(cycles) do
+        if playerCount >= cycle.min and playerCount <= cycle.max then
+            mapcycleType = cycle.type
+            mapcycleIndex = 1
+            return true
+        end
+    end
+
+    return false
+end
+
 function OnGameEnd()
+
+    adjustMapCycleBasedOnPlayerCount()
+
     if next_map_flag then
         loadNextMap()
     end
+
     next_map_flag = false
 end
 
