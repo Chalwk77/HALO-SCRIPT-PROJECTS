@@ -167,14 +167,14 @@ local config = {
 -- Configuration ends
 --------------------------------------------
 
-local type
-local index
+local mapcycleType
+local mapcycleIndex
 local next_map_flag
 
 api_version = '1.12.0.0'
 
 local function getIndex(current_map, current_gametype)
-    local cycle = config.mapcycle[type]
+    local cycle = config.mapcycle[mapcycleType]
 
     for i = 1, #cycle do
         local map, gametype = cycle[i][1], cycle[i][2]
@@ -183,7 +183,7 @@ local function getIndex(current_map, current_gametype)
         end
     end
 
-    error('No map cycle found for ' .. current_map .. ' ' .. current_gametype .. ' in ' .. type .. ' cycle.')
+    error('No map cycle found for ' .. current_map .. ' ' .. current_gametype .. ' in ' .. mapcycleType .. ' cycle.')
 end
 
 local function shuffle(cycle)
@@ -209,16 +209,16 @@ local function initializeMapCycle()
     -- Shuffle all map cycles marked for randomization
     shuffleAllMapCycles()
 
-    local mapCycleType = config.default_mapcycle
+    mapcycleType = config.default_mapcycle
     local map = config.default_map
     local gametype = config.default_gametype
 
     -- Determine the index based on randomization settings
-    index = config.mapcycle_randomization[mapCycleType] and 1 or getIndex(map, gametype)
+    mapcycleIndex = config.mapcycle_randomization[mapcycleType] and 1 or getIndex(map, gametype)
 
     -- Retrieve the map and gametype based on the determined index
-    map = config.mapcycle[mapCycleType][index][1]
-    gametype = config.mapcycle[mapCycleType][index][2]
+    map = config.mapcycle[mapcycleType][mapcycleIndex][1]
+    gametype = config.mapcycle[mapcycleType][mapcycleIndex][2]
 
     -- Execute the command to load the selected map and gametype
     execute_command('map ' .. map .. ' ' .. gametype)
@@ -250,14 +250,14 @@ local function loadSpecificMap(playerId, map_name, gametype_name, mapcycle_type)
     end
 
     -- Switch to the specified map cycle type:
-    type = cycle_type
+    mapcycleType = cycle_type
 
     -- Check if the map exists in the specified map cycle:
-    local cycle = config.mapcycle[type]
+    local cycle = config.mapcycle[mapcycleType]
     for i = 1, #cycle do
         local map, gametype = cycle[i][1], cycle[i][2]
         if map == map_name and gametype == gametype_name then
-            index = i
+            mapcycleIndex = i
             execute_command('map ' .. map .. ' ' .. gametype)
             inform(playerId, 'Loading map [' .. map_name .. '] with gametype [' .. gametype_name .. '] from the [' .. mapcycle_type .. '] cycle.')
             return true
@@ -269,15 +269,15 @@ local function loadSpecificMap(playerId, map_name, gametype_name, mapcycle_type)
 end
 
 local function loadMap(direction)
-    local count = #config.mapcycle[type]
+    local count = #config.mapcycle[mapcycleType]
 
     if direction == 'next' then
-        index = (index % count) + 1
+        mapcycleIndex = (mapcycleIndex % count) + 1
     elseif direction == 'prev' then
-        index = (index - 2) % count + 1
+        mapcycleIndex = (mapcycleIndex - 2) % count + 1
     end
 
-    local map, gametype = config.mapcycle[type][index][1], config.mapcycle[type][index][2]
+    local map, gametype = config.mapcycle[mapcycleType][mapcycleIndex][1], config.mapcycle[mapcycleType][mapcycleIndex][2]
     execute_command('map ' .. map .. ' ' .. gametype)
 end
 
@@ -329,16 +329,16 @@ function string.split(str)
 end
 
 local function restartMapCycle()
-    index = 1
+    mapcycleIndex = 1
     next_map_flag = false
-    local map, gametype = config.mapcycle[type][1][1], config.mapcycle[type][1][2]
+    local map, gametype = config.mapcycle[mapcycleType][1][1], config.mapcycle[mapcycleType][1][2]
     execute_command('map ' .. map .. ' ' .. gametype)
 end
 
 local function getNextMap()
-    local count = #config.mapcycle[type]
-    index = (index % count) + 1
-    return config.mapcycle[type][index][1], config.mapcycle[type][index][2]
+    local count = #config.mapcycle[mapcycleType]
+    mapcycleIndex = (mapcycleIndex % count) + 1
+    return config.mapcycle[mapcycleType][mapcycleIndex][1], config.mapcycle[mapcycleType][mapcycleIndex][2]
 end
 
 function OnCommand(playerId, command)
@@ -352,20 +352,20 @@ function OnCommand(playerId, command)
             end
 
             if key == 'custom' or key == 'classic' or key == 'small' or key == 'medium' or key == 'large' then
-                type = key:upper()
-                index = 1
+                mapcycleType = key:upper()
+                mapcycleIndex = 1
                 next_map_flag = false
                 inform(playerId, 'Map cycle set to [' .. key:upper() .. '].')
-                execute_command('map ' .. config.mapcycle[type][1][1] .. ' ' .. config.mapcycle[type][1][2])
+                execute_command('map ' .. config.mapcycle[mapcycleType][1][1] .. ' ' .. config.mapcycle[mapcycleType][1][2])
             elseif key == 'next' then
                 loadNextMap()
-                inform(playerId, 'Loading next map in [' .. type .. '] cycle.')
+                inform(playerId, 'Loading next map in [' .. mapcycleType .. '] cycle.')
             elseif key == 'prev' then
                 loadPrevMap()
-                inform(playerId, 'Loading previous map in [' .. type .. '] cycle.')
+                inform(playerId, 'Loading previous map in [' .. mapcycleType .. '] cycle.')
             elseif key == 'whatis' then
                 local map, gametype = getNextMap()
-                inform(playerId, 'Next map in [' .. type .. '] cycle: ' .. map .. ' ' .. gametype)
+                inform(playerId, 'Next map in [' .. mapcycleType .. '] cycle: ' .. map .. ' ' .. gametype)
             elseif key == 'restart' then
                 restartMapCycle()
                 inform(playerId, 'Map cycle has been restarted.')
