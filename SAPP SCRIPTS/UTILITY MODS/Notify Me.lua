@@ -34,27 +34,59 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 local config = {
 
     -- General settings:
-    prefix = "", -- default empty
-    defaultColor = 12,
+    prefix = "", -- A prefix that can be added to all notifications. Default is empty.
+
+    -- The format for timestamps in notifications.
+    -- Use the following format for custom timestamps:
     timeStampFormat = "%A %d %B %Y - %X",
+
+    -- Breakdown of the format:
+    -- %A  - Full weekday name (e.g., "Monday", "Tuesday").
+    -- %d  - Day of the month as a decimal number (01-31).
+    -- %B  - Full month name (e.g., "January", "February").
+    -- %Y  - Year with century as a decimal number (e.g., "2024").
+    -- %X  - Time in the locale's format (HH:MM:SS).
+    --
+    -- Example output for the format: "Monday 16 October 2024 - 14:30:15"
+    -- The timestamp will be formatted according to the specified elements
+    -- and will provide a clear, human-readable date and time for events.
+
+    sapp_colors = { -- Table of SAPP colors and their corresponding numeric values.
+        black = 0,
+        blue = 1,
+        green = 2,
+        light_blue = 3,
+        red = 4,
+        purple = 5,
+        yellow = 6,
+        white = 7,
+        gray = 8,
+        light_gray = 9,
+        light_green = 10,
+        cyan = 11,
+        light_red = 12,
+        pink = 13,
+        light_yellow = 14,
+        orange = 15
+    },
 
     -- Console logo:
     logo = {
-        enabled = true,
-        text = {
-            { "================================================================================", 10 },
-            { "$timeStamp", 6 },
-            { "", 0 },
-            { "     '||'  '||'     |     '||'       ..|''||           ..|'''.| '||''''|  ", 12 },
-            { "      ||    ||     |||     ||       .|'    ||        .|'     '   ||  .    ", 12 },
-            { "      ||''''||    |  ||    ||       ||      ||       ||          ||''|    ", 12 },
-            { "      ||    ||   .''''|.   ||       '|.     ||       '|.      .  ||       ", 12 },
-            { "     .||.  .||. .|.  .||. .||.....|  ''|...|'         ''|....'  .||.....| ", 12 },
-            { "               ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-", 7 },
-            { "                             $serverName", 10 },
-            { "               ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-", 7 },
-            { "", 0 },
-            { "================================================================================", 10 }
+        enabled = true, -- Determines whether the logo should be printed on script load.
+        text = { -- Array of logo lines with the corresponding color for each line.
+            { "================================================================================", 'green' },
+            { "$timeStamp", 'yellow' }, -- Will be replaced by the current timestamp.
+            { "", 'black' },
+            { "     '||'  '||'     |     '||'       ..|''||           ..|'''.| '||''''|  ", 'red' },
+            { "      ||    ||     |||     ||       .|'    ||        .|'     '   ||  .    ", 'red' },
+            { "      ||''''||    |  ||    ||       ||      ||       ||          ||''|    ", 'red' },
+            { "      ||    ||   .''''|.   ||       '|.     ||       '|.      .  ||       ", 'red' },
+            { "     .||.  .||. .|.  .||. .||.....|  ''|...|'         ''|....'  .||.....| ", 'red' },
+            { "               ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-", 'gray' },
+            { "                             $serverName", 'green' }, -- Will be replaced by the server name.
+            { "               ->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-<->-", 'gray' },
+            { "", 'black' },
+            { "================================================================================", 'green' }
         }
     },
 
@@ -63,126 +95,123 @@ local config = {
         ["OnStart"] = {
             enabled = true,
             message = "A new game has started on $map - $mode",
-            color = 10
+            color = 'green'
         },
         ["OnEnd"] = {
             enabled = true,
             message = "The game has ended.",
-            color = 4
+            color = 'red'
         },
         ["OnPreJoin"] = {
             enabled = true,
             message = "________________________________________________________________________________\nPlayer attempting to connect to the server...\nPlayer: $playerName\nCD Hash: $cdHash\nIP Address: $ipAddress\nIndex ID: $indexID\nPrivilege Level: $privilegeLevel",
-            color = 10 -- Green
+            color = 'green'
         },
         ["OnJoin"] = {
             enabled = true,
             message = "Status: $playerName connected successfully.\nJoin Time: $joinTime\n________________________________________________________________________________",
-            color = 10 -- Green
+            color = 'green'
         },
-        -- OnQuit:
         ["OnQuit"] = {
             enabled = true,
             message = "________________________________________________________________________________\nPlayer: $playerName\nCD Hash: $cdHash\nIP Address: $ipAddress\nIndex ID: $indexID\nPrivilege Level: $privilegeLevel\nPing: $ping\n________________________________________________________________________________",
-            color = 12
+            color = 'red'
         },
         ["OnSpawn"] = {
             enabled = true,
             message = "$playerName spawned",
-            color = 14
+            color = 'light_yellow'
         },
-        -- OnSwitch:
         ["OnSwitch"] = {
             enabled = true,
             message = "$playerName switched teams. New team: [$team]",
-            color = 14
+            color = 'light_yellow'
         },
-        -- OnWarp:
         ["OnWarp"] = {
             enabled = true,
             message = "$playerName is warping",
-            color = 14
+            color = 'light_yellow'
         },
         ["OnReset"] = {
             enabled = true,
             message = "The map [$map / $mode] has been reset.",
-            color = 14
+            color = 'light_yellow'
         },
         ["OnLogin"] = {
             enabled = true,
             message = "$playerName logged in",
-            color = 14
+            color = 'light_yellow'
         },
         ["OnSnap"] = {
             enabled = true,
             message = "$playerName snapped",
-            color = 14
+            color = 'light_yellow'
         },
         ["OnCommand"] = {
             enabled = true,
             message = "[$type] $name ($id): $cmd",
-            color = 14
+            color = 'light_yellow'
         },
         ["OnChat"] = {
             enabled = true,
             message = "[$type] $name ($id): $msg",
-            color = 14
+            color = 'light_yellow'
         },
         ["OnDeath"] = {
             [1] = { -- first blood
                 enabled = true,
                 message = "$killerName drew first blood",
-                color = 10
+                color = 'green'
             },
             [2] = { -- killed from the grave
                 enabled = true,
                 message = "$victimName was killed from the grave by $killerName",
-                color = 10
+                color = 'green'
             },
             [3] = { -- vehicle kill
                 enabled = true,
                 message = "$victimName was run over by $killerName",
-                color = 10
+                color = 'green'
             },
             [4] = { -- pvp
                 enabled = true,
                 message = "$victimName was killed by $killerName",
-                color = 10
+                color = 'green'
             },
             [5] = { -- guardians
                 enabled = true,
                 message = "$victimName was killed by the guardians",
-                color = 10
+                color = 'green'
             },
             [6] = { -- suicide
                 enabled = true,
                 message = "$victimName committed suicide",
-                color = 10
+                color = 'green'
             },
             [7] = { -- betrayal
                 enabled = true,
                 message = "$victimName was betrayed by $killerName",
-                color = 10
+                color = 'green'
             },
             [8] = { -- squashed by a vehicle
                 enabled = true,
                 message = "$victimName was squashed by a vehicle",
-                color = 10
+                color = 'green'
             },
             [9] = { -- fall damage
                 enabled = true,
                 message = "$victimName fell and broke their leg",
-                color = 10
+                color = 'green'
             },
             [10] = { -- killed by the server
                 enabled = true,
                 message = "$victimName was killed by the server",
-                color = 10
+                color = 'green'
             },
             [11] = { -- unknown
                 enabled = true,
                 message = "$victimName died",
-                color = 10
+                color = 'green'
             }
         }
     }
@@ -234,6 +263,10 @@ local function parseMessageTemplate(messageTemplate, args)
     return message
 end
 
+local function getColor(colorString)
+    return config.sapp_colors[colorString]
+end
+
 local function notify(eventName, args)
 
     if config.events[eventName] then
@@ -255,8 +288,14 @@ local function notify(eventName, args)
 
         local message = parseMessageTemplate(messageTemplate, args)
         local notification = config.prefix .. message
-        local color = eventConfig.color or config.defaultColor
-        cprint(notification, color)
+        cprint(notification, getColor(eventConfig.color))
+    end
+end
+
+local function handlePlayerEvent(id, eventFunction)
+    local player = players[id]
+    if player then
+        eventFunction(player)
     end
 end
 
@@ -284,15 +323,25 @@ end
 
 function printLogo()
     local logo = config.logo
-    if logo.enabled then
-        local logoLines = logo.text
-        for _, line in ipairs(logoLines) do
-            local message = line[1]
-            if message then
-                message = message:gsub("$timeStamp", date(config.timeStampFormat))
-                message = message:gsub("$serverName", getServerName())
-                cprint(message, line[2])
-            end
+    if not logo.enabled then
+        return
+    end
+
+    for _, line in ipairs(logo.text) do
+        local message, color = line[1], getColor(line[2])
+        if message then
+            message = message:gsub("$timeStamp", date(config.timeStampFormat))
+                             :gsub("$serverName", getServerName())
+
+            cprint(message, color)
+        end
+    end
+end
+
+local function initializePlayers()
+    for i = 1, 16 do
+        if player_present(i) then
+            OnJoin(i)
         end
     end
 end
@@ -317,11 +366,7 @@ function OnStart()
             ["$mode"] = mode
         })
 
-        for i = 1, 16 do
-            if player_present(i) then
-                OnJoin(i)
-            end
-        end
+        initializePlayers()
     end
 end
 
@@ -333,10 +378,8 @@ function OnEnd()
 end
 
 function OnPreJoin(id)
-
-    local level = tonumber(get_var(id, '$lvl'))
-    players[id] = {
-        level = level,
+    local player = {
+        level = tonumber(get_var(id, '$lvl')),
         id = id,
         meta = 0,
         switched = false,
@@ -346,42 +389,39 @@ function OnPreJoin(id)
         hash = get_var(id, '$hash')
     }
 
-    local player = players[id]
+    players[id] = player
+
     notify("OnPreJoin", {
         ["$playerName"] = player.name,
         ["$ipAddress"] = player.ip,
         ["$cdHash"] = player.hash,
         ["$indexID"] = player.id,
-        ["$privilegeLevel"] = level,
+        ["$privilegeLevel"] = player.level,
         ["$joinTime"] = date(config.timeStampFormat)
     })
 end
 
 function OnJoin(id)
-    local player = players[id]
-    if player then
-        local timestamp = date(config.timeStampFormat)
+    handlePlayerEvent(id, function(player)
         notify("OnJoin", {
             ["$playerName"] = player.name,
-            ["$joinTime"] = timestamp
+            ["$joinTime"] = date(config.timeStampFormat)
         })
-    end
+    end)
 end
 
 function OnSpawn(id)
-    local player = players[id]
-    if player then
-        players[id].meta = 0
-        players[id].switched = nil
+    handlePlayerEvent(id, function(player)
+        player.meta = 0
+        player.switched = nil
         notify("OnSpawn", {
             ["$playerName"] = player.name
         })
-    end
+    end)
 end
 
 function OnQuit(id)
-    local player = players[id]
-    if (player) then
+    handlePlayerEvent(id, function(player)
         notify("OnQuit", {
             ["$playerName"] = player.name,
             ["$ipAddress"] = player.ip,
@@ -390,29 +430,27 @@ function OnQuit(id)
             ["$privilegeLevel"] = player.level,
             ["$ping"] = get_var(id, "$ping")
         })
-    end
-    players[id] = nil
+        players[id] = nil
+    end)
 end
 
 function OnSwitch(id)
-    local player = players[id]
-    if player then
+    handlePlayerEvent(id, function(player)
         player.team = get_var(id, '$team')
         player.switched = true
         notify("OnSwitch", {
             ["$playerName"] = player.name,
             ["$team"] = player.team
         })
-    end
+    end)
 end
 
 function OnWarp(id)
-    local player = players[id]
-    if player then
+    handlePlayerEvent(id, function(player)
         notify("OnWarp", {
             ["$playerName"] = player.name
         })
-    end
+    end)
 end
 
 function OnReset()
@@ -423,21 +461,19 @@ function OnReset()
 end
 
 function OnLogin(id)
-    local player = players[id]
-    if (player) then
+    handlePlayerEvent(id, function(player)
         notify("OnLogin", {
             ["$playerName"] = player.name
         })
-    end
+    end)
 end
 
 function OnSnap(id)
-    local player = players[id]
-    if (player) then
+    handlePlayerEvent(id, function(player)
         notify("OnSnap", {
             ["$playerName"] = player.name
         })
-    end
+    end)
 end
 
 local command_type = {
@@ -448,8 +484,7 @@ local command_type = {
 }
 
 function OnCommand(id, command, environment)
-    local player = players[id]
-    if (player and id > 0) then
+    handlePlayerEvent(id, function(player)
         local cmd = command:match("^(%S+)")
         notify("OnCommand", {
             ["$type"] = command_type[environment],
@@ -457,7 +492,7 @@ function OnCommand(id, command, environment)
             ["$id"] = id,
             ["$cmd"] = cmd
         })
-    end
+    end)
 end
 
 local chat_type = {
@@ -472,10 +507,9 @@ local function isCommand(str)
 end
 
 function OnChat(id, message, environment)
-    local player = players[id]
-    if (player and id > 0) then
+    handlePlayerEvent(id, function(player)
         local msg = message:match("^(%S+)")
-        if (not isCommand(msg)) then
+        if not isCommand(msg) then
             notify("OnChat", {
                 ["$type"] = chat_type[environment],
                 ["$name"] = player.name,
@@ -483,7 +517,7 @@ function OnChat(id, message, environment)
                 ["$msg"] = message
             })
         end
-    end
+    end)
 end
 
 function OnDeath(victimIndex, killerIndex, metaID)
