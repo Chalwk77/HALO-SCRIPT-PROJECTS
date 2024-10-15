@@ -3,36 +3,39 @@
 Script Name: Mapcycle Manager, for SAPP (PC & CE)
 Description:
 
-    The Mapcycle Manager script enables server administrators to efficiently manage map rotations and facilitates
-    the seamless switching between classic and custom map rotations using simple commands.
+    The Mapcycle Manager script enables server administrators to manage map rotations efficiently and
+    facilitates seamless switching between classic and custom map rotations using simple commands.
 
     Upon loading, the script initializes with a predefined set of classic maps and their corresponding
-    game types, as well as placeholders for custom maps. Administrators can easily switch between five modes:
+    game types and placeholders for custom maps. Administrators can easily switch between five modes:
 
-    - **Classic Mode**: Loads a predefined rotation of classic Halo maps.
-    - **Custom Mode**: Loads a rotation of user-defined custom maps.
-    - **Small Mode**: Loads a rotation of small maps.
-    - **Medium Mode**: Loads a rotation of medium maps.
-    - **Large Mode**: Loads a rotation of large maps.
+    - Classic Mode: Loads a predefined rotation of classic Halo maps.
+    - Custom Mode: Loads a rotation of user-defined custom maps.
+    - Small Mode: Loads a rotation of small maps.
+    - Medium Mode: Loads a rotation of medium maps.
+    - Large Mode: Loads a rotation of large maps.
 
-    The script supports JSON file storage for persistent map cycles, ensuring that map selections are
-    retained across server restarts. The commands for toggling the map cycles are simple and can be issued by players:
-    - Use **/custom** to set the mapcycle to all custom maps.
-    - Use **/classic** to set the mapcycle to all classic maps.
-    - Use **/small** to set the mapcycle to small maps only.
-    - Use **/medium** to set the mapcycle to medium maps only.
-    - Use **/large** to set the mapcycle to large maps only.
-    - Use **/nextmap** to show the next map in the cycle only.
-    - Use **/addmap <type> <map> <gametype>** to add a map to the specified cycle (requires permission).
-    - Use **/removemap <type> <map>** to remove a map from the specified cycle (requires permission).
+    The commands for toggling the map cycles are simple and can be issued by admins:
+
+    - /custom:                            Set the map cycle to all custom maps.
+    - /classic:                           Set the map cycle to all classic maps.
+    - /small:                             Set the map cycle to small maps only.
+    - /medium:                            Set the map cycle to medium maps only.
+    - /large:                             Set the map cycle to large maps only.
+    - /whatis:                            Provide information about the next map in the current cycle.
+    - /nextmap:                           Show and load the next map in the current cycle.
+    - /prev:                              Show and load the previous map in the current cycle.
+    - /restart:                           Restart the map cycle.
+    - /loadmap <map_name> <gametype_name> <mapcycle_type>:  Load a specific map and gametype from defined cycle.
 
     The script automatically cycles through the selected map rotation at the end of each game, with the
     flexibility for administrators to manually set the map cycle if desired. Permissions can be set to restrict
     who can add or remove maps from the cycles.
 
-    **Prerequisites**:
-    1. Disable SAPP's built-in mapcycle feature for this script to function correctly.
-    2. Place the `json.lua` library in the server's root directory (the same location as `sapp.dll` and `strings.dll`).
+    Prerequisites:
+    1. Disable SAPP's built-in map cycle feature for this script to function correctly.
+    2. Remove any commands that load maps from SAPP to avoid conflicts; this script is a drop-in replacement
+       for SAPP's built-in map cycle feature.
 
 Copyright (c) 2024, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
@@ -44,86 +47,119 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 -- Configuration starts
 --------------------------------------------
 
--- Commands to set the map cycle
-local commands = {
-    custom = 'custom',
-    classic = 'classic',
-    small = 'small',
-    medium = 'medium',
-    large = 'large',
-    nextmap = 'nextmap',
-    addmap = 'addmap',
-    removemap = 'removemap'
-}
+local config = {
 
--- File name for storing the map cycle
-local file_name = 'mapcycle.json'
+    ------------------------
+    -- Command Configuration
+    ------------------------
 
--- Minimum permission level required to change map cycle
-local required_permission = 1
+    -- Minimum permission level required to execute any command in the commands table:
+    required_permission = 1,
 
--- Default map cycle configuration
-local default_mapcycle = {
-
-    -- All map cycles are defined here.
-    -- Format: { 'map_name', 'gametype' }
-
-    CLASSIC = {
-        { 'bloodgulch', 'slayer' },
-        { 'boardingaction', 'slayer' },
-        { 'carousel', 'koth' },
-        { 'chillout', 'ctf' },
-        { 'damnation', 'ctf' },
-        { 'dangercanyon', 'slayer' },
-        { 'deathisland', 'slayer' },
-        { 'gephyrophobia', 'koth' },
-        { 'hangemhigh', 'slayer' },
-        { 'icefields', 'race' },
-        { 'infinity', 'ctf' },
-        { 'longest', 'slayer' },
-        { 'prisoner', 'slayer' },
-        { 'putput', 'ctf' },
-        { 'ratrace', 'race' },
-        { 'sidewinder', 'koth' },
-        { 'timberland', 'slayer' },
-        { 'wizard', 'koth' }
+    -- Table of commands for managing the map cycle in the game server:
+    -- Format: command_label = { 'alias1', 'alias2', ... }
+    commands = {
+        custom = { 'set_custom', 'use_custom', 'sv_set_custom' },
+        classic = { 'set_classic', 'use_classic', 'sv_set_classic' },
+        small = { 'set_small', 'use_small', 'sv_set_small' },
+        medium = { 'set_medium', 'use_medium', 'sv_set_medium' },
+        large = { 'set_large', 'use_large', 'sv_set_large' },
+        whatis = { 'next_map_info', 'sv_next_map_info' },
+        next = { 'next_map', 'sv_next_map' },
+        prev = { 'prev_map', 'sv_prev_map' },
+        restart = { 'restart_map_cycle', 'sv_restart_map_cycle' },
+        loadmap = { 'load_map', 'sv_load_map' }
     },
 
-    -- bloodgulch:LNZ-DAC:[bloodgulch]
-    -- beavercreek:LNZ-DAC:[beavercreek]
-    -- ratrace:LNZ-DAC:[ratrace]
-    -- icefields:LNZ-DAC:[icefields]
-    -- carousel:LNZ-DAC:[carousel]
-    -- chillout:LNZ-DAC:[chillout]
-    -- wizard:LNZ-DAC:[wizard]
-    -- timberland:LNZ-DAC:[timberland]
-    -- longest:LNZ-DAC:[longest]
-    -- hangemhigh:LNZ-DAC:[hangemhigh]
-    -- prisoner:LNZ-DAC:[prisoner]
-    -- damnation:LNZ-DAC:[damnation]
+    -----------------------------
+    -- Default Map Configuration
+    -----------------------------
 
-    CUSTOM = {
-        { 'custom_map1', 'ctf' },
-        { 'custom_map2', 'koth' },
-        { 'custom_map3', 'race' }
+    -- Specifies the default map cycle to be used when the script is loaded.
+    -- Options include 'CLASSIC', 'CUSTOM', 'SMALL', 'MEDIUM', and 'LARGE'.
+    default_mapcycle = 'CLASSIC',
+
+    -- Specifies the default map that will be loaded when the script is loaded.
+    -- Ensure the specified map is included in the chosen map cycle.
+    default_map = 'beavercreek',
+
+    -- Specifies the default game type to be used with the default map.
+    -- Ensure the specified gametype is included in the chosen map cycle.
+    default_gametype = 'ctf',
+
+    --------------------------
+    -- Map Cycle Configuration
+    --------------------------
+
+    -- Set to true to enable randomization of the map order in the map cycle.
+    -- When set to false, maps will be loaded in the defined order.
+    mapcycle_randomization = {
+        CLASSIC = false,
+        CUSTOM = false,
+        SMALL = false,
+        MEDIUM = false,
+        LARGE = false
     },
 
-    SMALL = {
-        { 'small_map1', 'slayer' },
-        { 'small_map2', 'koth' },
-        { 'small_map3', 'ctf' }
-    },
+    -- Format:
+    -- Each entry in the map cycle is structured as follows:
+    -- { map, gametype }
+    -- The map cycle is organized into different categories, allowing server administrators to switch between
+    -- classic, custom, small, medium, and large maps.
 
-    MEDIUM = {
-        { 'medium_map1', 'slayer' },
-        { 'medium_map2', 'koth' },
-        { 'medium_map3', 'ctf' }
-    },
-
-    LARGE = {
-        { 'large_map1', 'slayer' },
-        { 'large_map2', 'koth' },
-        { 'large_map3', 'ctf' }
+    mapcycle = {
+        CLASSIC = {
+            { 'beavercreek', 'ctf' },
+            { 'bloodgulch', 'ctf' },
+            { 'boardingaction', 'slayer' },
+            { 'carousel', 'koth' },
+            { 'chillout', 'race' },
+            { 'damnation', 'slayer' },
+            { 'dangercanyon', 'koth' },
+            { 'deathisland', 'oddball' },
+            { 'gephyrophobia', 'race' },
+            { 'hangemhigh', 'ctf' },
+            { 'icefields', 'slayer' },
+            { 'infinity', 'oddball' },
+            { 'longest', 'race' },
+            { 'prisoner', 'koth' },
+            { 'putput', 'slayer' },
+            { 'ratrace', 'ctf' },
+            { 'sidewinder', 'slayer' },
+            { 'timberland', 'koth' },
+            { 'wizard', 'oddball' }
+        },
+        CUSTOM = {
+            { 'custom_map1', 'ctf' },
+            { 'custom_map2', 'koth' },
+            { 'custom_map3', 'oddball' },
+            { 'custom_map4', 'race' },
+            { 'custom_map5', 'slayer' }
+        },
+        SMALL = {
+            { 'beavercreek', 'oddball' },
+            { 'chillout', 'ctf' },
+            { 'longest', 'race' },
+            { 'prisoner', 'slayer' },
+            { 'wizard', 'koth' },
+        },
+        MEDIUM = {
+            { 'carousel', 'koth' },
+            { 'damnation', 'oddball' },
+            { 'putput', 'race' },
+            { 'hangemhigh', 'slayer' },
+            { 'ratrace', 'ctf' },
+            { 'sidewinder', 'slayer' },
+        },
+        LARGE = {
+            { 'bloodgulch', 'race' },
+            { 'boardingaction', 'slayer' },
+            { 'deathisland', 'koth' },
+            { 'icefields', 'oddball' },
+            { 'infinity', 'ctf' },
+            { 'gephyrophobia', 'race' },
+            { 'timberland', 'slayer' },
+        }
     }
 }
 
@@ -131,168 +167,219 @@ local default_mapcycle = {
 -- Configuration ends
 --------------------------------------------
 
+local type
+local index
+local next_map_flag
+
 api_version = '1.12.0.0'
-local mapcycle = {}
-local json = loadfile('./json.lua')()
-local sapp_path, mapcycle_path
 
--- Function to handle file reading
-local function readFile(file)
-    local f = io.open(file, 'r')
-    if not f then
-        return ''
+local function getIndex(current_map, current_gametype)
+    local cycle = config.mapcycle[type]
+
+    for i = 1, #cycle do
+        local map, gametype = cycle[i][1], cycle[i][2]
+        if map == current_map and gametype == current_gametype then
+            return i
+        end
     end
-    local contents = f:read('*all')
-    f:close()
-    return contents
+
+    error('No map cycle found for ' .. current_map .. ' ' .. current_gametype .. ' in ' .. type .. ' cycle.')
 end
 
--- Function to handle file writing
-local function writeFile(file, contents)
-    local f = io.open(file, 'w')
-    if f then
-        f:write(json:encode_pretty(contents))
-        f:close()
-    else
-        cprint("Error: Unable to write to file " .. file)
+local function shuffle(cycle)
+    local len = #cycle
+    for i = len, 2, -1 do
+        local j = math.random(1, i)
+        cycle[i], cycle[j] = cycle[j], cycle[i]
     end
 end
 
--- Load file and decode JSON content
-local function loadFile(file)
-    local contents = readFile(file)
-    return contents ~= '' and json:decode(contents) or nil
+-- Shuffle all map cycles that are set to randomize:
+local function shuffleAllMapCycles()
+    for cycle_type, should_shuffle in pairs(config.mapcycle_randomization) do
+        if should_shuffle and config.mapcycle[cycle_type] then
+            shuffle(config.mapcycle[cycle_type])
+        end
+    end
 end
 
-local function setInitialMapCycle()
-    mapcycle.type = 'CLASSIC'
-    mapcycle.index = 1
-    mapcycle.set_manually = true
-    local map, gametype = mapcycle.CLASSIC[1][1], mapcycle.CLASSIC[1][2]
+local function initializeMapCycle()
+    next_map_flag = false
+
+    -- Shuffle all map cycles marked for randomization
+    shuffleAllMapCycles()
+
+    local mapCycleType = config.default_mapcycle
+    local map = config.default_map
+    local gametype = config.default_gametype
+
+    -- Determine the index based on randomization settings
+    index = config.mapcycle_randomization[mapCycleType] and 1 or getIndex(map, gametype)
+
+    -- Retrieve the map and gametype based on the determined index
+    map = config.mapcycle[mapCycleType][index][1]
+    gametype = config.mapcycle[mapCycleType][index][2]
+
+    -- Execute the command to load the selected map and gametype
     execute_command('map ' .. map .. ' ' .. gametype)
 end
 
+
 function OnScriptLoad()
-    sapp_path = read_string(read_dword(sig_scan('68??????008D54245468') + 0x1))
-    mapcycle_path = sapp_path .. '\\sapp\\' .. file_name
-
-    mapcycle = loadFile(mapcycle_path)
-    if not mapcycle then
-        writeFile(mapcycle_path, default_mapcycle)
-        mapcycle = default_mapcycle
-    end
-
-    setInitialMapCycle()
+    initializeMapCycle()
     register_callback(cb['EVENT_COMMAND'], 'OnCommand')
     register_callback(cb['EVENT_GAME_END'], 'OnGameEnd')
+    register_callback(cb['EVENT_GAME_START'], 'OnStart')
 end
 
 local function inform(playerId, message)
     if playerId == 0 then
-        cprint(message)  -- Print to console for server messages
+        cprint(message)
     else
-        rprint(playerId, message)  -- Print to specific player
+        rprint(playerId, message)
     end
 end
 
--- Generic map modification function
-local function modify_map(playerId, action, type, map, gametype)
-    type = type:upper()
+local function loadSpecificMap(playerId, map_name, gametype_name, mapcycle_type)
 
-    if not default_mapcycle[type] then
-        inform(playerId, 'Invalid map cycle type! Valid types: CLASSIC, CUSTOM, SMALL, MEDIUM, LARGE.')
-        return
+    local cycle_type = mapcycle_type:upper()
+
+    if not config.mapcycle[cycle_type] then
+        inform(playerId, 'Invalid map cycle type: ' .. mapcycle_type)
+        return false
     end
 
-    if action == 'add' then
-        table.insert(default_mapcycle[type], { map, gametype })
-        inform(playerId, 'Added map ' .. map .. ' with gametype ' .. gametype .. ' to ' .. type .. ' cycle.')
-    elseif action == 'remove' then
-        for i, entry in ipairs(default_mapcycle[type]) do
-            if entry[1] == map then
-                table.remove(default_mapcycle[type], i)
-                inform(playerId, 'Removed map ' .. map .. ' from ' .. type .. ' cycle.')
-                return
-            end
+    -- Switch to the specified map cycle type:
+    type = cycle_type
+
+    -- Check if the map exists in the specified map cycle:
+    local cycle = config.mapcycle[type]
+    for i = 1, #cycle do
+        local map, gametype = cycle[i][1], cycle[i][2]
+        if map == map_name and gametype == gametype_name then
+            index = i
+            execute_command('map ' .. map .. ' ' .. gametype)
+            inform(playerId, 'Loading map [' .. map_name .. '] with gametype [' .. gametype_name .. '] from the [' .. mapcycle_type .. '] cycle.')
+            return true
         end
-        inform(playerId, 'Map ' .. map .. ' not found in ' .. type .. ' cycle.')
     end
-    writeFile(mapcycle_path, default_mapcycle)  -- Save changes to the file
+
+    inform(playerId, 'Map ' .. map_name .. ' with gametype ' .. gametype_name .. ' not found in ' .. mapcycle_type .. ' cycle.')
+    return false
+end
+
+local function loadMap(direction)
+    local count = #config.mapcycle[type]
+
+    if direction == 'next' then
+        index = (index % count) + 1
+    elseif direction == 'prev' then
+        index = (index - 2) % count + 1
+    end
+
+    local map, gametype = config.mapcycle[type][index][1], config.mapcycle[type][index][2]
+    execute_command('map ' .. map .. ' ' .. gametype)
 end
 
 local function loadNextMap()
-    local type = mapcycle.type
-    mapcycle.index = (mapcycle.index % #mapcycle[type]) + 1
-    local map, gametype = mapcycle[type][mapcycle.index][1], mapcycle[type][mapcycle.index][2]
-    execute_command('map ' .. map .. ' ' .. gametype)
+    loadMap('next')
+end
+
+local function loadPrevMap()
+    loadMap('prev')
 end
 
 function OnGameEnd()
-    if not mapcycle.set_manually then
+    if next_map_flag then
         loadNextMap()
     end
-    mapcycle.set_manually = false
+    next_map_flag = false
 end
 
--- Custom function to set the map cycle
-local function set_mapcycle(playerId, type)
-    mapcycle.set_manually = true
-    mapcycle.type = type:upper()
-    mapcycle.index = 1
-    local map, gametype = mapcycle[mapcycle.type][1][1], mapcycle[mapcycle.type][1][2]
-    execute_command('map ' .. map .. ' ' .. gametype)
-    inform(playerId, 'Mapcycle set to ' .. type .. ': Next map is ' .. map .. ' (' .. gametype .. ')')
+function OnStart()
+    next_map_flag = true
+end
+
+local function isAlias(commandString, aliasTable)
+
+    for _, alias in ipairs(aliasTable) do
+        if commandString == alias then
+            return true
+        end
+    end
+
+    return false
 end
 
 local function hasPermission(playerId)
     local level = tonumber(get_var(playerId, '$lvl')) or 0
-    if playerId == 0 or level >= required_permission then
+    if playerId == 0 or level >= config.required_permission then
         return true
     end
     inform(playerId, 'You do not have permission to execute this command!')
     return false
 end
 
-local valid_commands = {
-    [commands.custom] = 'CUSTOM',
-    [commands.classic] = 'CLASSIC',
-    [commands.small] = 'SMALL',
-    [commands.medium] = 'MEDIUM',
-    [commands.large] = 'LARGE'
-}
-
-function OnCommand(playerId, command)
-    local cmd = command:lower()
-
-    if valid_commands[cmd] and hasPermission(playerId) then
-        set_mapcycle(playerId, valid_commands[cmd])
-        return false
-    elseif cmd == commands.nextmap then
-        local type = mapcycle.type
-        local next_index = (mapcycle.index % #mapcycle[type]) + 1
-        local next_map = mapcycle[type][next_index][1]
-        local next_gametype = mapcycle[type][next_index][2]
-        inform(playerId, 'Next map: ' .. next_map .. ' (' .. next_gametype .. ') Next index: [' .. next_index .. ']')
-        return false
-    elseif cmd:find(commands.addmap) == 1 and hasPermission(playerId) then
-        local args = { command:match('^/addmap%s+(%S+)%s+(%S+)%s+(%S+)$') }
-        if #args < 3 then
-            inform(playerId, 'Usage: /addmap <type> <map> <gametype>')
-        else
-            modify_map(playerId, 'add', args[1], args[2], args[3])
-        end
-        return false
-    elseif cmd:find(commands.removemap) == 1 and hasPermission(playerId) then
-        local args = { command:match('^/removemap%s+(%S+)%s+(%S+)$') }
-        if #args < 2 then
-            inform(playerId, 'Usage: /removemap <type> <map>')
-        else
-            modify_map(playerId, 'remove', args[1], args[2])
-        end
-        return false
+function string.split(str)
+    local t = { }
+    for arg in str:gmatch('([^%s]+)') do
+        t[#t + 1] = arg
     end
+    return t
 end
 
-function OnScriptUnload()
-    -- N/A
+local function restartMapCycle()
+    index = 1
+    next_map_flag = false
+    local map, gametype = config.mapcycle[type][1][1], config.mapcycle[type][1][2]
+    execute_command('map ' .. map .. ' ' .. gametype)
+end
+
+local function getNextMap()
+    local count = #config.mapcycle[type]
+    index = (index % count) + 1
+    return config.mapcycle[type][index][1], config.mapcycle[type][index][2]
+end
+
+function OnCommand(playerId, command)
+    local args = string.split(command)
+    local commandString = args[1]:lower()
+
+    for key, aliasTable in pairs(config.commands) do
+        if commandString == key or isAlias(commandString, aliasTable) then
+            if not hasPermission(playerId) then
+                return false
+            end
+
+            if key == 'custom' or key == 'classic' or key == 'small' or key == 'medium' or key == 'large' then
+                type = key:upper()
+                index = 1
+                next_map_flag = false
+                inform(playerId, 'Map cycle set to [' .. key:upper() .. '].')
+                execute_command('map ' .. config.mapcycle[type][1][1] .. ' ' .. config.mapcycle[type][1][2])
+            elseif key == 'next' then
+                loadNextMap()
+                inform(playerId, 'Loading next map in [' .. type .. '] cycle.')
+            elseif key == 'prev' then
+                loadPrevMap()
+                inform(playerId, 'Loading previous map in [' .. type .. '] cycle.')
+            elseif key == 'whatis' then
+                local map, gametype = getNextMap()
+                inform(playerId, 'Next map in [' .. type .. '] cycle: ' .. map .. ' ' .. gametype)
+            elseif key == 'restart' then
+                restartMapCycle()
+                inform(playerId, 'Map cycle has been restarted.')
+            elseif key == 'loadmap' then
+                if #args < 4 then
+                    inform(playerId, 'Usage: /loadmap <map_name> <gametype_name> <mapcycle_type>')
+                else
+                    local map_name = args[2]
+                    local gametype_name = args[3]
+                    local mapcycle_type = args[4]
+                    loadSpecificMap(playerId, map_name, gametype_name, mapcycle_type)
+                end
+            end
+            return false
+        end
+    end
 end
