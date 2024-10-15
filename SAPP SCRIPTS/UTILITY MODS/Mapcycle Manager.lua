@@ -65,8 +65,8 @@ local config = {
         medium = { 'set_medium', 'use_medium', 'sv_set_medium' },
         large = { 'set_large', 'use_large', 'sv_set_large' },
         whatis = { 'next_map_info', 'sv_next_map_info' },
-        next = { 'next_map', 'sv_next_map' },
-        prev = { 'prev_map', 'sv_prev_map' },
+        next = { 'next_map', 'nextmap', 'sv_next_map' },
+        prev = { 'prevmap', 'prev_map', 'sv_prev_map' },
         restart = { 'restart_map_cycle', 'sv_restart_map_cycle' },
         loadmap = { 'load_map', 'sv_load_map' }
     },
@@ -242,6 +242,7 @@ end
 
 local function loadSpecificMap(playerId, map_name, gametype_name, mapcycle_type)
 
+    next_map_flag = false
     local cycle_type = mapcycle_type:upper()
 
     if not config.mapcycle[cycle_type] then
@@ -269,6 +270,9 @@ local function loadSpecificMap(playerId, map_name, gametype_name, mapcycle_type)
 end
 
 local function loadMap(direction)
+
+    next_map_flag = false
+
     local count = #config.mapcycle[mapcycleType]
 
     if direction == 'next' then
@@ -329,8 +333,8 @@ function string.split(str)
 end
 
 local function restartMapCycle()
-    mapcycleIndex = 1
     next_map_flag = false
+    mapcycleIndex = 1
     local map, gametype = config.mapcycle[mapcycleType][1][1], config.mapcycle[mapcycleType][1][2]
     execute_command('map ' .. map .. ' ' .. gametype)
 end
