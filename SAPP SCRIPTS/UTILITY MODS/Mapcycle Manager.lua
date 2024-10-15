@@ -61,24 +61,27 @@ local config = {
     -- Table of commands for managing the map cycle in the game server:
     -- Each command can have multiple aliases for easier usage.
     -- The structure is as follows:
-    -- command_label = { level = <required_permission_level>, aliases = { 'alias1', 'alias2', ... } }
+    -- command_label = {
+    --     level = <required_permission_level>,
+    --     aliases = { 'alias1', 'alias2', ... },
+    --     cooldown = <time_in_seconds>
+    -- }
     -- Permission levels:
     --   -1: Public access (accessible to all players)
-    --    1-4 Admin access (only accessible to admins)
+    --    1-4: Admin access (only accessible to admins)
 
     commands = {
-        custom = { level = 4, aliases = { 'set_custom', 'use_custom', 'sv_set_custom' } },
-        classic = { level = 4, aliases = { 'set_classic', 'use_classic', 'sv_set_classic' } },
-        small = { level = 4, aliases = { 'set_small', 'use_small', 'sv_set_small' } },
-        medium = { level = 4, aliases = { 'set_medium', 'use_medium', 'sv_set_medium' } },
-        large = { level = 4, aliases = { 'set_large', 'use_large', 'sv_set_large' } },
-        whatis = { level = -1, aliases = { 'next_map_info', 'sv_next_map_info' } },
-        next = { level = 4, aliases = { 'next_map', 'nextmap', 'sv_next_map' } },
-        prev = { level = 4, aliases = { 'prevmap', 'prev_map', 'sv_prev_map' } },
-        restart = { level = 4, aliases = { 'restart_map_cycle', 'sv_restart_map_cycle' } },
-        loadmap = { level = 4, aliases = { 'load_map', 'sv_load_map' } }
+        custom = { level = 4, aliases = { 'set_custom', 'use_custom', 'sv_set_custom' }, cooldown = 10 },
+        classic = { level = 4, aliases = { 'set_classic', 'use_classic', 'sv_set_classic' }, cooldown = 10 },
+        small = { level = 4, aliases = { 'set_small', 'use_small', 'sv_set_small' }, cooldown = 10 },
+        medium = { level = 4, aliases = { 'set_medium', 'use_medium', 'sv_set_medium' }, cooldown = 10 },
+        large = { level = 4, aliases = { 'set_large', 'use_large', 'sv_set_large' }, cooldown = 10 },
+        whatis = { level = -1, aliases = { 'next_map_info', 'sv_next_map_info' }, cooldown = 10 },
+        next = { level = 4, aliases = { 'next_map', 'nextmap', 'sv_next_map' }, cooldown = 10 },
+        prev = { level = 4, aliases = { 'prevmap', 'prev_map', 'sv_prev_map' }, cooldown = 10 },
+        restart = { level = 4, aliases = { 'restart_map_cycle', 'sv_restart_map_cycle' }, cooldown = 10 },
+        loadmap = { level = 4, aliases = { 'load_map', 'sv_load_map' }, cooldown = 10 }
     },
-
 
     -----------------------------
     -- Default Map Configuration
@@ -175,7 +178,7 @@ local config = {
     -- Automatic Map Cycle Configuration
     ------------------------------------
     automatic_map_adjustments = {
-        enabled = true,
+        enabled = false,
         small = { min = 0, max = 4 }, -- Adjust the values as needed
         medium = { min = 5, max = 12 }, -- Adjust the values as needed
         large = { min = 13, max = 16 }, -- Adjust the values as needed
@@ -189,6 +192,7 @@ local config = {
 local mapcycleType
 local mapcycleIndex
 local next_map_flag
+local commandCooldowns
 
 api_version = '1.12.0.0'
 
@@ -248,6 +252,23 @@ function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'], 'OnCommand')
     register_callback(cb['EVENT_GAME_END'], 'OnGameEnd')
     register_callback(cb['EVENT_GAME_START'], 'OnStart')
+    register_callback(cb['EVENT_JOIN'], 'OnJoin')
+    register_callback(cb['EVENT_LEAVE'], 'OnQuit')
+
+    commandCooldowns = {}
+    for i = 1, 16 do
+        if player_present(i) then
+            OnJoin(i)
+        end
+    end
+end
+
+function OnJoin(playerId)
+    commandCooldowns[playerId] = {}
+end
+
+function OnQuit(playerId)
+    commandCooldowns[playerId] = nil
 end
 
 local function inform(playerId, message)
@@ -393,13 +414,38 @@ local function getNextMap()
     return config.mapcycle[mapcycleType][mapcycleIndex][1], config.mapcycle[mapcycleType][mapcycleIndex][2]
 end
 
+local function commandOnCooldown(playerId, key, cmdInfo)
+
+    if playerId == 0 then
+        return false
+    end
+
+    local currentTime = os.time()
+    local lastUsed = commandCooldowns[playerId][key] or 0
+
+    if currentTime < lastUsed + cmdInfo.cooldown then
+        local timeLeft = (lastUsed + cmdInfo.cooldown) - currentTime
+        inform(playerId, 'Command is on cooldown! Please wait ' .. timeLeft .. ' seconds.')
+        return true
+    end
+
+    commandCooldowns[playerId][key] = currentTime
+
+    return false
+end
+
 function OnCommand(playerId, command)
     local args = string.split(command)
     local commandString = args[1]:lower()
 
     for key, cmdInfo in pairs(config.commands) do
         if commandString == key or isAlias(commandString, cmdInfo.aliases) then
+
             if not hasPermission(playerId, key) then
+                return false
+            end
+
+            if commandOnCooldown(playerId, key, cmdInfo) then
                 return false
             end
 
