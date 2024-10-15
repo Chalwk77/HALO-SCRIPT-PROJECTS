@@ -53,23 +53,27 @@ local config = {
     -- Command Configuration
     ------------------------
 
-    -- Minimum permission level required to execute any command in the commands table:
-    required_permission = 1,
-
     -- Table of commands for managing the map cycle in the game server:
-    -- Format: command_label = { 'alias1', 'alias2', ... }
+    -- Each command can have multiple aliases for easier usage.
+    -- The structure is as follows:
+    -- command_label = { level = <required_permission_level>, aliases = { 'alias1', 'alias2', ... } }
+    -- Permission levels:
+    --   -1: Public access (accessible to all players)
+    --    1-4 Admin access (only accessible to admins)
+
     commands = {
-        custom = { 'set_custom', 'use_custom', 'sv_set_custom' },
-        classic = { 'set_classic', 'use_classic', 'sv_set_classic' },
-        small = { 'set_small', 'use_small', 'sv_set_small' },
-        medium = { 'set_medium', 'use_medium', 'sv_set_medium' },
-        large = { 'set_large', 'use_large', 'sv_set_large' },
-        whatis = { 'next_map_info', 'sv_next_map_info' },
-        next = { 'next_map', 'nextmap', 'sv_next_map' },
-        prev = { 'prevmap', 'prev_map', 'sv_prev_map' },
-        restart = { 'restart_map_cycle', 'sv_restart_map_cycle' },
-        loadmap = { 'load_map', 'sv_load_map' }
+        custom = { level = 1, aliases = { 'set_custom', 'use_custom', 'sv_set_custom' } },
+        classic = { level = 1, aliases = { 'set_classic', 'use_classic', 'sv_set_classic' } },
+        small = { level = 1, aliases = { 'set_small', 'use_small', 'sv_set_small' } },
+        medium = { level = 1, aliases = { 'set_medium', 'use_medium', 'sv_set_medium' } },
+        large = { level = 1, aliases = { 'set_large', 'use_large', 'sv_set_large' } },
+        whatis = { level = -1, aliases = { 'next_map_info', 'sv_next_map_info' } },
+        next = { level = 1, aliases = { 'next_map', 'nextmap', 'sv_next_map' } },
+        prev = { level = 1, aliases = { 'prevmap', 'prev_map', 'sv_prev_map' } },
+        restart = { level = 3, aliases = { 'restart_map_cycle', 'sv_restart_map_cycle' } },
+        loadmap = { level = 3, aliases = { 'load_map', 'sv_load_map' } }
     },
+
 
     -----------------------------
     -- Default Map Configuration
@@ -315,9 +319,10 @@ local function isAlias(commandString, aliasTable)
     return false
 end
 
-local function hasPermission(playerId)
+local function hasPermission(playerId, commandKey)
     local level = tonumber(get_var(playerId, '$lvl')) or 0
-    if playerId == 0 or level >= config.required_permission then
+    local requiredLevel = config.commands[commandKey].level
+    if playerId == 0 or level >= requiredLevel then
         return true
     end
     inform(playerId, 'You do not have permission to execute this command!')
@@ -349,9 +354,9 @@ function OnCommand(playerId, command)
     local args = string.split(command)
     local commandString = args[1]:lower()
 
-    for key, aliasTable in pairs(config.commands) do
-        if commandString == key or isAlias(commandString, aliasTable) then
-            if not hasPermission(playerId) then
+    for key, cmdInfo in pairs(config.commands) do
+        if commandString == key or isAlias(commandString, cmdInfo.aliases) then
+            if not hasPermission(playerId, key) then
                 return false
             end
 
