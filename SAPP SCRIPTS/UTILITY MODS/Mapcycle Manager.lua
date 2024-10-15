@@ -87,16 +87,9 @@ local config = {
     -- Default Map Configuration
     -----------------------------
 
-    -- Specifies the default map cycle to be used when the script is loaded.
-    -- Options include 'CLASSIC', 'CUSTOM', 'SMALL', 'MEDIUM', and 'LARGE'.
+    -- Specifies the default map cycle, map and gametype to be used when the script is loaded.
     default_mapcycle = 'CLASSIC',
-
-    -- Specifies the default map that will be loaded when the script is loaded.
-    -- Ensure the specified map is included in the chosen map cycle.
     default_map = 'beavercreek',
-
-    -- Specifies the default game type to be used with the default map.
-    -- Ensure the specified gametype is included in the chosen map cycle.
     default_gametype = 'ctf',
 
     --------------------------
@@ -196,22 +189,25 @@ local commandCooldowns
 
 api_version = '1.12.0.0'
 
-local function getIndex(current_map, current_gametype)
-    local cycle = config.mapcycle[mapcycleType]
+local function initializeCooldowns()
+    for i = 1, 16 do
+        if player_present(i) then
+            commandCooldowns[i] = {}
+        end
+    end
+end
 
-    for i = 1, #cycle do
-        local map, gametype = cycle[i][1], cycle[i][2]
-        if map == current_map and gametype == current_gametype then
+local function getMapIndex(current_map, current_gametype)
+    for i, cycle in ipairs(config.mapcycle[mapcycleType]) do
+        if cycle[1] == current_map and cycle[2] == current_gametype then
             return i
         end
     end
-
     error('No map cycle found for ' .. current_map .. ' ' .. current_gametype .. ' in ' .. mapcycleType .. ' cycle.')
 end
 
 local function shuffle(cycle)
-    local len = #cycle
-    for i = len, 2, -1 do
+    for i = #cycle, 2, -1 do
         local j = math.random(1, i)
         cycle[i], cycle[j] = cycle[j], cycle[i]
     end
@@ -220,10 +216,16 @@ end
 -- Shuffle all map cycles that are set to randomize:
 local function shuffleAllMapCycles()
     for cycle_type, should_shuffle in pairs(config.mapcycle_randomization) do
-        if should_shuffle and config.mapcycle[cycle_type] then
+        if should_shuffle then
             shuffle(config.mapcycle[cycle_type])
         end
     end
+end
+
+local function loadMapAndGametype(type, index)
+    local map = config.mapcycle[type][index][1]
+    local gametype = config.mapcycle[type][index][2]
+    execute_command('map ' .. map .. ' ' .. gametype)
 end
 
 local function initializeMapCycle()
@@ -237,18 +239,13 @@ local function initializeMapCycle()
     local gametype = config.default_gametype
 
     -- Determine the index based on randomization settings
-    mapcycleIndex = config.mapcycle_randomization[mapcycleType] and 1 or getIndex(map, gametype)
+    mapcycleIndex = config.mapcycle_randomization[mapcycleType] and 1 or getMapIndex(map, gametype)
 
-    -- Retrieve the map and gametype based on the determined index
-    map = config.mapcycle[mapcycleType][mapcycleIndex][1]
-    gametype = config.mapcycle[mapcycleType][mapcycleIndex][2]
-
-    -- Execute the command to load the selected map and gametype
-    execute_command('map ' .. map .. ' ' .. gametype)
+    loadMapAndGametype(mapcycleType, mapcycleIndex)
 end
 
 function OnScriptLoad()
-    initializeMapCycle()
+
     register_callback(cb['EVENT_COMMAND'], 'OnCommand')
     register_callback(cb['EVENT_GAME_END'], 'OnGameEnd')
     register_callback(cb['EVENT_GAME_START'], 'OnStart')
@@ -256,11 +253,8 @@ function OnScriptLoad()
     register_callback(cb['EVENT_LEAVE'], 'OnQuit')
 
     commandCooldowns = {}
-    for i = 1, 16 do
-        if player_present(i) then
-            OnJoin(i)
-        end
-    end
+    initializeMapCycle()
+    initializeCooldowns()
 end
 
 function OnJoin(playerId)
@@ -272,33 +266,26 @@ function OnQuit(playerId)
 end
 
 local function inform(playerId, message)
-    if playerId == 0 then
-        cprint(message)
-    else
-        rprint(playerId, message)
-    end
+    return playerId == 0 and cprint(message) or rprint(playerId, message)
 end
 
 local function loadSpecificMap(playerId, map_name, gametype_name, mapcycle_type)
 
     next_map_flag = false
-    local cycle_type = mapcycle_type:upper()
 
+    local cycle_type = mapcycle_type:upper()
     if not config.mapcycle[cycle_type] then
         inform(playerId, 'Invalid map cycle type: ' .. mapcycle_type)
         return false
     end
 
-    -- Switch to the specified map cycle type:
-    mapcycleType = cycle_type
-
-    -- Check if the map exists in the specified map cycle:
-    local cycle = config.mapcycle[mapcycleType]
+    local cycle = config.mapcycle[cycle_type]
     for i = 1, #cycle do
         local map, gametype = cycle[i][1], cycle[i][2]
         if map == map_name and gametype == gametype_name then
             mapcycleIndex = i
-            execute_command('map ' .. map .. ' ' .. gametype)
+            mapcycleType = cycle_type
+            loadMapAndGametype(mapcycleType, mapcycleIndex)
             inform(playerId, 'Loading map [' .. map_name .. '] with gametype [' .. gametype_name .. '] from the [' .. mapcycle_type .. '] cycle.')
             return true
         end
@@ -309,19 +296,16 @@ local function loadSpecificMap(playerId, map_name, gametype_name, mapcycle_type)
 end
 
 local function loadMap(direction)
-
     next_map_flag = false
 
     local count = #config.mapcycle[mapcycleType]
+    mapcycleIndex = (mapcycleIndex + (direction == 'next' and 1 or -1)) % count
 
-    if direction == 'next' then
-        mapcycleIndex = (mapcycleIndex % count) + 1
-    elseif direction == 'prev' then
-        mapcycleIndex = (mapcycleIndex - 2) % count + 1
+    if mapcycleIndex < 1 then
+        mapcycleIndex = count
     end
 
-    local map, gametype = config.mapcycle[mapcycleType][mapcycleIndex][1], config.mapcycle[mapcycleType][mapcycleIndex][2]
-    execute_command('map ' .. map .. ' ' .. gametype)
+    loadMapAndGametype(mapcycleType, mapcycleIndex)
 end
 
 local function loadNextMap()
@@ -353,18 +337,14 @@ local function adjustMapCycleBasedOnPlayerCount()
             return true
         end
     end
-
     return false
 end
 
 function OnGameEnd()
-
     adjustMapCycleBasedOnPlayerCount()
-
     if next_map_flag then
         loadNextMap()
     end
-
     next_map_flag = false
 end
 
@@ -373,13 +353,11 @@ function OnStart()
 end
 
 local function isAlias(commandString, aliasTable)
-
     for _, alias in ipairs(aliasTable) do
         if commandString == alias then
             return true
         end
     end
-
     return false
 end
 
@@ -394,9 +372,9 @@ local function hasPermission(playerId, commandKey)
 end
 
 function string.split(str)
-    local t = { }
-    for arg in str:gmatch('([^%s]+)') do
-        t[#t + 1] = arg
+    local t = {}
+    for word in str:gmatch("%S+") do
+        t[#t + 1] = word
     end
     return t
 end
@@ -404,33 +382,29 @@ end
 local function restartMapCycle()
     next_map_flag = false
     mapcycleIndex = 1
-    local map, gametype = config.mapcycle[mapcycleType][1][1], config.mapcycle[mapcycleType][1][2]
-    execute_command('map ' .. map .. ' ' .. gametype)
+    loadMapAndGametype(mapcycleType, mapcycleIndex)
 end
 
 local function getNextMap()
-    local count = #config.mapcycle[mapcycleType]
-    mapcycleIndex = (mapcycleIndex % count) + 1
-    return config.mapcycle[mapcycleType][mapcycleIndex][1], config.mapcycle[mapcycleType][mapcycleIndex][2]
+    local mapInfo = config.mapcycle[mapcycleType][(mapcycleIndex % #config.mapcycle[mapcycleType]) + 1]
+    return mapInfo[1], mapInfo[2]
 end
 
 local function commandOnCooldown(playerId, key, cmdInfo)
-
     if playerId == 0 then
         return false
     end
 
     local currentTime = os.time()
     local lastUsed = commandCooldowns[playerId][key] or 0
+    local cooldownTime = lastUsed + cmdInfo.cooldown
 
-    if currentTime < lastUsed + cmdInfo.cooldown then
-        local timeLeft = (lastUsed + cmdInfo.cooldown) - currentTime
-        inform(playerId, 'Command is on cooldown! Please wait ' .. timeLeft .. ' seconds.')
+    if currentTime < cooldownTime then
+        inform(playerId, 'Command is on cooldown! Please wait ' .. (cooldownTime - currentTime) .. ' seconds.')
         return true
     end
 
     commandCooldowns[playerId][key] = currentTime
-
     return false
 end
 
@@ -441,11 +415,7 @@ function OnCommand(playerId, command)
     for key, cmdInfo in pairs(config.commands) do
         if commandString == key or isAlias(commandString, cmdInfo.aliases) then
 
-            if not hasPermission(playerId, key) then
-                return false
-            end
-
-            if commandOnCooldown(playerId, key, cmdInfo) then
+            if not hasPermission(playerId, key) or commandOnCooldown(playerId, key, cmdInfo) then
                 return false
             end
 
@@ -454,7 +424,7 @@ function OnCommand(playerId, command)
                 mapcycleIndex = 1
                 next_map_flag = false
                 inform(playerId, 'Map cycle set to [' .. key:upper() .. '].')
-                execute_command('map ' .. config.mapcycle[mapcycleType][1][1] .. ' ' .. config.mapcycle[mapcycleType][1][2])
+                loadMapAndGametype(mapcycleType, mapcycleIndex)
             elseif key == 'next' then
                 loadNextMap()
                 inform(playerId, 'Loading next map in [' .. mapcycleType .. '] cycle.')
@@ -471,10 +441,7 @@ function OnCommand(playerId, command)
                 if #args < 4 then
                     inform(playerId, 'Usage: /loadmap <map_name> <gametype_name> <mapcycle_type>')
                 else
-                    local map_name = args[2]
-                    local gametype_name = args[3]
-                    local mapcycle_type = args[4]
-                    loadSpecificMap(playerId, map_name, gametype_name, mapcycle_type)
+                    loadSpecificMap(playerId, args[2], args[3], args[4])
                 end
             end
             return false
