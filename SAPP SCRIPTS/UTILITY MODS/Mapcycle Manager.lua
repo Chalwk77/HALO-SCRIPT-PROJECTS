@@ -175,7 +175,24 @@ local config = {
         small = { min = 0, max = 4 }, -- Adjust the values as needed
         medium = { min = 5, max = 12 }, -- Adjust the values as needed
         large = { min = 13, max = 16 }, -- Adjust the values as needed
-    }
+    },
+
+    --------------------------
+    -- Customizable Messages
+    --------------------------
+    messages = {
+        permission_denied = "You do not have permission to execute this command!",
+        command_on_cooldown = "Command is on cooldown! Please wait {seconds} seconds.",
+        invalid_map_cycle_type = "Invalid map cycle type: {cycle_type}",
+        map_loaded = "Loading map [{map_name}] with gametype [{gametype}] from the [{cycle_type}] cycle.",
+        map_not_found = "Map {map_name} with gametype {gametype} not found in {cycle_type} cycle.",
+        next_map_info = "Next map in [{cycle_type}] cycle: [{map_name}/{gametype}] -> {time_remaining}",
+        map_cycle_set = "Map cycle set to [{cycle_type}].",
+        loading_next_map = "Loading next map [{map_name}/{gametype}] in [{cycle_type}] cycle.",
+        loading_previous_map = "Loading previous map [{map_name}] in [{cycle_type}] cycle.",
+        map_cycle_restarted = "Map cycle [{cycle_type}] has been restarted.",
+        loadmap_usage = "Usage: /loadmap <map_name> <gametype_name> <mapcycle_type>"
+    },
 }
 
 --------------------------------------------
@@ -186,6 +203,9 @@ local mapcycleType
 local mapcycleIndex
 local next_map_flag
 local commandCooldowns
+local timelimit_address
+local tick_counter_address
+local sv_map_reset_tick_address
 
 api_version = '1.12.0.0'
 
@@ -244,6 +264,43 @@ local function initializeMapCycle()
     loadMapAndGametype(mapcycleType, mapcycleIndex)
 end
 
+local function loadTimelimitAddresses()
+    local tick_counter_sig = sig_scan("8B2D????????807D0000C644240600")
+    if (tick_counter_sig == 0) then
+        return
+    end
+
+    local sv_map_reset_tick_sig = sig_scan("8B510C6A018915????????E8????????83C404")
+    if (sv_map_reset_tick_sig == 0) then
+        return
+    end
+
+    local timelimit_location_sig = sig_scan("8B0D????????83C8FF85C97E17")
+    if (timelimit_location_sig == 0) then
+        return
+    end
+
+    timelimit_address = read_dword(timelimit_location_sig + 2)
+    sv_map_reset_tick_address = read_dword(sv_map_reset_tick_sig + 7)
+    tick_counter_address = read_dword(read_dword(tick_counter_sig + 2)) + 0xC
+end
+
+local floor, format = math.floor, string.format
+local function SecondsToTime(seconds)
+    local hr = floor(seconds / 3600)
+    local min = floor((seconds % 3600) / 60)
+    local sec = floor(seconds % 60)
+    return format("%02d:%02d:%02d", hr, min, sec)
+end
+
+local function getTimeRemaining()
+    local timelimit = read_dword(timelimit_address)
+    local tick_counter = read_dword(tick_counter_address)
+    local sv_map_reset_tick = read_dword(sv_map_reset_tick_address)
+    local time_remaining_in_seconds = floor((timelimit - (tick_counter - sv_map_reset_tick)) / 30)
+    return SecondsToTime(time_remaining_in_seconds)
+end
+
 function OnScriptLoad()
 
     register_callback(cb['EVENT_COMMAND'], 'OnCommand')
@@ -255,6 +312,7 @@ function OnScriptLoad()
     commandCooldowns = {}
     initializeMapCycle()
     initializeCooldowns()
+    loadTimelimitAddresses()
 end
 
 function OnJoin(playerId)
@@ -265,7 +323,16 @@ function OnQuit(playerId)
     commandCooldowns[playerId] = nil
 end
 
-local function inform(playerId, message)
+local function replacePlaceholders(message, placeholders)
+    for key, value in pairs(placeholders) do
+        message = message:gsub("{" .. key .. "}", tostring(value))
+    end
+    return message
+end
+
+-- Adjust existing functions to use the configurable messages:
+local function inform(playerId, message, placeholders)
+    message = replacePlaceholders(message, placeholders or {})
     return playerId == 0 and cprint(message) or rprint(playerId, message)
 end
 
@@ -275,7 +342,7 @@ local function loadSpecificMap(playerId, map_name, gametype_name, mapcycle_type)
 
     local cycle_type = mapcycle_type:upper()
     if not config.mapcycle[cycle_type] then
-        inform(playerId, 'Invalid map cycle type: ' .. mapcycle_type)
+        inform(playerId, config.messages.invalid_map_cycle_type, { cycle_type = mapcycle_type })
         return false
     end
 
@@ -286,12 +353,20 @@ local function loadSpecificMap(playerId, map_name, gametype_name, mapcycle_type)
             mapcycleIndex = i
             mapcycleType = cycle_type
             loadMapAndGametype(mapcycleType, mapcycleIndex)
-            inform(playerId, 'Loading map [' .. map_name .. '] with gametype [' .. gametype_name .. '] from the [' .. mapcycle_type .. '] cycle.')
+            inform(playerId, config.messages.map_loaded, {
+                map_name = map_name,
+                gametype = gametype_name,
+                cycle_type = mapcycle_type
+            })
             return true
         end
     end
 
-    inform(playerId, 'Map ' .. map_name .. ' with gametype ' .. gametype_name .. ' not found in ' .. mapcycle_type .. ' cycle.')
+    inform(playerId, config.messages.map_not_found, {
+        map_name = map_name,
+        gametype = gametype_name,
+        cycle_type = mapcycle_type
+    })
     return false
 end
 
@@ -367,7 +442,7 @@ local function hasPermission(playerId, commandKey)
     if playerId == 0 or level >= requiredLevel then
         return true
     end
-    inform(playerId, 'You do not have permission to execute this command!')
+    inform(playerId, config.messages.permission_denied)
     return false
 end
 
@@ -386,7 +461,14 @@ local function restartMapCycle()
 end
 
 local function getNextMap()
-    local mapInfo = config.mapcycle[mapcycleType][(mapcycleIndex % #config.mapcycle[mapcycleType]) + 1]
+    mapcycleIndex = (mapcycleIndex % #config.mapcycle[mapcycleType]) + 1
+    local mapInfo = config.mapcycle[mapcycleType][mapcycleIndex]
+    return mapInfo[1], mapInfo[2]
+end
+
+local function getPreviousMap()
+    mapcycleIndex = (mapcycleIndex - 2) % #config.mapcycle[mapcycleType] + 1
+    local mapInfo = config.mapcycle[mapcycleType][mapcycleIndex]
     return mapInfo[1], mapInfo[2]
 end
 
@@ -400,7 +482,7 @@ local function commandOnCooldown(playerId, key, cmdInfo)
     local cooldownTime = lastUsed + cmdInfo.cooldown
 
     if currentTime < cooldownTime then
-        inform(playerId, 'Command is on cooldown! Please wait ' .. (cooldownTime - currentTime) .. ' seconds.')
+        inform(playerId, config.messages.command_on_cooldown, { seconds = cooldownTime - currentTime })
         return true
     end
 
@@ -423,23 +505,40 @@ function OnCommand(playerId, command)
                 mapcycleType = key:upper()
                 mapcycleIndex = 1
                 next_map_flag = false
-                inform(playerId, 'Map cycle set to [' .. key:upper() .. '].')
+                inform(playerId, config.messages.map_cycle_set, { cycle_type = key:upper() })
                 loadMapAndGametype(mapcycleType, mapcycleIndex)
             elseif key == 'next' then
+                local map, gametype = getNextMap()
                 loadNextMap()
-                inform(playerId, 'Loading next map in [' .. mapcycleType .. '] cycle.')
+                inform(playerId, config.messages.loading_next_map, {
+                    map_name = map,
+                    gametype = gametype,
+                    cycle_type = mapcycleType
+                })
+
             elseif key == 'prev' then
+                local map, gametype = getPreviousMap()
                 loadPrevMap()
-                inform(playerId, 'Loading previous map in [' .. mapcycleType .. '] cycle.')
+                inform(playerId, config.messages.loading_previous_map, {
+                    map_name = map,
+                    gametype = gametype,
+                    cycle_type = mapcycleType
+                })
             elseif key == 'whatis' then
                 local map, gametype = getNextMap()
-                inform(playerId, 'Next map in [' .. mapcycleType .. '] cycle: ' .. map .. ' ' .. gametype)
+                local time_remaining = getTimeRemaining()
+                inform(playerId, config.messages.next_map_info, {
+                    map_name = map,
+                    gametype = gametype,
+                    cycle_type = mapcycleType,
+                    time_remaining = time_remaining
+                })
             elseif key == 'restart' then
                 restartMapCycle()
-                inform(playerId, 'Map cycle has been restarted.')
+                inform(playerId, config.messages.map_cycle_restarted, {cycle_type = mapcycleType})
             elseif key == 'loadmap' then
                 if #args < 4 then
-                    inform(playerId, 'Usage: /loadmap <map_name> <gametype_name> <mapcycle_type>')
+                    inform(playerId, config.messages.loadmap_usage)
                 else
                     loadSpecificMap(playerId, args[2], args[3], args[4])
                 end
