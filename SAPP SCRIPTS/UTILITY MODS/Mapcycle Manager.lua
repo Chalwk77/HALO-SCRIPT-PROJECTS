@@ -6,8 +6,8 @@ Description:
     The Mapcycle Manager script enables server administrators to manage map rotations efficiently and
     facilitates seamless switching between classic and custom map rotations using simple commands.
 
-    Upon loading, the script initializes with a predefined set of classic maps and their corresponding
-    game types and placeholders for custom maps. Administrators can easily switch between five modes:
+    Upon loading, the script initializes with a predefined set of classic maps, their corresponding
+    game types, and placeholders for custom maps. Administrators can easily switch between five modes:
 
     - Classic Mode: Loads a predefined rotation of classic Halo maps.
     - Custom Mode: Loads a rotation of user-defined custom maps.
@@ -26,7 +26,7 @@ Description:
     - /nextmap:                           Show and load the next map in the current cycle.
     - /prev:                              Show and load the previous map in the current cycle.
     - /restart:                           Restart the map cycle.
-    - /loadmap <map_name> <gametype_name> <mapcycle_type>:  Load a specific map and gametype from defined cycle.
+    - /loadmap <map_name> <gametype_name> <mapcycle_type>:  Load a specific map and gametype from the defined cycle.
 
     The script automatically cycles through the selected map rotation at the end of each game, with the
     flexibility for administrators to manually set the map cycle if desired. Permissions can be set to restrict
@@ -36,6 +36,39 @@ Description:
     The script includes an optional feature that allows for automatic adjustments of the map cycle based on the current player count.
     When enabled, the script will dynamically change the map cycle to small, medium, or large maps based on the number of players in the game.
     This feature can be toggled on or off by the server administrator.
+
+    The configuration settings for this script can be customized as follows:
+
+    ------------------------
+    -- Command Configuration
+    ------------------------
+    Each command can have an associated permission level, aliases for ease of use, and a cooldown period.
+    Example: The command `/custom` has a permission level of 4, aliases like `set_custom`, and a cooldown of 10 seconds.
+
+    -----------------------------
+    -- Default Map Configuration
+    -----------------------------
+    - `default_mapcycle`: Sets the default map cycle upon loading (options: 'CLASSIC', 'CUSTOM', etc.).
+    - `default_map`: Specifies the default map to load when the script starts (e.g., 'beavercreek').
+    - `default_gametype`: Defines the default gametype to use (e.g., 'ctf').
+
+    --------------------------
+    -- Map Cycle Configuration
+    --------------------------
+    - `mapcycle_randomization`: Allows enabling/disabling randomization for each map cycle type.
+    - `mapcycle`: Defines the maps and gametypes for each rotation (CLASSIC, CUSTOM, SMALL, MEDIUM, LARGE).
+
+    ------------------------------------
+    -- Automatic Map Cycle Configuration
+    ------------------------------------
+    - `automatic_map_adjustments`: Enables or disables automatic map cycle adjustments based on player count.
+        - `enabled`: Set to `true` to enable this feature.
+        - `small`, `medium`, `large`: Specify player count ranges for each map size.
+
+    --------------------------
+    -- Customizable Messages
+    --------------------------
+    Customize messages displayed to players for various script events, such as permission denial or map loading.
 
 Prerequisites:
 1. Disable SAPP's built-in map cycle feature for this script to function correctly.
@@ -57,19 +90,7 @@ local config = {
     ------------------------
     -- Command Configuration
     ------------------------
-
-    -- Table of commands for managing the map cycle in the game server:
-    -- Each command can have multiple aliases for easier usage.
-    -- The structure is as follows:
-    -- command_label = {
-    --     level = <required_permission_level>,
-    --     aliases = { 'alias1', 'alias2', ... },
-    --     cooldown = <time_in_seconds>
-    -- }
-    -- Permission levels:
-    --   -1: Public access (accessible to all players)
-    --    1-4: Admin access (only accessible to admins)
-
+    -- Each command has a permission level, aliases for ease of use, and a cooldown period.
     commands = {
         custom = { level = 4, aliases = { 'set_custom', 'use_custom', 'sv_set_custom' }, cooldown = 10 },
         classic = { level = 4, aliases = { 'set_classic', 'use_classic', 'sv_set_classic' }, cooldown = 10 },
@@ -86,18 +107,17 @@ local config = {
     -----------------------------
     -- Default Map Configuration
     -----------------------------
-
-    -- Specifies the default map cycle, map and gametype to be used when the script is loaded.
+    -- Sets the default map cycle upon loading (options: 'CLASSIC', 'CUSTOM', etc.).
     default_mapcycle = 'CLASSIC',
+    -- Specifies the default map to load when the script starts (e.g., 'beavercreek').
     default_map = 'beavercreek',
+    -- Defines the default gametype to use (e.g., 'ctf').
     default_gametype = 'ctf',
 
     --------------------------
     -- Map Cycle Configuration
     --------------------------
-
-    -- Set to true to enable randomization of the map order in the map cycle.
-    -- When set to false, maps will be loaded in the defined order.
+    -- Allows enabling/disabling randomization for each map cycle type.
     mapcycle_randomization = {
         CLASSIC = false,
         CUSTOM = false,
@@ -106,12 +126,7 @@ local config = {
         LARGE = false
     },
 
-    -- Format:
-    -- Each entry in the map cycle is structured as follows:
-    -- { map, gametype }
-    -- The map cycle is organized into different categories, allowing server administrators to switch between
-    -- classic, custom, small, medium, and large maps.
-
+    -- Defines the maps and gametypes for each rotation (CLASSIC, CUSTOM, SMALL, MEDIUM, LARGE).
     mapcycle = {
         CLASSIC = {
             { 'beavercreek', 'ctf' },
@@ -170,11 +185,12 @@ local config = {
     ------------------------------------
     -- Automatic Map Cycle Configuration
     ------------------------------------
+    -- Enables or disables automatic map cycle adjustments based on player count.
     automatic_map_adjustments = {
         enabled = false,
-        small = { min = 0, max = 4 }, -- Adjust the values as needed
-        medium = { min = 5, max = 12 }, -- Adjust the values as needed
-        large = { min = 13, max = 16 }, -- Adjust the values as needed
+        small = { min = 1, max = 4 },  -- Player count range for small maps
+        medium = { min = 5, max = 10 }, -- Player count range for medium maps
+        large = { min = 11, max = 16 }  -- Player count range for large maps
     },
 
     --------------------------
@@ -192,7 +208,7 @@ local config = {
         loading_previous_map = "Loading previous map [{map_name}] in [{cycle_type}] cycle.",
         map_cycle_restarted = "Map cycle [{cycle_type}] has been restarted.",
         loadmap_usage = "Usage: /loadmap <map_name> <gametype_name> <mapcycle_type>"
-    },
+    }
 }
 
 --------------------------------------------
@@ -233,7 +249,6 @@ local function shuffle(cycle)
     end
 end
 
--- Shuffle all map cycles that are set to randomize:
 local function shuffleAllMapCycles()
     for cycle_type, should_shuffle in pairs(config.mapcycle_randomization) do
         if should_shuffle then
@@ -251,14 +266,12 @@ end
 local function initializeMapCycle()
     next_map_flag = false
 
-    -- Shuffle all map cycles marked for randomization
     shuffleAllMapCycles()
 
     mapcycleType = config.default_mapcycle
     local map = config.default_map
     local gametype = config.default_gametype
 
-    -- Determine the index based on randomization settings
     mapcycleIndex = config.mapcycle_randomization[mapcycleType] and 1 or getMapIndex(map, gametype)
 
     loadMapAndGametype(mapcycleType, mapcycleIndex)
@@ -330,7 +343,6 @@ local function replacePlaceholders(message, placeholders)
     return message
 end
 
--- Adjust existing functions to use the configurable messages:
 local function inform(playerId, message, placeholders)
     message = replacePlaceholders(message, placeholders or {})
     return playerId == 0 and cprint(message) or rprint(playerId, message)
@@ -515,7 +527,6 @@ function OnCommand(playerId, command)
                     gametype = gametype,
                     cycle_type = mapcycleType
                 })
-
             elseif key == 'prev' then
                 local map, gametype = getPreviousMap()
                 loadPrevMap()

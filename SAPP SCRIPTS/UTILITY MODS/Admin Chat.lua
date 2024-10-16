@@ -1,8 +1,20 @@
+--[[
+--=====================================================================================================--
+Script Name: Admin Chat, for SAPP (PC & CE)
+Description: This script enables a dedicated Admin Chat feature, allowing administrators to
+             communicate privately using a toggleable chat system.
+
+Copyright (c) 2024, Jericho Crosby <jericho.crosby227@gmail.com>
+Notice: You can use this script subject to the following conditions:
+https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
+--=====================================================================================================--
+]]--
+
 -- CONFIGURATION ----------------------------------------------------------------
--- Admin Chat settings
+
 local AdminChat = {
-    -- Command to toggle admin chat
-    command = 'AdminChat',
+    -- Command to toggle admin chat on or off
+    command = 'achat',
 
     -- Minimum permission level required to execute the command
     permission = 1,
@@ -27,77 +39,60 @@ function OnScriptLoad()
     register_callback(cb['EVENT_COMMAND'], 'OnCommand')
     register_callback(cb['EVENT_GAME_START'], 'OnStart')
 
-    -- Call OnStart for initial setup
     OnStart()
 end
 
--- Admin Chat player object
-function AdminChat:newPlayer(o)
-
-    -- Set player object metatable
+-- Constructor for AdminChat player object
+function AdminChat:new(o)
+    o = o or {}
     setmetatable(o, self)
     self.__index = self
-    
-    -- Function to get player level
-    o.lvl = function()
-        return tonumber(get_var(o.id, '$lvl'))
-    end
 
-    -- Set admin chat state based on permission and default state
-    local state = (o.lvl() >= self.permission and self.enabled_by_default)
-    o.state = (state or false)
+    -- Initialize player-specific properties
+    o.lvl = tonumber(get_var(o.id, '$lvl'))
+    o.state = (o.lvl >= self.permission and self.enabled_by_default) or false
 
     return o
 end
 
--- Toggle admin chat
+-- Toggle admin chat state
 function AdminChat:Toggle()
-    if (self.lvl() >= self.permission) then
-        self.state = (not self.state and true or false)
-        
-        -- Print admin chat status
-        rprint(self.id, 'Admin Chat ' .. (self.state and 'on' or not self.state and 'off'))
+    if self:hasPermission() then
+        self.state = not self.state
+        rprint(self.id, 'Admin Chat ' .. (self.state and 'on' or 'off'))
     else
-        -- Print insufficient permission message
         rprint(self.id, 'Insufficient Permission')
     end
 end
 
+-- Check if the player has permission to use admin chat
+function AdminChat:hasPermission()
+    return self.lvl >= self.permission
+end
+
 -- Show admin chat message
-function AdminChat:showMessage(M)
+function AdminChat:showMessage(message)
+    local msg_format = self.output:gsub('$name', self.name):gsub('$msg', message)
     local response = true
-    local msg = self.output
-    
-    -- Iterate through players
+
     for i = 1, 16 do
-        if (player_present(i)) then
-            local t = players[i]
-            
-            -- If admin chat is enabled for the player
-            if (t.state) then
-                
-                -- Set response to false and print admin chat message
+        if player_present(i) then
+            local player = players[i]
+            if player.state then
                 response = false
-                rprint(i, msg:gsub('$name', self.name):gsub('$msg', M))
+                rprint(i, msg_format)
             end
         end
     end
+
     return response
 end
 
 -- Handle game start event
 function OnStart()
-    
-    -- If game type is not 'n/a'
-    if (get_var(0, '$gt') ~= 'n/a') then
-        
-        -- Clear players table
+    if get_var(0, '$gt') ~= 'n/a' then
         players = {}
-        
-        -- Iterate through player IDs
         for i = 1, 16 do
-            
-            -- If player is present, call OnJoin event
             if player_present(i) then
                 OnJoin(i)
             end
@@ -106,52 +101,41 @@ function OnStart()
 end
 
 -- Handle command event
-function OnCommand(P, CMD)
-    local t = players[P]
-    
-    -- Convert command to lowercase
-    local cmd = CMD:sub(1, CMD:len()):lower()
+function OnCommand(playerId, command)
+    local player = players[playerId]
+    command = command:lower()
 
-    -- If player object exists and command matches the custom command
-    if (t and cmd == t.command) then
-        
-        -- Toggle admin chat and return false to disable default command handling
-        t:Toggle()
+    if player and command == player.command:lower() then
+        player:Toggle()
         return false
     end
 end
 
--- Check if a string is a command
-local function isCommand(s)
-    
-    -- Return true if the string starts with '/' or '\\'
-    return (s:sub(1, 1) == '/' or s:sub(1, 1) == '\\')
+-- Check if a message is a command
+local function isCommand(msg)
+    return msg:sub(1, 1) == '/' or msg:sub(1, 1) == '\\'
 end
 
 -- Handle chat event
-function showMessage(P, M)
-    local t = players[P]
+function showMessage(playerId, message)
+    local player = players[playerId]
 
-    -- If message is not a command and admin chat is enabled for the player
-    if (not isCommand(M) and t.state) then
-        
-        -- Call AdminChat:showMessage and return its result
-        return t:showMessage(M)
+    if player and not isCommand(message) and player.state then
+        return player:showMessage(message)
     end
 end
 
 -- Handle player join event
-function OnJoin(P)
-    players[P] = AdminChat:newPlayer({
-        -- Set player object properties
-        id = P,
-        name = get_var(P, '$name')
+function OnJoin(playerId)
+    players[playerId] = AdminChat:new({
+        id = playerId,
+        name = get_var(playerId, '$name')
     })
 end
 
 -- Handle player leave event
-function OnQuit(P)
-    players[P] = nil
+function OnQuit(playerId)
+    players[playerId] = nil
 end
 
 -- Handle script unload event
