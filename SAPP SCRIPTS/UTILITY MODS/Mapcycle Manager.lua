@@ -1,6 +1,6 @@
 --[[
 --=====================================================================================================--
-Script Name: Mapcycle Manager, for SAPP (PC & CE)
+Script Name: Mapcycle Manager (1.0.4), for SAPP (PC & CE)
 Description:
 
     The Mapcycle Manager script enables server administrators to manage map rotations efficiently and
@@ -119,7 +119,7 @@ local config = {
     --------------------------
     -- Allows enabling/disabling randomization for each map cycle type:
     mapcycle_randomization = {
-        shuffle_on_load = true,
+        shuffle_on_load = false,
         shuffle_on_command = true,
         cycles = {
             CLASSIC = false,
