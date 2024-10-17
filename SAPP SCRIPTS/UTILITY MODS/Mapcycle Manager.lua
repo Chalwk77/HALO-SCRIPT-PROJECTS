@@ -121,11 +121,13 @@ local config = {
     mapcycle_randomization = {
         shuffle_on_load = true,
         shuffle_on_command = true,
-        CLASSIC = false,
-        CUSTOM = false,
-        SMALL = false,
-        MEDIUM = false,
-        LARGE = false
+        cycles = {
+            CLASSIC = false,
+            CUSTOM = false,
+            SMALL = false,
+            MEDIUM = false,
+            LARGE = false
+        }
     },
 
     -- Defines the maps and gametypes for each rotation (CLASSIC, CUSTOM, SMALL, MEDIUM, LARGE).
@@ -252,7 +254,7 @@ local function shuffle(cycle)
 end
 
 local function shuffleAllMapCycles()
-    for cycle_type, should_shuffle in pairs(config.mapcycle_randomization) do
+    for cycle_type, should_shuffle in pairs(config.mapcycle_randomization.cycles) do
         if should_shuffle then
             shuffle(config.mapcycle[cycle_type])
         end
@@ -277,7 +279,7 @@ local function initializeMapCycle()
     local map = config.default_map
     local gametype = config.default_gametype
 
-    local shuffle_flag = config.mapcycle_randomization[mapcycleType] and shuffle_on_load
+    local shuffle_flag = config.mapcycle_randomization.cycles[mapcycleType] and shuffle_on_load
     mapcycleIndex = shuffle_flag and 1 or getMapIndex(map, gametype)
 
     loadMapAndGametype(mapcycleType, mapcycleIndex)
@@ -524,7 +526,7 @@ function OnCommand(playerId, command)
                 mapcycleIndex = 1
                 next_map_flag = false
                 inform(playerId, config.messages.map_cycle_set, { cycle_type = key:upper() })
-                local do_shuffle = config.mapcycle_randomization[mapcycleType] and config.mapcycle_randomization.shuffle_on_command
+                local do_shuffle = config.mapcycle_randomization.cycles[mapcycleType] and config.mapcycle_randomization.shuffle_on_command
                 if do_shuffle then
                     shuffle(config.mapcycle[mapcycleType])
                 end
