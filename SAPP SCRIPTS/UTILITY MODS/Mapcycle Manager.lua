@@ -192,7 +192,7 @@ local config = {
     -- Enables or disables automatic map cycle adjustments based on player count.
     automatic_map_adjustments = {
         enabled = false,
-        small = { min = 1, max = 4 },  -- Player count range for small maps
+        small = { min = 1, max = 4 }, -- Player count range for small maps
         medium = { min = 5, max = 10 }, -- Player count range for medium maps
         large = { min = 11, max = 16 }  -- Player count range for large maps
     },
@@ -207,7 +207,7 @@ local config = {
         map_loaded = "Loading map [{map_name}] with gametype [{gametype}] from the [{cycle_type}] cycle.",
         map_not_found = "Map {map_name} with gametype {gametype} not found in {cycle_type} cycle.",
         next_map_info = "Next map in [{cycle_type}] cycle: [{map_name}/{gametype}] -> {time_remaining}",
-        map_cycle_set = "Map cycle set to [{cycle_type}].",
+        map_cycle_set = { "Map cycle set to [{cycle_type}].", "Map cycle set to [{cycle_type}] and was shuffled" },
         loading_next_map = "Loading next map [{map_name}/{gametype}] in [{cycle_type}] cycle.",
         loading_previous_map = "Loading previous map [{map_name}] in [{cycle_type}] cycle.",
         map_cycle_restarted = "Map cycle [{cycle_type}] has been restarted.",
@@ -510,6 +510,65 @@ local function commandOnCooldown(playerId, key, cmdInfo)
     return false
 end
 
+local function handleMapCycle(playerId)
+    local do_shuffle = config.mapcycle_randomization.cycles[mapcycleType]
+            and config.mapcycle_randomization.shuffle_on_command
+
+    if do_shuffle then
+        shuffle(config.mapcycle[mapcycleType])
+    end
+
+    local cycle_message = do_shuffle and config.messages.map_cycle_set[2]
+            or config.messages.map_cycle_set[1]
+
+    inform(playerId, cycle_message, { cycle_type = mapcycleType })
+    loadMapAndGametype(mapcycleType, mapcycleIndex)
+end
+
+local function handleNextMap(playerId)
+    local map, gametype = getNextMap()
+    loadNextMap()
+    inform(playerId, config.messages.loading_next_map, {
+        map_name = map,
+        gametype = gametype,
+        cycle_type = mapcycleType
+    })
+end
+
+local function handlePreviousMap(playerId)
+    local map, gametype = getPreviousMap()
+    loadPrevMap()
+    inform(playerId, config.messages.loading_previous_map, {
+        map_name = map,
+        gametype = gametype,
+        cycle_type = mapcycleType
+    })
+end
+
+local function handleWhatIs(playerId)
+    local map, gametype = getNextMap()
+    local time_remaining = getTimeRemaining()
+    inform(playerId, config.messages.next_map_info, {
+        map_name = map,
+        gametype = gametype,
+        cycle_type = mapcycleType,
+        time_remaining = time_remaining
+    })
+end
+
+local function handleRestart(playerId)
+    restartMapCycle()
+    inform(playerId, config.messages.map_cycle_restarted, { cycle_type = mapcycleType })
+end
+
+local function handleLoadMap(playerId, args)
+    if #args < 4 then
+        inform(playerId, config.messages.loadmap_usage)
+    else
+        loadSpecificMap(playerId, args[2], args[3], args[4])
+    end
+end
+
 function OnCommand(playerId, command)
     local args = string.split(command)
     local commandString = args[1]:lower()
@@ -522,50 +581,24 @@ function OnCommand(playerId, command)
             end
 
             if key == 'custom' or key == 'classic' or key == 'small' or key == 'medium' or key == 'large' then
-                mapcycleType = key:upper()
-                mapcycleIndex = 1
-                next_map_flag = false
-                inform(playerId, config.messages.map_cycle_set, { cycle_type = key:upper() })
-                local do_shuffle = config.mapcycle_randomization.cycles[mapcycleType] and config.mapcycle_randomization.shuffle_on_command
-                if do_shuffle then
-                    shuffle(config.mapcycle[mapcycleType])
-                end
-                loadMapAndGametype(mapcycleType, mapcycleIndex)
+                handleMapCycle(playerId)
+
             elseif key == 'next' then
-                local map, gametype = getNextMap()
-                loadNextMap()
-                inform(playerId, config.messages.loading_next_map, {
-                    map_name = map,
-                    gametype = gametype,
-                    cycle_type = mapcycleType
-                })
+                handleNextMap(playerId)
+
             elseif key == 'prev' then
-                local map, gametype = getPreviousMap()
-                loadPrevMap()
-                inform(playerId, config.messages.loading_previous_map, {
-                    map_name = map,
-                    gametype = gametype,
-                    cycle_type = mapcycleType
-                })
+                handlePreviousMap(playerId)
+
             elseif key == 'whatis' then
-                local map, gametype = getNextMap()
-                local time_remaining = getTimeRemaining()
-                inform(playerId, config.messages.next_map_info, {
-                    map_name = map,
-                    gametype = gametype,
-                    cycle_type = mapcycleType,
-                    time_remaining = time_remaining
-                })
+                handleWhatIs(playerId)
+
             elseif key == 'restart' then
-                restartMapCycle()
-                inform(playerId, config.messages.map_cycle_restarted, {cycle_type = mapcycleType})
+                handleRestart(playerId)
+
             elseif key == 'loadmap' then
-                if #args < 4 then
-                    inform(playerId, config.messages.loadmap_usage)
-                else
-                    loadSpecificMap(playerId, args[2], args[3], args[4])
-                end
+                handleLoadMap(playerId, args)
             end
+
             return false
         end
     end
