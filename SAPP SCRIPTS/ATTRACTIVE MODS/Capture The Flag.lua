@@ -376,25 +376,38 @@ end
 -- Function to check if a player is holding the flag
 function CTF:HasFlag(playerId)
 
-    local DyN = get_dynamic_player(playerId)
-    if DyN == 0 then
+    -- Get the dynamic player object
+    local dynamicPlayer = get_dynamic_player(playerId)
+
+    -- If the player is not valid, return false
+    if dynamicPlayer == 0 then
         return false
     end
 
+    -- Loop through all weapon slots (max of 4 slots)
     for i = 0, 3 do
-        local WeaponID = read_dword(DyN + 0x2F8 + i * 4)
-        if WeaponID ~= 0xFFFFFFFF then
-            local Weapon = get_object_memory(WeaponID)
-            if Weapon ~= 0 then
-                local tag_address = read_word(Weapon)
-                local tag_data = read_dword(read_dword(0x40440000) + tag_address * 0x20 + 0x14)
-                if read_bit(tag_data + 0x308, 3) == 1 then
+        local weaponId = read_dword(dynamicPlayer + 0x2F8 + i * 4)
+
+        -- Check if the weapon slot is valid (not empty)
+        if weaponId ~= 0xFFFFFFFF then
+            local weaponMemory = get_object_memory(weaponId)
+
+            -- Ensure the weapon memory is valid
+            if weaponMemory ~= 0 then
+                local tagAddress = read_word(weaponMemory)
+                local tagData = read_dword(read_dword(0x40440000) + tagAddress * 0x20 + 0x14)
+
+                -- Check if the item is a flag (bit 3 in the tag data)
+                if read_bit(tagData + 0x308, 3) == 1 then
+                    -- Announce that the player has picked up the flag
                     self:AnnouncePickup(playerId)
                     return true
                 end
             end
         end
     end
+
+    -- Return false if no flag was found
     return false
 end
 

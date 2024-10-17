@@ -90,27 +90,27 @@ function OnScriptLoad()
     register_callback(cb['EVENT_CHAT'], 'OnChat')
 end
 
-local function formatMessage(chat_type, name, random_phrase)
-    local output_format = expressions.output[chat_type]
-    return output_format:gsub('$name', name):gsub('$msg', random_phrase)
+local function formatMessage(chatType, playerName, message)
+    local format = expressions.output[chatType]
+    return format:gsub('$name', playerName):gsub('$msg', message)
 end
 
 local function getRandomPhrase(phrases)
-    local random_index = rand(1, #phrases + 1)
-    return phrases[random_index]
+    local randomIndex = rand(1, #phrases + 1)
+    return phrases[randomIndex]
 end
 
-function OnChat(id, message, chat_type)
-    local lower_message = message:lower()
-    local phrases = expressions.phrases[lower_message]
+function OnChat(playerId, message, chatType)
+    local lowerMessage = message:lower()
+    local phrases = expressions.phrases[lowerMessage]
 
     if phrases then
-        local random_phrase = getRandomPhrase(phrases)
-        local player_name = get_var(id, '$name')
-        local formatted_message = formatMessage(chat_type, player_name, random_phrase)
+        local randomPhrase = getRandomPhrase(phrases)
+        local playerName = get_var(playerId, '$name')
+        local formattedMessage = formatMessage(chatType, playerName, randomPhrase)
 
         execute_command('msg_prefix ""')
-        say_all(formatted_message)
+        say_all(formattedMessage)
         execute_command('msg_prefix "' .. expressions.server_prefix .. '"')
 
         return false

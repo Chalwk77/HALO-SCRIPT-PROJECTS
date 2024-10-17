@@ -12,97 +12,91 @@ https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 api_version = "1.12.0.0"
 
 -- Config [starts]--------------------------------
-
--- Insert your server prefix here:
-local server_prefix = "**SAPP** "
-local trigger_words = { "that", "que" }
-local permission_level = 1
+local SERVER_PREFIX = "**SAPP** "
+local TRIGGER_WORDS = { "that", "que" }
+local REQUIRED_PERMISSION_LEVEL = 1
 -- Config [ends]----------------------------------
 
-local modify_chat = false
+local is_chat_modified = false
 
--- Function to split a string by spaces
-local function stringSplit(str)
-    local t = {}
-    for arg in str:gmatch('([^%s]+)') do
-        t[#t + 1] = arg
+function string.split(inputString)
+    local words = {}
+    for word in inputString:gmatch('([^%s]+)') do
+        words[#words + 1] = word
     end
-    return t
+    return words
 end
 
--- Function to check if a message is a chat command
-local function chatCommand(message)
-    return message:sub(1, 1) == "/" or message:sub(1, 1) == "\\"
+local function isChatCommand(message)
+    local firstChar = message:sub(1, 1)
+    return firstChar == "/" or firstChar == "\\"
 end
 
--- Function to get a random player ID excluding the given player ID
-local function getPlayers(excludeId)
-    local players = {}
-    for i = 1, 16 do
-        if player_present(i) and i ~= excludeId then
-            players[#players + 1] = i
+local function getRandomPlayer(excludedPlayerId)
+    local availablePlayers = {}
+    for playerId = 1, 16 do
+        if player_present(playerId) and playerId ~= excludedPlayerId then
+            availablePlayers[#availablePlayers + 1] = playerId
         end
     end
-    return players[rand(1, #players + 1)]
+    return (#availablePlayers > 0) and availablePlayers[rand(1, #availablePlayers + 1)] or nil
 end
 
--- Function to check if a player has the required permission level
-local function checkChatPermissions(level)
-    local hasPermission = level and level >= permission_level
-    modify_chat = hasPermission and not modify_chat
-    return modify_chat
+local function hasPermissionToModifyChat(playerLevel)
+    local hasPermission = playerLevel and playerLevel >= REQUIRED_PERMISSION_LEVEL
+    is_chat_modified = hasPermission and not is_chat_modified
+    return is_chat_modified
 end
 
--- Function to modify the chat message
-local function modifyChatMessage(playerId, message)
-    local newPlayerId = getPlayers(playerId)
-    if newPlayerId then
-        local newPlayerName = get_var(newPlayerId, "$name")
+local function alterChatMessage(originalPlayerId, message)
+    local randomPlayerId = getRandomPlayer(originalPlayerId)
+    if randomPlayerId then
+        local randomPlayerName = get_var(randomPlayerId, "$name")
         execute_command('msg_prefix ""')
-        say_all(newPlayerName .. ": " .. message)
-        execute_command('msg_prefix "' .. server_prefix .. '"')
+        say_all(randomPlayerName .. ": " .. message)
+        execute_command('msg_prefix "' .. SERVER_PREFIX .. '"')
         return false
     end
     return true
 end
 
--- Event handler for chat messages
-function OnChat(playerId, message, type)
-    if type == 6 or chatCommand(message) then
+function OnChat(playerId, message, messageType)
+
+    if messageType == 6 or isChatCommand(message) then
         return true
     end
 
-    local level = tonumber(get_var(playerId, "$lvl"))
-    local Str = stringSplit(message)
-    for _, word in pairs(Str) do
-        for _, trigger_word in pairs(trigger_words) do
-            if word == trigger_word then
-                if checkChatPermissions(level) then
-                    return modifyChatMessage(playerId, message)
+    local playerLevel = tonumber(get_var(playerId, "$lvl"))
+    local wordsInMessage = string.split(message)
+
+    for _, word in ipairs(wordsInMessage) do
+        for _, triggerWord in ipairs(TRIGGER_WORDS) do
+            if word == triggerWord then
+                if hasPermissionToModifyChat(playerLevel) then
+                    return alterChatMessage(playerId, message)
                 end
             end
         end
     end
+
     return true
 end
 
--- Event handler for script load
 function OnScriptLoad()
     register_callback(cb["EVENT_CHAT"], "OnChat")
     register_callback(cb["EVENT_GAME_START"], "OnGameStart")
-    if (get_var(0, "$gt") ~= nil) then
-        modify_chat = false
+
+    if get_var(0, "$gt") ~= nil then
+        is_chat_modified = false
     end
 end
 
--- Event handler for game start
 function OnGameStart()
-    if (get_var(0, "$gt") ~= nil) then
-        modify_chat = false
+    if get_var(0, "$gt") ~= nil then
+        is_chat_modified = false
     end
 end
 
--- Event handler for script unload
 function OnScriptUnload()
     -- N/A
 end

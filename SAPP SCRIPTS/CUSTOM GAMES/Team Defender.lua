@@ -151,14 +151,14 @@ end
 
 -- This function broadcasts a custom server message:
 -- Temporarily removes the server message prefix and restores it.
--- @param Ply (player index) [number]
+-- @param playerId (player index) [number]
 -- @param Msg (message) [string]
 --
-function TD:Broadcast(Ply, Msg)
+function TD:Broadcast(playerId, Msg)
     if (Msg ~= "") then
         execute_command("msg_prefix \"\"")
-        if (Ply) then
-            say(Ply, Msg)
+        if (playerId) then
+            say(playerId, Msg)
         else
             say_all(Msg)
         end
@@ -166,17 +166,17 @@ function TD:Broadcast(Ply, Msg)
     end
 end
 
-local function GetScore(Ply, Type)
-    return tonumber(get_var(Ply, "$" .. Type))
+local function GetScore(playerId, Type)
+    return tonumber(get_var(playerId, "$" .. Type))
 end
 
 -- Updates player scores:
--- @param Ply (killer index) [number]
+-- @param playerId (killer index) [number]
 -- @param Team (killer team) [string]
 -- @param Amount (points to add) [number]
 -- @param FlagCarrier (flag carrier index) [number]
 --
-function TD:UpdateScores(Ply, Team, Amount, FlagCarrier)
+function TD:UpdateScores(playerId, Team, Amount, FlagCarrier)
 
     -- Update team score:
     local score
@@ -191,12 +191,12 @@ function TD:UpdateScores(Ply, Team, Amount, FlagCarrier)
     execute_command("team_score " .. Team .. " " .. score)
 
     -- Update player score to reflect @param Amount:
-    score = GetScore(Ply, "score")
+    score = GetScore(playerId, "score")
     score = (score - 1) + Amount
-    execute_command("score " .. Ply .. " " .. score)
+    execute_command("score " .. playerId .. " " .. score)
 
     -- Update flag carrier assist points:
-    if (FlagCarrier and FlagCarrier ~= Ply) then
+    if (FlagCarrier and FlagCarrier ~= playerId) then
 
         score = GetScore(FlagCarrier, "assists")
         score = score + self.scoring[1][1]
@@ -343,15 +343,15 @@ end
 
 -- This function sets a nav marker above the flag carrier's head:
 --
-function TD:SetNavMarker(Ply)
+function TD:SetNavMarker(playerId)
     if (self.nav_marker) then
         for i = 1, 16 do
             -- Get static memory address of each player:
             local player = get_player(i)
             if (player ~= 0) then
                 -- Set slayer target indicator to the flag carrier:
-                if (Ply ~= nil and i ~= Ply and player_alive(i)) then
-                    write_word(player + 0x88, to_real_index(Ply))
+                if (playerId ~= nil and i ~= playerId and player_alive(i)) then
+                    write_word(player + 0x88, to_real_index(playerId))
                 else
                     -- Set slayer target indicator to themselves:
                     write_word(player + 0x88, to_real_index(i))
@@ -362,15 +362,15 @@ function TD:SetNavMarker(Ply)
 end
 
 local upper = string.upper
-function TD:AnnouncePickup(Ply)
+function TD:AnnouncePickup(playerId)
     self.flag.timer = 0
     if (self.announce_pickup) then
         self.announce_pickup = false
 
         local msg = self.on_pickup
 
-        local team = get_var(Ply, "$team")
-        local name = get_var(Ply, '$name')
+        local team = get_var(playerId, "$team")
+        local name = get_var(playerId, '$name')
 
         -- Convert first char in team name to upper.
         local char = team:sub(1, 1)
@@ -381,25 +381,25 @@ function TD:AnnouncePickup(Ply)
     end
 end
 
-local function getWeapon(dyn, index)
-    local weapon_id = read_dword(dyn + 0x2F8 + (index * 4))
+local function getWeapon(dynamic_player, weapon_index)
+    local weapon_id = read_dword(dynamic_player + 0x2F8 + (weapon_index * 4))
     local object = get_object_memory(weapon_id)
     return (weapon_id ~= 0xFFFFFFFF and object ~= 0 and object or nil)
 end
 
 -- Checks if a player is holding the flag:
--- @param Ply (player index) [number]
+-- @param playerId (player index) [number]
 --
-function TD:HasFlag(Ply)
-    local DyN = get_dynamic_player(Ply)
-    if (DyN ~= 0) then
+function TD:HasFlag(playerId)
+    local dynamic_player = get_dynamic_player(playerId)
+    if (dynamic_player ~= 0) then
         for i = 0, 3 do
-            local weapon = getWeapon(DyN, i)
+            local weapon = getWeapon(dynamic_player, i)
             if (weapon) then
                 local tag_address = read_word(weapon)
                 local tag_data = read_dword(read_dword(0x40440000) + tag_address * 0x20 + 0x14)
                 if (read_bit(tag_data + 0x308, 3) == 1) then
-                    self:AnnouncePickup(Ply)
+                    self:AnnouncePickup(playerId)
                     return true
                 end
             end
@@ -492,43 +492,4 @@ end
 
 function OnScriptUnload()
     TD:DestroyFlag()
-end
-
--- Error handler:
---
-local function WriteError(err)
-    local file = io.open(TD.error_file, 'a+')
-    if (file) then
-        file:write(err .. '\n')
-        file:close()
-    end
-end
-
--- This function is called every time an error is raised:
---
-function OnError(err)
-
-    local log = {
-
-        -- log format: {msg, console out [true/false], console color}
-        -- If console out = false, the message will not be logged to console.
-
-        { os.date('[%H:%M:%S - %d/%m/%Y]'), true, 12 },
-        { err, false, 12 },
-        { debug.traceback(), true, 12 },
-        { '--------------------------------------------------------', true, 5 },
-        { 'Please report this error on github:', true, 7 },
-        { 'https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues', true, 7 },
-        { 'Script Version: ' .. TD.script_version, true, 7 },
-        { '--------------------------------------------------------', true, 5 }
-    }
-
-    for _, v in pairs(log) do
-        WriteError(v[1])
-        if (v[2]) then
-            cprint(v[1], v[3])
-        end
-    end
-
-    WriteError('\n')
 end
