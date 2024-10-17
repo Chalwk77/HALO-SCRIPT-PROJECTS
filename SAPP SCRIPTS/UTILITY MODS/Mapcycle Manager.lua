@@ -117,8 +117,10 @@ local config = {
     --------------------------
     -- Map Cycle Configuration
     --------------------------
-    -- Allows enabling/disabling randomization for each map cycle type.
+    -- Allows enabling/disabling randomization for each map cycle type:
     mapcycle_randomization = {
+        shuffle_on_load = true,
+        shuffle_on_command = true,
         CLASSIC = false,
         CUSTOM = false,
         SMALL = false,
@@ -266,13 +268,17 @@ end
 local function initializeMapCycle()
     next_map_flag = false
 
-    shuffleAllMapCycles()
+    local shuffle_on_load = config.mapcycle_randomization.shuffle_on_load
+    if shuffle_on_load then
+        shuffleAllMapCycles()
+    end
 
     mapcycleType = config.default_mapcycle
     local map = config.default_map
     local gametype = config.default_gametype
 
-    mapcycleIndex = config.mapcycle_randomization[mapcycleType] and 1 or getMapIndex(map, gametype)
+    local shuffle_flag = config.mapcycle_randomization[mapcycleType] and shuffle_on_load
+    mapcycleIndex = shuffle_flag and 1 or getMapIndex(map, gametype)
 
     loadMapAndGametype(mapcycleType, mapcycleIndex)
 end
@@ -518,6 +524,10 @@ function OnCommand(playerId, command)
                 mapcycleIndex = 1
                 next_map_flag = false
                 inform(playerId, config.messages.map_cycle_set, { cycle_type = key:upper() })
+                local do_shuffle = config.mapcycle_randomization[mapcycleType] and config.mapcycle_randomization.shuffle_on_command
+                if do_shuffle then
+                    shuffle(config.mapcycle[mapcycleType])
+                end
                 loadMapAndGametype(mapcycleType, mapcycleIndex)
             elseif key == 'next' then
                 local map, gametype = getNextMap()
