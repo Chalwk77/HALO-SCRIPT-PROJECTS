@@ -14,7 +14,7 @@ Description: This script detects whether a player is using a multi-client and re
 
 Copyright (c) 2024, Jericho Crosby <jericho.crosby227@gmail.com>
 Notice: You are permitted to use this script subject to the conditions outlined at:
-https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
+https://github.com/Chalwk/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]
 

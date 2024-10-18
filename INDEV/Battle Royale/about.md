@@ -73,6 +73,6 @@ Loot crates will spawn randomly around the map, containing weapons, ammo, and ot
 # Known bugs:
 None
 
-# [CODE](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/INDEV)
+# [CODE](https://github.com/Chalwk/HALO-SCRIPT-PROJECTS/tree/master/INDEV)
 
 ![alt text](https://progress-bar.dev/95/?title=Progress)

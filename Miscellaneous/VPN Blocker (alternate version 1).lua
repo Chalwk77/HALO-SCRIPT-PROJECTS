@@ -6,11 +6,11 @@ Script Name: VPN Blocker (alternate version 1), for SAPP (PC & CE)
 https://opencarnage.net/index.php?/topic/5998-sapp-http-client/
 
 2). This mod requires that you install the following database files to your servers root directory: 
-https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/Miscellaneous/VPN%20Blocker%20Database
+https://github.com/Chalwk/HALO-SCRIPT-PROJECTS/tree/master/Miscellaneous/VPN%20Blocker%20Database
 
 Copyright (c) 2019, Jericho Crosby <jericho.crosby227@gmail.com>
 Notice: You can use this script subject to the following conditions:
-https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
+https://github.com/Chalwk/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]] --
 
@@ -77,7 +77,7 @@ end
 function vpn_blocker:GetData()
     cprint("Retrieving vpn-ipv4 addresses. Please wait...", 2 + 8)
 
-    local url = "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/tree/master/Miscellaneous/VPN%20Blocker%20Database/"
+    local url = "https://github.com/Chalwk/HALO-SCRIPT-PROJECTS/tree/master/Miscellaneous/VPN%20Blocker%20Database/"
 
     vpn_blocker.ips = vpn_blocker.ips or { }
     vpn_blocker.ips = { }

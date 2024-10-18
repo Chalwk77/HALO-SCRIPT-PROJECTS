@@ -6,7 +6,7 @@ Description: This script brings CTF-like mechanics to any Slayer (FFA/Team) game
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 * Notice: You can use this document subject to the following conditions:
-https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
+https://github.com/Chalwk/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 

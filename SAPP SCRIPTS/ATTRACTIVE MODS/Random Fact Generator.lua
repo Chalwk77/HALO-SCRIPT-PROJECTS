@@ -11,7 +11,7 @@ Requirements:
 2. Place "json.lua" and the contents of "sapp-http-client" in your server's root directory.
 
 Author: Jericho Crosby <jericho.crosby227@gmail.com>
-License: https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
+License: https://github.com/Chalwk/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 

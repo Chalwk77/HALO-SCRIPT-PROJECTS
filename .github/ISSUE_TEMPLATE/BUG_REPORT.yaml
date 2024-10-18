@@ -2,7 +2,7 @@ name: 🐞 Bug Report
 description: ⚠️ Report bugs, glitches, or issues encountered in my scripts.
 title: "[BUG] <title>"
 labels: [ "Bug", "Needs Triage" ]
-assignees: Chalwk77
+assignees: Chalwk
 body:
   - type: markdown
     attributes:

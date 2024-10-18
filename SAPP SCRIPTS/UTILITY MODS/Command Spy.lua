@@ -9,7 +9,7 @@ password changes are excluded from monitoring to protect sensitive information.
 
 Copyright (c) 2022-2024, Jericho Crosby
 Notice: You can use this script subject to the following conditions:
-https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
+https://github.com/Chalwk/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]
 

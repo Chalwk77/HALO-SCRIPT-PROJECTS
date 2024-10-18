@@ -5,12 +5,12 @@ Description: A completely custom mute system for SAPP servers.
 
 NOTE: This mod requires that you download and install two files.
 You can download them from link below and follow the instructions on this page:
-https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/tag/1.0
+https://github.com/Chalwk/HALO-SCRIPT-PROJECTS/releases/tag/1.0
 
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 Notice: You can use this script subject to the following conditions:
-https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
+https://github.com/Chalwk/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
@@ -625,13 +625,13 @@ function report(StackTrace, Error)
 
     cprint("--------------------------------------------------------", 12)
     cprint("Please report this error on github:", 11)
-    cprint("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", 12)
+    cprint("https://github.com/Chalwk/HALO-SCRIPT-PROJECTS/issues", 12)
     cprint("Script Version: " .. script_version, 11)
     cprint("--------------------------------------------------------", 12)
 
     WriteLog(os.date("[%H:%M:%S - %d/%m/%Y]"))
     WriteLog("Please report this error on github:")
-    WriteLog("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues")
+    WriteLog("https://github.com/Chalwk/HALO-SCRIPT-PROJECTS/issues")
     WriteLog("Script Version: " .. tostring(script_version))
     WriteLog(Error)
     WriteLog(StackTrace)

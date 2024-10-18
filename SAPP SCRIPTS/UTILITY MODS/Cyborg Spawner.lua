@@ -5,7 +5,7 @@ Description: A useless script that spawns cyborgs at pre-defined locations, on a
 
 Copyright (c) 2016-2022, Jericho Crosby <jericho.crosby227@gmail.com>
 Notice: You can use this script subject to the following conditions:
-https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
+https://github.com/Chalwk/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]
 

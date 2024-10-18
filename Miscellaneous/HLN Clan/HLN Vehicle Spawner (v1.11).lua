@@ -6,7 +6,7 @@ Description: This script will force you into a vehicle of your choice by
 
              Vehicle spawn settings are determined on a per-map basis.
              These settings are found in the "vehicles.json" file (needed to run this script).
-             Download link: https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/Miscellaneous/HLN%20Clan/vehicles.json
+             Download link: https://github.com/Chalwk/HALO-SCRIPT-PROJECTS/blob/master/Miscellaneous/HLN%20Clan/vehicles.json
 	         Place this file in "cg/sapp" directory.
 
 	         Example Map Entry:
@@ -37,7 +37,7 @@ FEATURES:
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 Notice: You can use this script subject to the following conditions:
-https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
+https://github.com/Chalwk/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --======================================================================================================--
 ]]--
 

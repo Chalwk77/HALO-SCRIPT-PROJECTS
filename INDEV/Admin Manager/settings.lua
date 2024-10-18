@@ -1,4 +1,4 @@
--- FULL DESCRIPTION CAN BE FOUND HERE: https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/tag/AdminManager
+-- FULL DESCRIPTION CAN BE FOUND HERE: https://github.com/Chalwk/HALO-SCRIPT-PROJECTS/releases/tag/AdminManager
 
 return {
 

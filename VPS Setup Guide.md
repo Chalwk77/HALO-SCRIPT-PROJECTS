@@ -12,7 +12,7 @@ Copy & paste commands into the SSH Terminal by highlighting the command/text blo
 |---------------------------------------------------------------------------------------------------|-----------------------------------------------------------------|
 | [BitVise SSH Client](https://www.bitvise.com/ssh-client-download)                                 | For remote access to the terminal and to upload files via SFTP. |
 | [TightVNC (client)](https://www.tightvnc.com/download.php)                                        | For remote desktop connections.                                 |
-| [HPC/CE Server Template](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/tag/ReadyToGo) | These are compatible with Linux.                                |
+| [HPC/CE Server Template](https://github.com/Chalwk/HALO-SCRIPT-PROJECTS/releases/tag/ReadyToGo) | These are compatible with Linux.                                |
 
 ### Technical Note on [Vultr](https://www.vultr.com/) Subscription Plans
 You pay for whatever you need. However, you need at least 150 MiB RAM *per server* to cover peak times. Multiply that by the number of servers you need to estimate your costs. Note that each plan allocates a defined amount of storage space, which may need to be increased depending on how many maps you intend to upload.
@@ -22,7 +22,7 @@ You pay for whatever you need. However, you need at least 150 MiB RAM *per serve
 ## Steps
 
 ### 1). Download the Server Template
-Download the [SAPP server template](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/tag/ReadyToGo) of your choice. Note: You will need a file decompression tool like [WinRAR](https://www.win-rar.com/start.html?&L=0) or [7-zip](https://www.7-zip.org/download.html) to extract the [HPC.Server.zip](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/download/ReadyToGo/HPC.Server.zip) or [HCE.Server.zip](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/releases/download/ReadyToGo/HCE.Server.zip).
+Download the [SAPP server template](https://github.com/Chalwk/HALO-SCRIPT-PROJECTS/releases/tag/ReadyToGo) of your choice. Note: You will need a file decompression tool like [WinRAR](https://www.win-rar.com/start.html?&L=0) or [7-zip](https://www.7-zip.org/download.html) to extract the [HPC.Server.zip](https://github.com/Chalwk/HALO-SCRIPT-PROJECTS/releases/download/ReadyToGo/HPC.Server.zip) or [HCE.Server.zip](https://github.com/Chalwk/HALO-SCRIPT-PROJECTS/releases/download/ReadyToGo/HCE.Server.zip).
 
 ### 2). Install Prerequisite Applications
 Download and install [BitVise SSH Client](https://www.bitvise.com/ssh-client-download) and [TightVNC (client)](https://www.tightvnc.com/download.php) on your PC.

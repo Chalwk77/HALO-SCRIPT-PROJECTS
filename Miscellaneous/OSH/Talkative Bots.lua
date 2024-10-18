@@ -12,7 +12,7 @@ Description: Bots (AFK Clients) that talk!
 
 Copyright (c) 2021, Jericho Crosby <jericho.crosby227@gmail.com>
 Notice: You can use this script subject to the following conditions:
-https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
+https://github.com/Chalwk/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
@@ -28,7 +28,7 @@ local ChatBot = {
 
     -- The remote database containing death messages and general chatter is located here:
     --
-    database_endpoint = "https://raw.githubusercontent.com/Chalwk77/HALO-SCRIPT-PROJECTS/master/Miscellaneous/OSH/Talkative%20Bots.json",
+    database_endpoint = "https://raw.githubusercontent.com/Chalwk/HALO-SCRIPT-PROJECTS/master/Miscellaneous/OSH/Talkative%20Bots.json",
 
     -- NOTE:
     -- general_chatter_delay is the min,max time between random chatter broadcasts:

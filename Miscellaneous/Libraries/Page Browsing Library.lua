@@ -22,7 +22,7 @@ Configuration Steps:
 
 Copyright (c) 2022, Jericho Crosby <jericho.crosby227@gmail.com>
 License: You can use this script subject to the conditions specified here:
-https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
+https://github.com/Chalwk/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 

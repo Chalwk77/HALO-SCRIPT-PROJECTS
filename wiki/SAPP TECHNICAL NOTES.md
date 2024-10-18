@@ -64,7 +64,7 @@ write_vector3d(dyn + 0x74, math.cos(r), math.sin(r), 0)
 
 ### Assigning more than 2 weapons:
 If you want to assign tertiary and quaternary weapons without them dropping to the ground, you must delay these two assignments by a minimum of 250ms.
-See [this script](https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/Miscellaneous/4-weapons%20(example%20script).lua) to learn how.
+See [this script](https://github.com/Chalwk/HALO-SCRIPT-PROJECTS/blob/master/Miscellaneous/4-weapons%20(example%20script).lua) to learn how.
 
 
 ### SAPPs **$pn** server variable:

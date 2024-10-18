@@ -3,7 +3,7 @@
 -- Description: Want to express your rage, taunt your opponents or
 --              cuss in a family-friendly-ish way? Look no further!
 -- Copyright (c) 2022-2024, Jericho Crosby <jericho.crosby227@gmail.com>
--- License: See https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
+-- License: See https://github.com/Chalwk/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --========================================================================--
 
 api_version = "1.12.0.0"

@@ -4,7 +4,7 @@ local crNotice = {
     DESCRIPTION = "This script will crash the user on join (based on IGN and Hash)",
     ENGINE = "Phasor V2+ (modified)",
     INTENDED = "Halo PC (Combat Evolved)",
-    URL = "https://github.com/Chalwk77",
+    URL = "https://github.com/Chalwk",
     AUTHOR = "Jericho Crosby (Chalwk)",
     LICENSE = [[
         MIT LICENSE

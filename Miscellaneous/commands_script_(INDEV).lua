@@ -37,7 +37,7 @@ message_board = {
     "Welcome to the TestBench - by Chalwk",
     "",
     "For updates on my current projects or to request an addon for your server, go to:",
-    "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS"
+    "https://github.com/Chalwk/HALO-SCRIPT-PROJECTS"
 }
 
 -- Tables
@@ -1830,7 +1830,7 @@ function WelcomeHandler(PlayerIndex)
     execute_command("msg_prefix \"\"")
     say(PlayerIndex, "Welcome to the TestBench")
     say(PlayerIndex, "Currently running: Classic CTF (no mods)")
-    say(PlayerIndex, "https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS")
+    say(PlayerIndex, "https://github.com/Chalwk/HALO-SCRIPT-PROJECTS")
     execute_command("msg_prefix \"** SERVER ** \"")
 end
 

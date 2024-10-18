@@ -15,7 +15,7 @@ community (playing during alpha)
 
 Copyright (c) 2020, Jericho Crosby <jericho.crosby227@gmail.com>
 Notice: You can use this script subject to the following conditions:
-https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
+https://github.com/Chalwk/HALO-SCRIPT-PROJECTS/blob/master/LICENSE
 --=====================================================================================================--
 ]]--
 
@@ -2641,14 +2641,14 @@ function report(StackTrace, Error)
 
     cprint("--------------------------------------------------------", 5 + 8)
     cprint("Please report this error on github:", 7 + 8)
-    cprint("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues", 7 + 8)
+    cprint("https://github.com/Chalwk/HALO-SCRIPT-PROJECTS/issues", 7 + 8)
     cprint("Script Version: " .. script_version, 7 + 8)
     cprint("--------------------------------------------------------", 5 + 8)
 
     local timestamp = os.date("[%H:%M:%S - %d/%m/%Y]")
     WriteLog(timestamp)
     WriteLog("Please report this error on github:")
-    WriteLog("https://github.com/Chalwk77/HALO-SCRIPT-PROJECTS/issues")
+    WriteLog("https://github.com/Chalwk/HALO-SCRIPT-PROJECTS/issues")
     WriteLog("Script Version: " .. tostring(script_version))
     WriteLog("MAP: " .. get_var(0, "$map"))
     WriteLog("MODE: " .. get_var(0, "$mode"))
